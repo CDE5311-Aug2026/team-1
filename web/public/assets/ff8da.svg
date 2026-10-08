@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="bell">
+<rect x="0.5" y="0.5" width="31" height="31" rx="15.5" fill="white"/>
+<rect x="0.5" y="0.5" width="31" height="31" rx="15.5" stroke="#E9E9EC"/>
+<g id="bell_2">
+<path id="Vector" fill-rule="evenodd" clip-rule="evenodd" d="M16 23.5C16.825 23.5 17.5 22.825 17.5 22H14.5C14.5 22.825 15.175 23.5 16 23.5ZM20.5 19V15.25C20.5 12.9475 19.2775 11.02 17.125 10.51V10C17.125 9.3775 16.6225 8.875 16 8.875C15.3775 8.875 14.875 9.3775 14.875 10V10.51C12.73 11.02 11.5 12.94 11.5 15.25V19L10 20.5V21.25H22V20.5L20.5 19ZM19 19.75H13V15.25C13 13.39 14.1325 11.875 16 11.875C17.8675 11.875 19 13.39 19 15.25V19.75Z" fill="#3A3A3C"/>
+</g>
+<circle id="Ellipse" cx="25" cy="10" r="3.25" fill="#E4671F" stroke="white" stroke-width="1.5"/>
+</g>
+</svg>

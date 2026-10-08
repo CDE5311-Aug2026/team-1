@@ -4,3 +4,10 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 *.xcresult
+
+node_modules/
+dist/
+test-results/
+playwright-report/
+.vercel/
+.env*

@@ -1,10 +1,24 @@
-# Singlish Daily — SwiftUI
+# Singlish Daily — React + SwiftUI
 
-A native iOS prototype based on the two Home screens in the [Week 7 Figma file](https://www.figma.com/design/aAPocY386mzfKwK5nqjGkB/Week-7?node-id=1-2).
+React web and native SwiftUI prototypes based on the two Home screens in the [Week 7 Figma file](https://www.figma.com/design/aAPocY386mzfKwK5nqjGkB/Week-7?node-id=1-2).
 
 <img src="docs/screenshots/home.png" width="240" alt="Native SwiftUI Home overview"> <img src="docs/screenshots/lesson.png" width="240" alt="Native SwiftUI lesson">
 
-## Open and run
+## React web version — Vercel
+
+The deployable React app is in [`web/`](web/README.md). The native SwiftUI app is included alongside it.
+
+```sh
+cd web
+npm ci
+npm run dev
+```
+
+For Vercel, import this repository and set **Root Directory** to **web**, framework **Vite**, build command **npm run build**, and output directory **dist**. No environment variables are required. See the [web setup and deployment guide](web/README.md).
+
+## SwiftUI iOS version
+
+### Open and run
 
 1. Open `SinglishDaily.xcodeproj` in Xcode.
 2. Select the **SinglishDaily** scheme and an iPhone simulator.
