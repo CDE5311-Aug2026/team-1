@@ -1,3 +1,5 @@
+Hi, see our live demo here on Vercel: https://cde-5311.vercel.app
+
 # Singlish Daily — React + SwiftUI
 
 React web and native SwiftUI prototypes based on the two Home screens in the [Week 7 Figma file](https://www.figma.com/design/aAPocY386mzfKwK5nqjGkB/Week-7?node-id=1-2).
