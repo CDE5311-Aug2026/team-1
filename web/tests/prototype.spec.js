@@ -9,27 +9,29 @@ test("home assets and layout render without browser errors", async ({
   await expect(
     page.getByRole("heading", { name: "Chope", exact: true }),
   ).toBeVisible();
-  const images = await page
-    .locator("img")
-    .evaluateAll((nodes) =>
-      nodes.map((n) => ({
-        src: n.getAttribute("src"),
-        loaded: n.complete && n.naturalWidth > 0,
-        w: n.width,
-        h: n.height,
-      })),
-    );
+  const images = await page.locator("img").evaluateAll((nodes) =>
+    nodes.map((n) => ({
+      src: n.getAttribute("src"),
+      loaded: n.complete && n.naturalWidth > 0,
+      w: n.width,
+      h: n.height,
+    })),
+  );
   expect(images.every((x) => x.loaded && x.w > 0 && x.h > 0)).toBeTruthy();
   expect(images.every((x) => x.src.startsWith("/assets/"))).toBeTruthy();
   expect(errors).toEqual([]);
   await page.screenshot({ path: "test-results/prototype-home.png" });
-  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Start learning", exact: true })
+    .click();
   await expect(page.locator(".lesson-image")).toBeVisible();
   await page.screenshot({ path: "test-results/prototype-lesson.png" });
 });
 test("complete lessons and persist progress after reload", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Start learning", exact: true })
+    .click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await page.getByRole("button", { name: "Finish", exact: true }).click();
@@ -43,7 +45,7 @@ test("complete lessons and persist progress after reload", async ({ page }) => {
 test("detail dialog saves and marks a phrase learned", async ({ page }) => {
   await page.goto("/");
   await page
-    .getByRole("button", { name: "Detail", exact: true })
+    .getByRole("button", { name: "See examples", exact: true })
     .first()
     .click();
   await page
@@ -91,11 +93,50 @@ test("small mobile and desktop views have no horizontal overflow", async ({
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBeTruthy();
-    await page.getByRole("button", { name: "Start", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Start learning", exact: true })
+      .click();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBeTruthy();
+  }
+});
+
+test("responsive navigation stays reachable and leaves content unobscured", async ({
+  page,
+}) => {
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 667 });
+    await page.goto("/");
+    const nav = await page.getByRole("navigation").boundingBox();
+    expect(nav.y).toBeGreaterThanOrEqual(0);
+    expect(nav.y + nav.height).toBeLessThanOrEqual(667);
+    if (width <= 760) {
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      const last = await page
+        .getByRole("button", { name: "Capture your own moment" })
+        .boundingBox();
+      expect(last.y + last.height).toBeLessThanOrEqual(nav.y);
+    } else {
+      const content = await page.locator(".content").boundingBox();
+      expect(content.x).toBeGreaterThanOrEqual(nav.x + nav.width);
+      expect(content.width).toBeGreaterThan(390);
+    }
+    for (const button of await page
+      .locator(".start, .audio, .detail, nav button")
+      .all()) {
+      const box = await button.boundingBox();
+      expect(box.height).toBeGreaterThanOrEqual(44);
+    }
+    await page
+      .getByRole("button", { name: "Start learning", exact: true })
+      .click();
+    await expect(
+      page.getByText("“I chope a table first, you go order.”", { exact: true }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Back to today" }).click();
+    await expect(page.locator(".hero")).toBeVisible();
   }
 });

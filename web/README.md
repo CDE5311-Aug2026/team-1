@@ -45,9 +45,9 @@ vercel
 
 Learning progress, saved expressions, and moments persist in browser local storage. Pronunciation uses browser speech synthesis; voice availability and pronunciation vary by device. Likes last for the current session.
 
-The two Home screens follow the Figma reference. The other tabs, detail dialogs, completion view, and second/third lesson illustrations extend those designs for demonstration. Location, streak, notifications, and community posts are sample data. The phrase set is fixed and progress does not reset daily. No backend, login, live location service, or AI API is connected.
+The responsive web design keeps the Figma reference’s orange palette, original illustrations, and learning content, with a wider desktop dashboard and a mobile bottom navigation. The other tabs, detail dialogs, completion view, and second/third lesson illustrations extend those designs for demonstration. Location, streak, notifications, and community posts are sample data. The phrase set is fixed and progress does not reset daily. No backend, login, live location service, or AI API is connected.
 
-Figma assets and Inter fonts are served locally from the build; no temporary asset URLs are used at runtime. Layouts adapt to mobile widths and show a centered phone preview on desktop. Native HTML dialogs support keyboard focus and Escape.
+Figma assets and Inter fonts are served locally from the build; no temporary asset URLs are used at runtime. Layouts adapt from 320px mobile widths to desktop, using viewport-anchored mobile navigation and a desktop sidebar. Reading text is 16px and core controls have at least 44px touch areas. Native HTML dialogs support keyboard focus and Escape.
 
 ## Test
 
@@ -58,4 +58,4 @@ npm test
 
 Set `PLAYWRIGHT_CHROMIUM_PATH` to use an existing Chromium executable. Set `PLAYWRIGHT_BASE_URL` to test an already-running production preview or deployed app instead of starting Vite. Tests cover assets, runtime errors, lesson completion, persistence, saved expressions, dialogs, demo tabs, and mobile/desktop overflow.
 
-Validation: the production build and all five Playwright tests passed, including mobile and desktop layouts.
+Validation: the production build and all six Playwright tests passed, including mobile and desktop layouts.

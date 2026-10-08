@@ -103,7 +103,7 @@ function Progress({ start = false, count, learned, onStart }) {
       </div>
       {start && (
         <button className="primary start" onClick={onStart}>
-          {count === 3 ? "Review" : "Start"}
+          {count === 3 ? "Review phrases" : "Start learning"}
         </button>
       )}
     </div>
@@ -111,7 +111,7 @@ function Progress({ start = false, count, learned, onStart }) {
 }
 function PhraseCard({ phrase, index, learned, onSpeak, onDetail }) {
   return (
-    <article className={"phrase-card " + (index === 0 ? "featured" : "")}>
+    <article className="phrase-card">
       <div className="phrase-tile">
         <Icon name={phrase.icon} />
       </div>
@@ -134,11 +134,8 @@ function PhraseCard({ phrase, index, learned, onSpeak, onDetail }) {
       >
         <Icon name="speaker" />
       </button>
-      <button
-        className={index === 0 ? "primary detail" : "detail"}
-        onClick={() => onDetail(phrase)}
-      >
-        Detail
+      <button className="detail" onClick={() => onDetail(phrase)}>
+        See examples <span aria-hidden="true">↗</span>
       </button>
       {learned.includes(phrase.id) && (
         <span className="learned-marker">✓ Learned</span>
@@ -226,29 +223,17 @@ function App() {
         "phone " + (p ? "lesson-mode" : tab !== "Today" ? "secondary-mode" : "")
       }
     >
-      <div className="status" aria-hidden="true">
-        <span>9:00</span>
-        <div className="island" />
-        <div className="status-right">
-          <div className="signal">
-            {[4, 6, 8, 10].map((h) => (
-              <i key={h} style={{ height: h }} />
-            ))}
-          </div>
-          <Icon name="wifi" />
-          <div className="battery">
-            <i />
-          </div>
-          <b className="battery-cap" />
-        </div>
-      </div>
       <header>
         <div className="brand">
           <Icon name="spark" className="spark" />
           <Icon name="logo" className="logo" />
         </div>
-        <strong>Good Morning, SY</strong>
-        <Icon name="wave" className="wave" />
+        <div className="greeting">
+          <span>YOUR DAILY DOSE OF LOCAL</span>
+          <strong>
+            Hello, SY <Icon name="wave" className="wave" />
+          </strong>
+        </div>
         <button
           className="streak"
           aria-label="View 5 day streak"
@@ -269,10 +254,11 @@ function App() {
           <>
             {p ? (
               <>
+                <button className="back" onClick={() => setLesson(null)}>
+                  ← Back to today
+                </button>
                 <h1 className="lesson-title">
-                  Today's three expressions,
-                  <br />
-                  Can or cannot learn?
+                  A little Singlish, one phrase at a time.
                 </h1>
                 <Progress count={count} learned={learned} />
                 <article className="lesson-card">
@@ -307,6 +293,8 @@ function App() {
                       <span>{p.pronunciation}</span>
                     </div>
                     <p>{p.meaning}</p>
+                    <blockquote>{p.example}</blockquote>
+                    <p className="lesson-tip">{p.tip}</p>
                     <button className="primary next" onClick={next}>
                       {lesson === 2 ? "Finish" : "Next"}
                     </button>
@@ -326,11 +314,18 @@ function App() {
             ) : (
               <>
                 <section className="hero">
-                  <h1>
-                    Today's three expressions,
-                    <br />
-                    Can or cannot learn?
-                  </h1>
+                  <div className="hero-copy">
+                    <span className="eyebrow">CAN LEARN, LAH.</span>
+                    <h1>
+                      Sound a little
+                      <br />
+                      more local.
+                    </h1>
+                    <p>
+                      Three Singlish phrases for today. Learn them, hear them,
+                      try them out.
+                    </p>
+                  </div>
                   <Progress
                     start
                     count={count}
@@ -338,35 +333,73 @@ function App() {
                     onStart={() => setLesson(0)}
                   />
                 </section>
-                <button
-                  className="nearby"
-                  onClick={() => setModal({ type: "nearby" })}
-                >
-                  <span className="pin">
-                    📍
-                    <Icon name="dot" />
-                  </span>
-                  <span className="nearby-copy">
-                    <strong>
-                      <em>Near you</em> · Old Airport Rd Food Centre
-                    </strong>
-                    <small>3 phrases you might hear here</small>
-                  </span>
-                  <Icon name="chevron" />
-                </button>
-                <div className="phrase-list">
-                  {phrases.map((x, i) => (
-                    <PhraseCard
-                      key={x.id}
-                      phrase={x}
-                      index={i}
-                      learned={learned}
-                      onSpeak={speak}
-                      onDetail={(phrase) =>
-                        setModal({ type: "phrase", phrase })
-                      }
-                    />
-                  ))}
+                <div className="daily-layout">
+                  <aside className="local-context">
+                    <span className="eyebrow">OUT IN THE NEIGHBOURHOOD</span>
+                    <h2>Take it into real life.</h2>
+                    <p>
+                      A hawker lunch. A chat with friends. A little Singlish
+                      goes a long way.
+                    </p>
+                    <button
+                      className="nearby"
+                      onClick={() => setModal({ type: "nearby" })}
+                    >
+                      <span className="pin" aria-hidden="true">
+                        📍
+                      </span>
+                      <span className="nearby-copy">
+                        <strong>
+                          <em>Explore a place</em>
+                          <br />
+                          Old Airport Rd Food Centre
+                        </strong>
+                        <small>3 phrases you might hear here</small>
+                      </span>
+                      <Icon name="chevron" />
+                    </button>
+                    <div className="field-note">
+                      <span className="eyebrow">A LITTLE LOCAL WISDOM</span>
+                      <blockquote>
+                        “I chope a table first,
+                        <br />
+                        you go order.”
+                      </blockquote>
+                      <p>
+                        At a hawker centre, “chope” means reserving your seat. A
+                        tissue packet often does the job.
+                      </p>
+                    </div>
+                    <button
+                      className="outline"
+                      onClick={() => changeTab("Moments")}
+                    >
+                      Capture your own moment <span aria-hidden="true">↗</span>
+                    </button>
+                  </aside>
+                  <section
+                    className="daily-phrases"
+                    aria-label="Today's expressions"
+                  >
+                    <div className="section-heading">
+                      <h2>Today's expressions</h2>
+                      <span>01 — 03</span>
+                    </div>
+                    <div className="phrase-list">
+                      {phrases.map((x, i) => (
+                        <PhraseCard
+                          key={x.id}
+                          phrase={x}
+                          index={i}
+                          learned={learned}
+                          onSpeak={speak}
+                          onDetail={(phrase) =>
+                            setModal({ type: "phrase", phrase })
+                          }
+                        />
+                      ))}
+                    </div>
+                  </section>
                 </div>
               </>
             )}
@@ -544,6 +577,12 @@ function App() {
         )}
       </div>
       <nav aria-label="Main navigation">
+        <div className="sidebar-brand">
+          <Icon name="logo" />
+          <strong>
+            Singlish<span>A little more local.</span>
+          </strong>
+        </div>
         {["Today", "Ask", "Community", "Moments", "My Space"].map((t) => (
           <button
             key={t}
@@ -555,8 +594,15 @@ function App() {
             <span>{t}</span>
           </button>
         ))}
+        <div className="sidebar-note">
+          <span>ONE DAY AT A TIME</span>
+          <p>
+            Small phrases.
+            <br />
+            Everyday connections.
+          </p>
+        </div>
       </nav>
-      <div className="home-indicator" aria-hidden="true" />
       {toast && (
         <div className="toast" role="status">
           {toast}
@@ -604,7 +650,9 @@ function App() {
           )}
           {modal.type === "nearby" && (
             <>
-              <span className="eyebrow">NEAR YOU · DEMO LOCATION</span>
+              <span className="eyebrow">
+                EXPLORE SINGAPORE · SAMPLE LOCATION
+              </span>
               <h1>Old Airport Rd Food Centre</h1>
               <p>
                 Three phrases to try over lunch. The location is sample data
