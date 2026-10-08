@@ -1,12 +1,12 @@
-# Singlish Daily — React
+# IntentAI — Singlish Daily (React)
 
-A React + Vite prototype of the supplied Figma design, ready to deploy as a static site on Vercel. The native SwiftUI project remains in the repository root.
+Interactive React + Vite implementation of all **seven pages and 19 main screens** in the Week 7 Figma file. The original 390 × 844 layouts, wording, colors, typography and local artwork replace the previous dashboard redesign.
 
-<img src="docs/screenshots/home.png" width="240" alt="React Home overview"> <img src="docs/screenshots/lesson.png" width="240" alt="React lesson">
+[Complete page-by-page coverage and screenshots](docs/FIGMA-COVERAGE.md)
 
-## Run locally
+## Run
 
-Requires Node.js 22.12+ and npm.
+Requires Node.js 22.12+.
 
 ```sh
 cd web
@@ -14,48 +14,30 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:5173. For the production build:
-
 ```sh
 npm run build
 npm run preview
 ```
 
-## Deploy on Vercel
+## Deployment
 
-1. In [Vercel's New Project page](https://vercel.com/new), import **Wsamme/CDE-5311**.
-2. Set **Root Directory** to **web**.
-3. Choose **Vite** as the framework. Use `npm ci` to install, `npm run build` to build, and `dist` as the output directory. These settings are also in `web/vercel.json`.
-4. Use Node.js **22.x** or **24.x**. No environment variables are required.
-5. Deploy. Future pushes to the connected production branch can deploy automatically through Vercel's Git integration.
+Vercel project `cde-5311` serves [cde-5311.vercel.app](https://cde-5311.vercel.app/). Root directory: `web`; framework: Vite; install: `npm ci`; build: `npm run build`; output: `dist`. No environment variables are needed for the local prototype. The same source is in Wsamme/CDE-5311 and CDE5311-Aug2026/team-1. Automatic Git deployments currently require correcting Vercel's commit-author Git account linkage; authenticated CLI deployment works.
 
-Alternatively, from this folder, use Vercel CLI to link and deploy to the intended account/project:
+## Behaviour
 
-```sh
-vercel
-```
+New visitors enter the five-screen onboarding flow. Existing learning/saved-expression data is migrated from the original prototype. All five profile switches and location start off. Profile fields, switches, learning progress, lookups, anonymous questions, locally entered answers, reports and AI notice decisions persist on the device. Deletion, withdrawal and AI decisions offer Undo. Delete all data clears personalised state.
 
-## Prototype behavior
+The Ask, Community, Moments, Nearby and My Space screens now follow their actual Figma designs. The app includes source labels, context selection, input/report/feedback actions, question status, location selection, profile edit/delete, notice details/edit/confirm/reject and quiz scoring. Speech playback and dictation are browser features with fallbacks.
 
-- Today: three expression cards, details, pronunciation, nearby sample phrases, and a lesson carousel. Completing a lesson records progress.
-- Ask: local demo answers for today's expressions.
-- Community: sample posts with interactive likes.
-- Moments: create and delete text memories.
-- My Space: saved expressions and progress reset.
+The application remains a **local prototype**: no real AI service, server community, calendar sync, live venue lookup or remote notifications are connected. Sample streak, confirmations, calendar event and map come from the supplied design. See coverage for precise limitations. The SwiftUI app is unchanged and still implements the earlier Home prototype.
 
-Learning progress, saved expressions, and moments persist in browser local storage. Pronunciation uses browser speech synthesis; voice availability and pronunciation vary by device. Likes last for the current session.
-
-The responsive web design keeps the Figma reference’s orange palette, original illustrations, and learning content, with a wider desktop dashboard and a mobile bottom navigation. The other tabs, detail dialogs, completion view, and second/third lesson illustrations extend those designs for demonstration. Location, streak, notifications, and community posts are sample data. The phrase set is fixed and progress does not reset daily. No backend, login, live location service, or AI API is connected.
-
-Figma assets and Inter fonts are served locally from the build; no temporary asset URLs are used at runtime. Layouts adapt from 320px mobile widths to desktop, using viewport-anchored mobile navigation and a desktop sidebar. Reading text is 16px and core controls have at least 44px touch areas. Native HTML dialogs support keyboard focus and Escape.
-
-## Test
+## Tests
 
 ```sh
 npx playwright install chromium
 npm test
 ```
 
-Set `PLAYWRIGHT_CHROMIUM_PATH` to use an existing Chromium executable. Set `PLAYWRIGHT_BASE_URL` to test an already-running production preview or deployed app instead of starting Vite. Tests cover assets, runtime errors, lesson completion, persistence, saved expressions, dialogs, demo tabs, and mobile/desktop overflow.
+`PLAYWRIGHT_CHROMIUM_PATH` selects an existing Chromium binary. `PLAYWRIGHT_BASE_URL` tests a running preview or deployed site. Nine tests exercise all 19 screens and seven pages, artwork loading, runtime errors, reference dimensions, persistence, onboarding, settings and interaction flows, plus viewport overflow.
 
-Validation: the production build and all six Playwright tests passed, including mobile and desktop layouts.
+For visual review, `?screen=ask` (and the other screen names listed in the test) opens a specific state. `&reference=1` displays sample reference values for screenshot comparison; ordinary usage uses actual local values.

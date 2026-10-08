@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="logo">
+<circle id="logo_2" cx="14" cy="14" r="14" fill="url(#paint0_linear_0_4)"/>
+<g id="logo/spark">
+<path id="Vector" fill-rule="evenodd" clip-rule="evenodd" d="M14 8.16667C14.35 11.375 16.625 13.65 19.8333 14C16.625 14.35 14.35 16.625 14 19.8333C13.65 16.625 11.375 14.35 8.16667 14C11.375 13.65 13.65 11.375 14 8.16667Z" fill="white"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_4" x1="7" y1="7" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF9A3D"/>
+<stop offset="1" stop-color="#E4467C"/>
+</linearGradient>
+</defs>
+</svg>

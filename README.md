@@ -1,6 +1,6 @@
 # Singlish Daily — React + SwiftUI
 
-React web and native SwiftUI prototypes based on the two Home screens in the [Week 7 Figma file](https://www.figma.com/design/aAPocY386mzfKwK5nqjGkB/Week-7?node-id=1-2).
+The React web app covers all seven pages and 19 main screens; the native SwiftUI prototype covers the two Home screens in the [Week 7 Figma file](https://www.figma.com/design/aAPocY386mzfKwK5nqjGkB/Week-7?node-id=1-2).
 
 <img src="docs/screenshots/home.png" width="240" alt="Native SwiftUI Home overview"> <img src="docs/screenshots/lesson.png" width="240" alt="Native SwiftUI lesson">
 
