@@ -1,0 +1,17 @@
+/* Step title and lead shared by the time, topics and quiz steps (Figma 17:97/98). */
+.title {
+  margin: 0.4375rem 0 0;
+  max-width: 20.625rem;
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.lead {
+  margin: 0.5rem 0 0;
+  max-width: 20.625rem;
+  font-size: 0.9375rem;
+  line-height: 1.3125rem;
+  color: var(--text-secondary);
+}

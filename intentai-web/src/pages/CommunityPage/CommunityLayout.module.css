@@ -1,0 +1,118 @@
+/* Page-local colours from Figma 3:728 / 7:1119 (Tailwind gray scale; no matching tokens). */
+.screen {
+  --c-ink: #111827;
+  --c-body: #374151;
+  --c-muted: #6b7280;
+  --c-faint: #6b6b72; /* Figma #9ca3af fails WCAG AA (2.5:1) */
+  --c-subtle-bg: #f3f4f6;
+  --c-quote-bg: #f9fafb;
+  --c-border: #e5e7eb;
+  --c-pending-border: #f4c6ad;
+  --c-pending-bg: #fff6f1;
+  --c-pending: #c2410c;
+  --c-answered-bg: #ecfdf3;
+  --c-answered: #15803d;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+/* Phone: fill the screen so the bottom actions sit 18px above the sticky tab bar (Figma y=740 vs 758).
+   The tab bar wrapper adds 8px + 58px + 28px below main, whose 96px bottom padding we pull back by 86px. */
+@media (max-width: 480px) {
+  .screen {
+    min-height: calc(100vh - 9.5rem);
+    min-height: calc(100dvh - 9.5rem);
+    margin-bottom: -5.375rem;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  height: 3.625rem; /* 58px logo */
+  margin-top: -1px; /* Figma logo y=47; status bar ends at 48 */
+}
+
+.logo {
+  width: 3.625rem;
+  height: 3.625rem;
+  margin-left: -0.5625rem; /* Figma x=11: the mascot art has transparent padding */
+  margin-right: -0.3125rem; /* title starts at x=64 */
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  padding-top: 1.1875rem; /* Figma title y=66 */
+  font-size: var(--fs-card-title);
+  line-height: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-top: 0.5625rem; /* Figma body y=114 */
+}
+
+.segment {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 1.375rem;
+  background: var(--c-subtle-bg);
+}
+
+.segActive,
+.segSwitch {
+  min-width: 0;
+  min-height: 2.25rem;
+  display: flex;
+  align-items: center;
+  border-radius: 1.125rem;
+  font-size: var(--fs-button);
+  line-height: 1rem;
+}
+
+/* Figma widths 158 / 180; both shrink together on narrow screens. */
+.segActive {
+  flex: 1 1 9.875rem;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.segActive:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.segSwitch {
+  flex: 1 1 11.25rem;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding: 0 0.5rem 0 0.875rem;
+  color: var(--c-body);
+  font-weight: 500;
+}
+
+.segLabel {
+  min-width: 0;
+}
+
+/* Narrow phones: keep the mascot inside the 16px side gutter. */
+@media (max-width: 359px) {
+  .logo {
+    margin-left: -0.25rem;
+  }
+}

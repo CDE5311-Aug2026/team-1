@@ -1,0 +1,445 @@
+/* Figma 11:1414 "Nearby — Heads up" (390×844). Colours without a shared token are page-local. */
+.screen {
+  --map-bg: #eef0f2;
+  --map-park: #dcefe0;
+  --map-block: #e2e5e9;
+  --map-food: #fde3d0;
+  --map-road: #ffffff;
+  --tip-text: #3a3a3c;
+
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.875rem; /* status bar ends at 48, header starts at 62 */
+}
+
+/* ---------- Header: logo, title, location status ---------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+}
+
+.logo {
+  /* Figma image 71:16: 58px at (10, 47); the artwork's transparent margin bleeds into the gutter. */
+  width: 58px;
+  height: 58px;
+  margin: -15px -12px -11px -10px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.locationChip {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.8125rem 0 0.75rem;
+  border: 0;
+  border-radius: var(--radius-pill-lg);
+  background: var(--chip-bg);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tab);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dotOff {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--text-quaternary);
+}
+
+/* ---------- Stylized map ---------- */
+
+.map {
+  position: relative;
+  height: 10rem;
+  margin-top: 1.125rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card-lg);
+  background: var(--map-bg);
+}
+
+.park,
+.block,
+.roadH,
+.roadV,
+.foodCentre,
+.youHalo,
+.you,
+.pin,
+.placeChip,
+.change {
+  position: absolute;
+}
+
+.park {
+  left: -11px;
+  top: 91px;
+  width: 96px;
+  height: 80px;
+  border-radius: 10px;
+  background: var(--map-park);
+}
+
+.block {
+  border-radius: 6px;
+  background: var(--map-block);
+}
+
+.roadH {
+  left: -1px;
+  right: -1px;
+  top: 83px;
+  height: 8px;
+  background: var(--map-road);
+}
+
+.roadV {
+  top: -1px;
+  bottom: -1px;
+  background: var(--map-road);
+}
+
+.foodCentre {
+  left: calc(100% * 205 / 350);
+  top: 11px;
+  width: calc(100% * 64 / 350);
+  height: 70px;
+  border: 1px solid var(--accent-tile-border);
+  border-radius: 6px;
+  background: var(--map-food);
+}
+
+.youHalo {
+  left: calc(100% * 140 / 350 - 20px);
+  top: 79px;
+}
+
+.you {
+  left: calc(100% * 140 / 350 - 8px);
+  top: 91px;
+}
+
+.pin {
+  left: calc(100% * 237 / 350 - 18px);
+  top: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.18);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.placeChip {
+  left: 9px;
+  top: 119px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: calc(100% - 18px);
+  height: 30px;
+  margin: 0;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.placeName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.distance {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.change {
+  right: 10px;
+  top: 8px;
+  width: 68px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* Small Figma buttons keep their drawn size but get a 44px touch target. */
+.change::after,
+.locationChip::after,
+.primary::after,
+.secondary::after {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+}
+
+.change::after {
+  inset: -8px -4px;
+}
+
+/* ---------- Heads-up card + Also heard here ---------- */
+
+.columns {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.headsUp {
+  position: relative;
+  padding: 13px 16px 16px 13px;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-card-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card-active);
+}
+
+.headsUpTop {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.iconTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border: 1px solid var(--accent-tile-border);
+  border-radius: var(--radius-tile-lg);
+  background: var(--tint-warm-2);
+}
+
+.headsUpText {
+  min-width: 0;
+}
+
+/* The context chip must not run under the play button. */
+.headsUpText > :first-child {
+  max-width: calc(100% - 3rem);
+}
+
+.wordLine {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 0.625rem;
+  margin-top: 6px;
+}
+
+.word {
+  margin: 0;
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  letter-spacing: var(--ls-card-title);
+  color: var(--text-primary);
+}
+
+.phonetic {
+  font-size: var(--fs-phonetic);
+  color: var(--text-tertiary);
+}
+
+.meaning {
+  margin: 6px 0 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-secondary);
+}
+
+.play {
+  position: absolute;
+  top: 9px;
+  right: 16px;
+}
+
+.tip {
+  min-height: 62px;
+  margin-top: 10px;
+  padding: 10px 12px 0;
+  border-radius: var(--radius-tile-sm);
+  background: var(--tint-warm-2);
+}
+
+.tipTitle {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.tipText {
+  max-width: 18.375rem; /* Figma 11:1850 text box is 294px, which sets its line break */
+  margin: 4px 0 0;
+  font-size: 0.78125rem; /* 12.5px */
+  line-height: 1.0625rem; /* 17px */
+  color: var(--tip-text);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.primary,
+.secondary {
+  position: relative;
+  height: 36px;
+  padding: 0 0.5rem;
+  border-radius: 18px;
+  font-size: var(--fs-button);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+}
+
+.secondary {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.alsoHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+}
+
+.alsoTitle {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.count {
+  min-width: 20px;
+  height: 18px;
+  padding: 0 0.25rem;
+  border-radius: 9px;
+  background: var(--chip-bg);
+  font-size: var(--fs-chip);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  color: var(--text-chip);
+}
+
+.phraseList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 9px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.phrase {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 6px 12px 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.phraseTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--chip-bg);
+  font-size: 1.0625rem;
+}
+
+.phraseLine {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 0.375rem;
+}
+
+.phraseWord {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.phrasePhonetic {
+  font-size: 0.71875rem;
+  color: var(--text-tertiary);
+}
+
+.phraseMeaning {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.locationChip:focus-visible,
+.change:focus-visible,
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Wider screens: the heads-up card and the other phrases sit side by side. */
+@media (min-width: 768px) {
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 1.5rem;
+  }
+}

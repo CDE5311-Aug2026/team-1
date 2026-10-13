@@ -1,0 +1,234 @@
+/* Figma 11:1571 "Nearby — Where are you?" (390×844). Colours without a shared token are page-local. */
+.screen {
+  --setting-bg: #f9fafb;
+  --setting-tile: #fdeee6;
+  --setting-title: #111827;
+  --setting-hint: #6b7280;
+
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.875rem; /* status bar ends at 48, header starts at 62 */
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2rem;
+}
+
+.back {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+/* 44px touch target around the 32px drawn button. */
+.back::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.intro {
+  margin: 14px 0 0;
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-card);
+  background: var(--setting-bg);
+}
+
+.settingTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--setting-tile);
+  font-size: 0.9375rem;
+}
+
+.settingText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settingTitle {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--setting-title);
+}
+
+.settingHint {
+  font-size: 0.71875rem;
+  color: var(--setting-hint);
+}
+
+.placesHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 18px;
+}
+
+.placesTitle {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.count {
+  min-width: 20px;
+  height: 18px;
+  padding: 0 0.25rem;
+  border-radius: 9px;
+  background: var(--chip-bg);
+  font-size: var(--fs-chip);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  color: var(--text-chip);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 11px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.place {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 106px;
+  padding: 12px 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.selected {
+  border-color: var(--accent);
+  background: var(--tint-warm-2);
+  box-shadow: inset 0 0 0 0.5px var(--accent), var(--shadow-card-active);
+}
+
+.placeTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-tile-sm);
+  background: var(--chip-bg);
+  font-size: 1.375rem;
+}
+
+.selected .placeTile {
+  background: var(--surface);
+}
+
+.placeName {
+  margin-top: 8px;
+  font-size: 0.78125rem; /* 12.5px */
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.placeCount {
+  margin-top: 3px;
+  font-size: var(--fs-chip);
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.selected .placeCount {
+  color: var(--accent);
+}
+
+.check {
+  position: absolute;
+  top: 5.5px;
+  right: 8.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.cta {
+  height: 48px;
+  margin-top: 20px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 24px;
+  background: var(--accent);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.preview {
+  margin: 10px 0 0;
+  font-size: 0.71875rem;
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.back:focus-visible,
+.place:focus-visible,
+.cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (min-width: 481px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+
+  .cta {
+    align-self: center;
+    width: min(100%, 22rem);
+  }
+}

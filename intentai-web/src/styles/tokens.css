@@ -1,0 +1,74 @@
+:root {
+  /* Colour — accent & surfaces */
+  --accent: #e4671f;
+  --accent-tile-border: #f4b389;
+  --bg-app: #fff9f5;
+  --bg-screen-b: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f7f7f8;
+  --surface-tab-active: #ececef;
+  --chip-bg: #f3f3f5;
+  --tint-warm-1: #fff0e5;
+  --tint-warm-2: #fff3ea;
+  --progress-track: #f3d5c0;
+  --streak-border: #f8d6bf;
+
+  /* Colour — text */
+  --text-primary: #1c1c1e;
+  --text-secondary: #6b6b72;
+  /* Figma's #9c9ca3 / #c4c4c9 fail WCAG AA text contrast (2.7:1 / 1.7:1); both use the AA secondary grey. */
+  --text-tertiary: #6b6b72;
+  --text-quaternary: #6b6b72;
+  --text-chip: #55555b;
+  --text-tab: #2c2c2e;
+
+  /* Colour — borders */
+  --border: #e9e9ec;
+  --border-strong: #e1e1e5;
+  --switch-off: #d1d5db;
+
+  /* Typography */
+  --font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --fs-title: 1.625rem;      /* 26px */
+  --lh-title: 2rem;          /* 32px */
+  --ls-title: -0.39px;
+  --fs-greeting: 1.0625rem;  /* 17px */
+  --fs-status-time: 1rem;    /* 16px */
+  --fs-card-title: 1.25rem;  /* 20px */
+  --ls-card-title: -0.2px;
+  --fs-progress-label: 0.875rem;   /* 14px, full variant */
+  --fs-progress-label-lg: 1rem;    /* 16px, compact variant */
+  --fs-body: 0.8125rem;      /* 13px */
+  --lh-body: 1.125rem;       /* 18px */
+  --fs-nearyou-label: 0.8125rem;   /* 13px */
+  --fs-nearyou-sub: 0.71875rem;    /* 11.5px */
+  --fs-phonetic: 0.75rem;    /* 12px */
+  --fs-chip: 0.6875rem;      /* 11px */
+  --fs-number: 0.6875rem;    /* 11px */
+  --ls-number: 0.44px;
+  --fs-tab: 0.65625rem;      /* 10.5px */
+  --fs-button: 0.8125rem;    /* 13px */
+  --fs-streak: 0.875rem;     /* 14px */
+
+  /* Radii */
+  --radius-card: 1rem;          /* 16px */
+  --radius-card-lg: 1.125rem;   /* 18px */
+  --radius-tile-sm: 0.75rem;    /* 12px */
+  --radius-tile-lg: 1rem;       /* 16px */
+  --radius-chip: 0.6875rem;     /* 11px */
+  --radius-pill: 0.9375rem;     /* 15px */
+  --radius-pill-lg: 1rem;       /* 16px */
+  --radius-tabbar: 1.8125rem;   /* 29px */
+  --radius-tab-active: 1.5rem;  /* 24px */
+  --radius-streak: 1rem;        /* 16px */
+  --radius-island: 1.125rem;    /* 18px */
+
+  /* Shadows */
+  --shadow-card-active: 0 2px 5px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 2px 5px rgba(0, 0, 0, 0.04);
+  --shadow-tabbar: 0 4px 7px rgba(0, 0, 0, 0.06);
+
+  /* Layout */
+  --gutter: 1.25rem;        /* 20px */
+  --content-max: 1040px;
+}

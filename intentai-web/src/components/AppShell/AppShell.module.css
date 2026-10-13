@@ -1,0 +1,88 @@
+/* flow-root: contains HomeIndicator's bottom margin, so no strip of --bg-app shows under white pages. */
+.shell {
+  display: flow-root;
+  /* Fill the viewport so a page's background reaches the bottom edge on short pages. */
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter) 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tabBarWrap {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  box-sizing: border-box;
+  position: sticky;
+  bottom: 1.75rem;
+  padding-top: 0.5rem;
+}
+
+/* Wider screens have no home indicator to clear; stay pinned so short laptop windows still show the tabs. */
+@media (min-width: 481px) {
+  .tabBarWrap {
+    bottom: 1rem;
+  }
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 5.5rem;
+  transform: translateX(-50%);
+  background: var(--text-primary);
+  color: #fff;
+  font-size: var(--fs-body);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card-active);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: calc(100vw - 2 * var(--gutter));
+  box-sizing: border-box;
+}
+
+.undo {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  padding: 0.25rem 0;
+  cursor: pointer;
+}
+
+.toastIdle {
+  position: absolute;
+  top: 0; /* stays inside the first screen, so it never adds 1px of page scroll */
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@media (max-width: 480px) {
+  .page {
+    gap: 0.625rem;
+    --card-gap: 0.625rem;
+  }
+
+  .page > header {
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* main is a programmatic focus target (dialog fallback), not a tab stop. */
+.page:focus {
+  outline: none;
+}

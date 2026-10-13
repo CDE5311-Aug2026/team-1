@@ -1,0 +1,24 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: var(--radius-pill-lg);
+  background: var(--chip-bg);
+  cursor: pointer;
+  padding: 0;
+}
+
+.button:hover {
+  background: var(--border);
+}
+
+.playing {
+  background: var(--tint-warm-2);
+}
+
+.unavailable {
+  opacity: 0.5;
+}

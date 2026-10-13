@@ -1,0 +1,104 @@
+.statusBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3rem; /* 48px, Figma frame has ~44px of status content near the top */
+  padding: 0.125rem 1.5rem 0 2.125rem; /* centres the row on Figma's text (time y=19-30); icons end at x=371 */
+}
+
+.time {
+  font-size: var(--fs-status-time);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.island {
+  position: absolute;
+  left: 50%;
+  top: 0.6875rem; /* 11px */
+  transform: translateX(-50%);
+  width: 7.75rem; /* 124px */
+  height: 2.25rem; /* 36px */
+  border-radius: var(--radius-island);
+  background: #000;
+}
+
+.indicators {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.signalBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+}
+
+.signalBars span {
+  width: 3.5px;
+  background: var(--text-primary);
+  border-radius: 1px;
+}
+
+.signalBars span:nth-child(1) {
+  height: 4px;
+}
+.signalBars span:nth-child(2) {
+  height: 6px;
+}
+.signalBars span:nth-child(3) {
+  height: 8px;
+}
+.signalBars span:nth-child(4) {
+  height: 10px;
+}
+
+.battery {
+  position: relative;
+  width: 24px;
+  height: 12px;
+}
+
+.batteryOutline {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--text-primary);
+  border-radius: 3.5px;
+  opacity: 0.45;
+}
+
+.batteryFill {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 20px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--text-primary);
+}
+
+.batteryCap {
+  position: absolute;
+  right: -3.5px;
+  top: 4px;
+  width: 1.5px;
+  height: 4px;
+  border-radius: 1px;
+  background: var(--text-primary);
+}
+
+.batteryCap {
+  width: 1.5px;
+  height: 4px;
+  background: var(--text-primary);
+  border-radius: 1px;
+}
+
+@media (min-width: 481px) {
+  .statusBar {
+    display: none;
+  }
+}

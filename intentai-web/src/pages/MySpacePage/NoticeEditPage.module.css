@@ -1,0 +1,40 @@
+/* "Card / Edit" (21:1595): 350×244, 14px gaps. */
+.card {
+  gap: 0.875rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.375rem;
+  font-weight: 700;
+  color: var(--ms-ink);
+}
+
+.field {
+  cursor: text;
+}
+
+/* The focused field gets the frame's orange 1.5px border (21:1605) without changing its size. */
+.field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.5px var(--accent);
+}
+
+.field:focus-within .pencil {
+  visibility: hidden;
+}
+
+.input {
+  width: 100%;
+  height: 1rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  caret-color: var(--accent);
+}
+
+.input:focus {
+  outline: none;
+}

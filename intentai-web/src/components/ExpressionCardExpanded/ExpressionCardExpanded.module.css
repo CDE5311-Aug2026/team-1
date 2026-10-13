@@ -1,0 +1,181 @@
+.card {
+  max-width: 26rem; /* keeps the single-phrase focus card phone-proportioned even on wide viewports */
+  margin: 0 auto;
+  border-radius: var(--radius-card-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card-active);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 318 / 267;
+  border-radius: var(--radius-tile-lg);
+  border: 1px solid var(--accent-tile-border);
+  overflow: hidden;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.photoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photoPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tint-warm-2);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.number {
+  font-size: var(--fs-number);
+  font-weight: 600;
+  letter-spacing: var(--ls-number);
+  color: var(--accent);
+  margin-right: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  letter-spacing: var(--ls-card-title);
+  color: var(--text-primary);
+}
+
+.phonetic {
+  font-size: var(--fs-phonetic);
+  color: var(--text-tertiary);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-secondary);
+}
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.nextButton {
+  height: 1.875rem;
+  padding: 0 1.5rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--fs-button);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.steps {
+  /* Figma: bars at y=731, 31px below the card (page gap 10px + 18px + 3px rounding). */
+  margin-top: 1.125rem;
+}
+
+.descRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .descRow .description {
+    max-width: 10.625rem;
+  }
+
+  .nextButton {
+    width: 6.6875rem; /* Figma 1:515: 107px */
+  }
+}
+
+/* Figma 1:478 body: chip row 19px under the photo and indented 12px; number/title row indented
+   14px and 5px under the chip; description indented 19px; 31px of padding under the text. */
+.card {
+  padding-bottom: 1.9375rem;
+  margin-top: 0.3125rem; /* 15px under the progress card (page gap 10 + 5) */
+}
+
+.topRow {
+  /* Row is the chip's 22px; the 32px play button overhangs it, as in Figma (1:482, 1:509). */
+  height: 1.375rem;
+  align-items: flex-start;
+  margin-top: 0.5625rem;
+  padding-left: 0.75rem;
+}
+
+.titleRow {
+  margin-top: -0.4375rem;
+  padding-left: 0.875rem;
+  align-items: center;
+}
+
+.titleRow .number {
+  margin-right: 0;
+}
+
+.descRow {
+  margin-top: -0.4375rem;
+  padding-left: 1.1875rem;
+}
+
+/* Phones: explicit height = Figma's 318:267 at the frame's width (viewport minus 2x20px gutter and
+   2x16px card padding, card capped at 26rem), shrunk on short screens (cropped, not squashed) so Next
+   stays above the sticky tab bar. Explicit rather than aspect-ratio + max-height: WebKit sizes that
+   combination differently once the image loads. Exactly 267px at Figma's 390x844. */
+@media (max-width: 767px) {
+  .photo {
+    aspect-ratio: auto;
+    height: min(calc(min(100vw - 4.5rem, 24rem) * 267 / 318), max(8rem, calc(100dvh - 31rem)));
+  }
+}
+
+/* Tablets and laptops: photo left, phrase right, using the wider page instead of a phone column. */
+@media (min-width: 768px) {
+  .card {
+    max-width: 52rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem;
+  }
+
+  .body {
+    padding-right: 0.5rem;
+  }
+}

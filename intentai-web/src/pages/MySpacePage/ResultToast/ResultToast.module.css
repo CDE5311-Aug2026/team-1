@@ -1,0 +1,44 @@
+/* Figma: 350×44 at y=700 — 14px above the 58px tab bar that sits 28px from the bottom. */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(1.75rem + 3.625rem + 0.875rem);
+  z-index: 5;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: calc(100% - 2 * var(--gutter));
+  max-width: 21.875rem;
+  height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 0.875rem;
+  background: var(--text-primary);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.18);
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.undo {
+  padding: 0.75rem 0;
+  border: 0;
+  background: none;
+  font-size: 0.8125rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: #f59e5b;
+  cursor: pointer;
+}
+
+.undo:focus-visible {
+  outline: 2px solid #f59e5b;
+  outline-offset: 2px;
+}
