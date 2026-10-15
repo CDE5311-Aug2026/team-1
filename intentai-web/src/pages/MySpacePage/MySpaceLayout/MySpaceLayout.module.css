@@ -1,0 +1,55 @@
+/* Page-local palette: the My Space frames use Tailwind-grey values that have no global token. */
+.screen {
+  --ms-ink: #111827;
+  --ms-strong: #374151;
+  --ms-muted: #6b7280;
+  --ms-faint: #6b6b72; /* Figma #9ca3af fails WCAG AA (2.5:1) */
+  --ms-line: #e5e7eb;
+  --ms-fill: #f3f4f6;
+  --ms-fill-soft: #f9fafb;
+  --ms-divider: #eceef1;
+  --ms-danger: #dc2626;
+  --ms-danger-line: #fecaca;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The edit frame has no tab bar: fill the viewport so the page background never shows below it
+   (main keeps its 6rem bottom padding). */
+.screen:not(.withTabBar) {
+  min-height: calc(100vh - 6rem);
+  min-height: calc(100dvh - 6rem);
+}
+
+/* Short screens still put the sticky tab bar at Figma's y=758: status bar 48 + main bottom padding 96
+   + tab bar wrap 66 + home indicator 25 = 235px of chrome around this column. */
+@media (max-width: 480px) {
+  .withTabBar {
+    min-height: calc(100vh - 14.6875rem);
+    min-height: calc(100dvh - 14.6875rem);
+  }
+}
+
+/* Figma: mascot 58px at x=12, y=47; title at x=64, y=66; body starts at y=104. */
+.header {
+  display: flex;
+  align-items: flex-start;
+  height: 3.5rem;
+  flex-shrink: 0;
+}
+
+.logo {
+  width: 3.625rem;
+  height: 3.625rem;
+  margin: -0.0625rem -0.375rem 0 -0.5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 1.125rem 0 0;
+  font-size: var(--fs-card-title);
+  line-height: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}

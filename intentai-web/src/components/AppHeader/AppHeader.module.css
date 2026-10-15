@@ -1,0 +1,60 @@
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Figma 34:21: the 58px mascot sits at x=6 (bleeding 14px into the gutter) with the greeting
+   right after it at x=64. Negative margins keep the header row at the 32px chip/bell height. */
+.logo {
+  width: 3.625rem;
+  height: 3.625rem;
+  margin: -0.625rem 0 -1rem -0.8125rem; /* x=7, y=49: within 2px of Home (8,47) and Lesson (6,51) */
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.greeting {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: var(--fs-greeting);
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bellButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.bellDot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1.5px solid var(--bg-app);
+}

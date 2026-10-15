@@ -1,0 +1,4 @@
+/* Keep the Dialog body's column gap between the form's children. */
+.form {
+  display: contents;
+}

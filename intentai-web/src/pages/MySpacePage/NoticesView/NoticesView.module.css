@@ -1,0 +1,22 @@
+/* "Button / Delete all my data": 350×42, red outline. */
+.deleteAll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: 100%;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--ms-danger-line);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  color: var(--ms-danger);
+  font-size: 0.8125rem;
+  line-height: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.deleteAll:focus-visible {
+  outline: 2px solid var(--ms-danger);
+  outline-offset: 2px;
+}

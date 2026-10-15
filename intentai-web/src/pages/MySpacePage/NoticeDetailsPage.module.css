@@ -1,0 +1,109 @@
+/* "Card / AI output" (21:1554): 350×432, 16px gaps between headline, why, details and actions. */
+.card {
+  gap: 1rem;
+}
+
+.headline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.title,
+.subtitle,
+.quoteTitle,
+.quoteNote,
+.note {
+  margin: 0;
+}
+
+.title {
+  font-size: 1.375rem;
+  line-height: 1.6875rem;
+  font-weight: 700;
+  color: var(--ms-ink);
+}
+
+.subtitle {
+  font-size: 0.78125rem;
+  line-height: 0.9375rem;
+  color: var(--ms-muted);
+}
+
+.why {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.quote {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--ms-fill-soft);
+}
+
+.quoteTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1rem;
+  font-weight: 500;
+  color: var(--ms-strong);
+}
+
+.quoteNote {
+  font-size: 0.71875rem;
+  line-height: 0.875rem;
+  color: var(--ms-muted);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.note {
+  font-size: 0.6875rem;
+  line-height: 0.8125rem;
+  color: var(--ms-faint);
+}
+
+/* "Button / Ask a local" (21:1588): "Not sure?", chat icon, "Ask a local", centred. */
+.askLocal {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.78125rem;
+  line-height: 0.9375rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.askLocal::after {
+  content: '';
+  position: absolute;
+  inset: -0.875rem 0;
+}
+
+.askLocal:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.askHint {
+  font-weight: 400;
+  color: var(--ms-muted);
+}

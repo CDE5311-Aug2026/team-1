@@ -1,0 +1,12 @@
+/* Shared by the My Space screens: Figma "Body" columns are 350px wide at x=20, y=104. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 45rem;
+}
+
+.bodyLoose {
+  gap: 0.875rem;
+}

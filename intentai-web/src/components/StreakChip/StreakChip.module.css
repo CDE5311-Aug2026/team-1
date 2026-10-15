@@ -1,0 +1,16 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 2rem;
+  padding: 0 0.6875rem 0 0.5rem;
+  border-radius: var(--radius-streak);
+  background: var(--tint-warm-2);
+  border: 1px solid var(--streak-border);
+}
+
+.count {
+  font-size: var(--fs-streak);
+  font-weight: 700;
+  color: var(--accent);
+}

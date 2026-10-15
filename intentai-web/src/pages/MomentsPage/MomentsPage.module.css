@@ -1,0 +1,102 @@
+/* Figma 4:919 colours with no app-wide token (Tailwind-grey family used only on this page). */
+.moments {
+  --m-text: #111827;
+  --m-muted: #6b7280;
+  --m-action: #374151;
+  --m-faint: #6b6b72; /* Figma #9ca3af fails WCAG AA (2.5:1) */
+  --m-border: #e5e7eb;
+  --m-chip: #f3f4f6;
+  --m-setting-bg: #f9fafb;
+  --m-tile-bg: #fdeee6;
+  --m-local-bg: #ecfdf5;
+  --m-local-text: #047857;
+  --m-ai-bg: #fff6f1;
+  --m-ai-text: #c2410c;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem; /* header ends at 106, body starts at 110 */
+}
+
+/* The 58px mascot image (71:14) has transparent padding: it starts at x=11 and the title at x=64. */
+.header {
+  display: flex;
+  align-items: center;
+  height: 3.625rem;
+}
+
+.logo {
+  flex-shrink: 0;
+  width: 3.625rem;
+  height: 3.625rem;
+  margin-left: -0.5625rem;
+}
+
+.title {
+  margin: 0 0 0 -0.3125rem;
+  font-size: var(--fs-card-title);
+  line-height: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-top: 0.625rem;
+}
+
+.sectionTitle:focus {
+  outline: none; /* programmatic focus target after a delete, not a tab stop */
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1rem;
+  font-weight: 600;
+  color: var(--m-text);
+}
+
+.count {
+  padding: 0.0625rem 0.4375rem;
+  border-radius: 0.625rem;
+  background: var(--m-chip);
+  color: var(--m-muted);
+  font-size: 0.6875rem;
+  line-height: 0.8125rem;
+  font-weight: 600;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 0.75rem;
+}
+
+.caption {
+  margin: 0;
+  text-align: center;
+  font-size: 0.71875rem; /* 11.5px */
+  line-height: 0.875rem;
+  color: var(--m-faint);
+}
+
+.empty {
+  margin: 0;
+  padding: 2rem 1rem;
+  border: 1px dashed var(--m-border);
+  border-radius: var(--radius-card);
+  text-align: center;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--m-muted);
+}

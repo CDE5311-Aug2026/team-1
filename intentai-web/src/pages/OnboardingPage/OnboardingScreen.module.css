@@ -1,0 +1,71 @@
+/* Figma colours with no shared token. */
+.screen {
+  --ob-text-strong: #3f3f46;
+  --ob-control-border: #d4d4d8;
+  --ob-divider: #f0f0f2;
+  --ob-icon-off: #3f3f46;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  /* The primary button sits 52px above the bottom of an 844px frame; AppShell's 6rem bottom
+     padding is taken back so a short screen does not scroll. */
+  min-height: calc(100svh - 52px);
+  margin-bottom: calc(52px - 6rem);
+}
+
+/* StatusBar pads 34px left / 24px right from the screen edge; inside <main> the 20px gutter is already applied. */
+.statusBar > div {
+  padding-left: 0.875rem;
+  padding-right: 0.25rem;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 0.6875rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* A secondary text button (Skip / Retake) brings its own 44px touch target as spacing. */
+.footer:has(> :nth-child(2)) {
+  padding-top: 0;
+}
+
+.primary {
+  height: 3.25rem;
+  width: 100%;
+  border: 0;
+  border-radius: 1.625rem;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondary {
+  height: 2.75rem;
+  margin-bottom: 0.59375rem;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+@media (min-width: 481px) {
+  .screen {
+    padding-top: 2.5rem;
+    min-height: calc(100svh - 3.25rem);
+  }
+}

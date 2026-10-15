@@ -1,0 +1,19 @@
+/* Figma 1:338: a 134×5 bar fixed 9px above the bottom of the 390×844 frame (y=830). */
+.indicator {
+  position: fixed;
+  left: 50%;
+  bottom: calc(0.5625rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: 8.375rem;
+  height: 5px;
+  border-radius: 3px;
+  background: #000;
+  z-index: 5;
+  pointer-events: none;
+}
+
+@media (min-width: 481px) {
+  .indicator {
+    display: none;
+  }
+}

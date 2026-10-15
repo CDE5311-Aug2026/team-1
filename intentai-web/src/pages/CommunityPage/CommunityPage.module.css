@@ -1,0 +1,152 @@
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding-top: 0.375rem;
+  font-size: var(--fs-button);
+  line-height: 1rem;
+  font-weight: 600;
+  color: var(--c-ink);
+}
+
+.count {
+  padding: 1px 0.4375rem;
+  border-radius: 0.625rem;
+  background: var(--c-subtle-bg);
+  color: var(--c-muted);
+  font-size: var(--fs-chip);
+  line-height: 0.8125rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card,
+.cardPending {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.cardPending {
+  border-color: var(--c-pending-border);
+}
+
+.card:focus-visible,
+.cardPending:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.cardContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+}
+
+.cardTitle {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: var(--c-ink);
+}
+
+.cardContext {
+  font-size: 0.75rem;
+  line-height: 0.9375rem;
+  color: var(--c-muted);
+}
+
+.cardStatus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.cardNote {
+  font-size: var(--fs-nearyou-sub);
+  line-height: 0.875rem;
+  color: var(--c-muted);
+}
+
+.chevron {
+  flex-shrink: 0;
+  margin: 0 -0.8px;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 0.9375rem;
+  text-align: center;
+  color: var(--c-faint);
+}
+
+/* Pinned to the bottom of the phone screen (Figma y=662 and 692). */
+.footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.0625rem;
+}
+
+.privacy {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0 1px;
+  font-size: var(--fs-chip);
+  line-height: 0.8125rem;
+  color: var(--c-faint);
+}
+
+.lock {
+  flex-shrink: 0;
+  margin: -0.6px;
+}
+
+.askButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 1.5rem;
+  background: var(--accent);
+  box-shadow: 0 4px 12px rgba(227, 102, 31, 0.25);
+  color: #fff;
+  font-size: 0.9375rem;
+  line-height: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.askButton:focus-visible {
+  outline: 2px solid var(--c-ink);
+  outline-offset: 2px;
+}
+
+.plus {
+  margin: -1px;
+  width: 14px;
+  height: 14px;
+}
