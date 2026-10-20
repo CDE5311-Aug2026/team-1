@@ -4,6 +4,10 @@ Hi, see our live demo here on Vercel: https://cde-5311.vercel.app
 
 The React web app covers all seven pages and 19 main screens; the native SwiftUI prototype covers the two Home screens in the [Week 7 Figma file](https://www.figma.com/design/aAPocY386mzfKwK5nqjGkB/Week-7?node-id=1-2).
 
+## Nearby feature planning
+
+The [Nearby Explorer PRD](docs/NEARBY-EXPLORER-PRD.md) specifies the proposed interactive map, nearby food discovery, local stories, and Singapore/Malaysia destination checklists. It includes the implementation handoff for the newer TypeScript app in `intentai-web/`, acceptance tests, and the migration plan from the currently deployed `web/` app. This is planned functionality; the PRD does not change the deployed app.
+
 <img src="docs/screenshots/home.png" width="240" alt="Native SwiftUI Home overview"> <img src="docs/screenshots/lesson.png" width="240" alt="Native SwiftUI lesson">
 
 ## React web version — Vercel
