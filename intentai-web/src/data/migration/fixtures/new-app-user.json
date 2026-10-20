@@ -1,0 +1,5 @@
+{
+  "intentai:v1:onboarding": { "done": true, "duration": "Less than 3 months", "topics": ["Getting around"] },
+  "intentai:v1:lookups": [{ "id": "n1", "word": "tumpang", "meaning": "Hitch a ride.", "source": "AI-generated" }],
+  "intentai:v1:settings": { "daily": false, "occasions": false, "local": false, "rehearse": false, "judgement": false, "location": false }
+}

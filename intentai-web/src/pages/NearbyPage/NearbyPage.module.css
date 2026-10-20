@@ -81,8 +81,6 @@
 .roadH,
 .roadV,
 .foodCentre,
-.youHalo,
-.you,
 .pin,
 .placeChip,
 .change {
@@ -127,15 +125,7 @@
   background: var(--map-food);
 }
 
-.youHalo {
-  left: calc(100% * 140 / 350 - 20px);
-  top: 79px;
-}
 
-.you {
-  left: calc(100% * 140 / 350 - 8px);
-  top: 91px;
-}
 
 .pin {
   left: calc(100% * 237 / 350 - 18px);
@@ -177,10 +167,6 @@
   color: var(--text-primary);
 }
 
-.distance {
-  flex-shrink: 0;
-  color: var(--text-secondary);
-}
 
 .change {
   right: 10px;

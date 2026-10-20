@@ -23,16 +23,38 @@ function renderApp(path: string) {
   );
 }
 
-test('"Near you" opens Nearby only when location is on', async () => {
+test('the Nearby card opens Explore with location off or on (PRD §6)', async () => {
   const first = renderApp('/');
-  await userEvent.click(screen.getByRole('button', { name: /near you/i }));
-  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby\/places$/);
+  await userEvent.click(screen.getByRole('button', { name: /nearby/i }));
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby$/);
+  expect(await screen.findByRole('button', { name: /Exploring Singapore/ }, { timeout: 5000 })).toBeInTheDocument();
   first.unmount();
 
   settingsStore.set({ ...DEFAULT_SETTINGS, location: true });
   renderApp('/');
-  await userEvent.click(screen.getByRole('button', { name: /near you/i }));
+  await userEvent.click(screen.getByRole('button', { name: /nearby/i }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby$/);
+});
+
+test('Explore links to the nine phrase settings, and their button opens the heads-up phrases', async () => {
+  renderApp('/nearby');
+  await userEvent.click(await screen.findByRole('link', { name: /Phrases for a setting/ }, { timeout: 5000 }));
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby\/places$/);
+  await userEvent.click(screen.getByRole('button', { name: /^Show \d+ phrases for/ }));
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby\/phrases$/);
+});
+
+test("a hawker centre's phrase tip saves once to Moments as editorial and opens Ask with its context", async () => {
+  lookupsStore.set([]);
+  renderApp('/nearby/place/curated:sg-maxwell-food-centre');
+  await userEvent.click(await screen.findByRole('button', { name: 'Save to Moments' }, { timeout: 5000 }));
+  expect(lookupsStore.get()).toEqual([expect.objectContaining({ word: 'Chope', source: 'IntentAI editorial' })]);
+  await userEvent.click(screen.getByRole('button', { name: 'Save to Moments' }));
+  expect(lookupsStore.get()).toHaveLength(1);
+  expect(screen.getByText('Chope is already in Moments')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Ask about this phrase' }));
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/ask$/);
+  expect(screen.getByRole('article', { name: /IntentAI answer: What does chope mean\?/ })).toBeInTheDocument();
 });
 
 test('finishing a lesson phrase adds it to the lookups Moments shows', async () => {
@@ -91,7 +113,7 @@ test('Nearby "Ask IntentAI" asks about the shown phrase on arrival, once', async
   const seeded = screen.getAllByRole('article').length;
   plain.unmount();
 
-  renderApp('/nearby');
+  renderApp('/nearby/phrases');
   await userEvent.click(screen.getByRole('button', { name: 'Ask IntentAI' }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/ask$/);
   expect(screen.getByRole('article', { name: /IntentAI answer: What does chope mean\?/ })).toBeInTheDocument();
@@ -100,7 +122,7 @@ test('Nearby "Ask IntentAI" asks about the shown phrase on arrival, once', async
 
 test('Nearby "Ask IntentAI" carries the place as an Ask context the answer understands', async () => {
   placeStore.set('Office');
-  renderApp('/nearby');
+  renderApp('/nearby/phrases');
   await userEvent.click(screen.getByRole('button', { name: 'Ask IntentAI' }));
   expect(screen.getAllByText(/Office · work/).length).toBeGreaterThan(0);
 });

@@ -2,13 +2,15 @@ import Icon from '../Icon/Icon';
 import styles from './NearYouCard.module.css';
 
 interface NearYouCardProps {
+  /** Headline word; Figma says "Near you". */
+  label?: string;
   place: string;
   subtitle: string;
   onOpen?: () => void;
   nodeId?: string;
 }
 
-export default function NearYouCard({ place, subtitle, onOpen, nodeId }: NearYouCardProps) {
+export default function NearYouCard({ label = 'Near you', place, subtitle, onOpen, nodeId }: NearYouCardProps) {
   return (
     <button type="button" className={styles.card} onClick={onOpen} data-node-id={nodeId}>
       <span className={styles.iconTile}>
@@ -17,7 +19,7 @@ export default function NearYouCard({ place, subtitle, onOpen, nodeId }: NearYou
       </span>
       <span className={styles.text}>
         <span className={styles.headline}>
-          <span className={styles.near}>Near you</span> <span className={styles.place}>· {place}</span>
+          <span className={styles.near}>{label}</span> <span className={styles.place}>· {place}</span>
         </span>
         <span className={styles.subtitle}>{subtitle}</span>
       </span>

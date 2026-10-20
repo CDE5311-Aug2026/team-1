@@ -76,16 +76,18 @@ function renderWithRoutes(learnedIds: string[] = []) {
   );
 }
 
-test('Near you asks for a place while location is off (the default)', async () => {
+// PRD §6: the card opens Nearby Explore whether or not location is on (it used to send users with
+// location off to the phrase-setting list, which hid the map from first-time users).
+test('Nearby card opens Explore while location is off (the default)', async () => {
   renderWithRoutes();
-  await userEvent.click(screen.getByRole('button', { name: /near you/i }));
-  expect(screen.getByText('places page')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: /nearby/i }));
+  expect(screen.getByText('nearby page')).toBeInTheDocument();
 });
 
-test('Near you opens Nearby directly when location is on', async () => {
+test('Nearby card opens Explore when location is on', async () => {
   settingsStore.set({ ...DEFAULT_SETTINGS, location: true });
   renderWithRoutes();
-  await userEvent.click(screen.getByRole('button', { name: /near you/i }));
+  await userEvent.click(screen.getByRole('button', { name: /nearby/i }));
   expect(screen.getByText('nearby page')).toBeInTheDocument();
 });
 
@@ -106,10 +108,13 @@ test('finishing the third phrase shows the completion pop-up, which links to Mom
   expect(screen.getByText('moments page')).toBeInTheDocument();
 });
 
-test('Near you names the place picked on the Nearby place list', () => {
+test('Nearby card describes the real catalogue instead of a pretend nearby place', () => {
   placeStore.set('Office');
   renderWithRoutes();
-  expect(screen.getByRole('button', { name: /near you/i })).toHaveTextContent('Office');
+  const card = screen.getByRole('button', { name: /nearby/i });
+  expect(card).toHaveTextContent('Explore Singapore');
+  expect(card).toHaveTextContent(/\d+ places on our map/);
+  expect(card).not.toHaveTextContent('Office');
 });
 
 test('the mascot leaves the lesson and returns to the list', async () => {

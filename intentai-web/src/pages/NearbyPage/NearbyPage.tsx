@@ -1,7 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import locationDot from '../../assets/nearby/location-dot.svg';
-import youHalo from '../../assets/nearby/you-halo.svg';
-import youMarker from '../../assets/nearby/you-marker.svg';
 import HomeLink from '../../components/HomeLink/HomeLink';
 import AppShell from '../../components/AppShell/AppShell';
 import ContextChip from '../../components/ContextChip/ContextChip';
@@ -9,7 +6,7 @@ import Icon from '../../components/Icon/Icon';
 import PlayAudioButton from '../../components/PlayAudioButton/PlayAudioButton';
 import { addLookup } from '../../data/domain';
 import { usePersistentStore } from '../../data/persistentStore';
-import { lookupsStore, placeStore, settingsStore } from '../../data/stores';
+import { lookupsStore, placeStore } from '../../data/stores';
 import { showToast } from '../../hooks/useToast';
 import { paths, type AskHandoff } from '../../routes';
 import { askContextForPlace } from '../AskPage/answer';
@@ -31,11 +28,13 @@ const MAP_BLOCKS: [number, number, number, number][] = [
 const MAP_WIDTH = 350;
 const pct = (px: number) => `${(px / MAP_WIDTH) * 100}%`;
 
-/** Figma 11:1414 "Nearby — Heads up". */
+/**
+ * Figma 11:1414 "Nearby — Heads up": phrases for a manually chosen language setting (now at /nearby/phrases).
+ * The map here is an illustration of the setting, not a live map: it shows no position and no distance.
+ */
 export default function NearbyPage() {
   const navigate = useNavigate();
   const [place] = usePersistentStore(placeStore);
-  const [settings] = usePersistentStore(settingsStore);
   const [, setLookups] = usePersistentStore(lookupsStore);
   const content = nearbyContent(place);
   const { headsUp } = content;
@@ -66,12 +65,8 @@ export default function NearbyPage() {
           <HomeLink className={styles.logo} />
           <h1 className={styles.title}>Nearby</h1>
           <button type="button" className={styles.locationChip} onClick={openPlaces} data-node-id="11:1730">
-            {settings.location ? (
-              <img src={locationDot} alt="" width={8} height={8} />
-            ) : (
-              <span className={styles.dotOff} aria-hidden="true" />
-            )}
-            {settings.location ? 'Location on' : 'Manual place'}
+            <span className={styles.dotOff} aria-hidden="true" />
+            Manual place
           </button>
         </header>
 
@@ -90,14 +85,11 @@ export default function NearbyPage() {
           <span className={styles.roadV} style={{ left: pct(189), width: 10 }} aria-hidden="true" />
           <span className={styles.roadV} style={{ left: pct(271), width: 8 }} aria-hidden="true" />
           <span className={styles.foodCentre} aria-hidden="true" />
-          <img src={youHalo} alt="" width={40} height={40} className={styles.youHalo} />
-          <img src={youMarker} alt="" width={16} height={16} className={styles.you} />
           <span className={styles.pin} aria-hidden="true">
             {content.pinEmoji ?? <Icon name="bowl" size={18} />}
           </span>
           <p className={styles.placeChip}>
             <span className={styles.placeName}>{content.mapLabel}</span>
-            {settings.location && <span className={styles.distance}>· 120 m</span>}
           </p>
           <button type="button" className={styles.change} onClick={openPlaces} data-node-id="11:1781">
             Change

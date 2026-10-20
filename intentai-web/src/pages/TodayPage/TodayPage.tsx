@@ -8,12 +8,14 @@ import ExpressionCardExpanded from '../../components/ExpressionCardExpanded/Expr
 import NearYouCard from '../../components/NearYouCard/NearYouCard';
 import ProgressCard from '../../components/ProgressCard/ProgressCard';
 import { staticCopy } from '../../data/expressions';
-import { usePersistentStore } from '../../data/persistentStore';
 import { DAILY_TOTAL } from '../../data/progress';
-import { placeStore, settingsStore } from '../../data/stores';
+import exploreStats from '../../data/explore/stats.json';
 import { paths } from '../../routes';
 import type { Expression } from '../../types';
 import styles from './TodayPage.module.css';
+
+/** Published Nearby places (kept in step with places.sg.json by `npm run validate:explore`). */
+const NEARBY_PLACE_COUNT = exploreStats.publishedPlaces;
 
 interface TodayPageProps {
   /** Today's three, picked from the onboarding topics. */
@@ -30,8 +32,6 @@ export default function TodayPage({ expressions, learnedCount, learnedIds = [], 
   const [mode, setMode] = useState<Mode>('list');
   const [stepIndex, setStepIndex] = useState(0);
   const [completed, setCompleted] = useState(false);
-  const [settings] = usePersistentStore(settingsStore);
-  const [place] = usePersistentStore(placeStore);
   const navigate = useNavigate();
 
   // Fetch all three photos while the list shows, so Next never lands on an empty frame on slow networks.
@@ -87,11 +87,11 @@ export default function TodayPage({ expressions, learnedCount, learnedIds = [], 
             <ProgressCard variant="full" learnedCount={learnedCount} total={DAILY_TOTAL} onStart={handleStart} title={staticCopy.title} nodeId="1:87" />
             <NearYouCard
               nodeId="18:1949"
-              // Figma names the default hawker centre; other picked places show their own name.
-              place={place === 'Hawker centre' ? staticCopy.nearYou.place : place}
-              subtitle={staticCopy.nearYou.subtitle}
-              // Figma notes: Near you opens Nearby when location is on; otherwise the user picks a place first.
-              onOpen={() => navigate(settings.location ? paths.nearby : paths.places)}
+              // Nearby Explore opens even with location off (PRD §6): the card names what is there, not a fake nearby place.
+              label="Nearby"
+              place="Explore Singapore"
+              subtitle={`${NEARBY_PLACE_COUNT} places on our map`}
+              onOpen={() => navigate(paths.nearby)}
             />
             <div className={styles.cardGrid}>
               {expressions.map((expression, index) => (

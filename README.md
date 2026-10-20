@@ -4,15 +4,17 @@ Hi, see our live demo here on Vercel: https://cde-5311.vercel.app
 
 The React web app covers all seven pages and 19 main screens; the native SwiftUI prototype covers the two Home screens in the [Week 7 Figma file](https://www.figma.com/design/aAPocY386mzfKwK5nqjGkB/Week-7?node-id=1-2).
 
-## Nearby feature planning
+## Nearby Explorer (in `intentai-web/`)
 
-The [Nearby Explorer PRD](docs/NEARBY-EXPLORER-PRD.md) specifies the proposed interactive map, nearby food discovery, local stories, and Singapore/Malaysia destination checklists. It includes the implementation handoff for the newer TypeScript app in `intentai-web/`, acceptance tests, and the migration plan from the currently deployed `web/` app. This is planned functionality; the PRD does not change the deployed app.
+The newer TypeScript app in [`intentai-web/`](intentai-web/README.md) now has **Nearby Explorer**: a 2D map of Singapore places with a synchronized list, area and location modes, place stories with source-linked fun facts, a draft "Singapore collection" of 100 places with Save / self-reported Visited, backup/restore, phrase tips that open Ask and Moments, and a "View in 3D" link to the EARTH ONLINE (City Brush) Singapore model. It is built on the EARTH ONLINE Singapore dataset and calls no Google APIs. Scope and decisions: [PRD](docs/NEARBY-EXPLORER-PRD.md) (its Google Places and Malaysia parts were dropped by team decision on 20 Oct 2026) and the [intentai-web README](intentai-web/README.md).
+
+The deployed site still serves `web/`. Switching production to `intentai-web/` (with one-time migration of existing browser data, and rollback) is described in [intentai-web/README.md](intentai-web/README.md#deployment-root-migration-and-rollback).
 
 <img src="docs/screenshots/home.png" width="240" alt="Native SwiftUI Home overview"> <img src="docs/screenshots/lesson.png" width="240" alt="Native SwiftUI lesson">
 
 ## React web version — Vercel
 
-The deployable React app is in [`web/`](web/README.md). The native SwiftUI app is included alongside it.
+The currently deployed React app is in [`web/`](web/README.md); the TypeScript successor is in [`intentai-web/`](intentai-web/README.md). The native SwiftUI app is included alongside them.
 
 ```sh
 cd web
