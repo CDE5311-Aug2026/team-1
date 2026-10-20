@@ -1,12 +1,12 @@
 # Nearby Explorer Product Requirements
 
-**Product:** IntentAI / Singlish Daily  
-**Version:** 1.0 draft for implementation  
-**Date:** 20 October 2026  
-**Audience:** Product team, designer, content editor, and the agent implementing this feature  
-**Primary repository:** [CDE5311-Aug2026/team-1](https://github.com/CDE5311-Aug2026/team-1)  
-**Inspected code baseline:** [`f852b545b094cdd918861e909b702022a3576039`](https://github.com/CDE5311-Aug2026/team-1/tree/f852b545b094cdd918861e909b702022a3576039)  
-**Existing site:** [cde-5311.vercel.app](https://cde-5311.vercel.app/)
+- **Product:** IntentAI / Singlish Daily
+- **Version:** 1.0 draft for implementation
+- **Date:** 20 October 2026
+- **Audience:** Product team, designer, content editor, and the agent implementing this feature
+- **Primary repository:** [CDE5311-Aug2026/team-1](https://github.com/CDE5311-Aug2026/team-1)
+- **Inspected code baseline:** [`f852b545b094cdd918861e909b702022a3576039`](https://github.com/CDE5311-Aug2026/team-1/tree/f852b545b094cdd918861e909b702022a3576039)
+- **Existing site:** [cde-5311.vercel.app](https://cde-5311.vercel.app/)
 
 ## 1 Product decision
 
