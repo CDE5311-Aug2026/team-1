@@ -11,6 +11,8 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     viewport: { width: 390, height: 844 },
+    // Optional: point at a preinstalled Chromium when the bundled browser revision is unavailable (CI images).
+    launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
     // Tests start as a returning user (onboarding done). e2e/onboarding.spec.ts opts out.
     storageState: {
       cookies: [],

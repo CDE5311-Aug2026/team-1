@@ -5,9 +5,12 @@ const TOL = 3; // px, decision D2
 type Box = [x: number, y: number, width: number, height: number];
 
 // Figma frames 11:1414 (Nearby — Heads up) and 11:1571 (Nearby — Where are you?), 390×844, from get_design_context.
+// Intentional change (Nearby Explorer PR): the heads-up screen moved to /nearby/phrases and always shows
+// "Manual place" — it no longer pretends to know a position ("Location on · 120 m"), so its chip is 8 px wider
+// than the Figma "Location on" chip and starts 8 px further left; everything else is unchanged.
 const NEARBY: Record<string, Box> = {
-  '11:1730': [262, 62, 108, 32], // Location chip
-  '11:1733': [20, 112, 350, 160], // Map
+  '11:1730': [254, 62, 116, 32], // Location chip ("Manual place")
+  '11:1733': [20, 112, 350, 160], // Map illustration
   '11:1781': [291, 121, 68, 28], // Change
   // v2: the heads-up tip gets 8px bottom padding (Figma's 62px box clipped its second line), +9px.
   '11:1783': [20, 288, 350, 257], // Heads-up card
@@ -44,16 +47,11 @@ async function open(page: Page, path: string) {
   await page.evaluate(() => document.fonts.ready.then(() => true));
 }
 
-test('Nearby matches Figma frame geometry at 390x844', async ({ page }) => {
-  // The Figma frame shows the "Location on" state.
-  await page.goto(paths.nearby);
-  await page.evaluate(() => {
-    const settings = { daily: false, occasions: false, local: false, rehearse: false, judgement: false, location: true };
-    localStorage.setItem('intentai:v1:settings', JSON.stringify(settings));
-  });
-  await open(page, paths.nearby);
+test('heads-up phrase screen matches Figma frame geometry at 390x844', async ({ page }) => {
+  await open(page, paths.phrases);
   await expectFrames(page, NEARBY);
-  await page.screenshot({ path: 'test-results/nearby-390.png' });
+  await expect(page.getByText(/\d+ m$/)).toHaveCount(0);
+  await page.screenshot({ path: 'test-results/nearby-phrases-390.png' });
 });
 
 test('Place list matches Figma frame geometry at 390x844', async ({ page }) => {
@@ -62,15 +60,17 @@ test('Place list matches Figma frame geometry at 390x844', async ({ page }) => {
   await page.screenshot({ path: 'test-results/nearby-places-390.png' });
 });
 
-// Port of v0 "Nearby manual place selection and data deletion work" (the Nearby part; deletion belongs to My Space).
-test('Nearby manual place selection works', async ({ page }) => {
+// Port of v0 "Nearby manual place selection" — now reached from Explore → "Phrases for a setting".
+test('Nearby manual phrase-setting selection works', async ({ page }) => {
   await open(page, paths.today);
-  await page.getByRole('button', { name: /near you/i }).click();
-  await expect(page).toHaveURL(/\/nearby\/places$/); // location is off by default
+  await page.getByRole('button', { name: /nearby/i }).click();
+  await expect(page).toHaveURL(/\/nearby$/); // Explore opens even with location off
+  await page.getByRole('link', { name: /Phrases for a setting/ }).click();
+  await expect(page).toHaveURL(/\/nearby\/places$/);
   await expect(page.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'false');
   await page.getByRole('button', { name: /^Office/ }).click();
   await page.getByRole('button', { name: 'Show 4 phrases for Office' }).click();
-  await expect(page).toHaveURL(/\/nearby$/);
+  await expect(page).toHaveURL(/\/nearby\/phrases$/);
   await expect(page.locator('[data-node-id="11:1733"]')).toContainText('Office');
   await expect(page.getByRole('heading', { level: 2, name: 'Can or not?' })).toBeVisible();
 
@@ -79,7 +79,7 @@ test('Nearby manual place selection works', async ({ page }) => {
 });
 
 test('Got it saves the phrase to Moments; Ask IntentAI opens Ask', async ({ page }) => {
-  await open(page, paths.nearby);
+  await open(page, paths.phrases);
   await page.getByRole('button', { name: 'Got it' }).click();
   // The seed lookups already include chope.
   await expect(page.getByRole('status')).toHaveText('Chope is already in Moments');
@@ -89,18 +89,18 @@ test('Got it saves the phrase to Moments; Ask IntentAI opens Ask', async ({ page
 });
 
 test.describe('with geolocation permission', () => {
-  test.use({ permissions: ['geolocation'], geolocation: { latitude: 1.3, longitude: 103.88 } });
+  test.use({ permissions: ['geolocation'], geolocation: { latitude: 1.2803, longitude: 103.8447, accuracy: 20 } });
 
-  test('Use my location turns on, and Home then opens Nearby directly', async ({ page }) => {
-    await open(page, paths.places);
-    await page.getByRole('switch', { name: 'Use my location' }).click();
-    await expect(page.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'true');
-    await page.getByRole('button', { name: /^Show \d+ phrases/ }).click();
-    await expect(page.getByRole('button', { name: 'Location on' })).toBeVisible();
-    await expect(page.getByText('· 120 m')).toBeVisible();
-
-    await open(page, paths.today);
-    await page.getByRole('button', { name: /near you/i }).click();
-    await expect(page).toHaveURL(/\/nearby$/);
+  test('Use my location explains first, then sorts by distance from you; the position is not stored', async ({ page }) => {
+    await open(page, paths.nearby);
+    await page.getByRole('button', { name: /My location/ }).click();
+    await expect(page.getByRole('dialog', { name: 'Use your location?' })).toContainText('not sent to any server');
+    await page.getByRole('button', { name: 'Continue' }).click();
+    await expect(page.getByRole('button', { name: /Near you/ })).toBeVisible();
+    await page.getByRole('button', { name: 'List', exact: true }).click();
+    await expect(page.getByText(/Approx\. .* from you$/).first()).toBeVisible();
+    const stored = await page.evaluate(() => JSON.stringify({ ...localStorage }));
+    expect(stored).not.toContain('103.844');
+    expect(page.url()).not.toContain('103.844');
   });
 });

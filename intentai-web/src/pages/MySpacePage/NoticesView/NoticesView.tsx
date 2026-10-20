@@ -111,7 +111,7 @@ export default function NoticesView({ occasion, nodeIds }: NoticesViewProps) {
 
       {dialog === 'delete' && (
         <Dialog title="Delete your data?" onClose={() => setDialog(null)}>
-          <p>Delete your profile, settings, questions, lookups and learning progress from this device?</p>
+          <p>Delete your profile, settings, questions, lookups, learning progress and Nearby saved and visited places from this device?</p>
           <div className="dialog-row">
             <button type="button" className="dialog-secondary" onClick={() => setDialog(null)}>
               Cancel

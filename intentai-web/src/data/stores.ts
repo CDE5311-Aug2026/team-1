@@ -28,6 +28,8 @@ import {
 } from './domain';
 import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
+import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
+import { stopLocation } from '../features/nearby/location';
 import { createPersistentStore } from './persistentStore';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -134,6 +136,26 @@ export function ensureUsageId(): string {
   return usageIdStore.get();
 }
 
+/** Nearby Explorer: saved / visited places and exploration preferences. Never holds a location. */
+export const explorePersonalStore = createPersistentStore<ExplorePersonalData>({
+  key: 'explore-personal',
+  fallback: DEFAULT_EXPLORE_PERSONAL,
+  isValid: isExplorePersonalData,
+});
+
+let generation = 0;
+const generationListeners = new Set<() => void>();
+/** Bumped by deleteAllData: pending requests and Undo callbacks from before must not write back. */
+export function dataGeneration() {
+  return generation;
+}
+export function onDataDeleted(listener: () => void) {
+  generationListeners.add(listener);
+  return () => {
+    generationListeners.delete(listener);
+  };
+}
+
 /**
  * My Space "Delete all my data": writes empty values rather than removing keys, so seeded demo
  * content does not reappear, and the next launch starts at onboarding.
@@ -141,6 +163,10 @@ export function ensureUsageId(): string {
 export function deleteAllData() {
   // A pending Undo (e.g. a deleted lookup) must not write data back after everything is deleted.
   dismissToast();
+  generation++;
+  // Location is in memory only: clear it and invalidate any pending position or search callback.
+  stopLocation();
+  explorePersonalStore.set({ ...DEFAULT_EXPLORE_PERSONAL, places: [] });
   onboardingStore.set({ ...DEFAULT_ONBOARDING, done: false });
   profileStore.set(EMPTY_PROFILE);
   settingsStore.set(DEFAULT_SETTINGS);
@@ -155,4 +181,5 @@ export function deleteAllData() {
   culturePrefsStore.set(DEFAULT_PREFS);
   collectedStore.set([]);
   usageIdStore.set('');
+  generationListeners.forEach((listener) => listener());
 }

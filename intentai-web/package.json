@@ -12,7 +12,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "validate:explore": "node scripts/validate-explore.mjs",
+    "sync:earth-online": "node scripts/sync-earth-online.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "5.2.7",

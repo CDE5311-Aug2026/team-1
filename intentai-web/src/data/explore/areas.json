@@ -1,0 +1,384 @@
+{
+  "regions": [
+    {
+      "id": "central",
+      "name": "Central Region",
+      "country": "SG"
+    },
+    {
+      "id": "east",
+      "name": "East Region",
+      "country": "SG"
+    },
+    {
+      "id": "north",
+      "name": "North Region",
+      "country": "SG"
+    },
+    {
+      "id": "north-east",
+      "name": "North-East Region",
+      "country": "SG"
+    },
+    {
+      "id": "west",
+      "name": "West Region",
+      "country": "SG"
+    }
+  ],
+  "areas": [
+    {
+      "id": "sg-overview",
+      "name": "Singapore",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.35,
+        "lng": 103.82
+      },
+      "source": {
+        "title": "Editorial map centre (country overview)",
+        "url": "",
+        "publisher": "IntentAI editorial",
+        "checkedAt": "2026-10-20"
+      },
+      "overview": true
+    },
+    {
+      "id": "sg-marina-bay",
+      "name": "Marina Bay & Civic District",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.28444,
+        "lng": 103.85583
+      },
+      "source": {
+        "title": "Marina Bay, Singapore - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Marina_Bay,_Singapore",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-chinatown",
+      "name": "Chinatown & Tanjong Pagar",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.28361,
+        "lng": 103.84417
+      },
+      "source": {
+        "title": "Chinatown (Singapur) - Wikipedia (German)",
+        "url": "https://de.wikipedia.org/wiki/Chinatown_(Singapur)",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-kampong-glam",
+      "name": "Kampong Glam & Bugis",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.3022,
+        "lng": 103.859
+      },
+      "source": {
+        "title": "Sultan Mosque - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Sultan_Mosque",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-little-india",
+      "name": "Little India",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.3065,
+        "lng": 103.8518
+      },
+      "source": {
+        "title": "Little India, Singapore - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Little_India,_Singapore",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-orchard",
+      "name": "Orchard & River Valley",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.30483,
+        "lng": 103.83183
+      },
+      "source": {
+        "title": "Orchard Road - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Orchard_Road",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-bukit-timah",
+      "name": "Bukit Timah & Newton",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.32941,
+        "lng": 103.80208
+      },
+      "source": {
+        "title": "Bukit Timah - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Bukit_Timah",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-tiong-bahru",
+      "name": "Tiong Bahru & Bukit Merah",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.28495,
+        "lng": 103.82359
+      },
+      "source": {
+        "title": "Tiong Bahru - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Tiong_Bahru",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-queenstown",
+      "name": "Queenstown & Holland",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.29417,
+        "lng": 103.78611
+      },
+      "source": {
+        "title": "Queenstown, Singapore - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Queenstown,_Singapore",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-sentosa",
+      "name": "Sentosa & Southern Islands",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.24806,
+        "lng": 103.83
+      },
+      "source": {
+        "title": "Sentosa - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Sentosa",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-toa-payoh",
+      "name": "Toa Payoh & Bishan",
+      "country": "SG",
+      "regionId": "central",
+      "center": {
+        "lat": 1.3343,
+        "lng": 103.8563
+      },
+      "source": {
+        "title": "Toa Payoh - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Toa_Payoh",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-katong",
+      "name": "Katong, Joo Chiat & Geylang",
+      "country": "SG",
+      "regionId": "east",
+      "center": {
+        "lat": 1.30889,
+        "lng": 103.90194
+      },
+      "source": {
+        "title": "Joo Chiat Road - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Joo_Chiat_Road",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-bedok",
+      "name": "Bedok & East Coast",
+      "country": "SG",
+      "regionId": "east",
+      "center": {
+        "lat": 1.3236,
+        "lng": 103.92734
+      },
+      "source": {
+        "title": "Bedok - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Bedok",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-tampines",
+      "name": "Tampines & Pasir Ris",
+      "country": "SG",
+      "regionId": "east",
+      "center": {
+        "lat": 1.34959,
+        "lng": 103.95679
+      },
+      "source": {
+        "title": "Tampines - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Tampines",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-changi",
+      "name": "Changi",
+      "country": "SG",
+      "regionId": "east",
+      "center": {
+        "lat": 1.3539,
+        "lng": 103.9747
+      },
+      "source": {
+        "title": "Changi - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Changi",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-ang-mo-kio",
+      "name": "Ang Mo Kio & Serangoon",
+      "country": "SG",
+      "regionId": "north-east",
+      "center": {
+        "lat": 1.37,
+        "lng": 103.84556
+      },
+      "source": {
+        "title": "Ang Mo Kio - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Ang_Mo_Kio",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-punggol",
+      "name": "Punggol & Sengkang",
+      "country": "SG",
+      "regionId": "north-east",
+      "center": {
+        "lat": 1.39828,
+        "lng": 103.90897
+      },
+      "source": {
+        "title": "Punggol - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Punggol",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-pulau-ubin",
+      "name": "Pulau Ubin",
+      "country": "SG",
+      "regionId": "north-east",
+      "center": {
+        "lat": 1.40944,
+        "lng": 103.96
+      },
+      "source": {
+        "title": "Pulau Ubin - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Pulau_Ubin",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-woodlands",
+      "name": "Woodlands & Sembawang",
+      "country": "SG",
+      "regionId": "north",
+      "center": {
+        "lat": 1.43627,
+        "lng": 103.78671
+      },
+      "source": {
+        "title": "Woodlands, Singapore - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Woodlands,_Singapore",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-kranji",
+      "name": "Kranji & Mandai",
+      "country": "SG",
+      "regionId": "north",
+      "center": {
+        "lat": 1.4228,
+        "lng": 103.7504
+      },
+      "source": {
+        "title": "Kranji - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Kranji",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-jurong",
+      "name": "Jurong",
+      "country": "SG",
+      "regionId": "west",
+      "center": {
+        "lat": 1.34896,
+        "lng": 103.71936
+      },
+      "source": {
+        "title": "Jurong - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Jurong",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    },
+    {
+      "id": "sg-clementi",
+      "name": "Clementi & Kent Ridge",
+      "country": "SG",
+      "regionId": "west",
+      "center": {
+        "lat": 1.31611,
+        "lng": 103.765
+      },
+      "source": {
+        "title": "Clementi, Singapore - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Clementi,_Singapore",
+        "publisher": "Wikipedia",
+        "checkedAt": "2026-10-20"
+      }
+    }
+  ]
+}

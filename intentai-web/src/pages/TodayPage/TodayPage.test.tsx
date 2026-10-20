@@ -36,13 +36,14 @@ test('Learn more opens the holiday detail', async () => {
   expect(screen.getByText('holiday page')).toBeInTheDocument();
 });
 
-test('Near you asks for a place while location is off (the default)', async () => {
+// Nearby PRD §6: Near you opens Nearby Explore with location on or off (the phrase settings are one tap away there).
+test('Near you opens Nearby Explore while location is off (the default)', async () => {
   renderWithRoutes();
   await userEvent.click(screen.getByRole('button', { name: /near you/i }));
-  expect(screen.getByText('places page')).toBeInTheDocument();
+  expect(screen.getByText('nearby page')).toBeInTheDocument();
 });
 
-test('Near you opens Nearby directly when location is on', async () => {
+test('Near you opens Nearby Explore when location is on', async () => {
   settingsStore.set({ ...DEFAULT_SETTINGS, location: true });
   renderWithRoutes();
   await userEvent.click(screen.getByRole('button', { name: /near you/i }));

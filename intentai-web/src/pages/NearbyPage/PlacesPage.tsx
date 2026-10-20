@@ -5,40 +5,19 @@ import AppShell from '../../components/AppShell/AppShell';
 import Toggle from '../../components/Toggle/Toggle';
 import { PLACES } from '../../data/domain';
 import { usePersistentStore } from '../../data/persistentStore';
-import { placeStore, settingsStore } from '../../data/stores';
-import { showToast } from '../../hooks/useToast';
+import { placeStore } from '../../data/stores';
+import { useLocationFlow } from '../../features/nearby/components/LocationFlow';
 import { paths } from '../../routes';
 import { PLACE_INFO, phrasePreview } from './nearbyContent';
 import styles from './PlacesPage.module.css';
 
-/** Figma 11:1571 "Nearby — Where are you?". */
+/** Figma 11:1571 "Nearby — Where are you?": the nine language settings ("Phrases for a setting"). */
 export default function PlacesPage() {
   const navigate = useNavigate();
   const [place, setPlace] = usePersistentStore(placeStore);
-  const [settings, setSettings] = usePersistentStore(settingsStore);
-  const setLocation = (location: boolean) => setSettings((prev) => ({ ...prev, location }));
-
-  // Figma notes: location is off by default and stays on this device; turning it on asks the browser first.
-  const handleLocation = (on: boolean) => {
-    if (!on) {
-      setLocation(false);
-      return;
-    }
-    if (!navigator.geolocation) {
-      showToast('Location unavailable. Pick a place manually.');
-      return;
-    }
-    showToast('Checking your location…');
-    navigator.geolocation.getCurrentPosition(
-      () => {
-        setLocation(true);
-        showToast('Location on. It stays on this device.');
-      },
-      // Denied, unavailable or timed out: stay off and say so.
-      () => showToast('Location permission unavailable. Pick a place manually.'),
-      { timeout: 10000, maximumAge: 60000 },
-    );
-  };
+  // Location is used only by Nearby Explore for distances; the switch shares its explanation and states.
+  const flow = useLocationFlow();
+  const handleLocation = (on: boolean) => (on ? flow.start() : flow.turnOff());
 
   const count = PLACE_INFO[place].phraseCount;
 
@@ -50,7 +29,7 @@ export default function PlacesPage() {
             type="button"
             className={styles.back}
             onClick={() => navigate(paths.nearby)}
-            aria-label="Back"
+            aria-label="Back to Nearby"
             data-node-id="11:1876"
           >
             <img src={backChevron} alt="" width={16} height={16} />
@@ -65,9 +44,9 @@ export default function PlacesPage() {
           </span>
           <span className={styles.settingText}>
             <span className={styles.settingTitle}>Use my location</span>
-            <span className={styles.settingHint}>Only on this device, off by default</span>
+            <span className={styles.settingHint}>For distances in Nearby · only on this device, off by default</span>
           </span>
-          <Toggle label="Use my location" checked={settings.location} onChange={handleLocation} nodeId="11:1889" />
+          <Toggle label="Use my location" checked={flow.enabled} onChange={handleLocation} nodeId="11:1889" />
         </div>
 
         <div className={styles.placesHeader}>
@@ -105,11 +84,12 @@ export default function PlacesPage() {
           })}
         </ul>
 
-        <button type="button" className={styles.cta} onClick={() => navigate(paths.nearby)} data-node-id="11:1943">
+        <button type="button" className={styles.cta} onClick={() => navigate(paths.phrases)} data-node-id="11:1943">
           Show {count} phrases for {place}
         </button>
         <p className={styles.preview}>{phrasePreview(place)}</p>
       </div>
+      {flow.dialog}
     </AppShell>
   );
 }

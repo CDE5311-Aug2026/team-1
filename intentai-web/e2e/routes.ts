@@ -1,8 +1,14 @@
 import type { Page } from '@playwright/test';
 import { ALL_STATIC_PATHS, paths } from '../src/routes';
 
-// Every route in the app, plus one seeded community question.
-export const ROUTES = [...ALL_STATIC_PATHS, paths.question('sabo')];
+// Every route in the app, plus one seeded community question and one Nearby place / collection.
+export const ROUTES = [
+  ...ALL_STATIC_PATHS,
+  paths.question('sabo'),
+  paths.nearbyPlace('curated:sg-maxwell-food-centre'),
+  paths.nearbyPlace('curated:sg-esplanade-theatres-on-the-bay'),
+  paths.collection('sg-100'),
+];
 
 // Notice screens exist only while the occasion notice is live; seed the state each one needs.
 const SETTINGS_OCCASIONS_ON = JSON.stringify({ daily: false, occasions: true, local: false, rehearse: false, judgement: false, location: false });

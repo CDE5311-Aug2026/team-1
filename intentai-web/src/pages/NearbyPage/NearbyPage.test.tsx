@@ -42,12 +42,13 @@ test('location is off by default: the chip says Manual place and no distance is 
   expect(screen.queryByText('· 120 m')).not.toBeInTheDocument();
 });
 
-test('with location on, the chip says Location on and the distance is shown', () => {
+test('even with location on, this illustrated phrase screen shows no position and no fake distance', () => {
   settingsStore.set({ ...DEFAULT_SETTINGS, location: true });
   renderNearby();
 
-  expect(screen.getByRole('button', { name: 'Location on' })).toBeInTheDocument();
-  expect(screen.getByText('· 120 m')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Manual place' })).toBeInTheDocument();
+  expect(screen.queryByText(/\d+ m$/)).not.toBeInTheDocument();
+  expect(screen.queryByText('Location on')).not.toBeInTheDocument();
 });
 
 test('the phrase follows the chosen place', () => {

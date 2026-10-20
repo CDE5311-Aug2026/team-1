@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { beforeEach } from 'vitest';
 import { STORAGE_PREFIX, resetPersistentStores } from '../data/persistentStore';
 import { dismissToast } from '../hooks/useToast';
+import { resetLocationForTests } from '../features/nearby/location';
 
 // jsdom has <dialog> but not its modal methods.
 if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
@@ -24,4 +25,5 @@ beforeEach(() => {
   window.localStorage.setItem(`${STORAGE_PREFIX}onboarding`, ONBOARDED);
   resetPersistentStores();
   dismissToast();
+  resetLocationForTests();
 });

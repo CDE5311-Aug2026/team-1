@@ -12,6 +12,13 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.moments, 'Moments'],
   [paths.nearby, 'Nearby'],
   [paths.places, 'Places'],
+  // Nearby Explorer: names only, never the place or collection id in the path
+  [paths.phrases, 'Nearby phrases'],
+  [paths.nearbyLocation, 'Nearby location'],
+  [patterns.nearbyPlace, 'Nearby place'],
+  [paths.collections, 'Nearby collections'],
+  [patterns.collection, 'Nearby collection'],
+  [paths.saved, 'Nearby saved'],
   [paths.mySpace, 'My Space'],
   [paths.notices, 'Notices'],
   [paths.noticeDetails, 'Notice details'],

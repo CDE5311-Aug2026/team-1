@@ -10,6 +10,10 @@ test('every app page has a readable name', () => {
   expect(pageNameFor(paths.noticeRejected)).toBe('Notice result');
   expect(pageNameFor(paths.todaySetup)).toBe('Topic picker');
   expect(pageNameFor(paths.welcome)).toBe('Welcome');
+  // Nearby: the place / collection id in the path is never part of the name
+  expect(pageNameFor(paths.nearbyPlace('curated:sg-merlion-park'))).toBe('Nearby place');
+  expect(pageNameFor(paths.collection('sg-100'))).toBe('Nearby collection');
+  expect(pageNameFor(paths.nearby)).toBe('Nearby');
 });
 
 test('the dashboard and unknown paths are never tracked', () => {

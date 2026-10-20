@@ -7,6 +7,8 @@ export interface PersistentStore<T> {
   get(): T;
   set(next: T | ((previous: T) => T)): void;
   subscribe(listener: () => void): () => void;
+  /** False after a write failed (private mode, quota): changes live in memory only. */
+  persisting(): boolean;
 }
 
 interface StoreOptions<T> {
@@ -62,6 +64,9 @@ export function createPersistentStore<T>({ key, fallback, isValid }: StoreOption
         storageWritable = false;
       }
       notify();
+    },
+    persisting() {
+      return storageWritable;
     },
     subscribe(listener) {
       listeners.add(listener);

@@ -13,6 +13,7 @@ function renderPlaces() {
       <Routes>
         <Route path="/nearby/places" element={<PlacesPage />} />
         <Route path="/nearby" element={<AppShell><p>nearby page</p></AppShell>} />
+        <Route path="/nearby/phrases" element={<AppShell><p>phrases page</p></AppShell>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -51,39 +52,49 @@ test('picking a place selects it, stores it and updates the Show button', async 
   expect(screen.getByText('Can or not?, paiseh, chope and 1 more')).toBeInTheDocument();
 });
 
-test('Show phrases opens Nearby', async () => {
+test('Show phrases opens the heads-up phrase screen', async () => {
   renderPlaces();
 
   await userEvent.click(screen.getByRole('button', { name: /^Show \d+ phrases for/ }));
-  expect(screen.getByText('nearby page')).toBeInTheDocument();
+  expect(screen.getByText('phrases page')).toBeInTheDocument();
 });
 
 test('Back opens Nearby', async () => {
   renderPlaces();
 
-  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Back to Nearby' }));
   expect(screen.getByText('nearby page')).toBeInTheDocument();
 });
 
-test('"Use my location" is off by default', () => {
+test('"Use my location" is off by default, with honest copy', () => {
   renderPlaces();
 
   expect(screen.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'false');
+  expect(screen.queryByText(/Only on this device/)).not.toBeInTheDocument();
+  expect(screen.getByText('For distances in Nearby · only on this device, off by default')).toBeInTheDocument();
 });
 
-test('turning location on asks the browser and stays on when permission is granted', async () => {
-  const getCurrentPosition = vi.fn((success: PositionCallback) => success({} as GeolocationPosition));
+const SG_FIX = { coords: { latitude: 1.2804, longitude: 103.8448, accuracy: 20 }, timestamp: 1 } as unknown as GeolocationPosition;
+
+test('turning location on explains first, then asks the browser once and stays on when found', async () => {
+  const getCurrentPosition = vi.fn((success: PositionCallback, _error?: PositionErrorCallback | null, _options?: PositionOptions) => success(SG_FIX));
   mockGeolocation({ getCurrentPosition });
   renderPlaces();
 
   await userEvent.click(screen.getByRole('switch', { name: 'Use my location' }));
+  // Nothing is requested before the explanation is accepted.
+  expect(getCurrentPosition).not.toHaveBeenCalled();
+  expect(screen.getByRole('dialog', { name: 'Use your location?' })).toHaveTextContent(/not sent to any server/);
+  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
   expect(getCurrentPosition).toHaveBeenCalledTimes(1);
-  expect(screen.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'true');
+  expect(getCurrentPosition.mock.calls[0][2]).toEqual(expect.objectContaining({ timeout: 10000, maximumAge: 60000 }));
+  expect(await screen.findByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'true');
   expect(settingsStore.get().location).toBe(true);
-  expect(screen.getByRole('status')).toHaveTextContent('Location on. It stays on this device.');
+  // The position itself is never stored.
+  expect(JSON.stringify({ ...window.localStorage })).not.toContain('103.84');
 });
 
-test('location stays off with a toast when permission is refused', async () => {
+test('location stays off with a message when permission is refused', async () => {
   mockGeolocation({
     getCurrentPosition: (_success: PositionCallback, error?: PositionErrorCallback | null) =>
       error?.({ code: 1 } as GeolocationPositionError),
@@ -91,18 +102,20 @@ test('location stays off with a toast when permission is refused', async () => {
   renderPlaces();
 
   await userEvent.click(screen.getByRole('switch', { name: 'Use my location' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
   expect(screen.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'false');
   expect(settingsStore.get().location).toBe(false);
-  expect(screen.getByRole('status')).toHaveTextContent('Location permission unavailable. Pick a place manually.');
+  expect(await screen.findByRole('status')).toHaveTextContent(/Location permission is off/);
 });
 
-test('location stays off with a toast when the browser has no geolocation', async () => {
+test('location stays off with a message when the browser has no geolocation', async () => {
   mockGeolocation(undefined);
   renderPlaces();
 
   await userEvent.click(screen.getByRole('switch', { name: 'Use my location' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
   expect(screen.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'false');
-  expect(screen.getByRole('status')).toHaveTextContent('Location unavailable. Pick a place manually.');
+  expect(await screen.findByRole('status')).toHaveTextContent(/cannot share a location/);
 });
 
 test('turning location off does not ask the browser', async () => {
