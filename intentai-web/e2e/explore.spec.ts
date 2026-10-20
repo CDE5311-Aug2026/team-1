@@ -86,7 +86,7 @@ test('clusters expand on click, and every pin is a keyboard-reachable button', a
   await expect(page.getByRole('region', { name: 'Selected place' })).toBeVisible();
 });
 
-test('deep links reload, invalid ids get a not-found page, and the 3D view link is bundled', async ({ page }) => {
+test('deep links reload, invalid ids get a not-found page, and the 3D page is bundled', async ({ page }) => {
   for (const path of [paths.nearbyPlace('curated:sg-merlion-park'), paths.collection('sg-100'), `${paths.saved}?tab=visited`]) {
     await open(page, path);
     await expect(page.getByRole('main')).toBeVisible();
@@ -95,13 +95,15 @@ test('deep links reload, invalid ids get a not-found page, and the 3D view link 
   }
   await open(page, paths.nearbyPlace('curated:sg-nowhere'));
   await expect(page.getByRole('heading', { name: 'Place not found' })).toBeVisible();
-  await open(page, paths.nearbyPlace('curated:sg-merlion-park'));
-  const href = await page.getByRole('link', { name: /View in 3D/ }).getAttribute('href');
-  expect(href).toBe('/earth-online/sg/index.html?card=merlion');
-  const res = await page.request.get(href!);
-  expect(res.status()).toBe(200);
-  expect(res.headers()['content-type']).toContain('text/html');
-  expect(await res.text()).toContain('IntentAI → EARTH ONLINE bridge');
+  for (const [path, type, marker] of [
+    ['/earth-online/sg/lite.html', 'text/html', 'IntentAI Nearby lite'],
+    ['/earth-online/sg/vendor/three-r128.min.js', 'javascript', 'Three.js Authors'],
+  ]) {
+    const res = await page.request.get(path);
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toContain(type);
+    expect(await res.text()).toContain(marker);
+  }
 });
 
 test('another tab sees saved changes', async ({ page, context }) => {

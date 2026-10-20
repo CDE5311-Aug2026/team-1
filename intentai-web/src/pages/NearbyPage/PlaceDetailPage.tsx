@@ -1,5 +1,5 @@
 // One place: practical info, the dataset's intro, sourced fun facts, a language tip, collection
-// membership, Save / Visited (self-reported) and external Directions / 3D links (NBR 18–21, 24).
+// membership, Save / Visited (self-reported), Directions and the 3D view (NBR 18–21, 24).
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
@@ -11,14 +11,15 @@ import { usePersistentStore } from '../../data/persistentStore';
 import { dataGeneration, lookupsStore } from '../../data/stores';
 import { showToast } from '../../hooks/useToast';
 import { markVisited, stillReached, toggleSave, useExplorePersonal, type Milestone } from '../../features/nearby/actions';
-import { area as areaById, collectionProgress, collectionsContaining, collectionTitle, curatedPlace, regionName } from '../../features/nearby/catalogue';
+import { area as areaById, collectionProgress, collectionsContaining, collectionTitle, curatedPlace, placeByEarthKey, regionName } from '../../features/nearby/catalogue';
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
+import View3D, { VIEW3D_DOWNLOAD_MB } from '../../features/nearby/components/View3D';
 import { fixInSingapore } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { CATEGORY_INFO, type CuratedPlace, type SourceReference } from '../../features/nearby/domain';
 import { distanceM, formatDistance } from '../../features/nearby/geo';
 import { parsePlaceKey } from '../../features/nearby/identity';
-import { directionsUrl, view3dUrl } from '../../features/nearby/links';
+import { directionsUrl, view3dTarget } from '../../features/nearby/links';
 import { isPrecise, useLocationState } from '../../features/nearby/location';
 import CityMap from '../../features/nearby/map/CityMap';
 import { localToday, stateOf } from '../../features/nearby/personal';
@@ -52,7 +53,7 @@ export default function PlaceDetailPage() {
   const key = parsePlaceKey(placeKey);
   const place = key ? curatedPlace(key) : undefined;
   if (!place) return <NotFound />;
-  return <Detail place={place} />;
+  return <Detail key={place.id} place={place} />;
 }
 
 function NotFound() {
@@ -85,6 +86,9 @@ function Detail({ place }: { place: CuratedPlace }) {
   const [dateError, setDateError] = useState<string | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [copied, setCopied] = useState(false);
+  const [view, setView] = useState<'map' | '3d'>('map');
+  const [cardKey, setCardKey] = useState<string | null>(null);
+  const otherCard = view === '3d' ? placeByEarthKey(cardKey) : undefined;
   const state = stateOf(personal, place.id);
   const info = CATEGORY_INFO[place.category];
   const area = areaById(place.areaId);
@@ -165,15 +169,48 @@ function Detail({ place }: { place: CuratedPlace }) {
           </p>
         ))}
 
-        <CityMap
-          label={`Map showing ${place.name}`}
-          height={180}
-          pins={[{ key: place.id, name: place.name, location: place.coordinates, category: place.category, visited: state?.visited }]}
-          selectedKey={place.id}
-          onSelect={() => undefined}
-          readOnly
-          focus={{ id: 1, center: place.coordinates, radiusM: 600 }}
-        />
+        <div className={styles.row}>
+          <div className={styles.segmented} role="group" aria-label="View">
+            <button type="button" className={styles.segment} aria-pressed={view === 'map'} onClick={() => setView('map')}>
+              Map
+            </button>
+            <button
+              type="button"
+              className={styles.segment}
+              aria-pressed={view === '3d'}
+              onClick={() => {
+                setCardKey(null);
+                setView('3d');
+              }}
+            >
+              3D
+            </button>
+          </div>
+          {view === 'map' && <span className={styles.note}>3D shows the model around this place (up to {VIEW3D_DOWNLOAD_MB} MB the first time).</span>}
+        </div>
+        {view === 'map' ? (
+          <CityMap
+            label={`Map showing ${place.name}`}
+            height={180}
+            pins={[{ key: place.id, name: place.name, location: place.coordinates, category: place.category, visited: state?.visited }]}
+            selectedKey={place.id}
+            onSelect={() => undefined}
+            readOnly
+            focus={{ id: 1, center: place.coordinates, radiusM: 600 }}
+          />
+        ) : (
+          <>
+            <View3D target={view3dTarget(place)} title={`3D view around ${place.name}`} height={400} onCard={setCardKey} />
+            {otherCard && otherCard.id !== place.id && (
+              <p className={styles.note} role="status">
+                Card open: {otherCard.name}.{' '}
+                <Link className={styles.textLink} to={paths.nearbyPlace(otherCard.id)}>
+                  Open place →
+                </Link>
+              </p>
+            )}
+          </>
+        )}
 
         <div className={styles.row}>
           <button type="button" className={styles.ghostButton} aria-pressed={!!state?.saved} onClick={() => toggleSave(place.id, place.name)}>
@@ -185,13 +222,9 @@ function Detail({ place }: { place: CuratedPlace }) {
           <a className={styles.linkButton} href={directionsUrl(place)} target="_blank" rel="noopener noreferrer">
             Directions ↗
           </a>
-          <a className={styles.linkButton} href={view3dUrl(place)} target="_blank" rel="noopener noreferrer">
-            View in 3D ↗
-          </a>
         </div>
         <p className={styles.note}>
           Directions opens Google Maps without your position; choose walking, transit or driving there. Opening it does not mark a visit.
-          “View in 3D” opens the EARTH ONLINE Singapore model in a new tab.
         </p>
 
         {state?.visited && (

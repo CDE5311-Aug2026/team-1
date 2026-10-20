@@ -27,6 +27,13 @@ export function curatedPlace(id: string): CuratedPlace | undefined {
   return byId.get(id);
 }
 
+const byEarthKey = new Map<string, CuratedPlace>(PUBLISHED_PLACES.filter((p) => p.earthKey).map((p) => [p.earthKey as string, p]));
+
+/** The published place for a landmark key of the EARTH ONLINE dataset (a card opened in the 3D view). */
+export function placeByEarthKey(key: string | null | undefined): CuratedPlace | undefined {
+  return key ? byEarthKey.get(key) : undefined;
+}
+
 export function placesIn(country: CountryCode): CuratedPlace[] {
   return PUBLISHED_PLACES.filter((p) => p.country === country);
 }

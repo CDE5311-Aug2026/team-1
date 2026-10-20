@@ -4,10 +4,12 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
-import { area as areaById, areasIn, collectionsContaining, editorialRank, overviewArea, placesIn } from '../../features/nearby/catalogue';
+import { area as areaById, areasIn, collectionsContaining, curatedPlace, editorialRank, overviewArea, placeByEarthKey, placesIn } from '../../features/nearby/catalogue';
 import CityMap, { type MapFocus } from '../../features/nearby/map/CityMap';
 import { NearbyHeader, SectionNav, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
+import View3D, { VIEW3D_DOWNLOAD_MB } from '../../features/nearby/components/View3D';
+import { view3dTarget, type View3DTarget } from '../../features/nearby/links';
 import { fixInSingapore, locationStatusText, useLocationFlow } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { CATEGORY_INFO } from '../../features/nearby/domain';
@@ -41,6 +43,9 @@ const COUNTRY = 'SG' as const;
 const MAP_HEIGHT = 300;
 /** In map view the list under the map stays short; the List view shows everything. */
 const MAP_LIST_LIMIT = 6;
+const VIEW3D_HEIGHT = 420;
+/** The 3D view opens over Marina Bay when nothing is selected and no area or location is set. */
+const MARINA_BAY: LatLng = { lat: 1.2868, lng: 103.8545 };
 
 export default function ExplorePage() {
   const navigate = useNavigate();
@@ -61,7 +66,10 @@ export default function ExplorePage() {
     setFocusId((n) => n + 1);
   });
 
-  const view = params.get('view') === 'list' ? 'list' : 'map';
+  const rawView = params.get('view');
+  const view = rawView === 'list' ? 'list' : rawView === '3d' ? '3d' : 'map';
+  const [cardKey, setCardKey] = useState<string | null>(null);
+  useEffect(() => setCardKey(null), [view]);
   const rawCategory = params.get('category');
   const category: CategoryFilter = isCategoryFilter(rawCategory) ? rawCategory : 'all';
   const rawQuery = params.get('q')?.trim() ?? '';
@@ -134,6 +142,16 @@ export default function ExplorePage() {
 
   const selected = items.find((i) => i.key === selectedKey) ?? null;
   const select = (key: string) => patch({ sel: key }, true);
+  // 3D: the selected place (its landmark card when the dataset has a model), else the area / location / map centre.
+  // "Near you" pins your position inside the 3D page only (the address keeps it in the hash, never sent to a server).
+  const selectedPlace = selected ? curatedPlace(selected.key) : undefined;
+  const target3d: View3DTarget = selectedPlace
+    ? view3dTarget(selectedPlace)
+    : origin
+      ? { at: origin.point, pin: origin.kind === 'you' || origin.kind === 'approx' }
+      : { at: MARINA_BAY, pin: false };
+  const cardPlace0 = view === '3d' ? placeByEarthKey(cardKey) : undefined;
+  const cardPlace = cardPlace0 && cardPlace0.id !== selected?.key ? cardPlace0 : undefined;
 
   const focus: MapFocus = origin
     ? { id: focusId, center: origin.point, radiusM: radius }
@@ -231,6 +249,9 @@ export default function ExplorePage() {
             <button type="button" className={styles.segment} aria-pressed={view === 'map'} onClick={() => patch({ view: null })}>
               Map
             </button>
+            <button type="button" className={styles.segment} aria-pressed={view === '3d'} onClick={() => patch({ view: '3d' })}>
+              3D
+            </button>
             <button type="button" className={styles.segment} aria-pressed={view === 'list'} onClick={() => patch({ view: 'list' })}>
               List
             </button>
@@ -284,6 +305,24 @@ export default function ExplorePage() {
         </p>
 
         <div className={styles.split}>
+          {view === '3d' && (
+            <div className={styles.splitMap}>
+              <View3D
+                target={target3d}
+                title={`3D view of Singapore around ${selected?.name ?? origin?.label ?? 'Marina Bay'}`}
+                height={VIEW3D_HEIGHT}
+                onCard={setCardKey}
+              />
+              {cardPlace && (
+                <p className={styles.note} role="status" style={{ marginTop: '0.375rem' }}>
+                  Card open: {cardPlace.name}.{' '}
+                  <Link className={styles.textLink} to={paths.nearbyPlace(cardPlace.id)}>
+                    Open place →
+                  </Link>
+                </p>
+              )}
+            </div>
+          )}
           {view === 'map' && (
             <div className={styles.splitMap}>
               <CityMap
@@ -322,13 +361,16 @@ export default function ExplorePage() {
           )}
 
           <div className={styles.screen} style={{ marginTop: 0 }}>
-            {view === 'map' && selected && (
+            {view !== 'list' && selected && (
               <section aria-label="Selected place">
                 <PlaceCard item={selected} state={stateByKey.get(selected.key)} originKind={origin?.kind} selected idPrefix="preview" />
               </section>
             )}
             {view === 'map' && !selected && items.length > 0 && (
               <p className={styles.note}>Select a pin or a place below to see it here.</p>
+            )}
+            {view === '3d' && !selected && items.length > 0 && (
+              <p className={styles.note}>Select a place below to see it in 3D. The 3D view downloads up to {VIEW3D_DOWNLOAD_MB} MB the first time.</p>
             )}
             {items.length === 0 ? (
               <p className={styles.empty}>
@@ -346,7 +388,7 @@ export default function ExplorePage() {
                   </h2>
                   {group.note && <p className={styles.groupNote}>{group.note}</p>}
                   <ul className={styles.list} style={{ marginTop: '0.5rem' }}>
-                    {group.items.slice(0, view === 'map' ? MAP_LIST_LIMIT : undefined).map((item) => (
+                    {group.items.slice(0, view !== 'list' ? MAP_LIST_LIMIT : undefined).map((item) => (
                       <li key={item.key}>
                         <PlaceCard
                           item={item}
@@ -354,12 +396,12 @@ export default function ExplorePage() {
                           originKind={origin?.kind}
                           selected={item.key === selectedKey}
                           onSelect={() => select(item.key)}
-                          compact={view === 'map'}
+                          compact={view !== 'list'}
                         />
                       </li>
                     ))}
                   </ul>
-                  {view === 'map' && group.items.length > MAP_LIST_LIMIT && (
+                  {view !== 'list' && group.items.length > MAP_LIST_LIMIT && (
                     <button type="button" className={styles.secondary} style={{ marginTop: '0.5rem' }} onClick={() => patch({ view: 'list' })}>
                       Show all {group.items.length} in the list
                     </button>

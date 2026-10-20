@@ -168,7 +168,8 @@ describe('Place detail', () => {
     expect(screen.getByText(/Last reviewed 2026-10-20/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Directions/ })).toHaveAttribute('href', expect.stringContaining('destination=1.2'));
     expect(screen.getByRole('link', { name: /Directions/ }).getAttribute('href')).not.toContain('origin');
-    expect(screen.getByRole('link', { name: /View in 3D/ })).toHaveAttribute('href', expect.stringContaining('/earth-online/sg/index.html'));
+    expect(screen.queryByRole('link', { name: /View in 3D/ })).toBeNull();
+    expect(screen.getByRole('button', { name: '3D' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('heading', { name: 'What you might hear here' })).toBeInTheDocument();
   });
 

@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { loadCatalogue, validateCatalogue } from '../../../scripts/validate-explore.mjs';
-import { COLLECTIONS, PUBLISHED_PLACES, collectionProgress, collectionTitle, collectionsContaining, curatedPlace, members } from './catalogue';
+import { COLLECTIONS, PUBLISHED_PLACES, collectionProgress, collectionTitle, collectionsContaining, curatedPlace, members, placeByEarthKey } from './catalogue';
 import { DEFAULT_EXPLORE_PERSONAL, type ExploreCollection, type ExplorePersonalData } from './domain';
-import { directionsUrl, view3dUrl } from './links';
+import { directionsUrl, view3dTarget, view3dUrl } from './links';
 
 
 describe('the published catalogue', () => {
@@ -104,10 +104,19 @@ describe('external links carry no user position', () => {
     expect(url.searchParams.has('origin')).toBe(false);
   });
 
-  test('3D opens the landmark card, or the point for places without a model', () => {
-    expect(view3dUrl(merlion)).toBe('/earth-online/sg/index.html?card=merlion');
+  test('3D opens the landmark card, or pins the point for places without a model; all in the hash', () => {
+    expect(view3dUrl(view3dTarget(merlion))).toBe(`/earth-online/sg/lite.html#at=${merlion.coordinates.lat.toFixed(5)}%2C${merlion.coordinates.lng.toFixed(5)}&card=merlion&pin=0`);
     const ubin = curatedPlace('curated:sg-pulau-ubin')!;
     expect(ubin.earthKey).toBeUndefined();
-    expect(view3dUrl(ubin)).toMatch(/^\/earth-online\/sg\/index\.html\?at=1\.\d+%2C103\.\d+$/);
+    expect(view3dUrl(view3dTarget(ubin))).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d+%2C103\.\d+$/);
+    // nothing in the query string: the address sent to the server is the bare page
+    expect(new URL(view3dUrl({ at: { lat: 1.3, lng: 103.8 }, pin: true }), 'https://example.test').search).toBe('');
+    expect(view3dUrl({ at: { lat: 1.3, lng: 103.8 }, pin: false }, { still: true })).toBe('/earth-online/sg/lite.html#at=1.30000%2C103.80000&pin=0&still=1');
+  });
+
+  test('a 3D card key finds its published place', () => {
+    expect(placeByEarthKey('merlion')?.id).toBe('curated:sg-merlion-park');
+    expect(placeByEarthKey('not-a-landmark')).toBeUndefined();
+    expect(placeByEarthKey(null)).toBeUndefined();
   });
 });

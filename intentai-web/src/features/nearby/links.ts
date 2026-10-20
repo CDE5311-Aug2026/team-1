@@ -1,5 +1,6 @@
-// External links. Neither carries the user's position.
+// External links and the 3D view address. None of them sends the user's position to a server.
 import type { CuratedPlace } from './domain';
+import type { LatLng } from './types';
 
 /**
  * Google Maps directions to the destination's coordinates. No origin: the user picks it (and walking,
@@ -11,16 +12,45 @@ export function directionsUrl(place: Pick<CuratedPlace, 'coordinates'>): string 
   return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
-/** The EARTH ONLINE 3D Singapore page (bundled under /earth-online/sg/, or VITE_EARTH_ONLINE_SG_URL). */
-export function earthOnlineBase(): string {
+/**
+ * The phone-friendly EARTH ONLINE 3D page: bundled under /earth-online/sg/lite.html (built by
+ * scripts/sync-earth-online.mjs), or VITE_EARTH_ONLINE_SG_URL.
+ */
+export function earthOnline3dBase(): string {
   const configured = import.meta.env.VITE_EARTH_ONLINE_SG_URL as string | undefined;
-  return configured && configured.trim() ? configured.trim() : '/earth-online/sg/index.html';
+  return configured && configured.trim() ? configured.trim() : `${import.meta.env.BASE_URL}earth-online/sg/lite.html`;
 }
 
-/** Opens the 3D map on the place: its landmark card when the dataset has a model, otherwise its point. */
-export function view3dUrl(place: Pick<CuratedPlace, 'earthKey' | 'coordinates'>): string {
+/** The origin the 3D page runs on, for postMessage. */
+export function earthOnline3dOrigin(): string {
+  try {
+    return new URL(earthOnline3dBase(), window.location.href).origin;
+  } catch {
+    return window.location.origin;
+  }
+}
+
+/** What the 3D view shows: a point, and the landmark card to open when the dataset has a model for it. */
+export interface View3DTarget {
+  at: LatLng;
+  card?: string;
+  /** Pin the point (places without a model, "you"). Default: pinned when there is no card. */
+  pin?: boolean;
+}
+
+export function view3dTarget(place: Pick<CuratedPlace, 'earthKey' | 'coordinates'>): View3DTarget {
+  return place.earthKey ? { at: place.coordinates, card: place.earthKey } : { at: place.coordinates };
+}
+
+/**
+ * The 3D page address. Everything is in the hash (#at=…&card=…), which browsers never send to a server,
+ * so even a "near you" view does not put the position in a request.
+ */
+export function view3dUrl(target: View3DTarget, opts: { still?: boolean } = {}): string {
   const params = new URLSearchParams();
-  if (place.earthKey) params.set('card', place.earthKey);
-  else params.set('at', `${place.coordinates.lat.toFixed(5)},${place.coordinates.lng.toFixed(5)}`);
-  return `${earthOnlineBase()}?${params.toString()}`;
+  params.set('at', `${target.at.lat.toFixed(5)},${target.at.lng.toFixed(5)}`);
+  if (target.card) params.set('card', target.card);
+  if (target.pin === false || (target.pin === undefined && target.card)) params.set('pin', '0');
+  if (opts.still) params.set('still', '1');
+  return `${earthOnline3dBase()}#${params.toString()}`;
 }

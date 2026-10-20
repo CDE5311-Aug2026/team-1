@@ -8,7 +8,7 @@ Owned editorial data for Nearby. Validate after every edit: `npm run validate:ex
 | --- | --- | --- |
 | `earth-online` | 99 | A landmark or site of the **EARTH ONLINE · City Brush Singapore dataset** (github.com/Wsamme/earth_online): position of its 3D model, English/Chinese names, intro card (`description`, `quickFacts`). The intro cards are **not linked to sources**, so the app shows them as "From the EARTH ONLINE Singapore dataset" and shows no fun facts for these places. |
 | `earth-online+researched` | 22 | The same dataset place, plus researched fun facts with source links. |
-| `researched` | 21 | Places not modelled in the dataset (food centres, nature reserves, neighbourhoods), researched with source links. "View in 3D" opens their point on the 3D map. |
+| `researched` | 21 | Places not modelled in the dataset (food centres, nature reserves, neighbourhoods), researched with source links. The 3D view pins their point. |
 
 Research (20 Oct 2026): facts were written by research agents from pages they opened (Roots.gov.sg / NHB, NParks, NEA,
 URA, operators, Wikipedia), 40–80 words each, original wording, disputed claims left out. 14 places then had an
