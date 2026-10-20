@@ -224,7 +224,7 @@
 .headsUp {
   position: relative;
   padding: 13px 16px 16px 13px;
-  border: 1.5px solid var(--accent);
+  border: 1.5px solid var(--border-strong); /* orange stays for the "Got it" action, not the card edge */
   border-radius: var(--radius-card-lg);
   background: var(--surface);
   box-shadow: var(--shadow-card-active);
@@ -242,9 +242,9 @@
   justify-content: center;
   width: 60px;
   height: 60px;
-  border: 1px solid var(--accent-tile-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-tile-lg);
-  background: var(--tint-warm-2);
+  background: var(--chip-bg);
 }
 
 .headsUpText {
@@ -293,16 +293,16 @@
 .tip {
   min-height: 62px;
   margin-top: 10px;
-  padding: 10px 12px 0;
+  padding: 10px 12px 8px;
   border-radius: var(--radius-tile-sm);
-  background: var(--tint-warm-2);
+  background: var(--surface-sunk);
 }
 
 .tipTitle {
   margin: 0;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .tipText {

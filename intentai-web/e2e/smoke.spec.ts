@@ -57,17 +57,12 @@ test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
   }
 });
 
-test('learned progress survives a reload', async ({ page }) => {
+test('Learn more opens the holiday detail, and the back link returns to Today', async ({ page }) => {
   await page.goto('/');
-  await page.evaluate(() => localStorage.removeItem('intentai:v1:progress'));
-  await page.reload();
-  await page.getByRole('button', { name: 'Start', exact: true }).click();
-  for (let i = 0; i < 3; i += 1) {
-    await page.getByRole('button', { name: 'Next', exact: true }).click();
-  }
-  await expect(page.getByText('3 of 3 learned today')).toBeVisible();
-  await page.reload();
-  await expect(page.getByText('3 of 3 learned today')).toBeVisible();
+  await page.getByRole('button', { name: 'Learn more', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Deepavali' })).toBeVisible();
+  await page.getByRole('button', { name: 'Back to Today', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeVisible();
 });
 
 test.describe('first visit', () => {
@@ -89,7 +84,7 @@ test('only the active tab icon is orange', async ({ page }) => {
       .first()
       .evaluate((el) => getComputedStyle(el).backgroundColor);
   expect(await iconColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await iconColour('Today')).toBe('rgb(44, 44, 46)');
+  expect(await iconColour('Today')).toBe('rgb(43, 41, 36)');
   // The glyph comes from a CSS mask; an invalid url() silently drops it and shows a solid square.
   const masks = await page
     .getByRole('navigation', { name: 'Primary' })
@@ -103,5 +98,37 @@ test('only the active tab icon is orange', async ({ page }) => {
       .getByText(name, { exact: true })
       .evaluate((el) => getComputedStyle(el).color);
   expect(await labelColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await labelColour('Today')).toBe('rgb(44, 44, 46)');
+  expect(await labelColour('Today')).toBe('rgb(43, 41, 36)');
+});
+
+// v2: on a laptop every page uses Today's content column. Any wide block near the top of <main>
+// (a page wrapper, header or body, outside cards) must start and end where Today's header does.
+test('every route uses the same content column as Today at 1440', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const column = await page.locator('main > *').first().evaluate((el) => {
+    const box = el.getBoundingClientRect();
+    return { left: box.left, width: box.width };
+  });
+  for (const route of ROUTES) {
+    await seed(page, route);
+    await page.goto(route);
+    await expect(page.getByRole('main')).toBeVisible();
+    const off = await page.evaluate(
+      ({ left, width }) =>
+        Array.from(document.querySelectorAll('main > *, main > * > *'))
+          // Only blocks stacked down the page: items in a row (a header's title, a grid cell) may be narrower.
+          .filter((el) => {
+            const parent = getComputedStyle(el.parentElement!);
+            return el.parentElement!.tagName === 'MAIN' || parent.display === 'block' || parent.flexDirection === 'column';
+          })
+          .filter((el) => !el.closest('section, article, [role="tabpanel"], ul, form, dialog'))
+          .map((el) => ({ el, box: el.getBoundingClientRect() }))
+          .filter(({ box }) => box.width > width / 2)
+          .filter(({ box }) => Math.abs(box.left - left) > 3 || Math.abs(box.width - width) > 3)
+          .map(({ el, box }) => `${el.className} at ${Math.round(box.left)}/${Math.round(box.width)}`),
+      column,
+    );
+    expect(off, `${route} vs Today's ${column.left}/${column.width}`).toEqual([]);
+  }
 });

@@ -32,5 +32,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     timeout: 120_000,
+    // Each port gets its own usage file so Chromium and WebKit runs never share timings.
+    env: { USAGE_FILE: `.data/e2e-${PORT}.jsonl` },
   },
 });

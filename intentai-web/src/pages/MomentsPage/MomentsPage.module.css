@@ -1,12 +1,11 @@
 /* Figma 4:919 colours with no app-wide token (Tailwind-grey family used only on this page). */
 .moments {
-  --m-text: #111827;
-  --m-muted: #6b7280;
-  --m-action: #374151;
+  --m-text: var(--text-primary);
+  --m-muted: var(--text-secondary);
+  --m-action: var(--text-ink-2);
   --m-faint: #6b6b72; /* Figma #9ca3af fails WCAG AA (2.5:1) */
-  --m-border: #e5e7eb;
-  --m-chip: #f3f4f6;
-  --m-setting-bg: #f9fafb;
+  --m-border: var(--border);
+  --m-chip: var(--surface-sunk);
   --m-tile-bg: #fdeee6;
   --m-local-bg: #ecfdf5;
   --m-local-text: #047857;
@@ -67,6 +66,7 @@
 }
 
 .count {
+  font-family: var(--font-mono);
   padding: 0.0625rem 0.4375rem;
   border-radius: 0.625rem;
   background: var(--m-chip);

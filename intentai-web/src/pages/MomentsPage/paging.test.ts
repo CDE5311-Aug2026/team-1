@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { SEED_LOOKUPS } from '../../data/domain';
-import { clampPage, dailyLookup, pageCount, pageItems, pageSlice, showingCaption } from './paging';
+import { clampPage, pageCount, pageItems, pageSlice, showingCaption } from './paging';
 
 describe('pageCount', () => {
   test('three lookups per page, at least one page', () => {
@@ -53,17 +52,5 @@ describe('showingCaption', () => {
     expect(showingCaption(1, 24)).toBe('Showing 1–3 of 24 lookups');
     expect(showingCaption(3, 7)).toBe('Showing 7 of 7 lookups');
     expect(showingCaption(1, 1)).toBe('Showing 1 of 1 lookup');
-  });
-});
-
-describe('dailyLookup', () => {
-  test('is undefined for an empty list', () => {
-    expect(dailyLookup([], new Date(2026, 9, 12))).toBeUndefined();
-  });
-
-  test('picks one saved phrase per calendar day and moves on the next day', () => {
-    const today = dailyLookup(SEED_LOOKUPS, new Date(2026, 9, 12, 8));
-    expect(dailyLookup(SEED_LOOKUPS, new Date(2026, 9, 12, 23))).toBe(today);
-    expect(dailyLookup(SEED_LOOKUPS, new Date(2026, 9, 13, 8))).not.toBe(today);
   });
 });

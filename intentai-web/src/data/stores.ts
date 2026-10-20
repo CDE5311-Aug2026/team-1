@@ -16,6 +16,7 @@ import {
   isReportList,
   isSavedIds,
   isSettings,
+  makeId,
   type Lookup,
   type Notices,
   type Onboarding,
@@ -26,6 +27,7 @@ import {
   type Settings,
 } from './domain';
 import { dismissToast } from '../hooks/useToast';
+import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
 import { createPersistentStore } from './persistentStore';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -106,6 +108,32 @@ export const savedStore = createPersistentStore<string[]>({
   isValid: isSavedIds,
 });
 
+/** The "Make Today yours" questionnaire writes it; Today reads it. Kept apart from onboarding so old records stay valid. */
+export const culturePrefsStore = createPersistentStore<CulturePrefs>({
+  key: 'culturePrefs',
+  fallback: DEFAULT_PREFS,
+  isValid: isCulturePrefs,
+});
+
+/** Phrase-bank ids collected by opening their Today's-three card (the Moments passport). */
+export const collectedStore = createPersistentStore<string[]>({
+  key: 'collected',
+  fallback: [],
+  isValid: isSavedIds,
+});
+
+/** Anonymous random id sent with usage timings (time only, never content). Empty until first needed. */
+export const usageIdStore = createPersistentStore<string>({
+  key: 'usage-id',
+  fallback: '',
+  isValid: (value): value is string => typeof value === 'string',
+});
+
+export function ensureUsageId(): string {
+  if (usageIdStore.get() === '') usageIdStore.set(makeId());
+  return usageIdStore.get();
+}
+
 /**
  * My Space "Delete all my data": writes empty values rather than removing keys, so seeded demo
  * content does not reappear, and the next launch starts at onboarding.
@@ -124,4 +152,7 @@ export function deleteAllData() {
   savedStore.set([]);
   progressStore.set({ date: todayKey(), learnedIds: [] });
   streakStore.set(NO_STREAK);
+  culturePrefsStore.set(DEFAULT_PREFS);
+  collectedStore.set([]);
+  usageIdStore.set('');
 }

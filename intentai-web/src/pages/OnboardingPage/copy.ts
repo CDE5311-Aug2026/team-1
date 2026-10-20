@@ -15,13 +15,6 @@ const STAY: Record<Duration, string> = {
   '1 – 3 years': 'a few years',
 };
 
-const PHRASE_KIND: Record<Topic, string> = {
-  Work: 'office',
-  Food: 'hawker',
-  'Daily life': 'neighbourhood',
-  'Getting around': 'MRT and bus',
-};
-
 function joinList(items: readonly string[], last: string): string {
   if (items.length <= 1) return items.join('');
   return `${items.slice(0, -1).join(', ')} ${last} ${items[items.length - 1]}`;
@@ -48,9 +41,9 @@ export function focusLabel(topics: readonly Topic[]): string {
   return `Focus: ${joinList(topics, '&')}`;
 }
 
-export function planHint(topics: readonly Topic[]): string {
-  const kinds = topics.map((topic) => PHRASE_KIND[topic]);
-  return `I'll start with ${joinList(kinds, 'and')} phrases, then add more slang as you level up.`;
+/** Today now shows culture picked in the next step, so the plan hint points there. */
+export function planHint(): string {
+  return 'Next, pick the culture topics Today shows.';
 }
 
 /** The result score travels in the URL (?score=); anything invalid counts as 0. */

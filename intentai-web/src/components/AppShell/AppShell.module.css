@@ -1,6 +1,8 @@
 /* flow-root: contains HomeIndicator's bottom margin, so no strip of --bg-app shows under white pages. */
 .shell {
   display: flow-root;
+  /* v2: the linen weave sits over whatever paper colour the page asks for. */
+  background-image: var(--paper-texture);
   /* Fill the viewport so a page's background reaches the bottom edge on short pages. */
   min-height: 100vh;
   min-height: 100dvh;

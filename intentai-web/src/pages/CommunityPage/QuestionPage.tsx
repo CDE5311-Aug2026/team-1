@@ -13,6 +13,7 @@ import CommunityLayout from './CommunityLayout';
 import QuestionDialog from './QuestionDialog';
 import StatusPill from './StatusPill';
 import { displayQuestion } from './questionDisplay';
+import { useSpan } from '../../usage/useSpan';
 import styles from './QuestionPage.module.css';
 
 const NODE_IDS = { tabBar: '7:1135', segment: '7:1157', switch: '7:1162' };
@@ -48,6 +49,8 @@ export default function QuestionPage() {
   const [questions, setQuestions] = usePersistentStore(questionsStore);
   const [settings] = usePersistentStore(settingsStore);
   const [dialog, setDialog] = useState<'context' | 'answer' | null>(null);
+  useSpan('activity', 'Community question › add context', dialog === 'context');
+  useSpan('activity', 'Community question › answer', dialog === 'answer');
 
   const index = questions.findIndex((item) => item.id === questionId);
   if (index === -1) return <Navigate to={paths.community} replace />;
@@ -110,7 +113,7 @@ export default function QuestionPage() {
         </span>
       </Link>
 
-      <article className={pending ? styles.cardPending : styles.card} data-node-id="7:1200">
+      <article className={styles.card} data-node-id="7:1200">
         <div className={styles.meta}>
           {display.place && (
             <span className={styles.placePill}>

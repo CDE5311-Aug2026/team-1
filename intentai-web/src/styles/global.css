@@ -2,6 +2,8 @@
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 @import '@fontsource/inter/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/600.css';
 @import './tokens.css';
 
 *,
@@ -18,7 +20,7 @@ body {
 
 body {
   font-family: var(--font-family);
-  background: var(--bg-app);
+  background: var(--bg-app) var(--paper-texture);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
 }
@@ -29,4 +31,10 @@ body {
 
 button {
   font-family: inherit;
+}
+
+/* Unstyled links (source lines) take the surrounding text colour, not browser blue; the underline marks them. */
+a {
+  color: inherit;
+  text-underline-offset: 2px;
 }

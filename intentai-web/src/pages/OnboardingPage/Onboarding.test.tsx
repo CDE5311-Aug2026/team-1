@@ -40,6 +40,7 @@ test('a first-run user lands on Welcome and Get started opens the time step', as
   renderAt('/');
   expect(location()).toBe('/onboarding');
   expect(h1()).toHaveTextContent(/^Hello, W!\s*Welcome to IntentAI$/);
+  expect(screen.getByText('We record how long you spend on each page, anonymously, to improve the app.')).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'Get started' }));
   expect(location()).toBe('/onboarding/time');
   expect(h1()).toHaveTextContent('How long have you been in Singapore?');
@@ -74,7 +75,7 @@ test('time step: nothing is pre-selected, and Continue needs a choice', async ()
 
 test('time step: one option is selected at a time, saved, and reflected in the hint', async () => {
   renderAt('/onboarding/time');
-  expect(screen.getByText('STEP 1 OF 3')).toBeInTheDocument();
+  expect(screen.getByText('Step 1 of 3')).toBeInTheDocument();
   const middle = screen.getByRole('button', { name: /3 months – 1 year/ });
   const long = screen.getByRole('button', { name: /1 – 3 years/ });
   await userEvent.click(middle);
@@ -101,14 +102,14 @@ test('time step Back returns to Welcome', async () => {
 test('topics step: multi-select with a live count and hint, and at least one topic required', async () => {
   onboardingStore.set((prev) => ({ ...prev, duration: '3 months – 1 year' }));
   renderAt('/onboarding/topics');
-  expect(screen.getByText('STEP 2 OF 3')).toBeInTheDocument();
+  expect(screen.getByText('Step 2 of 3')).toBeInTheDocument();
   // Nothing is pre-selected.
-  expect(screen.getByRole('button', { name: 'Continue · 0 selected' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Continue (0 selected)' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: /^Work/ }));
   await userEvent.click(screen.getByRole('button', { name: /^Food/ }));
   expect(screen.getByRole('button', { name: /^Work/ })).toHaveAttribute('aria-pressed', 'true');
   expect(screen.getByRole('button', { name: /^Food/ })).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByRole('button', { name: 'Continue · 2 selected' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Continue (2 selected)' })).toBeInTheDocument();
   expect(
     screen.getByText("Since you've been here under a year, I'll start with Work and Food basics."),
   ).toBeInTheDocument();
@@ -116,19 +117,19 @@ test('topics step: multi-select with a live count and hint, and at least one top
   expect(screen.getByText('“Mee siam, tapau”')).toBeInTheDocument();
 
   await userEvent.click(screen.getByRole('button', { name: /^Daily life/ }));
-  expect(screen.getByRole('button', { name: 'Continue · 3 selected' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Continue (3 selected)' })).toBeInTheDocument();
   expect(onboardingStore.get().topics).toEqual(['Work', 'Food', 'Daily life']);
   expect(screen.getByText(/I'll start with Work, Food and Daily life basics\./)).toBeInTheDocument();
 
   for (const name of [/^Work/, /^Food/, /^Daily life/]) {
     await userEvent.click(screen.getByRole('button', { name }));
   }
-  await userEvent.click(screen.getByRole('button', { name: 'Continue · 0 selected' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Continue (0 selected)' }));
   expect(screen.getByRole('status')).toHaveTextContent('Pick at least one topic.');
   expect(location()).toBe('/onboarding/topics');
 
   await userEvent.click(screen.getByRole('button', { name: /^Getting around/ }));
-  await userEvent.click(screen.getByRole('button', { name: 'Continue · 1 selected' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Continue (1 selected)' }));
   expect(location()).toBe('/onboarding/quiz');
 });
 
@@ -142,7 +143,7 @@ test('quiz asks three questions from the chosen topics and scores the correct an
   onboardingStore.set((prev) => ({ ...prev, topics: ['Work', 'Food'] }));
   const quiz = quizFor(['Work', 'Food']);
   renderAt('/onboarding/quiz');
-  expect(screen.getByText('STEP 3 OF 3')).toBeInTheDocument();
+  expect(screen.getByText('Step 3 of 3')).toBeInTheDocument();
   expect(h1()).toHaveTextContent('Test your Singlish level');
 
   // Q1 correct, Q2 wrong, Q3 correct → 2 of 3.
@@ -224,7 +225,6 @@ test('result plan reflects the chosen topics and stay length', () => {
   renderAt('/onboarding/result?score=1');
   expect(screen.getByText('Focus: Food & Getting around')).toBeInTheDocument();
   expect(screen.getByText('Tuned for 1 – 3 years')).toBeInTheDocument();
-  expect(screen.getByText(/I'll start with hawker and MRT and bus phrases/)).toBeInTheDocument();
 });
 
 test('Retake the quiz starts the quiz again from question 1', async () => {
@@ -234,7 +234,7 @@ test('Retake the quiz starts the quiz again from question 1', async () => {
   expect(screen.getByText('Question 1 of 3')).toBeInTheDocument();
 });
 
-test('Start learning finishes onboarding, saves the profile, and opens Today', async () => {
+test('Start learning finishes onboarding, saves the profile, and opens the topic picker', async () => {
   profileStore.set(DEFAULT_PROFILE);
   onboardingStore.set((prev) => ({ ...prev, duration: 'Less than 3 months', topics: ['Daily life'] }));
   renderAt('/onboarding/result?score=3');
@@ -246,8 +246,8 @@ test('Start learning finishes onboarding, saves the profile, and opens Today', a
     level: 'Experienced',
     topics: ['Daily life'],
   });
-  expect(location()).toBe('/');
-  expect(screen.getByText("Today's three expressions, Can or cannot learn?")).toBeInTheDocument();
+  expect(location()).toBe('/today-setup');
+  expect(screen.getByRole('heading', { level: 1, name: 'Pick 3 topics for Today' })).toBeInTheDocument();
 });
 
 test('cross-page contract: the whole first-run flow by skipping saves the stay length', async () => {
@@ -265,5 +265,17 @@ test('cross-page contract: the whole first-run flow by skipping saves the stay l
   await user.click(screen.getByRole('button', { name: /start learning/i }));
   expect(profileStore.get().time).toBe('1 – 3 years');
   expect(profileStore.get().level).toBe('Beginner');
-  expect(location()).toBe('/');
+  expect(location()).toBe('/today-setup');
+});
+
+test('the Singlish steps no longer promise to build Today', () => {
+  renderAt('/onboarding/topics');
+  expect(screen.getByText('Pick all that apply — we’ll tune your Singlish quiz to them.')).toBeInTheDocument();
+});
+
+test('the result plan describes Singlish practice, then points to Today', () => {
+  renderAt('/onboarding/result?score=2');
+  expect(screen.getByText('Singlish practice')).toBeInTheDocument();
+  expect(screen.queryByText('3 expressions a day')).not.toBeInTheDocument();
+  expect(screen.getByText('Next, pick the culture topics Today shows.')).toBeInTheDocument();
 });

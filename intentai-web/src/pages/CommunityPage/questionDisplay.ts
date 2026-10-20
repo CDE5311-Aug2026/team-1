@@ -41,12 +41,12 @@ export function displayQuestion(question: Question): QuestionDisplay {
     headline: extras.headline ?? question.text,
     place: extras.place,
     contextLine: [question.context, asked].filter(Boolean).join(' · '),
-    sentNote: [extras.askedAt, 'shared anonymously'].filter(Boolean).join(' · '),
+    sentNote: [extras.askedAt, 'shared anonymously'].filter(Boolean).join(', '),
     reviewersNote: extras.reviewersNote ?? 'Locals are looking at the tone, not just the word.',
   };
 }
 
 /** List-card note next to the status pill (Figma 3:899 / 3:909). */
 export function statusNote(question: Question): string {
-  return question.status === 'Answered' ? 'by a local · written into the entry' : '2 locals reviewing';
+  return question.status === 'Answered' ? 'by a local, now in the entry' : '2 locals reviewing';
 }

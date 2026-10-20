@@ -4,16 +4,18 @@ const TOL = 3; // px, decision D2
 type Box = [x: number, y: number, width: number, height: number];
 
 // Figma frame 4:919 (Moments — Every lookup), 390×844, from get_metadata (Body 4:935 sits at 20,110).
+// v2: "Today's three" replaces the 56px daily card row (4:937) (+108px), and the passport redesign
+// adds the passport hero and "My topics" above the list (+360px), and the tiles' "Open" cue adds 22px,
+// so everything below sits 490px lower.
+const V2_SHIFT = 490;
 const MOMENTS: Record<string, Box> = {
-  '4:935': [20, 110, 350, 573], // Body
-  '4:937': [20, 110, 350, 56], // Setting / Daily card
-  '4:941': [320, 127, 36, 22], // Switch
-  '4:945': [20, 178, 126, 26], // Section / All lookups
-  '4:961': [20, 216, 350, 123], // Card 1
-  '4:977': [20, 351, 350, 123], // Card 2
-  '4:991': [20, 486, 350, 123], // Card 3
-  '7:1095': [20, 621, 350, 36], // Pagination
-  '7:1114': [20, 669, 350, 14], // Pagination caption
+  '4:935': [20, 110, 350, 573 + V2_SHIFT], // Body
+  '4:945': [20, 178 + V2_SHIFT, 126, 26], // Section / All lookups
+  '4:961': [20, 216 + V2_SHIFT, 350, 123], // Card 1
+  '4:977': [20, 351 + V2_SHIFT, 350, 123], // Card 2
+  '4:991': [20, 486 + V2_SHIFT, 350, 123], // Card 3
+  '7:1095': [20, 621 + V2_SHIFT, 350, 36], // Pagination
+  '7:1114': [20, 669 + V2_SHIFT, 350, 14], // Pagination caption
   '4:1021': [20, 758, 350, 58], // Tab bar
 };
 
@@ -58,16 +60,16 @@ test('Moments matches Figma frame geometry at 390x844', async ({ page }) => {
 // v0 "Ask context, query, report, lookup deletion and undo work": the lookup part, seeded instead of via Ask.
 test('lookup deletion and undo work', async ({ page }) => {
   await seedLookups(page, [PAISEH]);
-  await expect(page.getByText('Paiseh', { exact: true })).toBeVisible();
+  await expect(page.getByRole('article', { name: 'Paiseh' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Delete Paiseh', exact: true }).click();
-  await expect(page.getByText('Paiseh', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('article', { name: 'Paiseh' })).toHaveCount(0);
   await expect(page.getByText('No lookups yet. Ask about a phrase to save it here.')).toBeVisible();
 
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
-  await expect(page.getByText('Paiseh', { exact: true })).toBeVisible();
+  await expect(page.getByRole('article', { name: 'Paiseh' })).toBeVisible();
   await page.reload();
-  await expect(page.getByText('Paiseh', { exact: true })).toBeVisible();
+  await expect(page.getByRole('article', { name: 'Paiseh' })).toBeVisible();
 });
 
 test('a newly added "paiseh…" lookup shows on page 1 and pagination survives deletes', async ({ page }) => {
@@ -82,12 +84,21 @@ test('a newly added "paiseh…" lookup shows on page 1 and pagination survives d
   await expect(page.getByRole('button', { name: 'Page 2', exact: true })).toHaveAttribute('aria-current', 'page');
 });
 
-test('the daily card setting persists', async ({ page }) => {
+test("today's three sit in one row and a tapped tile opens its card under the row", async ({ page }) => {
   await page.goto('/moments');
-  await page.getByRole('switch', { name: 'Show a daily card' }).click();
-  await expect(page.getByText(/^Today's card: /)).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole('switch', { name: 'Show a daily card' })).toHaveAttribute('aria-checked', 'true');
+  const tiles = page.getByRole('button', { name: /^0[1-3] / });
+  await expect(tiles).toHaveCount(3);
+  const tops = await tiles.evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+  expect(new Set(tops).size).toBe(1);
+
+  await tiles.first().click();
+  const detail = page.getByRole('region', { name: 'Chope' });
+  await expect(detail).toBeVisible();
+  const rowBottom = (await tiles.first().boundingBox())!;
+  const detailBox = (await detail.boundingBox())!;
+  const listBox = (await page.getByRole('heading', { name: 'All lookups' }).boundingBox())!;
+  expect(detailBox.y).toBeGreaterThan(rowBottom.y + rowBottom.height - 1);
+  expect(listBox.y).toBeGreaterThan(detailBox.y + detailBox.height - 1);
 });
 
 test('visual check screenshot at 390x844', async ({ page }) => {

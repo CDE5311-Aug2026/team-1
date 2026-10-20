@@ -19,7 +19,7 @@ test('shows the pending question with what I wrote and its progress', () => {
   expect(screen.getByText(/after the manager gave me extra forms/i)).toBeInTheDocument();
   const progress = screen.getByRole('list', { name: 'Progress' });
   expect(within(progress).getAllByRole('listitem').map((item) => item.textContent)).toEqual([
-    'Question sent8:55 · shared anonymously',
+    'Question sent8:55, shared anonymously',
     '2 locals reviewingusually answered within a day',
     'Answer written into the entryyou’ll get a notification',
   ]);

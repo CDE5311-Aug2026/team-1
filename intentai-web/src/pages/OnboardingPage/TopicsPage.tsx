@@ -48,7 +48,7 @@ export default function TopicsPage() {
     <OnboardingScreen
       footer={
         <button type="button" className={screen.primary} data-node-id="17:213" onClick={handleContinue}>
-          Continue · {topics.length} selected
+          Continue ({topics.length} selected)
         </button>
       }
     >
@@ -56,7 +56,7 @@ export default function TopicsPage() {
       <h1 className={text.title} data-node-id="17:156">
         What do you want to learn first?
       </h1>
-      <p className={text.lead}>Pick all that apply — we&apos;ll build your daily three around them.</p>
+      <p className={text.lead}>Pick all that apply — we’ll tune your Singlish quiz to them.</p>
       <ul className={styles.grid}>
         {TOPICS.map((topic) => {
           const { nodeId, note, sample } = TILES[topic];

@@ -34,12 +34,7 @@ test('result summary matches Figma at 2 of 3 and covers every score', () => {
 test('plan focus and hint match Figma for Work and Food', () => {
   expect(focusLabel(['Work', 'Food'])).toBe('Focus: Work & Food');
   expect(focusLabel(['Work', 'Food', 'Daily life'])).toBe('Focus: Work, Food & Daily life');
-  expect(planHint(['Work', 'Food'])).toBe(
-    "I'll start with office and hawker phrases, then add more slang as you level up.",
-  );
-  expect(planHint(['Getting around'])).toBe(
-    "I'll start with MRT and bus phrases, then add more slang as you level up.",
-  );
+  expect(planHint()).toBe('Next, pick the culture topics Today shows.');
 });
 
 test('score from the URL is clamped to a whole number between 0 and 3', () => {

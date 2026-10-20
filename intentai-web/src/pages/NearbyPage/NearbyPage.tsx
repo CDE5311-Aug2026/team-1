@@ -16,7 +16,7 @@ import { askContextForPlace } from '../AskPage/answer';
 import { nearbyContent } from './nearbyContent';
 import styles from './NearbyPage.module.css';
 
-// Decorative city blocks of the stylized map (Figma 11:1733), as [x, y, width, height] in px of a 350px-wide map.
+// Decorative city blocks of the stylised map (Figma 11:1733), as [x, y, width, height] in px of a 350px-wide map.
 const MAP_BLOCKS: [number, number, number, number][] = [
   [13, 11, 70, 46],
   [99, 11, 90, 28],
@@ -125,7 +125,7 @@ export default function NearbyPage() {
               </span>
             </div>
             <div className={styles.tip}>
-              <p className={styles.tipTitle}>✦&nbsp;&nbsp;Heads up · you’ll likely see this here</p>
+              <p className={styles.tipTitle}>✦&nbsp;&nbsp;Heads up: you’ll likely see this here</p>
               <p className={styles.tipText}>{headsUp.tip}</p>
             </div>
             <div className={styles.actions}>
@@ -138,7 +138,7 @@ export default function NearbyPage() {
             </div>
           </section>
 
-          <section className={styles.also} aria-labelledby="nearby-also-title">
+          <section aria-labelledby="nearby-also-title">
             <div className={styles.alsoHeader}>
               <h2 id="nearby-also-title" className={styles.alsoTitle}>
                 Also heard here
@@ -153,7 +153,7 @@ export default function NearbyPage() {
                   <span className={styles.phraseTile} aria-hidden="true">
                     {phrase.emoji}
                   </span>
-                  <div className={styles.phraseText}>
+                  <div>
                     <div className={styles.phraseLine}>
                       <h3 className={styles.phraseWord}>{phrase.title}</h3>
                       {phrase.phonetic && <span className={styles.phrasePhonetic}>{phrase.phonetic}</span>}

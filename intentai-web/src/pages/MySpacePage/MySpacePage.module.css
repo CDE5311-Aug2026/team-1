@@ -4,9 +4,40 @@
   flex-direction: column;
   gap: 0.75rem;
   width: 100%;
-  max-width: 45rem;
 }
 
-.bodyLoose {
-  gap: 0.875rem;
+/* v2 "Today" section (no Figma frame), styled like the switches card. */
+.todayCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border-radius: 1rem;
+  background: var(--ms-fill-soft);
+}
+
+.todayPicks {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.todayButton {
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent); /* brand orange on white text: the a11y spec's accepted exception */
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.todayButton:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
 }

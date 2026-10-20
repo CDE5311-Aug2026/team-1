@@ -66,3 +66,17 @@
   text-align: center;
   color: var(--text-secondary);
 }
+
+.notice {
+  max-width: 19.375rem;
+  margin: 0.75rem auto 0;
+  /* Boxed so the tracking notice reads as information, not small print. */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-tile-sm);
+  background: var(--surface);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}

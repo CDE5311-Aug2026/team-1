@@ -56,6 +56,5 @@
   font-size: 0.75rem;
   line-height: 0.9375rem;
   font-weight: 600;
-  letter-spacing: 0.72px;
-  color: var(--accent);
+  color: var(--text-secondary);
 }

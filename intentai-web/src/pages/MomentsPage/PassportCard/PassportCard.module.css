@@ -1,0 +1,96 @@
+/* The one bold element of the redesign: a photo passport page with a rubber-stamped level. */
+.card {
+  position: relative;
+  height: 9.5rem;
+  border-radius: var(--radius-hero);
+  overflow: hidden;
+  background: #2f3a33; /* shows while the photo loads */
+  isolation: isolate;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dark at the bottom so white text stays readable on any part of the photo. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(180deg, rgb(20 18 15 / 25%) 0%, rgb(20 18 15 / 45%) 45%, rgb(20 18 15 / 80%) 100%);
+  color: #fff;
+}
+
+.kicker {
+  margin: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.92;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+}
+
+.stats {
+  display: flex;
+  gap: 1.25rem;
+  margin: 0.375rem 0 0;
+}
+
+/* Term before value in the DOM (valid <dl>), number shown above its label. */
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.number {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  line-height: 1.375rem;
+  font-weight: 600;
+}
+
+.label {
+  font-size: 0.75rem;
+  opacity: 0.92;
+}
+
+/* Empty state: tells a new user what fills the phrasebook. */
+.hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+/* Rubber stamp: orange ring, slightly rotated, on a light disc for contrast over the photo. */
+.stamp {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border: 2px solid var(--accent);
+  border-radius: 0.375rem;
+  background: rgb(246 245 242 / 94%);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  transform: rotate(-6deg);
+}
+
+@media (min-width: 768px) {
+  .card {
+    height: 11rem;
+  }
+}

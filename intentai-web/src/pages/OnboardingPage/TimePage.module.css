@@ -26,9 +26,9 @@
 
 /* Figma's selected border is 1.5px; the extra half pixel is drawn outside so nothing shifts. */
 .option[aria-pressed='true'] {
-  border-color: var(--accent);
-  background: var(--tint-warm-2);
-  box-shadow: 0 0 0 0.5px var(--accent);
+  border-color: var(--text-primary); /* selected = ink, as Today's culture tabs; orange is for actions */
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px var(--text-primary);
 }
 
 .option:focus-visible {
@@ -84,7 +84,7 @@
 
 .option[aria-pressed='true'] .radio {
   border: 0;
-  background: var(--accent);
+  background: var(--text-primary);
 }
 
 .hint {

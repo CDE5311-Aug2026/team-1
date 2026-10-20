@@ -38,7 +38,7 @@ export default function StepHeader({ step, backTo, backNodeId }: StepHeaderProps
         </div>
       </div>
       <p className={styles.label}>
-        {`STEP ${step} OF ${STEPS}`}
+        {`Step ${step} of ${STEPS}`}
       </p>
     </>
   );
