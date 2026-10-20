@@ -28,7 +28,10 @@ rewrites (e.g. `VITE_ROUTER=hash npx vite build --base ./` for a click-through p
 
 ## Nearby Explorer
 
-Today → **Nearby** opens Explore (location off or on). Inside Nearby: **Explore · Collections · Saved**; the five bottom
+Today's **Near you** card opens Explore (location off or on). Explore is a full-screen map (like a maps app): floating
+search and category chips on top, **3D** and **My location** on the right, and a sheet of places at the bottom (peek,
+half, full = the List view; a side panel on wide screens). The sheet starts with the phrases for the place picked on
+the phrase settings, which Today's card names. Inside Nearby: **Explore · Collections · Saved**; the five bottom
 tabs are unchanged.
 
 | Route | Screen |

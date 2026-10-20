@@ -82,6 +82,26 @@ describe('Explore', () => {
     expect(screen.getByRole('heading', { name: 'Merlion Park' })).toBeInTheDocument();
   });
 
+  test('full-screen map with a sheet: peek first, the handle opens the list, a selected place opens it halfway', async () => {
+    renderAt('/nearby?area=sg-marina-bay');
+    const sheet = screen.getByRole('region', { name: 'Places' });
+    expect(sheet).toHaveAttribute('data-detent', 'peek');
+    expect(within(sheet).getByRole('heading', { level: 1, name: 'Nearby' })).toBeInTheDocument();
+    // the phrases for the place picked on the phrase settings (Today's "Near you") are the first row
+    expect(within(sheet).getByRole('link', { name: /Phrases you might hear at Old Airport Rd Food Centre/ })).toHaveAttribute('href', '/nearby/phrases');
+    const handle = screen.getByRole('button', { name: 'Show the list' });
+    expect(handle).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(handle);
+    expect(screen.getByTestId('where')).toHaveTextContent('view=list');
+    expect(sheet).toHaveAttribute('data-detent', 'full');
+    await userEvent.click(screen.getByRole('button', { name: 'Show the map' }));
+    expect(sheet).toHaveAttribute('data-detent', 'peek');
+    const card = within(sheet).getAllByRole('button').find((b) => b.closest('h3'))!;
+    await userEvent.click(card);
+    expect(screen.getByTestId('where')).toHaveTextContent('sel=curated');
+    expect(sheet).toHaveAttribute('data-detent', 'half');
+  });
+
   test('selecting a card selects the same place on the map (and the other way round)', async () => {
     renderAt('/nearby?area=sg-marina-bay&view=list');
     const pin = () => document.querySelector('[data-pin="curated:sg-merlion-park"]');
@@ -89,7 +109,9 @@ describe('Explore', () => {
     await userEvent.click(card);
     expect(screen.getByTestId('where')).toHaveTextContent('sel=curated%3Asg-merlion-park');
     expect(card).toHaveAttribute('aria-pressed', 'true');
-    await userEvent.click(screen.getByRole('button', { name: 'Map' }));
+    // the list is the full sheet; its handle brings the map back
+    await userEvent.click(screen.getByRole('button', { name: 'Show the map' }));
+    expect(screen.getByTestId('where')).not.toHaveTextContent('view=list');
     expect(within(screen.getByRole('region', { name: 'Selected place' })).getByText('Merlion Park')).toBeInTheDocument();
     expect(pin()).toHaveAttribute('aria-pressed', 'true');
     // and from the map: another pin selects its card

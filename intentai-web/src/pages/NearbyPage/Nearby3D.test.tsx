@@ -40,8 +40,10 @@ describe('Explore in 3D', () => {
     expect(f).toHaveAttribute('title', '3D view of Singapore around Marina Bay');
     expect(f.getAttribute('src')).toBe('/earth-online/sg/lite.html#at=1.28680%2C103.85450&pin=0');
     expect(screen.getByText(/Loading 3D… The first time downloads up to 19 MB/)).toBeInTheDocument();
-    // back to the 2D map: the iframe (and its memory) is gone
-    await userEvent.click(screen.getByRole('button', { name: 'Map' }));
+    expect(screen.getByRole('button', { name: '3D' })).toHaveAttribute('aria-pressed', 'true');
+    // 3D off again: the 2D map is back and the iframe (and its memory) is gone
+    await userEvent.click(screen.getByRole('button', { name: '3D' }));
+    expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
     expect(frame()).toBeNull();
   });
 
@@ -84,25 +86,12 @@ describe('Explore in 3D', () => {
     fromFrame({ source: 'earth-online-lite', type: 'card', key: 'sg-no-such-landmark' });
     expect(screen.queryByText(/Card open/)).toBeNull();
   });
-
-  test('full screen covers the app, takes focus and leaves with Esc', async () => {
-    renderAt('/nearby?view=3d');
-    await userEvent.click(screen.getByRole('button', { name: 'Show the 3D view full screen' }));
-    const exit = screen.getByRole('button', { name: /Exit full screen/ });
-    expect(exit).toHaveFocus();
-    expect(document.body.style.overflow).toBe('hidden');
-    await userEvent.keyboard('{Escape}');
-    expect(screen.queryByRole('button', { name: /Exit full screen/ })).toBeNull();
-    expect(document.body.style.overflow).toBe('');
-    expect(screen.getByRole('button', { name: 'Show the 3D view full screen' })).toHaveFocus();
-  });
 });
 
 describe('Place detail in 3D', () => {
   test('3D replaces the small map on request and opens the landmark card', async () => {
     renderAt('/nearby/place/curated:sg-merlion-park');
     expect(frame()).toBeNull();
-    expect(screen.getByText(/up to 19 MB the first time/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: '3D' }));
     expect(frame()).toHaveAttribute('title', '3D view around Merlion Park');
     expect(frame()!.getAttribute('src')).toMatch(/#at=1\.\d{5}%2C103\.\d{5}&card=merlion&pin=0$/);
@@ -122,5 +111,18 @@ describe('Place detail in 3D', () => {
     const src = frame()!.getAttribute('src')!;
     expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}$/);
     expect(src).not.toContain('card=');
+  });
+
+  test('full screen covers the app, takes focus and leaves with Esc', async () => {
+    renderAt('/nearby/place/curated:sg-merlion-park');
+    await userEvent.click(screen.getByRole('button', { name: '3D' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Show the 3D view full screen' }));
+    const exit = screen.getByRole('button', { name: /Exit full screen/ });
+    expect(exit).toHaveFocus();
+    expect(document.body.style.overflow).toBe('hidden');
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('button', { name: /Exit full screen/ })).toBeNull();
+    expect(document.body.style.overflow).toBe('');
+    expect(screen.getByRole('button', { name: 'Show the 3D view full screen' })).toHaveFocus();
   });
 });

@@ -619,3 +619,19 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Place detail: the map runs edge to edge (no small framed window). */
+.heroMap {
+  position: relative;
+  height: 260px;
+  margin: 0 calc(-1 * var(--gutter));
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .heroMap {
+    height: 340px;
+    margin: 0;
+    border-radius: var(--radius-card-lg);
+  }
+}

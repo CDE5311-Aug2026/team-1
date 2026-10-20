@@ -88,3 +88,39 @@
 .page:focus {
   outline: none;
 }
+
+/* layout="fill": one non-scrolling screen (Nearby's full-screen map). The page's layers fill the viewport; the
+   status bar and the floating tab bar sit on top of them. */
+.fill {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.fillStatus {
+  position: relative;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.fillPage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.fillTabBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.75rem;
+  z-index: 30;
+  padding-top: 0;
+}
+
+@media (min-width: 481px) {
+  .fillTabBar {
+    bottom: 1rem;
+  }
+}

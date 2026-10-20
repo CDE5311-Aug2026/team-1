@@ -44,7 +44,7 @@ export default function PlacesPage() {
           </span>
           <span className={styles.settingText}>
             <span className={styles.settingTitle}>Use my location</span>
-            <span className={styles.settingHint}>For distances in Nearby · only on this device, off by default</span>
+            <span className={styles.settingHint}>Only on this device, off by default</span>
           </span>
           <Toggle label="Use my location" checked={flow.enabled} onChange={handleLocation} nodeId="11:1889" />
         </div>

@@ -15,6 +15,9 @@ interface AppShellProps {
   tabBarNodeId?: string;
   /** Figma node id of the frame's home indicator. Only frames that draw one (Home 1:2) pass it. */
   homeIndicatorNodeId?: string;
+  /** page (default): content scrolls, the tab bar follows it. fill: one screen that does not scroll (a full-screen
+   *  map); the page lays out its own layers and the tab bar floats over them. */
+  layout?: 'page' | 'fill';
 }
 
 function activeTab(pathname: string): string {
@@ -30,7 +33,9 @@ export default function AppShell({
   chrome = 'full',
   tabBarNodeId,
   homeIndicatorNodeId,
+  layout = 'page',
 }: AppShellProps) {
+  const fill = layout === 'fill';
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const showChrome = chrome === 'full';
@@ -43,11 +48,11 @@ export default function AppShell({
   const visibleToast = regionReady ? toast : null;
 
   return (
-    <div className={styles.shell} style={{ backgroundColor: background }}>
-      {chrome !== 'none' && <StatusBar />}
-      <main className={styles.page} tabIndex={-1}>{children}</main>
+    <div className={fill ? `${styles.shell} ${styles.fill}` : styles.shell} style={{ backgroundColor: background }}>
+      {chrome !== 'none' && (fill ? <div className={styles.fillStatus}><StatusBar /></div> : <StatusBar />)}
+      <main className={fill ? styles.fillPage : styles.page} tabIndex={-1}>{children}</main>
       {showChrome && (
-        <div className={styles.tabBarWrap}>
+        <div className={fill ? `${styles.tabBarWrap} ${styles.fillTabBar}` : styles.tabBarWrap}>
           <TabBar active={activeTab(pathname)} onNavigate={navigate} nodeId={tabBarNodeId} />
         </div>
       )}

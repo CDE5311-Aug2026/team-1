@@ -56,16 +56,17 @@ test('panning does not search; "Show places in this area" commits one local sear
   const before = page.url();
   await map.scrollIntoViewIfNeeded();
   const b = (await map.boundingBox())!;
-  await page.mouse.move(b.x + 40, b.y + 70);
+  // the full-screen map: drag in its open middle (the search bar floats on top, the sheet at the bottom)
+  await page.mouse.move(b.x + b.width / 2 - 80, b.y + b.height * 0.42);
   await page.mouse.down();
-  await page.mouse.move(b.x + 190, b.y + 150, { steps: 8 });
+  await page.mouse.move(b.x + b.width / 2 + 70, b.y + b.height * 0.42 + 80, { steps: 8 });
   await page.mouse.up();
   expect(page.url()).toBe(before);
   const commit = page.getByRole('button', { name: 'Show places in this area' });
   await expect(commit).toBeVisible();
   await commit.click();
   await expect(page.getByRole('button', { name: /Map area/ })).toBeVisible();
-  await expect(page.getByText(/2 km around the map centre/)).toBeVisible();
+  await expect(page.getByText(/within 2 km of the map centre/)).toBeVisible();
   expect(external).toEqual([]);
 });
 

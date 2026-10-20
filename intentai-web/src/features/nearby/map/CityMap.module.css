@@ -203,3 +203,11 @@
   font-size: 0.625rem;
   color: #3a3a3c;
 }
+
+/* Full-bleed (Explore's full-screen map): edge to edge, no frame. */
+.bleed {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+}

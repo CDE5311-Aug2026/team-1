@@ -17,6 +17,8 @@ export interface View3DProps {
   height?: number;
   /** A landmark card opened (key from the EARTH ONLINE dataset) or closed (null) inside the 3D view. */
   onCard?: (key: string | null) => void;
+  /** Fill the parent box with no frame, hint or full-screen button (Explore's full-screen map). */
+  bleed?: boolean;
 }
 
 type LiteMessage = { source: 'earth-online-lite'; type: 'ready' } | { source: 'earth-online-lite'; type: 'card'; key: string | null };
@@ -37,7 +39,7 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard }: View3DProps) {
+export default function View3D({ target, title, height = 360, onCard, bleed = false }: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
@@ -95,20 +97,29 @@ export default function View3D({ target, title, height = 360, onCard }: View3DPr
     };
   }, [expanded]);
 
+  const loading = !ready && (
+    <div className={styles.loading} role="status">
+      <span className={styles.spinner} aria-hidden="true" />
+      <span>
+        {slow ? 'Still loading. The 3D view needs WebGL and a steady connection.' : `Loading 3D… The first time downloads up to ${VIEW3D_DOWNLOAD_MB} MB.`}
+      </span>
+    </div>
+  );
+
+  if (bleed) {
+    return (
+      <div className={styles.bleed}>
+        <iframe ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
+        {loading}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.wrap}>
       <div className={expanded ? `${styles.stage} ${styles.full}` : styles.stage} style={expanded ? undefined : { height }}>
         <iframe ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
-        {!ready && (
-          <div className={styles.loading} role="status">
-            <span className={styles.spinner} aria-hidden="true" />
-            <span>
-              {slow
-                ? 'Still loading. The 3D view needs WebGL and a steady connection.'
-                : `Loading 3D… The first time downloads up to ${VIEW3D_DOWNLOAD_MB} MB.`}
-            </span>
-          </div>
-        )}
+        {loading}
         {expanded && (
           <button ref={closeFull} type="button" className={styles.exitFull} onClick={() => setExpanded(false)}>
             ✕ Exit full screen

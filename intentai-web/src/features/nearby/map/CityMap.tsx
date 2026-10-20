@@ -56,8 +56,16 @@ interface CityMapProps {
   onSettled?: (center: LatLng) => void;
   onRecenter?: () => void;
   recenterLabel?: string;
-  height: number;
+  /** Fixed height in px. Omit with `bleed` to fill the parent (full-screen map). */
+  height?: number;
   label: string;
+  /** Full-bleed: no border or radius, fills the parent box (Explore's full-screen map). */
+  bleed?: boolean;
+  /** Parts of the map covered by floating UI (search bar on top, sheet at the bottom), in px. Focus and the
+   *  "bring the selected pin into view" step use the uncovered area; controls and notes sit inside it. */
+  insets?: { top?: number; bottom?: number; left?: number; right?: number };
+  /** Top of the zoom / recenter buttons in px (default: just under the top inset). */
+  controlsTop?: number;
   /** Pins are shown but not selectable (e.g. the single place on its own detail page). */
   readOnly?: boolean;
 }
@@ -184,13 +192,22 @@ export default function CityMap({
   onSettled,
   onRecenter,
   recenterLabel = 'Recenter map',
-  height,
+  height: fixedHeight,
   label,
   readOnly = false,
+  bleed = false,
+  insets,
+  controlsTop,
 }: CityMapProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [width, setWidth] = useState(350);
+  const [boxHeight, setBoxHeight] = useState(fixedHeight ?? 300);
+  const height = fixedHeight ?? boxHeight;
+  const insetTop = insets?.top ?? 0;
+  const insetBottom = insets?.bottom ?? 0;
+  const insetLeft = insets?.left ?? 0;
+  const insetRight = insets?.right ?? 0;
   const [view, setView] = useState<Pick<View, 'center' | 'scale'>>({ center: { x: 0, y: 2000 }, scale: 0.008 });
   const [groundReady, setGroundReady] = useState(false);
   const [roads, setRoads] = useState<{ major?: RoadLayer; minor?: RoadLayer }>({});
@@ -204,7 +221,10 @@ export default function CityMap({
   useLayoutEffect(() => {
     const el = boxRef.current;
     if (!el) return undefined;
-    const measure = () => setWidth(el.clientWidth || 350);
+    const measure = () => {
+      setWidth(el.clientWidth || 350);
+      if (fixedHeight === undefined) setBoxHeight(el.clientHeight || 300);
+    };
     measure();
     if (typeof ResizeObserver === 'undefined') return undefined;
     const ro = new ResizeObserver(measure);
@@ -212,15 +232,26 @@ export default function CityMap({
     return () => ro.disconnect();
   }, []);
 
-  // Apply focus (initial view, recenter, new search area).
+  // Apply focus (initial view, recenter, new search area) within the uncovered part of the map: the focus point
+  // sits in the middle of the area between the top and bottom insets.
+  const freeH = Math.max(120, height - insetTop - insetBottom);
+  const freeW = Math.max(160, width - insetLeft - insetRight);
+  const slide = (insetLeft - insetRight) / 2;
+  const lift = (insetBottom - insetTop) / 2;
+  // Insets change as the sheet moves; only a new focus (or a new map size) recentres, read through a ref.
+  const free = useRef({ freeH, freeW, lift, slide });
+  free.current = { freeH, freeW, lift, slide };
   useEffect(() => {
+    const { freeH, freeW, lift, slide } = free.current;
+    const shift = (c: XY, scale: number): XY => ({ x: c.x - slide / scale, y: c.y - lift / scale });
     if (focus.center && focus.radiusM) {
-      setView({ center: toXY(focus.center), scale: scaleForRadius(focus.radiusM, width, height) });
+      const scale = scaleForRadius(focus.radiusM, freeW, freeH);
+      setView({ center: shift(toXY(focus.center), scale), scale });
     } else if (focus.points && focus.points.length) {
-      const fitted = fitView(focus.points.map(toXY), width, height);
-      setView(fitted);
+      const fitted = fitView(focus.points.map(toXY), freeW, freeH);
+      setView({ center: shift(fitted.center, fitted.scale), scale: fitted.scale });
     } else if (focus.center) {
-      setView((v) => ({ ...v, center: toXY(focus.center as LatLng) }));
+      setView((v) => ({ ...v, center: shift(toXY(focus.center as LatLng), v.scale) }));
     }
     // Re-run only when a new focus is requested or the size changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -231,7 +262,8 @@ export default function CityMap({
     const pin = pins.find((p) => p.key === selectedKey);
     if (!pin) return;
     const s = toScreen(toXY(pin.location), fullView);
-    if (s.x < 20 || s.x > width - 20 || s.y < 20 || s.y > height - 20) setView((v) => ({ ...v, center: toXY(pin.location) }));
+    if (s.x < insetLeft + 20 || s.x > width - insetRight - 20 || s.y < insetTop + 20 || s.y > height - insetBottom - 20)
+      setView((v) => ({ ...v, center: { x: toXY(pin.location).x - slide / v.scale, y: toXY(pin.location).y - lift / v.scale } }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey]);
 
@@ -441,7 +473,7 @@ export default function CityMap({
   const showLabels = view.scale < 0.03;
 
   return (
-    <div className={styles.wrap} style={{ height }}>
+    <div className={bleed ? `${styles.wrap} ${styles.bleed}` : styles.wrap} style={bleed ? undefined : { height }}>
       <div
         ref={boxRef}
         className={styles.map}
@@ -526,7 +558,7 @@ export default function CityMap({
           );
         })}
       </div>
-      <div className={styles.controls}>
+      <div className={styles.controls} style={controlsTop !== undefined ? { top: controlsTop } : insetTop ? { top: insetTop + 8 } : undefined}>
         <button type="button" className={styles.control} onClick={() => zoomAt(1.6)} aria-label="Zoom in">
           +
         </button>
@@ -539,8 +571,10 @@ export default function CityMap({
           </button>
         )}
       </div>
-      {circle && <p className={styles.radiusNote}>{circle.label}</p>}
-      <p className={styles.attribution}>EARTH ONLINE map · © OpenStreetMap contributors</p>
+      {circle && !bleed && <p className={styles.radiusNote}>{circle.label}</p>}
+      <p className={styles.attribution} style={insetBottom ? { bottom: insetBottom } : undefined}>
+        EARTH ONLINE map · © OpenStreetMap contributors
+      </p>
     </div>
   );
 }

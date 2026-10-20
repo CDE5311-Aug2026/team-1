@@ -13,7 +13,7 @@ import { showToast } from '../../hooks/useToast';
 import { markVisited, stillReached, toggleSave, useExplorePersonal, type Milestone } from '../../features/nearby/actions';
 import { area as areaById, collectionProgress, collectionsContaining, collectionTitle, curatedPlace, placeByEarthKey, regionName } from '../../features/nearby/catalogue';
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
-import View3D, { VIEW3D_DOWNLOAD_MB } from '../../features/nearby/components/View3D';
+import View3D from '../../features/nearby/components/View3D';
 import { fixInSingapore } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { CATEGORY_INFO, type CuratedPlace, type SourceReference } from '../../features/nearby/domain';
@@ -186,18 +186,19 @@ function Detail({ place }: { place: CuratedPlace }) {
               3D
             </button>
           </div>
-          {view === 'map' && <span className={styles.note}>3D shows the model around this place (up to {VIEW3D_DOWNLOAD_MB} MB the first time).</span>}
         </div>
         {view === 'map' ? (
-          <CityMap
-            label={`Map showing ${place.name}`}
-            height={180}
-            pins={[{ key: place.id, name: place.name, location: place.coordinates, category: place.category, visited: state?.visited }]}
-            selectedKey={place.id}
-            onSelect={() => undefined}
-            readOnly
-            focus={{ id: 1, center: place.coordinates, radiusM: 600 }}
-          />
+          <div className={styles.heroMap} data-allow-bleed>
+            <CityMap
+              bleed
+              label={`Map showing ${place.name}`}
+              pins={[{ key: place.id, name: place.name, location: place.coordinates, category: place.category, visited: state?.visited }]}
+              selectedKey={place.id}
+              onSelect={() => undefined}
+              readOnly
+              focus={{ id: 1, center: place.coordinates, radiusM: 600 }}
+            />
+          </div>
         ) : (
           <>
             <View3D target={view3dTarget(place)} title={`3D view around ${place.name}`} height={400} onCard={setCardKey} />
@@ -224,7 +225,7 @@ function Detail({ place }: { place: CuratedPlace }) {
           </a>
         </div>
         <p className={styles.note}>
-          Directions opens Google Maps without your position; choose walking, transit or driving there. Opening it does not mark a visit.
+          Directions opens Google Maps without your position. It does not mark a visit.
         </p>
 
         {state?.visited && (

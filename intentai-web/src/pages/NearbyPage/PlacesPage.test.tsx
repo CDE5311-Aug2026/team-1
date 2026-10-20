@@ -70,8 +70,7 @@ test('"Use my location" is off by default, with honest copy', () => {
   renderPlaces();
 
   expect(screen.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'false');
-  expect(screen.queryByText(/Only on this device/)).not.toBeInTheDocument();
-  expect(screen.getByText('For distances in Nearby · only on this device, off by default')).toBeInTheDocument();
+  expect(screen.getByText('Only on this device, off by default')).toBeInTheDocument();
 });
 
 const SG_FIX = { coords: { latitude: 1.2804, longitude: 103.8448, accuracy: 20 }, timestamp: 1 } as unknown as GeolocationPosition;

@@ -6,12 +6,17 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import AppShell from '../../components/AppShell/AppShell';
 import { area as areaById, areasIn, collectionsContaining, curatedPlace, editorialRank, overviewArea, placeByEarthKey, placesIn } from '../../features/nearby/catalogue';
 import CityMap, { type MapFocus } from '../../features/nearby/map/CityMap';
-import { NearbyHeader, SectionNav, StorageWarning } from '../../features/nearby/components/NearbyChrome';
+import BottomSheet, { PEEK_PX, useWideLayout, type Detent } from '../../features/nearby/components/BottomSheet';
+import { StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
-import View3D, { VIEW3D_DOWNLOAD_MB } from '../../features/nearby/components/View3D';
+import View3D from '../../features/nearby/components/View3D';
 import { view3dTarget, type View3DTarget } from '../../features/nearby/links';
 import { fixInSingapore, locationStatusText, useLocationFlow } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
+import x from './Explore.module.css';
+import { staticCopy } from '../../data/expressions';
+import { usePersistentStore } from '../../data/persistentStore';
+import { placeStore } from '../../data/stores';
 import { CATEGORY_INFO } from '../../features/nearby/domain';
 import { distanceM, formatDistance } from '../../features/nearby/geo';
 import { parsePlaceKey } from '../../features/nearby/identity';
@@ -40,10 +45,8 @@ import {
 import { paths } from '../../routes';
 
 const COUNTRY = 'SG' as const;
-const MAP_HEIGHT = 300;
 /** In map view the list under the map stays short; the List view shows everything. */
 const MAP_LIST_LIMIT = 6;
-const VIEW3D_HEIGHT = 420;
 /** The 3D view opens over Marina Bay when nothing is selected and no area or location is set. */
 const MARINA_BAY: LatLng = { lat: 1.2868, lng: 103.8545 };
 
@@ -70,6 +73,15 @@ export default function ExplorePage() {
   const view = rawView === 'list' ? 'list' : rawView === '3d' ? '3d' : 'map';
   const [cardKey, setCardKey] = useState<string | null>(null);
   useEffect(() => setCardKey(null), [view]);
+  const wide = useWideLayout();
+  const [place] = usePersistentStore(placeStore);
+  // The sheet: the List view is the full sheet; otherwise peek or half (a selected place opens it to half).
+  const [mapDetent, setMapDetent] = useState<Exclude<Detent, 'full'>>(params.get('sel') && params.get('view') !== '3d' ? 'half' : 'peek');
+  const detent: Detent = view === 'list' ? 'full' : mapDetent;
+  // 3D fills the space above the peek; the sheet steps down so the 3D view and its card show.
+  useEffect(() => {
+    if (view === '3d') setMapDetent('peek');
+  }, [view]);
   const rawCategory = params.get('category');
   const category: CategoryFilter = isCategoryFilter(rawCategory) ? rawCategory : 'all';
   const rawQuery = params.get('q')?.trim() ?? '';
@@ -141,7 +153,19 @@ export default function ExplorePage() {
       ].filter((g) => g.items.length > 0);
 
   const selected = items.find((i) => i.key === selectedKey) ?? null;
-  const select = (key: string) => patch({ sel: key }, true);
+  const select = (key: string) => {
+    patch({ sel: key }, true);
+    if (view === 'map') setMapDetent((d) => (d === 'peek' ? 'half' : d));
+  };
+  const setDetent = (d: Detent) => {
+    if (d === 'full') patch({ view: 'list' });
+    else {
+      setMapDetent(d);
+      if (view === 'list') patch({ view: null });
+    }
+  };
+  // Picked on the phrase settings (Today's "Near you" card names it); its phrases stay one tap away.
+  const phrasePlace = place === 'Hawker centre' ? staticCopy.nearYou.place : place;
   // 3D: the selected place (its landmark card when the dataset has a model), else the area / location / map centre.
   // "Near you" pins your position inside the 3D page only (the address keeps it in the hash, never sent to a server).
   const selectedPlace = selected ? curatedPlace(selected.key) : undefined;
@@ -184,82 +208,180 @@ export default function ExplorePage() {
   const statusText = !ignoreFix && flow.enabled ? locationStatusText(location) : null;
   const totalLabel = `${items.length} ${items.length === 1 ? 'place' : 'places'}`;
 
-  return (
-    <AppShell background="var(--bg-screen-b)">
-      <div className={styles.screen}>
-        <NearbyHeader
-          title="Nearby"
-          chip={
-            <button type="button" className={styles.chip} onClick={() => navigate(paths.nearbyLocation)} aria-label={`${chipLabel}. Change area or location`}>
-              <span className={fixUsable ? `${styles.dot} ${styles.dotOn}` : styles.dot} aria-hidden="true" />
-              <span className={styles.chipText}>{chipLabel}</span>
-            </button>
-          }
-        />
-        <SectionNav />
-        <StorageWarning />
+  // the uncovered part of the map: under the search bar, above the sheet, left of the map buttons
+  const mapInsets = wide ? { top: 0, bottom: 0, left: 432, right: 72 } : { top: 150, bottom: PEEK_PX, right: 64 };
+  const resetAll = () => {
+    setIgnoreFix(true);
+    setMapCenter(null);
+    setDraft('');
+    setSelectedArea(undefined);
+    patch({ area: null, q: null, sel: null });
+    setFocusId((n) => n + 1);
+  };
 
+  const sheetHeader = (
+    <>
+      <div className={x.titleRow}>
+        <div className={x.titleText}>
+          <h1 className={x.title}>Nearby</h1>
+          <p className={x.count} aria-live="polite">
+            {query ? `${totalLabel} matching “${query}”` : origin ? `${totalLabel} within ${radius / 1000} km of ${origin.label}` : `${totalLabel} across Singapore`}
+          </p>
+        </div>
+        <nav className={x.sections} aria-label="Nearby sections">
+          <Link className={x.sectionLink} to={paths.collections}>
+            Collections
+          </Link>
+          <Link className={x.sectionLink} to={paths.saved}>
+            Saved
+          </Link>
+        </nav>
+      </div>
+    </>
+  );
+
+  return (
+    <AppShell background="var(--bg-screen-b)" layout="fill">
+      {/* The map (or the 3D view) is the page: edge to edge, under the status bar and the floating controls. */}
+      <div className={view === '3d' ? `${x.stage} ${x.stage3d}` : x.stage} data-allow-bleed>
+        {view === '3d' ? (
+          <View3D
+            bleed
+            target={target3d}
+            title={`3D view of Singapore around ${selected?.name ?? origin?.label ?? 'Marina Bay'}`}
+            onCard={setCardKey}
+          />
+        ) : (
+          <CityMap
+            bleed
+            insets={mapInsets}
+            controlsTop={wide ? 216 : 254}
+            label="Map of Singapore places. Every place on it is also in the list."
+            pins={items.map((i) => ({ key: i.key, name: i.name, location: i.location, category: i.category, visited: stateByKey.get(i.key)?.visited }))}
+            selectedKey={selectedKey ?? undefined}
+            onSelect={select}
+            focus={focus}
+            circle={origin && !query ? { center: origin.point, radiusM: radius, label: `${radius / 1000} km around ${origin.label}` } : undefined}
+            you={fixUsable && location.fix && isPrecise(location.fix) ? location.fix : null}
+            labels={areasIn(COUNTRY).map((a) => ({ id: a.id, name: a.name.split(' & ')[0], location: a.center }))}
+            onSettled={onSettled}
+            onRecenter={() => setFocusId((n) => n + 1)}
+          />
+        )}
+      </div>
+
+      {/* Floating search and categories (hidden in 3D, where the 3D page's time bar sits at the top). */}
+      {view !== '3d' && (
+        <div className={x.top} data-allow-bleed>
+          <form className={x.search} role="search" onSubmit={submit}>
+            <span className={x.searchIcon} aria-hidden="true">
+              ⌕
+            </span>
+            <label htmlFor="nearby-search" className={styles.srOnly}>
+              Search places by name or type
+            </label>
+            <input
+              id="nearby-search"
+              className={x.searchInput}
+              type="search"
+              enterKeyHint="search"
+              value={draft}
+              maxLength={QUERY_MAX}
+              placeholder="Search places"
+              onChange={(e) => setDraft(e.target.value)}
+              aria-describedby={queryError ? 'nearby-search-error' : undefined}
+            />
+            <button type="submit" className={styles.srOnly}>
+              Search
+            </button>
+            <button type="button" className={x.areaChip} onClick={() => navigate(paths.nearbyLocation)} aria-label={`${chipLabel}. Change area or location`}>
+              <span className={fixUsable ? `${styles.dot} ${styles.dotOn}` : styles.dot} aria-hidden="true" />
+              <span className={x.areaText}>{chipLabel}</span>
+            </button>
+          </form>
+          {queryError && (
+            <p id="nearby-search-error" className={x.floatingNote} role="alert">
+              {queryError}
+            </p>
+          )}
+          <ul className={x.chips} aria-label="Category">
+            {(['all', ...CATEGORIES] as CategoryFilter[]).map((c) => (
+              <li key={c}>
+                <button type="button" className={x.chip} aria-pressed={category === c} onClick={() => patch({ category: c === 'all' ? null : c, sel: null })}>
+                  {c === 'all' ? (
+                    'All'
+                  ) : (
+                    <>
+                      <span aria-hidden="true">{CATEGORY_INFO[c].emoji}</span> {CATEGORY_INFO[c].plural}
+                    </>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+          {pendingCenter && (
+            <button
+              type="button"
+              className={x.searchArea}
+              onClick={() => {
+                setIgnoreFix(true);
+                setSelectedArea(undefined);
+                setMapCenter(pendingCenter);
+                setPendingCenter(null);
+                patch({ q: null, sel: null });
+                setDraft('');
+              }}
+            >
+              Show places in this area
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Map buttons: 3D and your location (zoom and recenter are on the map itself). */}
+      <div className={view === '3d' ? `${x.side} ${x.side3d}` : x.side} role="group" aria-label="Map view">
+        <button type="button" className={x.sideButton} aria-pressed={view === '3d'} onClick={() => patch({ view: view === '3d' ? null : '3d' })}>
+          3D
+        </button>
+        <button type="button" className={x.sideButton} onClick={flow.start} aria-label="My location">
+          <span aria-hidden="true">➤</span>
+        </button>
+      </div>
+
+      <BottomSheet detent={detent} onDetent={setDetent} label="Places" header={sheetHeader} wide={wide}>
+        <StorageWarning />
         {statusText && (
           <p className={styles.status} role="status">
             {statusText}
           </p>
         )}
-
-        <form className={styles.search} role="search" onSubmit={submit}>
-          <label htmlFor="nearby-search" className={styles.srOnly}>
-            Search places by name or type
-          </label>
-          <input
-            id="nearby-search"
-            className={styles.searchInput}
-            type="search"
-            value={draft}
-            maxLength={QUERY_MAX}
-            placeholder="Search a place or food, e.g. temple, hawker"
-            onChange={(e) => setDraft(e.target.value)}
-            aria-describedby={queryError ? 'nearby-search-error' : undefined}
-          />
-          <button type="submit" className={styles.primary}>
-            Search
-          </button>
-        </form>
-        {queryError && (
-          <p id="nearby-search-error" className={styles.warning} role="alert">
-            {queryError}
+        {view === '3d' && cardPlace && (
+          <p className={styles.note} role="status">
+            Card open: {cardPlace.name}.{' '}
+            <Link className={styles.textLink} to={paths.nearbyPlace(cardPlace.id)}>
+              Open place →
+            </Link>
           </p>
         )}
-
-        <ul className={styles.chips} aria-label="Category">
-          {(['all', ...CATEGORIES] as CategoryFilter[]).map((c) => (
-            <li key={c}>
-              <button
-                type="button"
-                className={styles.filterChip}
-                aria-pressed={category === c}
-                onClick={() => patch({ category: c === 'all' ? null : c, sel: null })}
-              >
-                {c === 'all' ? 'All' : CATEGORY_INFO[c].plural}
-              </button>
-            </li>
-          ))}
-        </ul>
+        {selected && (
+          <section aria-label="Selected place">
+            <PlaceCard item={selected} state={stateByKey.get(selected.key)} originKind={origin?.kind} selected idPrefix="preview" />
+          </section>
+        )}
+        {!selected && (
+          <Link className={x.phraseRow} to={paths.phrases}>
+            <span className={x.phraseIcon} aria-hidden="true">
+              💬
+            </span>
+            <span className={x.phraseText}>
+              <span className={x.phraseTitle}>Phrases you might hear at {phrasePlace}</span>
+              <span className={x.phraseSub}>{staticCopy.nearYou.subtitle}</span>
+            </span>
+            <span aria-hidden="true">›</span>
+          </Link>
+        )}
 
         <div className={styles.row}>
-          <div className={styles.segmented} role="group" aria-label="View">
-            <button type="button" className={styles.segment} aria-pressed={view === 'map'} onClick={() => patch({ view: null })}>
-              Map
-            </button>
-            <button type="button" className={styles.segment} aria-pressed={view === '3d'} onClick={() => patch({ view: '3d' })}>
-              3D
-            </button>
-            <button type="button" className={styles.segment} aria-pressed={view === 'list'} onClick={() => patch({ view: 'list' })}>
-              List
-            </button>
-          </div>
-          <button type="button" className={styles.ghostButton} onClick={flow.start}>
-            📍 My location
-          </button>
-          <span className={styles.spacer} />
           {origin && !query && (
             <label className={styles.label}>
               Radius{' '}
@@ -281,146 +403,60 @@ export default function ExplorePage() {
               </select>
             </label>
           )}
+          {(origin || query) && (
+            <button type="button" className={styles.textButton} onClick={resetAll}>
+              ← Show all of Singapore
+            </button>
+          )}
         </div>
+        {origin && <p className={styles.note}>Distances are straight-line and approximate.</p>}
 
-        {(origin || query) && (
-          <button
-            type="button"
-            className={styles.textButton}
-            onClick={() => {
-              setIgnoreFix(true);
-              setMapCenter(null);
-              setDraft('');
-              setSelectedArea(undefined);
-              patch({ area: null, q: null, sel: null });
-              setFocusId((n) => n + 1);
-            }}
-          >
-            ← Show all of Singapore
-          </button>
+        {items.length === 0 ? (
+          <p className={styles.empty}>
+            {query
+              ? `No places match “${query}”. Try another word, or clear the search.`
+              : origin
+                ? `No ${category === 'all' ? '' : CATEGORY_INFO[category].plural.toLowerCase() + ' '}places within ${radius / 1000} km. Try a larger radius or another area.`
+                : 'No places in this category yet.'}
+          </p>
+        ) : (
+          ordered.map((group) => (
+            <section key={group.title} aria-label={group.title}>
+              <h2 className={styles.groupTitle}>
+                {group.title} <span className={styles.note}>({group.items.length})</span>
+              </h2>
+              {group.note && <p className={styles.groupNote}>{group.note}</p>}
+              <ul className={styles.list} style={{ marginTop: '0.5rem' }}>
+                {group.items.slice(0, view === 'list' || wide ? undefined : MAP_LIST_LIMIT).map((item) => (
+                  <li key={item.key}>
+                    <PlaceCard
+                      item={item}
+                      state={stateByKey.get(item.key)}
+                      originKind={origin?.kind}
+                      selected={item.key === selectedKey}
+                      onSelect={() => select(item.key)}
+                      compact={view !== 'list'}
+                    />
+                  </li>
+                ))}
+              </ul>
+              {view !== 'list' && !wide && group.items.length > MAP_LIST_LIMIT && (
+                <button type="button" className={styles.secondary} style={{ marginTop: '0.5rem' }} onClick={() => patch({ view: 'list' })}>
+                  Show all {group.items.length} in the list
+                </button>
+              )}
+            </section>
+          ))
         )}
-        <p className={styles.note} aria-live="polite">
-          {query ? `${totalLabel} matching “${query}” in Singapore.` : origin ? `${totalLabel} within ${radius / 1000} km of ${origin.label}.` : `${totalLabel} across Singapore.`}
-          {origin && ' Distances are straight-line and approximate.'}
-        </p>
-
-        <div className={styles.split}>
-          {view === '3d' && (
-            <div className={styles.splitMap}>
-              <View3D
-                target={target3d}
-                title={`3D view of Singapore around ${selected?.name ?? origin?.label ?? 'Marina Bay'}`}
-                height={VIEW3D_HEIGHT}
-                onCard={setCardKey}
-              />
-              {cardPlace && (
-                <p className={styles.note} role="status" style={{ marginTop: '0.375rem' }}>
-                  Card open: {cardPlace.name}.{' '}
-                  <Link className={styles.textLink} to={paths.nearbyPlace(cardPlace.id)}>
-                    Open place →
-                  </Link>
-                </p>
-              )}
-            </div>
-          )}
-          {view === 'map' && (
-            <div className={styles.splitMap}>
-              <CityMap
-                label="Map of Singapore places. Every place on it is also in the List view."
-                height={MAP_HEIGHT}
-                pins={items.map((i) => ({ key: i.key, name: i.name, location: i.location, category: i.category, visited: stateByKey.get(i.key)?.visited }))}
-                selectedKey={selectedKey ?? undefined}
-                onSelect={select}
-                focus={focus}
-                circle={origin && !query ? { center: origin.point, radiusM: radius, label: `${radius / 1000} km around ${origin.label}` } : undefined}
-                you={fixUsable && location.fix && isPrecise(location.fix) ? location.fix : null}
-                labels={areasIn(COUNTRY).map((a) => ({ id: a.id, name: a.name.split(' & ')[0], location: a.center }))}
-                onSettled={onSettled}
-                onRecenter={() => setFocusId((n) => n + 1)}
-              />
-              {pendingCenter && (
-                <div className={styles.row} style={{ marginTop: '0.5rem' }}>
-                  <button
-                    type="button"
-                    className={styles.primary}
-                    onClick={() => {
-                      setIgnoreFix(true);
-                      setSelectedArea(undefined);
-                      setMapCenter(pendingCenter);
-                      setPendingCenter(null);
-                      patch({ q: null, sel: null });
-                      setDraft('');
-                    }}
-                  >
-                    Show places in this area
-                  </button>
-                  <span className={styles.note}>Within {radius / 1000} km of the map centre.</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className={styles.screen} style={{ marginTop: 0 }}>
-            {view !== 'list' && selected && (
-              <section aria-label="Selected place">
-                <PlaceCard item={selected} state={stateByKey.get(selected.key)} originKind={origin?.kind} selected idPrefix="preview" />
-              </section>
-            )}
-            {view === 'map' && !selected && items.length > 0 && (
-              <p className={styles.note}>Select a pin or a place below to see it here.</p>
-            )}
-            {view === '3d' && !selected && items.length > 0 && (
-              <p className={styles.note}>Select a place below to see it in 3D. The 3D view downloads up to {VIEW3D_DOWNLOAD_MB} MB the first time.</p>
-            )}
-            {items.length === 0 ? (
-              <p className={styles.empty}>
-                {query
-                  ? `No places match “${query}”. Try another word, or clear the search.`
-                  : origin
-                    ? `No ${category === 'all' ? '' : CATEGORY_INFO[category].plural.toLowerCase() + ' '}places within ${radius / 1000} km. Try a larger radius or another area.`
-                    : 'No places in this category yet.'}
-              </p>
-            ) : (
-              ordered.map((group) => (
-                <section key={group.title} aria-label={group.title}>
-                  <h2 className={styles.groupTitle}>
-                    {group.title} <span className={styles.note}>({group.items.length})</span>
-                  </h2>
-                  {group.note && <p className={styles.groupNote}>{group.note}</p>}
-                  <ul className={styles.list} style={{ marginTop: '0.5rem' }}>
-                    {group.items.slice(0, view !== 'list' ? MAP_LIST_LIMIT : undefined).map((item) => (
-                      <li key={item.key}>
-                        <PlaceCard
-                          item={item}
-                          state={stateByKey.get(item.key)}
-                          originKind={origin?.kind}
-                          selected={item.key === selectedKey}
-                          onSelect={() => select(item.key)}
-                          compact={view !== 'list'}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                  {view !== 'list' && group.items.length > MAP_LIST_LIMIT && (
-                    <button type="button" className={styles.secondary} style={{ marginTop: '0.5rem' }} onClick={() => patch({ view: 'list' })}>
-                      Show all {group.items.length} in the list
-                    </button>
-                  )}
-                </section>
-              ))
-            )}
-            {selected && origin && (
-              <p className={styles.srOnly} aria-live="polite">
-                {selected.name} selected, {selected.distanceM !== undefined ? formatDistance(selected.distanceM) : ''} {originPhrase(origin.kind)}
-              </p>
-            )}
-          </div>
-        </div>
-
+        {selected && origin && (
+          <p className={styles.srOnly} aria-live="polite">
+            {selected.name} selected, {selected.distanceM !== undefined ? formatDistance(selected.distanceM) : ''} {originPhrase(origin.kind)}
+          </p>
+        )}
         <p className={styles.note}>
           Learning phrases instead? <Link className={styles.textLink} to={paths.places}>Phrases for a setting →</Link>
         </p>
-      </div>
+      </BottomSheet>
       {flow.dialog}
     </AppShell>
   );

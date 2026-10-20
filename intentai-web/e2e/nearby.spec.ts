@@ -63,7 +63,7 @@ test('Place list matches Figma frame geometry at 390x844', async ({ page }) => {
 // Port of v0 "Nearby manual place selection" — now reached from Explore → "Phrases for a setting".
 test('Nearby manual phrase-setting selection works', async ({ page }) => {
   await open(page, paths.today);
-  await page.getByRole('button', { name: /nearby/i }).click();
+  await page.getByRole('button', { name: /near you/i }).click();
   await expect(page).toHaveURL(/\/nearby$/); // Explore opens even with location off
   await page.getByRole('link', { name: /Phrases for a setting/ }).click();
   await expect(page).toHaveURL(/\/nearby\/places$/);
@@ -97,7 +97,7 @@ test.describe('with geolocation permission', () => {
     await expect(page.getByRole('dialog', { name: 'Use your location?' })).toContainText('not sent to any server');
     await page.getByRole('button', { name: 'Continue' }).click();
     await expect(page.getByRole('button', { name: /Near you/ })).toBeVisible();
-    await page.getByRole('button', { name: 'List', exact: true }).click();
+    await page.getByRole('button', { name: 'Show the list' }).click();
     await expect(page.getByText(/Approx\. .* from you$/).first()).toBeVisible();
     const stored = await page.evaluate(() => JSON.stringify({ ...localStorage }));
     expect(stored).not.toContain('103.844');

@@ -93,6 +93,24 @@ export function cluster<T extends { key: string }>(items: T[], position: (item: 
       out.push({ id: item.key, x: p.x, y: p.y, items: [item] });
     }
   }
+  // Means drift: merge clusters whose centres ended up closer than the radius, so targets never overlap.
+  for (let merged = true; merged; ) {
+    merged = false;
+    for (let i = 0; i < out.length && !merged; i++) {
+      for (let j = i + 1; j < out.length; j++) {
+        const a = out[i];
+        const b = out[j];
+        if (Math.hypot(a.x - b.x, a.y - b.y) > radiusPx) continue;
+        const n = a.items.length + b.items.length;
+        a.x = (a.x * a.items.length + b.x * b.items.length) / n;
+        a.y = (a.y * a.items.length + b.y * b.items.length) / n;
+        a.items.push(...b.items);
+        out.splice(j, 1);
+        merged = true;
+        break;
+      }
+    }
+  }
   for (const c of out) c.id = c.items.length === 1 ? c.items[0].key : `cluster:${c.items[0].key}:${c.items.length}`;
   return out;
 }
