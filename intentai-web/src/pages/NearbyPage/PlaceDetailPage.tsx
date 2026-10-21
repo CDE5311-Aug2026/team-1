@@ -207,7 +207,7 @@ function Detail({ place }: { place: CuratedPlace }) {
           </div>
         ) : (
           <>
-            <View3D target={view3dTarget(place)} title={`3D view around ${place.name}`} height={400} onCard={setCardKey} />
+            <View3D target={view3dTarget(place)} title={`3D view around ${place.name}`} height={400} hideCards onCard={setCardKey} />
             {otherCard && otherCard.id !== place.id && (
               <p className={styles.note} role="status">
                 {otherCard.name} ·{' '}

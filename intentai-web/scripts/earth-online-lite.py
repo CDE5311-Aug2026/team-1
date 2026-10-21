@@ -49,6 +49,19 @@ window.__LITE_MOB = (function () { try { return matchMedia('(pointer: coarse)').
 /* lite embed: the 3D view, its labels, the time bar (time / weather / sound) and the landmark card only */
 #panel, #stats, #dock, #uiHint, #scalebar, .sgc [data-a="nav"], .cityseg { display: none !important; }
 html, body { overscroll-behavior: none; touch-action: none; }
+/* Nearby look: the app's font (Inter, bundled) and colours. The time bar is gone: time of day plays on its own,
+   weather is Auto and sound stays off, so the only things to do are to look around (and 2D / 3D in the app). */
+@font-face { font-family: 'Inter'; font-weight: 400; font-display: swap; src: url(vendor/fonts/inter-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 600; font-display: swap; src: url(vendor/fonts/inter-latin-600-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 700; font-display: swap; src: url(vendor/fonts/inter-latin-700-normal.woff2) format('woff2'); }
+:root { --font-mono: 'Inter', system-ui, sans-serif; }
+body, #labels, #labels *, .sgc, .sgc *, #busy { font-family: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif !important; letter-spacing: 0 !important; }
+#timebar, #busy, #sndWrap, #wxWrap { display: none !important; }
+#labels .lbl { color: #23211d; }
+#labels .lbl small { color: #5f5b54; }
+.sgc { background: #f6f5f2 !important; color: #23211d !important; border-radius: 20px 20px 0 0 !important; }
+.sgc .sgc-btns button { border-radius: 18px !important; }
+.sgc .sgc-btns button.go, .sgc .sgc-btns button:first-child { background: #23211d !important; color: #fff !important; border-color: #23211d !important; }
 /* the time bar sits at the top (the landmark card is a bottom sheet); its menus open downwards */
 #timebar { left: 8px !important; right: 8px !important; transform: none !important; width: auto !important; max-width: 560px; margin: 0 auto;
   top: calc(8px + env(safe-area-inset-top, 0px)) !important; bottom: auto !important; }
@@ -193,7 +206,9 @@ addEventListener('resize', () => { renderer.setPixelRatio(Math.min(window.device
     if (LITE.pin) litePin(LITE.pin[0], LITE.pin[1]);
     // the card opens as a peek (name only; a tap shows the rest) so the small embedded view stays visible
     if (LITE.card){ try { if (SGCard.open(LITE.card)) litePeek(); } catch (e){ console.error('[lite] card', e); } }
-    LITE.ready = true; litePost({type:'ready'});
+    liteAuto();
+    const built = setInterval(() => { let n = 0; for (const T of SGR.tiles.values()) if (T.done) n++;
+      if ((n > 0 && !SGR.queue.length) || ++tries > 900){ clearInterval(built); LITE.ready = true; litePost({type:'ready'}); } }, 300);
     let last = null;
     setInterval(() => { let k = null; try { k = SGCard.isOpen ? SGCard.key : null; } catch (e){ }
       if (k !== last){ last = k; let title = null; try { title = k ? SGCard.state().title : null; } catch (e){ }
@@ -201,13 +216,31 @@ addEventListener('resize', () => { renderer.setPixelRatio(Math.min(window.device
   }, 200);
 }
 function litePeek(){ setTimeout(() => { const el = document.querySelector('section.sgc'); if (el) el.classList.add('peek'); }, 50); }
+// time of day plays by itself from Singapore's time now (at the page's usual speed, #rate= to change), weather is
+// Auto, sound off, the language follows the app (#lang=en|zh|both). Nothing here can be set by the viewer.
+function liteAuto(){
+  try { const m = {en:'en', zh:'zh', both:'both'}[LITE.q.get('lang')] || 'en'; if (window.SGLang) SGLang.set(m); } catch (e){ console.error('[lite] lang', e); }
+  try { if (window.SGAudio && SGAudio.on) SGAudio.disable(); } catch (e){ console.error('[lite] sound', e); }
+  try { if (window.SGWx) SGWx.set('auto', true); } catch (e){ console.error('[lite] weather', e); }
+  try {
+    const rate = +LITE.q.get('rate');
+    if (window.SGClock){ SGClock.setLocal(false); SGClock.setRate(SGClock.RATES.includes(rate) ? rate : 2400); tod = SGClock.localNow()[0]; }
+    todPlay = !LITE.still; applyTime();
+  } catch (e){ console.error('[lite] time', e); }
+}
+// map labels without emoji icons (the app uses none)
+{
+  const EMO = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/gu;
+  const clean = el => { for (const n of el.querySelectorAll ? [el, ...el.querySelectorAll('*')] : [el]) for (const t of n.childNodes) if (t.nodeType === 3 && EMO.test(t.nodeValue)){ EMO.lastIndex = 0; t.nodeValue = t.nodeValue.replace(EMO, ''); } };
+  try { new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) clean(n); }).observe(document.getElementById('labels'), {childList:true}); } catch (e){ }
+}
 // a pin on a point without a landmark model
 function litePin(x, y){
   if (!LITE.pinMesh){
-    const pin = new THREE.Group(), mat = new THREE.MeshBasicMaterial({color:0xd9480f});
+    const pin = new THREE.Group(), mat = new THREE.MeshBasicMaterial({color:0xe4671f});
     const head = new THREE.Mesh(new THREE.ConeGeometry(9, 26, 18), mat); head.rotation.x = Math.PI; head.position.y = 13;
     const ball = new THREE.Mesh(new THREE.SphereGeometry(10, 18, 12), mat); ball.position.y = 30;
-    const ring = new THREE.Mesh(new THREE.RingGeometry(14, 22, 40), new THREE.MeshBasicMaterial({color:0xd9480f, transparent:true, opacity:0.55, side:THREE.DoubleSide})); ring.rotation.x = -Math.PI/2; ring.position.y = 0.8;
+    const ring = new THREE.Mesh(new THREE.RingGeometry(14, 22, 40), new THREE.MeshBasicMaterial({color:0xe4671f, transparent:true, opacity:0.55, side:THREE.DoubleSide})); ring.rotation.x = -Math.PI/2; ring.position.y = 0.8;
     pin.add(head, ball, ring); pin.renderOrder = 9; scene.add(pin); LITE.pinMesh = pin;
   }
   LITE.pinMesh.position.set(x, Math.max(0, hC(x, y)) + 2, -y); LITE.pinMesh.visible = true;

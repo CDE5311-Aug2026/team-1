@@ -96,7 +96,7 @@ describe('Place detail in 3D', () => {
     expect(frame()).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: '3D' }));
     expect(frame()).toHaveAttribute('title', '3D view around Merlion Park');
-    expect(frame()!.getAttribute('src')).toMatch(/#at=1\.\d{5}%2C103\.\d{5}&card=merlion&pin=0$/);
+    expect(frame()!.getAttribute('src')).toMatch(/#at=1\.\d{5}%2C103\.\d{5}&card=merlion&pin=0&cards=0$/);
     // the card of the place itself needs no link; another landmark's card links to that place
     fromFrame({ source: 'earth-online-lite', type: 'card', key: 'merlion' });
     expect(screen.queryByRole('link', { name: 'Open place →' })).toBeNull();
@@ -111,7 +111,7 @@ describe('Place detail in 3D', () => {
     renderAt('/nearby/place/curated:sg-maxwell-food-centre');
     await userEvent.click(screen.getByRole('button', { name: '3D' }));
     const src = frame()!.getAttribute('src')!;
-    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}$/);
+    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&cards=0$/);
     expect(src).not.toContain('card=');
   });
 

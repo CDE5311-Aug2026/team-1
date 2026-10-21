@@ -23,21 +23,22 @@ test('place detail → 3D: the area loads, the card opens, cards link back, leav
   await page.goto(paths.nearbyPlace('curated:sg-merlion-park'));
   await page.getByRole('button', { name: '3D' }).click();
   await expect(page.getByText(/Loading 3D/)).toBeVisible();
-  // "ready" comes from the 3D page once the area is built
-  await expect(page.getByText(/Loading 3D/)).toBeHidden({ timeout: 240_000 });
-  await expect(page.getByText(/Still loading/)).toHaveCount(0);
+  // "ready" comes from the 3D page once the area is built (software WebGL is slow: the "Still loading" note may show first)
+  await expect(page.getByText(/Loading 3D|Still loading/)).toHaveCount(0, { timeout: 400_000 });
 
   const f = page.frameLocator('iframe[title="3D view around Merlion Park"]');
-  await expect(f.locator('#timebar')).toBeVisible();
-  await expect(f.locator('#wxBtn')).toBeVisible();
-  await expect(f.locator('#sndBtn')).toBeVisible();
-  for (const hidden of ['#panel', '#dock', '#stats']) await expect(f.locator(hidden)).toBeHidden();
-  // the place's own card is open (and needs no link back)
-  await expect(f.locator('section.sgc h2')).toContainText('鱼尾狮', { timeout: 60_000 });
+  // nothing to set in 3D: no time bar, weather or sound buttons, no tool panels; the place's card sheet stays hidden
+  for (const hidden of ['#timebar', '#wxBtn', '#sndBtn', '#panel', '#dock', '#stats', 'section.sgc']) await expect(f.locator(hidden)).toBeHidden();
   await expect(page.getByRole('link', { name: 'Open place →' })).toHaveCount(0);
+  const frame = page.frames().find((fr) => fr.url().includes('/earth-online/sg/lite.html'))!;
+  // time plays by itself, weather is Auto, sound is off, the language is the app's (English); the model is framed
+  const auto = await frame.evaluate(() => {
+    const w = window as unknown as { SGClock: { state(): { play: boolean } }; SGWx: { mode: string }; SGAudio: { on: boolean }; SGLang: { mode: string }; SGCard: { key: string | null } };
+    return { play: w.SGClock.state().play, wx: w.SGWx.mode, sound: w.SGAudio.on, lang: w.SGLang.mode, card: w.SGCard.key };
+  });
+  expect(auto).toEqual({ play: true, wx: 'auto', sound: false, lang: 'en', card: 'merlion' });
 
   // the 3D page loaded only the area around the point
-  const frame = page.frames().find((fr) => fr.url().includes('/earth-online/sg/lite.html'))!;
   const stats = await frame.evaluate(() => (window as unknown as { SGLite: { stats(): Record<string, number> } }).SGLite.stats());
   expect(stats.tilesBuilt).toBeGreaterThan(0);
   expect(stats.tilesBuilt).toBeLessThanOrEqual(25);

@@ -205,7 +205,8 @@
 }
 
 .side3d {
-  top: 10rem;
+  /* the 3D view has no time bar: the buttons sit just under the status bar */
+  top: 3.75rem;
 }
 
 .sideButton {

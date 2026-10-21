@@ -10,6 +10,8 @@ test('every route renders without runtime errors or broken images', async ({ pag
     await page.goto(route);
     await expect(page.getByRole('main')).toBeVisible();
     expect(new URL(page.url()).pathname, `${route} redirected away`).toBe(route);
+    // lazily loaded screens (Nearby) first show a busy placeholder <main>; wait for the screen itself
+    await expect(page.locator('main[aria-busy="true"]')).toHaveCount(0);
     // lazy images (Nearby place pictures) load now, so a missing file still counts as broken
     await page.locator('img[loading="lazy"]').evaluateAll((imgs) => imgs.forEach((img) => ((img as HTMLImageElement).loading = 'eager')));
     await expect

@@ -46,7 +46,10 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
   // The address is fixed when the view opens; later targets go to the page as messages (no reload nearby).
-  const [src] = useState(() => view3dUrl(target, { still: reducedMotion(), hideCards }));
+  // The 3D page speaks the app's language (English unless the page is marked Chinese).
+  const [src] = useState(() =>
+    view3dUrl(target, { still: reducedMotion(), hideCards, lang: /^zh/i.test(document.documentElement.lang) ? 'zh' : 'en' }),
+  );
   // The landmark whose card the 3D page has open: a target with that card needs no message (no second flight).
   const openCard = useRef<string | null>(null);
   const shown = useRef(keyOf(target));
@@ -135,7 +138,7 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
         )}
       </div>
       <div className={styles.bar}>
-        <p className={styles.hint}>Drag to look around, pinch to zoom, tap a landmark for its card. Time, weather and sound are in the 3D bar.</p>
+        <p className={styles.hint}>Drag to look around.</p>
         <button ref={expandButton} type="button" className={styles.expand} onClick={() => setExpanded(true)} aria-label="Show the 3D view full screen">
           ⤢ Full screen
         </button>

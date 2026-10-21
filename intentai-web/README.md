@@ -76,8 +76,10 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
   place shows "Open place →". Full screen covers the app (Esc leaves). First load ≤ 19 MB (page 5.3 MB, three.js
   0.6 MB, dataset 12.7 MB; cached afterwards). Everything is on our origin: three.js r128 is in `vendor/` (MIT), no web
   fonts, no CDN. The address carries the point in the hash (`#at=…&card=…`), which is never sent to a server.
-- **The lite 3D page** is the City Brush Singapore page with only what Nearby uses: roads, buildings, landmarks and their
-  cards, **time of day** (clock, speed, local time, real sun and sky), **weather** and **sound**. Driving, flying,
+- **The lite 3D page** is the City Brush Singapore page with only what Nearby uses: roads, buildings, landmarks, the
+  real sun and sky, weather and sound — none of them set by the viewer: time of day plays by itself from Singapore's
+  time now (the page's usual speed), weather is Auto, sound stays off, the language is the app's (English), the font is
+  the app's Inter (bundled), labels have no emoji. The only things to do are to look around and to switch 2D / 3D. Driving, flying,
   navigation and the big route map, traffic, races, multiplayer, admin, ads/signs, aircraft, port, fireworks and the
   city switch are not in it. For phones it loads only the area around the point: 2 km tiles of roads / buildings /
   trees within ~2.2 km of the view are built and the ones out of reach are freed as you move; the view stays within
