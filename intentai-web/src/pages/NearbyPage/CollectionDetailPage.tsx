@@ -102,7 +102,7 @@ export default function CollectionDetailPage() {
           value={q}
           onChange={(e) => patch('q', e.target.value || null)}
         />
-        <ul className={styles.chips} aria-label="Category">
+        <ul className={`${styles.chips} ${styles.chipsScroll}`} aria-label="Category">
           {(['all', ...CATEGORIES] as CategoryFilter[]).map((cat) => (
             <li key={cat}>
               <button type="button" className={styles.filterChip} aria-pressed={category === cat} onClick={() => patch('category', cat === 'all' ? null : cat)}>
@@ -111,6 +111,7 @@ export default function CollectionDetailPage() {
             </li>
           ))}
         </ul>
+        {/* one row of what to show (To do / Checked in, List / Map), one of where and in what order */}
         <div className={styles.row}>
           <div className={styles.segmented} role="group" aria-label="Check-in filter">
             {(
@@ -125,6 +126,17 @@ export default function CollectionDetailPage() {
               </button>
             ))}
           </div>
+          <span className={styles.spacer} />
+          <div className={styles.segmented} role="group" aria-label="View">
+            <button type="button" className={styles.segment} aria-pressed={view === 'list'} onClick={() => patch('view', null)}>
+              List
+            </button>
+            <button type="button" className={styles.segment} aria-pressed={view === 'map'} onClick={() => patch('view', 'map')}>
+              Map
+            </button>
+          </div>
+        </div>
+        <div className={styles.row}>
           <label className={styles.label}>
             <span className={styles.srOnly}>Region</span>
             <select className={styles.select} value={region} onChange={(e) => patch('region', e.target.value || null)}>
@@ -136,16 +148,6 @@ export default function CollectionDetailPage() {
               ))}
             </select>
           </label>
-        </div>
-        <div className={styles.row}>
-          <div className={styles.segmented} role="group" aria-label="View">
-            <button type="button" className={styles.segment} aria-pressed={view === 'list'} onClick={() => patch('view', null)}>
-              List
-            </button>
-            <button type="button" className={styles.segment} aria-pressed={view === 'map'} onClick={() => patch('view', 'map')}>
-              Map
-            </button>
-          </div>
           {origin ? (
             <label className={styles.label}>
               Order{' '}

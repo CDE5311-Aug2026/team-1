@@ -16,7 +16,7 @@ import { markVisited, stillReached, toggleSave, useExplorePersonal, type Milesto
 import { collectionProgress, collectionsContaining, collectionTitle } from '../catalogue';
 import type { CuratedPlace, SourceReference } from '../domain';
 import { directionsUrl } from '../links';
-import { localToday, stateOf } from '../personal';
+import { localToday, shortDate, stateOf } from '../personal';
 import { Icon as NearbyIcon } from './icons';
 import styles from './Nearby.module.css';
 
@@ -141,7 +141,7 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
             Your check-in
           </h2>
           <p className={styles.body}>
-            {state.visitedOn ? `Checked in on ${state.visitedOn}.` : 'Checked in.'} It is a stamp in Moments. Self-reported, kept on this device, and your
+            {state.visitedOn ? `Checked in on ${shortDate(state.visitedOn)}.` : 'Checked in.'} It is a stamp in Moments. Self-reported, kept on this device, and your
             location is not saved.
           </p>
           {dateDraft === null ? (

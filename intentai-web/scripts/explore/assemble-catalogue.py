@@ -223,7 +223,7 @@ collections = [{
     'title': '100 Places to Explore in Singapore',
     'starterTitle': 'Singapore collection (draft)',
     'description': 'An editorial selection of landmarks, food centres, nature and culture across Singapore, built on the '
-                   'EARTH ONLINE Singapore dataset. It is not an official list. Visits are self-reported and stay on this device.',
+                   'EARTH ONLINE Singapore dataset. It is not an official list.',
     'status': 'starter', 'memberIds': member_ids, 'targetCount': 100,
 }]
 

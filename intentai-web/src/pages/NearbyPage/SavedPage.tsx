@@ -7,7 +7,7 @@ import { dataGeneration, explorePersonalStore } from '../../data/stores';
 import { showToast } from '../../hooks/useToast';
 import { markVisited, toggleSave, useExplorePersonal } from '../../features/nearby/actions';
 import { curatedPlace } from '../../features/nearby/catalogue';
-import { NearbyHeader, SectionNav, StorageWarning } from '../../features/nearby/components/NearbyChrome';
+import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import type { PersonalPlaceState } from '../../features/nearby/domain';
@@ -86,8 +86,7 @@ export default function SavedPage() {
   return (
     <AppShell background="var(--bg-screen-b)" chrome="status">
       <div className={styles.screen}>
-        <NearbyHeader title="Nearby" />
-        <SectionNav />
+        <BackHeader title="Saved" fallback={paths.nearby} />
         <StorageWarning />
         <div className={styles.segmented} role="group" aria-label="Show">
           <button type="button" className={styles.segment} aria-pressed={tab === 'saved'} onClick={() => setParams({}, { replace: true })}>

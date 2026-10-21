@@ -560,14 +560,14 @@
 .progressTrack {
   height: 8px;
   border-radius: 4px;
-  background: var(--progress-track);
+  background: rgba(35, 33, 29, 0.1);
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
   border-radius: 4px;
-  background: var(--accent);
+  background: #2f8a4b; /* check-ins are green everywhere (Check in, stamps, the map's visited pins) */
 }
 
 .milestone {
@@ -686,7 +686,7 @@
   padding: 0 1rem;
   border: 0;
   border-radius: 1.5rem;
-  background: var(--text-primary);
+  background: var(--accent);
   color: #fff;
   font: inherit;
   font-size: 1rem;
@@ -761,4 +761,20 @@
   .checkedIn svg {
     animation: none;
   }
+}
+
+/* one scrolling row of category chips (collection checklist) */
+.chipsScroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.chipsScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.chipsScroll > li {
+  flex: none;
 }
