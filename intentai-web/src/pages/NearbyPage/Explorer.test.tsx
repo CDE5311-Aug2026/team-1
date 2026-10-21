@@ -6,6 +6,7 @@ import AppShell from '../../components/AppShell/AppShell';
 import { COLLECTIONS, members } from '../../features/nearby/catalogue';
 import { getLocationState } from '../../features/nearby/location';
 import { deleteAllData, explorePersonalStore, settingsStore } from '../../data/stores';
+import { stateOf } from '../../features/nearby/personal';
 import { DEFAULT_SETTINGS } from '../../data/domain';
 import { undoToast } from '../../hooks/useToast';
 import CollectionDetailPage from './CollectionDetailPage';
@@ -118,6 +119,25 @@ describe('Explore', () => {
     const other = document.querySelector<HTMLButtonElement>('[data-pin]:not([data-pin="curated:sg-merlion-park"])')!;
     await userEvent.click(other);
     expect(screen.getByTestId('where')).toHaveTextContent(`sel=${encodeURIComponent(other.dataset.pin!)}`);
+  });
+
+  test('View details unfolds the place under its card in the sheet (Explore stays); check in works there', async () => {
+    renderAt('/nearby?area=sg-marina-bay&sel=curated%3Asg-merlion-park');
+    const sheet = screen.getByRole('region', { name: 'Selected place' });
+    const toggle = within(sheet).getByRole('button', { name: 'View details: Merlion Park' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(toggle);
+    expect(screen.getByTestId('where')).toHaveTextContent(/^\/nearby\?.*info=1/);
+    expect(within(sheet).getByRole('button', { name: 'Hide details: Merlion Park' })).toHaveAttribute('aria-expanded', 'true');
+    expect(within(sheet).getByRole('heading', { name: 'About' })).toBeInTheDocument();
+    expect(within(sheet).getByRole('heading', { name: 'Fun facts' })).toBeInTheDocument();
+    expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Check in' }));
+    expect(stateOf(explorePersonalStore.get(), 'curated:sg-merlion-park')).toMatchObject({ visited: true });
+    expect(within(sheet).getByRole('link', { name: 'Open as a page' })).toHaveAttribute('href', '/nearby/place/curated%3Asg-merlion-park');
+    // another place folds the details
+    await userEvent.click(document.querySelector<HTMLButtonElement>('[data-pin]:not([data-pin="curated:sg-merlion-park"])')!);
+    expect(screen.getByTestId('where')).not.toHaveTextContent('info=1');
   });
 
   test('an area search measures distances "from selected area" within the radius', () => {

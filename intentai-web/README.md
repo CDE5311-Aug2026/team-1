@@ -2,7 +2,7 @@
 
 The TypeScript React app for IntentAI / Singlish Daily: React 18, TypeScript, Vite 7, React Router 7, CSS Modules,
 Vitest + Testing Library, Playwright + axe. It reimplements the Figma screens of the older `web/` app with validated
-device-local stores, and adds **Nearby Explorer** (a map of Singapore places, stories, collections, Save / Visited).
+device-local stores, and adds **Nearby Explorer** (a map of Singapore places, stories, collections, Save / Check in, with check-ins as stamps in Moments).
 
 > Production today still serves `../web` (see [Deployment](#deployment-root-migration-and-rollback)). This app goes
 > live only after the deployment-root change below.
@@ -39,11 +39,11 @@ tabs are unchanged.
 
 | Route | Screen |
 | --- | --- |
-| `/nearby` | Explore: 2D map, 3D view or list + synchronized list. Query: `view=3d` / `view=list`, `category`, `q`, `area`, `radius`, `sort`, `sel` (never a position) |
+| `/nearby` | Explore: 2D map, 3D view or list + synchronized list. Query: `view=3d` / `view=list`, `category`, `q`, `area`, `radius`, `sort`, `sel`, `info=1` (the selected place's details unfolded in the sheet; Back folds them) (never a position) |
 | `/nearby/location` | Choose an area, or use your location (explained first) |
 | `/nearby/place/:placeKey` | Place detail (`curated:sg-…`) |
 | `/nearby/collections`, `/nearby/collections/:id` | Collection progress, list/map, filters |
-| `/nearby/saved` | Saved / Visited, backup and restore (JSON) |
+| `/nearby/saved` | Saved / Checked in (`?tab=visited`), backup and restore (JSON) |
 | `/nearby/places` | The nine phrase settings ("Phrases for a setting", Figma 11:1571) |
 | `/nearby/phrases` | The heads-up phrase screen (Figma 11:1414), formerly `/nearby` |
 
@@ -79,7 +79,12 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
 - **The lite 3D page** is the City Brush Singapore page with only what Nearby uses: roads, buildings, landmarks, the
   real sun and sky, weather and sound — none of them set by the viewer: time of day plays by itself from Singapore's
   time now (the page's usual speed), weather is Auto, sound stays off, the language is the app's (English), the font is
-  the app's Inter (bundled), labels have no emoji. The only things to do are to look around and to switch 2D / 3D. Driving, flying,
+  the app's Inter (bundled), labels have no emoji. The only things to do are to look around and to switch 2D / 3D. Each
+  landmark opens with its own camera (`SGLite.frame`): fitted to the model's size and shape — long bridges side-on,
+  towers lower and closer, flat places higher — with a few hand-set overrides (`LITE_VIEW` in
+  `scripts/earth-online-lite.py`). Only Singapore is built: Johor / Batam terrain (land-cover code 5) is sunk under the
+  sea, foreign roads and building tiles are skipped, and the 2D ground picture is masked to Singapore
+  (`scripts/explore/sg-only-ground.py`, run by the sync script). Driving, flying,
   navigation and the big route map, traffic, races, multiplayer, admin, ads/signs, aircraft, port, fireworks and the
   city switch are not in it. For phones it loads only the area around the point: 2 km tiles of roads / buildings /
   trees within ~2.2 km of the view are built and the ones out of reach are freed as you move; the view stays within
@@ -99,6 +104,11 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
 - Personal state: `intentai:v1:explore-personal` (`explorePersonalStore` in `src/data/stores.ts`): saved / visited flags,
   self-reported visit dates, preferred area, the time the location explanation was accepted, seen milestones.
   "Delete all my data" clears it, stops location and cancels Undo.
+- **Check in (打卡):** the "visited" flag above, shown as Check in on the place page and on the selected place in
+  Explore; a collection is the checklist ("x of 100 checked in", To do / Checked in filter). Moments shows every
+  check-in as a stamp under **My places** (`src/pages/MomentsPage/PlaceStamps`), newest first, plus the collection's
+  progress. It reads the same store, so a check-in or its Undo shows there at once. Self-reported: no position is
+  stored with it.
 
 ### Maintenance scripts (`scripts/explore/`)
 

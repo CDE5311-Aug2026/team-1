@@ -139,6 +139,10 @@
 .details {
   display: inline-flex;
   align-items: center;
+  gap: 0.25rem;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
   height: 2.25rem;
   padding: 0 0.875rem;
   border-radius: 1.125rem;
@@ -214,4 +218,26 @@
 
 .done {
   color: #2f8a4b;
+}
+
+.detailsOpen {
+  background: var(--chip-bg);
+  color: var(--text-primary);
+}
+
+.chevronDown {
+  transform: rotate(90deg);
+}
+
+.chevronUp {
+  transform: rotate(-90deg);
+}
+
+/* the selected place's details, unfolded inside its card */
+.unfolded {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 0;
 }

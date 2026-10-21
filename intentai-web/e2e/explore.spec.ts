@@ -18,7 +18,7 @@ function watchRequests(page: Page) {
   return external;
 }
 
-test('principal journey: area → food centre → story and tip → save → visited, persisted after reload', async ({ page }) => {
+test('principal journey: area → food centre → details in the sheet → save → check in, persisted after reload', async ({ page }) => {
   const external = watchRequests(page);
   await open(page, paths.nearby);
   await expect(page.getByRole('button', { name: /Exploring Singapore/ })).toBeVisible();
@@ -26,26 +26,35 @@ test('principal journey: area → food centre → story and tip → save → vis
   await page.getByRole('button', { name: 'Chinatown & Tanjong Pagar' }).click();
   await expect(page).toHaveURL(/area=sg-chinatown/);
   await page.getByRole('button', { name: 'Food', exact: true }).click();
-  // a row selects the place on the map; its card in the sheet opens the details
+  // a row selects the place on the map; View details unfolds the place in the sheet, under its card (Explore stays)
   await page.getByRole('button', { name: 'Maxwell Food Centre', exact: true }).click();
-  await page.getByRole('link', { name: 'View details: Maxwell Food Centre' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Maxwell Food Centre' })).toBeVisible();
+  const details = page.getByRole('button', { name: 'View details: Maxwell Food Centre' });
+  await details.click();
+  await expect(page).toHaveURL(/info=1/);
+  await expect(page.getByRole('button', { name: 'Hide details: Maxwell Food Centre' })).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('application', { name: /Map of Singapore places/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Fun facts' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Maxwell Road Food Centre' }).first()).toHaveAttribute('href', /roots\.gov\.sg/);
   await expect(page.getByRole('heading', { name: 'What you might hear here' })).toBeVisible();
   const directions = page.getByRole('link', { name: /Directions/ });
   await expect(directions).toHaveAttribute('href', /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=1\.28/);
   expect(await directions.getAttribute('href')).not.toContain('origin');
-  await page.getByRole('button', { name: 'Save' }).click();
-  await page.getByRole('button', { name: 'Check in' }).click();
+  await page.getByRole('button', { name: 'Save Maxwell Food Centre' }).first().click();
+  await page.getByRole('button', { name: 'Check in', exact: true }).click();
   await expect(page.getByText(/Checked in on \d{4}-\d{2}-\d{2}\./)).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
-  await expect(page.getByRole('button', { name: /^Checked in/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Saved Maxwell Food Centre' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Checked in', exact: true })).toBeVisible();
+  // the full page is still one tap away
+  await page.getByRole('link', { name: 'Open as a page' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Maxwell Food Centre' })).toBeVisible();
+  await page.goBack();
+  // Back folds the details again
+  await page.goBack();
+  await expect(page.getByRole('button', { name: 'View details: Maxwell Food Centre' })).toHaveAttribute('aria-expanded', 'false');
   await open(page, paths.collections);
   await expect(page.getByText('1 of 100 checked in')).toBeVisible();
   // Back restores the earlier exploration state.
-  await page.goBack();
   await page.goBack();
   await expect(page).toHaveURL(/area=sg-chinatown.*category=food|category=food.*area=sg-chinatown/);
   expect(external).toEqual([]);
@@ -113,7 +122,7 @@ test('another tab sees saved changes', async ({ page, context }) => {
   await open(page, paths.saved);
   const other = await context.newPage();
   await other.goto(paths.nearbyPlace('curated:sg-merlion-park'));
-  await other.getByRole('button', { name: 'Save' }).click();
+  await other.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('link', { name: 'Merlion Park' })).toBeVisible();
 });
 
@@ -126,8 +135,8 @@ test('unavailable storage keeps the feature working and says so', async ({ page 
     };
   });
   await open(page, paths.nearbyPlace('curated:sg-merlion-park'));
-  await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Saved', exact: true })).toBeVisible();
   await expect(page.getByText('Changes will not be saved on this device.')).toBeVisible();
 });
 

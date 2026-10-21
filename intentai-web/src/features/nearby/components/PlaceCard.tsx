@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { paths } from '../../../routes';
 import { markVisited, toggleSave } from '../actions';
@@ -21,6 +22,13 @@ interface PlaceCardProps {
   idPrefix?: string;
   /** A check-in toggle beside Save (collection checklists). */
   onToggleVisited?: () => void;
+  /** card: View details opens the details in place (below the card) instead of going to the place page. */
+  onDetails?: () => void;
+  detailsOpen?: boolean;
+  /** id of the details region the button controls */
+  detailsId?: string;
+  /** The unfolded details, shown inside this card under its buttons. */
+  children?: ReactNode;
 }
 
 /** Distance in a few characters; "from you" only with a precise fix (the sheet header names other origins). */
@@ -42,7 +50,20 @@ export function PlaceThumb({ id, category, size }: { id: string; category: Explo
   );
 }
 
-export default function PlaceCard({ item, state, originKind, selected, onSelect, variant = 'row', idPrefix = 'place', onToggleVisited }: PlaceCardProps) {
+export default function PlaceCard({
+  item,
+  state,
+  originKind,
+  selected,
+  onSelect,
+  variant = 'row',
+  idPrefix = 'place',
+  onToggleVisited,
+  onDetails,
+  detailsOpen = false,
+  detailsId,
+  children,
+}: PlaceCardProps) {
   const headingId = `${idPrefix}-${item.key}`;
   const info = CATEGORY_INFO[item.category];
   const distance = shortDistance(item.distanceM, originKind);
@@ -113,20 +134,37 @@ export default function PlaceCard({ item, state, originKind, selected, onSelect,
       </span>
       {variant === 'card' && (
         <div className={styles.actions}>
-          <Link className={styles.details} to={paths.nearbyPlace(item.key)} aria-label={`View details: ${item.name}`}>
-            View details
-          </Link>
-          <button
-            type="button"
-            className={state?.visited ? `${styles.checkIn} ${styles.checkedIn}` : styles.checkIn}
-            aria-pressed={!!state?.visited}
-            onClick={() => markVisited(item.key, item.name, !state?.visited)}
-          >
-            <Icon name="check" size={18} />
-            {state?.visited ? 'Checked in' : 'Check in'}
-          </button>
+          {onDetails ? (
+            <button
+              type="button"
+              className={detailsOpen ? `${styles.details} ${styles.detailsOpen}` : styles.details}
+              onClick={onDetails}
+              aria-expanded={detailsOpen}
+              aria-controls={detailsId}
+              aria-label={`${detailsOpen ? 'Hide details' : 'View details'}: ${item.name}`}
+            >
+              {detailsOpen ? 'Hide details' : 'View details'}
+              <Icon name="chevron" size={16} className={detailsOpen ? styles.chevronUp : styles.chevronDown} />
+            </button>
+          ) : (
+            <Link className={styles.details} to={paths.nearbyPlace(item.key)} aria-label={`View details: ${item.name}`}>
+              View details
+            </Link>
+          )}
+          {!detailsOpen && (
+            <button
+              type="button"
+              className={state?.visited ? `${styles.checkIn} ${styles.checkedIn}` : styles.checkIn}
+              aria-pressed={!!state?.visited}
+              onClick={() => markVisited(item.key, item.name, !state?.visited)}
+            >
+              <Icon name="check" size={18} />
+              {state?.visited ? 'Checked in' : 'Check in'}
+            </button>
+          )}
         </div>
       )}
+      {children && <div className={styles.unfolded}>{children}</div>}
     </article>
   );
 }

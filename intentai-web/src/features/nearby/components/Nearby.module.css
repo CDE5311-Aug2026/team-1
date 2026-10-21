@@ -516,6 +516,14 @@
   background: var(--surface);
 }
 
+.flatPanel {
+  padding: 0.875rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+}
+
 .panelTitle {
   margin: 0;
   font-size: 0.9375rem;

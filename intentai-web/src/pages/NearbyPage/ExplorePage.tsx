@@ -9,6 +9,7 @@ import CityMap, { type MapFocus } from '../../features/nearby/map/CityMap';
 import BottomSheet, { PEEK_PX, useWideLayout, type Detent } from '../../features/nearby/components/BottomSheet';
 import { StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
+import PlaceInfo from '../../features/nearby/components/PlaceInfo';
 import View3D from '../../features/nearby/components/View3D';
 import { Icon } from '../../features/nearby/components/icons';
 import { THUMB_CREDIT } from '../../features/nearby/thumbs';
@@ -162,7 +163,7 @@ export default function ExplorePage() {
 
   const selected = items.find((i) => i.key === selectedKey) ?? null;
   const select = (key: string) => {
-    patch({ sel: key }, true);
+    patch({ sel: key, info: null }, true);
     if (view === 'map') setMapDetent((d) => (d === 'peek' ? 'half' : d));
   };
   const setDetent = (d: Detent) => {
@@ -177,6 +178,8 @@ export default function ExplorePage() {
   // 3D: the selected place (its landmark card when the dataset has a model), else the area / location / map centre.
   // "Near you" pins your position inside the 3D page only (the address keeps it in the hash, never sent to a server).
   const selectedPlace = selected ? curatedPlace(selected.key) : undefined;
+  // View details unfolds the place in the sheet (?info=1), under its card, instead of leaving Explore.
+  const detailsOpen = !!selectedPlace && params.get('info') === '1';
   const target3d: View3DTarget = selectedPlace
     ? view3dTarget(selectedPlace)
     : origin
@@ -187,7 +190,7 @@ export default function ExplorePage() {
     const p = placeByEarthKey(key);
     if (p) {
       setCardTitle(null);
-      if (p.id !== selectedKey) patch({ sel: p.id }, true);
+      if (p.id !== selectedKey) patch({ sel: p.id, info: null }, true);
     } else setCardTitle(key ? title : null);
   };
 
@@ -205,7 +208,7 @@ export default function ExplorePage() {
       return;
     }
     setQueryError(null);
-    patch({ q: q || null, sel: null });
+    patch({ q: q || null, sel: null, info: null });
     setFocusId((n) => n + 1);
   };
 
@@ -236,7 +239,7 @@ export default function ExplorePage() {
     setMapCenter(null);
     setDraft('');
     setSelectedArea(undefined);
-    patch({ area: null, q: null, sel: null });
+    patch({ area: null, q: null, sel: null, info: null });
     setFocusId((n) => n + 1);
   };
 
@@ -330,7 +333,7 @@ export default function ExplorePage() {
           <ul className={x.chips} aria-label="Category">
             {(['all', ...CATEGORIES] as CategoryFilter[]).map((c) => (
               <li key={c}>
-                <button type="button" className={x.chip} aria-pressed={category === c} onClick={() => patch({ category: c === 'all' ? null : c, sel: null })}>
+                <button type="button" className={x.chip} aria-pressed={category === c} onClick={() => patch({ category: c === 'all' ? null : c, sel: null, info: null })}>
                   {c === 'all' ? 'All' : CATEGORY_INFO[c].plural}
                 </button>
               </li>
@@ -345,7 +348,7 @@ export default function ExplorePage() {
                 setSelectedArea(undefined);
                 setMapCenter(pendingCenter);
                 setPendingCenter(null);
-                patch({ q: null, sel: null });
+                patch({ q: null, sel: null, info: null });
                 setDraft('');
               }}
             >
@@ -379,7 +382,34 @@ export default function ExplorePage() {
         )}
         {selected && (
           <section aria-label="Selected place">
-            <PlaceCard item={selected} state={stateByKey.get(selected.key)} originKind={origin?.kind} selected variant="card" idPrefix="preview" />
+            <PlaceCard
+              item={selected}
+              state={stateByKey.get(selected.key)}
+              originKind={origin?.kind}
+              selected
+              variant="card"
+              idPrefix="preview"
+              detailsOpen={detailsOpen}
+              detailsId="sheet-details"
+              onDetails={() => {
+                if (detailsOpen) patch({ info: null }, true);
+                else {
+                  // a history entry, so Back folds the details again; the sheet opens far enough to read them
+                  patch({ info: '1' });
+                  if (view === 'map') setMapDetent('half');
+                }
+              }}
+            >
+              {detailsOpen && selectedPlace && (
+                <div id="sheet-details" className={x.details}>
+                  <PlaceInfo place={selectedPlace} idPrefix="sheet" flat />
+                  <Link className={x.fullPage} to={paths.nearbyPlace(selectedPlace.id)}>
+                    Open as a page
+                    <Icon name="chevron" size={16} />
+                  </Link>
+                </div>
+              )}
+            </PlaceCard>
           </section>
         )}
         {!selected && (

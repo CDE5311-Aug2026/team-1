@@ -397,3 +397,27 @@
   font-size: 0.6875rem;
   color: var(--text-secondary);
 }
+
+/* the selected place's details, unfolded in the sheet under its card */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.fullPage {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: 0.25rem;
+  min-height: 2.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.fullPage:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
