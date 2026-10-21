@@ -31,6 +31,7 @@ import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs
 import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
 import { stopLocation } from '../features/nearby/location';
 import { createPersistentStore } from './persistentStore';
+import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
 // Every persisted key is declared here, once, with its schema. Pages import stores; they never create them.
@@ -136,6 +137,21 @@ export function ensureUsageId(): string {
   return usageIdStore.get();
 }
 
+/** User test: the name typed at the start screen (a test name, not an account). Empty = not started. */
+export interface Tester {
+  name: string;
+  startedAt?: number;
+}
+export const testerStore = createPersistentStore<Tester>({
+  key: 'tester',
+  fallback: { name: '' },
+  isValid: (value): value is Tester =>
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Tester).name === 'string' &&
+    ((value as Tester).startedAt === undefined || typeof (value as Tester).startedAt === 'number'),
+});
+
 /** Nearby Explorer: saved / visited places and exploration preferences. Never holds a location. */
 export const explorePersonalStore = createPersistentStore<ExplorePersonalData>({
   key: 'explore-personal',
@@ -181,5 +197,7 @@ export function deleteAllData() {
   culturePrefsStore.set(DEFAULT_PREFS);
   collectedStore.set([]);
   usageIdStore.set('');
+  // The user test goes on (the test name is not personal data); its records on this device are deleted.
+  clearLocalUsage();
   generationListeners.forEach((listener) => listener());
 }

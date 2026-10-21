@@ -46,7 +46,7 @@ const earliest = (events: UsageEvent[]) => events.reduce((min, event) => Math.mi
 const isVisit = (event: UsageEvent) => !event.cont;
 
 function msByName(events: UsageEvent[]): Record<UsageKind, Record<string, number>> {
-  const totals: Record<UsageKind, Record<string, number>> = { page: {}, section: {}, activity: {} };
+  const totals: Record<UsageKind, Record<string, number>> = { page: {}, section: {}, activity: {}, tap: {} };
   for (const event of events) totals[event.kind][event.name] = (totals[event.kind][event.name] ?? 0) + event.ms;
   return totals;
 }
@@ -116,7 +116,9 @@ const csvCell = (value: string | number) => {
 };
 
 export function toCsv(events: UsageEvent[]): string {
-  const header = 'uid,sid,kind,name,ms,at';
-  const lines = events.map((e) => [e.uid, e.sid, e.kind, e.name, e.ms, e.at].map(csvCell).join(','));
+  // the test name column only when a user test recorded one (older exports keep their shape)
+  const withUser = events.some((e) => e.user);
+  const header = withUser ? 'uid,sid,kind,name,ms,at,user' : 'uid,sid,kind,name,ms,at';
+  const lines = events.map((e) => [e.uid, e.sid, e.kind, e.name, e.ms, e.at, ...(withUser ? [e.user ?? ''] : [])].map(csvCell).join(','));
   return [header, ...lines].join('\n');
 }

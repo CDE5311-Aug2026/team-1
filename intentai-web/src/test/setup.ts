@@ -37,6 +37,8 @@ beforeEach(() => {
   window.localStorage.clear();
   // Tests start as a returning user. Onboarding tests remove this key to start fresh.
   window.localStorage.setItem(`${STORAGE_PREFIX}onboarding`, ONBOARDED);
+  // ...and past the user test start screen (UserGate.test starts without a test name).
+  window.localStorage.setItem(`${STORAGE_PREFIX}tester`, JSON.stringify({ name: 'T01' }));
   resetPersistentStores();
   dismissToast();
   resetLocationForTests();

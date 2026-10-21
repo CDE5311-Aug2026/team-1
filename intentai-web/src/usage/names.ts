@@ -37,3 +37,6 @@ const PAGE_NAMES: [path: string, name: string][] = [
 export function pageNameFor(pathname: string): string | null {
   return PAGE_NAMES.find(([path]) => matchPath(path, pathname))?.[1] ?? null;
 }
+
+/** Every tracked page name once, in the route table's order (the dashboard lists pages nobody opened). */
+export const TRACKED_PAGE_NAMES: string[] = [...new Set(PAGE_NAMES.map(([, name]) => name))];

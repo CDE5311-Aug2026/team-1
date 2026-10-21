@@ -72,8 +72,11 @@ test('Learn more opens the holiday detail, and the back link returns to Today', 
 test.describe('first visit', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test('starts at Welcome, not Today', async ({ page }) => {
+  test('asks for a test name first, then starts at Welcome, not Today', async ({ page }) => {
     await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'Type your test name to start' })).toBeVisible();
+    await page.getByLabel('Test name').fill('P01');
+    await page.getByRole('button', { name: 'Start' }).click();
     await expect(page).toHaveURL(/\/onboarding$/);
   });
 });

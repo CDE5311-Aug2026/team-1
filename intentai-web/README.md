@@ -116,6 +116,27 @@ One-time import tools, kept for reproducibility: `extract-earth-online.cjs` (dum
 headless), `build-roads.py` (road layers), `assemble-catalogue.py` (merge dataset + research into the catalogue — it
 overwrites `places.sg.json`, so after editors start editing that file, apply dataset updates by hand instead).
 
+## User test: time per page and function, presses, and the dashboard
+
+- **Start screen.** Before the app opens, the person types a test name (e.g. `P01`; 1–40 letters, digits, spaces,
+  `. _ -`). It labels every record. Build with `VITE_USER_GATE=0` to turn the screen off. `/admin` is never behind it.
+- **What is recorded** (`src/usage/`): visible time per page, per section (Today tabs) and per activity (3D view,
+  practise…), and every press on a button or link (`tap`: "Page › button name"; a link is recorded as the page it
+  opens, never its text). Never what people type. Records carry the test name.
+- **No server needed.** Every record also goes to this device's log (`intentai:v1:usage-log`, last 20,000 records,
+  `src/usage/localLog.ts`). When the server is set up (`/api/track`, Upstash Redis + `ADMIN_PASSWORD`), records go
+  there as well.
+- **Dashboard** (`/admin`): data from *This device* (no password), *Files* (JSON exported from each test device,
+  merged; the same file twice counts once) or *Server* (password). It shows people / sessions / median session /
+  pages per session / presses; **which pages keep people** (total time, share, median visit); warning signs (many
+  sessions end on a page, many visits under 5 s, the same button pressed 3+ times within 2 s, long visits with many
+  presses) and pages nobody opened; every page's visits, median, P75, entries, exit rate, presses per minute;
+  functions; most pressed buttons; the most common next page; where sessions end; people; and each session as a
+  timeline. Filter by person. Export: this device as JSON, all records as CSV, the page summary as CSV.
+- **Running a test:** on each device, open the app and type the test name; after the session open `/admin` →
+  *This device* → *Export file (JSON)*, then *End test* so the next person types a new name. Collect the files on one
+  computer: `/admin` → *Files* → add them all. ("Delete all my data" in My Space deletes the device's records too.)
+
 ## Deployment-root migration and rollback
 
 Production (`cde-5311.vercel.app`) currently builds `web/` (React 19, `singlish-v2-state` in localStorage). Moving it to

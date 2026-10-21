@@ -31,6 +31,8 @@ test('time on pages reaches the dashboard, which passes axe', async ({ page }) =
   await hideTab(page);
 
   await page.goto('/admin');
+  // this device's own log opens first when it has records; the server is one tap away
+  await page.getByRole('button', { name: 'Server', exact: true }).click();
   await page.getByLabel('Admin password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Open dashboard' }).click();
   const summary = page.getByRole('table', { name: 'Time per page' });

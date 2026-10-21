@@ -71,6 +71,9 @@ test.describe('first run', () => {
 
   test('onboarding completes three questions and persists the resulting level', async ({ page }) => {
     await page.goto('/');
+    // the user test start screen comes first on a new device
+    await page.getByLabel('Test name').fill('P01');
+    await page.getByRole('button', { name: 'Start' }).click();
     await page.getByRole('button', { name: 'Get started' }).click();
     await page.getByRole('button', { name: /^Less than 3 months/ }).click();
     await page.getByRole('button', { name: 'Continue', exact: true }).click();
@@ -94,6 +97,7 @@ test.describe('first run', () => {
   });
 
   test('screens match Figma frame geometry at 390x844', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('intentai:v1:tester', JSON.stringify({ name: 'E2E' })));
     const screens: [string, string, Record<string, Box>][] = [
       ['welcome', paths.welcome, WELCOME],
       ['time', paths.onboardingTime, TIME],
