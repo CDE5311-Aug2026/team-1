@@ -253,7 +253,7 @@ function liteAuto(){
 // far enough to show all of it in this view's width and height, lower for towers, higher for flat sites.
 // Campus / garden sites use their card's own framing, a little closer. Returns false when the key has no model.
 const LITE_VIEW = {   // per-landmark adjustments: d distance factor, az extra azimuth (deg), el elevation (deg)
-  merlion:{d:0.6, el:20, az:-100}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
+  merlion:{d:0.6, el:20, az:-100}, thianhockkeng:{el:42, az:180}, sgsiloso:{d:0.7, el:34}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
 };
 function liteFrame(key, animate){
   let T = null, D = null; try { T = SGCard._t.sgcByKey(key); D = T && SGCard._t.sgcResolve(T).D; } catch (e){ }
