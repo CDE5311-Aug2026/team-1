@@ -37,6 +37,9 @@ test('principal journey: area → editor pick → food centre → details in the
   await expect(page.getByRole('button', { name: 'Hide details: Maxwell Food Centre' })).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByRole('application', { name: /Map of Singapore places/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Fun facts' })).toBeVisible();
+  // sources fold away under the first fact, one tap to open
+  await expect(page.getByRole('link', { name: 'Maxwell Road Food Centre' })).toHaveCount(0);
+  await page.getByText(/more · Sources$/).click();
   await expect(page.getByRole('link', { name: 'Maxwell Road Food Centre' }).first()).toHaveAttribute('href', /roots\.gov\.sg/);
   await expect(page.getByRole('heading', { name: 'What you might hear here' })).toBeVisible();
   const directions = page.getByRole('link', { name: /Directions/ });

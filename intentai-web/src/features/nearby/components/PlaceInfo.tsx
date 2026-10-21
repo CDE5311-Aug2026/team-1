@@ -54,6 +54,7 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
   const state = stateOf(personal, place.id);
   const memberships = collectionsContaining(place.id);
   const today = localToday();
+  const introIsSummary = !!place.description && place.description.en.startsWith(place.summary.replace(/…$/, ''));
 
   const visit = (visited: boolean, date?: string) => {
     const result = markVisited(place.id, place.name, visited, date);
@@ -186,69 +187,77 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
           About
         </h2>
         {place.recognition && (
-          <>
-            <p className={styles.recognition}>
-              {place.recognition.label} · {place.recognition.year}
-            </p>
-            <SourceLinks sources={[place.recognition.source]} />
-          </>
-        )}
-        {/* Dataset entries derive their summary from the intro; show it once. */}
-        {!(place.description && place.description.en.startsWith(place.summary.replace(/…$/, ''))) && <p className={styles.body}>{place.summary}</p>}
-        {place.description && <p className={styles.body}>{place.description.en}</p>}
-        {place.description?.zh && (
-          <p className={styles.zh} lang="zh-Hans">
-            {place.description.zh}
+          <p className={styles.recognition}>
+            {place.recognition.label} · {place.recognition.year}
           </p>
         )}
-        {place.quickFacts && (
-          <p className={styles.meta}>
-            {[
-              place.quickFacts.year && `Built ${place.quickFacts.year}`,
-              place.quickFacts.architect && `Architect: ${place.quickFacts.architect}`,
-              place.quickFacts.heightM && `About ${place.quickFacts.heightM} m tall`,
-              place.quickFacts.floors && `${place.quickFacts.floors} floors`,
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        )}
-        {place.description && (
-          <p className={styles.sourceLine}>
-            Intro and quick facts from the EARTH ONLINE Singapore dataset; not yet linked to individual sources.
-          </p>
-        )}
+        {/* One intro paragraph: the dataset's intro when the summary is cut from it, else the summary (the
+            dataset's own intro then folds away below). */}
+        <p className={styles.body}>{introIsSummary ? place.description!.en : place.summary}</p>
         {place.viewFromOutside && <p className={styles.note}>Not open to visitors inside: enjoy it from the outside.</p>}
         {place.accessNotes && (
-          <>
-            <p className={styles.body}>
-              <strong>Getting in:</strong> {place.accessNotes.text}
-            </p>
-            <SourceLinks sources={[place.accessNotes.source]} />
-          </>
-        )}
-      </section>
-
-      <section className={panel} aria-labelledby={`${idPrefix}-facts-title`}>
-        <h2 id={`${idPrefix}-facts-title`} className={styles.panelTitle}>
-          Fun facts
-        </h2>
-        {place.facts.length === 0 ? (
-          <p className={styles.note}>No sourced fun facts yet. We only show facts we can link to a source.</p>
-        ) : (
-          place.facts.map((fact) => (
-            <div key={fact.id}>
-              <p className={styles.body}>{fact.text}</p>
-              <SourceLinks sources={fact.sources} />
-            </div>
-          ))
-        )}
-        {place.facts.length > 0 && (
-          <p className={styles.sourceLine}>
-            Last reviewed {place.reviewedAt} · {place.reviewedBy}
+          <p className={styles.body}>
+            <strong>Getting in:</strong> {place.accessNotes.text}
           </p>
         )}
+        {/* the rest folds away: the Chinese intro, quick facts and where it all comes from */}
+        {(place.description?.zh || place.quickFacts || place.description || place.recognition || place.accessNotes) && (
+          <details className={styles.fold}>
+            <summary className={styles.foldSummary}>{[place.description && !introIsSummary && 'More', place.description?.zh && '中文', 'Sources'].filter(Boolean).join(' · ')}</summary>
+            <div className={styles.foldBody}>
+              {place.description && !introIsSummary && <p className={styles.body}>{place.description.en}</p>}
+              {place.description?.zh && (
+                <p className={styles.zh} lang="zh-Hans">
+                  {place.description.zh}
+                </p>
+              )}
+              {place.quickFacts && (
+                <p className={styles.meta}>
+                  {[
+                    place.quickFacts.year && `Built ${place.quickFacts.year}`,
+                    place.quickFacts.architect && `Architect: ${place.quickFacts.architect}`,
+                    place.quickFacts.heightM && `About ${place.quickFacts.heightM} m tall`,
+                    place.quickFacts.floors && `${place.quickFacts.floors} floors`,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
+              )}
+              {place.recognition && <SourceLinks sources={[place.recognition.source]} />}
+              {place.accessNotes && <SourceLinks sources={[place.accessNotes.source]} />}
+              {place.description && (
+                <p className={styles.sourceLine}>Intro and quick facts from the EARTH ONLINE Singapore dataset; not yet linked to individual sources.</p>
+              )}
+            </div>
+          </details>
+        )}
+        {place.facts.length === 0 && <p className={styles.sourceLine}>No sourced fun facts yet.</p>}
       </section>
+
+      {place.facts.length > 0 && (
+        <section className={panel} aria-labelledby={`${idPrefix}-facts-title`}>
+          <h2 id={`${idPrefix}-facts-title`} className={styles.panelTitle}>
+            Fun facts
+          </h2>
+          <p className={styles.body}>{place.facts[0].text}</p>
+          {/* more facts, every source and the review date, one tap away */}
+          <details className={styles.fold}>
+            <summary className={styles.foldSummary}>{place.facts.length > 1 ? `${place.facts.length - 1} more · Sources` : 'Sources'}</summary>
+            <div className={styles.foldBody}>
+              <SourceLinks sources={place.facts[0].sources} />
+              {place.facts.slice(1).map((fact) => (
+                <div key={fact.id}>
+                  <p className={styles.body}>{fact.text}</p>
+                  <SourceLinks sources={fact.sources} />
+                </div>
+              ))}
+              <p className={styles.sourceLine}>
+                Last reviewed {place.reviewedAt} · {place.reviewedBy}
+              </p>
+            </div>
+          </details>
+        </section>
+      )}
 
       {tip && place.languageTip && (
         <section className={panel} aria-labelledby={`${idPrefix}-hear-title`}>
@@ -310,19 +319,17 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
         </section>
       )}
 
-      <section className={panel} aria-labelledby={`${idPrefix}-fix-title`}>
-        <h2 id={`${idPrefix}-fix-title`} className={styles.panelTitle}>
-          Suggest a correction
-        </h2>
-        <p className={styles.note}>
-          Spotted a mistake? Copy this line, add what should change, and send it to the IntentAI team
-          {place.facts[0]?.sources[0]?.url ? ' (you can also check the source links above)' : ''}. There is no in-app reporting service yet.
-        </p>
-        <p className={styles.sourceLine}>{correction}</p>
-        <button type="button" className={styles.secondary} onClick={copyCorrection}>
-          {copied ? 'Copied' : 'Copy correction text'}
-        </button>
-      </section>
+      {/* corrections: one quiet line, the details only when opened */}
+      <details className={styles.fold}>
+        <summary className={styles.foldSummary}>Spotted a mistake?</summary>
+        <div className={styles.foldBody}>
+          <p className={styles.note}>Copy this line, add what should change, and send it to the IntentAI team.</p>
+          <p className={styles.sourceLine}>{correction}</p>
+          <button type="button" className={styles.secondary} onClick={copyCorrection}>
+            {copied ? 'Copied' : 'Copy correction text'}
+          </button>
+        </div>
+      </details>
     </>
   );
 }
