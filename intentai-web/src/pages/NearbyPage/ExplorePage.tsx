@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import AppShell from '../../components/AppShell/AppShell';
 import { area as areaById, areasIn, collectionsContaining, curatedPlace, editorialRank, overviewArea, placeByEarthKey, placesIn } from '../../features/nearby/catalogue';
 import CityMap, { type MapFocus } from '../../features/nearby/map/CityMap';
-import BottomSheet, { PEEK_PX, useWideLayout, type Detent } from '../../features/nearby/components/BottomSheet';
+import BottomSheet, { PEEK_PX, detentHeight, useWideLayout, type Detent } from '../../features/nearby/components/BottomSheet';
 import { StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
 import PlaceInfo from '../../features/nearby/components/PlaceInfo';
@@ -53,6 +53,8 @@ const MAP_LIST_LIMIT = 6;
 /** The 3D view opens over Marina Bay when nothing is selected and no area or location is set. */
 const MARINA_BAY: LatLng = { lat: 1.2868, lng: 103.8545 };
 /** The whole country fits on screen at first (Tuas to Changi, Woodlands to the Southern Islands). */
+/** Bottom of "Show places in this area" under the search bar and chips (phones). */
+const SEARCH_AREA_BOTTOM_PX = 236;
 const SINGAPORE_CORNERS: LatLng[] = [
   { lat: 1.205, lng: 103.605 },
   { lat: 1.472, lng: 104.045 },
@@ -87,6 +89,8 @@ export default function ExplorePage() {
   // The sheet: the List view is the full sheet; otherwise peek or half (a selected place opens it to half).
   const [mapDetent, setMapDetent] = useState<Exclude<Detent, 'full'>>(params.get('sel') && params.get('view') !== '3d' ? 'half' : 'peek');
   const detent: Detent = view === 'list' ? 'full' : mapDetent;
+  // The sheet's height while it is being dragged: "Show places in this area" hides once the sheet reaches it.
+  const [sheetDragH, setSheetDragH] = useState<number | null>(null);
   // 3D fills the space above the peek; the sheet steps down so the 3D view and its card show.
   useEffect(() => {
     if (view === '3d') setMapDetent('peek');
@@ -225,6 +229,8 @@ export default function ExplorePage() {
         ? 'Map area'
         : area?.name ?? `Exploring ${overviewArea(COUNTRY).name}`;
   const statusText = !ignoreFix && flow.enabled ? locationStatusText(location) : null;
+  // room for the button between the chips and the sheet's top edge (it never sits on the sheet)
+  const searchAreaRoom = wide || window.innerHeight - (sheetDragH ?? detentHeight(detent)) > SEARCH_AREA_BOTTOM_PX;
   const totalLabel = `${items.length} ${items.length === 1 ? 'place' : 'places'}`;
 
   // the uncovered part of the map: under the search bar, above the sheet, left of the map buttons
@@ -339,7 +345,7 @@ export default function ExplorePage() {
               </li>
             ))}
           </ul>
-          {pendingCenter && (
+          {pendingCenter && searchAreaRoom && (
             <button
               type="button"
               className={x.searchArea}
@@ -368,7 +374,7 @@ export default function ExplorePage() {
         </button>
       </div>
 
-      <BottomSheet detent={detent} onDetent={setDetent} label="Places" header={sheetHeader} wide={wide}>
+      <BottomSheet detent={detent} onDetent={setDetent} onHeight={setSheetDragH} label="Places" header={sheetHeader} wide={wide}>
         <StorageWarning />
         {statusText && (
           <p className={styles.status} role="status">

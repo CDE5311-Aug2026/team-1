@@ -130,8 +130,8 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
             <NearbyIcon name="star" filled={!!state?.saved} />
           </button>
         )}
-        <a className={styles.linkButton} href={directionsUrl(place)} target="_blank" rel="noopener noreferrer">
-          Directions ↗
+        <a className={`${styles.linkButton} ${styles.directions}`} href={directionsUrl(place)} target="_blank" rel="noopener noreferrer" aria-label="Directions (opens Google Maps)">
+          <span className={styles.directionsText}>Directions</span> ↗
         </a>
       </div>
 

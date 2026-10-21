@@ -727,6 +727,28 @@
 .checkRow .linkButton {
   min-height: 3rem;
   border-radius: 1.5rem;
+  white-space: nowrap;
+}
+
+.checkIn {
+  min-width: 0;
+}
+
+/* narrow phones: Directions becomes a round button like Save */
+@media (max-width: 374px) {
+  .checkRow .directions {
+    width: 3rem;
+    padding: 0;
+  }
+
+  .directionsText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 .checkIn:focus-visible,

@@ -60,6 +60,26 @@ test('principal journey: area → food centre → details in the sheet → save 
   expect(external).toEqual([]);
 });
 
+test('dragging the sheet up by its header moves only the sheet: the map stays and offers no area search', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, `${paths.nearby}?area=sg-marina-bay`);
+  const sheet = page.getByRole('region', { name: 'Places' });
+  const map = page.getByRole('application', { name: /Map of Singapore places/ });
+  await expect(sheet).toHaveAttribute('data-detent', 'peek');
+  const scale = await map.getAttribute('data-scale');
+  const url = page.url();
+  const title = (await sheet.getByRole('heading', { level: 1, name: 'Nearby' }).boundingBox())!;
+  await page.mouse.move(title.x + 20, title.y + title.height / 2);
+  await page.mouse.down();
+  for (let i = 1; i <= 10; i++) await page.mouse.move(title.x + 20, title.y + title.height / 2 - i * 30);
+  await page.mouse.up();
+  await expect(sheet).toHaveAttribute('data-detent', 'half');
+  await page.waitForTimeout(800); // longer than the map's settle time
+  expect(await map.getAttribute('data-scale')).toBe(scale);
+  expect(page.url()).toBe(url);
+  await expect(page.getByRole('button', { name: 'Show places in this area' })).toHaveCount(0);
+});
+
 test('panning does not search; "Show places in this area" commits one local search with a radius', async ({ page }) => {
   const external = watchRequests(page);
   await open(page, `${paths.nearby}?area=sg-marina-bay`);

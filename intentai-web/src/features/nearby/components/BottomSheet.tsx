@@ -1,7 +1,7 @@
 // A bottom sheet over Explore's full-screen map (phones), or a floating side panel on wide screens.
-// Three heights on phones: peek (a summary over the tab bar), half and full (the list). Drag the handle, or tap it
-// (or press Enter) to switch between peek and full.
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+// Three heights on phones: peek (a summary over the tab bar), half and full (the list). Drag the handle or the header
+// (or the whole sheet at peek), or tap the handle (or press Enter) to switch between peek and full.
+import { useEffect, useRef, useState, type MouseEvent, type PointerEvent, type ReactNode } from 'react';
 import styles from './BottomSheet.module.css';
 
 export type Detent = 'peek' | 'half' | 'full';
@@ -44,9 +44,11 @@ interface BottomSheetProps {
   header: ReactNode;
   children: ReactNode;
   wide: boolean;
+  /** The sheet's height while it is dragged (px from the bottom), then null when it lets go. */
+  onHeight?: (h: number | null) => void;
 }
 
-export default function BottomSheet({ detent, onDetent, label, header, children, wide }: BottomSheetProps) {
+export default function BottomSheet({ detent, onDetent, label, header, children, wide, onHeight }: BottomSheetProps) {
   const [vh, setVh] = useState(viewportHeight);
   const [dragH, setDragH] = useState<number | null>(null);
   const drag = useRef<{ y: number; h: number; moved: boolean } | null>(null);
@@ -66,17 +68,29 @@ export default function BottomSheet({ detent, onDetent, label, header, children,
 
   const heights: Record<Detent, number> = { peek: detentHeight('peek', vh), half: detentHeight('half', vh), full: detentHeight('full', vh) };
 
-  const onDown = (e: PointerEvent<HTMLButtonElement>) => {
-    if (wide) return;
+  // Drag from the handle, the header, or (at peek) anywhere on the sheet, like a maps app. A press only becomes a
+  // drag after TAP_PX, so the buttons in the header still take taps; the click that ends a drag is swallowed.
+  const onDown = (e: PointerEvent<HTMLElement>) => {
+    if (wide || e.button > 0) return;
     drag.current = { y: e.clientY, h: heights[detent], moved: false };
-    e.currentTarget.setPointerCapture?.(e.pointerId);
   };
-  const onMove = (e: PointerEvent<HTMLButtonElement>) => {
+  const onMove = (e: PointerEvent<HTMLElement>) => {
     const d = drag.current;
     if (!d) return;
     const dy = d.y - e.clientY;
-    if (Math.abs(dy) > TAP_PX) d.moved = true;
-    if (d.moved) setDragH(Math.min(heights.full, Math.max(heights.peek - 40, d.h + dy)));
+    if (!d.moved && Math.abs(dy) > TAP_PX) {
+      d.moved = true;
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch {
+        /* synthetic pointers in tests cannot be captured */
+      }
+    }
+    if (d.moved) {
+      const h = Math.min(heights.full, Math.max(heights.peek - 40, d.h + dy));
+      setDragH(h);
+      onHeight?.(h);
+    }
   };
   const onUp = () => {
     const d = drag.current;
@@ -86,17 +100,22 @@ export default function BottomSheet({ detent, onDetent, label, header, children,
       return; // a tap: the click handler toggles
     }
     justDragged.current = true;
+    setTimeout(() => (justDragged.current = false), 0);
     const nearest = (Object.keys(heights) as Detent[]).reduce((a, b) => (Math.abs(heights[b] - dragH) < Math.abs(heights[a] - dragH) ? b : a));
     setDragH(null);
+    onHeight?.(null);
     onDetent(nearest);
   };
+  const dragHandlers = { onPointerDown: onDown, onPointerMove: onMove, onPointerUp: onUp, onPointerCancel: onUp };
+  // the click that ends a drag (on a header button, a row) must not act
+  const swallowDragClick = (e: MouseEvent) => {
+    if (!justDragged.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   const onClick = () => {
-    if (wide) return;
-    // A drag that ended already chose a height.
-    if (justDragged.current) {
-      justDragged.current = false;
-      return;
-    }
+    if (wide || justDragged.current) return; // a drag that ended already chose a height
     onDetent(detent === 'peek' ? 'full' : 'peek');
   };
 
@@ -109,6 +128,7 @@ export default function BottomSheet({ detent, onDetent, label, header, children,
       data-allow-bleed
       data-detent={wide ? 'side' : detent}
       data-dragging={dragH !== null || undefined}
+      onClickCapture={swallowDragClick}
     >
       {!wide && (
         <button
@@ -116,17 +136,16 @@ export default function BottomSheet({ detent, onDetent, label, header, children,
           className={styles.handle}
           aria-label={detent === 'full' ? 'Show the map' : 'Show the list'}
           aria-expanded={detent !== 'peek'}
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerCancel={onUp}
+          {...dragHandlers}
           onClick={onClick}
         >
           <span className={styles.grip} aria-hidden="true" />
         </button>
       )}
-      <div className={styles.header}>{header}</div>
-      <div ref={body} className={styles.body} data-scroll={wide || detent !== 'peek' || undefined}>
+      <div className={styles.header} {...(wide ? {} : dragHandlers)}>
+        {header}
+      </div>
+      <div ref={body} className={styles.body} data-scroll={wide || detent !== 'peek' || undefined} {...(wide || detent !== 'peek' ? {} : dragHandlers)}>
         {children}
       </div>
     </section>

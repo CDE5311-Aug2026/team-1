@@ -56,6 +56,11 @@
 .header {
   flex: none;
   padding: 0 var(--gutter) 0.5rem;
+  touch-action: none; /* the header drags the sheet, never the page or the map */
+}
+
+.sheet:not(.side) .body:not([data-scroll]) {
+  touch-action: none;
 }
 
 .body {

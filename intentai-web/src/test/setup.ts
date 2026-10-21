@@ -14,6 +14,20 @@ if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.sho
   };
 }
 
+// jsdom has no PointerEvent; without it fireEvent.pointer* drops clientX / clientY (drag tests need them).
+if (typeof window !== 'undefined' && typeof window.PointerEvent === 'undefined') {
+  class PointerEventShim extends MouseEvent {
+    pointerId: number;
+    pointerType: string;
+    constructor(type: string, init: PointerEventInit = {}) {
+      super(type, init);
+      this.pointerId = init.pointerId ?? 1;
+      this.pointerType = init.pointerType ?? 'mouse';
+    }
+  }
+  (window as unknown as { PointerEvent: typeof PointerEventShim }).PointerEvent = PointerEventShim;
+}
+
 /** Marks onboarding as finished, so a test that renders "/" lands on Today, not Welcome. */
 export const ONBOARDED = JSON.stringify({ done: true, duration: '3 months – 1 year', topics: ['Work', 'Food', 'Daily life', 'Getting around'] });
 

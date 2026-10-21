@@ -104,9 +104,6 @@ export default function MomentsPage() {
 
           <MyTopics progress={topicProgress(topics, collected)} />
 
-          {/* Nearby check-ins (打卡) as stamps: the places side of the passport. */}
-          <PlaceStamps />
-
           <div className={styles.section} data-node-id="4:945">
             <img src={iconReview} alt="" width={16} height={16} />
             <h2 className={styles.sectionTitle} ref={listHeading} tabIndex={-1}>
@@ -140,6 +137,11 @@ export default function MomentsPage() {
           <p className={lookups.length > 0 ? styles.caption : styles.empty} data-node-id="7:1114">
             {lookups.length > 0 ? showingCaption(page, lookups.length) : 'No lookups yet. Ask about a phrase to save it here.'}
           </p>
+        </div>
+
+        {/* Nearby check-ins (打卡) as stamps: the places side of the passport. After the Figma frame (4:935), so its geometry stays. */}
+        <div className={styles.places}>
+          <PlaceStamps />
         </div>
       </div>
 

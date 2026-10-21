@@ -103,6 +103,25 @@ describe('Explore', () => {
     expect(sheet).toHaveAttribute('data-detent', 'half');
   });
 
+  test('dragging the sheet by its header moves the sheet, never the map, and a drag over a button is not a tap', () => {
+    renderAt('/nearby?area=sg-marina-bay');
+    const sheet = screen.getByRole('region', { name: 'Places' });
+    const map = screen.getByRole('application', { name: /Map of Singapore places/ });
+    const scale = map.getAttribute('data-scale');
+    const where = screen.getByTestId('where').textContent;
+    const button = within(sheet).getByRole('link', { name: 'Collections' });
+    fireEvent.pointerDown(button, { pointerId: 1, clientY: 700, button: 0 });
+    fireEvent.pointerMove(button, { pointerId: 1, clientY: 600 });
+    expect(sheet).toHaveAttribute('data-dragging', 'true');
+    fireEvent.pointerMove(button, { pointerId: 1, clientY: 450 });
+    fireEvent.pointerUp(button, { pointerId: 1, clientY: 450 });
+    fireEvent.click(button);
+    expect(sheet).toHaveAttribute('data-detent', 'half');
+    expect(map.getAttribute('data-scale')).toBe(scale);
+    expect(screen.getByTestId('where').textContent).toBe(where); // the click after the drag did not open Collections
+    expect(screen.queryByRole('button', { name: 'Show places in this area' })).not.toBeInTheDocument();
+  });
+
   test('selecting a card selects the same place on the map (and the other way round)', async () => {
     renderAt('/nearby?area=sg-marina-bay&view=list');
     const pin = () => document.querySelector('[data-pin="curated:sg-merlion-park"]');
