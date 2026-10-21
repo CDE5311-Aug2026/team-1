@@ -18,14 +18,17 @@ function watchRequests(page: Page) {
   return external;
 }
 
-test('principal journey: area → food centre → details in the sheet → save → check in, persisted after reload', async ({ page }) => {
+test('principal journey: area → editor pick → food centre → details in the sheet → save → check in, persisted after reload', async ({ page }) => {
   const external = watchRequests(page);
   await open(page, paths.nearby);
   await expect(page.getByRole('button', { name: /All of Singapore/ })).toBeVisible();
   await page.getByRole('button', { name: /Change area or location/ }).click();
   await page.getByRole('button', { name: 'Chinatown & Tanjong Pagar' }).click();
   await expect(page).toHaveURL(/area=sg-chinatown/);
-  await page.getByRole('button', { name: 'Food', exact: true }).click();
+  // Editor's picks (the list button) → a pick shows only its places, as a checklist
+  await page.getByRole('button', { name: "Editor's picks" }).click();
+  await page.getByRole('dialog', { name: "Editor's picks" }).getByRole('button', { name: /Hawker centres to know/ }).click();
+  await expect(page).toHaveURL(/list=sg-hawker-centres/);
   // a row selects the place on the map; View details unfolds the place in the sheet, under its card (Explore stays)
   await page.getByRole('button', { name: 'Maxwell Food Centre', exact: true }).click();
   const details = page.getByRole('button', { name: 'View details: Maxwell Food Centre' });
@@ -56,7 +59,7 @@ test('principal journey: area → food centre → details in the sheet → save 
   await expect(page.getByText('1 of 100 checked in')).toBeVisible();
   // Back restores the earlier exploration state.
   await page.goBack();
-  await expect(page).toHaveURL(/area=sg-chinatown.*category=food|category=food.*area=sg-chinatown/);
+  await expect(page).toHaveURL(/area=sg-chinatown.*list=sg-hawker-centres|list=sg-hawker-centres.*area=sg-chinatown/);
   expect(external).toEqual([]);
 });
 
