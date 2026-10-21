@@ -112,14 +112,62 @@
     "targetCount": 100
   },
   {
+    "id": "sg-michelin-hawkers",
+    "version": 1,
+    "country": "SG",
+    "kind": "picks",
+    "title": "Michelin Bib Gourmand hawker stalls",
+    "titleZh": "米其林必比登推介小贩摊",
+    "starterTitle": "Michelin Bib Gourmand hawker stalls",
+    "description": "Ten hawker stalls on the 2026 Michelin Bib Gourmand list, from chicken rice to thosai.",
+    "status": "starter",
+    "targetCount": 10,
+    "memberIds": [
+      "curated:sg-tian-tian-hainanese-chicken-rice",
+      "curated:sg-tai-wah-pork-noodle",
+      "curated:sg-hoo-kee-bak-chang",
+      "curated:sg-no-18-zion-road-fried-kway-teow",
+      "curated:sg-chey-sua-carrot-cake",
+      "curated:sg-jalan-sultan-prawn-mee",
+      "curated:sg-king-of-laksa",
+      "curated:sg-selamat-datang-warong-pak-sapari",
+      "curated:sg-rajarani-thosai",
+      "curated:sg-alliance-seafood"
+    ]
+  },
+  {
+    "id": "sg-chinese-restaurants",
+    "version": 1,
+    "country": "SG",
+    "kind": "picks",
+    "title": "Chinese restaurants in the Michelin Guide",
+    "titleZh": "米其林指南里的中餐馆",
+    "starterTitle": "Chinese restaurants in the Michelin Guide",
+    "description": "Ten Chinese restaurants from the 2026 Michelin Guide Singapore, from Cantonese to Hunanese.",
+    "status": "starter",
+    "targetCount": 10,
+    "memberIds": [
+      "curated:sg-lei-garden",
+      "curated:sg-cherry-garden-by-chef-fei",
+      "curated:sg-summer-pavilion",
+      "curated:sg-jin-ting-wan",
+      "curated:sg-summer-palace",
+      "curated:sg-imperial-treasure-fine-teochew-cuisine-orchard",
+      "curated:sg-yong-fu",
+      "curated:sg-shisen-hanten",
+      "curated:sg-xiangyee",
+      "curated:sg-putien-kitchener-road"
+    ]
+  },
+  {
     "id": "sg-hawker-centres",
     "version": 1,
     "country": "SG",
     "kind": "picks",
     "title": "Hawker centres to know",
-    "titleZh": "必去小贩中心",
+    "titleZh": "值得一去的小贩中心",
     "starterTitle": "Hawker centres to know",
-    "description": "Ten hawker centres where Singapore's food cultures meet, from heritage markets to late-night favourites.",
+    "description": "Ten hawker centres where you can try many Singapore dishes in one place.",
     "status": "starter",
     "targetCount": 10,
     "memberIds": [
@@ -131,7 +179,8 @@
       "curated:sg-tekka-centre",
       "curated:sg-albert-centre-market-food-centre",
       "curated:sg-adam-road-food-centre",
-      "curated:sg-zion-riverside-food-centre"
+      "curated:sg-zion-riverside-food-centre",
+      "curated:sg-chinatown-complex-food-centre"
     ]
   }
 ]

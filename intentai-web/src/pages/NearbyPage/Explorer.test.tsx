@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, expect, test, vi } from 'vitest';
 import AppShell from '../../components/AppShell/AppShell';
-import { COLLECTIONS, collection, members } from '../../features/nearby/catalogue';
+import { COLLECTIONS, collection, members, placesIn } from '../../features/nearby/catalogue';
 import { getLocationState } from '../../features/nearby/location';
 import { deleteAllData, explorePersonalStore, settingsStore } from '../../data/stores';
 import { stateOf } from '../../features/nearby/personal';
@@ -55,7 +55,7 @@ describe('Explore', () => {
     expect(screen.getByRole('button', { name: /All of Singapore/ })).toBeInTheDocument();
     expect(getCurrentPosition).not.toHaveBeenCalled();
     expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
-    expect(screen.getByText(/^142 places$/)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`^${placesIn('SG').length} places$`))).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Local phrases/ })).toBeInTheDocument();
     // Without an origin there are no distances.
     expect(screen.queryByText(/~[\d.]+ k?m/)).not.toBeInTheDocument();
@@ -174,7 +174,7 @@ describe('Explore', () => {
   test('an area search measures distances "from selected area" within the radius', () => {
     renderAt('/nearby?area=sg-chinatown&view=list');
     expect(screen.getByText(/places within 2 km/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Chinatown/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Chinatown & Tanjong Pagar. Change area/ })).toBeInTheDocument();
     // the sheet names the area; rows show the distance only, never "from you"
     expect(screen.getAllByText(/~[\d.]+ k?m$/).length).toBeGreaterThan(0);
     expect(screen.queryByText(/from you/)).not.toBeInTheDocument();

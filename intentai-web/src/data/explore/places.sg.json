@@ -7199,5 +7199,870 @@
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
     "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+  },
+  {
+    "id": "curated:sg-tian-tian-hainanese-chicken-rice",
+    "name": "Tian Tian Hainanese Chicken Rice",
+    "nameZh": "天天海南鸡饭",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.28049,
+      "lng": 103.84481,
+      "source": {
+        "title": "Tian Tian Hainanese Chicken Rice – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/tian-tian-hainanese-chicken-rice",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · Hainanese chicken rice",
+    "summary": "A Maxwell Food Centre stall serving Hainanese chicken rice: smooth, tender chicken with fragrant oily rice and a sweet-salty sauce. Queues are common, so plan to wait or share half a chicken.",
+    "facts": [],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Tian Tian Hainanese Chicken Rice – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/tian-tian-hainanese-chicken-rice",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-tai-wah-pork-noodle",
+    "name": "Tai Wah Pork Noodle",
+    "nameZh": "大华肉脞面",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.28523,
+      "lng": 103.84575,
+      "source": {
+        "title": "Tai Wah Pork Noodle – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/tai-wah-pork-noodle",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · bak chor mee",
+    "summary": "A noodle stall in Hong Lim Market and Food Centre. It serves pork noodles, known locally as bak chor mee, with meatballs, dried fish and slices of pork liver.",
+    "facts": [],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Tai Wah Pork Noodle – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/tai-wah-pork-noodle",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-hoo-kee-bak-chang",
+    "name": "Hoo Kee Bak Chang",
+    "nameZh": "和记肉粽",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.279,
+      "lng": 103.84668,
+      "source": {
+        "title": "Hoo Kee Bak Chang – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/hoo-kee-bak-chang",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · bak chang (rice dumplings)",
+    "summary": "A family stall in Amoy Street Food Centre making bak chang: sticky rice dumplings wrapped by hand in bamboo leaves and filled with pork, chestnut, mushroom and salted egg yolk.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "This stall has sold bak chang, the sticky rice dumplings wrapped in bamboo leaves, since the 1940s. The MICHELIN Guide notes that the family business is now run by the third generation, and that they still follow the same family recipe without changing it.",
+        "sources": [
+          {
+            "title": "Hoo Kee Bak Chang – MICHELIN Guide Singapore",
+            "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/hoo-kee-bak-chang",
+            "publisher": "MICHELIN Guide",
+            "checkedAt": "2026-10-21"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Hoo Kee Bak Chang – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/hoo-kee-bak-chang",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-no-18-zion-road-fried-kway-teow",
+    "name": "No.18 Zion Road Fried Kway Teow",
+    "nameZh": "No.18炒粿条面",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-tiong-bahru",
+    "coordinates": {
+      "lat": 1.2926,
+      "lng": 103.83126,
+      "source": {
+        "title": "No.18 Zion Road Fried Kway Teow – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/no-18-zion-road-fried-kway-teow",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · char kway teow",
+    "summary": "A Zion Riverside Food Centre stall frying char kway teow to order: flat rice noodles cooked in a very hot wok with fish cake and cockles, for a smoky, slightly spicy taste.",
+    "facts": [],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "No.18 Zion Road Fried Kway Teow – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/no-18-zion-road-fried-kway-teow",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-chey-sua-carrot-cake",
+    "name": "Chey Sua Carrot Cake",
+    "nameZh": "青山菜头粿",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-toa-payoh",
+    "coordinates": {
+      "lat": 1.33808,
+      "lng": 103.84472,
+      "source": {
+        "title": "Chey Sua Carrot Cake – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/chey-sua-carrot-cake",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · fried carrot cake",
+    "summary": "A stall in Toa Payoh West Market & Food Centre known for carrot cake, a radish cake pan-fried on one side until golden and crisp, with a soft inside. Each plate is fried to order.",
+    "facts": [],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Chey Sua Carrot Cake – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/chey-sua-carrot-cake",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-jalan-sultan-prawn-mee",
+    "name": "Jalan Sultan Prawn Mee",
+    "nameZh": "惹兰苏丹虾面",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-kampong-glam",
+    "coordinates": {
+      "lat": 1.31119,
+      "lng": 103.87277,
+      "source": {
+        "title": "Jalan Sultan Prawn Mee – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/jalan-sultan-prawn-mee",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Street food · prawn mee",
+    "summary": "A long-running prawn noodle spot in Geylang. Try the dry version tossed in sambal with fried spring onion, or the soup version in a rich prawn broth, with a choice of noodles.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The MICHELIN Guide says this prawn mee shop has been running for more than 70 years. Diners can pick from three kinds of noodles and eat them dry with sambal, or in a soup made from prawns that gives the bowl a deep, natural savoury taste.",
+        "sources": [
+          {
+            "title": "Jalan Sultan Prawn Mee – MICHELIN Guide Singapore",
+            "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/jalan-sultan-prawn-mee",
+            "publisher": "MICHELIN Guide",
+            "checkedAt": "2026-10-21"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Jalan Sultan Prawn Mee – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/jalan-sultan-prawn-mee",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-king-of-laksa",
+    "name": "King of Laksa",
+    "nameZh": "叻沙之王",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-katong",
+    "coordinates": {
+      "lat": 1.32006,
+      "lng": 103.88723,
+      "source": {
+        "title": "King of Laksa – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/king-of-laksa",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · laksa",
+    "summary": "A laksa stall on Aljunied Avenue 2 serving a lighter style of the creamy coconut noodle soup, topped with prawns or blood cockles. Low-carb noodles are also on offer.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "King of Laksa was one of ten new places added to the MICHELIN Guide Singapore Bib Gourmand list in 2026, which brought the list to 97 places. Rajarani Thosai and Hup Kee Fried Oyster Omelette were also among the new names that year.",
+        "sources": [
+          {
+            "title": "Michelin Bib Gourmand Singapore 2026 list",
+            "url": "https://hungrygowhere.com/food-news/michelin-bib-gourmand-singapore-2026-list/",
+            "publisher": "HungryGoWhere",
+            "checkedAt": "2026-10-21"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "King of Laksa – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/king-of-laksa",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-selamat-datang-warong-pak-sapari",
+    "name": "Selamat Datang Warong Pak Sapari",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-bukit-timah",
+    "coordinates": {
+      "lat": 1.32405,
+      "lng": 103.8141,
+      "source": {
+        "title": "Selamat Datang Warong Pak Sapari – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/selamat-datang-warong-pak-sapari",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · Malay noodles",
+    "summary": "A Malay food stall in Adam Road Food Centre. Its mee soto and mee rebus noodle dishes are the ones to try first, and it also makes soups with beef tripe or mutton tendon.",
+    "facts": [],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Selamat Datang Warong Pak Sapari – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/selamat-datang-warong-pak-sapari",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-rajarani-thosai",
+    "name": "Rajarani Thosai",
+    "country": "SG",
+    "regionId": "east",
+    "areaId": "sg-tampines",
+    "coordinates": {
+      "lat": 1.34546,
+      "lng": 103.94456,
+      "source": {
+        "title": "Rajarani Thosai – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/rajarani-thosai",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · South Indian thosai",
+    "summary": "A stall in Tampines Round Market & Food Centre making South Indian thosai and appam from scratch. The thosai come with many fillings and are served with sambar and chutney.",
+    "facts": [],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Rajarani Thosai – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/rajarani-thosai",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-alliance-seafood",
+    "name": "Alliance Seafood",
+    "nameZh": "联合海鲜烧烤",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.31212,
+      "lng": 103.83954,
+      "source": {
+        "title": "Alliance Seafood – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/alliance-seafood",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker stall · barbecue seafood",
+    "summary": "A seafood stall in Newton Food Centre that cooks every dish to order. Choose barbecued seafood or sauces like sambal, black pepper or salted egg yolk, and try the cereal butter prawns.",
+    "facts": [],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Alliance Seafood – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/alliance-seafood",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
+  },
+  {
+    "id": "curated:sg-lei-garden",
+    "name": "Lei Garden",
+    "nameZh": "利苑",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.29534,
+      "lng": 103.85236,
+      "source": {
+        "title": "Lei Garden – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/lei-garden-501509",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Cantonese restaurant",
+    "summary": "A Cantonese restaurant in the colonial-era CHIJMES building, part of a well-known group. Look at the chef's menu, the double-boiled soups and the seafood rice in lobster broth.",
+    "facts": [],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Lei Garden – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/lei-garden-501509",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-cherry-garden-by-chef-fei",
+    "name": "Cherry Garden by Chef Fei",
+    "nameZh": "樱桃园",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.2904,
+      "lng": 103.8581,
+      "source": {
+        "title": "Cherry Garden by Chef Fei – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/cherry-garden-by-chef-fei",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Cantonese restaurant",
+    "summary": "A Cantonese restaurant at the Mandarin Oriental with garden views. Chef Fei's cooking focuses on seafood with a light Chaoshan touch; try the garlic soy lobster or the fish congee.",
+    "facts": [],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Cherry Garden by Chef Fei – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/cherry-garden-by-chef-fei",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-summer-pavilion",
+    "name": "Summer Pavilion",
+    "nameZh": "夏苑",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.29128,
+      "lng": 103.8603,
+      "source": {
+        "title": "Summer Pavilion – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/summer-pavillion",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Cantonese restaurant",
+    "summary": "A Cantonese restaurant at The Ritz-Carlton, Millenia, set around a calm garden. Seafood stands out; try the double-boiled fish bone soup with fish maw, or abalone braised in oyster sauce.",
+    "facts": [],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Summer Pavilion – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/summer-pavillion",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-jin-ting-wan",
+    "name": "Jin Ting Wan",
+    "nameZh": "金蜓湾",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.28232,
+      "lng": 103.8585,
+      "source": {
+        "title": "Jin Ting Wan – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/jin-ting-wan",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Cantonese restaurant",
+    "summary": "A Cantonese restaurant on Level 55 of Marina Bay Sands with city and harbour views. Chef Albert Li's roasted pipa duck with aged tangerine peel is a signature dish.",
+    "facts": [],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Jin Ting Wan – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/jin-ting-wan",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-summer-palace",
+    "name": "Summer Palace",
+    "nameZh": "夏宫",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.30465,
+      "lng": 103.82475,
+      "source": {
+        "title": "Summer Palace – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/summer-palace-501658",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Cantonese restaurant",
+    "summary": "A Cantonese restaurant at Conrad Orchard with a calm, modern Chinese look. Dim sum is a highlight, along with classics such as baked stuffed crab shell and wok-fried dishes.",
+    "facts": [],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Summer Palace – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/summer-palace-501658",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-imperial-treasure-fine-teochew-cuisine-orchard",
+    "name": "Imperial Treasure Fine Teochew Cuisine (Orchard)",
+    "nameZh": "御宝阁 (乌节)",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.30414,
+      "lng": 103.83147,
+      "source": {
+        "title": "Imperial Treasure Fine Teochew Cuisine (Orchard) – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/imperial-treasure-fine-teochew-cuisine-orchard",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Teochew restaurant",
+    "summary": "A Teochew restaurant in ION Orchard with a focus on fresh seafood. Try the chilled steamed fish dipped in Puning bean sauce, the oyster omelette, or the cold crab if you order ahead.",
+    "facts": [],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Imperial Treasure Fine Teochew Cuisine (Orchard) – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/imperial-treasure-fine-teochew-cuisine-orchard",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-yong-fu",
+    "name": "Yong Fu",
+    "nameZh": "甬府",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.29515,
+      "lng": 103.85765,
+      "source": {
+        "title": "Yong Fu – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/yong-fu-1218314",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Ningbo restaurant",
+    "summary": "The first overseas branch of a Shanghainese restaurant brand, cooking Ningbo food from Zhejiang. Much of the seafood is flown in; try the marinated raw crab and the black sesame rice balls.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "In the 2026 MICHELIN Guide Singapore, revealed at a ceremony on 4 August 2026, Yong Fu was promoted to One Michelin Star. Two Cantonese restaurants, Cherry Garden by Chef Fei and Jin Ting Wan, also joined the one-star list as new entries in the same edition.",
+        "sources": [
+          {
+            "title": "MICHELIN Guide Singapore 2026 full selection unveiled",
+            "url": "https://sethlui.com/michelin-guide-singapore-aug-2026/",
+            "publisher": "SETHLUI.com",
+            "checkedAt": "2026-10-21"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Yong Fu – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/yong-fu-1218314",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-shisen-hanten",
+    "name": "Shisen Hanten",
+    "nameZh": "四川饭店",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.30239,
+      "lng": 103.8365,
+      "source": {
+        "title": "Shisen Hanten – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/shisen-hanten",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Sichuan restaurant",
+    "summary": "A Sichuan restaurant on Level 35 of Hilton Orchard. The head chef trained for years at the Tokyo branch and cooks a Japanese-style take on Sichuan food; try the mapo tofu.",
+    "facts": [],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Shisen Hanten – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/shisen-hanten",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-xiangyee",
+    "name": "Xiangyee",
+    "nameZh": "湘野",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.29821,
+      "lng": 103.83879,
+      "source": {
+        "title": "Xiangyee – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/xiangyee",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hunanese restaurant",
+    "summary": "A Hunanese restaurant on Killiney Road with spicy, smoky flavours. The owner brings ingredients from Hunan; try fish steamed with pickled chilli or the steamed cured meats.",
+    "facts": [],
+    "recognition": {
+      "label": "Michelin Bib Gourmand",
+      "year": 2026,
+      "source": {
+        "title": "Xiangyee – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/xiangyee",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-putien-kitchener-road",
+    "name": "Putien (Kitchener Road)",
+    "nameZh": "莆田 (吉真那路)",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-little-india",
+    "coordinates": {
+      "lat": 1.30954,
+      "lng": 103.8574,
+      "source": {
+        "title": "Putien (Kitchener Road) – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/putien-kitchener-road",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Fujian (Putian) restaurant",
+    "summary": "The first branch of a Fujian restaurant chain. Small plates and noodles are the strong points; try bian rou, a light wonton soup with thin pork wrappers, or the seafood lor mee.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Putien opened its first restaurant here on Kitchener Road in 2000 and later grew into a chain known for friendly service. Its menu follows the cooking of Fujian province, and some seasonal dishes use rare ingredients brought in from Putian city.",
+        "sources": [
+          {
+            "title": "Putien (Kitchener Road) – MICHELIN Guide Singapore",
+            "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/putien-kitchener-road",
+            "publisher": "MICHELIN Guide",
+            "checkedAt": "2026-10-21"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "MICHELIN Guide Selected",
+      "year": 2026,
+      "source": {
+        "title": "Putien (Kitchener Road) – MICHELIN Guide Singapore",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/putien-kitchener-road",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; MICHELIN Guide pages opened for every award, 2 re-checked; pending team editor sign-off)"
+  },
+  {
+    "id": "curated:sg-chinatown-complex-food-centre",
+    "name": "Chinatown Complex Food Centre",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.28257,
+      "lng": 103.84298,
+      "source": {
+        "title": "Lian He Ben Ji Claypot – MICHELIN Guide (map location of a stall inside Chinatown Complex Market & Food Centre, #02-198/199, 335 Smith Street)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/lian-he-ben-ji-claypot",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-21"
+      }
+    },
+    "category": "food",
+    "kind": "Hawker centre",
+    "summary": "One of Singapore's largest hawker centres, in a Chinatown building that also has a wet market and shops. With hundreds of stalls, it is a good place to walk around and share many small dishes.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The building first opened as the Kreta Ayer Complex and was renamed Chinatown Complex in 1984. It was built to give street hawkers from Smith, Trengganu, Pagoda and Temple Streets a permanent home, and about 300 of them moved in. After an upgrade, it reopened in 2008 with more than 700 stalls.",
+        "sources": [
+          {
+            "title": "Chinatown Complex Market and Food Centre",
+            "url": "https://www.roots.gov.sg/stories-landing/stories/Hawker-Centres/Chinatown-Complex-Market-Food-Centre",
+            "publisher": "Roots.gov.sg (National Heritage Board)",
+            "checkedAt": "2026-10-21"
+          }
+        ]
+      }
+    ],
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-21",
+    "reviewedBy": "Research agent (writer check; pending team editor sign-off)",
+    "languageTip": {
+      "context": "Hawker centre",
+      "regionLabel": "Singapore"
+    }
   }
 ]

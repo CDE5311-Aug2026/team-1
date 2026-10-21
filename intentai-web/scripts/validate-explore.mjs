@@ -108,7 +108,8 @@ export function validateCatalogue({ places, areas, regions, collections, outline
         }
       }
     }
-    if (p.provenance !== 'earth-online' && (p.facts ?? []).length === 0) errors.push(`${at}: researched entries need a sourced fact`);
+    // a researched entry needs a sourced fact, or a dated award whose page is the source (a Michelin-listed stall)
+    if (p.provenance !== 'earth-online' && (p.facts ?? []).length === 0 && !p.recognition?.source?.url) errors.push(`${at}: researched entries need a sourced fact or a sourced award`);
     if (p.provenance !== 'researched' && !p.earthKey) errors.push(`${at}: dataset entries need their earthKey`);
     if (p.accessNotes) checkSource(p.accessNotes.source, `${at} accessNotes`, errors);
     if (p.recognition) {
@@ -130,7 +131,8 @@ export function validateCatalogue({ places, areas, regions, collections, outline
       const a = published[i];
       const b = published[j];
       if (a.name.trim().toLowerCase() === b.name.trim().toLowerCase()) errors.push(`${a.id} / ${b.id}: same name`);
-      else if (metres(a.coordinates, b.coordinates) < 40) warnings.push(`${a.id} / ${b.id}: only ${Math.round(metres(a.coordinates, b.coordinates))} m apart — same place?`);
+      // a stall or restaurant inside a food centre or a building in the catalogue is its own place
+      else if (metres(a.coordinates, b.coordinates) < 40 && !a.recognition && !b.recognition) warnings.push(`${a.id} / ${b.id}: only ${Math.round(metres(a.coordinates, b.coordinates))} m apart — same place?`);
     }
   }
 

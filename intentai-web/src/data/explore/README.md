@@ -8,7 +8,7 @@ Owned editorial data for Nearby. Validate after every edit: `npm run validate:ex
 | --- | --- | --- |
 | `earth-online` | 99 | A landmark or site of the **EARTH ONLINE · City Brush Singapore dataset** (github.com/Wsamme/earth_online): position of its 3D model, English/Chinese names, intro card (`description`, `quickFacts`). The intro cards are **not linked to sources**, so the app shows them as "From the EARTH ONLINE Singapore dataset" and shows no fun facts for these places. |
 | `earth-online+researched` | 22 | The same dataset place, plus researched fun facts with source links. |
-| `researched` | 21 | Places not modelled in the dataset (food centres, nature reserves, neighbourhoods), researched with source links. The 3D view pins their point. |
+| `researched` | 42 | Places not modelled in the dataset (food centres, nature reserves, neighbourhoods; since 21 Oct also 20 Michelin-listed hawker stalls and Chinese restaurants for Editor's picks), researched with source links. The 3D view pins their point. |
 
 Research (20 Oct 2026): facts were written by research agents from pages they opened (Roots.gov.sg / NHB, NParks, NEA,
 URA, operators, Wikipedia), 40–80 words each, original wording, disputed claims left out. 14 places then had an
@@ -20,6 +20,17 @@ Things an editor should look at first (from the checks): coordinates for Old Air
 come from a hobby travel site; MacRitchie's point is from a URA map embed; a few monument dates rest on Wikipedia only;
 Jewel's and the Botanic Gardens' dataset points are 500 m from the researched points (the dataset point is used, it
 matches the 3D model).
+
+## Editor's picks (21 Oct 2026)
+
+Three short lists (`kind: "picks"` in `collections.json`, 10 places each, opened from Explore's list button):
+`sg-michelin-hawkers` (Bib Gourmand stalls), `sg-chinese-restaurants` (8 one-star, 1 Bib Gourmand, 1 Selected) and
+`sg-hawker-centres` (the nine researched centres plus Chinatown Complex). All awards are from the **2026 MICHELIN
+Guide Singapore** (Bib Gourmand list 28 Jul 2026, full selection 4 Aug 2026); each entry's `recognition.source` is its
+guide.michelin.com page, opened on 21 Oct 2026 (two re-opened independently). Awards change every year: re-check them
+when the next guide is out. Coordinates come from the map on each guide page (OpenStreetMap refused automated access),
+not cross-checked; Chinatown Complex uses the point of a stall inside it. Chinese names come from the guide's Chinese
+pages. Putien (Kitchener Road) is "Selected" (no star or Bib) — swap it out if the list should be starred / Bib only.
 
 ## Files
 
