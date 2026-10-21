@@ -27,7 +27,7 @@ matches the 3D model).
   shown; drafts stay in the file. Ids are stable (`curated:sg-<slug>`): never reuse or rename one that may be saved on a
   device — retire it instead.
 - `collections.json` — membership in editorial order. Progress = visited published members / published members.
-  `status: starter` shows "Singapore collection (draft) · N places"; `published` is allowed only with exactly 100
+  `status: starter` shows "Singapore collection · N places" with a "Draft" note; `published` is allowed only with exactly 100
   distinct published members that a team editor has signed off (the validator enforces this).
 - `areas.json` — regions (URA planning regions) and area centres (Wikipedia coordinates; four areas use a central
   landmark where the area article has none: Chinatown (de.wikipedia), Kampong Glam (Sultan Mosque), Katong (Joo Chiat

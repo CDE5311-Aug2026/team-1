@@ -93,7 +93,7 @@ export interface ExploreCollection {
   country: CountryCode;
   /** Full title, used only once the collection is published with its target count. */
   title: string;
-  /** Honest name while not signed off, e.g. "Singapore collection (draft)". */
+  /** Plain name while not signed off, e.g. "Singapore collection" (the draft status is said in a note, not the title). */
   starterTitle: string;
   description: string;
   status: 'starter' | 'published';

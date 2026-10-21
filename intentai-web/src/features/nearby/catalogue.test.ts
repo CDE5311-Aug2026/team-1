@@ -23,7 +23,7 @@ describe('the published catalogue', () => {
     expect(new Set(sg.memberIds).size).toBe(100);
     expect(members(sg)).toHaveLength(100);
     expect(sg.status).toBe('starter');
-    expect(collectionTitle(sg)).toBe('Singapore collection (draft) · 100 places');
+    expect(collectionTitle(sg)).toBe('Singapore collection · 100 places');
   });
 });
 

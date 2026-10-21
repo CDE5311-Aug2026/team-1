@@ -56,7 +56,7 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
 - `places.sg.json` — 142 published places: 121 landmarks/sites from the EARTH ONLINE dataset (names in English and
   Chinese, intro cards, positions of the 3D models) merged with researched entries whose fun facts carry source links
   (43 places have source-linked facts; the others say "No sourced fun facts yet").
-- `collections.json` — "Singapore collection (draft) · 100 places". It stays a draft (`status: starter`) until a team
+- `collections.json` — "Singapore collection · 100 places" (a note says it is a draft). It stays a draft (`status: starter`) until a team
   editor signs it off; the validator refuses a `published` claim without 100 signed-off members.
 - `areas.json` — 21 areas in the five URA regions, centres from Wikipedia.
 - `roads-major.json`, `roads-minor.json` — simplified road layers from the dataset's `sg_roads` (OpenStreetMap).

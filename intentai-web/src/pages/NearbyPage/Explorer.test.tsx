@@ -279,7 +279,7 @@ describe('Collections', () => {
     const [first] = members(c);
     explorePersonalStore.set((d) => ({ ...d, places: [{ placeKey: first.id, saved: false, visited: true, updatedAt: new Date().toISOString() }] }));
     renderAt('/nearby/collections');
-    expect(screen.getByRole('heading', { name: 'Singapore collection (draft) · 100 places' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Singapore collection · 100 places' })).toBeInTheDocument();
     expect(screen.getByText('1 of 100 checked in')).toBeInTheDocument();
     expect(screen.queryByText('100 Places to Explore in Singapore')).not.toBeInTheDocument();
   });

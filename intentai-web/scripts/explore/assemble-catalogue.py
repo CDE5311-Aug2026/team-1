@@ -221,7 +221,7 @@ for a in SG_AREAS:
 collections = [{
     'id': 'sg-100', 'version': 1, 'country': 'SG',
     'title': '100 Places to Explore in Singapore',
-    'starterTitle': 'Singapore collection (draft)',
+    'starterTitle': 'Singapore collection',
     'description': 'An editorial selection of landmarks, food centres, nature and culture across Singapore, built on the '
                    'EARTH ONLINE Singapore dataset. It is not an official list.',
     'status': 'starter', 'memberIds': member_ids, 'targetCount': 100,
