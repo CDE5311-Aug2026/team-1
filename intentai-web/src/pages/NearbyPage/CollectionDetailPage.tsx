@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import { markVisited, stillReached, useExplorePersonal, type Milestone } from '../../features/nearby/actions';
-import { area as areaById, collection as collectionById, collectionProgress, collectionTitle, members, regionsIn } from '../../features/nearby/catalogue';
+import { area as areaById, collection as collectionById, collectionProgress, collectionTitle, isDraft, members, regionsIn } from '../../features/nearby/catalogue';
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
 import { Icon as NearbyIcon } from '../../features/nearby/components/icons';
@@ -85,7 +85,7 @@ export default function CollectionDetailPage() {
           · {progress.percent}%
         </p>
         <ProgressBar percent={progress.percent} label={`${title} progress`} />
-        {!(c.status === 'published' && members(c).length === c.targetCount) && <p className={styles.note}>Draft: still waiting for the team editor’s check.</p>}
+        {isDraft(c) && <p className={styles.note}>Draft: still waiting for the team editor’s check.</p>}
         {progress.total > 0 && progress.visited === progress.total && (
           <p className={styles.milestone}>Every place checked in. Well done!</p>
         )}

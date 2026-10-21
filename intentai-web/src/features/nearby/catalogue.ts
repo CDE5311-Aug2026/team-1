@@ -79,6 +79,8 @@ export function collectionsContaining(key: PlaceKey): ExploreCollection[] {
 
 /** "100 Places to Explore in Singapore" only once signed off with 100 members; otherwise the honest name and count. */
 export function collectionTitle(c: ExploreCollection): string {
+  // An editor's pick is a named theme, not a count claim: its title is shown from the start (the draft note stays).
+  if (c.kind === 'picks') return c.title;
   const count = members(c).length;
   if (c.status === 'published' && count === c.targetCount) return c.title;
   return `${c.starterTitle} · ${count} ${count === 1 ? 'place' : 'places'}`;
@@ -99,7 +101,17 @@ export function collectionProgress(c: ExploreCollection, personal: ExplorePerson
 }
 
 const editorialIndex = new Map<string, number>();
-COLLECTIONS.forEach((c) => c.memberIds.forEach((id, i) => editorialIndex.has(id) || editorialIndex.set(id, i)));
+// the big collection's order first, then the editor's picks (behind it)
+COLLECTIONS.forEach((c, ci) => c.memberIds.forEach((id, i) => editorialIndex.has(id) || editorialIndex.set(id, ci * 1000 + i)));
+
+/** The big collection (100 places) and the short themed lists, in the files' order. */
+export const MAIN_COLLECTION = COLLECTIONS.find((c) => c.kind !== 'picks') ?? COLLECTIONS[0];
+export const PICKS = COLLECTIONS.filter((c) => c.kind === 'picks');
+
+/** Signed off by the team editor with all its places; until then the list carries a draft note. */
+export function isDraft(c: ExploreCollection): boolean {
+  return !(c.status === 'published' && members(c).length === c.targetCount);
+}
 
 /** Editorial order: the collection's own order first, then everything else as listed in the catalogue. */
 export function editorialRank(key: PlaceKey): number {

@@ -135,19 +135,16 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
         </a>
       </div>
 
+      {/* one quiet line under the button: the date, and a way to change it */}
       {state?.visited && (
-        <section className={panel} aria-labelledby={`${idPrefix}-visit-title`}>
-          <h2 id={`${idPrefix}-visit-title`} className={styles.panelTitle}>
-            Your check-in
-          </h2>
-          <p className={styles.body}>
-            {state.visitedOn ? `Checked in on ${shortDate(state.visitedOn)}.` : 'Checked in.'} It is a stamp in Moments. Self-reported, kept on this device, and your
-            location is not saved.
-          </p>
+        <div className={styles.checkLine}>
           {dateDraft === null ? (
-            <button type="button" className={styles.secondary} onClick={() => setDateDraft(state.visitedOn ?? today)}>
-              Change date
-            </button>
+            <p className={styles.checkDate}>
+              {state.visitedOn ? `Checked in on ${shortDate(state.visitedOn)}` : 'Checked in'} ·{' '}
+              <button type="button" className={styles.textButtonInline} onClick={() => setDateDraft(state.visitedOn ?? today)}>
+                Change date
+              </button>
+            </p>
           ) : (
             <form
               className={styles.row}
@@ -181,13 +178,21 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
               {dateError}
             </p>
           )}
-        </section>
+        </div>
       )}
 
       <section className={panel} aria-labelledby={`${idPrefix}-about-title`}>
         <h2 id={`${idPrefix}-about-title`} className={styles.panelTitle}>
           About
         </h2>
+        {place.recognition && (
+          <>
+            <p className={styles.recognition}>
+              {place.recognition.label} · {place.recognition.year}
+            </p>
+            <SourceLinks sources={[place.recognition.source]} />
+          </>
+        )}
         {/* Dataset entries derive their summary from the intro; show it once. */}
         {!(place.description && place.description.en.startsWith(place.summary.replace(/…$/, ''))) && <p className={styles.body}>{place.summary}</p>}
         {place.description && <p className={styles.body}>{place.description.en}</p>}

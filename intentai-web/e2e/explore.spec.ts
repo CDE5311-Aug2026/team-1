@@ -41,7 +41,7 @@ test('principal journey: area → food centre → details in the sheet → save 
   expect(await directions.getAttribute('href')).not.toContain('origin');
   await page.getByRole('button', { name: 'Save Maxwell Food Centre' }).first().click();
   await page.getByRole('button', { name: 'Check in', exact: true }).click();
-  await expect(page.getByText(/Checked in on \d{1,2} [A-Z][a-z]{2}( \d{4})?\./)).toBeVisible();
+  await expect(page.getByText(/Checked in on \d{1,2} [A-Z][a-z]{2}( \d{4})?/)).toBeVisible();
   await page.reload();
   await expect(page.getByRole('button', { name: 'Saved Maxwell Food Centre' }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Checked in', exact: true })).toBeVisible();

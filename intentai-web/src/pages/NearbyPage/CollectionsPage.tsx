@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import { useExplorePersonal } from '../../features/nearby/actions';
-import { COLLECTIONS, collectionProgress, collectionTitle, members } from '../../features/nearby/catalogue';
+import { COLLECTIONS, collectionProgress, collectionTitle, isDraft } from '../../features/nearby/catalogue';
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { COUNTRY_INFO } from '../../features/nearby/domain';
@@ -26,7 +26,7 @@ export default function CollectionsPage() {
         <ul className={styles.list}>
           {COLLECTIONS.map((c) => {
             const p = collectionProgress(c, personal);
-            const draft = !(c.status === 'published' && members(c).length === c.targetCount);
+            const draft = isDraft(c);
             return (
               <li key={c.id}>
                 <article className={styles.panel} aria-labelledby={`coll-${c.id}`}>

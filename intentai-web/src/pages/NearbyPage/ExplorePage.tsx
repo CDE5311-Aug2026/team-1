@@ -1,15 +1,31 @@
 // Nearby → Explore (PRD §6–9): Singapore map from the EARTH ONLINE dataset + synchronized list.
 // Default is manual exploration ("Exploring Singapore"); location is requested only when the user asks.
 // URL keeps view, category, submitted search, area, radius, sort and the selected place (never a position).
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
-import { area as areaById, areasIn, collectionsContaining, curatedPlace, editorialRank, overviewArea, placeByEarthKey, placesIn } from '../../features/nearby/catalogue';
+import {
+  area as areaById,
+  areasIn,
+  collection as collectionById,
+  collectionProgress,
+  collectionTitle,
+  collectionsContaining,
+  curatedPlace,
+  editorialRank,
+  isDraft,
+  members,
+  overviewArea,
+  placeByEarthKey,
+  placesIn,
+} from '../../features/nearby/catalogue';
+import { markVisited } from '../../features/nearby/actions';
 import CityMap, { type MapFocus } from '../../features/nearby/map/CityMap';
 import BottomSheet, { PEEK_PX, detentHeight, useWideLayout, type Detent } from '../../features/nearby/components/BottomSheet';
 import { StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
 import PlaceInfo from '../../features/nearby/components/PlaceInfo';
+import PicksPanel from '../../features/nearby/components/PicksPanel';
 import View3D from '../../features/nearby/components/View3D';
 import { Icon } from '../../features/nearby/components/icons';
 import { THUMB_CREDIT } from '../../features/nearby/thumbs';
@@ -34,7 +50,6 @@ import {
   type Origin,
 } from '../../features/nearby/ranking';
 import {
-  CATEGORIES,
   DEFAULT_RADIUS_M,
   QUERY_MAX,
   QUERY_MIN,
@@ -105,6 +120,10 @@ export default function ExplorePage() {
   const radius: RadiusM = isRadius(radiusParam) ? radiusParam : DEFAULT_RADIUS_M;
   const sort = params.get('sort') === 'nearest' ? 'nearest' : 'recommended';
   const selectedKey = parsePlaceKey(params.get('sel'));
+  // ?list=<id>: one editor's pick (or the big collection) on its own, as a checklist
+  const listParam = params.get('list');
+  const activeList = listParam ? collectionById(listParam) : undefined;
+  const [picksOpen, setPicksOpen] = useState(false);
   useEffect(() => {
     if (area && personal.selectedAreaId !== area.id) setSelectedArea(area.id);
   }, [area, personal.selectedAreaId]);
@@ -153,12 +172,14 @@ export default function ExplorePage() {
     center: !query && origin ? origin.point : undefined,
     radiusM: !query && origin ? radius : undefined,
   });
-  const items = filtered.map((p) => toItem(p, origin));
+  const items = (activeList ? members(activeList) : filtered).map((p) => toItem(p, origin));
   const stateByKey = new Map(personal.places.map((s) => [s.placeKey, s]));
   const nearestMode = sort === 'nearest' && !!origin;
   const picks = items.filter((i) => collectionsContaining(i.key).length > 0).sort((a, b) => editorialRank(a.key) - editorialRank(b.key));
   const others = items.filter((i) => collectionsContaining(i.key).length === 0);
-  const ordered: { title?: string; note?: string; items: ExploreItem[] }[] = nearestMode
+  const ordered: { title?: string; note?: string; items: ExploreItem[] }[] = activeList
+    ? [{ title: 'Checklist', items: nearestMode ? byDistance(items) : items }]
+    : nearestMode
     ? [{ title: 'Nearest first', items: byDistance(items) }]
     : [
         { title: 'Our picks', items: picks },
@@ -198,7 +219,9 @@ export default function ExplorePage() {
     } else setCardTitle(key ? title : null);
   };
 
-  const focus: MapFocus = origin
+  const focus: MapFocus = activeList
+    ? { id: focusId, points: items.map((i) => i.location) }
+    : origin
     ? { id: focusId, center: origin.point, radiusM: radius }
     : query || category !== 'all'
       ? { id: focusId, points: filtered.map((p) => p.coordinates) }
@@ -212,7 +235,7 @@ export default function ExplorePage() {
       return;
     }
     setQueryError(null);
-    patch({ q: q || null, sel: null, info: null });
+    patch({ q: q || null, sel: null, info: null, list: null });
     setFocusId((n) => n + 1);
   };
 
@@ -240,6 +263,11 @@ export default function ExplorePage() {
     if (idx > 0) navigate(-1);
     else navigate(paths.today);
   };
+  const closePicks = useCallback(() => setPicksOpen(false), []);
+  const closeList = () => {
+    patch({ list: null, sel: null, info: null });
+    setFocusId((n) => n + 1);
+  };
   const resetAll = () => {
     setIgnoreFix(true);
     setMapCenter(null);
@@ -249,7 +277,28 @@ export default function ExplorePage() {
     setFocusId((n) => n + 1);
   };
 
-  const sheetHeader = (
+  const listProgress = activeList ? collectionProgress(activeList, personal) : null;
+  const sheetHeader = activeList && listProgress ? (
+    <>
+      <div className={x.titleRow}>
+        <div className={x.titleText}>
+          <p className={x.kicker}>{activeList.kind === 'picks' ? 'Editor’s pick' : 'Collection'}</p>
+          <h1 className={x.listTitle}>{activeList.kind === 'picks' ? activeList.title : collectionTitle(activeList)}</h1>
+        </div>
+        <button type="button" className={x.closeList} onClick={closeList} aria-label="Close this list">
+          <Icon name="close" size={18} />
+        </button>
+      </div>
+      <div className={x.listProgress}>
+        <span className={x.count} aria-live="polite">
+          {listProgress.visited} of {listProgress.total} checked in
+        </span>
+        <span className={x.bar} aria-hidden="true">
+          <span style={{ width: `${listProgress.percent}%` }} />
+        </span>
+      </div>
+    </>
+  ) : (
     <>
       <div className={x.titleRow}>
         <div className={x.titleText}>
@@ -335,21 +384,37 @@ export default function ExplorePage() {
             <button type="submit" className={styles.srOnly}>
               Search
             </button>
+            {/* Editor's picks: themed lists of 10 places to check off */}
+            <button
+              type="button"
+              className={picksOpen || activeList ? `${x.picksButton} ${x.picksOn}` : x.picksButton}
+              aria-label="Editor's picks"
+              aria-expanded={picksOpen}
+              aria-controls="picks-panel"
+              onClick={() => setPicksOpen((o) => !o)}
+            >
+              <Icon name="menu" />
+            </button>
           </form>
+          {picksOpen && (
+            <PicksPanel
+              id="picks-panel"
+              activeId={activeList?.id ?? null}
+              onClose={closePicks}
+              onChoose={(c) => {
+                setPicksOpen(false);
+                patch({ list: c.id, sel: null, info: null, q: null, category: null, view: view === 'list' ? null : params.get('view') });
+                setDraft('');
+                setMapDetent('half');
+                setFocusId((n) => n + 1);
+              }}
+            />
+          )}
           {queryError && (
             <p id="nearby-search-error" className={x.floatingNote} role="alert">
               {queryError}
             </p>
           )}
-          <ul className={x.chips} aria-label="Category">
-            {(['all', ...CATEGORIES] as CategoryFilter[]).map((c) => (
-              <li key={c}>
-                <button type="button" className={x.chip} aria-pressed={category === c} onClick={() => patch({ category: c === 'all' ? null : c, sel: null, info: null })}>
-                  {c === 'all' ? 'All' : CATEGORY_INFO[c].plural}
-                </button>
-              </li>
-            ))}
-          </ul>
           {pendingCenter && searchAreaRoom && (
             <button
               type="button"
@@ -423,7 +488,7 @@ export default function ExplorePage() {
             </PlaceCard>
           </section>
         )}
-        {!selected && (
+        {!selected && !activeList && (
           <Link className={x.phraseRow} to={paths.phrases}>
             <span className={x.phraseIcon}>
               <Icon name="chat" />
@@ -436,7 +501,7 @@ export default function ExplorePage() {
           </Link>
         )}
 
-        {(origin || query) && (
+        {!activeList && (origin || query || category !== 'all') && (
           <div className={x.filters}>
             {origin && !query && (
               <select
@@ -474,11 +539,18 @@ export default function ExplorePage() {
         ) : (
           ordered.map((group) => (
             <section key={group.title} aria-label={group.title}>
-              <h2 className={styles.groupTitle}>
-                {group.title} <span className={styles.note}>({group.items.length})</span>
-              </h2>
+              {activeList ? (
+                <>
+                  <p className={styles.body}>{activeList.description}</p>
+                  {isDraft(activeList) && <p className={styles.note}>Draft: still waiting for the team editor’s check.</p>}
+                </>
+              ) : (
+                <h2 className={styles.groupTitle}>
+                  {group.title} <span className={styles.note}>({group.items.length})</span>
+                </h2>
+              )}
               <ul className={x.rows}>
-                {group.items.slice(0, view === 'list' || wide ? undefined : MAP_LIST_LIMIT).map((item) => (
+                {group.items.slice(0, view === 'list' || wide || activeList ? undefined : MAP_LIST_LIMIT).map((item) => (
                   <li key={item.key}>
                     <PlaceCard
                       item={item}
@@ -486,11 +558,12 @@ export default function ExplorePage() {
                       originKind={origin?.kind}
                       selected={item.key === selectedKey}
                       onSelect={() => select(item.key)}
+                      onToggleVisited={activeList ? () => markVisited(item.key, item.name, !stateByKey.get(item.key)?.visited) : undefined}
                     />
                   </li>
                 ))}
               </ul>
-              {view !== 'list' && !wide && group.items.length > MAP_LIST_LIMIT && (
+              {view !== 'list' && !wide && !activeList && group.items.length > MAP_LIST_LIMIT && (
                 <button type="button" className={styles.textButton} onClick={() => patch({ view: 'list' })}>
                   See all {group.items.length}
                 </button>

@@ -110,5 +110,28 @@
       "curated:sg-nanyang-technological-university"
     ],
     "targetCount": 100
+  },
+  {
+    "id": "sg-hawker-centres",
+    "version": 1,
+    "country": "SG",
+    "kind": "picks",
+    "title": "Hawker centres to know",
+    "titleZh": "必去小贩中心",
+    "starterTitle": "Hawker centres to know",
+    "description": "Ten hawker centres where Singapore's food cultures meet, from heritage markets to late-night favourites.",
+    "status": "starter",
+    "targetCount": 10,
+    "memberIds": [
+      "curated:sg-maxwell-food-centre",
+      "curated:sg-lau-pa-sat",
+      "curated:sg-tiong-bahru-market",
+      "curated:sg-old-airport-road-food-centre",
+      "curated:sg-newton-food-centre",
+      "curated:sg-tekka-centre",
+      "curated:sg-albert-centre-market-food-centre",
+      "curated:sg-adam-road-food-centre",
+      "curated:sg-zion-riverside-food-centre"
+    ]
   }
 ]

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, expect, test, vi } from 'vitest';
 import AppShell from '../../components/AppShell/AppShell';
-import { COLLECTIONS, members } from '../../features/nearby/catalogue';
+import { COLLECTIONS, collection, members } from '../../features/nearby/catalogue';
 import { getLocationState } from '../../features/nearby/location';
 import { deleteAllData, explorePersonalStore, settingsStore } from '../../data/stores';
 import { stateOf } from '../../features/nearby/personal';
@@ -61,13 +61,25 @@ describe('Explore', () => {
     expect(screen.queryByText(/~[\d.]+ k?m/)).not.toBeInTheDocument();
   });
 
-  test('categories filter the list and the map together', async () => {
-    renderAt('/nearby?view=list');
-    await userEvent.click(screen.getByRole('button', { name: 'Food' }));
-    expect(screen.getByTestId('where')).toHaveTextContent('category=food');
-    const cards = screen.getAllByRole('article');
-    expect(cards.length).toBeGreaterThan(3);
-    for (const card of cards) expect(card).toHaveTextContent('Food:');
+  test("the list button opens Editor's picks; a pick shows only its places, as a checklist, until it is closed", async () => {
+    renderAt('/nearby');
+    const button = screen.getByRole('button', { name: "Editor's picks" });
+    expect(screen.queryByRole('button', { name: 'Food' })).not.toBeInTheDocument(); // no category chips any more
+    await userEvent.click(button);
+    const panel = screen.getByRole('dialog', { name: "Editor's picks" });
+    await userEvent.click(within(panel).getByRole('button', { name: /Hawker centres to know/ }));
+    expect(screen.queryByRole('dialog', { name: "Editor's picks" })).not.toBeInTheDocument();
+    expect(screen.getByTestId('where')).toHaveTextContent('list=sg-hawker-centres');
+    const sheet = screen.getByRole('region', { name: 'Places' });
+    expect(within(sheet).getByRole('heading', { level: 1, name: 'Hawker centres to know' })).toBeInTheDocument();
+    expect(within(sheet).getByText(/^0 of \d+ checked in$/)).toBeInTheDocument();
+    const toggles = within(sheet).getAllByRole('button', { name: /^Check in:/ });
+    expect(toggles.length).toBe(collection('sg-hawker-centres')!.memberIds.length);
+    await userEvent.click(toggles[0]);
+    expect(within(sheet).getByText(/^1 of \d+ checked in$/)).toBeInTheDocument();
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Close this list' }));
+    expect(screen.getByTestId('where')).not.toHaveTextContent('list=');
+    expect(within(sheet).getByRole('heading', { level: 1, name: 'Nearby' })).toBeInTheDocument();
   });
 
   test('a submitted search needs 2–100 characters and searches only on submit', async () => {
@@ -314,7 +326,7 @@ describe('Collections', () => {
     renderAt(`/nearby/collections/${c.id}?visit=todo`);
     await userEvent.click(screen.getAllByRole('button', { name: /^Check in:/ })[0]);
     expect(screen.getByText(/10% of this collection checked in/)).toBeInTheDocument();
-    expect(explorePersonalStore.get().milestonesSeen).toEqual({ [c.id]: [10] });
+    expect(explorePersonalStore.get().milestonesSeen).toEqual({ [c.id]: [10] }); // an editor's pick only counts the whole list
     // Undo takes the visit and the acknowledgement back; reaching 10% again shows it again.
     act(() => undoToast());
     expect(screen.queryByText(/10% of this collection checked in/)).not.toBeInTheDocument();

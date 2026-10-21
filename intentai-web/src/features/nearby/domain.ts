@@ -60,6 +60,8 @@ export interface CuratedPlace {
   facts: PlaceFact[];
   languageTip?: LanguageTip;
   accessNotes?: { text: string; source: SourceReference };
+  /** A dated award, e.g. MICHELIN Guide Bib Gourmand 2025, with the page that shows it. */
+  recognition?: { label: string; year: number; source: SourceReference };
   /** The landmark key in the EARTH ONLINE 3D page (opens its intro card there). */
   earthKey?: string;
   provenance: Provenance;
@@ -98,7 +100,12 @@ export interface ExploreCollection {
   description: string;
   status: 'starter' | 'published';
   memberIds: CuratedId[];
-  targetCount: 100;
+  /** The big collection has 100 places; an editor's pick (kind "picks") has 10. */
+  targetCount: number;
+  /** "picks": a short themed list (Editor's picks), named by its title from the start. */
+  kind?: 'picks';
+  /** Simplified Chinese title (Editor's picks). */
+  titleZh?: string;
 }
 
 export interface PersonalPlaceState {

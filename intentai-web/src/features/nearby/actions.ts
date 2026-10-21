@@ -64,7 +64,9 @@ function milestonesAfter(before: ExplorePersonalData, after: ExplorePersonalData
   for (const c of collectionsContaining(key)) {
     const was = collectionProgress(c, before).percent;
     const now = collectionProgress(c, after).percent;
-    const reached = MILESTONES.filter((m) => was < m && now >= m && !(seen[c.id] ?? []).includes(m));
+    // a 10-place editor's pick only celebrates the whole list (10 % of it is a single place)
+    const steps = c.kind === 'picks' ? [100] : MILESTONES;
+    const reached = steps.filter((m) => was < m && now >= m && !(seen[c.id] ?? []).includes(m));
     if (reached.length) {
       const top = reached[reached.length - 1];
       seen[c.id] = [...(seen[c.id] ?? []), ...reached];

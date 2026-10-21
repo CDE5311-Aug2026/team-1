@@ -15,6 +15,8 @@ const PATHS: Record<string, string> = {
   star: 'M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8Z',
   chevron: 'M9 5l7 7-7 7',
   filter: 'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',
+  menu: 'M4 7h16M4 12h16M4 17h16',
+  close: 'M6 6l12 12M18 6 6 18',
   check: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM8 12.5l2.7 2.7L16 9.8',
 };
 

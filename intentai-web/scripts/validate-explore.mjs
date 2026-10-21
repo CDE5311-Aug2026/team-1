@@ -2,7 +2,7 @@
 // Nearby Explorer catalogue validation (PRD §10): `npm run validate:explore`.
 // Checks ids, Singapore coordinates (outline, not a bounding box), references, fact/source/review fields,
 // placeholder text, provenance, duplicates and collection counts. A collection may only claim "published"
-// with exactly 100 distinct published members that a team editor has signed off.
+// with exactly 100 (an editor's pick: 10) distinct published members that a team editor has signed off.
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -111,6 +111,13 @@ export function validateCatalogue({ places, areas, regions, collections, outline
     if (p.provenance !== 'earth-online' && (p.facts ?? []).length === 0) errors.push(`${at}: researched entries need a sourced fact`);
     if (p.provenance !== 'researched' && !p.earthKey) errors.push(`${at}: dataset entries need their earthKey`);
     if (p.accessNotes) checkSource(p.accessNotes.source, `${at} accessNotes`, errors);
+    if (p.recognition) {
+      // a dated award with the page that shows it (e.g. the MICHELIN Guide page of the restaurant)
+      const r = p.recognition;
+      if (!r.label || !Number.isInteger(r.year) || r.year < 2000 || r.year > 2100) errors.push(`${at}: recognition needs a label and a year`);
+      checkSource(r.source, `${at} recognition`, errors);
+      if (!r.source?.url) errors.push(`${at}: recognition needs a source page`);
+    }
     if (p.languageTip && !CONTEXTS.includes(p.languageTip.context)) errors.push(`${at}: unknown language context`);
     if (p.image && !(p.image.license && p.image.attribution && p.image.sourceUrl)) errors.push(`${at}: an image needs license, attribution and source`);
     if (p.editorialStatus === 'published' && (!ISO_DATE.test(p.reviewedAt ?? '') || !p.reviewedBy)) errors.push(`${at}: published entries need reviewedAt and reviewedBy`);
@@ -140,10 +147,14 @@ export function validateCatalogue({ places, areas, regions, collections, outline
     }
     const publishedMembers = c.memberIds.filter((id) => byId.get(id)?.editorialStatus === 'published');
     counts[c.id] = publishedMembers.length;
-    if (c.targetCount !== 100) errors.push(`${c.id}: targetCount must be 100`);
-    if (c.memberIds.length > 100) errors.push(`${c.id}: more than 100 members`);
+    // the big collection has 100 places; an editor's pick (kind "picks") has 10, with a title and a Chinese title
+    const target = c.kind === 'picks' ? 10 : 100;
+    if (c.kind !== undefined && c.kind !== 'picks') errors.push(`${c.id}: kind must be "picks" or absent`);
+    if (c.kind === 'picks' && (!c.title || !c.titleZh || !c.description)) errors.push(`${c.id}: a pick needs title, titleZh and description`);
+    if (c.targetCount !== target) errors.push(`${c.id}: targetCount must be ${target}`);
+    if (c.memberIds.length > target) errors.push(`${c.id}: more than ${target} members`);
     if (c.status === 'published') {
-      if (publishedMembers.length !== 100) errors.push(`${c.id}: claims published but has ${publishedMembers.length} published members (needs exactly 100)`);
+      if (publishedMembers.length !== target) errors.push(`${c.id}: claims published but has ${publishedMembers.length} published members (needs exactly ${target})`);
       const unsigned = publishedMembers.filter((id) => /pending/i.test(byId.get(id).reviewedBy));
       if (unsigned.length) errors.push(`${c.id}: claims published but ${unsigned.length} members still await team editor sign-off`);
     } else if (c.status !== 'starter') errors.push(`${c.id}: status must be starter or published`);

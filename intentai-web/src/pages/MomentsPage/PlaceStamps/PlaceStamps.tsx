@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useExplorePersonal } from '../../../features/nearby/actions';
-import { COLLECTIONS, collectionProgress, collectionTitle, curatedPlace } from '../../../features/nearby/catalogue';
+import { MAIN_COLLECTION, collectionProgress, collectionTitle, curatedPlace } from '../../../features/nearby/catalogue';
 import { PlaceThumb } from '../../../features/nearby/components/PlaceCard';
 import { shortDate } from '../../../features/nearby/personal';
 import { paths } from '../../../routes';
@@ -20,7 +20,7 @@ export default function PlaceStamps() {
     .map((s) => ({ s, place: curatedPlace(s.placeKey) }))
     .filter((x): x is { s: typeof x.s; place: NonNullable<typeof x.place> } => !!x.place)
     .sort((a, b) => ((a.s.visitedOn ?? '') === (b.s.visitedOn ?? '') ? (a.s.updatedAt < b.s.updatedAt ? 1 : -1) : (a.s.visitedOn ?? '') < (b.s.visitedOn ?? '') ? 1 : -1));
-  const collection = COLLECTIONS[0];
+  const collection = MAIN_COLLECTION;
   const progress = collection ? collectionProgress(collection, personal) : null;
 
   return (

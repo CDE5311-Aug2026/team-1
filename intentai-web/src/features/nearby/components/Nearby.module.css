@@ -856,3 +856,45 @@
   border-radius: var(--radius-card-lg);
   background: var(--surface);
 }
+
+.checkLine {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: -0.25rem;
+}
+
+.checkDate {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.textButtonInline {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.textButtonInline:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* a dated award (e.g. MICHELIN Guide Bib Gourmand 2025) at the top of About */
+.recognition {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.75rem;
+  background: #fbeee4;
+  color: #8a3509;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
