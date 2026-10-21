@@ -154,14 +154,15 @@ function drawRoads(ctx: CanvasRenderingContext2D, layer: RoadLayer, view: View, 
   ctx.lineJoin = 'round';
   let current = -1;
   for (const l of layer) {
-    if (l.maxX < left || l.minX > right || l.maxY < bottom || l.minY > top || !minClassScale(l.c)) continue;
+    // Singapore only: roads outside it (Johor, the Causeway's far end) are not drawn
+    if (l.foreign || l.maxX < left || l.minX > right || l.maxY < bottom || l.minY > top || !minClassScale(l.c)) continue;
     if (l.c !== current) {
       const [w, minPx, colour] = ROAD_STYLE[l.c] ?? ROAD_STYLE[10];
       ctx.lineWidth = Math.max(minPx, w * view.scale);
       ctx.strokeStyle = colour;
       current = l.c;
     }
-    ctx.globalAlpha = l.foreign ? 0.45 : 0.95;
+    ctx.globalAlpha = 0.95;
     ctx.beginPath();
     ctx.moveTo(l.xs[0] * view.scale + ox, oy - l.ys[0] * view.scale);
     for (let k = 1; k < l.xs.length; k++) ctx.lineTo(l.xs[k] * view.scale + ox, oy - l.ys[k] * view.scale);
@@ -249,7 +250,7 @@ export default function CityMap({
       const scale = scaleForRadius(focus.radiusM, freeW, freeH);
       setView({ center: shift(toXY(focus.center), scale), scale });
     } else if (focus.points && focus.points.length) {
-      const fitted = fitView(focus.points.map(toXY), freeW, freeH);
+      const fitted = fitView(focus.points.map(toXY), freeW, freeH, 24);
       setView({ center: shift(fitted.center, fitted.scale), scale: fitted.scale });
     } else if (focus.center) {
       setView((v) => ({ ...v, center: shift(toXY(focus.center as LatLng), v.scale) }));
@@ -312,7 +313,7 @@ export default function CityMap({
     if (!ctx) return;
     const dpr = canvas.width / Math.max(1, width);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = '#4f7fa3';
+    ctx.fillStyle = '#4d7ea2'; // the sea of the ground picture (Singapore only: neighbouring coasts are sea too)
     ctx.fillRect(0, 0, width, height);
     if (!img || !img.complete || !img.naturalWidth) return;
     const topLeft = toScreen({ x: -HALF, y: HALF }, fullView);
@@ -472,6 +473,27 @@ export default function CityMap({
     : null;
   const youPt = you ? toScreen(toXY(you), fullView) : null;
   const showLabels = view.scale < 0.03;
+  // Area names never sit under a pin or on another name (a clean overview, like a maps app).
+  const placedLabels = useMemo(() => {
+    if (!showLabels) return [];
+    const taken: { l: number; r: number; t: number; b: number }[] = clusters.map((c) => ({ l: c.x - 22, r: c.x + 22, t: c.y - 22, b: c.y + 22 }));
+    const out: { id: string; name: string; x: number; y: number }[] = [];
+    for (const l of labels) {
+      const p = toScreen(toXY(l.location), fullView);
+      if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) continue;
+      const half = l.name.length * 3.6 + 4;
+      // On the spot, else just under or over the pin that covers it; dropped when there is no room.
+      for (const dy of [4, 38, -26]) {
+        const y = p.y + dy;
+        const box = { l: p.x - half, r: p.x + half, t: y - 13, b: y + 4 };
+        if (taken.some((o) => box.l < o.r && box.r > o.l && box.t < o.b && box.b > o.t)) continue;
+        taken.push(box);
+        out.push({ id: l.id, name: l.name, x: p.x, y });
+        break;
+      }
+    }
+    return out;
+  }, [showLabels, clusters, labels, view, width, height]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className={bleed ? `${styles.wrap} ${styles.bleed}` : styles.wrap} style={bleed ? undefined : { height }}>
@@ -495,16 +517,11 @@ export default function CityMap({
           {circleGeom && (
             <circle cx={circleGeom.c.x} cy={circleGeom.c.y} r={circleGeom.r} className={styles.radius} />
           )}
-          {showLabels &&
-            labels.map((l) => {
-              const p = toScreen(toXY(l.location), fullView);
-              if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) return null;
-              return (
-                <text key={l.id} x={p.x} y={p.y} className={styles.areaLabel} textAnchor="middle">
-                  {l.name}
-                </text>
-              );
-            })}
+          {placedLabels.map((l) => (
+            <text key={l.id} x={l.x} y={l.y} className={styles.areaLabel} textAnchor="middle">
+              {l.name}
+            </text>
+          ))}
           {youPt && (
             <g>
               <circle cx={youPt.x} cy={youPt.y} r={14} className={styles.youHalo} />

@@ -94,20 +94,20 @@ export default function SavedPage() {
             Saved ({personal.places.filter((s) => s.saved).length})
           </button>
           <button type="button" className={styles.segment} aria-pressed={tab === 'visited'} onClick={() => setParams({ tab: 'visited' }, { replace: true })}>
-            Visited ({personal.places.filter((s) => s.visited).length})
+            Checked in ({personal.places.filter((s) => s.visited).length})
           </button>
         </div>
 
         {list.length === 0 ? (
           <p className={styles.empty}>
-            {tab === 'saved' ? 'Nothing saved yet.' : 'No visits yet.'}
+            {tab === 'saved' ? 'Nothing saved yet.' : 'No check-ins yet.'}
             <br />
             <Link className={styles.textLink} to={paths.nearby}>
               Explore places
             </Link>
           </p>
         ) : (
-          <ul className={styles.rows} ref={listRef} tabIndex={-1} aria-label={tab === 'saved' ? 'Saved places' : 'Visited places'}>
+          <ul className={styles.rows} ref={listRef} tabIndex={-1} aria-label={tab === 'saved' ? 'Saved places' : 'Checked-in places'}>
             {list.map((s) => {
               const place = curatedPlace(s.placeKey);
               if (!place) {

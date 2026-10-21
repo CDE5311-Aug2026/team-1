@@ -64,6 +64,9 @@ rmSync(join(out, 'index.html'), { force: true });
 let bytes = statSync(join(out, 'lite.html')).size;
 for (const f of readdirSync(dataDir)) {
   copyFileSync(join(dataDir, f), join(out, 'sgdata', f));
-  bytes += statSync(join(out, 'sgdata', f)).size;
 }
+// Singapore only: the neighbouring coasts in the ground picture become sea, for the 3D page and the 2D map alike
+execFileSync('python3', [join(here, 'explore', 'sg-only-ground.py'), join(dataDir, 'sg_base.txt'), join(dataDir, 'ground.webp'), join(out, 'sgdata', 'ground.webp')], { stdio: ['ignore', 'ignore', 'inherit'] });
+copyFileSync(join(out, 'sgdata', 'ground.webp'), resolve(here, '../src/assets/nearby/sg-ground.webp'));
+for (const f of readdirSync(join(out, 'sgdata'))) bytes += statSync(join(out, 'sgdata', f)).size;
 console.log(`EARTH ONLINE Singapore lite 3D page built in ${out} (${(bytes / 1e6).toFixed(1)} MB with data)`);

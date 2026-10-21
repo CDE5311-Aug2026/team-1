@@ -22,6 +22,16 @@ export function localToday(now: Date = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "2026-10-21" → "21 Oct" (this year) or "21 Oct 2025" (another year). */
+export function shortDate(date: string, today: string = localToday()): string {
+  const [y, m, d] = date.split('-').map(Number);
+  if (!y || !m || !d) return date;
+  const day = `${d} ${MONTHS[m - 1]}`;
+  return today.startsWith(`${y}-`) ? day : `${day} ${y}`;
+}
+
 export function stateOf(data: ExplorePersonalData, key: PlaceKey): PersonalPlaceState | undefined {
   const canonical = canonicalKey(key);
   return data.places.find((s) => s.placeKey === canonical);

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { paths } from '../../../routes';
-import { toggleSave } from '../actions';
+import { markVisited, toggleSave } from '../actions';
 import { CATEGORY_INFO, type PersonalPlaceState } from '../domain';
 import { formatDistance } from '../geo';
 import type { ExploreItem, OriginKind } from '../ranking';
@@ -19,7 +19,7 @@ interface PlaceCardProps {
   variant?: 'row' | 'card';
   /** Distinguishes two cards of the same place on one page (preview + list) so ids stay unique. */
   idPrefix?: string;
-  /** A visited toggle beside Save (collection lists). */
+  /** A check-in toggle beside Save (collection checklists). */
   onToggleVisited?: () => void;
 }
 
@@ -94,15 +94,8 @@ export default function PlaceCard({ item, state, originKind, selected, onSelect,
           <span className={styles.srOnly}>{info.label}: </span>
           {item.kindLabel}
           {distance && <> · {distance}</>}
-          {state?.visited && <span className={styles.srOnly}>, visited</span>}
+          {state?.visited && <span className={styles.srOnly}>, checked in</span>}
         </p>
-        {variant === 'card' && (
-          <div className={styles.actions}>
-            <Link className={styles.details} to={paths.nearbyPlace(item.key)} aria-label={`View details: ${item.name}`}>
-              View details
-            </Link>
-          </div>
-        )}
       </div>
       <span className={styles.buttons}>
         {onToggleVisited && (
@@ -111,13 +104,29 @@ export default function PlaceCard({ item, state, originKind, selected, onSelect,
             className={state?.visited ? `${styles.save} ${styles.done}` : styles.save}
             aria-pressed={!!state?.visited}
             onClick={onToggleVisited}
-            aria-label={`${state?.visited ? 'Visited' : 'Mark visited'}: ${item.name}`}
+            aria-label={`${state?.visited ? 'Checked in' : 'Check in'}: ${item.name}`}
           >
             <Icon name="check" />
           </button>
         )}
         {saveButton}
       </span>
+      {variant === 'card' && (
+        <div className={styles.actions}>
+          <Link className={styles.details} to={paths.nearbyPlace(item.key)} aria-label={`View details: ${item.name}`}>
+            View details
+          </Link>
+          <button
+            type="button"
+            className={state?.visited ? `${styles.checkIn} ${styles.checkedIn}` : styles.checkIn}
+            aria-pressed={!!state?.visited}
+            onClick={() => markVisited(item.key, item.name, !state?.visited)}
+          >
+            <Icon name="check" size={18} />
+            {state?.visited ? 'Checked in' : 'Check in'}
+          </button>
+        </div>
+      )}
     </article>
   );
 }

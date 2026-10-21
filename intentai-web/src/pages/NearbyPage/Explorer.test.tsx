@@ -208,9 +208,9 @@ describe('Place detail', () => {
     renderAt(`/nearby/place/${key}`);
     await userEvent.click(screen.getByRole('link', { name: /Directions/ }));
     expect(explorePersonalStore.get().places).toEqual([]);
-    await userEvent.click(screen.getByRole('button', { name: /Mark visited/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Check in' }));
     expect(explorePersonalStore.get().places[0]).toMatchObject({ placeKey: key, saved: false, visited: true });
-    await userEvent.click(screen.getByRole('button', { name: '☆ Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(explorePersonalStore.get().places[0]).toMatchObject({ saved: true, visited: true });
     act(() => undoToast());
     expect(explorePersonalStore.get().places[0]).toMatchObject({ saved: false, visited: true });
@@ -218,9 +218,9 @@ describe('Place detail', () => {
 
   test('a future visit date is refused', async () => {
     renderAt(`/nearby/place/${key}`);
-    await userEvent.click(screen.getByRole('button', { name: /Mark visited/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Check in' }));
     await userEvent.click(screen.getByRole('button', { name: 'Change date' }));
-    fireEvent.change(screen.getByLabelText(/Visit date/), { target: { value: '2999-01-01' } });
+    fireEvent.change(screen.getByLabelText(/Check-in date/), { target: { value: '2999-01-01' } });
     await userEvent.click(screen.getByRole('button', { name: 'Save date' }));
     expect(screen.getByRole('alert')).toHaveTextContent('cannot be in the future');
   });
@@ -241,32 +241,32 @@ describe('Collections', () => {
     explorePersonalStore.set((d) => ({ ...d, places: [{ placeKey: first.id, saved: false, visited: true, updatedAt: new Date().toISOString() }] }));
     renderAt('/nearby/collections');
     expect(screen.getByRole('heading', { name: 'Singapore collection (draft) · 100 places' })).toBeInTheDocument();
-    expect(screen.getByText('1 of 100 visited')).toBeInTheDocument();
+    expect(screen.getByText('1 of 100 checked in')).toBeInTheDocument();
     expect(screen.queryByText('100 Places to Explore in Singapore')).not.toBeInTheDocument();
   });
 
   test('filters never change the denominator; marking visited updates it once', async () => {
     renderAt(`/nearby/collections/${c.id}?category=food`);
-    expect(screen.getByText('0 of 100 visited')).toBeInTheDocument();
-    const buttons = screen.getAllByRole('button', { name: /^Mark visited:/ });
+    expect(screen.getByText('0 of 100 checked in')).toBeInTheDocument();
+    const buttons = screen.getAllByRole('button', { name: /^Check in:/ });
     expect(buttons.length).toBeLessThan(100);
     await userEvent.click(buttons[0]);
-    expect(screen.getByText('1 of 100 visited')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Visited' }));
+    expect(screen.getByText('1 of 100 checked in')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Checked in' }));
     expect(screen.getByText(/Showing 1 of 100/)).toBeInTheDocument();
-    expect(screen.getByText('1 of 100 visited')).toBeInTheDocument();
+    expect(screen.getByText('1 of 100 checked in')).toBeInTheDocument();
   });
 
   test('reaching 10% shows one small acknowledgement', async () => {
     const ids = members(c).slice(0, 9).map((p) => p.id);
     explorePersonalStore.set((d) => ({ ...d, places: ids.map((placeKey) => ({ placeKey, saved: false, visited: true, updatedAt: new Date().toISOString() })) }));
     renderAt(`/nearby/collections/${c.id}?visit=todo`);
-    await userEvent.click(screen.getAllByRole('button', { name: /^Mark visited:/ })[0]);
-    expect(screen.getByText(/10% of this collection visited/)).toBeInTheDocument();
+    await userEvent.click(screen.getAllByRole('button', { name: /^Check in:/ })[0]);
+    expect(screen.getByText(/10% of this collection checked in/)).toBeInTheDocument();
     expect(explorePersonalStore.get().milestonesSeen).toEqual({ [c.id]: [10] });
     // Undo takes the visit and the acknowledgement back; reaching 10% again shows it again.
     act(() => undoToast());
-    expect(screen.queryByText(/10% of this collection visited/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/10% of this collection checked in/)).not.toBeInTheDocument();
     expect(explorePersonalStore.get().milestonesSeen).toBeUndefined();
   });
 });
@@ -303,7 +303,7 @@ describe('Saved and deletion', () => {
   test('Delete all my data clears exploration and location, and Undo cannot bring it back', async () => {
     mockGeolocation({ lat: 1.2803, lng: 103.8447, accuracy: 15 });
     renderAt('/nearby/place/curated:sg-merlion-park');
-    await userEvent.click(screen.getByRole('button', { name: '☆ Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(explorePersonalStore.get().places).toHaveLength(1);
     act(() => deleteAllData());
     expect(explorePersonalStore.get().places).toEqual([]);

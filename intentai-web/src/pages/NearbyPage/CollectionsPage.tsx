@@ -44,7 +44,7 @@ export default function CollectionsPage() {
                   )}
                   <p className={styles.body}>
                     <strong>
-                      {p.visited} of {p.total} visited
+                      {p.visited} of {p.total} checked in
                     </strong>{' '}
                     · {p.percent}%
                   </p>

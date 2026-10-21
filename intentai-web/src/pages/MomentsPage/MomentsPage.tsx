@@ -18,6 +18,7 @@ import PractiseDialog from './PractiseDialog/PractiseDialog';
 import { clampPage, pageCount, pageSlice, showingCaption } from './paging';
 import MyTopics from './MyTopics/MyTopics';
 import PassportCard from './PassportCard/PassportCard';
+import PlaceStamps from './PlaceStamps/PlaceStamps';
 import TodaysThree from './TodaysThree/TodaysThree';
 import { useSpan } from '../../usage/useSpan';
 import styles from './MomentsPage.module.css';
@@ -102,6 +103,9 @@ export default function MomentsPage() {
           />
 
           <MyTopics progress={topicProgress(topics, collected)} />
+
+          {/* Nearby check-ins (打卡) as stamps: the places side of the passport. */}
+          <PlaceStamps />
 
           <div className={styles.section} data-node-id="4:945">
             <img src={iconReview} alt="" width={16} height={16} />

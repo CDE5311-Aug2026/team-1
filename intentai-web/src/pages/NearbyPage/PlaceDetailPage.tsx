@@ -15,6 +15,7 @@ import { area as areaById, collectionProgress, collectionsContaining, collection
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import View3D from '../../features/nearby/components/View3D';
 import { PlaceThumb } from '../../features/nearby/components/PlaceCard';
+import { Icon as NearbyIcon } from '../../features/nearby/components/icons';
 import { fixInSingapore } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { CATEGORY_INFO, type CuratedPlace, type SourceReference } from '../../features/nearby/domain';
@@ -171,7 +172,7 @@ function Detail({ place }: { place: CuratedPlace }) {
 
         {milestones.filter((m) => stillReached(m, personal)).map((m) => (
           <p key={m.collectionId} className={styles.milestone} role="status">
-            🎉 You have visited {m.percent}% of the {m.title}.
+            <NearbyIcon name="check" size={18} /> {m.percent}% of {m.title} checked in.
           </p>
         ))}
 
@@ -219,12 +220,25 @@ function Detail({ place }: { place: CuratedPlace }) {
           </>
         )}
 
-        <div className={styles.row}>
-          <button type="button" className={styles.ghostButton} aria-pressed={!!state?.saved} onClick={() => toggleSave(place.id, place.name)}>
-            {state?.saved ? '★ Saved' : '☆ Save'}
+        {/* Check in (打卡): one tap, self-reported, dated today; the stamp also shows in Moments. */}
+        <div className={styles.checkRow}>
+          <button
+            type="button"
+            className={state?.visited ? `${styles.checkIn} ${styles.checkedIn}` : styles.checkIn}
+            aria-pressed={!!state?.visited}
+            onClick={() => visit(!state?.visited)}
+          >
+            <NearbyIcon name="check" size={20} />
+            {state?.visited ? 'Checked in' : 'Check in'}
           </button>
-          <button type="button" className={styles.ghostButton} aria-pressed={!!state?.visited} onClick={() => visit(!state?.visited)}>
-            {state?.visited ? '✓ Visited' : 'Mark visited'}
+          <button
+            type="button"
+            className={styles.iconAction}
+            aria-pressed={!!state?.saved}
+            onClick={() => toggleSave(place.id, place.name)}
+            aria-label={state?.saved ? 'Saved' : 'Save'}
+          >
+            <NearbyIcon name="star" filled={!!state?.saved} />
           </button>
           <a className={styles.linkButton} href={directionsUrl(place)} target="_blank" rel="noopener noreferrer">
             Directions ↗
@@ -234,10 +248,11 @@ function Detail({ place }: { place: CuratedPlace }) {
         {state?.visited && (
           <section className={styles.panel} aria-labelledby="visit-title">
             <h2 id="visit-title" className={styles.panelTitle}>
-              Your visit
+              Your check-in
             </h2>
             <p className={styles.body}>
-              Visited on {state.visitedOn ?? 'an unknown date'} (self-reported). Visits are not verified and stay on this device.
+              {state.visitedOn ? `Checked in on ${state.visitedOn}.` : 'Checked in.'} It is a stamp in Moments. Self-reported, kept on this device, and your
+              location is not saved.
             </p>
             {dateDraft === null ? (
               <button type="button" className={styles.secondary} onClick={() => setDateDraft(state.visitedOn ?? today)}>
@@ -253,7 +268,7 @@ function Detail({ place }: { place: CuratedPlace }) {
                 }}
               >
                 <label className={styles.label}>
-                  Visit date{' '}
+                  Check-in date{' '}
                   <input
                     className={styles.select}
                     type="date"

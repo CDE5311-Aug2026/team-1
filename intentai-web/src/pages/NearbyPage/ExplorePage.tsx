@@ -51,6 +51,11 @@ const COUNTRY = 'SG' as const;
 const MAP_LIST_LIMIT = 6;
 /** The 3D view opens over Marina Bay when nothing is selected and no area or location is set. */
 const MARINA_BAY: LatLng = { lat: 1.2868, lng: 103.8545 };
+/** The whole country fits on screen at first (Tuas to Changi, Woodlands to the Southern Islands). */
+const SINGAPORE_CORNERS: LatLng[] = [
+  { lat: 1.205, lng: 103.605 },
+  { lat: 1.472, lng: 104.045 },
+];
 
 export default function ExplorePage() {
   const navigate = useNavigate();
@@ -188,7 +193,9 @@ export default function ExplorePage() {
 
   const focus: MapFocus = origin
     ? { id: focusId, center: origin.point, radiusM: radius }
-    : { id: focusId, points: (query || category !== 'all' ? filtered : all).map((p) => p.coordinates) };
+    : query || category !== 'all'
+      ? { id: focusId, points: filtered.map((p) => p.coordinates) }
+      : { id: focusId, points: [...all.map((p) => p.coordinates), ...SINGAPORE_CORNERS] };
 
   const submit = (e: FormEvent) => {
     e.preventDefault();

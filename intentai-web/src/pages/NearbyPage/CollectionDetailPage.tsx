@@ -76,17 +76,17 @@ export default function CollectionDetailPage() {
         <StorageWarning />
         <p className={styles.body}>
           <strong>
-            {progress.visited} of {progress.total} visited
+            {progress.visited} of {progress.total} checked in
           </strong>{' '}
           · {progress.percent}%
         </p>
         <ProgressBar percent={progress.percent} label={`${title} progress`} />
         {progress.total > 0 && progress.visited === progress.total && (
-          <p className={styles.milestone}>You have marked every place in this collection as visited. (Self-reported — well done!)</p>
+          <p className={styles.milestone}>Every place checked in. Well done!</p>
         )}
         {milestones.filter((m) => stillReached(m, personal)).map((m) => (
           <p key={m.collectionId + m.percent} className={styles.milestone} role="status">
-            🎉 {m.percent}% of this collection visited.
+            {m.percent}% of this collection checked in.
           </p>
         ))}
 
@@ -112,12 +112,12 @@ export default function CollectionDetailPage() {
           ))}
         </ul>
         <div className={styles.row}>
-          <div className={styles.segmented} role="group" aria-label="Visit filter">
+          <div className={styles.segmented} role="group" aria-label="Check-in filter">
             {(
               [
                 ['all', 'All'],
-                ['todo', 'Not visited'],
-                ['done', 'Visited'],
+                ['todo', 'To do'],
+                ['done', 'Checked in'],
               ] as const
             ).map(([v, label]) => (
               <button key={v} type="button" className={styles.segment} aria-pressed={visit === v} onClick={() => patch('visit', v === 'all' ? null : v)}>

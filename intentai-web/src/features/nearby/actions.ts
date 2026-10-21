@@ -88,9 +88,9 @@ export function markVisited(key: PlaceKey, name: string, visited: boolean, date?
   if (change.unchanged) return { milestones: [] };
   const message = visited
     ? date && stateOf(before, key)?.visited
-      ? `Visit date changed`
-      : `${name} marked as visited`
-    : `${name} is no longer marked as visited`;
+      ? `Check-in date changed`
+      : `Checked in at ${name}`
+    : `Check-in removed: ${name}`;
   commit(change, message);
   return { milestones: visited ? milestonesAfter(before, change.data, key) : [] };
 }

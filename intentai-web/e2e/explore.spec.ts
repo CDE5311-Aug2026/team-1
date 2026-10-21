@@ -36,14 +36,14 @@ test('principal journey: area → food centre → story and tip → save → vis
   const directions = page.getByRole('link', { name: /Directions/ });
   await expect(directions).toHaveAttribute('href', /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=1\.28/);
   expect(await directions.getAttribute('href')).not.toContain('origin');
-  await page.getByRole('button', { name: '☆ Save' }).click();
-  await page.getByRole('button', { name: 'Mark visited' }).click();
-  await expect(page.getByText(/Visited on \d{4}-\d{2}-\d{2} \(self-reported\)/)).toBeVisible();
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('button', { name: 'Check in' }).click();
+  await expect(page.getByText(/Checked in on \d{4}-\d{2}-\d{2}\./)).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('button', { name: '★ Saved' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '✓ Visited' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Checked in/ })).toBeVisible();
   await open(page, paths.collections);
-  await expect(page.getByText('1 of 100 visited')).toBeVisible();
+  await expect(page.getByText('1 of 100 checked in')).toBeVisible();
   // Back restores the earlier exploration state.
   await page.goBack();
   await page.goBack();
@@ -113,7 +113,7 @@ test('another tab sees saved changes', async ({ page, context }) => {
   await open(page, paths.saved);
   const other = await context.newPage();
   await other.goto(paths.nearbyPlace('curated:sg-merlion-park'));
-  await other.getByRole('button', { name: '☆ Save' }).click();
+  await other.getByRole('button', { name: 'Save' }).click();
   await expect(page.getByRole('link', { name: 'Merlion Park' })).toBeVisible();
 });
 
@@ -126,8 +126,8 @@ test('unavailable storage keeps the feature working and says so', async ({ page 
     };
   });
   await open(page, paths.nearbyPlace('curated:sg-merlion-park'));
-  await page.getByRole('button', { name: '☆ Save' }).click();
-  await expect(page.getByRole('button', { name: '★ Saved' })).toBeVisible();
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByRole('button', { name: 'Saved' })).toBeVisible();
   await expect(page.getByText('Changes will not be saved on this device.')).toBeVisible();
 });
 

@@ -140,6 +140,16 @@ placeLandmarkMesh = (orig => function(L){
 sgrLoad = (orig => function(){
   return orig.apply(this, arguments).then(() => {
     if (LITE.pruned || LITE.q.has('full')) return; LITE.pruned = true;
+    // Singapore only: Johor and the Riau islands (land-cover code 5) sink under the sea, and their roads and
+    // buildings are not built (the ground picture, sgdata/ground.webp, already shows them as sea)
+    try {
+      const B = SGR.base, n = B.N, codes = sgRLE(B.codes, n), TNb = Math.round(2*B.HALF/B.TS) + 1, ci = v => Math.min(n - 1, Math.max(0, Math.floor((v + B.HALF)/B.CELL)));
+      for (let j = 0; j < TNb; j++) for (let i = 0; i < TNb; i++){
+        const x = -B.HALF + i*B.TS, y = -B.HALF + j*B.TS;
+        if (codes[ci(y)*n + ci(x)] === 5){ const k = j*TNb + i; if (SGR.H[k] > -6) SGR.H[k] = -6; }
+      }
+    } catch (e){ console.error('[lite] foreign land', e); }
+    SGR.lines = SGR.lines.filter(l => !(l.flags & 8));
     const F = LITE.focus, K = LITE.PAN + LITE.R + 1500, x0 = F[0] - K, x1 = F[0] + K, y0 = F[1] - K, y1 = F[1] + K, n0 = SGR.lines.length;
     SGR.lines = SGR.lines.filter(l => { const P = l.P; for (let i = 0; i < P.length; i += 2) if (P[i] > x0 && P[i] < x1 && P[i+1] > y0 && P[i+1] < y1) return true; return false; });
     const T = SGR.bldData.TILE || SGR.base.TILE, TX = SGR.bldData.TX || Math.round(2*HALF/T), H0 = T*TX/2; let nb = 0, kept = 0;
@@ -150,6 +160,7 @@ sgrLoad = (orig => function(){
     LITE.prune = {lines:[SGR.lines.length, n0], bldTilesKept:kept, bldDropped:nb};
   });
 })(sgrLoad);
+sgrSkipB = (orig => function(B){ return B.foreign ? true : orig.apply(this, arguments); })(sgrSkipB);
 // tiles: records for the whole map (cheap), but only the ones near the view are built
 sgrTilesInit = function(){
   sgrTilesClear();
@@ -205,7 +216,8 @@ addEventListener('resize', () => { renderer.setPixelRatio(Math.min(window.device
     try { setTool('view'); } catch (e){ console.error('[lite] tool', e); }
     if (LITE.pin) litePin(LITE.pin[0], LITE.pin[1]);
     // the card opens as a peek (name only; a tap shows the rest) so the small embedded view stays visible
-    if (LITE.card){ try { if (SGCard.open(LITE.card)) litePeek(); } catch (e){ console.error('[lite] card', e); } }
+    // the place's model: its ring on, and a camera fitted to that model (not one distance for all)
+    if (LITE.card){ try { if (SGCard.open(LITE.card)){ litePeek(); liteFrame(LITE.card, false); } } catch (e){ console.error('[lite] card', e); } }
     liteAuto();
     const built = setInterval(() => { let n = 0; for (const T of SGR.tiles.values()) if (T.done) n++;
       if ((n > 0 && !SGR.queue.length) || ++tries > 900){ clearInterval(built); LITE.ready = true; litePost({type:'ready'}); } }, 300);
@@ -233,6 +245,41 @@ function liteAuto(){
   const EMO = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/gu;
   const clean = el => { for (const n of el.querySelectorAll ? [el, ...el.querySelectorAll('*')] : [el]) for (const t of n.childNodes) if (t.nodeType === 3 && EMO.test(t.nodeValue)){ EMO.lastIndex = 0; t.nodeValue = t.nodeValue.replace(EMO, ''); } };
   try { new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) clean(n); }).observe(document.getElementById('labels'), {childList:true}); } catch (e){ }
+}
+// A camera fitted to one landmark model: from the side of its long axis (a bridge is seen along its span, not end-on),
+// far enough to show all of it in this view's width and height, lower for towers, higher for flat sites.
+// Campus / garden sites use their card's own framing, a little closer. Returns false when the key has no model.
+const LITE_VIEW = {   // per-landmark adjustments: d distance factor, az extra azimuth (deg), el elevation (deg)
+  merlion:{d:0.8, el:22}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
+};
+function liteFrame(key, animate){
+  let T = null, D = null; try { T = SGCard._t.sgcByKey(key); D = T && SGCard._t.sgcResolve(T).D; } catch (e){ }
+  if (!D) return false;
+  const go = (to, tt) => { if (animate && typeof flyTo === 'function') flyTo(to, tt, 1300); else { camera.position.copy(to); controls.target.copy(tt); controls.update(); } };
+  if (D.kind !== 'lm' || !D.L){ try { SGCard.fly(); setTimeout(() => SGLite.zoom(0.62), animate ? 1600 : 0); } catch (e){ return false; } return true; }
+  const L = D.L, g = lmMeshes.get(L.id); if (!g) return false;
+  const rot = g.rotation.y; g.rotation.y = 0; g.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(g); g.rotation.y = rot; g.updateMatrixWorld(true);
+  if (box.isEmpty()) return false;
+  const o = LITE_VIEW[key] || {}, base = Math.max(0, L.top || hC(L.x, L.y));
+  const sx = box.max.x - box.min.x, sz = box.max.z - box.min.z, h = Math.max(4, box.max.y - base);
+  const W = Math.max(sx, sz), Dp = Math.min(sx, sz);
+  // the centre of the box, turned back by the model's rotation around its origin
+  const cx0 = (box.min.x + box.max.x)/2 - g.position.x, cz0 = (box.min.z + box.max.z)/2 - g.position.z, c = Math.cos(rot), sn = Math.sin(rot);
+  const cx = g.position.x + cx0*c + cz0*sn, cz = g.position.z - cx0*sn + cz0*c;
+  // look across the long axis; of the two sides, the one nearer the usual south-east view
+  // (a model's local Z after its turn is (sin, cos); its local X is (cos, -sin))
+  let dir = sx >= sz ? [Math.sin(rot), Math.cos(rot)] : [Math.cos(rot), -Math.sin(rot)];
+  if (dir[0]*0.48 + dir[1]*0.87 < 0) dir = [-dir[0], -dir[1]];
+  if (o.az){ const a = o.az*Math.PI/180, x = dir[0]*Math.cos(a) - dir[1]*Math.sin(a), z = dir[0]*Math.sin(a) + dir[1]*Math.cos(a); dir = [x, z]; }
+  const el = (o.el !== undefined ? o.el : h > W*1.3 ? 16 : h < W*0.25 ? 32 : 26)*Math.PI/180;
+  const vf = camera.fov*Math.PI/360, hf = Math.atan(Math.tan(vf)*camera.aspect);
+  const dW = (W/2)/Math.tan(hf) + Dp/2, dH = (h*0.62)/Math.tan(vf) + Dp/2;
+  const d = Math.max(45, Math.max(dW, dH)*1.2*(o.d || 1));
+  const tt = new THREE.Vector3(cx, base + h*(h > W*1.3 ? 0.45 : 0.3), cz);
+  const to = new THREE.Vector3(tt.x + dir[0]*Math.cos(el)*d, tt.y + Math.sin(el)*d, tt.z + dir[1]*Math.cos(el)*d);
+  const gy = Math.max(0, hAt(to.x, -to.z)) + 20; if (to.y < gy) to.y = gy;
+  go(to, tt); return true;
 }
 // a pin on a point without a landmark model
 function litePin(x, y){
@@ -265,7 +312,7 @@ addEventListener('message', e => {
   }
   let opened = false;
   if (card){ try { opened = SGCard.open(card); } catch (e){ } }
-  if (opened){ if (LITE.pinMesh) LITE.pinMesh.visible = false; if (!LITE.still) SGCard.fly(); else liteLook(p[0], p[1]); litePeek(); }
+  if (opened){ if (LITE.pinMesh) LITE.pinMesh.visible = false; if (!liteFrame(card, !LITE.still)) liteLook(p[0], p[1]); litePeek(); }
   else { try { SGCard.close(); } catch (e){ } if (d.pin !== false) litePin(p[0], p[1]); liteLook(p[0], p[1]); }
 });
 window.SGLite = {
@@ -294,6 +341,7 @@ window.SGLite = {
   look(x, y, d, az, el){ const g = Math.max(0, hC(x, y)) + 4, a = (az === undefined ? 30 : az)*Math.PI/180, e = (el === undefined ? 38 : el)*Math.PI/180, r = d || 420;
     controls.target.set(x, g, -y); camera.position.set(x + Math.sin(a)*Math.cos(e)*r, g + Math.sin(e)*r, -y + Math.cos(a)*Math.cos(e)*r); controls.update(); },
   // move the camera k times its distance to the target (k < 1: closer)
+  frame:(key, animate) => liteFrame(key, !!animate),
   zoom(k){ camera.position.sub(controls.target).multiplyScalar(k).add(controls.target); controls.update(); },
   goTo(x, y){ controls.target.set(x, controls.target.y, -y); camera.position.set(x + 420, controls.target.y + 560, -y + 760); },
 };

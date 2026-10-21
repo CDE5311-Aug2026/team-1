@@ -2,7 +2,7 @@
 // node scripts/explore/thumbs.cjs <raw png dir> [onlyIdsCsv]      then: python3 scripts/explore/thumbs-pack.py <raw png dir>
 // Places that already have a png in the dir are skipped, so an interrupted run resumes. Slow: ~45 s a place on 2 CPUs.
 // Optional PW_CHROMIUM_PATH points at a Chromium.
-// Landmarks with a model: open the model's card and use its "Fly closer" framing. Places without a model: the area
+// Landmarks with a model: open the model's card and use its own camera (SGLite.frame: a per-landmark angle and distance). Places without a model: the area
 // around the point from ~380 m. UI, labels and the selection ring are hidden for the shot.
 const fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -49,11 +49,10 @@ const HIDE = '#timebar,#labels,section.sgc,#busy,.lbl{display:none!important}';
         const how = await page.evaluate(async ([key, x, y]) => {
           const wait = (ms) => new Promise((r) => setTimeout(r, ms));
           if (key && window.SGCard.open(key)) {
-            window.SGCard.fly();
-            await wait(2200);
-            // the card's framing is for a full screen; a thumbnail needs the model bigger
-            const d = (window.SGCard.state().flew || {}).dist || 400;
-            window.SGLite.zoom(d < 250 ? 0.55 : d > 1200 ? 0.5 : 0.7);
+            // the same per-landmark camera as the 3D view opens with, a little closer for a small picture
+            window.SGLite.frame(key, false);
+            await wait(300);
+            window.SGLite.zoom(0.85);
             window.SGCard.close();
             return 'model';
           }
