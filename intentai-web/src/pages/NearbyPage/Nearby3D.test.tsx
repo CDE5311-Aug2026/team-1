@@ -38,7 +38,7 @@ describe('Explore in 3D', () => {
     expect(screen.getByTestId('where')).toHaveTextContent('view=3d');
     const f = frame()!;
     expect(f).toHaveAttribute('title', '3D view of Singapore around Marina Bay');
-    expect(f.getAttribute('src')).toBe('/earth-online/sg/lite.html#at=1.28680%2C103.85450&pin=0');
+    expect(f.getAttribute('src')).toBe('/earth-online/sg/lite.html#at=1.28680%2C103.85450&pin=0&cards=0');
     expect(screen.getByText(/Loading 3D… The first time downloads up to 19 MB/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '3D' })).toHaveAttribute('aria-pressed', 'true');
     // 3D off again: the 2D map is back and the iframe (and its memory) is gone
@@ -50,7 +50,7 @@ describe('Explore in 3D', () => {
   test('an area opens 3D on the area; the point is in the hash only, never in the query', () => {
     renderAt('/nearby?view=3d&area=sg-chinatown');
     const src = frame()!.getAttribute('src')!;
-    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&pin=0$/);
+    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&pin=0&cards=0$/);
     expect(new URL(src, 'https://intentai.test').search).toBe('');
   });
 
@@ -71,20 +71,22 @@ describe('Explore in 3D', () => {
     expect(f.getAttribute('src')).toContain('card=merlion');
   });
 
-  test('a card opened inside 3D links to the place; messages from anywhere else are ignored', () => {
+  test('a landmark tapped in 3D selects that place in the sheet; messages from anywhere else are ignored', () => {
     renderAt('/nearby?view=3d');
-    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'esplanade' }, window);
-    expect(screen.queryByText(/Card open/)).toBeNull();
+    // Explore shows the place in its own sheet, so the 3D page's card sheet is hidden
+    expect(frame()!.getAttribute('src')).toContain('cards=0');
+    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'esplanade', title: 'x' }, window);
+    expect(screen.getByTestId('where')).not.toHaveTextContent('sel=');
     fromFrame({ source: 'someone-else', type: 'card', key: 'esplanade' });
-    expect(screen.queryByText(/Card open/)).toBeNull();
-    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'esplanade' });
-    expect(screen.getByText(/Card open: Esplanade/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open place →' })).toHaveAttribute('href', expect.stringMatching(/^\/nearby\/place\/curated%3A/));
-    fromFrame({ source: 'earth-online-lite', type: 'card', key: null });
-    expect(screen.queryByText(/Card open/)).toBeNull();
-    // a key that is not a published place shows nothing (the 3D card itself still has the intro)
-    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'sg-no-such-landmark' });
-    expect(screen.queryByText(/Card open/)).toBeNull();
+    expect(screen.getByTestId('where')).not.toHaveTextContent('sel=');
+    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'esplanade', title: '滨海艺术中心' });
+    expect(screen.getByTestId('where')).toHaveTextContent('sel=curated%3Asg-esplanade-theatres-on-the-bay');
+    expect(screen.getByRole('region', { name: 'Selected place' })).toHaveTextContent('Esplanade');
+    // a landmark that is not one of our places: its name from the 3D card, nothing selected
+    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'sg-no-such-landmark', title: 'Some building' });
+    expect(screen.getByText('Some building')).toBeInTheDocument();
+    fromFrame({ source: 'earth-online-lite', type: 'card', key: null, title: null });
+    expect(screen.queryByText('Some building')).toBeNull();
   });
 });
 
@@ -97,9 +99,9 @@ describe('Place detail in 3D', () => {
     expect(frame()!.getAttribute('src')).toMatch(/#at=1\.\d{5}%2C103\.\d{5}&card=merlion&pin=0$/);
     // the card of the place itself needs no link; another landmark's card links to that place
     fromFrame({ source: 'earth-online-lite', type: 'card', key: 'merlion' });
-    expect(screen.queryByText(/Card open/)).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Open place →' })).toBeNull();
     fromFrame({ source: 'earth-online-lite', type: 'card', key: 'fullerton' });
-    expect(screen.getByText(/Card open: The Fullerton Building/)).toBeInTheDocument();
+    expect(screen.getByText(/^The Fullerton Building .*·/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Map' }));
     expect(frame()).toBeNull();
     expect(screen.getByRole('application', { name: 'Map showing Merlion Park' })).toBeInTheDocument();

@@ -36,9 +36,11 @@ test('Today’s Near you card opens Nearby Explore with location off or on (PRD 
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby$/);
 });
 
-test('Explore links to the nine phrase settings, and their button opens the heads-up phrases', async () => {
+test('Explore opens the local phrases; Change leads to the nine phrase settings and back', async () => {
   renderApp('/nearby');
-  await userEvent.click(await screen.findByRole('link', { name: /Phrases for a setting/ }, { timeout: 5000 }));
+  await userEvent.click(await screen.findByRole('link', { name: /Local phrases/ }, { timeout: 5000 }));
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby\/phrases$/);
+  await userEvent.click(screen.getByRole('button', { name: 'Change' }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby\/places$/);
   await userEvent.click(screen.getByRole('button', { name: /^Show \d+ phrases for/ }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby\/phrases$/);

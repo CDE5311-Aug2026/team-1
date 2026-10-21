@@ -1,0 +1,189 @@
+/* One place: picture on the left, name and type, Save star on the right. */
+
+.card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.selected .name {
+  color: #a3410b;
+}
+
+/* the selected place in the sheet */
+.big {
+  align-items: start;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-screen-b);
+}
+
+.thumbWrap {
+  position: relative;
+  flex: none;
+}
+
+.thumb {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--chip-bg);
+}
+
+.thumbCard {
+  width: 96px;
+  height: 72px;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.landmark {
+  color: #5a4cc0;
+}
+.food {
+  color: #b9500f;
+}
+.nature {
+  color: #2f7a45;
+}
+.culture {
+  color: #a8357a;
+}
+
+.visited {
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: #2f8a4b;
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+}
+
+.text {
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.select {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* the whole row is the target (the name button / link stretches over it) */
+.select::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.zh {
+  margin: 1px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.meta {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.details {
+  display: inline-flex;
+  align-items: center;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  border-radius: 1.125rem;
+  background: var(--text-primary);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.save {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.saved {
+  color: #b9500f;
+}
+
+.select:focus-visible,
+.save:focus-visible,
+.details:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.buttons {
+  display: flex;
+  position: relative;
+  z-index: 1;
+}
+
+.done {
+  color: #2f8a4b;
+}

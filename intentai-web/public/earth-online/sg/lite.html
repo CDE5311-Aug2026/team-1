@@ -52347,6 +52347,8 @@ const LITE = (() => {
   const r = +q.get('r');
   const lm = +q.get('lm');
   if (q.get('pin') === '0') pin = null;
+  // #cards=0: the embedding page shows the place itself (Explore's sheet); the 3D card sheet stays hidden
+  if (q.get('cards') === '0'){ const st = document.createElement('style'); st.textContent = 'section.sgc{display:none!important}'; document.head.appendChild(st); }
   return {q, mob, xy, focus, pin, card, still:q.get('still') === '1', R:mob ? 2200 : 3000, PAN:isFinite(r) && r >= 500 && r <= 5000 ? r : 2500, LM:isFinite(lm) && lm > 0 && lm <= 8000 ? lm : mob ? 2800 : 3600,
     last:null, frames:0, freed:0, placed:0, sites:0};
 })();
@@ -52438,7 +52440,8 @@ addEventListener('resize', () => { renderer.setPixelRatio(Math.min(window.device
     LITE.ready = true; litePost({type:'ready'});
     let last = null;
     setInterval(() => { let k = null; try { k = SGCard.isOpen ? SGCard.key : null; } catch (e){ }
-      if (k !== last){ last = k; litePost({type:'card', key:k}); } }, 400);
+      if (k !== last){ last = k; let title = null; try { title = k ? SGCard.state().title : null; } catch (e){ }
+        litePost({type:'card', key:k, title:typeof title === 'string' ? title.slice(0, 120) : null}); } }, 400);
   }, 200);
 }
 function litePeek(){ setTimeout(() => { const el = document.querySelector('section.sgc'); if (el) el.classList.add('peek'); }, 50); }
@@ -52498,6 +52501,11 @@ window.SGLite = {
       tex:{texCv, imgData}, scene, detail:window.SGDetail, cache, landmarks};
     for (const k in roots){ try { out[k] = MB(walk(roots[k], 0)); } catch (e){ out[k] = 'err ' + e.message; } }
     return out; },
+  // camera at distance d (m) from the point (x, y), azimuth az and elevation el in degrees (thumbnails, tests)
+  look(x, y, d, az, el){ const g = Math.max(0, hC(x, y)) + 4, a = (az === undefined ? 30 : az)*Math.PI/180, e = (el === undefined ? 38 : el)*Math.PI/180, r = d || 420;
+    controls.target.set(x, g, -y); camera.position.set(x + Math.sin(a)*Math.cos(e)*r, g + Math.sin(e)*r, -y + Math.cos(a)*Math.cos(e)*r); controls.update(); },
+  // move the camera k times its distance to the target (k < 1: closer)
+  zoom(k){ camera.position.sub(controls.target).multiplyScalar(k).add(controls.target); controls.update(); },
   goTo(x, y){ controls.target.set(x, controls.target.y, -y); camera.position.set(x + 420, controls.target.y + 560, -y + 760); },
 };
 

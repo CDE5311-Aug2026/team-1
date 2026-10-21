@@ -14,6 +14,7 @@ import { markVisited, stillReached, toggleSave, useExplorePersonal, type Milesto
 import { area as areaById, collectionProgress, collectionsContaining, collectionTitle, curatedPlace, placeByEarthKey, regionName } from '../../features/nearby/catalogue';
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import View3D from '../../features/nearby/components/View3D';
+import { PlaceThumb } from '../../features/nearby/components/PlaceCard';
 import { fixInSingapore } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { CATEGORY_INFO, type CuratedPlace, type SourceReference } from '../../features/nearby/domain';
@@ -58,7 +59,7 @@ export default function PlaceDetailPage() {
 
 function NotFound() {
   return (
-    <AppShell background="var(--bg-screen-b)">
+    <AppShell background="var(--bg-screen-b)" chrome="status">
       <div className={styles.screen}>
         <BackHeader title="Place not found" fallback={paths.nearby} />
         <p className={styles.empty}>
@@ -149,18 +150,23 @@ function Detail({ place }: { place: CuratedPlace }) {
   };
 
   return (
-    <AppShell background="var(--bg-screen-b)">
+    <AppShell background="var(--bg-screen-b)" chrome="status">
       <div className={styles.screen}>
         <BackHeader title={place.name} fallback={paths.nearby} />
-        {place.nameZh && (
-          <p className={styles.nameZh} lang="zh-Hans" style={{ marginTop: '-0.5rem' }}>
-            {place.nameZh}
-          </p>
-        )}
-        <p className={styles.meta}>
-          {info.emoji} {info.label} · {place.kind} · {area?.name ?? regionName(place.regionId)}
-          {distance && <> · {distance} (straight line)</>}
-        </p>
+        <div className={styles.detailIntro}>
+          <PlaceThumb id={place.id} category={place.category} size="card" />
+          <div>
+            {place.nameZh && (
+              <p className={styles.nameZh} lang="zh-Hans">
+                {place.nameZh}
+              </p>
+            )}
+            <p className={styles.meta}>
+              {info.label} · {place.kind} · {area?.name ?? regionName(place.regionId)}
+              {distance && <> · {distance}</>}
+            </p>
+          </div>
+        </div>
         <StorageWarning />
 
         {milestones.filter((m) => stillReached(m, personal)).map((m) => (
@@ -204,7 +210,7 @@ function Detail({ place }: { place: CuratedPlace }) {
             <View3D target={view3dTarget(place)} title={`3D view around ${place.name}`} height={400} onCard={setCardKey} />
             {otherCard && otherCard.id !== place.id && (
               <p className={styles.note} role="status">
-                Card open: {otherCard.name}.{' '}
+                {otherCard.name} ·{' '}
                 <Link className={styles.textLink} to={paths.nearbyPlace(otherCard.id)}>
                   Open place →
                 </Link>
@@ -224,9 +230,6 @@ function Detail({ place }: { place: CuratedPlace }) {
             Directions ↗
           </a>
         </div>
-        <p className={styles.note}>
-          Directions opens Google Maps without your position. It does not mark a visit.
-        </p>
 
         {state?.visited && (
           <section className={styles.panel} aria-labelledby="visit-title">

@@ -28,10 +28,13 @@ rewrites (e.g. `VITE_ROUTER=hash npx vite build --base ./` for a click-through p
 
 ## Nearby Explorer
 
-Today's **Near you** card opens Explore (location off or on). Explore is a full-screen map (like a maps app): floating
-search and category chips on top, **3D** and **My location** on the right, and a sheet of places at the bottom (peek,
-half, full = the List view; a side panel on wide screens). The sheet starts with the phrases for the place picked on
-the phrase settings, which Today's card names. Inside Nearby: **Explore · Collections · Saved**; the five bottom
+Today's **Near you** card opens Explore (location off or on). Explore is a full-screen map (like a maps app): Back,
+search and the area chip on top, category chips under them, one column of map buttons on the right (3D, My location,
+zoom, recenter), and a sheet of places at the bottom (peek, half, full = the List view; a side panel on wide screens).
+The Nearby pages hide the app's tab bar. The sheet starts with the local phrases for the place picked on the phrase
+settings, which Today's card names. Each place has a picture from the EARTH ONLINE 3D model
+(`public/nearby/thumbs/`, listed in `src/data/explore/thumbs.json`; remake them with `node scripts/explore/thumbs.cjs
+<dir>` then `python3 scripts/explore/thumbs-pack.py <dir>`); places without a model show the 3D area around them. Inside Nearby: **Explore · Collections · Saved**; the five bottom
 tabs are unchanged.
 
 | Route | Screen |

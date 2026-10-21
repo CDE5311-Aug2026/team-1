@@ -65,7 +65,10 @@ test('Nearby manual phrase-setting selection works', async ({ page }) => {
   await open(page, paths.today);
   await page.getByRole('button', { name: /near you/i }).click();
   await expect(page).toHaveURL(/\/nearby$/); // Explore opens even with location off
-  await page.getByRole('link', { name: /Phrases for a setting/ }).click();
+  // the sheet's first row: the phrases for the picked setting; Change leads to the nine settings
+  await page.getByRole('link', { name: /Local phrases/ }).click();
+  await expect(page).toHaveURL(/\/nearby\/phrases$/);
+  await page.getByRole('button', { name: 'Change' }).click();
   await expect(page).toHaveURL(/\/nearby\/places$/);
   await expect(page.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'false');
   await page.getByRole('button', { name: /^Office/ }).click();
@@ -98,7 +101,7 @@ test.describe('with geolocation permission', () => {
     await page.getByRole('button', { name: 'Continue' }).click();
     await expect(page.getByRole('button', { name: /Near you/ })).toBeVisible();
     await page.getByRole('button', { name: 'Show the list' }).click();
-    await expect(page.getByText(/Approx\. .* from you$/).first()).toBeVisible();
+    await expect(page.getByText(/~.* from you$/).first()).toBeVisible();
     const stored = await page.evaluate(() => JSON.stringify({ ...localStorage }));
     expect(stored).not.toContain('103.844');
     expect(page.url()).not.toContain('103.844');

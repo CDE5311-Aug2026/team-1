@@ -54,10 +54,10 @@ describe('Explore', () => {
     expect(screen.getByRole('button', { name: /Exploring Singapore/ })).toBeInTheDocument();
     expect(getCurrentPosition).not.toHaveBeenCalled();
     expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
-    expect(screen.getByText(/places across Singapore/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Phrases for a setting/ })).toBeInTheDocument();
+    expect(screen.getByText(/places in Singapore/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Local phrases/ })).toBeInTheDocument();
     // Without an origin there are no distances.
-    expect(screen.queryByText(/Approx\./)).not.toBeInTheDocument();
+    expect(screen.queryByText(/~[\d.]+ k?m/)).not.toBeInTheDocument();
   });
 
   test('categories filter the list and the map together', async () => {
@@ -66,7 +66,7 @@ describe('Explore', () => {
     expect(screen.getByTestId('where')).toHaveTextContent('category=food');
     const cards = screen.getAllByRole('article');
     expect(cards.length).toBeGreaterThan(3);
-    for (const card of cards) expect(card).toHaveTextContent('Food ·');
+    for (const card of cards) expect(card).toHaveTextContent('Food:');
   });
 
   test('a submitted search needs 2–100 characters and searches only on submit', async () => {
@@ -88,7 +88,7 @@ describe('Explore', () => {
     expect(sheet).toHaveAttribute('data-detent', 'peek');
     expect(within(sheet).getByRole('heading', { level: 1, name: 'Nearby' })).toBeInTheDocument();
     // the phrases for the place picked on the phrase settings (Today's "Near you") are the first row
-    expect(within(sheet).getByRole('link', { name: /Phrases you might hear at Old Airport Rd Food Centre/ })).toHaveAttribute('href', '/nearby/phrases');
+    expect(within(sheet).getByRole('link', { name: /Local phrases Old Airport Rd Food Centre/ })).toHaveAttribute('href', '/nearby/phrases');
     const handle = screen.getByRole('button', { name: 'Show the list' });
     expect(handle).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(handle);
@@ -122,8 +122,11 @@ describe('Explore', () => {
 
   test('an area search measures distances "from selected area" within the radius', () => {
     renderAt('/nearby?area=sg-chinatown&view=list');
-    expect(screen.getByText(/within 2 km of Chinatown/)).toBeInTheDocument();
-    expect(screen.getAllByText(/Approx\. .* from selected area/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/places within 2 km/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Chinatown/ })).toBeInTheDocument();
+    // the sheet names the area; rows show the distance only, never "from you"
+    expect(screen.getAllByText(/~[\d.]+ k?m$/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/from you/)).not.toBeInTheDocument();
     expect(screen.queryByText(/from you(?!r)/)).not.toBeInTheDocument();
   });
 
@@ -148,7 +151,7 @@ describe('Explore', () => {
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Continue' }));
     expect(await screen.findByRole('button', { name: /Approximate location/ })).toBeInTheDocument();
     expect(screen.queryByText(/from you(?!r)/)).not.toBeInTheDocument();
-    expect(screen.getAllByText(/from your approximate location/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/~[\d.]+ k?m$/).length).toBeGreaterThan(0);
   });
 
   test('outside Singapore: manual exploration stays, with an explanation', async () => {

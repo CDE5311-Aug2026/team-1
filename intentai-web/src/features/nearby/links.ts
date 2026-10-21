@@ -46,11 +46,12 @@ export function view3dTarget(place: Pick<CuratedPlace, 'earthKey' | 'coordinates
  * The 3D page address. Everything is in the hash (#at=…&card=…), which browsers never send to a server,
  * so even a "near you" view does not put the position in a request.
  */
-export function view3dUrl(target: View3DTarget, opts: { still?: boolean } = {}): string {
+export function view3dUrl(target: View3DTarget, opts: { still?: boolean; hideCards?: boolean } = {}): string {
   const params = new URLSearchParams();
   params.set('at', `${target.at.lat.toFixed(5)},${target.at.lng.toFixed(5)}`);
   if (target.card) params.set('card', target.card);
   if (target.pin === false || (target.pin === undefined && target.card)) params.set('pin', '0');
   if (opts.still) params.set('still', '1');
+  if (opts.hideCards) params.set('cards', '0');
   return `${earthOnline3dBase()}#${params.toString()}`;
 }

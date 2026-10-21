@@ -34,7 +34,7 @@ test('place detail → 3D: the area loads, the card opens, cards link back, leav
   for (const hidden of ['#panel', '#dock', '#stats']) await expect(f.locator(hidden)).toBeHidden();
   // the place's own card is open (and needs no link back)
   await expect(f.locator('section.sgc h2')).toContainText('鱼尾狮', { timeout: 60_000 });
-  await expect(page.getByText(/Card open/)).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Open place →' })).toHaveCount(0);
 
   // the 3D page loaded only the area around the point
   const frame = page.frames().find((fr) => fr.url().includes('/earth-online/sg/lite.html'))!;
@@ -46,7 +46,7 @@ test('place detail → 3D: the area loads, the card opens, cards link back, leav
   // another landmark's card inside 3D → a link to that place in Nearby
   await frame.evaluate(() => (window as unknown as { SGCard: { open(k: string): boolean } }).SGCard.open('fullerton'));
   // software WebGL keeps the 3D page busy: its messages can take a few seconds
-  await expect(page.getByText(/Card open: The Fullerton Building/)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/^The Fullerton Building .*·/)).toBeVisible({ timeout: 60_000 });
   await expect(page.getByRole('link', { name: 'Open place →' })).toHaveAttribute('href', '/nearby/place/curated%3Asg-fullerton-building');
 
   // Nearby around the 3D view (the 3D page itself is the dataset's own UI); same accepted brand-orange exception as e2e/a11y.spec.ts

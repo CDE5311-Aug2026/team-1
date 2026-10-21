@@ -6,8 +6,8 @@ import styles from './BottomSheet.module.css';
 
 export type Detent = 'peek' | 'half' | 'full';
 
-/** Peek height from the bottom of the screen: the tab bar zone (~92 px) plus the summary rows. */
-export const PEEK_PX = 214;
+/** Peek height from the bottom of the screen: the handle, the title and the phrases row. */
+export const PEEK_PX = 150;
 /** Space kept above a full sheet for the search bar and the category chips. */
 export const FULL_TOP_PX = 164;
 const TAP_PX = 6;

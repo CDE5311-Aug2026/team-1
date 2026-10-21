@@ -7,6 +7,8 @@ export interface CatalogueData {
   collections: any[];
   outline: [number, number][][];
   stats?: { publishedPlaces: number };
+  thumbs?: { credit: string; ids: string[] };
+  thumbExists?: (id: string) => boolean;
 }
 
 export function validateCatalogue(data: CatalogueData): {

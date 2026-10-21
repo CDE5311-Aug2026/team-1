@@ -16,12 +16,14 @@ export interface View3DProps {
   title: string;
   height?: number;
   /** A landmark card opened (key from the EARTH ONLINE dataset) or closed (null) inside the 3D view. */
-  onCard?: (key: string | null) => void;
+  onCard?: (key: string | null, title: string | null) => void;
+  /** The page shows the tapped place itself: the 3D page's own card sheet stays hidden. */
+  hideCards?: boolean;
   /** Fill the parent box with no frame, hint or full-screen button (Explore's full-screen map). */
   bleed?: boolean;
 }
 
-type LiteMessage = { source: 'earth-online-lite'; type: 'ready' } | { source: 'earth-online-lite'; type: 'card'; key: string | null };
+type LiteMessage = { source: 'earth-online-lite'; type: 'ready' } | { source: 'earth-online-lite'; type: 'card'; key: string | null; title?: string | null };
 
 function isLiteMessage(d: unknown): d is LiteMessage {
   if (!d || typeof d !== 'object') return false;
@@ -39,12 +41,14 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard, bleed = false }: View3DProps) {
+export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false }: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
   // The address is fixed when the view opens; later targets go to the page as messages (no reload nearby).
-  const [src] = useState(() => view3dUrl(target, { still: reducedMotion() }));
+  const [src] = useState(() => view3dUrl(target, { still: reducedMotion(), hideCards }));
+  // The landmark whose card the 3D page has open: a target with that card needs no message (no second flight).
+  const openCard = useRef<string | null>(null);
   const shown = useRef(keyOf(target));
   const [ready, setReady] = useState(false);
   const [slow, setSlow] = useState(false);
@@ -56,7 +60,10 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     const onMessage = (e: MessageEvent) => {
       if (!frame.current || e.source !== frame.current.contentWindow || !isLiteMessage(e.data)) return;
       if (e.data.type === 'ready') setReady(true);
-      else onCardRef.current?.(e.data.key);
+      else {
+        openCard.current = e.data.key;
+        onCardRef.current?.(e.data.key, typeof e.data.title === 'string' ? e.data.title : null);
+      }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
@@ -73,6 +80,7 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
   useEffect(() => {
     if (!ready || targetKey === shown.current) return;
     shown.current = targetKey;
+    if (target.card && target.card === openCard.current) return;
     frame.current?.contentWindow?.postMessage(
       { source: 'intentai', type: 'show', at: [target.at.lat, target.at.lng], card: target.card, pin: target.pin ?? !target.card },
       earthOnline3dOrigin(),

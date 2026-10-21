@@ -26,6 +26,8 @@ test('principal journey: area → food centre → story and tip → save → vis
   await page.getByRole('button', { name: 'Chinatown & Tanjong Pagar' }).click();
   await expect(page).toHaveURL(/area=sg-chinatown/);
   await page.getByRole('button', { name: 'Food', exact: true }).click();
+  // a row selects the place on the map; its card in the sheet opens the details
+  await page.getByRole('button', { name: 'Maxwell Food Centre', exact: true }).click();
   await page.getByRole('link', { name: 'View details: Maxwell Food Centre' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Maxwell Food Centre' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Fun facts' })).toBeVisible();
@@ -66,7 +68,7 @@ test('panning does not search; "Show places in this area" commits one local sear
   await expect(commit).toBeVisible();
   await commit.click();
   await expect(page.getByRole('button', { name: /Map area/ })).toBeVisible();
-  await expect(page.getByText(/within 2 km of the map centre/)).toBeVisible();
+  await expect(page.getByText(/places within 2 km/)).toBeVisible();
   expect(external).toEqual([]);
 });
 
@@ -112,7 +114,7 @@ test('another tab sees saved changes', async ({ page, context }) => {
   const other = await context.newPage();
   await other.goto(paths.nearbyPlace('curated:sg-merlion-park'));
   await other.getByRole('button', { name: '☆ Save' }).click();
-  await expect(page.getByRole('link', { name: 'View details: Merlion Park' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Merlion Park' })).toBeVisible();
 });
 
 test('unavailable storage keeps the feature working and says so', async ({ page }) => {

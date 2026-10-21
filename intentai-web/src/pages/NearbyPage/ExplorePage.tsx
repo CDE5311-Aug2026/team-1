@@ -10,6 +10,8 @@ import BottomSheet, { PEEK_PX, useWideLayout, type Detent } from '../../features
 import { StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
 import View3D from '../../features/nearby/components/View3D';
+import { Icon } from '../../features/nearby/components/icons';
+import { THUMB_CREDIT } from '../../features/nearby/thumbs';
 import { view3dTarget, type View3DTarget } from '../../features/nearby/links';
 import { fixInSingapore, locationStatusText, useLocationFlow } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
@@ -71,8 +73,9 @@ export default function ExplorePage() {
 
   const rawView = params.get('view');
   const view = rawView === 'list' ? 'list' : rawView === '3d' ? '3d' : 'map';
-  const [cardKey, setCardKey] = useState<string | null>(null);
-  useEffect(() => setCardKey(null), [view]);
+  // A landmark tapped in 3D that is not one of our places: its name from the 3D card.
+  const [cardTitle, setCardTitle] = useState<string | null>(null);
+  useEffect(() => setCardTitle(null), [view]);
   const wide = useWideLayout();
   const [place] = usePersistentStore(placeStore);
   // The sheet: the List view is the full sheet; otherwise peek or half (a selected place opens it to half).
@@ -146,10 +149,10 @@ export default function ExplorePage() {
   const picks = items.filter((i) => collectionsContaining(i.key).length > 0).sort((a, b) => editorialRank(a.key) - editorialRank(b.key));
   const others = items.filter((i) => collectionsContaining(i.key).length === 0);
   const ordered: { title?: string; note?: string; items: ExploreItem[] }[] = nearestMode
-    ? [{ title: 'Nearest first', note: `Straight-line distance ${origin ? originPhrase(origin.kind) : ''}. Not a walking time.`, items: byDistance(items) }]
+    ? [{ title: 'Nearest first', items: byDistance(items) }]
     : [
-        { title: 'Our picks', note: 'Places in our Singapore collection, in editorial order.', items: picks },
-        { title: 'Also on the map', note: origin ? 'Other landmarks from the EARTH ONLINE dataset, nearest first.' : 'Other landmarks from the EARTH ONLINE dataset.', items: origin ? byDistance(others) : others },
+        { title: 'Our picks', items: picks },
+        { title: 'More on the map', items: origin ? byDistance(others) : others },
       ].filter((g) => g.items.length > 0);
 
   const selected = items.find((i) => i.key === selectedKey) ?? null;
@@ -174,8 +177,14 @@ export default function ExplorePage() {
     : origin
       ? { at: origin.point, pin: origin.kind === 'you' || origin.kind === 'approx' }
       : { at: MARINA_BAY, pin: false };
-  const cardPlace0 = view === '3d' ? placeByEarthKey(cardKey) : undefined;
-  const cardPlace = cardPlace0 && cardPlace0.id !== selected?.key ? cardPlace0 : undefined;
+  // Tapping a landmark in 3D selects it here when it is one of our places (the sheet shows it, as on the map).
+  const onCard3d = (key: string | null, title: string | null) => {
+    const p = placeByEarthKey(key);
+    if (p) {
+      setCardTitle(null);
+      if (p.id !== selectedKey) patch({ sel: p.id }, true);
+    } else setCardTitle(key ? title : null);
+  };
 
   const focus: MapFocus = origin
     ? { id: focusId, center: origin.point, radiusM: radius }
@@ -210,6 +219,11 @@ export default function ExplorePage() {
 
   // the uncovered part of the map: under the search bar, above the sheet, left of the map buttons
   const mapInsets = wide ? { top: 0, bottom: 0, left: 432, right: 72 } : { top: 150, bottom: PEEK_PX, right: 64 };
+  const goBack = () => {
+    const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+    if (idx > 0) navigate(-1);
+    else navigate(paths.today);
+  };
   const resetAll = () => {
     setIgnoreFix(true);
     setMapCenter(null);
@@ -225,7 +239,7 @@ export default function ExplorePage() {
         <div className={x.titleText}>
           <h1 className={x.title}>Nearby</h1>
           <p className={x.count} aria-live="polite">
-            {query ? `${totalLabel} matching “${query}”` : origin ? `${totalLabel} within ${radius / 1000} km of ${origin.label}` : `${totalLabel} across Singapore`}
+            {query ? `${totalLabel} for “${query}”` : origin ? `${totalLabel} within ${radius / 1000} km` : `${totalLabel} in Singapore`}
           </p>
         </div>
         <nav className={x.sections} aria-label="Nearby sections">
@@ -241,7 +255,8 @@ export default function ExplorePage() {
   );
 
   return (
-    <AppShell background="var(--bg-screen-b)" layout="fill">
+    // No app tab bar here: the map is a full screen of its own; Back (in the search bar) returns to where you came from.
+    <AppShell background="var(--bg-screen-b)" layout="fill" chrome="status">
       {/* The map (or the 3D view) is the page: edge to edge, under the status bar and the floating controls. */}
       <div className={view === '3d' ? `${x.stage} ${x.stage3d}` : x.stage} data-allow-bleed>
         {view === '3d' ? (
@@ -249,13 +264,14 @@ export default function ExplorePage() {
             bleed
             target={target3d}
             title={`3D view of Singapore around ${selected?.name ?? origin?.label ?? 'Marina Bay'}`}
-            onCard={setCardKey}
+            hideCards
+            onCard={onCard3d}
           />
         ) : (
           <CityMap
             bleed
             insets={mapInsets}
-            controlsTop={wide ? 216 : 254}
+            controlsTop={wide ? 218 : 256}
             label="Map of Singapore places. Every place on it is also in the list."
             pins={items.map((i) => ({ key: i.key, name: i.name, location: i.location, category: i.category, visited: stateByKey.get(i.key)?.visited }))}
             selectedKey={selectedKey ?? undefined}
@@ -274,9 +290,9 @@ export default function ExplorePage() {
       {view !== '3d' && (
         <div className={x.top} data-allow-bleed>
           <form className={x.search} role="search" onSubmit={submit}>
-            <span className={x.searchIcon} aria-hidden="true">
-              ⌕
-            </span>
+            <button type="button" className={x.back} onClick={goBack} aria-label="Back">
+              <Icon name="back" />
+            </button>
             <label htmlFor="nearby-search" className={styles.srOnly}>
               Search places by name or type
             </label>
@@ -308,13 +324,7 @@ export default function ExplorePage() {
             {(['all', ...CATEGORIES] as CategoryFilter[]).map((c) => (
               <li key={c}>
                 <button type="button" className={x.chip} aria-pressed={category === c} onClick={() => patch({ category: c === 'all' ? null : c, sel: null })}>
-                  {c === 'all' ? (
-                    'All'
-                  ) : (
-                    <>
-                      <span aria-hidden="true">{CATEGORY_INFO[c].emoji}</span> {CATEGORY_INFO[c].plural}
-                    </>
-                  )}
+                  {c === 'all' ? 'All' : CATEGORY_INFO[c].plural}
                 </button>
               </li>
             ))}
@@ -344,7 +354,7 @@ export default function ExplorePage() {
           3D
         </button>
         <button type="button" className={x.sideButton} onClick={flow.start} aria-label="My location">
-          <span aria-hidden="true">➤</span>
+          <Icon name="locate" />
         </button>
       </div>
 
@@ -355,61 +365,55 @@ export default function ExplorePage() {
             {statusText}
           </p>
         )}
-        {view === '3d' && cardPlace && (
+        {view === '3d' && cardTitle && (
           <p className={styles.note} role="status">
-            Card open: {cardPlace.name}.{' '}
-            <Link className={styles.textLink} to={paths.nearbyPlace(cardPlace.id)}>
-              Open place →
-            </Link>
+            {cardTitle}
           </p>
         )}
         {selected && (
           <section aria-label="Selected place">
-            <PlaceCard item={selected} state={stateByKey.get(selected.key)} originKind={origin?.kind} selected idPrefix="preview" />
+            <PlaceCard item={selected} state={stateByKey.get(selected.key)} originKind={origin?.kind} selected variant="card" idPrefix="preview" />
           </section>
         )}
         {!selected && (
           <Link className={x.phraseRow} to={paths.phrases}>
-            <span className={x.phraseIcon} aria-hidden="true">
-              💬
+            <span className={x.phraseIcon}>
+              <Icon name="chat" />
             </span>
             <span className={x.phraseText}>
-              <span className={x.phraseTitle}>Phrases you might hear at {phrasePlace}</span>
-              <span className={x.phraseSub}>{staticCopy.nearYou.subtitle}</span>
+              <span className={x.phraseTitle}>Local phrases</span>
+              <span className={x.phraseSub}>{phrasePlace}</span>
             </span>
-            <span aria-hidden="true">›</span>
+            <Icon name="chevron" size={16} />
           </Link>
         )}
 
-        <div className={styles.row}>
-          {origin && !query && (
-            <label className={styles.label}>
-              Radius{' '}
-              <select className={styles.select} value={radius} onChange={(e) => patch({ radius: e.target.value === String(DEFAULT_RADIUS_M) ? null : e.target.value })}>
+        {(origin || query) && (
+          <div className={x.filters}>
+            {origin && !query && (
+              <select
+                className={x.pill}
+                aria-label="Radius"
+                value={radius}
+                onChange={(e) => patch({ radius: e.target.value === String(DEFAULT_RADIUS_M) ? null : e.target.value })}
+              >
                 {RADII_M.map((r) => (
                   <option key={r} value={r}>
                     {r / 1000} km
                   </option>
                 ))}
               </select>
-            </label>
-          )}
-          {origin && (
-            <label className={styles.label}>
-              Sort{' '}
-              <select className={styles.select} value={sort} onChange={(e) => patch({ sort: e.target.value === 'nearest' ? 'nearest' : null })}>
-                <option value="recommended">Recommended</option>
-                <option value="nearest">Nearest</option>
-              </select>
-            </label>
-          )}
-          {(origin || query) && (
-            <button type="button" className={styles.textButton} onClick={resetAll}>
-              ← Show all of Singapore
+            )}
+            {origin && (
+              <button type="button" className={x.pill} aria-pressed={sort === 'nearest'} onClick={() => patch({ sort: sort === 'nearest' ? null : 'nearest' })}>
+                Nearest first
+              </button>
+            )}
+            <button type="button" className={x.pill} onClick={resetAll} aria-label="Show all of Singapore">
+              ✕ Clear
             </button>
-          )}
-        </div>
-        {origin && <p className={styles.note}>Distances are straight-line and approximate.</p>}
+          </div>
+        )}
 
         {items.length === 0 ? (
           <p className={styles.empty}>
@@ -425,8 +429,7 @@ export default function ExplorePage() {
               <h2 className={styles.groupTitle}>
                 {group.title} <span className={styles.note}>({group.items.length})</span>
               </h2>
-              {group.note && <p className={styles.groupNote}>{group.note}</p>}
-              <ul className={styles.list} style={{ marginTop: '0.5rem' }}>
+              <ul className={x.rows}>
                 {group.items.slice(0, view === 'list' || wide ? undefined : MAP_LIST_LIMIT).map((item) => (
                   <li key={item.key}>
                     <PlaceCard
@@ -435,27 +438,24 @@ export default function ExplorePage() {
                       originKind={origin?.kind}
                       selected={item.key === selectedKey}
                       onSelect={() => select(item.key)}
-                      compact={view !== 'list'}
                     />
                   </li>
                 ))}
               </ul>
               {view !== 'list' && !wide && group.items.length > MAP_LIST_LIMIT && (
-                <button type="button" className={styles.secondary} style={{ marginTop: '0.5rem' }} onClick={() => patch({ view: 'list' })}>
-                  Show all {group.items.length} in the list
+                <button type="button" className={styles.textButton} onClick={() => patch({ view: 'list' })}>
+                  See all {group.items.length}
                 </button>
               )}
             </section>
           ))
         )}
+        <p className={x.credit}>{THUMB_CREDIT}</p>
         {selected && origin && (
           <p className={styles.srOnly} aria-live="polite">
             {selected.name} selected, {selected.distanceM !== undefined ? formatDistance(selected.distanceM) : ''} {originPhrase(origin.kind)}
           </p>
         )}
-        <p className={styles.note}>
-          Learning phrases instead? <Link className={styles.textLink} to={paths.places}>Phrases for a setting →</Link>
-        </p>
       </BottomSheet>
       {flow.dialog}
     </AppShell>

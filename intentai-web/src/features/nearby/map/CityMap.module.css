@@ -211,3 +211,40 @@
   border: 0;
   border-radius: 0;
 }
+
+.control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pin {
+  color: var(--pin-border, #2c2c2e);
+}
+
+/* Full-bleed: the zoom / recenter buttons are one column of the same width as the page's map buttons above them,
+   on the same right edge. */
+.bleed .controls {
+  right: var(--gutter);
+  gap: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: rgba(246, 245, 242, 0.96);
+  box-shadow: 0 2px 10px rgba(35, 33, 29, 0.18);
+}
+
+.bleed .control {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.bleed .control + .control {
+  border-top: 1px solid var(--border);
+}
+
+.bleed .control:focus-visible {
+  outline-offset: -3px;
+}

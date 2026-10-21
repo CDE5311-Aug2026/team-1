@@ -25,7 +25,7 @@ export default function LocationPage() {
   };
 
   return (
-    <AppShell background="var(--bg-screen-b)">
+    <AppShell background="var(--bg-screen-b)" chrome="status">
       <div className={styles.screen}>
         <BackHeader title="Where to explore" fallback={paths.nearby} />
         <p className={styles.note}>Nearby covers Singapore. Pick an area, or use your location to sort places by distance.</p>

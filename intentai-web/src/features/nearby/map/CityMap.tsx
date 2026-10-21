@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import groundUrl from '../../../assets/nearby/sg-ground.webp';
 import { CATEGORY_INFO } from '../domain';
+import { Icon } from '../components/icons';
 import type { Category, LatLng } from '../types';
 import {
   HALF,
@@ -537,7 +538,7 @@ export default function CityMap({
                 role="img"
                 aria-label={`${pin.name}, ${CATEGORY_INFO[pin.category].label}`}
               >
-                <span aria-hidden="true">{CATEGORY_INFO[pin.category].emoji}</span>
+                <Icon name={pin.category} size={selected ? 20 : 16} />
               </span>
             );
           }
@@ -552,7 +553,7 @@ export default function CityMap({
               onClick={() => !dragged.current && onSelect(pin.key)}
               data-pin={pin.key}
             >
-              <span aria-hidden="true">{CATEGORY_INFO[pin.category].emoji}</span>
+              <Icon name={pin.category} size={selected ? 20 : 16} />
               {pin.visited && <span className={styles.visitedTick} aria-hidden="true">✓</span>}
             </button>
           );
@@ -560,14 +561,14 @@ export default function CityMap({
       </div>
       <div className={styles.controls} style={controlsTop !== undefined ? { top: controlsTop } : insetTop ? { top: insetTop + 8 } : undefined}>
         <button type="button" className={styles.control} onClick={() => zoomAt(1.6)} aria-label="Zoom in">
-          +
+          <Icon name="plus" />
         </button>
         <button type="button" className={styles.control} onClick={() => zoomAt(1 / 1.6)} aria-label="Zoom out">
-          −
+          <Icon name="minus" />
         </button>
         {onRecenter && (
           <button type="button" className={styles.control} onClick={onRecenter} aria-label={recenterLabel}>
-            ◎
+            <Icon name="recenter" />
           </button>
         )}
       </div>

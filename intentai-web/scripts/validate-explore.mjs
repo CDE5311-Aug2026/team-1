@@ -3,7 +3,7 @@
 // Checks ids, Singapore coordinates (outline, not a bounding box), references, fact/source/review fields,
 // placeholder text, provenance, duplicates and collection counts. A collection may only claim "published"
 // with exactly 100 distinct published members that a team editor has signed off.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -62,7 +62,7 @@ function checkSource(src, where, errors) {
 }
 
 /** Pure validation of an in-memory catalogue. Returns { errors, warnings, counts }. */
-export function validateCatalogue({ places, areas, regions, collections, outline, stats }) {
+export function validateCatalogue({ places, areas, regions, collections, outline, stats, thumbs, thumbExists }) {
   const errors = [];
   const warnings = [];
   const ids = new Set();
@@ -149,6 +149,15 @@ export function validateCatalogue({ places, areas, regions, collections, outline
     } else if (c.status !== 'starter') errors.push(`${c.id}: status must be starter or published`);
   }
 
+  // pictures (public/nearby/thumbs): only for published places, and each listed file must exist
+  if (thumbs) {
+    const pub = new Set(published.map((p) => p.id));
+    for (const id of thumbs.ids ?? []) {
+      if (!pub.has(id)) errors.push(`thumbs.json: ${id} is not a published place`);
+      else if (thumbExists && !thumbExists(id)) errors.push(`thumbs.json: no picture file for ${id}`);
+    }
+    if (!thumbs.credit) errors.push('thumbs.json: credit line missing');
+  }
   if (stats && stats.publishedPlaces !== published.length) errors.push(`stats.json says ${stats.publishedPlaces} published places; the catalogue has ${published.length}`);
 
   const sourced = published.filter((p) => p.facts.length > 0).length;
@@ -167,6 +176,8 @@ export function loadCatalogue(dir = CATALOGUE_DIR) {
     collections: read('collections.json'),
     outline: read('outlines.json').countries.SG,
     stats: read('stats.json'),
+    thumbs: read('thumbs.json'),
+    thumbExists: (id) => existsSync(join(dir, '..', '..', '..', 'public', 'nearby', 'thumbs', `${id.replace(/^curated:/, '')}.webp`)),
   };
 }
 

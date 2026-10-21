@@ -84,7 +84,7 @@ export default function SavedPage() {
   };
 
   return (
-    <AppShell background="var(--bg-screen-b)">
+    <AppShell background="var(--bg-screen-b)" chrome="status">
       <div className={styles.screen}>
         <NearbyHeader title="Nearby" />
         <SectionNav />
@@ -100,16 +100,14 @@ export default function SavedPage() {
 
         {list.length === 0 ? (
           <p className={styles.empty}>
-            {tab === 'saved'
-              ? 'Nothing saved yet. Tap Save on any place to keep it here.'
-              : 'No visits yet. Mark a place as visited after you go — it is self-reported and stays on this device.'}
+            {tab === 'saved' ? 'Nothing saved yet.' : 'No visits yet.'}
             <br />
             <Link className={styles.textLink} to={paths.nearby}>
               Explore places
             </Link>
           </p>
         ) : (
-          <ul className={styles.list} ref={listRef} tabIndex={-1} aria-label={tab === 'saved' ? 'Saved places' : 'Visited places'}>
+          <ul className={styles.rows} ref={listRef} tabIndex={-1} aria-label={tab === 'saved' ? 'Saved places' : 'Visited places'}>
             {list.map((s) => {
               const place = curatedPlace(s.placeKey);
               if (!place) {
@@ -142,19 +140,12 @@ export default function SavedPage() {
                       }
                     }}
                   >
-                    <PlaceCard item={toItem(place)} state={s} compact />
+                    <PlaceCard
+                      item={toItem(place)}
+                      state={s}
+                      onToggleVisited={tab === 'visited' ? () => markVisited(place.id, place.name, !s.visited) : undefined}
+                    />
                   </div>
-                  {tab === 'visited' && (
-                    <button
-                      type="button"
-                      className={styles.ghostButton}
-                      style={{ marginTop: '0.375rem' }}
-                      onClick={() => markVisited(place.id, place.name, false)}
-                      aria-label={`Remove visit: ${place.name}`}
-                    >
-                      Remove visit
-                    </button>
-                  )}
                 </li>
               );
             })}
@@ -165,10 +156,7 @@ export default function SavedPage() {
           <h2 id="backup-title" className={styles.panelTitle}>
             Back up or restore
           </h2>
-          <p className={styles.note}>
-            Saved and visited places live only in this browser and can be lost if its data is cleared. A backup file holds place ids,
-            dates and flags only. Restoring merges: nothing you already saved or visited is removed.
-          </p>
+          <p className={styles.note}>Your list lives in this browser only. Back it up to keep it.</p>
           <div className={styles.row}>
             <button type="button" className={styles.secondary} onClick={download}>
               Download backup
@@ -178,9 +166,6 @@ export default function SavedPage() {
             </button>
             <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={onFile} aria-label="Backup file" />
           </div>
-          <p className={styles.note}>
-            To delete everything, use My Space → Delete all my data.
-          </p>
         </section>
       </div>
 

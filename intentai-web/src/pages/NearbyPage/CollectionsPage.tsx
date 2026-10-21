@@ -19,7 +19,7 @@ export function ProgressBar({ percent, label }: { percent: number; label: string
 export default function CollectionsPage() {
   const personal = useExplorePersonal();
   return (
-    <AppShell background="var(--bg-screen-b)">
+    <AppShell background="var(--bg-screen-b)" chrome="status">
       <div className={styles.screen}>
         <NearbyHeader title="Nearby" />
         <SectionNav />

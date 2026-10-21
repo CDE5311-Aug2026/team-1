@@ -26,7 +26,7 @@ export default function CollectionDetailPage() {
 
   if (!c) {
     return (
-      <AppShell background="var(--bg-screen-b)">
+      <AppShell background="var(--bg-screen-b)" chrome="status">
         <div className={styles.screen}>
           <BackHeader title="Collection not found" fallback={paths.collections} />
           <p className={styles.empty}>This collection does not exist.</p>
@@ -70,11 +70,10 @@ export default function CollectionDetailPage() {
   const ordered = origin && params.get('sort') === 'nearest' ? byDistance(items) : items;
 
   return (
-    <AppShell background="var(--bg-screen-b)">
+    <AppShell background="var(--bg-screen-b)" chrome="status">
       <div className={styles.screen}>
         <BackHeader title={title} fallback={paths.collections} />
         <StorageWarning />
-        <p className={styles.body}>{c.description}</p>
         <p className={styles.body}>
           <strong>
             {progress.visited} of {progress.total} visited
@@ -107,7 +106,7 @@ export default function CollectionDetailPage() {
           {(['all', ...CATEGORIES] as CategoryFilter[]).map((cat) => (
             <li key={cat}>
               <button type="button" className={styles.filterChip} aria-pressed={category === cat} onClick={() => patch('category', cat === 'all' ? null : cat)}>
-                {cat === 'all' ? 'All' : `${CATEGORY_INFO[cat].emoji} ${CATEGORY_INFO[cat].plural}`}
+                {cat === 'all' ? 'All' : CATEGORY_INFO[cat].plural}
               </button>
             </li>
           ))}
@@ -127,7 +126,7 @@ export default function CollectionDetailPage() {
             ))}
           </div>
           <label className={styles.label}>
-            Region{' '}
+            <span className={styles.srOnly}>Region</span>
             <select className={styles.select} value={region} onChange={(e) => patch('region', e.target.value || null)}>
               <option value="">All regions</option>
               {regionsIn(c.country).map((r) => (
@@ -155,12 +154,10 @@ export default function CollectionDetailPage() {
                 <option value="nearest">Nearest to {origin.label}</option>
               </select>
             </label>
-          ) : (
-            <span className={styles.note}>Editorial order. Choose an area in Explore to sort by distance.</span>
-          )}
+          ) : null}
         </div>
-        <p className={styles.note} aria-live="polite">
-          Showing {items.length} of {progress.total}. Filters do not change your progress.
+        <p className={items.length < progress.total ? styles.note : styles.srOnly} aria-live="polite">
+          Showing {items.length} of {progress.total}
         </p>
 
         {view === 'map' && (
@@ -176,24 +173,18 @@ export default function CollectionDetailPage() {
         {items.length === 0 ? (
           <p className={styles.empty}>No places match these filters.</p>
         ) : (
-          <ul className={styles.list}>
+          <ul className={styles.rows}>
             {ordered.map((item) => (
               <li key={item.key}>
-                <PlaceCard item={item} state={stateByKey.get(item.key)} originKind={origin?.kind} compact />
-                <div className={styles.row} style={{ marginTop: '0.375rem' }}>
-                  <button
-                    type="button"
-                    className={styles.ghostButton}
-                    aria-pressed={visited.has(item.key)}
-                    onClick={() => {
-                      const r = markVisited(item.key, item.name, !visited.has(item.key));
-                      if (r.milestones.length) setMilestones(r.milestones);
-                    }}
-                    aria-label={`${visited.has(item.key) ? 'Visited' : 'Mark visited'}: ${item.name}`}
-                  >
-                    {visited.has(item.key) ? '✓ Visited' : 'Mark visited'}
-                  </button>
-                </div>
+                <PlaceCard
+                  item={item}
+                  state={stateByKey.get(item.key)}
+                  originKind={origin?.kind}
+                  onToggleVisited={() => {
+                    const r = markVisited(item.key, item.name, !visited.has(item.key));
+                    if (r.milestones.length) setMilestones(r.milestones);
+                  }}
+                />
               </li>
             ))}
           </ul>
