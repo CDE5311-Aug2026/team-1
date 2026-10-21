@@ -109,14 +109,32 @@
   white-space: nowrap;
 }
 
+/* the category chips share the search bar's width, so both rows start and end on the same lines; on a phone
+   too narrow for all five they scroll sideways from edge to edge instead */
 .chips {
   display: flex;
   gap: 0.375rem;
-  margin: 0 calc(-1 * var(--gutter));
-  padding: 0 var(--gutter) 0.25rem;
+  margin: 0;
+  padding: 0 0 0.25rem;
   list-style: none;
   overflow-x: auto;
   scrollbar-width: none;
+}
+
+.chips > li {
+  flex: 1 0 auto;
+  display: flex;
+}
+
+@media (max-width: 359px) {
+  .chips {
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 0 var(--gutter) 0.25rem;
+  }
+
+  .chips > li {
+    flex: none;
+  }
 }
 
 .chips::-webkit-scrollbar {
@@ -124,9 +142,9 @@
 }
 
 .chip {
-  flex: none;
+  flex: 1 0 auto;
   height: 2.125rem;
-  padding: 0 0.875rem;
+  padding: 0 0.625rem;
   border: 0;
   border-radius: 1.0625rem;
   background: rgba(246, 245, 242, 0.96);
@@ -349,6 +367,16 @@
 
 /* wide screens: the panel is on the left, so the floating controls move right of it */
 @media (min-width: 768px) {
+  /* on a wide screen the chips stay their own size, from the left */
+  .chips > li,
+  .chip {
+    flex: none;
+  }
+
+  .chip {
+    padding: 0 0.875rem;
+  }
+
   .top {
     left: 432px;
     margin: 0;
