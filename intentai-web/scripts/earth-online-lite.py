@@ -237,6 +237,9 @@ function liteAuto(){
   try {
     const rate = +LITE.q.get('rate');
     if (window.SGClock){ SGClock.setLocal(false); SGClock.setRate(SGClock.RATES.includes(rate) ? rate : 2400); tod = SGClock.localNow()[0]; }
+    // #hour=13 (tooling: the place pictures are taken at a fixed midday, whatever the time of the run)
+    const hour = LITE.q.get('hour') === null ? NaN : +LITE.q.get('hour');
+    if (isFinite(hour) && hour >= 0 && hour < 24) tod = hour;
     todPlay = !LITE.still; applyTime();
   } catch (e){ console.error('[lite] time', e); }
 }
@@ -250,7 +253,7 @@ function liteAuto(){
 // far enough to show all of it in this view's width and height, lower for towers, higher for flat sites.
 // Campus / garden sites use their card's own framing, a little closer. Returns false when the key has no model.
 const LITE_VIEW = {   // per-landmark adjustments: d distance factor, az extra azimuth (deg), el elevation (deg)
-  merlion:{d:0.8, el:22}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
+  merlion:{d:0.6, el:20, az:-100}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
 };
 function liteFrame(key, animate){
   let T = null, D = null; try { T = SGCard._t.sgcByKey(key); D = T && SGCard._t.sgcResolve(T).D; } catch (e){ }
@@ -272,7 +275,7 @@ function liteFrame(key, animate){
   let dir = sx >= sz ? [Math.sin(rot), Math.cos(rot)] : [Math.cos(rot), -Math.sin(rot)];
   if (dir[0]*0.48 + dir[1]*0.87 < 0) dir = [-dir[0], -dir[1]];
   if (o.az){ const a = o.az*Math.PI/180, x = dir[0]*Math.cos(a) - dir[1]*Math.sin(a), z = dir[0]*Math.sin(a) + dir[1]*Math.cos(a); dir = [x, z]; }
-  const el = (o.el !== undefined ? o.el : h > W*1.3 ? 16 : h < W*0.25 ? 32 : 26)*Math.PI/180;
+  const el = (o.el !== undefined ? o.el : h > W*1.3 ? 24 : h < W*0.25 ? 32 : 26)*Math.PI/180;   // towers from a little above their neighbours
   const vf = camera.fov*Math.PI/360, hf = Math.atan(Math.tan(vf)*camera.aspect);
   const dW = (W/2)/Math.tan(hf) + Dp/2, dH = (h*0.62)/Math.tan(vf) + Dp/2;
   const d = Math.max(45, Math.max(dW, dH)*1.2*(o.d || 1));

@@ -38,7 +38,7 @@ const HIDE = '#timebar,#labels,section.sgc,#busy,.lbl{display:none!important}';
       return route.fulfill({ path: f, contentType: f.endsWith('.html') ? 'text/html; charset=utf-8' : f.endsWith('.webp') ? 'image/webp' : f.endsWith('.js') ? 'text/javascript' : 'text/plain; charset=utf-8' });
     });
     try {
-      await page.goto(`http://site.local/lite.html#at=${g.c.lat.toFixed(5)},${g.c.lng.toFixed(5)}&pin=0&still=1&r=3000`, { timeout: 120000 });
+      await page.goto(`http://site.local/lite.html#at=${g.c.lat.toFixed(5)},${g.c.lng.toFixed(5)}&pin=0&still=1&r=3000&hour=13`, { timeout: 120000 });
       await page.addStyleTag({ content: HIDE });
       await page.waitForFunction(() => window.SGLite && window.SGLite.stats().tilesBuilt > 0 && window.SGLite.stats().queue === 0, null, { timeout: 300000, polling: 2000 });
     } catch (e) { console.log('group', gi, 'failed to load', e.message.slice(0, 80)); await ctx.close(); continue; }
