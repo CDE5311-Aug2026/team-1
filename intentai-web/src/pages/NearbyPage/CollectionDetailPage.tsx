@@ -7,6 +7,7 @@ import { markVisited, stillReached, useExplorePersonal, type Milestone } from '.
 import { area as areaById, collection as collectionById, collectionProgress, collectionTitle, members, regionsIn } from '../../features/nearby/catalogue';
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
+import { Icon as NearbyIcon } from '../../features/nearby/components/icons';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { CATEGORY_INFO } from '../../features/nearby/domain';
 import CityMap from '../../features/nearby/map/CityMap';
@@ -23,6 +24,7 @@ export default function CollectionDetailPage() {
   const personal = useExplorePersonal();
   const [params, setParams] = useSearchParams();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   if (!c) {
     return (
@@ -50,6 +52,8 @@ export default function CollectionDetailPage() {
   const region = params.get('region') ?? '';
   const visit: VisitFilter = params.get('visit') === 'todo' ? 'todo' : params.get('visit') === 'done' ? 'done' : 'all';
   const q = params.get('q') ?? '';
+  // filters folded behind "More filters" that are on (its button shows the count)
+  const moreCount = (region ? 1 : 0) + (params.get('sort') === 'nearest' ? 1 : 0);
 
   const progress = collectionProgress(c, personal);
   const title = collectionTitle(c);
@@ -91,18 +95,36 @@ export default function CollectionDetailPage() {
           </p>
         ))}
 
-        <label htmlFor="coll-search" className={styles.srOnly}>
-          Search this collection
-        </label>
-        <input
-          id="coll-search"
-          className={styles.searchInput}
-          type="search"
-          maxLength={100}
-          placeholder="Search this collection"
-          value={q}
-          onChange={(e) => patch('q', e.target.value || null)}
-        />
+        {/* search, with the less used filters (region, order) folded behind one button */}
+        <div className={styles.searchRow}>
+          <label htmlFor="coll-search" className={styles.srOnly}>
+            Search this collection
+          </label>
+          <input
+            id="coll-search"
+            className={styles.searchInput}
+            type="search"
+            maxLength={100}
+            placeholder="Search this collection"
+            value={q}
+            onChange={(e) => patch('q', e.target.value || null)}
+          />
+          <button
+            type="button"
+            className={moreCount ? `${styles.moreButton} ${styles.moreActive}` : styles.moreButton}
+            aria-expanded={moreOpen}
+            aria-controls="coll-more"
+            aria-label={`More filters${moreCount ? ` (${moreCount} on)` : ''}`}
+            onClick={() => setMoreOpen((o) => !o)}
+          >
+            <NearbyIcon name="filter" />
+            {moreCount > 0 && (
+              <span className={styles.moreBadge} aria-hidden="true">
+                {moreCount}
+              </span>
+            )}
+          </button>
+        </div>
         <ul className={`${styles.chips} ${styles.chipsScroll}`} aria-label="Category">
           {(['all', ...CATEGORIES] as CategoryFilter[]).map((cat) => (
             <li key={cat}>
@@ -137,28 +159,30 @@ export default function CollectionDetailPage() {
             </button>
           </div>
         </div>
-        <div className={styles.row}>
-          <label className={styles.label}>
-            <span className={styles.srOnly}>Region</span>
-            <select className={styles.select} value={region} onChange={(e) => patch('region', e.target.value || null)}>
-              <option value="">All regions</option>
-              {regionsIn(c.country).map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          {origin ? (
+        {moreOpen && (
+          <div id="coll-more" className={styles.morePanel}>
             <label className={styles.label}>
-              Order{' '}
-              <select className={styles.select} value={params.get('sort') === 'nearest' ? 'nearest' : 'editorial'} onChange={(e) => patch('sort', e.target.value === 'nearest' ? 'nearest' : null)}>
-                <option value="editorial">Editorial order</option>
-                <option value="nearest">Nearest to {origin.label}</option>
+              Region{' '}
+              <select className={styles.select} value={region} onChange={(e) => patch('region', e.target.value || null)}>
+                <option value="">All regions</option>
+                {regionsIn(c.country).map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
               </select>
             </label>
-          ) : null}
-        </div>
+            {origin ? (
+              <label className={styles.label}>
+                Order{' '}
+                <select className={styles.select} value={params.get('sort') === 'nearest' ? 'nearest' : 'editorial'} onChange={(e) => patch('sort', e.target.value === 'nearest' ? 'nearest' : null)}>
+                  <option value="editorial">Editorial order</option>
+                  <option value="nearest">Nearest to {origin.label}</option>
+                </select>
+              </label>
+            ) : null}
+          </div>
+        )}
         <p className={items.length < progress.total ? styles.note : styles.srOnly} aria-live="polite">
           Showing {items.length} of {progress.total}
         </p>

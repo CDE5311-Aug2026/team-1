@@ -296,6 +296,18 @@ describe('Collections', () => {
     expect(screen.getByText('1 of 100 checked in')).toBeInTheDocument();
   });
 
+  test('region and order fold behind "More filters", which counts the ones that are on', async () => {
+    renderAt(`/nearby/collections/${c.id}`);
+    const more = screen.getByRole('button', { name: 'More filters' });
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByLabelText(/Region/)).not.toBeInTheDocument();
+    await userEvent.click(more);
+    const region = screen.getByLabelText(/Region/) as HTMLSelectElement;
+    await userEvent.selectOptions(region, region.options[1].value);
+    expect(screen.getByRole('button', { name: 'More filters (1 on)' })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/Showing \d+ of 100/)).toBeInTheDocument();
+  });
+
   test('reaching 10% shows one small acknowledgement', async () => {
     const ids = members(c).slice(0, 9).map((p) => p.id);
     explorePersonalStore.set((d) => ({ ...d, places: ids.map((placeKey) => ({ placeKey, saved: false, visited: true, updatedAt: new Date().toISOString() })) }));

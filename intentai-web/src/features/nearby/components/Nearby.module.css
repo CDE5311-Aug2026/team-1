@@ -775,6 +775,84 @@
   display: none;
 }
 
+/* chips fill the row so it ends where the search field does; a phone too narrow for them scrolls instead */
 .chipsScroll > li {
+  flex: 1 0 auto;
+  display: flex;
+}
+
+.chipsScroll .filterChip {
+  flex: 1 0 auto;
+  padding: 0 0.625rem;
+}
+
+@media (max-width: 359px) {
+  .chipsScroll > li,
+  .chipsScroll .filterChip {
+    flex: none;
+  }
+}
+
+/* the same chip look as Explore: the chosen one is dark */
+.chipsScroll .filterChip[aria-pressed='true'] {
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+  color: #fff;
+}
+
+.searchRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.moreButton {
+  position: relative;
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.moreButton[aria-expanded='true'],
+.moreActive {
+  border-color: var(--text-primary);
+}
+
+.moreBadge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--text-primary);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.moreButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.morePanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card-lg);
+  background: var(--surface);
 }
