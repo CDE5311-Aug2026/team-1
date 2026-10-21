@@ -128,7 +128,8 @@ test('every route uses the same content column as Today at 1440', async ({ page 
             const parent = getComputedStyle(el.parentElement!);
             return el.parentElement!.tagName === 'MAIN' || parent.display === 'block' || parent.flexDirection === 'column';
           })
-          .filter((el) => !el.closest('section, article, [role="tabpanel"], ul, form, dialog'))
+          // A full-screen map and what floats over it (Nearby Explore) are marked data-allow-bleed on purpose.
+          .filter((el) => !el.closest('section, article, [role="tabpanel"], ul, form, dialog, [data-allow-bleed]'))
           .map((el) => ({ el, box: el.getBoundingClientRect() }))
           .filter(({ box }) => box.width > width / 2)
           .filter(({ box }) => Math.abs(box.left - left) > 3 || Math.abs(box.width - width) > 3)
