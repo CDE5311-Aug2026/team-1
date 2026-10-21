@@ -227,7 +227,7 @@ export default function ExplorePage() {
       ? 'Finding you…'
       : mapCenter
         ? 'Map area'
-        : area?.name ?? `Exploring ${overviewArea(COUNTRY).name}`;
+        : area?.name ?? `All of ${overviewArea(COUNTRY).name}`;
   const statusText = !ignoreFix && flow.enabled ? locationStatusText(location) : null;
   // room for the button between the chips and the sheet's top edge (it never sits on the sheet)
   const searchAreaRoom = wide || window.innerHeight - (sheetDragH ?? detentHeight(detent)) > SEARCH_AREA_BOTTOM_PX;
@@ -254,9 +254,6 @@ export default function ExplorePage() {
       <div className={x.titleRow}>
         <div className={x.titleText}>
           <h1 className={x.title}>Nearby</h1>
-          <p className={x.count} aria-live="polite">
-            {query ? `${totalLabel} for “${query}”` : origin ? `${totalLabel} within ${radius / 1000} km` : `${totalLabel} in Singapore`}
-          </p>
         </div>
         <nav className={x.sections} aria-label="Nearby sections">
           <Link className={x.sectionLink} to={paths.collections}>
@@ -267,6 +264,18 @@ export default function ExplorePage() {
           </Link>
         </nav>
       </div>
+      {/* where the list is from: tap to pick an area or use your location */}
+      <button type="button" className={x.areaPick} onClick={() => navigate(paths.nearbyLocation)} aria-label={`${chipLabel}. Change area or location`}>
+        <span className={x.count} aria-live="polite">
+          {query ? `${totalLabel} for “${query}”` : origin ? `${totalLabel} within ${radius / 1000} km` : totalLabel}
+        </span>
+        <span className={x.areaSep} aria-hidden="true">
+          ·
+        </span>
+        {fixUsable && <Icon name="locate" size={13} className={x.areaIcon} />}
+        <span className={x.areaText}>{chipLabel}</span>
+        <Icon name="chevron" size={14} className={x.areaChevron} />
+      </button>
     </>
   );
 
@@ -325,10 +334,6 @@ export default function ExplorePage() {
             />
             <button type="submit" className={styles.srOnly}>
               Search
-            </button>
-            <button type="button" className={x.areaChip} onClick={() => navigate(paths.nearbyLocation)} aria-label={`${chipLabel}. Change area or location`}>
-              <span className={fixUsable ? `${styles.dot} ${styles.dotOn}` : styles.dot} aria-hidden="true" />
-              <span className={x.areaText}>{chipLabel}</span>
             </button>
           </form>
           {queryError && (

@@ -27,7 +27,7 @@ test('Today’s Near you card opens Nearby Explore with location off or on (PRD 
   const first = renderApp('/');
   await userEvent.click(screen.getByRole('button', { name: /near you/i }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby$/);
-  expect(await screen.findByRole('button', { name: /Exploring Singapore/ }, { timeout: 5000 })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: /All of Singapore/ }, { timeout: 5000 })).toBeInTheDocument();
   first.unmount();
 
   settingsStore.set({ ...DEFAULT_SETTINGS, location: true });

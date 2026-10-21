@@ -21,7 +21,7 @@ function watchRequests(page: Page) {
 test('principal journey: area → food centre → details in the sheet → save → check in, persisted after reload', async ({ page }) => {
   const external = watchRequests(page);
   await open(page, paths.nearby);
-  await expect(page.getByRole('button', { name: /Exploring Singapore/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /All of Singapore/ })).toBeVisible();
   await page.getByRole('button', { name: /Change area or location/ }).click();
   await page.getByRole('button', { name: 'Chinatown & Tanjong Pagar' }).click();
   await expect(page).toHaveURL(/area=sg-chinatown/);

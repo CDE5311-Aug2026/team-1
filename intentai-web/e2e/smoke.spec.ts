@@ -118,6 +118,8 @@ test('every route uses the same content column as Today at 1440', async ({ page 
     await seed(page, route);
     await page.goto(route);
     await expect(page.getByRole('main')).toBeVisible();
+    // lazy pages first show a loading <main>; measure the page itself (flaky on a busy machine otherwise)
+    await expect(page.locator('main[aria-busy="true"]')).toHaveCount(0);
     const off = await page.evaluate(
       ({ left, width }) =>
         Array.from(document.querySelectorAll('main > *, main > * > *'))

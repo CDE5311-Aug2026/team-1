@@ -52,10 +52,10 @@ describe('Explore', () => {
   test('first entry: manual Singapore overview, no location request, map and list of real places', () => {
     const getCurrentPosition = mockGeolocation({ lat: 1.28, lng: 103.84, accuracy: 10 });
     renderAt('/nearby');
-    expect(screen.getByRole('button', { name: /Exploring Singapore/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /All of Singapore/ })).toBeInTheDocument();
     expect(getCurrentPosition).not.toHaveBeenCalled();
     expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
-    expect(screen.getByText(/places in Singapore/)).toBeInTheDocument();
+    expect(screen.getByText(/^142 places$/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Local phrases/ })).toBeInTheDocument();
     // Without an origin there are no distances.
     expect(screen.queryByText(/~[\d.]+ k?m/)).not.toBeInTheDocument();
@@ -199,7 +199,7 @@ describe('Explore', () => {
     await userEvent.click(screen.getByRole('button', { name: /My location/ }));
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Continue' }));
     expect(await screen.findAllByText(/Nearby works in Singapore/)).not.toHaveLength(0);
-    expect(screen.getByRole('button', { name: /Exploring Singapore/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /All of Singapore/ })).toBeInTheDocument();
   });
 
   test('denied permission keeps the browsing path with a useful message', async () => {
