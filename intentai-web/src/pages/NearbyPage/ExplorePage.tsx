@@ -275,6 +275,17 @@ export default function ExplorePage() {
     else navigate(paths.today);
   };
   const closePicks = useCallback(() => setPicksOpen(false), []);
+  // Esc leaves 3D (the iframe keeps its own keys while it has focus)
+  const leave3d = useRef<() => void>(() => undefined);
+  leave3d.current = () => patch({ view: null });
+  useEffect(() => {
+    if (view !== '3d') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !picksOpen) leave3d.current();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [view, picksOpen]);
   const closeList = () => {
     patch({ list: null, sel: null, info: null });
     setFocusId((n) => n + 1);
@@ -446,6 +457,14 @@ export default function ExplorePage() {
             </button>
           )}
         </div>
+      )}
+
+      {/* 3D has no search bar: a clear way back to the map, top left (Esc and the browser's Back work too) */}
+      {view === '3d' && (
+        <button type="button" className={x.exit3d} onClick={() => patch({ view: null })} aria-label="Leave 3D, back to the map">
+          <Icon name="back" size={18} />
+          Map
+        </button>
       )}
 
       {/* Map buttons: 3D and your location (zoom and recenter are on the map itself). */}

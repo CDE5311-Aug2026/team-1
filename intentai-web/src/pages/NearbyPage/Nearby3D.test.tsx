@@ -47,6 +47,18 @@ describe('Explore in 3D', () => {
     expect(frame()).toBeNull();
   });
 
+  test('there is always a way out of 3D: the Map button, Esc, or Back', async () => {
+    renderAt('/nearby?area=sg-chinatown');
+    await userEvent.click(screen.getByRole('button', { name: '3D' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Leave 3D, back to the map' }));
+    expect(screen.getByTestId('where')).not.toHaveTextContent('view=3d');
+    expect(frame()).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Leave 3D, back to the map' })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: '3D' }));
+    await userEvent.keyboard('{Escape}');
+    expect(screen.getByTestId('where')).toHaveTextContent(/^\/nearby\?area=sg-chinatown$/);
+  });
+
   test('an area opens 3D on the area; the point is in the hash only, never in the query', () => {
     renderAt('/nearby?view=3d&area=sg-chinatown');
     const src = frame()!.getAttribute('src')!;
