@@ -36,7 +36,7 @@
 .card {
   margin-top: 0.75rem;
   padding: 0.8125rem 0.8125rem 1.125rem;
-  border: 1.5px solid var(--accent);
+  border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-card-lg);
   background: var(--surface);
   box-shadow: var(--shadow-card-active);
@@ -132,9 +132,9 @@
 }
 
 .answer[aria-pressed='true'] {
-  border-color: var(--accent);
-  background: var(--tint-warm-2);
-  box-shadow: 0 0 0 0.5px var(--accent);
+  border-color: var(--text-primary); /* selected = ink, as Today's culture tabs; orange is for actions */
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px var(--text-primary);
 }
 
 .answer:focus-visible {
@@ -156,6 +156,6 @@
 }
 
 .answer[aria-pressed='true'] .letter {
-  background: var(--accent);
+  background: var(--text-primary);
   color: #fff;
 }

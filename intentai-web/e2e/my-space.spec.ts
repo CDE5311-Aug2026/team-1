@@ -10,8 +10,7 @@ const ABOUT_YOU: Record<string, Box> = {
   '21:1345': [20, 158, 350, 25], // Section / About you
   '21:1347': [20, 195, 350, 168], // Card / Profile
   '21:1380': [20, 375, 350, 25], // Section / Switches
-  '21:1384': [20, 412, 350, 284], // Card / Switches
-  '21:1389': [320, 429, 36, 22], // Daily card switch
+  '21:1384': [20, 412, 350, 227], // Card / Switches (v2: four rows, Figma's 284 had five)
   '12:155': [20, 758, 350, 58], // Tab bar
 };
 const NOTICES: Record<string, Box> = {
@@ -127,19 +126,19 @@ test.describe('geometry at 390x844', () => {
   });
 });
 
-// v0: "profile editing and all five switches persist, with switches initially off"
-test('profile editing and all five switches persist, with switches initially off', async ({ page }) => {
+// v0: "profile editing and all five switches persist, with switches initially off" (v2 drops "Daily card")
+test('profile editing and all four switches persist, with switches initially off', async ({ page }) => {
   await open(page, paths.mySpace);
-  for (const name of ['Daily card', 'Flag occasions', 'Answer as a local', 'Rehearse with AI', 'No-judgement mode']) {
+  for (const name of ['Flag occasions', 'Answer as a local', 'Rehearse with AI', 'No-judgement mode']) {
     await expect(page.getByRole('switch', { name, exact: true })).toHaveAttribute('aria-checked', 'false');
   }
   await page.getByRole('button', { name: 'Edit From', exact: true }).click();
   await page.getByRole('dialog').getByRole('textbox', { name: 'From' }).fill('Malaysia');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await page.getByRole('switch', { name: 'Daily card', exact: true }).click();
+  await page.getByRole('switch', { name: 'Answer as a local', exact: true }).click();
   await page.reload();
   await expect(page.getByText('Malaysia', { exact: true })).toBeVisible();
-  await expect(page.getByRole('switch', { name: 'Daily card', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('switch', { name: 'Answer as a local', exact: true })).toHaveAttribute('aria-checked', 'true');
   await page.getByRole('button', { name: 'Delete From', exact: true }).click();
   await expect(page.getByText('Not set')).toBeVisible();
   await page.getByRole('button', { name: 'Undo', exact: true }).click();

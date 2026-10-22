@@ -7,7 +7,6 @@ import dotsIcon from '../../assets/ask/dots.svg';
 import editIcon from '../../assets/ask/edit.svg';
 import infoIcon from '../../assets/ask/info.svg';
 import micIcon from '../../assets/ask/mic.svg';
-import personIcon from '../../assets/ask/person.svg';
 import plusIcon from '../../assets/ask/plus.svg';
 import regenerateIcon from '../../assets/ask/regenerate.svg';
 import sendIcon from '../../assets/ask/send.svg';
@@ -31,6 +30,7 @@ import {
   inSentence,
   type Answer,
 } from './answer';
+import { useSpan } from '../../usage/useSpan';
 import styles from './AskPage.module.css';
 import { startVoiceInput } from './voice';
 import { requireText } from '../../hooks/requireText';
@@ -72,6 +72,9 @@ export default function AskPage() {
   const [context, setContext] = useState(DEFAULT_CONTEXT);
   const [draft, setDraft] = useState('');
   const [modal, setModal] = useState<Modal | null>(null);
+  useSpan('activity', 'Ask › typing', draft.trim() !== '');
+  useSpan('activity', 'Ask › context', modal?.type === 'context');
+  useSpan('activity', 'Ask › report', modal?.type === 'report');
   const nextId = useRef(SEED.length);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatRef = useRef<HTMLDivElement>(null);
@@ -217,7 +220,7 @@ export default function AskPage() {
           <div className={styles.aiRow} data-node-id="2:304">
             <AiAvatar />
             <div className={styles.aiMessage}>
-              <p className={styles.aiBubble}>Hi W 👋 What did you hear today? Tell me the phrase and where you heard it.</p>
+              <p className={styles.aiBubble}>Hi {USER_INITIAL} 👋 What did you hear today? Tell me the phrase and where you heard it.</p>
             </div>
           </div>
 
@@ -308,6 +311,9 @@ export default function AskPage() {
   );
 }
 
+/** The demo user's initial, shared by the greeting and the user's avatar. */
+const USER_INITIAL = 'W';
+
 function AiAvatar() {
   return (
     <span className={styles.aiAvatar} aria-hidden="true">
@@ -344,7 +350,7 @@ function ExchangeView({ exchange, first, onContext, onCopy, onFeedback, onRegene
             </button>
           </div>
           <span className={styles.userAvatar} aria-hidden="true">
-            <img src={personIcon} alt="" width={22.96} height={22.96} />
+            {USER_INITIAL}
           </span>
         </div>
       )}

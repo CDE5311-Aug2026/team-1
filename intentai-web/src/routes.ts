@@ -1,6 +1,7 @@
 // Every app path, defined once. Pages navigate with these constants, never with string literals.
 export const paths = {
   today: '/',
+  holiday: '/holidays/deepavali',
   ask: '/ask',
   community: '/community',
   question: (id: string) => `/community/${encodeURIComponent(id)}`,
@@ -18,7 +19,11 @@ export const paths = {
   onboardingTopics: '/onboarding/topics',
   onboardingQuiz: '/onboarding/quiz',
   onboardingResult: '/onboarding/result',
+  todaySetup: '/today-setup',
 } as const;
+
+/** Usage dashboard for the team. Kept out of `paths` so the app never links to it and page loops skip it. */
+export const ADMIN_PATH = '/admin';
 
 /** Route patterns with params, for <Route path>. Keep in sync with the builders in `paths`. */
 export const patterns = {

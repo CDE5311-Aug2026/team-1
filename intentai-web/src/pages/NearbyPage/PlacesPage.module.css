@@ -1,9 +1,9 @@
 /* Figma 11:1571 "Nearby — Where are you?" (390×844). Colours without a shared token are page-local. */
 .screen {
-  --setting-bg: #f9fafb;
+  --setting-bg: var(--surface);
   --setting-tile: #fdeee6;
-  --setting-title: #111827;
-  --setting-hint: #6b7280;
+  --setting-title: var(--text-primary);
+  --setting-hint: var(--text-secondary);
 
   display: flex;
   flex-direction: column;
@@ -144,9 +144,8 @@
 }
 
 .selected {
-  border-color: var(--accent);
-  background: var(--tint-warm-2);
-  box-shadow: inset 0 0 0 0.5px var(--accent), var(--shadow-card-active);
+  border-color: var(--text-primary); /* selected = ink, as Today's culture tabs; orange is for actions */
+  box-shadow: inset 0 0 0 0.5px var(--text-primary), var(--shadow-card-active);
 }
 
 .placeTile {
@@ -158,10 +157,6 @@
   border-radius: var(--radius-tile-sm);
   background: var(--chip-bg);
   font-size: 1.375rem;
-}
-
-.selected .placeTile {
-  background: var(--surface);
 }
 
 .placeName {
@@ -179,7 +174,7 @@
 }
 
 .selected .placeCount {
-  color: var(--accent);
+  color: var(--text-primary);
 }
 
 .check {
@@ -192,7 +187,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--text-primary);
 }
 
 .cta {

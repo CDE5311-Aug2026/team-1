@@ -10,6 +10,7 @@
 }
 
 .count {
+  font-family: var(--font-mono);
   font-size: var(--fs-streak);
   font-weight: 700;
   color: var(--accent);

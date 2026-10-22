@@ -4,7 +4,8 @@ interface SectionHeadingProps {
   icon: string;
   title: string;
   aside?: string;
-  nodeId: string;
+  /** Figma node, when the section exists in Figma. */
+  nodeId?: string;
 }
 
 /** "Section / …" rows: orange icon, title, optional grey note on the right. */

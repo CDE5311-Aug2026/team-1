@@ -1,14 +1,14 @@
 /* Page-local palette: the My Space frames use Tailwind-grey values that have no global token. */
 .screen {
-  --ms-ink: #111827;
-  --ms-strong: #374151;
-  --ms-muted: #6b7280;
+  --ms-ink: var(--text-primary);
+  --ms-strong: var(--text-ink-2);
+  --ms-muted: var(--text-secondary);
   --ms-faint: #6b6b72; /* Figma #9ca3af fails WCAG AA (2.5:1) */
-  --ms-line: #e5e7eb;
-  --ms-fill: #f3f4f6;
-  --ms-fill-soft: #f9fafb;
-  --ms-divider: #eceef1;
-  --ms-danger: #dc2626;
+  --ms-line: var(--border);
+  --ms-fill: var(--surface-sunk);
+  --ms-fill-soft: var(--surface);
+  --ms-divider: var(--divider);
+  --ms-danger: #b91c1c; /* 6.1:1 on the paper surface; #dc2626 fell to 4.4:1 */
   --ms-danger-line: #fecaca;
   display: flex;
   flex-direction: column;

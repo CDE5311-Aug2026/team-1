@@ -1,16 +1,14 @@
 /* Ask (Figma 2:429). Colours not in tokens.css are page-local. */
 .page {
-  --ask-ink: #111827;
-  --ask-ai-bubble: #f3f4f6;
-  --ask-orange: #e8622c;
-  --ask-orange-soft: #fff6f1;
+  --ask-ink: var(--text-primary);
+  --ask-ai-bubble: var(--surface-sunk);
+  --ask-orange: var(--accent);
   --ask-orange-badge: #ffe1cf;
-  --ask-orange-text: #c2410c;
   --ask-user-avatar: #dce7ff;
-  --ask-line: #e5e7eb;
-  --ask-rule: #eef0f3;
-  --ask-chip-text: #374151;
-  --ask-muted: #6b7280;
+  --ask-line: var(--border);
+  --ask-rule: var(--divider);
+  --ask-chip-text: var(--text-ink-2);
+  --ask-muted: var(--text-secondary);
   --ask-placeholder: #6b6b72; /* Figma #9ca3af fails WCAG AA (2.5:1) */
 
   display: flex;
@@ -126,8 +124,11 @@
 }
 
 .userAvatar {
-  align-items: flex-end;
+  align-items: center;
   background: var(--ask-user-avatar);
+  color: var(--ask-ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
 }
 
 .aiMessage {
@@ -150,7 +151,11 @@
 
 .aiBubble {
   border-radius: 0.375rem 1.125rem 1.125rem 1.125rem;
-  background: var(--ask-ai-bubble);
+  /* A card on the paper, so IntentAI's side reads as a message like the user's. */
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  background: var(--surface);
+  padding: calc(0.625rem - 1px) calc(0.875rem - 1px); /* the border keeps the bubble's 284px text box */
   color: var(--ask-ink);
 }
 
@@ -210,8 +215,10 @@
 
 .userBubble {
   border-radius: 1.125rem 0.375rem 1.125rem 1.125rem;
-  background: var(--ask-orange);
-  color: #fff;
+  /* Passport rule: orange is for actions and stamps, never large fills. A soft greige sets your words
+     apart from the AI's light card without the starkness of solid ink. */
+  background: var(--surface-tab-active);
+  color: var(--ask-ink);
 }
 
 .contextCard {
@@ -223,10 +230,10 @@
   width: 11.875rem; /* 190px */
   max-width: 100%;
   padding: 0.75rem 0.5rem;
-  border: 1.5px solid var(--ask-orange);
+  border: 1.5px solid var(--border-strong);
   border-radius: 1.125rem;
-  background: var(--ask-orange-soft);
-  box-shadow: 0 4px 12px rgba(232, 98, 44, 0.18);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
   font: inherit;
   cursor: pointer;
 }
@@ -237,7 +244,7 @@
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 0.875rem;
-  background: var(--ask-orange-badge);
+  background: var(--chip-bg);
   font-size: 1.375rem;
 }
 
@@ -245,7 +252,7 @@
   font-size: 0.8125rem;
   line-height: 0.875rem;
   font-weight: 600;
-  color: var(--ask-orange-text);
+  color: var(--ask-ink);
   text-align: center;
 }
 
@@ -265,7 +272,8 @@
   margin: 1.25rem -0.4375rem 0; /* y=627, x=9, 371px wide */
   padding: 0.625rem 1rem 0.25rem;
   border-top: 1px solid var(--ask-rule);
-  background: var(--surface);
+  /* v2: on the paper like the input bar below it; a surface band here read as a stray strip. */
+  background: transparent;
 }
 
 .suggestions {
@@ -350,6 +358,7 @@
 
 .input {
   flex: 1;
+  align-self: stretch; /* the whole bar height is tappable, not just the text line */
   min-width: 0;
   padding: 0;
   border: 0;
@@ -406,12 +415,10 @@
   }
 }
 
-/* Wider screens: a centred chat column; status bar and home indicator are hidden. */
+/* Wider screens: the chat uses the shared content column (as Today does); status bar and home indicator are hidden. */
 @media (min-width: 481px) {
   .page {
-    width: 100%;
-    max-width: 45rem;
-    margin: 0 auto;
+    margin-inline: 0;
     height: max(28rem, calc(100dvh - 11rem));
   }
 

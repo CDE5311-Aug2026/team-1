@@ -92,8 +92,8 @@ const HEADS_UP = {
 } satisfies Record<string, HeadsUp>;
 
 const ALSO = {
-  tapau: { id: 'tapau', emoji: '🥡', title: 'Tapau', phonetic: '/tah-pow/', meaning: 'Take away · pack food to go' },
-  kosong: { id: 'kosong', emoji: '🥤', title: 'Kosong', phonetic: '/koh-song/', meaning: 'Plain · nothing added, e.g. no sugar' },
+  tapau: { id: 'tapau', emoji: '🥡', title: 'Tapau', phonetic: '/tah-pow/', meaning: 'Take away: pack food to go' },
+  kosong: { id: 'kosong', emoji: '🥤', title: 'Kosong', phonetic: '/koh-song/', meaning: 'Plain: nothing added, e.g. no sugar' },
   chope: { id: chope.id, emoji: '🪑', title: chope.title, phonetic: chope.phonetic, meaning: 'Save a seat with a tissue packet' },
   canOrNot: { id: canOrNot.id, emoji: '🤔', title: canOrNot.title, meaning: 'Is it possible or OK?' },
   paiseh: { id: paiseh.id, emoji: '😬', title: paiseh.title, phonetic: paiseh.phonetic, meaning: 'A soft, polite apology' },

@@ -4,15 +4,22 @@ import iconReview from '../../assets/moments/icon-review.svg';
 import HomeLink from '../../components/HomeLink/HomeLink';
 import AppShell from '../../components/AppShell/AppShell';
 import type { Lookup } from '../../data/domain';
+import { dailyExpressions } from '../../data/expressions';
 import { usePersistentStore } from '../../data/persistentStore';
-import { lookupsStore, settingsStore } from '../../data/stores';
+import { collect, passportStats, topicProgress } from '../../data/collection';
+import { currentStreak, recordLearningDay } from '../../data/progress';
+import { collectedStore, lookupsStore, onboardingStore, profileStore, streakStore } from '../../data/stores';
+import useToday from '../../hooks/useToday';
 import { showToast } from '../../hooks/useToast';
 import { paths, type CommunityHandoff } from '../../routes';
-import DailyCard from './DailyCard/DailyCard';
 import LookupCard from './LookupCard/LookupCard';
 import Pagination from './Pagination/Pagination';
 import PractiseDialog from './PractiseDialog/PractiseDialog';
-import { clampPage, dailyLookup, pageCount, pageSlice, showingCaption } from './paging';
+import { clampPage, pageCount, pageSlice, showingCaption } from './paging';
+import MyTopics from './MyTopics/MyTopics';
+import PassportCard from './PassportCard/PassportCard';
+import TodaysThree from './TodaysThree/TodaysThree';
+import { useSpan } from '../../usage/useSpan';
 import styles from './MomentsPage.module.css';
 
 /** Figma node ids of the three card slots on a page. */
@@ -22,9 +29,14 @@ const CARD_NODE_IDS = ['4:961', '4:977', '4:991'];
 export default function MomentsPage() {
   const [lookups, setLookups] = usePersistentStore(lookupsStore);
   const listHeading = useRef<HTMLHeadingElement>(null);
-  const [settings, setSettings] = usePersistentStore(settingsStore);
+  const [{ topics }] = usePersistentStore(onboardingStore);
+  const [collected, setCollected] = usePersistentStore(collectedStore);
+  const [profile] = usePersistentStore(profileStore);
+  const [streak, setStreak] = usePersistentStore(streakStore);
+  const today = useToday();
   const [requestedPage, setRequestedPage] = useState(1);
   const [practising, setPractising] = useState<Lookup | null>(null);
+  useSpan('activity', 'Moments › practise', practising !== null);
   const navigate = useNavigate();
 
   // Derived, so the page stays valid however the list changes (deletes here, adds from Ask).
@@ -75,11 +87,21 @@ export default function MomentsPage() {
         </header>
 
         <div className={styles.body} data-node-id="4:935">
-          <DailyCard
-            on={settings.daily}
-            today={settings.daily ? dailyLookup(lookups, new Date()) : undefined}
-            onChange={(daily) => setSettings((prev) => ({ ...prev, daily }))}
+          {/* v2 passport (BellyBook-style): what the user has collected so far. */}
+          <PassportCard stats={passportStats(collected, lookups, topics, currentStreak(streak, today))} level={profile.level} />
+
+          {/* v2: today's three (moved from Today) replace Figma's "Show a daily card" setting (4:937). */}
+          <TodaysThree
+            expressions={dailyExpressions(topics)}
+            collected={collected}
+            onOpen={(id) => {
+              setCollected((prev) => collect(prev, id));
+              // Opening a phrase card counts as a learning day for the streak.
+              setStreak((prev) => recordLearningDay(prev, today));
+            }}
           />
+
+          <MyTopics progress={topicProgress(topics, collected)} />
 
           <div className={styles.section} data-node-id="4:945">
             <img src={iconReview} alt="" width={16} height={16} />

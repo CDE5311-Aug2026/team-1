@@ -2,11 +2,11 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import { DEFAULT_PROFILE } from '../../data/domain';
-import { profileStore, settingsStore } from '../../data/stores';
+import { culturePrefsStore, profileStore, settingsStore } from '../../data/stores';
 import { paths } from '../../routes';
 import { currentPath, renderAt } from './testUtils';
 
-const SWITCHES = ['Daily card', 'Flag occasions', 'Answer as a local', 'Rehearse with AI', 'No-judgement mode'];
+const SWITCHES = ['Flag occasions', 'Answer as a local', 'Rehearse with AI', 'No-judgement mode'];
 
 test('shows the Figma copy with one h1', () => {
   renderAt(paths.mySpace);
@@ -16,7 +16,8 @@ test('shows the Figma copy with one h1', () => {
   expect(screen.getByRole('heading', { name: 'Switches' })).toBeInTheDocument();
   expect(screen.getByText('All off by default')).toBeInTheDocument();
   expect(screen.getByText('Used for translations')).toBeInTheDocument();
-  expect(screen.getByText('One saved phrase a day')).toBeInTheDocument();
+  // v2: the daily card became Moments' always-on "Today's three", so its switch is gone.
+  expect(screen.queryByText('Daily card')).not.toBeInTheDocument();
 });
 
 test('profile fields show stored values, "In Singapore" verbatim, and "Not set" when empty', () => {
@@ -27,14 +28,14 @@ test('profile fields show stored values, "In Singapore" verbatim, and "Not set" 
   expect(screen.getByText('Not set')).toBeInTheDocument();
 });
 
-test('all five switches start off and persist when toggled', async () => {
+test('all four switches start off and persist when toggled', async () => {
   renderAt(paths.mySpace);
   for (const name of SWITCHES) {
     expect(screen.getByRole('switch', { name })).toHaveAttribute('aria-checked', 'false');
   }
-  await userEvent.click(screen.getByRole('switch', { name: 'Daily card' }));
-  expect(screen.getByRole('switch', { name: 'Daily card' })).toHaveAttribute('aria-checked', 'true');
-  expect(settingsStore.get().daily).toBe(true);
+  await userEvent.click(screen.getByRole('switch', { name: 'Answer as a local' }));
+  expect(screen.getByRole('switch', { name: 'Answer as a local' })).toHaveAttribute('aria-checked', 'true');
+  expect(settingsStore.get().local).toBe(true);
   await userEvent.click(screen.getByRole('switch', { name: 'No-judgement mode' }));
   expect(settingsStore.get().judgement).toBe(true);
 });
@@ -92,4 +93,18 @@ test('the Notices segment opens Notices', async () => {
   expect(screen.getByRole('button', { name: 'About you' })).toHaveAttribute('aria-current', 'page');
   await userEvent.click(screen.getByRole('button', { name: /^notices/i }));
   expect(currentPath()).toBe(paths.notices);
+});
+
+test("a Today section below the switches shows the current picks and opens the questionnaire pre-filled", async () => {
+  culturePrefsStore.set({ categories: ['unesco', 'ich', 'history'] });
+  renderAt(paths.mySpace);
+  const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+  expect(headings.indexOf('Today')).toBeGreaterThan(headings.indexOf('Switches'));
+  expect(screen.getByText('UNESCO, Heritage, History')).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole('button', { name: "Change Today's Topics" }));
+
+  expect(currentPath()).toBe('/today-setup');
+  expect(screen.getByRole('button', { name: /^Heritage\b/ })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
 });

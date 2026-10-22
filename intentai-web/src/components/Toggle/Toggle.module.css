@@ -11,6 +11,13 @@
   transition: background-color 0.15s ease;
 }
 
+/* 44×44 touch target around the 36×22 track. */
+.track::after {
+  content: '';
+  position: absolute;
+  inset: -0.6875rem -0.25rem;
+}
+
 .track[aria-checked='true'] {
   background: var(--accent);
 }

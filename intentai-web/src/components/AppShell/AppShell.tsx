@@ -43,7 +43,7 @@ export default function AppShell({
   const visibleToast = regionReady ? toast : null;
 
   return (
-    <div className={styles.shell} style={{ background }}>
+    <div className={styles.shell} style={{ backgroundColor: background }}>
       {chrome !== 'none' && <StatusBar />}
       <main className={styles.page} tabIndex={-1}>{children}</main>
       {showChrome && (

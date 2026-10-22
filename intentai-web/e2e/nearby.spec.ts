@@ -9,11 +9,12 @@ const NEARBY: Record<string, Box> = {
   '11:1730': [262, 62, 108, 32], // Location chip
   '11:1733': [20, 112, 350, 160], // Map
   '11:1781': [291, 121, 68, 28], // Change
-  '11:1783': [20, 288, 350, 248], // Heads-up card
-  '11:1851': [34.5, 482.5, 153, 36], // Got it
-  '11:1853': [199.5, 482.5, 153, 36], // Ask IntentAI
-  '11:1858': [20, 582, 350, 58], // Also heard: Tapau
-  '11:1867': [20, 648, 350, 58], // Also heard: Kosong
+  // v2: the heads-up tip gets 8px bottom padding (Figma's 62px box clipped its second line), +9px.
+  '11:1783': [20, 288, 350, 257], // Heads-up card
+  '11:1851': [34.5, 491.5, 153, 36], // Got it
+  '11:1853': [199.5, 491.5, 153, 36], // Ask IntentAI
+  '11:1858': [20, 591, 350, 58], // Also heard: Tapau
+  '11:1867': [20, 657, 350, 58], // Also heard: Kosong
   '11:1550': [20, 758, 350, 58], // Tab bar
 };
 const PLACES: Record<string, Box> = {

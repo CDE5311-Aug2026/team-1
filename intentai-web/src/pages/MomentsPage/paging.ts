@@ -1,4 +1,4 @@
-// Pure helpers for the Moments list: three lookups per page (Figma 4:919) and the daily card pick.
+// Pure helpers for the Moments list: three lookups per page (Figma 4:919).
 
 export const PAGE_SIZE = 3;
 
@@ -31,13 +31,4 @@ export function showingCaption(page: number, itemCount: number): string {
   const last = Math.min(page * PAGE_SIZE, itemCount);
   const range = first === last ? `${first}` : `${first}–${last}`;
   return `Showing ${range} of ${itemCount} ${itemCount === 1 ? 'lookup' : 'lookups'}`;
-}
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/** "One saved phrase a day": rotates through the saved lookups by local calendar day. */
-export function dailyLookup<T>(items: T[], date: Date): T | undefined {
-  if (items.length === 0) return undefined;
-  const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS);
-  return items[day % items.length];
 }

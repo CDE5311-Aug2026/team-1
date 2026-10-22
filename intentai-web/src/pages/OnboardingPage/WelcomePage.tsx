@@ -61,6 +61,8 @@ export default function WelcomePage() {
       <p className={styles.lead} data-node-id="17:72">
         Learn the Singlish locals really use — tailored to how long you&apos;ve been here and what you do every day.
       </p>
+      {/* v2 class user test: usage timings (time only) go to the team's dashboard. */}
+      <p className={styles.notice}>We record how long you spend on each page, anonymously, to improve the app.</p>
     </OnboardingScreen>
   );
 }

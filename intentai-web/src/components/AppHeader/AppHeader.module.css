@@ -30,6 +30,7 @@
 
 .actions {
   flex-shrink: 0;
+  margin-left: 0.5rem; /* keeps a truncated greeting off the streak chip on narrow phones */
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -46,6 +47,13 @@
   background: transparent;
   cursor: pointer;
   padding: 0;
+}
+
+/* 44px touch target without changing the 32px Figma box. */
+.bellButton::after {
+  content: '';
+  position: absolute;
+  inset: -0.375rem;
 }
 
 .bellDot {

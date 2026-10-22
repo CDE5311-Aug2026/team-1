@@ -6,6 +6,7 @@ import Toggle from '../../components/Toggle/Toggle';
 import { usePersistentStore } from '../../data/persistentStore';
 import { settingsStore } from '../../data/stores';
 import { paths } from '../../routes';
+import { useSpan } from '../../usage/useSpan';
 import styles from './CommunityLayout.module.css';
 
 /** Figma node ids differ per frame (3:728 list, 7:1119 detail); the layout is the same. */
@@ -25,6 +26,7 @@ interface CommunityLayoutProps {
 /** Shared Community chrome: logo + title header and the "My questions / Answer as a local" segment. */
 export default function CommunityLayout({ nodeIds, onList, children }: CommunityLayoutProps) {
   const [settings, setSettings] = usePersistentStore(settingsStore);
+  useSpan('activity', 'Community › answer as a local', settings.local);
 
   return (
     <AppShell background="var(--bg-screen-b)" tabBarNodeId={nodeIds.tabBar}>

@@ -26,9 +26,9 @@
 }
 
 .tile[aria-pressed='true'] {
-  border-color: var(--accent);
-  background: var(--tint-warm-2);
-  box-shadow: 0 0 0 0.5px var(--accent);
+  border-color: var(--text-primary); /* selected = ink, as Today's culture tabs; orange is for actions */
+  background: var(--surface);
+  box-shadow: 0 0 0 0.5px var(--text-primary);
 }
 
 .tile:focus-visible {
@@ -53,10 +53,6 @@
   background: var(--chip-bg);
 }
 
-.tile[aria-pressed='true'] .iconTile {
-  background: var(--surface);
-}
-
 .checkbox {
   width: 1.375rem;
   height: 1.375rem;
@@ -69,7 +65,7 @@
 
 .tile[aria-pressed='true'] .checkbox {
   border: 0;
-  background: var(--accent);
+  background: var(--text-primary);
 }
 
 .name {

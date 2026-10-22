@@ -75,7 +75,7 @@ test.describe('first run', () => {
     await page.getByRole('button', { name: /^Less than 3 months/ }).click();
     await page.getByRole('button', { name: 'Continue', exact: true }).click();
     for (const topic of [/^Work/, /^Food/, /^Daily life/]) await page.getByRole('button', { name: topic }).click();
-    await page.getByRole('button', { name: 'Continue · 3 selected' }).click();
+    await page.getByRole('button', { name: 'Continue (3 selected)' }).click();
     for (const question of quizFor(['Work', 'Food', 'Daily life'])) {
       await expect(page.getByText(question.phrase)).toBeVisible();
       await page.getByRole('button', { name: question.answers[question.correct] }).click();
@@ -83,10 +83,12 @@ test.describe('first run', () => {
     }
     await expect(page.getByRole('heading', { level: 1, name: "You're Experienced" })).toBeVisible();
     await page.getByRole('button', { name: 'Start learning', exact: true }).click();
+    await expect(page).toHaveURL(/\/today-setup$/);
+    await page.getByRole('button', { name: 'Default', exact: true }).click();
     await expect(page).toHaveURL(/\/$/);
     await page.reload();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByText("Today's three expressions, Can or cannot learn?")).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeVisible();
     const profile = await page.evaluate(() => JSON.parse(localStorage.getItem('intentai:v1:profile') ?? '{}'));
     expect(profile).toMatchObject({ time: 'Less than 3 months', level: 'Experienced', topics: ['Work', 'Food', 'Daily life'] });
   });

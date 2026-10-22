@@ -12,6 +12,7 @@ import CommunityLayout from './CommunityLayout';
 import QuestionDialog from './QuestionDialog';
 import StatusPill from './StatusPill';
 import { statusNote } from './questionDisplay';
+import { useSpan } from '../../usage/useSpan';
 import styles from './CommunityPage.module.css';
 
 const NODE_IDS = { tabBar: '3:787', segment: '3:879', switch: '3:884' };
@@ -30,6 +31,7 @@ export default function CommunityPage() {
   // Moments "Not sure" arrives with a drafted question for the "Ask a local" dialog.
   const draft = (useLocation().state as CommunityHandoff | null)?.askLocal;
   const [asking, setAsking] = useState(draft !== undefined);
+  useSpan('activity', 'Community › ask a local', asking);
 
   const handleAsk = (text: string, context: string) => {
     const question = newQuestion(text, context);
@@ -50,7 +52,7 @@ export default function CommunityPage() {
             <li key={question.id}>
               <Link
                 to={paths.question(question.id)}
-                className={question.status === 'Pending' ? styles.cardPending : styles.card}
+                className={styles.card}
                 aria-label={`Open question ${question.text}`}
                 data-node-id={CARD_NODE_IDS[index]}
               >

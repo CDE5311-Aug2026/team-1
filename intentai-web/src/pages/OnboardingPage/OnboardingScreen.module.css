@@ -1,15 +1,13 @@
 /* Figma colours with no shared token. */
 .screen {
   --ob-text-strong: #3f3f46;
-  --ob-control-border: #d4d4d8;
-  --ob-divider: #f0f0f2;
+  --ob-control-border: var(--border-strong);
+  --ob-divider: var(--divider);
   --ob-icon-off: #3f3f46;
 
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 35rem;
-  margin: 0 auto;
   /* The primary button sits 52px above the bottom of an 844px frame; AppShell's 6rem bottom
      padding is taken back so a short screen does not scroll. */
   min-height: calc(100svh - 52px);

@@ -60,6 +60,7 @@
 }
 
 .divider {
+  margin-top: auto; /* same divider line across a row, however long the meaning */
   height: 1px;
   background: var(--m-chip);
 }

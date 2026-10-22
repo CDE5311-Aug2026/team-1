@@ -2,8 +2,9 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, test } from 'vitest';
-import { addLookup, SEED_LOOKUPS, type Lookup } from '../../data/domain';
-import { lookupsStore, settingsStore } from '../../data/stores';
+import { addLookup, type Lookup } from '../../data/domain';
+import { collectedStore, lookupsStore, onboardingStore, profileStore, streakStore } from '../../data/stores';
+import { todayKey } from '../../data/progress';
 import { paths } from '../../routes';
 import MomentsPage from './MomentsPage';
 
@@ -42,26 +43,40 @@ test('lists every seeded lookup with its source label, count and caption', () =>
   expect(screen.getByText('Showing 1–3 of 3 lookups')).toBeInTheDocument();
 });
 
-test('the daily card is off by default and shows one saved phrase a day when switched on', async () => {
+const tile = (title: string) => screen.getByRole('button', { name: new RegExp(`^\\d\\d ${title} `) });
+
+test("today's three replace the daily card switch, in a row above All lookups", () => {
   renderPage();
-  const toggle = screen.getByRole('switch', { name: 'Show a daily card' });
-  expect(toggle).toHaveAttribute('aria-checked', 'false');
-  expect(screen.getByText('One saved phrase a day · off by default')).toBeInTheDocument();
-
-  await userEvent.click(toggle);
-
-  expect(settingsStore.get().daily).toBe(true);
-  expect(toggle).toHaveAttribute('aria-checked', 'true');
-  const pick = SEED_LOOKUPS.find((l) => screen.queryByText(`Today's card: ${l.word}`));
-  expect(pick).toBeDefined();
-  expect(screen.getAllByText(pick!.meaning).length).toBeGreaterThanOrEqual(1);
+  expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 2, name: "Today's three" })).toBeInTheDocument();
+  for (const title of ['Chope', 'Can or not?', 'Paiseh']) {
+    expect(tile(title.replace('?', '\\?'))).toHaveAttribute('aria-expanded', 'false');
+  }
 });
 
-test('the daily card says so when nothing is saved yet', async () => {
-  lookupsStore.set([]);
-  settingsStore.set((prev) => ({ ...prev, daily: true }));
+test("today's three follow the onboarding Singlish topics", () => {
+  onboardingStore.set((prev) => ({ ...prev, topics: ['Work', 'Food'] }));
   renderPage();
-  expect(screen.getByText('No saved phrases yet')).toBeInTheDocument();
+  expect(screen.getAllByRole('button', { name: /^0[1-3] / })).toHaveLength(3);
+  for (const title of ['Can or not\\?', 'Tapau', 'Steady']) expect(tile(title)).toBeInTheDocument();
+});
+
+test('tapping a tile opens its full card under the row; another tile swaps it, the same tile closes it', async () => {
+  renderPage();
+  await userEvent.click(tile('Chope'));
+  expect(tile('Chope')).toHaveAttribute('aria-expanded', 'true');
+  const detail = screen.getByRole('region', { name: 'Chope' });
+  expect(within(detail).getByText('/chohp/')).toBeInTheDocument();
+  expect(within(detail).getByText('“I chope a table first, you go order.”')).toBeInTheDocument();
+  expect(within(detail).getByRole('button', { name: /play audio/i })).toBeInTheDocument();
+
+  await userEvent.click(tile('Paiseh'));
+  expect(tile('Chope')).toHaveAttribute('aria-expanded', 'false');
+  expect(screen.queryByRole('region', { name: 'Chope' })).not.toBeInTheDocument();
+  expect(screen.getByRole('region', { name: 'Paiseh' })).toBeInTheDocument();
+
+  await userEvent.click(tile('Paiseh'));
+  expect(screen.queryByRole('region', { name: 'Paiseh' })).not.toBeInTheDocument();
 });
 
 test('Got it marks a lookup understood and can be undone by pressing again', async () => {
@@ -191,4 +206,53 @@ test('after deleting a lookup, focus stays in the list (on its heading)', async 
   renderPage();
   await userEvent.click(screen.getAllByRole('button', { name: /^delete/i })[0]);
   expect(screen.getByRole('heading', { name: 'All lookups' })).toHaveFocus();
+});
+
+const passport = () => screen.getByRole('region', { name: 'Singlish passport' });
+
+test('the passport shows collected phrases, topics, days and the quiz level', () => {
+  profileStore.set((prev) => ({ ...prev, level: 'Experienced' }));
+  collectedStore.set(['chope', 'tapau']);
+  streakStore.set({ date: todayKey(), count: 4 });
+  renderPage();
+  expect(within(passport()).getByRole('heading', { name: 'My phrasebook' })).toBeInTheDocument();
+  // 2 collected phrases + "chope" and "wah, finally ah" are not Got it in the seed, so 2.
+  expect(within(passport()).getByText('2', { selector: '[data-stat="phrases"]' })).toBeInTheDocument();
+  expect(within(passport()).getByText('4', { selector: '[data-stat="topics"]' })).toBeInTheDocument();
+  expect(within(passport()).getByText('4', { selector: '[data-stat="days"]' })).toBeInTheDocument();
+  expect(within(passport()).getByText('Experienced')).toBeInTheDocument();
+  expect(within(passport()).queryByText(/collect your first phrase/)).toBeNull();
+});
+
+test('an empty passport says how to collect the first phrase', () => {
+  collectedStore.set([]);
+  lookupsStore.set([]);
+  renderPage();
+  expect(within(passport()).getByText('0', { selector: '[data-stat="phrases"]' })).toBeInTheDocument();
+  expect(within(passport()).getByText('Open a card below to collect your first phrase.')).toBeInTheDocument();
+});
+
+test('no quiz level means no level stamp', () => {
+  profileStore.set((prev) => ({ ...prev, level: undefined }));
+  renderPage();
+  expect(within(passport()).queryByText(/Beginner|Intermediate|Experienced/)).toBeNull();
+});
+
+test("opening a Today's three card collects it, stamps it and counts a learning day", async () => {
+  streakStore.set({ date: '', count: 0 });
+  renderPage();
+  expect(within(tile('Chope')).queryByText('got it')).toBeNull();
+  await userEvent.click(tile('Chope'));
+  expect(collectedStore.get()).toEqual(['chope']);
+  expect(within(tile('Chope')).getByText('got it')).toBeInTheDocument();
+  expect(streakStore.get().date).toBe(todayKey());
+  const topics = within(screen.getByRole('list', { name: 'My topics' })).getAllByRole('listitem');
+  expect(topics.map((t) => t.textContent)).toContain('Daily life1 of 3');
+});
+
+test('My topics lists the onboarding topics, all four when none were picked', () => {
+  onboardingStore.set((prev) => ({ ...prev, topics: [] }));
+  renderPage();
+  const topics = within(screen.getByRole('list', { name: 'My topics' })).getAllByRole('listitem');
+  expect(topics.map((t) => t.textContent)).toEqual(['Work0 of 3', 'Food0 of 3', 'Daily life0 of 3', 'Getting around0 of 3']);
 });

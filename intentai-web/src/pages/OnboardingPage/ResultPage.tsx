@@ -29,13 +29,14 @@ export default function ResultPage() {
 
   const handleStart = () => {
     profileStore.set((profile) => ({ ...profile, time: onboarding.duration ?? profile.time, level, topics }));
-    // Today's three follow these topics, so store the fallback too when none were picked.
+    // The quiz and My Space follow these topics, so store the fallback too when none were picked.
     setOnboarding((prev) => ({ ...prev, topics, done: true }));
-    navigate(paths.today);
+    // Onboarding is done here; the culture topic picker next can keep the top 3.
+    navigate(paths.todaySetup);
   };
 
   const plan = [
-    { icon: clock, title: '3 expressions a day', note: 'About 6 minutes, at your own pace' },
+    { icon: clock, title: 'Singlish practice', note: 'Phrases for the topics you picked' },
     { icon: target, title: focusLabel(topics), note: 'Picked from your interests' },
     { icon: pinSmall, title: onboarding.duration ? `Tuned for ${onboarding.duration}` : 'Tuned to your level', note: 'Everyday phrases first, slang later' },
   ];
@@ -60,7 +61,7 @@ export default function ResultPage() {
     >
       <p className={styles.badge}>
         <img src={aiLogo} alt="" width={28} height={28} />
-        IntentAI · Your results
+        Your IntentAI results
       </p>
       <h1 className={styles.title} data-node-id="17:290">
         You&apos;re <span className={styles.level}>{level}</span>
@@ -101,7 +102,7 @@ export default function ResultPage() {
       </ul>
 
       <div className={styles.hint}>
-        <AiHint nodeId="17:328">{planHint(topics)}</AiHint>
+        <AiHint nodeId="17:328">{planHint()}</AiHint>
       </div>
     </OnboardingScreen>
   );

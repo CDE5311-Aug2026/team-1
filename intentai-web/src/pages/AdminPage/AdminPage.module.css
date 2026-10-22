@@ -1,0 +1,155 @@
+/* Team dashboard: laptop-first, outside AppShell, same tokens as the app. */
+.admin {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 2rem var(--gutter) 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: var(--text-primary);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: 700;
+}
+
+.error {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #f4c6ad;
+  border-radius: 0.5rem;
+  background: #fff6f1;
+  color: #9a3412;
+}
+
+.signIn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 20rem;
+}
+
+.signIn input {
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.5rem;
+  font: inherit;
+}
+
+.toolbar,
+.filters,
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.button,
+.primary,
+.danger,
+.filter {
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  font: inherit;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.button:disabled {
+  cursor: default;
+  color: var(--text-secondary);
+}
+
+.primary {
+  align-self: flex-start;
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+}
+
+.danger {
+  border-color: #b91c1c;
+  background: #b91c1c;
+  color: #fff;
+}
+
+.filter[aria-pressed='true'] {
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+  color: #fff;
+}
+
+.meta,
+.note,
+.empty {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table caption {
+  padding-bottom: 0.5rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.table th,
+.table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.table td:last-child {
+  white-space: normal;
+}
+
+.sort {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  cursor: pointer;
+}
+
+.more summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.more p {
+  margin: 0.25rem 0 0;
+}
+
+.button:focus-visible,
+.primary:focus-visible,
+.danger:focus-visible,
+.filter:focus-visible,
+.sort:focus-visible,
+.scroll:focus-visible,
+.signIn input:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}

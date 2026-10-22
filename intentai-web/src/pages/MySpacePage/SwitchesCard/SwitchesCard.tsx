@@ -1,4 +1,3 @@
-import card from '../../../assets/my-space/switch-card.svg';
 import flag from '../../../assets/my-space/switch-flag.svg';
 import local from '../../../assets/my-space/switch-local.svg';
 import mic from '../../../assets/my-space/switch-mic.svg';
@@ -11,14 +10,13 @@ import { showToast } from '../../../hooks/useToast';
 import styles from './SwitchesCard.module.css';
 
 const SWITCHES: { key: SettingKey; label: string; hint: string; icon: string; nodeId: string }[] = [
-  { key: 'daily', label: 'Daily card', hint: 'One saved phrase a day', icon: card, nodeId: '21:1389' },
   { key: 'occasions', label: 'Flag occasions', hint: 'Reads calendar titles only', icon: flag, nodeId: '21:1396' },
   { key: 'local', label: 'Answer as a local', hint: 'Confirm entries for others', icon: local, nodeId: '21:1403' },
   { key: 'rehearse', label: 'Rehearse with AI', hint: 'Practice chats, never saved', icon: mic, nodeId: '21:1410' },
   { key: 'judgement', label: 'No-judgement mode', hint: 'Sources only, no advice', icon: shield, nodeId: '21:1417' },
 ];
 
-/** "Card / Switches" (21:1384). Figma notes: every switch starts off. */
+/** "Card / Switches" (21:1384). Figma notes: every switch starts off. v2 drops "Daily card" (21:1389): Moments always shows today's three. */
 export default function SwitchesCard({ nodeId }: { nodeId: string }) {
   const [settings, setSettings] = usePersistentStore(settingsStore);
 

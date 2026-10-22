@@ -15,7 +15,7 @@ test('lists my questions with their status, the count and the privacy note', () 
   expect(within(sabo).getByText('2 locals reviewing')).toBeInTheDocument();
   const paiseh = screen.getByRole('link', { name: /open question “paiseh to trouble you”/i });
   expect(within(paiseh).getByText('Answered')).toBeInTheDocument();
-  expect(within(paiseh).getByText('by a local · written into the entry')).toBeInTheDocument();
+  expect(within(paiseh).getByText('by a local, now in the entry')).toBeInTheDocument();
   expect(screen.getByText('Nothing else pending — you can ask a local from any entry.')).toBeInTheDocument();
   expect(screen.getByText('Your questions are shown to locals without your name or profile.')).toBeInTheDocument();
 });
