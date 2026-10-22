@@ -116,11 +116,12 @@ function Detail({ place }: { place: CuratedPlace }) {
               onSelect={() => undefined}
               readOnly
               focus={{ id: 1, center: place.coordinates, radiusM: 600 }}
+              you={fix ?? null}
             />
           </div>
         ) : (
           <>
-            <View3D target={view3dTarget(place)} title={`3D view around ${place.name}`} height={400} hideCards onCard={setCardKey} />
+            <View3D target={view3dTarget(place)} title={`3D view around ${place.name}`} height={400} hideCards onCard={setCardKey} you={fix ?? null} />
             {otherCard && otherCard.id !== place.id && (
               <p className={styles.note} role="status">
                 {otherCard.name} ·{' '}

@@ -96,7 +96,11 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
 - Rebuild it with `node scripts/sync-earth-online.mjs <earth_online checkout>` (python3): it builds the page from the
   checkout's `src/` without the unused modules (`LITE_SKIP`), applies `scripts/earth-online-lite.py` (every edit is
   asserted, so a changed upstream fails loudly) and copies `site/sgdata/`. The page talks to Nearby with postMessage:
-  out `ready` and `card` (landmark key only); in `show {at, card}` from the parent window only.
+  out `ready` and `card` (landmark key only); in `show {at, card}` and `you {at | null, acc}` from the parent window only.
+- **Your position in 3D:** after "My location" (a precise fix in Singapore), the 3D view flies to you and shows a blue
+  dot with a soft accuracy circle (`liteYou` in `scripts/earth-online-lite.py`). The position goes to the 3D page only
+  by message — never in its address — and is sent again after each `ready` (the page reloads around a far point). An
+  approximate fix gets the old orange pin instead. The place page's 2D map and 3D view show the same dot.
 - Location: one `getCurrentPosition` (10 s timeout, 60 s max age) after the explanation is accepted; no watch. States:
   manual, requesting, active, denied, unavailable, timeout, unsupported; worse than 500 m = "Approximate location";
   outside Singapore = manual browsing with a note. The position stays in memory (`src/features/nearby/location.ts`),
@@ -109,6 +113,20 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
   check-in as a stamp under **My places** (`src/pages/MomentsPage/PlaceStamps`), newest first, plus the collection's
   progress. It reads the same store, so a check-in or its Undo shows there at once. Self-reported: no position is
   stored with it.
+
+- **Practical details** (Details on a place, like a maps app): hours, address and postcode, phone (`tel:` link),
+  website, **Open in Apple Maps** (`maps.apple.com/?ll=…&q=<name>`, built from the coordinates, so every place has it)
+  and **What people say**: up to three links to review pages (MICHELIN Guide, Tripadvisor, Time Out…; never Google
+  Maps) and one sentence in the team's own words, no quotes. Every value has the page it came from (one Sources line
+  per page); anything not confirmed is left out. Researched on 22 Oct 2026 and merged with
+  `python3 scripts/explore/merge-details.py <files>` (drops reseller / directory sources and office-desk hours); the
+  validator checks postcodes, phone format, sources and the summary rules.
+- **Culture & language cards:** a place's phrases (the one you might hear, and "also heard here") and its sourced
+  facts are one loose pile of cards (`CardDeck`): swipe the top card away (or ‹ › / arrow keys) for the next. Each
+  card sits at its own small angle. A swipe is counted for the user test as `<Page> › Swipe card`.
+- **Share:** a place (on its check-in row) and a checklist (the list header in Explore and the collection page) open
+  the phone's share sheet, or copy text + link. A checklist shares its title, "x of y checked in" and which places are
+  ticked (names only, at most ten); never a position or a check-in date (`src/features/nearby/share.ts`).
 
 ### Maintenance scripts (`scripts/explore/`)
 

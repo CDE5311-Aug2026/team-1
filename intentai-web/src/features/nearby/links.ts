@@ -56,3 +56,10 @@ export function view3dUrl(target: View3DTarget, opts: { still?: boolean; hideCar
   if (opts.lang && opts.lang !== 'en') params.set('lang', opts.lang);
   return `${earthOnline3dBase()}#${params.toString()}`;
 }
+
+/** Apple Maps at the place's coordinates, with its name as the label. A plain link: nothing is sent first. */
+export function appleMapsUrl(place: Pick<CuratedPlace, 'coordinates' | 'name'>): string {
+  const { lat, lng } = place.coordinates;
+  const params = new URLSearchParams({ ll: `${lat.toFixed(6)},${lng.toFixed(6)}`, q: place.name });
+  return `https://maps.apple.com/?${params.toString()}`;
+}

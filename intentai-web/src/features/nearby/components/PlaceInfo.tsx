@@ -17,6 +17,10 @@ import { collectionProgress, collectionsContaining, collectionTitle } from '../c
 import type { CuratedPlace, SourceReference } from '../domain';
 import { directionsUrl } from '../links';
 import { localToday, shortDate, stateOf } from '../personal';
+import { placeShare } from '../share';
+import ShareButton from './ShareButton';
+import CardDeck, { type DeckCard } from './CardDeck';
+import PlaceDetails from './PlaceDetails';
 import { Icon as NearbyIcon } from './icons';
 import styles from './Nearby.module.css';
 
@@ -68,27 +72,118 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
   };
 
   const tip = place.languageTip ? nearbyContent(place.languageTip.context) : null;
-  const saveTip = () => {
-    if (!tip) return;
-    const { headsUp } = tip;
+  const saveWord = (word: string, meaning: string) => {
     let addedId: string | undefined;
     const generation = dataGeneration();
     setLookups((prev) => {
-      const next = addLookup(prev, { word: headsUp.title, meaning: headsUp.meaning, source: 'IntentAI editorial' });
+      const next = addLookup(prev, { word, meaning, source: 'IntentAI editorial' });
       addedId = next !== prev ? next[0].id : undefined;
       return next;
     });
     if (!addedId) {
-      showToast(`${headsUp.title} is already in Moments`);
+      showToast(`${word} is already in Moments`);
       return;
     }
     const id = addedId;
-    showToast(`${headsUp.title} saved to Moments`, {
+    showToast(`${word} saved to Moments`, {
       undo: () => {
         if (dataGeneration() === generation) setLookups((prev) => prev.filter((l) => l.id !== id));
       },
     });
   };
+
+  // The cards: phrases you may hear here and the place's sourced facts, mixed (a phrase first).
+  const language: DeckCard[] = tip
+    ? [
+        {
+          id: `say-${tip.headsUp.id}`,
+          tone: 'language',
+          kicker: 'Language · you might hear',
+          body: (
+            <>
+              <ContextChip icon={tip.chipIcon} label={`${place.languageTip!.regionLabel} · ${tip.chipLabel}`} />
+              <div className={styles.row}>
+                <span className={styles.catTile} aria-hidden="true">
+                  <Icon name={tip.headsUp.icon} size={24} />
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className={styles.cardName}>
+                    {tip.headsUp.title} {tip.headsUp.phonetic && <span className={styles.meta}>{tip.headsUp.phonetic}</span>}
+                  </p>
+                  <p className={styles.meta}>{tip.headsUp.meaning}</p>
+                </div>
+                <PlayAudioButton text={tip.headsUp.title} />
+              </div>
+              <p className={styles.body}>{tip.headsUp.tip}</p>
+              <div className={styles.row}>
+                <button type="button" className={styles.primary} onClick={() => saveWord(tip.headsUp.title, tip.headsUp.meaning)}>
+                  Save to Moments
+                </button>
+                <button
+                  type="button"
+                  className={styles.secondary}
+                  onClick={() => {
+                    const handoff: AskHandoff = {
+                      prompt: `What does ${tip.headsUp.title.toLowerCase()} mean?`,
+                      context: askContextForPlace(place.languageTip!.context),
+                    };
+                    navigate(paths.ask, { state: handoff });
+                  }}
+                >
+                  Ask about this phrase
+                </button>
+              </div>
+            </>
+          ),
+        },
+        ...tip.alsoHeard.map(
+          (w): DeckCard => ({
+            id: `say-${w.id}`,
+            tone: 'language',
+            kicker: 'Language · also heard here',
+            body: (
+              <>
+                <div className={styles.row}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className={styles.cardName}>
+                      {w.title} {w.phonetic && <span className={styles.meta}>{w.phonetic}</span>}
+                    </p>
+                    <p className={styles.meta}>{w.meaning}</p>
+                  </div>
+                  <PlayAudioButton text={w.title} />
+                </div>
+                <div className={styles.row}>
+                  <button type="button" className={styles.secondary} onClick={() => saveWord(w.title, w.meaning)} aria-label={`Save ${w.title} to Moments`}>
+                    Save to Moments
+                  </button>
+                </div>
+              </>
+            ),
+          }),
+        ),
+      ]
+    : [];
+  const culture: DeckCard[] = place.facts.map((fact, i) => ({
+    id: `fact-${fact.id}`,
+    tone: 'culture',
+    kicker: place.facts.length > 1 ? `Culture · fact ${i + 1} of ${place.facts.length}` : 'Culture · fact',
+    body: (
+      <>
+        <p className={styles.body}>{fact.text}</p>
+        <details className={styles.fold}>
+          <summary className={styles.foldSummary}>Sources</summary>
+          <div className={styles.foldBody}>
+            <SourceLinks sources={fact.sources} />
+          </div>
+        </details>
+      </>
+    ),
+  }));
+  const deck: DeckCard[] = [];
+  for (let i = 0; i < Math.max(language.length, culture.length); i++) {
+    if (language[i]) deck.push(language[i]);
+    if (culture[i]) deck.push(culture[i]);
+  }
 
   const correction = `Correction for “${place.name}” (${place.id}): `;
   const copyCorrection = async () => {
@@ -131,6 +226,7 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
             <NearbyIcon name="star" filled={!!state?.saved} />
           </button>
         )}
+        <ShareButton className={styles.iconAction} label={`Share ${place.name}`} content={() => placeShare(place, personal)} />
         <a className={`${styles.linkButton} ${styles.directions}`} href={directionsUrl(place)} target="_blank" rel="noopener noreferrer" aria-label="Directions (opens Google Maps)">
           <span className={styles.directionsText}>Directions</span> ↗
         </a>
@@ -181,6 +277,8 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
           )}
         </div>
       )}
+
+      <PlaceDetails place={place} panel={panel} idPrefix={idPrefix} />
 
       <section className={panel} aria-labelledby={`${idPrefix}-about-title`}>
         <h2 id={`${idPrefix}-about-title`} className={styles.panelTitle}>
@@ -234,69 +332,17 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
         {place.facts.length === 0 && <p className={styles.sourceLine}>No sourced fun facts yet.</p>}
       </section>
 
-      {place.facts.length > 0 && (
-        <section className={panel} aria-labelledby={`${idPrefix}-facts-title`}>
-          <h2 id={`${idPrefix}-facts-title`} className={styles.panelTitle}>
-            Fun facts
+      {deck.length > 0 && (
+        <section className={panel} aria-labelledby={`${idPrefix}-cards-title`}>
+          <h2 id={`${idPrefix}-cards-title`} className={styles.panelTitle}>
+            Culture & language
           </h2>
-          <p className={styles.body}>{place.facts[0].text}</p>
-          {/* more facts, every source and the review date, one tap away */}
-          <details className={styles.fold}>
-            <summary className={styles.foldSummary}>{place.facts.length > 1 ? `${place.facts.length - 1} more · Sources` : 'Sources'}</summary>
-            <div className={styles.foldBody}>
-              <SourceLinks sources={place.facts[0].sources} />
-              {place.facts.slice(1).map((fact) => (
-                <div key={fact.id}>
-                  <p className={styles.body}>{fact.text}</p>
-                  <SourceLinks sources={fact.sources} />
-                </div>
-              ))}
-              <p className={styles.sourceLine}>
-                Last reviewed {place.reviewedAt} · {place.reviewedBy}
-              </p>
-            </div>
-          </details>
-        </section>
-      )}
-
-      {tip && place.languageTip && (
-        <section className={panel} aria-labelledby={`${idPrefix}-hear-title`}>
-          <h2 id={`${idPrefix}-hear-title`} className={styles.panelTitle}>
-            What you might hear here
-          </h2>
-          <ContextChip icon={tip.chipIcon} label={`${place.languageTip.regionLabel} · ${tip.chipLabel}`} />
-          <div className={styles.row}>
-            <span className={styles.catTile} aria-hidden="true">
-              <Icon name={tip.headsUp.icon} size={24} />
-            </span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p className={styles.cardName}>
-                {tip.headsUp.title} {tip.headsUp.phonetic && <span className={styles.meta}>{tip.headsUp.phonetic}</span>}
-              </p>
-              <p className={styles.meta}>{tip.headsUp.meaning}</p>
-            </div>
-            <PlayAudioButton text={tip.headsUp.title} />
-          </div>
-          <p className={styles.body}>{tip.headsUp.tip}</p>
-          <div className={styles.row}>
-            <button type="button" className={styles.primary} onClick={saveTip}>
-              Save to Moments
-            </button>
-            <button
-              type="button"
-              className={styles.secondary}
-              onClick={() => {
-                const handoff: AskHandoff = {
-                  prompt: `What does ${tip.headsUp.title.toLowerCase()} mean?`,
-                  context: askContextForPlace(place.languageTip!.context),
-                };
-                navigate(paths.ask, { state: handoff });
-              }}
-            >
-              Ask about this phrase
-            </button>
-          </div>
-          <p className={styles.sourceLine}>Phrase guidance written by the IntentAI team (Singapore usage).</p>
+          <CardDeck key={place.id} cards={deck} label={`Culture and language cards for ${place.name}`} />
+          <p className={styles.sourceLine}>
+            {[place.facts.length > 0 && `Last reviewed ${place.reviewedAt} · ${place.reviewedBy}`, tip && 'Phrases written by the IntentAI team (Singapore usage)']
+              .filter(Boolean)
+              .join('. ')}
+          </p>
         </section>
       )}
 

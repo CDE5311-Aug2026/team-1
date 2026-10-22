@@ -24,6 +24,8 @@ import CityMap, { type MapFocus } from '../../features/nearby/map/CityMap';
 import BottomSheet, { PEEK_PX, detentHeight, useWideLayout, type Detent } from '../../features/nearby/components/BottomSheet';
 import { StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
+import ShareButton from '../../features/nearby/components/ShareButton';
+import { checklistShare } from '../../features/nearby/share';
 import PlaceInfo from '../../features/nearby/components/PlaceInfo';
 import PicksPanel from '../../features/nearby/components/PicksPanel';
 import View3D from '../../features/nearby/components/View3D';
@@ -88,9 +90,16 @@ export default function ExplorePage() {
   const [draft, setDraft] = useState(params.get('q') ?? '');
   const [queryError, setQueryError] = useState<string | null>(null);
   const [focusId, setFocusId] = useState(1);
+  // "My location": the map (or the 3D view) goes to you; in 3D the selected place steps aside so the view can fly there.
   const flow = useLocationFlow(() => {
     setIgnoreFix(false);
     setMapCenter(null);
+    if (params.get('view') === '3d' && params.get('sel')) {
+      const next = new URLSearchParams(params);
+      next.delete('sel');
+      next.delete('info');
+      setParams(next, { replace: true });
+    }
     setFocusId((n) => n + 1);
   });
 
@@ -201,14 +210,14 @@ export default function ExplorePage() {
   // Picked on the phrase settings (Today's "Near you" card names it); its phrases stay one tap away.
   const phrasePlace = place === 'Hawker centre' ? staticCopy.nearYou.place : place;
   // 3D: the selected place (its landmark card when the dataset has a model), else the area / location / map centre.
-  // "Near you" pins your position inside the 3D page only (the address keeps it in the hash, never sent to a server).
+  // Your position shows as a blue dot in the 3D page (sent by message); an approximate one gets a pin instead.
   const selectedPlace = selected ? curatedPlace(selected.key) : undefined;
   // View details unfolds the place in the sheet (?info=1), under its card, instead of leaving Explore.
   const detailsOpen = !!selectedPlace && params.get('info') === '1';
   const target3d: View3DTarget = selectedPlace
     ? view3dTarget(selectedPlace)
     : origin
-      ? { at: origin.point, pin: origin.kind === 'you' || origin.kind === 'approx' }
+      ? { at: origin.point, pin: origin.kind === 'approx' }
       : { at: MARINA_BAY, pin: false };
   // Tapping a landmark in 3D selects it here when it is one of our places (the sheet shows it, as on the map).
   const onCard3d = (key: string | null, title: string | null) => {
@@ -251,6 +260,8 @@ export default function ExplorePage() {
       : mapCenter
         ? 'Map area'
         : area?.name ?? `All of ${overviewArea(COUNTRY).name}`;
+  // your dot on the map and in 3D: only a precise position you asked for, in Singapore
+  const you = fixUsable && location.fix && isPrecise(location.fix) ? location.fix : null;
   const statusText = !ignoreFix && flow.enabled ? locationStatusText(location) : null;
   // room for the button between the chips and the sheet's top edge (it never sits on the sheet)
   const searchAreaRoom = wide || window.innerHeight - (sheetDragH ?? detentHeight(detent)) > SEARCH_AREA_BOTTOM_PX;
@@ -285,6 +296,7 @@ export default function ExplorePage() {
           <p className={x.kicker}>{activeList.kind === 'picks' ? 'Editor’s pick' : 'Collection'}</p>
           <h1 className={x.listTitle}>{activeList.kind === 'picks' ? activeList.title : collectionTitle(activeList)}</h1>
         </div>
+        <ShareButton className={x.closeList} size={18} label="Share this checklist" content={() => checklistShare(activeList, personal)} />
         <button type="button" className={x.closeList} onClick={closeList} aria-label="Close this list">
           <Icon name="close" size={18} />
         </button>
@@ -340,6 +352,8 @@ export default function ExplorePage() {
             title={`3D view of Singapore around ${selected?.name ?? origin?.label ?? 'Marina Bay'}`}
             hideCards
             onCard={onCard3d}
+            you={you}
+            flyId={focusId}
           />
         ) : (
           <CityMap
@@ -352,7 +366,7 @@ export default function ExplorePage() {
             onSelect={select}
             focus={focus}
             circle={origin && !query ? { center: origin.point, radiusM: radius, label: `${radius / 1000} km around ${origin.label}` } : undefined}
-            you={fixUsable && location.fix && isPrecise(location.fix) ? location.fix : null}
+            you={you}
             labels={areasIn(COUNTRY).map((a) => ({ id: a.id, name: a.name.split(' & ')[0], location: a.center }))}
             onSettled={onSettled}
             onRecenter={() => setFocusId((n) => n + 1)}

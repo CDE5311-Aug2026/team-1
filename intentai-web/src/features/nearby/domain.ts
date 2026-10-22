@@ -62,6 +62,8 @@ export interface CuratedPlace {
   accessNotes?: { text: string; source: SourceReference };
   /** A dated award, e.g. MICHELIN Guide Bib Gourmand 2025, with the page that shows it. */
   recognition?: { label: string; year: number; source: SourceReference };
+  /** Practical details checked on the web (address, phone, website, hours, review pages), each with its source. */
+  details?: PlaceDetails;
   /** The landmark key in the EARTH ONLINE 3D page (opens its intro card there). */
   earthKey?: string;
   provenance: Provenance;
@@ -70,6 +72,18 @@ export interface CuratedPlace {
   editorialStatus: EditorialStatus;
   reviewedAt: string;
   reviewedBy: string;
+}
+
+/** Practical details like a maps app shows them. Only what a page confirmed; anything not found is left out. */
+export interface PlaceDetails {
+  address?: { text: string; postcode?: string; source: SourceReference };
+  phone?: { text: string; source: SourceReference };
+  website?: { url: string; source: SourceReference };
+  hours?: { text: string; source: SourceReference };
+  /** Pages where people (or a guide's inspectors) review the place. Links only: no copied reviews. */
+  reviews?: { title: string; url: string; publisher: string }[];
+  /** One sentence in the team's own words on what reviewers say, with the pages it comes from. */
+  reviewSummary?: { text: string; sources: SourceReference[] };
 }
 
 export interface Region {

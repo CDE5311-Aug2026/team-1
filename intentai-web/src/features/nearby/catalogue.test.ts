@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { loadCatalogue, validateCatalogue } from '../../../scripts/validate-explore.mjs';
 import { COLLECTIONS, PUBLISHED_PLACES, collectionProgress, collectionTitle, collectionsContaining, curatedPlace, members, placeByEarthKey } from './catalogue';
 import { DEFAULT_EXPLORE_PERSONAL, type ExploreCollection, type ExplorePersonalData } from './domain';
-import { directionsUrl, view3dTarget, view3dUrl } from './links';
+import { appleMapsUrl, directionsUrl, view3dTarget, view3dUrl } from './links';
 
 
 describe('the published catalogue', () => {
@@ -90,6 +90,44 @@ describe('collection progress', () => {
   test('membership lookup', () => {
     expect(collectionsContaining(m1.id).map((x) => x.id)).toEqual([c.id]);
     expect(collectionsContaining(nonMember.id)).toEqual([]);
+  });
+});
+
+describe('practical details', () => {
+  const src = { title: 'Page', url: 'https://example.sg/p', publisher: 'Example', checkedAt: '2026-10-22' };
+  test('every value needs its page; postcodes, phones, links only for reviews, and a short summary in our words', () => {
+    const data = loadCatalogue();
+    const [p] = data.places;
+    data.places = [
+      {
+        ...p,
+        details: {
+          address: { text: '1 Example Rd, Singapore 12345', postcode: '12345', source: src },
+          phone: { text: '6123 4567', source: src },
+          hours: { text: 'Daily 10:00–18:00', source: { ...src, url: '' } },
+          reviews: [{ title: 'x', url: 'https://www.google.com/maps/place/x', publisher: 'Google' }],
+          reviewSummary: { text: 'People say “amazing”.', sources: [] },
+          rating: 5,
+        },
+      },
+      ...data.places.slice(1),
+    ];
+    const errors = validateCatalogue(data).errors.join('\n');
+    for (const m of [/postcode must be 6 digits/, /phone must look like/, /details.hours needs a source page/, /no Google Maps review links/, /must not quote reviews/, /needs the pages it comes from/, /unknown details field rating/])
+      expect(errors).toMatch(m);
+  });
+
+  test('the catalogue has checked details for most places, each with an https or http page', () => {
+    const withDetails = loadCatalogue().places.filter((p: { details?: unknown }) => p.details);
+    expect(withDetails.length).toBeGreaterThan(100);
+  });
+
+  test('Apple Maps opens at the place with its name; nothing about the user', () => {
+    const url = new URL(appleMapsUrl(curatedPlace('curated:sg-merlion-park')!));
+    expect(url.origin).toBe('https://maps.apple.com');
+    expect(url.searchParams.get('q')).toBe('Merlion Park');
+    expect(url.searchParams.get('ll')).toMatch(/^1\.\d{6},103\.\d{6}$/);
+    expect([...url.searchParams.keys()].sort()).toEqual(['ll', 'q']);
   });
 });
 

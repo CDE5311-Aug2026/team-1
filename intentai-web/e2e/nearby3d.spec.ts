@@ -44,6 +44,16 @@ test('place detail → 3D: the area loads, the card opens, cards link back, leav
   expect(stats.tilesBuilt).toBeLessThanOrEqual(25);
   expect(stats.landmarks).toBeLessThan(stats.of);
 
+  // your position: none until the app sends it (by message, never in the address); then a blue dot, and gone again
+  expect(stats.you).toBeNull();
+  const youNow = () => frame.evaluate(() => (window as unknown as { SGLite: { stats(): { you: number[] | null } } }).SGLite.stats().you);
+  const sendYou = (at: number[] | null) =>
+    page.evaluate((a) => document.querySelector('iframe')!.contentWindow!.postMessage({ source: 'intentai', type: 'you', at: a, acc: 20 }, location.origin), at);
+  await sendYou([1.2868, 103.8545]);
+  await expect.poll(youNow, { timeout: 30_000 }).toEqual([expect.any(Number), expect.any(Number), 20]);
+  await sendYou(null);
+  await expect.poll(youNow, { timeout: 30_000 }).toBeNull();
+
   // another landmark's card inside 3D → a link to that place in Nearby
   await frame.evaluate(() => (window as unknown as { SGCard: { open(k: string): boolean } }).SGCard.open('fullerton'));
   // software WebGL keeps the 3D page busy: its messages can take a few seconds

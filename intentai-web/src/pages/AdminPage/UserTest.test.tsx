@@ -7,6 +7,7 @@ import { testerStore } from '../../data/stores';
 import { STORAGE_PREFIX } from '../../data/persistentStore';
 import type { UsageEvent } from '../../usage/event';
 import { appendLocalUsage, readLocalUsage, toExport } from '../../usage/localLog';
+import { GESTURE_EVENT } from '../../usage/gesture';
 import PageTracker from '../../usage/PageTracker';
 import { createTracker, type TrackerDeps } from '../../usage/tracker';
 import AdminPage from './AdminPage';
@@ -73,11 +74,14 @@ test("presses count on the page they happen on: a button by its name, a link by 
   fireEvent.click(screen.getByRole('button', { name: 'Practise: chope' }));
   fireEvent.click(screen.getByRole('link'));
   fireEvent.click(screen.getByRole('button', { name: 'Secret' }));
+  // a swipe is no click: the card pile sends it as a gesture with a fixed label
+  document.dispatchEvent(new CustomEvent(GESTURE_EVENT, { detail: 'Swipe card' }));
   t.flush();
   const taps = sent.filter((e) => e.kind === 'tap');
   expect(taps.map((e) => [e.name, e.ms, e.user])).toEqual([
     ['Moments › Practise chope', 0, 'P07'],
     ['Moments › to Nearby', 0, 'P07'],
+    ['Nearby › Swipe card', 0, 'P07'], // the link above moved to Nearby
   ]);
 });
 

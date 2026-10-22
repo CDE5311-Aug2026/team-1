@@ -61,6 +61,48 @@ function checkSource(src, where, errors) {
   }
 }
 
+const https = (url) => {
+  try {
+    return new URL(url).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+/** Practical details: every value with its page; Singapore postcodes and phone numbers; links only for reviews. */
+function checkDetails(d, at, errors) {
+  const known = ['address', 'phone', 'website', 'hours', 'reviews', 'reviewSummary'];
+  for (const k of Object.keys(d)) if (!known.includes(k)) errors.push(`${at}: unknown details field ${k}`);
+  for (const k of ['address', 'phone', 'website', 'hours']) {
+    if (d[k] === undefined) continue;
+    checkSource(d[k].source, `${at} details.${k}`, errors);
+    if (!d[k].source?.url) errors.push(`${at}: details.${k} needs a source page`);
+  }
+  if (d.address) {
+    if (!d.address.text) errors.push(`${at}: details.address needs text`);
+    if (d.address.postcode !== undefined && !/^\d{6}$/.test(d.address.postcode)) errors.push(`${at}: details.address.postcode must be 6 digits`);
+    if (d.address.postcode && !d.address.text.includes(d.address.postcode)) errors.push(`${at}: details.address text must include its postcode`);
+  }
+  if (d.phone && !/^\+65 \d{4} \d{4}$/.test(d.phone.text)) errors.push(`${at}: details.phone must look like +65 1234 5678`);
+  // some official sites still have no https
+  if (d.website && !/^https?:\/\//.test(d.website.url ?? '')) errors.push(`${at}: details.website must be an http(s) URL`);
+  if (d.hours && (!d.hours.text || d.hours.text.length > 160)) errors.push(`${at}: details.hours must be short text`);
+  if (d.reviews) {
+    if (!Array.isArray(d.reviews) || d.reviews.length > 3) errors.push(`${at}: details.reviews is up to 3 links`);
+    for (const r of d.reviews ?? []) {
+      if (!r.title || !r.publisher || !https(r.url)) errors.push(`${at}: each review link needs a title, publisher and https URL`);
+      if (/google\.[a-z.]+\/maps|maps\.google|goo\.gl/.test(r.url ?? '')) errors.push(`${at}: no Google Maps review links`);
+    }
+  }
+  if (d.reviewSummary) {
+    const t = d.reviewSummary.text ?? '';
+    if (!t || t.split(/\s+/).length > 32) errors.push(`${at}: details.reviewSummary is one short sentence (max 30 words)`);
+    if (/["“”]/.test(t)) errors.push(`${at}: details.reviewSummary must not quote reviews`);
+    if (!(d.reviewSummary.sources ?? []).length) errors.push(`${at}: details.reviewSummary needs the pages it comes from`);
+    for (const s of d.reviewSummary.sources ?? []) checkSource(s, `${at} details.reviewSummary`, errors);
+  }
+}
+
 /** Pure validation of an in-memory catalogue. Returns { errors, warnings, counts }. */
 export function validateCatalogue({ places, areas, regions, collections, outline, stats, thumbs, thumbExists }) {
   const errors = [];
@@ -119,6 +161,7 @@ export function validateCatalogue({ places, areas, regions, collections, outline
       checkSource(r.source, `${at} recognition`, errors);
       if (!r.source?.url) errors.push(`${at}: recognition needs a source page`);
     }
+    if (p.details) checkDetails(p.details, at, errors);
     if (p.languageTip && !CONTEXTS.includes(p.languageTip.context)) errors.push(`${at}: unknown language context`);
     if (p.image && !(p.image.license && p.image.attribution && p.image.sourceUrl)) errors.push(`${at}: an image needs license, attribution and source`);
     if (p.editorialStatus === 'published' && (!ISO_DATE.test(p.reviewedAt ?? '') || !p.reviewedBy)) errors.push(`${at}: published entries need reviewedAt and reviewedBy`);

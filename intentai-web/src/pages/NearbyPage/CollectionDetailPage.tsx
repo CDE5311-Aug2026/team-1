@@ -7,6 +7,8 @@ import { markVisited, stillReached, useExplorePersonal, type Milestone } from '.
 import { area as areaById, collection as collectionById, collectionProgress, collectionTitle, isDraft, members, regionsIn } from '../../features/nearby/catalogue';
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import PlaceCard from '../../features/nearby/components/PlaceCard';
+import ShareButton from '../../features/nearby/components/ShareButton';
+import { checklistShare } from '../../features/nearby/share';
 import { Icon as NearbyIcon } from '../../features/nearby/components/icons';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { CATEGORY_INFO } from '../../features/nearby/domain';
@@ -76,7 +78,11 @@ export default function CollectionDetailPage() {
   return (
     <AppShell background="var(--bg-screen-b)" chrome="status">
       <div className={styles.screen}>
-        <BackHeader title={title} fallback={paths.collections} />
+        <BackHeader
+          title={title}
+          fallback={paths.collections}
+          action={<ShareButton className={styles.headerButton} label="Share this checklist" content={() => checklistShare(c, personal)} />}
+        />
         <StorageWarning />
         <p className={styles.body}>
           <strong>

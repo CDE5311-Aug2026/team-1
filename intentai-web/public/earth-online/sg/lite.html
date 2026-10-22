@@ -52539,6 +52539,32 @@ function litePin(x, y){
   }
   LITE.pinMesh.position.set(x, Math.max(0, hC(x, y)) + 2, -y); LITE.pinMesh.visible = true;
 }
+// "You are here": a blue dot that keeps its size on screen and shows through buildings, a soft circle on the ground
+// for the accuracy, and a slow pulse (none with #still=1). The position only arrives by message from the embedding
+// page (never in the address) and lives in memory; {type:'you', at:null} removes it.
+function liteYou(at, acc){
+  if (!at){ if (LITE.youMesh) LITE.youMesh.visible = false; LITE.you = null; return; }
+  const [x, y] = LITE.xy(at[0], at[1]); LITE.you = {x, y, acc:Math.min(500, Math.max(12, isFinite(acc) ? acc : 30))};
+  if (!LITE.youMesh){
+    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+    g.fillStyle = 'rgba(30,110,230,0.22)'; g.beginPath(); g.arc(64, 64, 62, 0, 7); g.fill();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(64, 64, 30, 0, 7); g.fill();
+    g.fillStyle = '#1e6ee6'; g.beginPath(); g.arc(64, 64, 22, 0, 7); g.fill();
+    const tex = new THREE.CanvasTexture(c);
+    const dot = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, depthTest:false, depthWrite:false, sizeAttenuation:false, transparent:true}));
+    dot.scale.set(0.075, 0.075, 1); dot.renderOrder = 12;
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({color:0x1e6ee6, transparent:true, opacity:0.16, depthWrite:false, side:THREE.DoubleSide}));
+    disc.rotation.x = -Math.PI/2; disc.renderOrder = 8;
+    const grp = new THREE.Group(); grp.add(disc, dot); scene.add(grp);
+    LITE.youMesh = grp; LITE.youDot = dot; LITE.youDisc = disc;
+    let t = 0;
+    setInterval(() => { const Y = LITE.you; if (!Y || !LITE.youMesh.visible) return; t += 0.05;
+      const gy = Math.max(0, hC(Y.x, Y.y)); LITE.youMesh.position.set(Y.x, gy + 1.2, -Y.y); LITE.youDot.position.y = 6;
+      const s = LITE.still ? 1 : 1 + 0.12*Math.sin(t*3); LITE.youDisc.scale.set(Y.acc*s, Y.acc*s, 1); }, 50);
+  }
+  LITE.youMesh.position.set(x, Math.max(0, hC(x, y)) + 1.2, -y); LITE.youDot.position.y = 6;
+  LITE.youDisc.scale.set(LITE.you.acc, LITE.you.acc, 1); LITE.youMesh.visible = true;
+}
 function liteLook(x, y){
   const g = Math.max(0, hC(x, y)) + 4, to = new THREE.Vector3(x + 420, g + 560, -y + 760), tt = new THREE.Vector3(x, g, -y);
   if (LITE.still || typeof flyTo !== 'function'){ controls.target.copy(tt); camera.position.copy(to); } else flyTo(to, tt, 1200);
@@ -52548,7 +52574,14 @@ function litePost(m){ try { if (parent !== window) parent.postMessage(Object.ass
 // the embedding page can move the view to another place: {source:'intentai', type:'show', at:[lat, lng], card?:key}.
 // Within reach of the loaded area the camera moves there; farther away the page reloads around the new point.
 addEventListener('message', e => {
-  const d = e.data; if (e.source !== parent || !d || d.source !== 'intentai' || d.type !== 'show' || !LITE.ready) return;
+  const d0 = e.data; if (e.source !== parent || !d0 || d0.source !== 'intentai') return;
+  if (d0.type === 'you'){
+    if (d0.at === null) return liteYou(null);
+    if (Array.isArray(d0.at) && d0.at.length === 2 && d0.at.every(v => typeof v === 'number' && isFinite(v)) && Math.abs(d0.at[0] - 1.315) < 0.3 && Math.abs(d0.at[1] - 103.845) < 0.3)
+      liteYou(d0.at, typeof d0.acc === 'number' ? d0.acc : NaN);
+    return;
+  }
+  const d = d0; if (d.type !== 'show' || !LITE.ready) return;
   if (!Array.isArray(d.at) || d.at.length !== 2 || !d.at.every(v => typeof v === 'number' && isFinite(v))) return;
   const card = typeof d.card === 'string' && /^[A-Za-z0-9_:\- ]{1,80}$/.test(d.card) ? d.card : null, p = LITE.xy(d.at[0], d.at[1]);
   if (Math.abs(d.at[0] - 1.315) > 0.3 || Math.abs(d.at[1] - 103.845) > 0.3) return;
@@ -52567,7 +52600,8 @@ window.SGLite = {
     const m = renderer.info.memory, r = renderer.info.render;
     return {prune:LITE.prune, focus:LITE.focus.map(Math.round), mob:LITE.mob, tex:SGR_TEX, dpr:renderer.getPixelRatio(), tilesBuilt:built, tilesLive:live, queue:SGR.queue.length, freed:LITE.freed,
       landmarks:landmarks.length, of:LITE.allPlaces, sites:sgSites.length, labels:labelItems.length, geometries:m.geometries, textures:m.textures, calls:r.calls, tris:r.triangles,
-      target:[Math.round(controls.target.x), Math.round(-controls.target.z)], cam:Math.round(camera.position.distanceTo(controls.target))}; },
+      target:[Math.round(controls.target.x), Math.round(-controls.target.z)], cam:Math.round(camera.position.distanceTo(controls.target)),
+      you:LITE.you && LITE.youMesh && LITE.youMesh.visible ? [Math.round(LITE.you.x), Math.round(LITE.you.y), Math.round(LITE.you.acc)] : null}; },
   mem(){
     const seen = new Set(), seenO = new Set(), MB = b => Math.round(b/1048576*10)/10;
     const walk = (o, d) => { if (!o || typeof o !== 'object' || seenO.has(o) || d > 9) return 0; seenO.add(o);

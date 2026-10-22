@@ -161,7 +161,7 @@ describe('Explore', () => {
     expect(screen.getByTestId('where')).toHaveTextContent(/^\/nearby\?.*info=1/);
     expect(within(sheet).getByRole('button', { name: 'Hide details: Merlion Park' })).toHaveAttribute('aria-expanded', 'true');
     expect(within(sheet).getByRole('heading', { name: 'About' })).toBeInTheDocument();
-    expect(within(sheet).getByRole('heading', { name: 'Fun facts' })).toBeInTheDocument();
+    expect(within(sheet).getByRole('heading', { name: 'Culture & language' })).toBeInTheDocument();
     expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
     await userEvent.click(within(sheet).getByRole('button', { name: 'Check in' }));
     expect(stateOf(explorePersonalStore.get(), 'curated:sg-merlion-park')).toMatchObject({ visited: true });
@@ -237,16 +237,42 @@ describe('Location page', () => {
 describe('Place detail', () => {
   const key = 'curated:sg-maxwell-food-centre';
 
-  test('shows sourced facts with dates and sources, practical actions and membership', () => {
+  test('shows sourced facts with dates and sources, practical actions and membership', async () => {
     renderAt(`/nearby/place/${key}`);
     expect(screen.getByRole('heading', { level: 1, name: 'Maxwell Food Centre' })).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: /Maxwell Road Food Centre/ })[0]).toHaveAttribute('href', expect.stringMatching(/^https:\/\/www\.roots\.gov\.sg\//));
+    // the cards: a phrase on top; the fact (with its sources) is the next card
+    const cards = screen.getByRole('group', { name: 'Culture and language cards for Maxwell Food Centre' });
+    expect(within(cards).getByText('Chope')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Maxwell Road Food Centre/ })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Next card' }));
+    expect((await screen.findAllByRole('link', { name: /Maxwell Road Food Centre/ }))[0]).toHaveAttribute('href', expect.stringMatching(/^https:\/\/www\.roots\.gov\.sg\//));
     expect(screen.getByText(/Last reviewed 2026-10-20/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Directions/ })).toHaveAttribute('href', expect.stringContaining('destination=1.2'));
     expect(screen.getByRole('link', { name: /Directions/ }).getAttribute('href')).not.toContain('origin');
     expect(screen.queryByRole('link', { name: /View in 3D/ })).toBeNull();
     expect(screen.getByRole('button', { name: '3D' })).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getByRole('heading', { name: 'What you might hear here' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Culture & language' })).toBeInTheDocument();
+  });
+
+  test('practical details: hours, address, phone, website, Apple Maps and what people say, each with its page', () => {
+    renderAt('/nearby/place/curated:sg-summer-pavilion');
+    const details = screen.getByRole('region', { name: 'Details' });
+    expect(details).toHaveTextContent('Daily 11:30–14:30, 18:30–22:30');
+    expect(details).toHaveTextContent('7 Raffles Avenue, Singapore 039799');
+    expect(within(details).getByRole('link', { name: '+65 6434 5286' })).toHaveAttribute('href', 'tel:+6564345286');
+    expect(within(details).getByRole('link', { name: /summerpavilion\.com\.sg/ })).toHaveAttribute('href', 'https://www.summerpavilion.com.sg');
+    expect(within(details).getByRole('link', { name: /Open in Apple Maps/ }).getAttribute('href')).toMatch(/^https:\/\/maps\.apple\.com\/\?ll=1\.\d+%2C103\.\d+&q=Summer\+Pavilion$/);
+    expect(within(details).getByRole('link', { name: /MICHELIN Guide: .* \(opens the site\)/ })).toHaveAttribute('href', expect.stringContaining('guide.michelin.com'));
+    expect(details).toHaveTextContent(/MICHELIN inspectors praise/);
+    // the same page for four details is one source line
+    expect(within(details).getAllByText((_, el) => el?.tagName === 'P' && /^Hours, Address, Phone, Website, What people say: Summer Pavilion/.test(el.textContent ?? ''))).toHaveLength(1);
+  });
+
+  test('a place with nothing confirmed still gets Apple Maps, and no empty rows', () => {
+    renderAt('/nearby/place/curated:sg-helix-bridge');
+    const details = screen.getByRole('region', { name: 'Details' });
+    expect(within(details).getAllByRole('listitem')).toHaveLength(1);
+    expect(within(details).getByRole('link', { name: /Open in Apple Maps/ })).toBeInTheDocument();
   });
 
   test('a dataset-only place says it has no sourced facts instead of inventing one', () => {

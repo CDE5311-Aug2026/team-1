@@ -21,6 +21,10 @@ export interface View3DProps {
   hideCards?: boolean;
   /** Fill the parent box with no frame, hint or full-screen button (Explore's full-screen map). */
   bleed?: boolean;
+  /** Your position (only when you asked for it): a blue dot in the 3D view. Sent by message, never in the address. */
+  you?: { lat: number; lng: number; accuracyM?: number } | null;
+  /** Changes when the view should go to the target again, even the same one ("My location" after panning away). */
+  flyId?: number;
 }
 
 type LiteMessage = { source: 'earth-online-lite'; type: 'ready' } | { source: 'earth-online-lite'; type: 'card'; key: string | null; title?: string | null };
@@ -41,7 +45,7 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false }: View3DProps) {
+export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0 }: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
@@ -58,11 +62,30 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
   const [expanded, setExpanded] = useState(false);
   const onCardRef = useRef(onCard);
   onCardRef.current = onCard;
+  const youRef = useRef(you);
+  youRef.current = you;
+  // a dot was sent to this page (so "no position" has something to remove)
+  const youSent = useRef<string | null>(null);
+  const postYou = () => {
+    const y = youRef.current;
+    const k = y ? `${y.lat},${y.lng},${y.accuracyM ?? ''}` : null;
+    if (k === youSent.current) return; // nothing new (and no dot to remove)
+    youSent.current = k;
+    frame.current?.contentWindow?.postMessage(
+      { source: 'intentai', type: 'you', at: y ? [y.lat, y.lng] : null, acc: y?.accuracyM },
+      earthOnline3dOrigin(),
+    );
+  };
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (!frame.current || e.source !== frame.current.contentWindow || !isLiteMessage(e.data)) return;
-      if (e.data.type === 'ready') setReady(true);
+      // the 3D page reloads around a far point and comes back with a new 'ready': your dot goes again each time
+      if (e.data.type === 'ready') {
+        setReady(true);
+        youSent.current = null; // a (re)loaded page has no dot yet
+        postYou();
+      }
       else {
         openCard.current = e.data.key;
         onCardRef.current?.(e.data.key, typeof e.data.title === 'string' ? e.data.title : null);
@@ -78,18 +101,31 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     return () => window.clearTimeout(t);
   }, [ready]);
 
+  // Your dot moves (or goes) with the position.
+  const youKey = you ? `${you.lat.toFixed(5)},${you.lng.toFixed(5)}:${Math.round(you.accuracyM ?? 0)}` : '';
+  useEffect(() => {
+    if (ready) postYou();
+    // you is read through youKey
+  }, [ready, youKey]);
+
   // A new place while the view is open: the 3D page moves its camera there (or reloads around a far point).
   const targetKey = keyOf(target);
+  const flown = useRef(flyId);
+  const lastShow = useRef(-Infinity);
   useEffect(() => {
-    if (!ready || targetKey === shown.current) return;
+    // "again" right after a move to a new target is the same request: one flight, not two
+    const again = flyId !== flown.current && performance.now() - lastShow.current > 800;
+    flown.current = flyId;
+    if (!ready || (targetKey === shown.current && !again)) return;
     shown.current = targetKey;
+    lastShow.current = performance.now();
     if (target.card && target.card === openCard.current) return;
     frame.current?.contentWindow?.postMessage(
       { source: 'intentai', type: 'show', at: [target.at.lat, target.at.lng], card: target.card, pin: target.pin ?? !target.card },
       earthOnline3dOrigin(),
     );
     // target is read through targetKey
-  }, [ready, targetKey]);
+  }, [ready, targetKey, flyId]);
 
   // Full screen: fixed over the app (iframes cannot use the Fullscreen API on iPhone). Esc or the button leaves it.
   useEffect(() => {

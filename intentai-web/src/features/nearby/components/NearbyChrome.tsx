@@ -1,10 +1,12 @@
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import backChevron from '../../../assets/nearby/back-chevron.svg';
 import { isPersisting } from '../actions';
 import styles from './Nearby.module.css';
 
 /** Back button + title for detail screens. Back restores the previous exploration state (history). */
-export function BackHeader({ title, fallback }: { title: string; fallback: string }) {
+/** Back, the page title, and an optional action on the right (Share). */
+export function BackHeader({ title, fallback, action }: { title: string; fallback: string; action?: ReactNode }) {
   const navigate = useNavigate();
   const back = () => {
     const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
@@ -17,6 +19,7 @@ export function BackHeader({ title, fallback }: { title: string; fallback: strin
         <img src={backChevron} alt="" width={16} height={16} />
       </button>
       <h1 className={styles.detailTitle}>{title}</h1>
+      {action && <span className={styles.headerAction}>{action}</span>}
     </header>
   );
 }

@@ -36,12 +36,22 @@ test('principal journey: area → editor pick → food centre → details in the
   await expect(page).toHaveURL(/info=1/);
   await expect(page.getByRole('button', { name: 'Hide details: Maxwell Food Centre' })).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByRole('application', { name: /Map of Singapore places/ })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Fun facts' })).toBeVisible();
-  // sources fold away under the first fact, one tap to open
+  // culture & language cards: a phrase on top; swipe it away for a fact, whose sources fold inside the card
+  await expect(page.getByRole('heading', { name: 'Culture & language' })).toBeVisible();
+  const cards = page.getByRole('group', { name: 'Culture and language cards for Maxwell Food Centre' });
+  await cards.scrollIntoViewIfNeeded();
+  await expect(cards.locator('[data-top]')).toContainText('Chope');
+  const top = (await cards.locator('[data-top]').boundingBox())!;
+  await page.mouse.move(top.x + top.width / 2, top.y + 30);
+  await page.mouse.down();
+  for (let i = 1; i <= 8; i++) await page.mouse.move(top.x + top.width / 2 - i * 25, top.y + 32);
+  await page.mouse.up();
+  await expect(cards.locator('[data-top]')).toContainText('Culture');
   await expect(page.getByRole('link', { name: 'Maxwell Road Food Centre' })).toHaveCount(0);
-  await page.getByText(/more · Sources$/).click();
+  await cards.locator('[data-top] summary').click();
   await expect(page.getByRole('link', { name: 'Maxwell Road Food Centre' }).first()).toHaveAttribute('href', /roots\.gov\.sg/);
-  await expect(page.getByRole('heading', { name: 'What you might hear here' })).toBeVisible();
+  // practical details, like a maps app
+  await expect(page.getByRole('region', { name: 'Details' }).getByRole('link', { name: /Open in Apple Maps/ })).toHaveAttribute('href', /^https:\/\/maps\.apple\.com\//);
   const directions = page.getByRole('link', { name: /Directions/ });
   await expect(directions).toHaveAttribute('href', /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=1\.28/);
   expect(await directions.getAttribute('href')).not.toContain('origin');

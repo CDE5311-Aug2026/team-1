@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { tracker as appTracker } from './appTracker';
+import { GESTURE_EVENT } from './gesture';
 import { pageNameFor } from './names';
 import type { Tracker } from './tracker';
 
@@ -42,9 +43,18 @@ export default function PageTracker({ t = appTracker }: { t?: Tracker }) {
       const label = tapLabel(el);
       if (label) t.tap(`${page.current} › ${label}`);
     };
+    const onGesture = (e: Event) => {
+      const raw = (e as CustomEvent<unknown>).detail;
+      const label = typeof raw === 'string' ? raw.replace(LABEL_CHARS, '').trim().slice(0, 36) : '';
+      if (label && page.current) t.tap(`${page.current} › ${label}`);
+    };
     // capture: the press counts on the page it happened on, before a link moves away
     document.addEventListener('click', onClick, true);
-    return () => document.removeEventListener('click', onClick, true);
+    document.addEventListener(GESTURE_EVENT, onGesture);
+    return () => {
+      document.removeEventListener('click', onClick, true);
+      document.removeEventListener(GESTURE_EVENT, onGesture);
+    };
   }, [t]);
   return null;
 }

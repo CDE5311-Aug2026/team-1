@@ -71,6 +71,31 @@ describe('Explore in 3D', () => {
     expect(f.getAttribute('src')).toContain('card=merlion');
   });
 
+  test('My location in 3D: the view goes to you and shows your blue dot (by message only), again after the page reloads', async () => {
+    const getCurrentPosition = vi.fn((ok: PositionCallback) =>
+      ok({ coords: { latitude: 1.2803, longitude: 103.8447, accuracy: 15 }, timestamp: 1 } as unknown as GeolocationPosition),
+    );
+    Object.defineProperty(navigator, 'geolocation', { value: { getCurrentPosition }, configurable: true });
+    renderAt('/nearby?view=3d&sel=curated%3Asg-merlion-park');
+    const f = frame()!;
+    const post = vi.spyOn(f.contentWindow!, 'postMessage');
+    fromFrame({ source: 'earth-online-lite', type: 'ready' });
+    expect(post).not.toHaveBeenCalled(); // no position asked for: nothing about you is sent
+    await userEvent.click(screen.getByRole('button', { name: 'My location' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await screen.findByRole('button', { name: /Near you/ });
+    // the selected place steps aside and the view flies to you, without a pin (the dot marks you)
+    expect(screen.getByTestId('where')).not.toHaveTextContent('sel=');
+    const msgs = post.mock.calls.map(([m]) => m as { type: string; at: number[] | null; pin?: boolean; acc?: number });
+    expect(msgs).toContainEqual(expect.objectContaining({ type: 'you', at: [1.2803, 103.8447], acc: 15 }));
+    expect(msgs).toContainEqual(expect.objectContaining({ type: 'show', at: [1.2803, 103.8447], pin: false }));
+    expect(f.getAttribute('src')).not.toContain('1.2803');
+    // a reload around a far point says 'ready' again: the dot is sent again
+    post.mockClear();
+    fromFrame({ source: 'earth-online-lite', type: 'ready' });
+    expect(post.mock.calls.map(([m]) => (m as { type: string }).type)).toEqual(['you']);
+  });
+
   test('a landmark tapped in 3D selects that place in the sheet; messages from anywhere else are ignored', () => {
     renderAt('/nearby?view=3d');
     // Explore shows the place in its own sheet, so the 3D page's card sheet is hidden
