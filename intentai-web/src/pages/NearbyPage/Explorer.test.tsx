@@ -269,7 +269,7 @@ describe('Place detail', () => {
   });
 
   test('a place with nothing confirmed still gets Apple Maps, and no empty rows', () => {
-    renderAt('/nearby/place/curated:sg-helix-bridge');
+    renderAt('/nearby/place/curated:sg-coleman-bridge');
     const details = screen.getByRole('region', { name: 'Details' });
     expect(within(details).getAllByRole('listitem')).toHaveLength(1);
     expect(within(details).getByRole('link', { name: /Open in Apple Maps/ })).toBeInTheDocument();

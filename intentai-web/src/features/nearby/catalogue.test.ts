@@ -119,7 +119,7 @@ describe('practical details', () => {
 
   test('the catalogue has checked details for most places, each with an https or http page', () => {
     const withDetails = loadCatalogue().places.filter((p: { details?: unknown }) => p.details);
-    expect(withDetails.length).toBeGreaterThan(100);
+    expect(withDetails.length).toBeGreaterThan(140);
   });
 
   test('Apple Maps opens at the place with its name; nothing about the user', () => {
