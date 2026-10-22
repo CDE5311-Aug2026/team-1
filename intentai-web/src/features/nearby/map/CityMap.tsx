@@ -111,6 +111,14 @@ const KEY_PAN_PX = 60;
 /** Pins closer than this merge, so 30–34 px targets never overlap (WCAG 2.5.8). */
 const CLUSTER_PX = 38;
 const SETTLE_MS = 400;
+const GLIDE_MS = 480;
+function prefersReducedMotion(): boolean {
+  try {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
 const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
 
 /* ---------- road layers (EARTH ONLINE sg_roads, simplified; loaded on demand) ---------- */
@@ -280,17 +288,54 @@ export default function CityMap({
   // Insets change as the sheet moves; only a new focus (or a new map size) recentres, read through a ref.
   const free = useRef({ freeH, freeW, lift, slide });
   free.current = { freeH, freeW, lift, slide };
+  // A new focus after the first one glides there (a short flight: pan and zoom together), unless motion is reduced.
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  const anim = useRef<number | null>(null);
+  const focused = useRef(false);
+  const stopGlide = () => {
+    if (anim.current !== null) cancelAnimationFrame(anim.current);
+    anim.current = null;
+  };
+  const glide = (to: Pick<View, 'center' | 'scale'>, instant = false) => {
+    stopGlide();
+    const from = viewRef.current;
+    const first = !focused.current;
+    focused.current = true;
+    if (first || instant || IS_JSDOM || prefersReducedMotion() || typeof requestAnimationFrame === 'undefined') {
+      viewRef.current = to; // effects later in this commit start from here
+      setView(to);
+      return;
+    }
+    const t0 = performance.now();
+    const step = (t: number) => {
+      const k = Math.min(1, (t - t0) / GLIDE_MS);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      setView({
+        center: { x: from.center.x + (to.center.x - from.center.x) * e, y: from.center.y + (to.center.y - from.center.y) * e },
+        scale: from.scale * Math.pow(to.scale / from.scale, e),
+      });
+      anim.current = k < 1 ? requestAnimationFrame(step) : null;
+    };
+    anim.current = requestAnimationFrame(step);
+  };
+  useEffect(() => stopGlide, []);
+  const lastFocusId = useRef(focus.id);
   useEffect(() => {
     const { freeH, freeW, lift, slide } = free.current;
     const shift = (c: XY, scale: number): XY => ({ x: c.x - slide / scale, y: c.y - lift / scale });
+    // a new size (the map's first layout, a rotated phone) re-applies the focus at once; a new focus glides
+    const instant = focus.id === lastFocusId.current;
+    lastFocusId.current = focus.id;
     if (focus.center && focus.radiusM) {
       const scale = scaleForRadius(focus.radiusM, freeW, freeH);
-      setView({ center: shift(toXY(focus.center), scale), scale });
+      glide({ center: shift(toXY(focus.center), scale), scale }, instant);
     } else if (focus.points && focus.points.length) {
       const fitted = fitView(focus.points.map(toXY), freeW, freeH, 24);
-      setView({ center: shift(fitted.center, fitted.scale), scale: fitted.scale });
+      glide({ center: shift(fitted.center, fitted.scale), scale: fitted.scale }, instant);
     } else if (focus.center) {
-      setView((v) => ({ ...v, center: shift(toXY(focus.center as LatLng), v.scale) }));
+      const v = viewRef.current;
+      glide({ ...v, center: shift(toXY(focus.center as LatLng), v.scale) }, instant);
     }
     // Re-run only when a new focus is requested or the size changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -315,7 +360,7 @@ export default function CityMap({
     if (!pin) return;
     const s = toScreen(toXY(pin.location), fullView);
     if (s.x < insetLeft + 20 || s.x > width - insetRight - 20 || s.y < insetTop + 20 || s.y > height - insetBottom - 20)
-      setView((v) => ({ ...v, center: { x: toXY(pin.location).x - slide / v.scale, y: toXY(pin.location).y - lift / v.scale } }));
+      glide({ ...viewRef.current, center: { x: toXY(pin.location).x - slide / viewRef.current.scale, y: toXY(pin.location).y - lift / viewRef.current.scale } });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey]);
 
@@ -391,6 +436,7 @@ export default function CityMap({
   );
 
   const update = (next: Pick<View, 'center' | 'scale'>, user = true) => {
+    stopGlide();
     const clamped = { center: clampCenter(next.center), scale: clampScale(next.scale) };
     setView(clamped);
     if (user) settle(clamped);
@@ -410,6 +456,7 @@ export default function CityMap({
   };
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    stopGlide(); // the user takes over
     // A press on a pin can still become a drag; capture starts only once it moves (so taps stay clicks).
     pointers.current.set(e.pointerId, local(e));
     const pts = [...pointers.current.values()];

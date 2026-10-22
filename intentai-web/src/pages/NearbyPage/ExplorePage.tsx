@@ -134,7 +134,11 @@ export default function ExplorePage() {
   // `carry` holds that view for one focus id; any later focus (recenter, search, a list, My location) replaces it.
   const view2d = useRef<{ center: LatLng; radiusM: number } | null>(null);
   const view3d = useRef<{ center: LatLng; radiusM: number } | null>(null);
-  const [carry, setCarry] = useState<{ id: number; to: '3d' | 'map'; center: LatLng; radiusM: number } | null>(null);
+  // Explore opened on a place (a link from Today, a list, a shared place, Back from its page) opens on that place.
+  const [carry, setCarry] = useState<{ id: number; to: '3d' | 'map'; center: LatLng; radiusM: number } | null>(() => {
+    const p = curatedPlace(params.get('sel') ?? '');
+    return p ? { id: 1, to: params.get('view') === '3d' ? '3d' : 'map', center: p.coordinates, radiusM: JUMP_RADIUS_M } : null;
+  });
   const [prevView, setPrevView] = useState(view);
   if (prevView !== view) {
     setPrevView(view);
@@ -241,7 +245,7 @@ export default function ExplorePage() {
   };
   // A list row or the selected card: select the place and go to it on the map, close enough to see the street
   // (in 3D the view flies there). The sheet stays at half, and the map keeps the pin above it.
-  const jumpedAt = useRef(-Infinity);
+  const jumpedAt = useRef(carry && carry.id === 1 ? performance.now() : -Infinity);
   const jumpTo = (key: string) => {
     const it = pins.find((p) => p.key === key) ?? (curatedPlace(key) ? { location: curatedPlace(key)!.coordinates } : undefined);
     patch({ sel: key, info: key === selectedKey ? params.get('info') : null, view: view === 'list' ? null : params.get('view') }, true);
@@ -251,7 +255,8 @@ export default function ExplorePage() {
     setPendingCenter(null);
     const id = focusId + 1;
     setFocusId(id);
-    setCarry({ id, to: view === '3d' ? '3d' : 'map', center: it.location, radiusM: JUMP_RADIUS_M });
+    // never zooms out: closer than a street block already, the zoom stays
+    setCarry({ id, to: view === '3d' ? '3d' : 'map', center: it.location, radiusM: Math.min(JUMP_RADIUS_M, view2d.current?.radiusM ?? JUMP_RADIUS_M) });
   };
   const setDetent = (d: Detent) => {
     if (d === 'full') patch({ view: 'list' });
@@ -477,7 +482,7 @@ export default function ExplorePage() {
             label="Map of Singapore places. Every place on it is also in the list."
             pins={pins}
             selectedKey={selectedKey ?? undefined}
-            onSelect={select}
+            onSelect={jumpTo}
             focus={focus}
             circle={origin && !query ? { center: origin.point, radiusM: radius, label: `${radius / 1000} km around ${origin.label}` } : undefined}
             you={you}

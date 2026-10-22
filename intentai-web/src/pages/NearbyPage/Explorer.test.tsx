@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, expect, test, vi } from 'vitest';
@@ -170,11 +170,16 @@ describe('Explore', () => {
   test('a tap on the selected card (or its picture) goes to the place on the map, close up', async () => {
     renderAt('/nearby?sel=curated%3Asg-merlion-park');
     const map = screen.getByRole('application', { name: /Map of Singapore places/ });
+    // opened on the place: its street block; zoomed out and panned away, a tap on the picture goes back there
+    const close = Number(map.getAttribute('data-scale'));
+    for (let i = 0; i < 4; i++) await userEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
+    fireEvent.keyDown(map, { key: 'ArrowLeft' });
     const before = Number(map.getAttribute('data-scale'));
+    expect(before).toBeLessThan(close / 4);
     const sheet = screen.getByRole('region', { name: 'Selected place' });
     await userEvent.click(within(sheet).getByRole('button', { name: 'Show Merlion Park on the map' }));
     const after = Number(map.getAttribute('data-scale'));
-    expect(after).toBeGreaterThan(before * 4);
+    expect(after).toBeCloseTo(close, 4);
     // the card's own buttons keep their job: Check in does not move the map
     await userEvent.click(within(sheet).getByRole('button', { name: 'Check in' }));
     expect(Number(map.getAttribute('data-scale'))).toBe(after);
@@ -183,6 +188,15 @@ describe('Explore', () => {
     expect(Number(map.getAttribute('data-scale'))).toBeLessThan(after);
     await userEvent.click(within(sheet).getByText('Merlion Park'));
     expect(Number(map.getAttribute('data-scale'))).toBe(after);
+  });
+
+  test('Explore opened on a place (a link, Back from its page) opens the map on that place, not all of Singapore', () => {
+    renderAt('/nearby?sel=curated%3Asg-merlion-park');
+    const zoomed = Number(screen.getByRole('application', { name: /Map of Singapore places/ }).getAttribute('data-scale'));
+    cleanup();
+    renderAt('/nearby');
+    const overview = Number(screen.getByRole('application', { name: /Map of Singapore places/ }).getAttribute('data-scale'));
+    expect(zoomed).toBeGreaterThan(overview * 4);
   });
 
   test('View details unfolds the place under its card in the sheet (Explore stays); check in works there', async () => {
@@ -199,8 +213,8 @@ describe('Explore', () => {
     await userEvent.click(within(sheet).getByRole('button', { name: 'Check in' }));
     expect(stateOf(explorePersonalStore.get(), 'curated:sg-merlion-park')).toMatchObject({ visited: true });
     expect(within(sheet).getByRole('link', { name: 'Open as a page' })).toHaveAttribute('href', '/nearby/place/curated%3Asg-merlion-park');
-    // another place folds the details
-    await userEvent.click(document.querySelector<HTMLButtonElement>('[data-pin]:not([data-pin="curated:sg-merlion-park"])')!);
+    // another place (opened on Merlion Park, the map shows its street block: the list has the others) folds the details
+    await userEvent.click(screen.getAllByRole('button', { name: /^(?!Merlion Park$).+/ }).find((b) => b.getAttribute('aria-pressed') === 'false' && b.closest('h3'))!);
     expect(screen.getByTestId('where')).not.toHaveTextContent('info=1');
   });
 
