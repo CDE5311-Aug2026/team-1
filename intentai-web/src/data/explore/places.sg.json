@@ -633,7 +633,27 @@
     "provenance": "earth-online+researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)"
+    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)",
+    "details": {
+      "reviews": [
+        {
+          "title": "Cavenagh Bridge - All You SHOULD Know Before Going (2026 Reviews)",
+          "url": "https://www.tripadvisor.com/--d591456.html",
+          "publisher": "Tripadvisor"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Visitors like the old ironwork and river and skyline views, especially lit up at night, but note it is a quick, small stop with busy foot traffic.",
+        "sources": [
+          {
+            "title": "Cavenagh Bridge - All You SHOULD Know Before Going (2026 Reviews)",
+            "url": "https://www.tripadvisor.com/--d591456.html",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-civilian-war-memorial",
@@ -1054,7 +1074,16 @@
     "provenance": "earth-online+researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)"
+    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)",
+    "details": {
+      "reviews": [
+        {
+          "title": "Helix Bridge | Colonial District, the Quays & Marina Bay, Singapore | Attractions - Lonely Planet",
+          "url": "https://www.lonelyplanet.com/points-of-interest/helix-bridge/1480905",
+          "publisher": "Lonely Planet"
+        }
+      ]
+    }
   },
   {
     "id": "curated:sg-lau-pa-sat",
@@ -3642,7 +3671,35 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "1 Wallich Street, Singapore 078881",
+        "postcode": "078881",
+        "source": {
+          "title": "Guoco Tower - Home",
+          "url": "https://www.guocotower.com/",
+          "publisher": "Guoco Tower (GuocoLand)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.guocotower.com/",
+        "source": {
+          "title": "Guoco Tower - Home",
+          "url": "https://www.guocotower.com/",
+          "publisher": "Guoco Tower (GuocoLand)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "ULI Global Awards for Excellence: Guoco Tower (Singapore) - Urban Land Magazine",
+          "url": "https://urbanland.uli.org/planning-design/uli-global-awards-for-excellence-guoco-tower-e2-80-a2-singapore",
+          "publisher": "Urban Land Institute"
+        }
+      ]
+    }
   },
   {
     "id": "curated:sg-jinrikisha-station",
@@ -5721,7 +5778,60 @@
     "provenance": "earth-online+researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)"
+    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "4001 Beach Road, Singapore 199584",
+        "postcode": "199584",
+        "source": {
+          "title": "Masjid Hajjah Fatimah",
+          "url": "https://www.masjidhajjahfatimah.sg/",
+          "publisher": "Masjid Hajjah Fatimah",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 8079 7089",
+        "source": {
+          "title": "Masjid Hajjah Fatimah",
+          "url": "https://www.masjidhajjahfatimah.sg/",
+          "publisher": "Masjid Hajjah Fatimah",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.masjidhajjahfatimah.sg/",
+        "source": {
+          "title": "Hajjah Fatimah | Majlis Ugama Islam Singapura",
+          "url": "https://www.muis.gov.sg/mosque/Our-Mosques/Mosque-Directory/Hjh-Fatimah",
+          "publisher": "Majlis Ugama Islam Singapura (MUIS)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Hajjah Fatimah Mosque, Singapore",
+          "url": "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d338358-Reviews-Hajjah_Fatimah_Mosque-Singapore.html",
+          "publisher": "Tripadvisor"
+        },
+        {
+          "title": "Hajjah Fatimah Mosque",
+          "url": "https://timeout.com/singapore/things-to-do/hajjah-fatimah-mosque",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Visitors find it quiet and welcoming, admiring the blend of Malay and European styles and the leaning minaret, though some say it is small and a short visit.",
+        "sources": [
+          {
+            "title": "Hajjah Fatimah Mosque, Singapore",
+            "url": "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d338358-Reviews-Hajjah_Fatimah_Mosque-Singapore.html",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-malay-heritage-centre-istana-kampong-gelam",
@@ -6268,7 +6378,18 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "website": {
+        "url": "https://southbeach.sg",
+        "source": {
+          "title": "South Beach Singapore | Heritage, Luxury, and Innovation",
+          "url": "https://southbeach.sg",
+          "publisher": "South Beach",
+          "checkedAt": "2026-10-22"
+        }
+      }
+    }
   },
   {
     "id": "curated:sg-st-joseph-s-church",
@@ -6800,7 +6921,51 @@
     "provenance": "earth-online+researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)"
+    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "178 Waterloo Street, Singapore 187964",
+        "postcode": "187964",
+        "source": {
+          "title": "Kwan Im Thong Hood Cho Temple",
+          "url": "https://timeout.com/singapore/things-to-do/kwan-im-thong-hood-cho-temple",
+          "publisher": "Time Out Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 06:00–18:00",
+        "source": {
+          "title": "Kwan Im Thong Hood Cho Temple",
+          "url": "https://timeout.com/singapore/things-to-do/kwan-im-thong-hood-cho-temple",
+          "publisher": "Time Out Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Kwan Im Thong Hood Cho Temple",
+          "url": "https://timeout.com/singapore/things-to-do/kwan-im-thong-hood-cho-temple",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "Kwan Im Thong Hood Cho Temple",
+          "url": "https://www.travelfish.org/sight_profile/singapore/central_region/central_area/bugis_and_kampong_glam/1205",
+          "publisher": "Travelfish"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers highlight the temple's long history and lively prayer hall where worshippers shake fortune sticks, noting it gets very busy with devotees.",
+        "sources": [
+          {
+            "title": "Kwan Im Thong Hood Cho Temple",
+            "url": "https://timeout.com/singapore/things-to-do/kwan-im-thong-hood-cho-temple",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-lasalle-college-of-the-arts",
@@ -6988,7 +7153,19 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "40 Orchard Road, Singapore 238838",
+        "postcode": "238838",
+        "source": {
+          "title": "MacDonald House",
+          "url": "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/macdonald-house",
+          "publisher": "National Heritage Board (Roots.gov.sg)",
+          "checkedAt": "2026-10-22"
+        }
+      }
+    }
   },
   {
     "id": "curated:sg-masjid-abdul-gafoor",
@@ -7324,7 +7501,60 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "397 Serangoon Road, Singapore 218123",
+        "postcode": "218123",
+        "source": {
+          "title": "Sri Srinivasa Perumal Temple - HEB",
+          "url": "https://heb.org.sg/sspt/",
+          "publisher": "Hindu Endowments Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6298 5771",
+        "source": {
+          "title": "Sri Srinivasa Perumal Temple - HEB",
+          "url": "https://heb.org.sg/sspt/",
+          "publisher": "Hindu Endowments Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://heb.org.sg/sspt/",
+        "source": {
+          "title": "Sri Srinivasa Perumal Temple - HEB",
+          "url": "https://heb.org.sg/sspt/",
+          "publisher": "Hindu Endowments Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Sri Srinivasa Perumal Temple, Singapore",
+          "url": "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d317471-Reviews-Sri_Srinivasa_Perumal_Temple-Singapore.html",
+          "publisher": "Tripadvisor"
+        },
+        {
+          "title": "Sri Srinivasa Perumal Temple",
+          "url": "https://www.timeout.com/singapore/things-to-do/sri-srinivasa-perumal-temple",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers praise the clean, calm temple and its colourful gopuram and sculptures, with free entry and photos allowed, but note visits are short and hours are split.",
+        "sources": [
+          {
+            "title": "Sri Srinivasa Perumal Temple, Singapore",
+            "url": "https://www.tripadvisor.com.sg/Attraction_Review-g294265-d317471-Reviews-Sri_Srinivasa_Perumal_Temple-Singapore.html",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-sri-veeramakaliamman-temple",
@@ -7585,7 +7815,66 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "22 Scotts Road, Singapore 228221",
+        "postcode": "228221",
+        "source": {
+          "title": "Goodwood Park Hotel - Singapore Hotels - Singapore, Singapore - Forbes Travel Guide",
+          "url": "https://forbestravelguide.com/hotels/singapore-singapore/goodwood-park-hotel",
+          "publisher": "Forbes Travel Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6737 7411",
+        "source": {
+          "title": "Goodwood Park Hotel - Singapore Hotels - Singapore, Singapore - Forbes Travel Guide",
+          "url": "https://forbestravelguide.com/hotels/singapore-singapore/goodwood-park-hotel",
+          "publisher": "Forbes Travel Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.goodwoodparkhotel.com/",
+        "source": {
+          "title": "Goodwood Park Hotel | 5-Star Heritage Hotel in Singapore",
+          "url": "https://www.goodwoodparkhotel.com/",
+          "publisher": "Goodwood Park Hotel",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Goodwood Park Hotel - Singapore Hotels - Singapore, Singapore - Forbes Travel Guide",
+          "url": "https://forbestravelguide.com/hotels/singapore-singapore/goodwood-park-hotel",
+          "publisher": "Forbes Travel Guide"
+        },
+        {
+          "title": "GOODWOOD PARK HOTEL - Updated 2026 Reviews (Singapore)",
+          "url": "https://www.tripadvisor.com/Hotel_Review-g294265-d301478-Reviews-Goodwood_Park_Hotel-Singapore.html",
+          "publisher": "Tripadvisor"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Guests praise the calm heritage grounds near Orchard Road, friendly staff, roomy rooms, pools and dining, though some find rooms dated and prices high.",
+        "sources": [
+          {
+            "title": "Goodwood Park Hotel - Singapore Hotels - Singapore, Singapore - Forbes Travel Guide",
+            "url": "https://forbestravelguide.com/hotels/singapore-singapore/goodwood-park-hotel",
+            "publisher": "Forbes Travel Guide",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "GOODWOOD PARK HOTEL - Updated 2026 Reviews (Singapore)",
+            "url": "https://www.tripadvisor.com/Hotel_Review-g294265-d301478-Reviews-Goodwood_Park_Hotel-Singapore.html",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-ion-orchard",
@@ -7855,7 +8144,55 @@
     "provenance": "earth-online+researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "Independent agent source check (pending team editor sign-off)"
+    "reviewedBy": "Independent agent source check (pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "1 Cluny Road, Singapore 259569",
+        "postcode": "259569",
+        "source": {
+          "title": "Singapore Botanic Gardens",
+          "url": "https://nparks.gov.sg/sbg",
+          "publisher": "National Parks Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://nparks.gov.sg/sbg",
+        "source": {
+          "title": "Singapore Botanic Gardens",
+          "url": "https://nparks.gov.sg/sbg",
+          "publisher": "National Parks Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 05:00–24:00",
+        "source": {
+          "title": "Singapore Botanic Gardens",
+          "url": "https://nparks.gov.sg/sbg",
+          "publisher": "National Parks Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Singapore Botanic Gardens | Attractions in Tanglin, Singapore",
+          "url": "https://www.timeout.com/singapore/attractions/singapore-botanic-gardens",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Time Out praises the calm UNESCO-listed gardens, highlighting the National Orchid Garden, Swan Lake, lakeside concerts and the family-friendly Jacob Ballas Children's Garden.",
+        "sources": [
+          {
+            "title": "Singapore Botanic Gardens | Attractions in Tanglin, Singapore",
+            "url": "https://www.timeout.com/singapore/attractions/singapore-botanic-gardens",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-tang-plaza-marriott-tang-plaza-hotel",
@@ -7994,6 +8331,58 @@
     "languageTip": {
       "context": "Hawker centre",
       "regionLabel": "Singapore"
+    },
+    "details": {
+      "address": {
+        "text": "70 Zion Road, Singapore 247792",
+        "postcode": "247792",
+        "source": {
+          "title": "12 Stalls to Check Out at the Newly Renovated Zion Riverside Food Centre!",
+          "url": "https://www.misstamchiak.com/zion-riverside-food-centre/",
+          "publisher": "Miss Tam Chiak",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "10 Zion Riverside Food Centre Stalls To Try | Eatbook.sg",
+          "url": "https://eatbook.sg/zion-riverside-food/",
+          "publisher": "Eatbook"
+        },
+        {
+          "title": "12 Stalls to Check Out at the Newly Renovated Zion Riverside Food Centre!",
+          "url": "https://www.misstamchiak.com/zion-riverside-food-centre/",
+          "publisher": "Miss Tam Chiak"
+        },
+        {
+          "title": "Zion Road Riverside Food Centre | Restaurants in Tanglin, Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/zion-road-riverside-food-centre",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Food writers rate the char kway teow, prawn noodles and kway chap highly, but warn of long queues at popular stalls and prices a little above average.",
+        "sources": [
+          {
+            "title": "10 Zion Riverside Food Centre Stalls To Try | Eatbook.sg",
+            "url": "https://eatbook.sg/zion-riverside-food/",
+            "publisher": "Eatbook",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "12 Stalls to Check Out at the Newly Renovated Zion Riverside Food Centre!",
+            "url": "https://www.misstamchiak.com/zion-riverside-food-centre/",
+            "publisher": "Miss Tam Chiak",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Zion Road Riverside Food Centre | Restaurants in Tanglin, Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/zion-road-riverside-food-centre",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
     }
   },
   {
@@ -8381,7 +8770,39 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "website": {
+        "url": "https://www.nparks.gov.sg/visit/parks/telok-blangah-hill-park/special-features",
+        "source": {
+          "title": "Telok Blangah Hill Park - Special Features",
+          "url": "https://www.nparks.gov.sg/visit/parks/telok-blangah-hill-park/special-features",
+          "publisher": "National Parks Board (NParks)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Bridge LED lighting: daily 19:00–02:00",
+        "source": {
+          "title": "Telok Blangah Hill Park - Special Features",
+          "url": "https://www.nparks.gov.sg/visit/parks/telok-blangah-hill-park/special-features",
+          "publisher": "National Parks Board (NParks)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "henderson waves",
+          "url": "https://atlasobscura.com/places/henderson-waves",
+          "publisher": "Atlas Obscura"
+        },
+        {
+          "title": "Cresting the wave",
+          "url": "https://www.visitsingapore.com/see-do-singapore/architecture/modern/henderson-waves",
+          "publisher": "VisitSingapore (Singapore Tourism Board)"
+        }
+      ]
+    }
   },
   {
     "id": "curated:sg-reflections-at-keppel-bay",
@@ -8486,7 +8907,27 @@
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
     "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)",
-    "provenance": "researched"
+    "provenance": "researched",
+    "details": {
+      "reviews": [
+        {
+          "title": "Tiong Bahru",
+          "url": "https://www.timeout.com/singapore/things-to-do/tiong-bahru",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers call it one of Singapore's most charming estates, mixing distinctive pre-war flats with indie galleries, hawker food and modern cafes, all within an easy walk.",
+        "sources": [
+          {
+            "title": "Tiong Bahru",
+            "url": "https://www.timeout.com/singapore/things-to-do/tiong-bahru",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-tiong-bahru-market",
@@ -8768,7 +9209,37 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "21 Lower Kent Ridge Road, Singapore 119077",
+        "postcode": "119077",
+        "source": {
+          "title": "National University of Singapore (NUS) - Singapore Government Directory",
+          "url": "https://www.sgdi.gov.sg/ministries/moe/others/nus",
+          "publisher": "Singapore Government Directory",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6516 6666",
+        "source": {
+          "title": "National University of Singapore (NUS) - Singapore Government Directory",
+          "url": "https://www.sgdi.gov.sg/ministries/moe/others/nus",
+          "publisher": "Singapore Government Directory",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.nus.edu.sg",
+        "source": {
+          "title": "National University of Singapore (NUS) - Singapore Government Directory",
+          "url": "https://www.sgdi.gov.sg/ministries/moe/others/nus",
+          "publisher": "Singapore Government Directory",
+          "checkedAt": "2026-10-22"
+        }
+      }
+    }
   },
   {
     "id": "curated:sg-the-interlace",
@@ -8810,7 +9281,21 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "reviews": [
+        {
+          "title": "Ole Scheeren's \"vertical village\" named World Building of the Year 2015",
+          "url": "https://www.dezeen.com/2015/11/06/ole-scheeren-the-interlace-vertical-village-singapore-building-of-the-year-2015-world-architecture-festival-2015/",
+          "publisher": "Dezeen"
+        },
+        {
+          "title": "The Interlace / OMA",
+          "url": "https://www.archdaily.com/34142/the-interlace-oma",
+          "publisher": "ArchDaily"
+        }
+      ]
+    }
   },
   {
     "id": "curated:sg-fort-siloso",
@@ -8926,7 +9411,34 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "website": {
+        "url": "https://www.sentosa.com.sg/en/things-to-do/attractions/fort-siloso-skywalk/",
+        "source": {
+          "title": "Fort Siloso Skywalk | Free Treetop Walk | Sentosa Island",
+          "url": "https://sentosa.com.sg/en/things-to-do/attractions/fort-siloso-skywalk/?amp=&amp=",
+          "publisher": "Sentosa Development Corporation",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 09:00–19:00 (free, no booking needed)",
+        "source": {
+          "title": "Fort Siloso Skywalk | Free Treetop Walk | Sentosa Island",
+          "url": "https://sentosa.com.sg/en/things-to-do/attractions/fort-siloso-skywalk/?amp=&amp=",
+          "publisher": "Sentosa Development Corporation",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Fort Siloso Skywalk",
+          "url": "https://www.timeout.com/singapore/attractions/fort-siloso-skywalk",
+          "publisher": "Time Out Singapore"
+        }
+      ]
+    }
   },
   {
     "id": "curated:sg-raffles-lighthouse",
@@ -8967,7 +9479,27 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "reviews": [
+        {
+          "title": "Visiting Raffles Lighthouse on Pulau Satumu - The Occasional Traveller",
+          "url": "https://theoccasionaltraveller.com/raffles-lighthouse-pulau-satumu/",
+          "publisher": "The Occasional Traveller"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Visitors value the rare chance to reach an otherwise off-limits island and the guides' maritime history talks, but warn of a long boat ride, crowded tours and few toilets.",
+        "sources": [
+          {
+            "title": "Visiting Raffles Lighthouse on Pulau Satumu - The Occasional Traveller",
+            "url": "https://theoccasionaltraveller.com/raffles-lighthouse-pulau-satumu/",
+            "publisher": "The Occasional Traveller",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-universal-studios-singapore",
@@ -9007,7 +9539,46 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "8 Sentosa Gateway, Singapore 098269",
+        "postcode": "098269",
+        "source": {
+          "title": "Universal Studios Singapore",
+          "url": "https://www.rwsentosa.com/en/attractions/universal-studios-singapore",
+          "publisher": "Resorts World Sentosa",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.rwsentosa.com/en/attractions/universal-studios-singapore",
+        "source": {
+          "title": "Universal Studios Singapore",
+          "url": "https://www.rwsentosa.com/en/attractions/universal-studios-singapore",
+          "publisher": "Resorts World Sentosa",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Universal Studios Singapore - All You SHOULD Know Before Going (2026 Reviews)",
+          "url": "https://www.tripadvisor.com/2439664",
+          "publisher": "Tripadvisor"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Visitors enjoy the movie-themed rides and compact, family-friendly layout, but often complain about long queues, ride closures and high ticket and food prices.",
+        "sources": [
+          {
+            "title": "Universal Studios Singapore - All You SHOULD Know Before Going (2026 Reviews)",
+            "url": "https://www.tripadvisor.com/2439664",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-vivocity",
@@ -9145,7 +9716,75 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "184 Jalan Toa Payoh, Singapore 319944",
+        "postcode": "319944",
+        "source": {
+          "title": "Contact Us - Lian Shan Shuang Lin Monastery",
+          "url": "https://www.shuanglin.sg/contact-us/",
+          "publisher": "Lian Shan Shuang Lin Monastery",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6259 6924",
+        "source": {
+          "title": "Contact Us - Lian Shan Shuang Lin Monastery",
+          "url": "https://www.shuanglin.sg/contact-us/",
+          "publisher": "Lian Shan Shuang Lin Monastery",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.shuanglin.sg/",
+        "source": {
+          "title": "Lian Shan Shuang Lin Monastery",
+          "url": "https://www.shuanglin.sg/",
+          "publisher": "Lian Shan Shuang Lin Monastery",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Monastery and Cheng Huang Temple: daily 08:00–17:00; office Mon–Fri 09:00–17:00, Sat 09:00–13:00, closed Sun",
+        "source": {
+          "title": "Contact Us - Lian Shan Shuang Lin Monastery",
+          "url": "https://www.shuanglin.sg/contact-us/",
+          "publisher": "Lian Shan Shuang Lin Monastery",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Lian Shan Shuang Lin Temple, Singapore",
+          "url": "https://www.tripadvisor.com/Attraction_Review-g294265-d446424-Reviews-Lian_Shan_Shuang_Lin_Temple-Singapore.html",
+          "publisher": "Tripadvisor"
+        },
+        {
+          "title": "Lian Shan Shuang Lin Monastery",
+          "url": "https://www.timeout.com/singapore/attractions/lian-shan-shuang-lin-monastery",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers praise the ornate Hokkien-style halls, pagoda and peaceful, uncrowded grounds, but mention renovation works, few facilities and limited on-site information.",
+        "sources": [
+          {
+            "title": "Lian Shan Shuang Lin Temple, Singapore",
+            "url": "https://www.tripadvisor.com/Attraction_Review-g294265-d446424-Reviews-Lian_Shan_Shuang_Lin_Temple-Singapore.html",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Lian Shan Shuang Lin Monastery",
+            "url": "https://www.timeout.com/singapore/attractions/lian-shan-shuang-lin-monastery",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-macritchie-reservoir-park",
@@ -9225,7 +9864,67 @@
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
     "reviewedBy": "Independent agent source check (pending team editor sign-off)",
-    "provenance": "researched"
+    "provenance": "researched",
+    "details": {
+      "website": {
+        "url": "https://nparks.gov.sg/visit/parks/central-catchment-nature-reserve",
+        "source": {
+          "title": "Central Catchment Nature Reserve",
+          "url": "https://nparks.gov.sg/visit/parks/central-catchment-nature-reserve",
+          "publisher": "National Parks Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Central Catchment Nature Reserve trails: daily 07:00–19:00",
+        "source": {
+          "title": "Central Catchment Nature Reserve",
+          "url": "https://nparks.gov.sg/visit/parks/central-catchment-nature-reserve",
+          "publisher": "National Parks Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "MacRitchie Reservoir",
+          "url": "https://www.timeout.com/singapore/things-to-do/macritchie-reservoir",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "MacRitchie Reservoir | Singapore | Attractions - Lonely Planet",
+          "url": "https://www.lonelyplanet.com/points-of-interest/mac-ritchie-reservoir/365313",
+          "publisher": "Lonely Planet"
+        },
+        {
+          "title": "MacRitchie Reservoir Park guide: All you need to know | Honeycombers Singapore",
+          "url": "https://thehoneycombers.com/singapore/macritchie-reservoir-park-treetop-walk/",
+          "publisher": "Honeycombers"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers praise the forest trails and the TreeTop Walk suspension bridge, but warn about bold macaques, long hot hikes with few facilities, and car parks filling on weekends.",
+        "sources": [
+          {
+            "title": "MacRitchie Reservoir",
+            "url": "https://www.timeout.com/singapore/things-to-do/macritchie-reservoir",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "MacRitchie Reservoir Park guide: All you need to know | Honeycombers Singapore",
+            "url": "https://thehoneycombers.com/singapore/macritchie-reservoir-park-treetop-walk/",
+            "publisher": "Honeycombers",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "MacRitchie Reservoir | Singapore | Attractions - Lonely Planet",
+            "url": "https://www.lonelyplanet.com/points-of-interest/mac-ritchie-reservoir/365313",
+            "publisher": "Lonely Planet",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-koon-seng-road-shophouses",
@@ -9275,7 +9974,38 @@
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
     "reviewedBy": "Independent agent source check (pending team editor sign-off)",
-    "provenance": "researched"
+    "provenance": "researched",
+    "details": {
+      "reviews": [
+        {
+          "title": "Peranakan shophouses | Singapore | Attractions - Lonely Planet",
+          "url": "https://www.lonelyplanet.com/points-of-interest/peranakan-terrace-houses/1574564",
+          "publisher": "Lonely Planet"
+        },
+        {
+          "title": "Koon Seng Painted Ladies",
+          "url": "https://www.afar.com/places/koon-seng-road-singapore",
+          "publisher": "AFAR"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Writers praise the brightly coloured, well-preserved Peranakan terrace houses with ornate stucco, tiles and pintu pagar doors, a short detour off Joo Chiat Road.",
+        "sources": [
+          {
+            "title": "Peranakan shophouses | Singapore | Attractions - Lonely Planet",
+            "url": "https://www.lonelyplanet.com/points-of-interest/peranakan-terrace-houses/1574564",
+            "publisher": "Lonely Planet",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Koon Seng Painted Ladies",
+            "url": "https://www.afar.com/places/koon-seng-road-singapore",
+            "publisher": "AFAR",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-old-airport-road-food-centre",
@@ -9335,6 +10065,67 @@
     "languageTip": {
       "context": "Hawker centre",
       "regionLabel": "Singapore"
+    },
+    "details": {
+      "address": {
+        "text": "51 Old Airport Road, Singapore 390051",
+        "postcode": "390051",
+        "source": {
+          "title": "Old Airport Road Food Centre | Restaurants in Geylang, Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/old-airport-road-food-centre",
+          "publisher": "Time Out Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Centre: daily 06:00–23:00 (stall hours vary)",
+        "source": {
+          "title": "Old Airport Road Food Centre | Restaurants in Geylang, Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/old-airport-road-food-centre",
+          "publisher": "Time Out Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Old Airport Road Food Centre | Restaurants in Geylang, Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/old-airport-road-food-centre",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "OLD AIRPORT RD FOOD CENTRE, Singapore - Geylang - Restaurant Reviews, Photos & Phone Number - Tripadvisor",
+          "url": "https://www.tripadvisor.com/1146830",
+          "publisher": "Tripadvisor"
+        },
+        {
+          "title": "Old Airport Road Food Centre Guide: 15 Must-Try Hawker Stalls",
+          "url": "https://thehoneycombers.com/singapore/old-airport-road-food-centre-singapore/",
+          "publisher": "Honeycombers"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers praise the huge range of affordable local dishes and famous stalls, but warn of long queues at meal times, crowding, noise and fast-filling parking.",
+        "sources": [
+          {
+            "title": "Old Airport Road Food Centre | Restaurants in Geylang, Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/old-airport-road-food-centre",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "OLD AIRPORT RD FOOD CENTRE, Singapore - Geylang - Restaurant Reviews, Photos & Phone Number - Tripadvisor",
+            "url": "https://www.tripadvisor.com/1146830",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Old Airport Road Food Centre Guide: 15 Must-Try Hawker Stalls",
+            "url": "https://thehoneycombers.com/singapore/old-airport-road-food-centre-singapore/",
+            "publisher": "Honeycombers",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
     }
   },
   {
@@ -9512,7 +10303,27 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "phone": {
+        "text": "+65 6595 6868",
+        "source": {
+          "title": "Contact Us",
+          "url": "https://www.changiairport.com/en/help/contact-us.html",
+          "publisher": "Changi Airport Group",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.changiairport.com/en/at-changi/terminal-guides/terminal-4.html",
+        "source": {
+          "title": "Terminal 4",
+          "url": "https://www.changiairport.com/en/at-changi/terminal-guides/terminal-4.html",
+          "publisher": "Changi Airport Group",
+          "checkedAt": "2026-10-22"
+        }
+      }
+    }
   },
   {
     "id": "curated:sg-changi-airport-terminals-1-3",
@@ -9552,7 +10363,27 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "phone": {
+        "text": "+65 6595 6868",
+        "source": {
+          "title": "Contact us",
+          "url": "https://changiairport.com/corporate/contact-us.html",
+          "publisher": "Changi Airport Group",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.changiairport.com",
+        "source": {
+          "title": "Contact us",
+          "url": "https://changiairport.com/corporate/contact-us.html",
+          "publisher": "Changi Airport Group",
+          "checkedAt": "2026-10-22"
+        }
+      }
+    }
   },
   {
     "id": "curated:sg-changi-beach-park",
@@ -9647,7 +10478,45 @@
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
     "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)",
-    "provenance": "researched"
+    "provenance": "researched",
+    "details": {
+      "website": {
+        "url": "https://nparks.gov.sg/visit/parks/changi-beach-park",
+        "source": {
+          "title": "Changi Beach Park",
+          "url": "https://nparks.gov.sg/visit/parks/changi-beach-park",
+          "publisher": "National Parks Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Open 24 hours",
+        "source": {
+          "title": "Changi Beach Park",
+          "url": "https://nparks.gov.sg/visit/parks/changi-beach-park",
+          "publisher": "National Parks Board",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Changi Beach Park",
+          "url": "https://www.timeout.com/singapore/things-to-do/changi-beach-park",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Time Out likes the quiet kampong feel, white sand, cycling links and easy-to-book barbecue pits, with far smaller weekend crowds than East Coast Park.",
+        "sources": [
+          {
+            "title": "Changi Beach Park",
+            "url": "https://www.timeout.com/singapore/things-to-do/changi-beach-park",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-jewel-changi-airport",
@@ -9752,7 +10621,55 @@
     "provenance": "earth-online+researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)"
+    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "78 Airport Boulevard, Singapore 819666",
+        "postcode": "819666",
+        "source": {
+          "title": "Getting to Jewel",
+          "url": "https://www.jewelchangiairport.com/en/getting-to-jewel.html",
+          "publisher": "Jewel Changi Airport",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.jewelchangiairport.com",
+        "source": {
+          "title": "Getting to Jewel",
+          "url": "https://www.jewelchangiairport.com/en/getting-to-jewel.html",
+          "publisher": "Jewel Changi Airport",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Open 24 hours; most shops 10:00–22:00",
+        "source": {
+          "title": "Getting to Jewel",
+          "url": "https://www.jewelchangiairport.com/en/getting-to-jewel.html",
+          "publisher": "Jewel Changi Airport",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Jewel Changi Airport",
+          "url": "https://www.timeout.com/singapore/property/jewel-changi-airport",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers rave about the indoor Rain Vortex waterfall and its evening light show, the forest valley and Canopy Park, and the huge choice of food and shops.",
+        "sources": [
+          {
+            "title": "Jewel Changi Airport",
+            "url": "https://www.timeout.com/singapore/property/jewel-changi-airport",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-kong-meng-san-phor-kark-see-monastery",
@@ -9917,7 +10834,50 @@
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
     "reviewedBy": "Independent agent source check (pending team editor sign-off)",
-    "provenance": "researched"
+    "provenance": "researched",
+    "details": {
+      "website": {
+        "url": "https://pulau-ubin.nparks.gov.sg/",
+        "source": {
+          "title": "Pulau Ubin",
+          "url": "https://pulau-ubin.nparks.gov.sg/",
+          "publisher": "National Parks Board (NParks)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Bumboats from Changi Point Ferry Terminal: usually daily 06:00–19:00, on demand",
+        "source": {
+          "title": "Visit Pulau Ubin",
+          "url": "https://pulau-ubin.nparks.gov.sg/visitubin/",
+          "publisher": "National Parks Board (NParks)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Guide To Pulau Ubin: Things To Do And Explore On The Island",
+          "url": "https://www.timeout.com/singapore/things-to-do/guide-to-pulau-ubin",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "guide to pulau ubin",
+          "url": "https://thehoneycombers.com/singapore/guide-to-pulau-ubin/",
+          "publisher": "Honeycombers"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers love Ubin's rustic kampong feel, Chek Jawa, cycling trails and local food, but warn there are no ATMs and some favourite stalls open only on weekends.",
+        "sources": [
+          {
+            "title": "Guide To Pulau Ubin: Things To Do And Explore On The Island",
+            "url": "https://www.timeout.com/singapore/things-to-do/guide-to-pulau-ubin",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-kranji-marshes",
@@ -10128,7 +11088,66 @@
     "provenance": "earth-online+researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)"
+    "reviewedBy": "Writer agent source check (independent check and team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "9 Woodlands Road, Singapore 738656",
+        "postcode": "738656",
+        "source": {
+          "title": "Kranji War Memorial",
+          "url": "https://www.timeout.com/singapore/things-to-do/kranji-war-memorial",
+          "publisher": "Time Out Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.cwgc.org/find-a-cemetery/cemetery/2053500/singapore-memorial/",
+        "source": {
+          "title": "Singapore Memorial",
+          "url": "https://www.cwgc.org/find-a-cemetery/cemetery/2053500/singapore-memorial/",
+          "publisher": "Commonwealth War Graves Commission",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 08:00–18:30",
+        "source": {
+          "title": "Singapore Memorial",
+          "url": "https://www.cwgc.org/find-a-cemetery/cemetery/2053500/singapore-memorial/",
+          "publisher": "Commonwealth War Graves Commission",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Kranji War Memorial",
+          "url": "https://www.timeout.com/singapore/things-to-do/kranji-war-memorial",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "Kranji War Memorial - Cemetery For SG Presidents & WW2 Heroes",
+          "url": "https://thesmartlocal.com/read/kranji-war-memorial/",
+          "publisher": "TheSmartLocal"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers describe a serene, moving hillside cemetery with rows of white graves and rich inscriptions, asking visitors to be respectful and noting it is a long trip north.",
+        "sources": [
+          {
+            "title": "Kranji War Memorial",
+            "url": "https://www.timeout.com/singapore/things-to-do/kranji-war-memorial",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Kranji War Memorial - Cemetery For SG Presidents & WW2 Heroes",
+            "url": "https://thesmartlocal.com/read/kranji-war-memorial/",
+            "publisher": "TheSmartLocal",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-sungei-buloh-wetland-reserve",
@@ -10196,7 +11215,75 @@
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
     "reviewedBy": "Independent agent source check (pending team editor sign-off)",
-    "provenance": "researched"
+    "provenance": "researched",
+    "details": {
+      "address": {
+        "text": "Visitor Centre: 60 Kranji Way, Singapore 739453",
+        "postcode": "739453",
+        "source": {
+          "title": "Sungei Buloh Wetland Reserve",
+          "url": "https://nparks.gov.sg/visit/parks/sungei-buloh-wetland-reserve",
+          "publisher": "National Parks Board (NParks)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6794 1401",
+        "source": {
+          "title": "Sungei Buloh Wetland Reserve",
+          "url": "https://nparks.gov.sg/visit/parks/sungei-buloh-wetland-reserve",
+          "publisher": "National Parks Board (NParks)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://nparks.gov.sg/visit/parks/sungei-buloh-wetland-reserve",
+        "source": {
+          "title": "Sungei Buloh Wetland Reserve",
+          "url": "https://nparks.gov.sg/visit/parks/sungei-buloh-wetland-reserve",
+          "publisher": "National Parks Board (NParks)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 07:00–19:00 (last entry 18:30)",
+        "source": {
+          "title": "Sungei Buloh Wetland Reserve",
+          "url": "https://nparks.gov.sg/visit/parks/sungei-buloh-wetland-reserve",
+          "publisher": "National Parks Board (NParks)",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Sungei Buloh Wetland Reserve - All You SHOULD Know Before Going (2026 Reviews)",
+          "url": "https://www.tripadvisor.com/Attraction_Review-g294265-d315468-Reviews-Sungei_Buloh_Wetland_Reserve-Singapore.html",
+          "publisher": "Tripadvisor"
+        },
+        {
+          "title": "Sungei Buloh Wetland Reserve",
+          "url": "https://www.timeout.com/singapore/things-to-do/sungei-buloh-wetland-reserve",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Visitors love the quiet boardwalks, birds, monitor lizards and crocodiles, but warn it is hard to reach by public transport, hot and short on food options.",
+        "sources": [
+          {
+            "title": "Sungei Buloh Wetland Reserve - All You SHOULD Know Before Going (2026 Reviews)",
+            "url": "https://www.tripadvisor.com/Attraction_Review-g294265-d315468-Reviews-Sungei_Buloh_Wetland_Reserve-Singapore.html",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Sungei Buloh Wetland Reserve",
+            "url": "https://www.timeout.com/singapore/things-to-do/sungei-buloh-wetland-reserve",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-chinese-garden-jurong-lake-gardens",
@@ -10317,7 +11404,27 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "reviews": [
+        {
+          "title": "Jurong Hill Park",
+          "url": "https://www.timeout.com/singapore/things-to-do/jurong-hill-park",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "The Time Out writer highlights the hilltop views over Jurong and Jurong Island, the climbable 1970 lookout tower and the Garden of Fame tree plantings.",
+        "sources": [
+          {
+            "title": "Jurong Hill Park",
+            "url": "https://www.timeout.com/singapore/things-to-do/jurong-hill-park",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-nanyang-technological-university",
@@ -10419,7 +11526,69 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "details": {
+      "address": {
+        "text": "15 Science Centre Road, Singapore 609081",
+        "postcode": "609081",
+        "source": {
+          "title": "Contact Us - Science Centre Singapore",
+          "url": "https://www.science.edu.sg/contact-us",
+          "publisher": "Science Centre Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6425 2500",
+        "source": {
+          "title": "Contact Us - Science Centre Singapore",
+          "url": "https://www.science.edu.sg/contact-us",
+          "publisher": "Science Centre Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.science.edu.sg/",
+        "source": {
+          "title": "Contact Us - Science Centre Singapore",
+          "url": "https://www.science.edu.sg/contact-us",
+          "publisher": "Science Centre Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 10:00–17:00 (last admission 16:15)",
+        "source": {
+          "title": "Contact Us - Science Centre Singapore",
+          "url": "https://www.science.edu.sg/contact-us",
+          "publisher": "Science Centre Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Science Centre Singapore - All You SHOULD Know Before Going (2026 Reviews)",
+          "url": "https://www.tripadvisor.com/Attraction_Review-g294265-d446423-Reviews-Science_Centre_Singapore-Singapore.html",
+          "publisher": "Tripadvisor"
+        },
+        {
+          "title": "Science Centre Singapore",
+          "url": "https://www.timeout.com/singapore/things-to-do/science-centre-singapore",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers enjoy the hands-on exhibits, mirror maze and live demos for all ages, but warn of the long trip to Jurong East, ticketing hiccups and mixed Omni Theatre shows.",
+        "sources": [
+          {
+            "title": "Science Centre Singapore - All You SHOULD Know Before Going (2026 Reviews)",
+            "url": "https://www.tripadvisor.com/Attraction_Review-g294265-d446423-Reviews-Science_Centre_Singapore-Singapore.html",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "curated:sg-tian-tian-hainanese-chicken-rice",
@@ -12257,6 +13426,67 @@
     "languageTip": {
       "context": "Hawker centre",
       "regionLabel": "Singapore"
+    },
+    "details": {
+      "address": {
+        "text": "335 Smith Street, Singapore 050335",
+        "postcode": "050335",
+        "source": {
+          "title": "Chinatown Complex Food Centre",
+          "url": "https://www.chinatown.sg/dine/chinatown-complex-food-centre",
+          "publisher": "chinatown.sg",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Centre: daily 07:00–22:00 (individual stall hours vary)",
+        "source": {
+          "title": "Chinatown Complex Food Centre",
+          "url": "https://www.chinatown.sg/dine/chinatown-complex-food-centre",
+          "publisher": "chinatown.sg",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Chinatown Complex Market & Food Centre | Restaurants in Chinatown, Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/chinatown-complex-market-food-centre",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "Chinatown Complex Food Centre Guide: 16 Best Stalls To Try | Eatbook.sg",
+          "url": "https://eatbook.sg/chinatown-complex/amp/",
+          "publisher": "Eatbook"
+        },
+        {
+          "title": "CHINATOWN COMPLEX, Singapore - Central Area/City Area - Restaurant Reviews, Photos & Phone Number - Tripadvisor",
+          "url": "https://www.tripadvisor.com/1145020",
+          "publisher": "Tripadvisor"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers love the huge choice of cheap local dishes, including Michelin-listed stalls, but warn it gets hot, crowded and confusing to navigate, and popular stalls draw queues.",
+        "sources": [
+          {
+            "title": "Chinatown Complex Market & Food Centre | Restaurants in Chinatown, Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/chinatown-complex-market-food-centre",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Chinatown Complex Food Centre Guide: 16 Best Stalls To Try | Eatbook.sg",
+            "url": "https://eatbook.sg/chinatown-complex/amp/",
+            "publisher": "Eatbook",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "CHINATOWN COMPLEX, Singapore - Central Area/City Area - Restaurant Reviews, Photos & Phone Number - Tripadvisor",
+            "url": "https://www.tripadvisor.com/1145020",
+            "publisher": "Tripadvisor",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
     }
   }
 ]
