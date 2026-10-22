@@ -28,7 +28,7 @@ rewrites (e.g. `VITE_ROUTER=hash npx vite build --base ./` for a click-through p
 
 ## Nearby Explorer
 
-Today's **Near you** card opens Explore (location off or on). Explore is a full-screen map (like a maps app): Back,
+Today's way into Nearby is a **map tile** (`src/components/NearbyMapCard`): a picture of the Nearby map with a dot per place (made from the app's own map by `scripts/today/map-preview.mjs` + `resize.py`; re-run when the places change), the Near you place, the place count and your check-ins; it opens Explore (location off or on). Explore is a full-screen map (like a maps app): Back,
 search and the area chip on top, category chips under them, one column of map buttons on the right (3D, My location,
 zoom, recenter), and a sheet of places at the bottom (peek, half, full = the List view; a side panel on wide screens).
 The Nearby pages hide the app's tab bar. The sheet starts with the local phrases for the place picked on the phrase

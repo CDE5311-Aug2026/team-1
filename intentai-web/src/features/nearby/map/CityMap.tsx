@@ -608,6 +608,7 @@ export default function CityMap({
         onPointerCancel={onPointerUp}
         data-testid="city-map"
         data-scale={view.scale.toFixed(4)}
+        data-center={`${view.center.x.toFixed(1)},${view.center.y.toFixed(1)}`}
       >
         <canvas ref={canvasRef} className={styles.canvas} style={{ width, height }} aria-hidden="true" />
         <svg className={styles.overlay} width={width} height={height} aria-hidden="true">
