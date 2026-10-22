@@ -15,7 +15,7 @@
   min-height: 2.25rem;
   padding: 0 0.5rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-control);
   background: var(--surface);
   box-shadow: var(--shadow-card);
   font-size: var(--fs-button);

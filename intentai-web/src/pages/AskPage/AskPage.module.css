@@ -231,7 +231,7 @@
   max-width: 100%;
   padding: 0.75rem 0.5rem;
   border: 1.5px solid var(--border-strong);
-  border-radius: 1.125rem;
+  border-radius: var(--radius-card);
   background: var(--surface);
   box-shadow: var(--shadow-card);
   font: inherit;

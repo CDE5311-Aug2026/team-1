@@ -130,7 +130,7 @@
   align-items: center;
   justify-content: center;
   min-height: 2.5rem;
-  border-radius: 0.875rem;
+  border-radius: var(--radius-card);
   font-size: var(--fs-button);
   font-weight: 600;
   color: var(--text-secondary);

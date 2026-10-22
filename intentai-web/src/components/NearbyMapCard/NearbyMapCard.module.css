@@ -8,7 +8,7 @@
   padding: 0;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 1.25rem;
+  border-radius: var(--radius-card);
   background: #4f7fa3; /* the map's sea, while the picture loads */
   box-shadow: 0 1px 2px rgba(35, 33, 29, 0.08), 0 6px 18px rgba(35, 33, 29, 0.12);
   cursor: pointer;

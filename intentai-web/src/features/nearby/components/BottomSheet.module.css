@@ -10,7 +10,7 @@
   flex-direction: column;
   max-width: 640px;
   margin: 0 auto;
-  border-radius: 20px 20px 0 0;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
   background: var(--surface);
   box-shadow: 0 -1px 0 rgba(35, 33, 29, 0.06), 0 -8px 28px rgba(35, 33, 29, 0.14);
   transition: height 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -86,7 +86,7 @@
   bottom: 1rem;
   width: 400px;
   margin: 0;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   transition: none;
 }
 

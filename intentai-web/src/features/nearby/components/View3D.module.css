@@ -10,7 +10,7 @@
 .stage {
   position: relative;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   background: #cfd8d4;
   box-shadow: var(--shadow-card-active);
 }

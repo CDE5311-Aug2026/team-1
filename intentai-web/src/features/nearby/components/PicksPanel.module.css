@@ -5,7 +5,7 @@
   flex-direction: column;
   max-height: min(70vh, 34rem);
   padding: 0.75rem 0.75rem 0.5rem;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   background: rgba(246, 245, 242, 0.98);
   box-shadow: 0 8px 28px rgba(35, 33, 29, 0.22), 0 0 0 1px rgba(35, 33, 29, 0.05);
   animation: drop 180ms ease-out;

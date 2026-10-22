@@ -1,7 +1,7 @@
 /* Figma 21:1384: 350×284, five 56px rows split by 1px dividers. */
 .card {
   padding: 0 0.875rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   background: var(--ms-fill-soft);
 }
 
