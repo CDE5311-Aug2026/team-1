@@ -67,5 +67,7 @@ test('the culture tabs follow the saved questionnaire picks in survey rank order
   renderWithRoutes();
 
   expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['UNESCO', 'Heritage', 'History']);
-  expect(screen.getByRole('button', { name: /^Play video:/ })).toBeInTheDocument();
+  // the first tab's cards, each with its own video
+  expect(screen.getByRole('article', { name: 'Hawker culture' })).toBeInTheDocument();
+  expect(screen.getAllByRole('button', { name: /^Play video:/ }).length).toBeGreaterThan(0);
 });

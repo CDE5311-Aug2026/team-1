@@ -4,12 +4,11 @@ import { expect, test } from 'vitest';
 import NearbyLinks from '../components/NearbyLinks/NearbyLinks';
 import { area, collection, curatedPlace } from '../features/nearby/catalogue';
 import { CATEGORIES, articlesFor } from './culture';
-import { ARTICLE_LINKS, HOLIDAY_LINKS, VIDEO_LINKS, articlesNaming, nearbyHref, type NearbyLink } from './cultureLinks';
+import { ARTICLE_LINKS, HOLIDAY_LINKS, articlesNaming, nearbyHref, type NearbyLink } from './cultureLinks';
 import { todaysHoliday } from './holiday';
 
 const all: [string, NearbyLink][] = [
   ...Object.entries(ARTICLE_LINKS).flatMap(([k, ls]) => ls.map((l) => [k, l] as [string, NearbyLink])),
-  ...Object.entries(VIDEO_LINKS).flatMap(([k, ls]) => (ls ?? []).map((l) => [k, l] as [string, NearbyLink])),
   ...Object.entries(HOLIDAY_LINKS).flatMap(([k, ls]) => ls.map((l) => [k, l] as [string, NearbyLink])),
 ];
 

@@ -1,10 +1,9 @@
-// Today's culture content ↔ Nearby. A Today article, video or holiday that names a real place (a monument, a temple,
+// Today's culture content ↔ Nearby. A Today article (and its video) or holiday that names a real place (a monument, a temple,
 // a neighbourhood) links to that place in Nearby, and the place shows the article in its culture cards.
 // Only places the text itself names, or a catalogue stall that serves the dish the article is about ("try it").
 // Labels are stored here so Today does not load the Nearby catalogue; src/data/cultureLinks.test.ts checks that every
 // id exists and every label matches the catalogue.
 import { paths } from '../routes';
-import type { CategoryId } from './culture';
 
 export type NearbyLink =
   /** why 'try': a stall that serves the dish. named: what the text calls the place, when not its catalogue name. */
@@ -50,12 +49,6 @@ export const ARTICLE_LINKS: Readonly<Record<string, readonly NearbyLink[]>> = {
     { kind: 'place', id: 'curated:sg-fort-siloso', label: 'Fort Siloso' },
     { kind: 'area', id: 'sg-sentosa', label: 'Sentosa & Southern Islands' },
   ],
-};
-
-/** A category's video → its places. */
-export const VIDEO_LINKS: Partial<Record<CategoryId, readonly NearbyLink[]>> = {
-  // "Hawker Culture in Singapore"
-  unesco: [{ kind: 'list', id: 'sg-hawker-centres', label: 'Hawker centres to know' }],
 };
 
 /** Today's holiday (by name) → its places. */
