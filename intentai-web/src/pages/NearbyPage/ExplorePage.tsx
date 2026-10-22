@@ -68,6 +68,8 @@ import { statusBarPx } from '../../components/StatusBar/device';
 const COUNTRY = 'SG' as const;
 /** In map view the list under the map stays short; the List view shows everything. */
 const MAP_LIST_LIMIT = 6;
+/** How close a tap on a place (list row, its card) goes: about a street block around it. */
+const JUMP_RADIUS_M = 350;
 /** The 3D view opens over Marina Bay when nothing is selected and no area or location is set. */
 const MARINA_BAY: LatLng = { lat: 1.2868, lng: 103.8545 };
 /** The whole country fits on screen at first (Tuas to Changi, Woodlands to the Southern Islands). */
@@ -237,6 +239,20 @@ export default function ExplorePage() {
     patch({ sel: key, info: null }, true);
     if (view !== 'list') setMapDetent((d) => (d === 'peek' ? 'half' : d));
   };
+  // A list row or the selected card: select the place and go to it on the map, close enough to see the street
+  // (in 3D the view flies there). The sheet stays at half, and the map keeps the pin above it.
+  const jumpedAt = useRef(-Infinity);
+  const jumpTo = (key: string) => {
+    const it = pins.find((p) => p.key === key) ?? (curatedPlace(key) ? { location: curatedPlace(key)!.coordinates } : undefined);
+    patch({ sel: key, info: key === selectedKey ? params.get('info') : null, view: view === 'list' ? null : params.get('view') }, true);
+    if (view !== '3d') setMapDetent((d) => (d === 'peek' || view === 'list' ? 'half' : d));
+    if (!it) return;
+    jumpedAt.current = performance.now();
+    setPendingCenter(null);
+    const id = focusId + 1;
+    setFocusId(id);
+    setCarry({ id, to: view === '3d' ? '3d' : 'map', center: it.location, radiusM: JUMP_RADIUS_M });
+  };
   const setDetent = (d: Detent) => {
     if (d === 'full') patch({ view: 'list' });
     else {
@@ -254,7 +270,7 @@ export default function ExplorePage() {
   // With nothing selected it is as wide as the 2D map was, or (recenter) the list, the area around you, the results.
   const from2d = carried('3d');
   const target3d: View3DTarget = selectedPlace
-    ? view3dTarget(selectedPlace)
+    ? { ...view3dTarget(selectedPlace), ...(from2d && !selectedPlace.earthKey ? { span: from2d.radiusM * 2 } : {}) }
     : from2d
       ? { at: from2d.center, span: from2d.radiusM * 2, pin: false }
       : activeList && items.length
@@ -297,6 +313,8 @@ export default function ExplorePage() {
   };
 
   const onSettled = (center: LatLng) => {
+    // the map went to a place you tapped: not a new area to search
+    if (performance.now() - jumpedAt.current < 1500) return;
     const ref = origin?.point;
     setPendingCenter(!ref || distanceM(ref, center) > 250 ? center : null);
   };
@@ -318,7 +336,10 @@ export default function ExplorePage() {
   // the uncovered part of the map: under the search bar, above the sheet, left of the map buttons
   // a real phone has no drawn status bar: everything under it sits higher by the difference
   const [statusShift] = useState(() => 48 - statusBarPx());
-  const mapInsets = wide ? { top: 0, bottom: 0, left: 432, right: 72 } : { top: 150 - statusShift, bottom: PEEK_PX, right: 64 };
+  // (on a phone the sheet's resting height is covered too, so a selected pin is never under the sheet)
+  const mapInsets = wide
+    ? { top: 0, bottom: 0, left: 432, right: 72 }
+    : { top: 150 - statusShift, bottom: view === 'list' ? PEEK_PX : detentHeight(mapDetent), right: 64 };
   // Back leaves Explore: to the page before it (all of Explore's own steps at once), or Today if Explore was opened first
   const goBack = () => {
     if (entryIdx > 0) navigate(entryIdx - 1 - historyIdx());
@@ -446,6 +467,7 @@ export default function ExplorePage() {
             }}
             controlsTop={(wide ? 218 : 256) - statusShift}
             onRecenter={() => setFocusId((n) => n + 1)}
+            insets={mapInsets}
           />
         ) : (
           <CityMap
@@ -573,6 +595,7 @@ export default function ExplorePage() {
               selected
               variant="card"
               idPrefix="preview"
+              onShow={() => jumpTo(selected.key)}
               detailsOpen={detailsOpen}
               detailsId="sheet-details"
               onDetails={() => {
@@ -665,7 +688,7 @@ export default function ExplorePage() {
                       state={stateByKey.get(item.key)}
                       originKind={origin?.kind}
                       selected={item.key === selectedKey}
-                      onSelect={() => select(item.key)}
+                      onSelect={() => jumpTo(item.key)}
                       onToggleVisited={activeList ? () => markVisited(item.key, item.name, !stateByKey.get(item.key)?.visited) : undefined}
                     />
                   </li>

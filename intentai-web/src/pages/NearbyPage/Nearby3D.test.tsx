@@ -130,8 +130,8 @@ describe('Explore in 3D', () => {
     const f = frame()!;
     const post = vi.spyOn(f.contentWindow!, 'postMessage');
     fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    // no position asked for: nothing about you is sent (only the list's pins)
-    expect(post.mock.calls.map(([m]) => (m as { type: string }).type)).toEqual(['pins']);
+    // no position asked for: nothing about you is sent (only what the page covers, and the list's pins)
+    expect(post.mock.calls.map(([m]) => (m as { type: string }).type)).toEqual(['insets', 'pins']);
     await userEvent.click(screen.getByRole('button', { name: 'My location' }));
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
     await screen.findByRole('button', { name: /Near you/ });
@@ -144,7 +144,7 @@ describe('Explore in 3D', () => {
     // a reload around a far point says 'ready' again: the dot is sent again
     post.mockClear();
     fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    expect(post.mock.calls.map(([m]) => (m as { type: string }).type).sort()).toEqual(['pins', 'you']);
+    expect(post.mock.calls.map(([m]) => (m as { type: string }).type).sort()).toEqual(['insets', 'pins', 'you']);
   });
 
   test('a landmark tapped in 3D selects that place in the sheet; messages from anywhere else are ignored', () => {

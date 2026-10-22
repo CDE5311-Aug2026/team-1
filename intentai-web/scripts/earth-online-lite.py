@@ -21,6 +21,7 @@ What the lite page does differently from the full page:
   - postMessage with the embedding page: out {source:'earth-online-lite', type:'ready' | 'card', key}; in (from the parent
     only) {source:'intentai', type:'show', at:[lat, lng], card?, pin?} moves the view (or reloads around a far point, via
     the hash). #pin=0 hides the pin, #still=1 skips camera flights (reduced motion).
+    {source:'intentai', type:'insets', top, bottom, left, right} (px the page covers) centres the view in the rest;
     {source:'intentai', type:'zoom', k} zooms (k < 1 closer); out also {type:'view', at, span} once the view rests;
     #span=<m> / show {span} open as wide as the embedding page's 2D map;
     {source:'intentai', type:'pins', pins, styles, selected} shows the page's places as pins (a tap posts {type:'pick', key});
@@ -402,6 +403,15 @@ addEventListener('pointerup', e => {
     last = k; still = 0;
   }, 400);
 }
+// the embedding page covers the edges (search bar on top, its sheet below): the view's centre is the middle of what
+// stays uncovered, so the point it looks at is not under the sheet (a shifted projection; picking uses the same camera)
+function liteInsets(){
+  const I = LITE.insets; if (!I) return;
+  const w = stage.clientWidth || innerWidth, h = stage.clientHeight || innerHeight;
+  const dx = Math.round((I.right - I.left)/2), dy = Math.round((I.bottom - I.top)/2);
+  if (!dx && !dy) camera.clearViewOffset(); else camera.setViewOffset(w, h, dx, dy, w, h);
+}
+addEventListener('resize', () => requestAnimationFrame(liteInsets));
 function liteLook(x, y, span){
   const g = Math.max(0, hC(x, y)) + 4, o = liteOffset(span, 1), to = new THREE.Vector3(x + o[0], g + o[1], -y + o[2]), tt = new THREE.Vector3(x, g, -y);
   if (LITE.still || typeof flyTo !== 'function'){ controls.target.copy(tt); camera.position.copy(to); } else flyTo(to, tt, 1200);
@@ -412,6 +422,11 @@ function litePost(m){ try { if (parent !== window) parent.postMessage(Object.ass
 // Within reach of the loaded area the camera moves there; farther away the page reloads around the new point.
 addEventListener('message', e => {
   const d0 = e.data; if (e.source !== parent || !d0 || d0.source !== 'intentai') return;
+  if (d0.type === 'insets'){
+    const n = v => (typeof v === 'number' && isFinite(v) && v >= 0 && v < 4000 ? v : 0);
+    LITE.insets = {top:n(d0.top), bottom:n(d0.bottom), left:n(d0.left), right:n(d0.right)}; liteInsets();
+    return;
+  }
   if (d0.type === 'zoom'){
     const k = +d0.k; if (!(k > 0.2 && k < 5)) return;
     const off = camera.position.clone().sub(controls.target), len = off.length(), nl = Math.max(controls.minDistance, Math.min(LITE_MAXD, len*k));

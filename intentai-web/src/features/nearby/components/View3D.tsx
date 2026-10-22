@@ -37,6 +37,8 @@ export interface View3DProps {
   /** Full-bleed only: zoom (and recenter) buttons, the same as the 2D map's, with their top in px. */
   controlsTop?: number;
   onRecenter?: () => void;
+  /** px of the view the page covers (search bar, sheet): the 3D view centres in the rest, as the 2D map does. */
+  insets?: { top?: number; bottom?: number; left?: number; right?: number };
 }
 
 export interface View3DPin {
@@ -81,7 +83,7 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick, onView, controlsTop, onRecenter }: View3DProps) {
+export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick, onView, controlsTop, onRecenter, insets }: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
@@ -124,6 +126,16 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
       earthOnline3dOrigin(),
     );
   };
+  const insetsRef = useRef(insets);
+  insetsRef.current = insets;
+  const insetsSent = useRef<string | null>(null);
+  const postInsets = () => {
+    const i = insetsRef.current;
+    const k = i ? `${i.top ?? 0},${i.bottom ?? 0},${i.left ?? 0},${i.right ?? 0}` : null;
+    if (k === insetsSent.current) return;
+    insetsSent.current = k;
+    if (i) frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'insets', top: i.top ?? 0, bottom: i.bottom ?? 0, left: i.left ?? 0, right: i.right ?? 0 }, earthOnline3dOrigin());
+  };
   // a dot was sent to this page (so "no position" has something to remove)
   const youSent = useRef<string | null>(null);
   const postYou = () => {
@@ -143,6 +155,8 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
       // the 3D page reloads around a far point and comes back with a new 'ready': your dot goes again each time
       if (e.data.type === 'ready') {
         setReady(true);
+        insetsSent.current = null; // a (re)loaded page has none yet
+        postInsets();
         youSent.current = null; // a (re)loaded page has no dot yet
         postYou();
         pinsSent.current = null;
@@ -175,6 +189,12 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     // pins are read through pinsKey
   }, [ready, pinsKey]);
 
+  const insetsKey = insets ? `${insets.top ?? 0},${insets.bottom ?? 0},${insets.left ?? 0},${insets.right ?? 0}` : '';
+  useEffect(() => {
+    if (ready) postInsets();
+    // insets are read through insetsKey
+  }, [ready, insetsKey]);
+
   // Your dot moves (or goes) with the position.
   const youKey = you ? `${you.lat.toFixed(5)},${you.lng.toFixed(5)}:${Math.round(you.accuracyM ?? 0)}` : '';
   useEffect(() => {
@@ -193,7 +213,8 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     if (!ready || (targetKey === shown.current && !again)) return;
     shown.current = targetKey;
     lastShow.current = performance.now();
-    if (target.card && target.card === openCard.current) return;
+    // the card already open needs no second flight, unless the view is asked to go there again
+    if (target.card && target.card === openCard.current && !again) return;
     frame.current?.contentWindow?.postMessage(
       { source: 'intentai', type: 'show', at: [target.at.lat, target.at.lng], card: target.card, pin: target.pin ?? !target.card, span: target.span },
       earthOnline3dOrigin(),

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { paths } from '../../../routes';
 import { markVisited, toggleSave } from '../actions';
@@ -29,6 +29,8 @@ interface PlaceCardProps {
   detailsId?: string;
   /** The unfolded details, shown inside this card under its buttons. */
   children?: ReactNode;
+  /** card: a tap on the picture or anywhere on the card (not its buttons or details) shows the place on the map. */
+  onShow?: () => void;
 }
 
 /** Distance in a few characters; "from you" only with a precise fix (the sheet header names other origins). */
@@ -63,6 +65,7 @@ export default function PlaceCard({
   detailsOpen = false,
   detailsId,
   children,
+  onShow,
 }: PlaceCardProps) {
   const headingId = `${idPrefix}-${item.key}`;
   const info = CATEGORY_INFO[item.category];
@@ -88,14 +91,32 @@ export default function PlaceCard({
     </Link>
   );
 
+  // the card's own buttons, links and unfolded details keep their taps
+  const showFromCard = onShow
+    ? (e: MouseEvent<HTMLElement>) => {
+        const t = e.target as HTMLElement;
+        if (t.closest(`a, button, input, select, textarea, label, summary, [role="button"], .${styles.unfolded}`)) return;
+        onShow();
+      }
+    : undefined;
+  const thumb = <PlaceThumb id={item.key} category={item.category} size={variant} />;
+
   return (
+    // the picture is the keyboard way to the same thing (a button)
     <article
-      className={[styles.card, variant === 'card' ? styles.big : '', selected && variant === 'row' ? styles.selected : ''].join(' ')}
+      className={[styles.card, variant === 'card' ? styles.big : '', selected && variant === 'row' ? styles.selected : '', onShow ? styles.showable : ''].join(' ')}
       aria-labelledby={headingId}
       data-place={item.key}
+      onClick={showFromCard}
     >
       <span className={styles.thumbWrap}>
-        <PlaceThumb id={item.key} category={item.category} size={variant} />
+        {onShow ? (
+          <button type="button" className={styles.thumbButton} onClick={onShow} aria-label={`Show ${item.name} on the map`}>
+            {thumb}
+          </button>
+        ) : (
+          thumb
+        )}
         {state?.visited && (
           <span className={styles.visited} aria-hidden="true">
             ✓

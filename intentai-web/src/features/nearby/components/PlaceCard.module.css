@@ -241,3 +241,22 @@
   gap: 0.875rem;
   min-width: 0;
 }
+
+/* The selected place's card: a tap on it (or its picture) shows the place on the map. */
+.showable {
+  cursor: pointer;
+}
+
+.thumbButton {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+}
+
+.thumbButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -139,17 +139,34 @@ describe('Explore', () => {
     const pin = () => document.querySelector('[data-pin="curated:sg-merlion-park"]');
     const card = screen.getAllByRole('button', { name: 'Merlion Park' })[0];
     await userEvent.click(card);
+    // a row goes to its place: the full list gives way to the map, with the place selected
     expect(screen.getByTestId('where')).toHaveTextContent('sel=curated%3Asg-merlion-park');
-    expect(card).toHaveAttribute('aria-pressed', 'true');
-    // the list is the full sheet; its handle brings the map back
-    await userEvent.click(screen.getByRole('button', { name: 'Show the map' }));
     expect(screen.getByTestId('where')).not.toHaveTextContent('view=list');
+    expect(screen.getByRole('region', { name: 'Places' })).toHaveAttribute('data-detent', 'half');
     expect(within(screen.getByRole('region', { name: 'Selected place' })).getByText('Merlion Park')).toBeInTheDocument();
     expect(pin()).toHaveAttribute('aria-pressed', 'true');
     // and from the map: another pin selects its card
     const other = document.querySelector<HTMLButtonElement>('[data-pin]:not([data-pin="curated:sg-merlion-park"])')!;
     await userEvent.click(other);
     expect(screen.getByTestId('where')).toHaveTextContent(`sel=${encodeURIComponent(other.dataset.pin!)}`);
+  });
+
+  test('a tap on the selected card (or its picture) goes to the place on the map, close up', async () => {
+    renderAt('/nearby?sel=curated%3Asg-merlion-park');
+    const map = screen.getByRole('application', { name: /Map of Singapore places/ });
+    const before = Number(map.getAttribute('data-scale'));
+    const sheet = screen.getByRole('region', { name: 'Selected place' });
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Show Merlion Park on the map' }));
+    const after = Number(map.getAttribute('data-scale'));
+    expect(after).toBeGreaterThan(before * 4);
+    // the card's own buttons keep their job: Check in does not move the map
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Check in' }));
+    expect(Number(map.getAttribute('data-scale'))).toBe(after);
+    // a tap on the card itself goes there again (after the map was zoomed out)
+    await userEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
+    expect(Number(map.getAttribute('data-scale'))).toBeLessThan(after);
+    await userEvent.click(within(sheet).getByText('Merlion Park'));
+    expect(Number(map.getAttribute('data-scale'))).toBe(after);
   });
 
   test('View details unfolds the place under its card in the sheet (Explore stays); check in works there', async () => {
