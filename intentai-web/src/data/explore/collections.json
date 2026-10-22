@@ -182,5 +182,29 @@
       "curated:sg-zion-riverside-food-centre",
       "curated:sg-chinatown-complex-food-centre"
     ]
+  },
+  {
+    "id": "sg-korean-restaurants",
+    "version": 1,
+    "country": "SG",
+    "kind": "picks",
+    "title": "Korean restaurants to know",
+    "titleZh": "值得一去的韩国餐厅",
+    "starterTitle": "Korean restaurants to know",
+    "description": "Ten Korean restaurants: the three in the 2026 Michelin Guide Singapore, then picks from Tatler, Time Out and Korea's 2025 Outstanding Korean Restaurant awards.",
+    "status": "starter",
+    "targetCount": 10,
+    "memberIds": [
+      "curated:sg-meta",
+      "curated:sg-nae-um",
+      "curated:sg-na-oh",
+      "curated:sg-cote",
+      "curated:sg-gu-um",
+      "curated:sg-seoul-restaurant",
+      "curated:sg-um-yong-baek",
+      "curated:sg-anju",
+      "curated:sg-chang-korean-charcoal-bbq",
+      "curated:sg-obba-bbq"
+    ]
   }
 ]

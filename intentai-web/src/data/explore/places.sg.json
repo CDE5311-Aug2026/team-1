@@ -13488,5 +13488,1048 @@
         ]
       }
     }
+  },
+  {
+    "id": "curated:sg-meta",
+    "name": "Meta",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.29391,
+      "lng": 103.84176,
+      "source": {
+        "title": "Meta – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/meta-570540",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Modern Korean restaurant",
+    "summary": "Chef Sun Kim's progressive Korean restaurant on Mohamed Sultan Road. One seasonal tasting menu built on seafood and vegetables mixes Busan flavours with clean, minimal plating; the steamed abalone is a highlight, with a Korean non-alcoholic drink pairing on offer.",
+    "facts": [
+      {
+        "text": "Meta holds Two MICHELIN Stars in the 2026 Singapore guide, where it is filed under Innovative cuisine. The same year, Tatler named it Restaurant of the Year at its 2026 Best-in-Class awards in Singapore. Tatler notes that Sun Kim, who grew up in Busan, trained under Tetsuya Wakuda, and that the name refers to the idea of metamorphosis in his cooking.",
+        "sources": [
+          {
+            "title": "Meta – MICHELIN Guide",
+            "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/meta-570540",
+            "publisher": "MICHELIN Guide",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Winners of the 2026 Tatler Best-in-Class Restaurant awards in Singapore",
+            "url": "https://www.tatlerasia.com/dining/food/winners-of-the-2026-tatler-best-in-class-restaurant-awards-in-singapore",
+            "publisher": "Tatler Asia",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "Two Michelin Stars",
+      "year": 2026,
+      "source": {
+        "title": "Meta – MICHELIN Guide Singapore 2026",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/meta-570540",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "9 Mohamed Sultan Road, Singapore 238959",
+        "postcode": "238959",
+        "source": {
+          "title": "Meta – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/meta-570540",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6513 0898",
+        "source": {
+          "title": "Meta – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/meta-570540",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://metarestaurant.sg",
+        "source": {
+          "title": "Meta – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/meta-570540",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Meta – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/meta-570540",
+          "publisher": "MICHELIN Guide"
+        },
+        {
+          "title": "Winners of the 2026 Tatler Best-in-Class Restaurant awards in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/winners-of-the-2026-tatler-best-in-class-restaurant-awards-in-singapore",
+          "publisher": "Tatler Asia"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Inspectors and Tatler both praise how Sun Kim pairs bold Korean flavours with a calm, minimal style that keeps evolving.",
+        "sources": [
+          {
+            "title": "Meta – MICHELIN Guide",
+            "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/meta-570540",
+            "publisher": "MICHELIN Guide",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Winners of the 2026 Tatler Best-in-Class Restaurant awards in Singapore",
+            "url": "https://www.tatlerasia.com/dining/food/winners-of-the-2026-tatler-best-in-class-restaurant-awards-in-singapore",
+            "publisher": "Tatler Asia",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-nae-um",
+    "name": "Nae:um",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.28033,
+      "lng": 103.84755,
+      "source": {
+        "title": "Nae:um – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/nae-um",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Modern Korean restaurant",
+    "summary": "Chef Louis Han's contemporary Korean dining room on Telok Ayer Street. His tasting menu retells Korean classics and childhood memories with modern technique; dishes such as buckwheat noodles and short ribs feature, served in a calm, wood-lined room.",
+    "facts": [
+      {
+        "text": "In November 2025, Korea's Ministry of Agriculture, Food and Rural Affairs and the Korean Food Promotion Institute named Nae:um one of seven outstanding Korean restaurants worldwide, three of them in Singapore. The Korea Times reports it has held a MICHELIN star since 2022. Tatler also gave its head sommelier, Ocean Kang, the Best Sommelier award for 2026.",
+        "sources": [
+          {
+            "title": "Korea designates 7 new outstanding Korean restaurants worldwide",
+            "url": "https://www.koreatimes.co.kr/lifestyle/travel-food/20251118/korea-designates-7-new-outstanding-korean-restaurants-worldwide",
+            "publisher": "The Korea Times",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Winners of the 2026 Tatler Best-in-Class Restaurant awards in Singapore",
+            "url": "https://www.tatlerasia.com/dining/food/winners-of-the-2026-tatler-best-in-class-restaurant-awards-in-singapore",
+            "publisher": "Tatler Asia",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "One Michelin Star",
+      "year": 2026,
+      "source": {
+        "title": "Nae:um – MICHELIN Guide Singapore 2026",
+        "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/nae-um",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "161 Telok Ayer Street, Singapore 068615",
+        "postcode": "068615",
+        "source": {
+          "title": "Nae:um – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/nae-um",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 8830 5016",
+        "source": {
+          "title": "Nae:um – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/nae-um",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://naeum.sg",
+        "source": {
+          "title": "Nae:um – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/nae-um",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Mon–Wed 18:00–22:30; Thu–Sat 12:00–15:00, 18:00–22:30; closed Sun",
+        "source": {
+          "title": "Nae:um – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/nae-um",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Nae:um – MICHELIN Guide",
+          "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/nae-um",
+          "publisher": "MICHELIN Guide"
+        },
+        {
+          "title": "The best Korean restaurants in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-restaurants-in-singapore",
+          "publisher": "Tatler Asia"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers describe a refined, personal take on Korean food, with the tasting menu drawing on the chef's own story.",
+        "sources": [
+          {
+            "title": "Nae:um – MICHELIN Guide",
+            "url": "https://guide.michelin.com/sg/en/singapore-region/singapore/restaurant/nae-um",
+            "publisher": "MICHELIN Guide",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Korea designates 7 new outstanding Korean restaurants worldwide",
+            "url": "https://www.koreatimes.co.kr/lifestyle/travel-food/20251118/korea-designates-7-new-outstanding-korean-restaurants-worldwide",
+            "publisher": "The Korea Times",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-na-oh",
+    "name": "Na Oh",
+    "country": "SG",
+    "regionId": "west",
+    "areaId": "sg-jurong",
+    "coordinates": {
+      "lat": 1.35306,
+      "lng": 103.71173,
+      "source": {
+        "title": "Na Oh – MICHELIN Guide (map location)",
+        "url": "https://guide.michelin.com/en/singapore-region/singapore/restaurant/na-oh",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Modern Korean restaurant",
+    "summary": "A seed-to-table Korean restaurant on the top floor of Hyundai's innovation centre in Bulim, run with chef Corey Lee. Most vegetables come each morning from the building's smart farm, and the kitchen serves one seasonal Korean tasting menu.",
+    "facts": [],
+    "recognition": {
+      "label": "MICHELIN Guide Selected",
+      "year": 2026,
+      "source": {
+        "title": "At a Glance: All the Restaurants in the MICHELIN Guide Singapore 2026",
+        "url": "https://guide.michelin.com/kr/en/article/michelin-guide-ceremony/full-list-michelin-guide-sg-2026",
+        "publisher": "MICHELIN Guide",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "Level 3, Hyundai Motor Group Innovation Center Singapore, 2 Bulim Link, Singapore 649674",
+        "postcode": "649674",
+        "source": {
+          "title": "Na Oh – MICHELIN Guide",
+          "url": "https://guide.michelin.com/en/singapore-region/singapore/restaurant/na-oh",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6263 1548",
+        "source": {
+          "title": "Na Oh – MICHELIN Guide",
+          "url": "https://guide.michelin.com/en/singapore-region/singapore/restaurant/na-oh",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.hyundai.com/sg/naoh",
+        "source": {
+          "title": "Na Oh – MICHELIN Guide",
+          "url": "https://guide.michelin.com/en/singapore-region/singapore/restaurant/na-oh",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Tue–Sat 11:30–16:00, 18:00–22:00; closed Sun–Mon",
+        "source": {
+          "title": "Na Oh – MICHELIN Guide",
+          "url": "https://guide.michelin.com/en/singapore-region/singapore/restaurant/na-oh",
+          "publisher": "MICHELIN Guide",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Na Oh – MICHELIN Guide",
+          "url": "https://guide.michelin.com/en/singapore-region/singapore/restaurant/na-oh",
+          "publisher": "MICHELIN Guide"
+        },
+        {
+          "title": "Best Korean restaurants in Singapore",
+          "url": "https://thehoneycombers.com/singapore/korean-food-restaurants-singapore/",
+          "publisher": "Honeycombers"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers highlight the farm-fresh produce and Corey Lee's polished Korean set menus, and warn that tables book up fast.",
+        "sources": [
+          {
+            "title": "Na Oh – MICHELIN Guide",
+            "url": "https://guide.michelin.com/en/singapore-region/singapore/restaurant/na-oh",
+            "publisher": "MICHELIN Guide",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Best Korean restaurants in Singapore",
+            "url": "https://thehoneycombers.com/singapore/korean-food-restaurants-singapore/",
+            "publisher": "Honeycombers",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-cote",
+    "name": "Cote (COMO Orchard)",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.30421,
+      "lng": 103.83677,
+      "source": {
+        "title": "Cote Singapore – Tatler Asia (map link)",
+        "url": "https://www.tatlerasia.com/dining/cote",
+        "publisher": "Tatler Asia",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Korean steakhouse",
+    "summary": "The first overseas branch of New York's Korean steakhouse, on Level 3 of COMO Orchard. It blends Korean barbecue with American steakhouse style; first-timers usually order the Butcher's Feast set of four beef cuts with stews and banchan.",
+    "facts": [],
+    "recognition": {
+      "label": "Tatler Best Restaurants Singapore Spotlight 2026",
+      "year": 2026,
+      "source": {
+        "title": "Cote Singapore – Tatler Best Restaurants",
+        "url": "https://www.tatlerasia.com/dining/cote",
+        "publisher": "Tatler Asia",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "Level 3, COMO Orchard, 30 Bideford Road, Singapore 229922",
+        "postcode": "229922",
+        "source": {
+          "title": "COTE Singapore – COMO Hotels",
+          "url": "https://comohotels.com/singapore/como-metropolitan-singapore/dining/cote-korean-steakhouse",
+          "publisher": "COMO Hotels and Resorts",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6233 3888",
+        "source": {
+          "title": "COTE Singapore – COMO Hotels",
+          "url": "https://comohotels.com/singapore/como-metropolitan-singapore/dining/cote-korean-steakhouse",
+          "publisher": "COMO Hotels and Resorts",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.cotekoreansteakhouse.com/locations/cotesingapore",
+        "source": {
+          "title": "COTE Singapore – COMO Hotels",
+          "url": "https://comohotels.com/singapore/como-metropolitan-singapore/dining/cote-korean-steakhouse",
+          "publisher": "COMO Hotels and Resorts",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 12:00–15:00, 17:00–22:00",
+        "source": {
+          "title": "COTE Singapore – COMO Hotels",
+          "url": "https://comohotels.com/singapore/como-metropolitan-singapore/dining/cote-korean-steakhouse",
+          "publisher": "COMO Hotels and Resorts",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Cote Singapore – Tatler Best Restaurants",
+          "url": "https://www.tatlerasia.com/dining/cote",
+          "publisher": "Tatler Asia"
+        },
+        {
+          "title": "The best new Korean barbecue restaurants in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/seoul-sizzle-new-korean-bbq-spots-in-singapore",
+          "publisher": "Tatler Asia"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Tatler praises the mix of Korean barbecue fun and steakhouse polish, pointing to the seafood starter and the Butcher's Feast.",
+        "sources": [
+          {
+            "title": "Cote Singapore – Tatler Best Restaurants",
+            "url": "https://www.tatlerasia.com/dining/cote",
+            "publisher": "Tatler Asia",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-gu-um",
+    "name": "Gu:um",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.28,
+      "lng": 103.84143,
+      "source": {
+        "title": "Gu:um – Tatler Asia (map link)",
+        "url": "https://www.tatlerasia.com/dining/guum",
+        "publisher": "Tatler Asia",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Korean grill restaurant",
+    "summary": "Louis Han's casual Korean grill in a Keong Saik Road shophouse, sister to Nae:um. Meats and seafood are cooked over charcoal with house marinades; try the short rib, the beef-tartare potato pancake and hotteok for dessert.",
+    "facts": [],
+    "recognition": {
+      "label": "Tatler Best Restaurants Singapore Spotlight 2026",
+      "year": 2026,
+      "source": {
+        "title": "Gu:um – Tatler Best Restaurants",
+        "url": "https://www.tatlerasia.com/dining/guum",
+        "publisher": "Tatler Asia",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "29 Keong Saik Road, Singapore 089136",
+        "postcode": "089136",
+        "source": {
+          "title": "Gu:um – Tatler Asia",
+          "url": "https://www.tatlerasia.com/dining/guum",
+          "publisher": "Tatler Asia",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 8831 6308",
+        "source": {
+          "title": "Gu:um – Tatler Asia",
+          "url": "https://www.tatlerasia.com/dining/guum",
+          "publisher": "Tatler Asia",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://guum.sg",
+        "source": {
+          "title": "Gu:um – Tatler Asia",
+          "url": "https://www.tatlerasia.com/dining/guum",
+          "publisher": "Tatler Asia",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Tue–Sat 17:30–22:30; closed Sun–Mon",
+        "source": {
+          "title": "Guum – Time Out Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/guum",
+          "publisher": "Time Out Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Gu:um – Tatler Best Restaurants",
+          "url": "https://www.tatlerasia.com/dining/guum",
+          "publisher": "Tatler Asia"
+        },
+        {
+          "title": "Modern Korean grill concept Guum brings the fire and the flavour to Keong Saik Road",
+          "url": "https://www.tatlerasia.com/dining/food/new-restaurant-alert-modern-korean-grill-concept-guum-keong-saik",
+          "publisher": "Tatler Asia"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Tatler calls it a lively modern grill, singling out the prime short rib, cold noodles and friendly service.",
+        "sources": [
+          {
+            "title": "Gu:um – Tatler Best Restaurants",
+            "url": "https://www.tatlerasia.com/dining/guum",
+            "publisher": "Tatler Asia",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-seoul-restaurant",
+    "name": "Seoul Restaurant (Conrad Singapore Orchard)",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.30482,
+      "lng": 103.82524,
+      "source": {
+        "title": "Seoul Restaurant – Pearl (map link)",
+        "url": "https://joinpearl.co/restaurants/singapore/seoul-restaurant",
+        "publisher": "Pearl",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Korean barbecue restaurant",
+    "summary": "A family-run Korean restaurant on Level 3 of Conrad Singapore Orchard. Guests grill meats over charcoal at the table, and the menu also covers stews, pancakes and japchae, with à la carte, set and buffet options.",
+    "facts": [
+      {
+        "text": "Seoul Restaurant was one of three Singapore restaurants that Korea's Ministry of Agriculture, Food and Rural Affairs and the Korean Food Promotion Institute named outstanding Korean restaurants in November 2025. The Korea Times singled out its grilled beef, stews, pancakes and japchae, and its traditional room with antique furnishings.",
+        "sources": [
+          {
+            "title": "Korea designates 7 new outstanding Korean restaurants worldwide",
+            "url": "https://www.koreatimes.co.kr/lifestyle/travel-food/20251118/korea-designates-7-new-outstanding-korean-restaurants-worldwide",
+            "publisher": "The Korea Times",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "South Korea just recognised 3 outstanding Korean restaurants in Singapore",
+            "url": "https://www.timeout.com/singapore/news/south-korea-just-recognised-3-outstanding-korean-restaurants-in-singapore-guess-which-112425",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "Outstanding Korean Restaurant (Korea MAFRA & Korean Food Promotion Institute) 2025",
+      "year": 2025,
+      "source": {
+        "title": "Korea designates 7 new outstanding Korean restaurants worldwide",
+        "url": "https://www.koreatimes.co.kr/lifestyle/travel-food/20251118/korea-designates-7-new-outstanding-korean-restaurants-worldwide",
+        "publisher": "The Korea Times",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "#03-02 Conrad Singapore Orchard, 1 Cuscaden Road, Singapore 249715",
+        "postcode": "249715",
+        "source": {
+          "title": "The best Korean restaurants in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-restaurants-in-singapore",
+          "publisher": "Tatler Asia",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6338 8548",
+        "source": {
+          "title": "Seoul Restaurant – Burpple",
+          "url": "https://burpple.com/seoul-restaurant-charcoal-barbecue",
+          "publisher": "Burpple",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://www.hilton.com/en/hotels/sinodci-conrad-singapore-orchard/dining/seoul/",
+        "source": {
+          "title": "Seoul – Conrad Singapore Orchard",
+          "url": "https://www.hilton.com/en/hotels/sinodci-conrad-singapore-orchard/dining/seoul/",
+          "publisher": "Hilton",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 12:00–15:00, 18:00–22:30",
+        "source": {
+          "title": "Seoul – Conrad Singapore Orchard",
+          "url": "https://www.hilton.com/en/hotels/sinodci-conrad-singapore-orchard/dining/seoul/",
+          "publisher": "Hilton",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Seoul Restaurant – Time Out Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/seoul-restaurant",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "The best Korean restaurants in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-restaurants-in-singapore",
+          "publisher": "Tatler Asia"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers see it as a step up from budget barbecue buffets, praising the charcoal-grilled cuts, seafood pancake and cold buckwheat noodles.",
+        "sources": [
+          {
+            "title": "Seoul Restaurant – Time Out Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/seoul-restaurant",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-um-yong-baek",
+    "name": "Um Yong Baek (Boon Tat Street)",
+    "nameKo": "엄용백",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.2813,
+      "lng": 103.84865,
+      "source": {
+        "title": "Um Yong Baek – Burpple (map link)",
+        "url": "https://www.burpple.com/um-yong-baek",
+        "publisher": "Burpple",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Korean pork soup and barbecue restaurant",
+    "summary": "Singapore branch of a Busan pork-soup house, near Telok Ayer. Lunch is about dwaeji gukbap, pork and rice soup in clear Busan or creamier Milyang style; at night it turns into a pork-focused Korean barbecue grill.",
+    "facts": [
+      {
+        "text": "Um Yong Baek is the local outpost of the Busan restaurant Um Yong Baek Dwaejigukbap. In November 2025, Korea's agriculture ministry and the Korean Food Promotion Institute named it one of three outstanding Korean restaurants in Singapore, citing its pork soup, grilled pork, soy sauce noodles and perilla-oil buckwheat noodles.",
+        "sources": [
+          {
+            "title": "Korea designates 7 new outstanding Korean restaurants worldwide",
+            "url": "https://www.koreatimes.co.kr/lifestyle/travel-food/20251118/korea-designates-7-new-outstanding-korean-restaurants-worldwide",
+            "publisher": "The Korea Times",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    ],
+    "recognition": {
+      "label": "Outstanding Korean Restaurant (Korea MAFRA & Korean Food Promotion Institute) 2025",
+      "year": 2025,
+      "source": {
+        "title": "Korea designates 7 new outstanding Korean restaurants worldwide",
+        "url": "https://www.koreatimes.co.kr/lifestyle/travel-food/20251118/korea-designates-7-new-outstanding-korean-restaurants-worldwide",
+        "publisher": "The Korea Times",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "27 Boon Tat Street, Singapore 069623",
+        "postcode": "069623",
+        "source": {
+          "title": "Um Yong Baek review",
+          "url": "https://middleclass.sg/treats/um-yong-baek-review-singapore/",
+          "publisher": "MiddleClass.sg",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://umyongbaekeg.creatorlink.net/",
+        "source": {
+          "title": "Um Yong Baek – Burpple",
+          "url": "https://www.burpple.com/um-yong-baek",
+          "publisher": "Burpple",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Um Yong Baek – Time Out Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/um-yong-baek",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "Um Yong Baek review",
+          "url": "https://hungrygowhere.com/critics-reviews/um-yong-baek-singapore/",
+          "publisher": "HungryGoWhere"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers rate its gukbap among the best in town and warn of long queues, especially at lunch.",
+        "sources": [
+          {
+            "title": "The best Korean restaurants in Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/the-best-korean-restaurants-in-singapore",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Um Yong Baek review",
+            "url": "https://middleclass.sg/treats/um-yong-baek-review-singapore/",
+            "publisher": "MiddleClass.sg",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-anju",
+    "name": "Anju",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.27781,
+      "lng": 103.84424,
+      "source": {
+        "title": "ANJU – Wanderlog (map link)",
+        "url": "https://wanderlog.com/place/details/1568930/anju",
+        "publisher": "Wanderlog",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Modern Korean restaurant",
+    "summary": "A modern Korean dining room on Tras Street in Tanjong Pagar, serving refined small plates to share with Korean drinks. Try the galbi jjim braised short ribs, the black bean mascarpone on sourdough, and sotbap pot rice.",
+    "facts": [],
+    "recognition": {
+      "label": "Time Out Singapore 50 Best Restaurants in Singapore 2025",
+      "year": 2025,
+      "source": {
+        "title": "The 50 best restaurants in Singapore",
+        "url": "https://www.timeout.com/singapore/restaurants/the-50-best-restaurants-in-singapore",
+        "publisher": "Time Out Singapore",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "62 Tras Street, Singapore 079001",
+        "postcode": "079001",
+        "source": {
+          "title": "Anju – Tras Street modern Korean dining",
+          "url": "https://www.sgfoodonfoot.com/2025/10/anju-tras-street-modern-korean-dining.html",
+          "publisher": "SG Food on Foot",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6612 1172",
+        "source": {
+          "title": "Anju – Tras Street modern Korean dining",
+          "url": "https://www.sgfoodonfoot.com/2025/10/anju-tras-street-modern-korean-dining.html",
+          "publisher": "SG Food on Foot",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://anju.com.sg",
+        "source": {
+          "title": "Anju – Time Out Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/anju",
+          "publisher": "Time Out Singapore",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Tue–Sat 18:00–22:30; closed Sun–Mon",
+        "source": {
+          "title": "Anju – Tras Street modern Korean dining",
+          "url": "https://www.sgfoodonfoot.com/2025/10/anju-tras-street-modern-korean-dining.html",
+          "publisher": "SG Food on Foot",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "Anju – Time Out Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/anju",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "The best Korean restaurants in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-restaurants-in-singapore",
+          "publisher": "Tatler Asia"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Critics like how it mixes traditional and modern Korean cooking in an elegant, cosy room.",
+        "sources": [
+          {
+            "title": "The 50 best restaurants in Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/the-50-best-restaurants-in-singapore",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "Anju – Time Out Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/anju",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-chang-korean-charcoal-bbq",
+    "name": "Chang Korean Charcoal BBQ (Dempsey)",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.30221,
+      "lng": 103.81128,
+      "source": {
+        "title": "Chang Korean Charcoal BBQ – Burpple (map link)",
+        "url": "https://burpple.com/chang-korean-bbq",
+        "publisher": "Burpple",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Korean barbecue restaurant",
+    "summary": "A Korean charcoal barbecue restaurant in Dempsey, on Loewen Road. It is known for premium meats such as Wagyu and Kurobuta pork grilled at the table, plus oyster pancake and galbi stew.",
+    "facts": [],
+    "recognition": {
+      "label": "Tatler 24 best Korean BBQ restaurants in Singapore 2025",
+      "year": 2025,
+      "source": {
+        "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+        "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+        "publisher": "Tatler Asia",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "71 Loewen Road, #01-01, Singapore 248847",
+        "postcode": "248847",
+        "source": {
+          "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+          "publisher": "Tatler Asia",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6473 9005",
+        "source": {
+          "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+          "publisher": "Tatler Asia",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Daily 12:00–15:00, 18:00–22:00",
+        "source": {
+          "title": "Chang Korean Charcoal BBQ – Burpple",
+          "url": "https://burpple.com/chang-korean-bbq",
+          "publisher": "Burpple",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+          "publisher": "Tatler Asia"
+        },
+        {
+          "title": "The best Korean restaurants in Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/the-best-korean-restaurants-in-singapore",
+          "publisher": "Time Out Singapore"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Guides recommend it for high-grade grilled meats in a relaxed Dempsey setting.",
+        "sources": [
+          {
+            "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+            "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+            "publisher": "Tatler Asia",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "The best Korean restaurants in Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/the-best-korean-restaurants-in-singapore",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "curated:sg-obba-bbq",
+    "name": "O.BBa BBQ (Tanjong Pagar)",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.27829,
+      "lng": 103.8439,
+      "source": {
+        "title": "OBBA BBQ (Tanjong Pagar) – Burpple (map link)",
+        "url": "https://www.burpple.com/obba",
+        "publisher": "Burpple",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "category": "food",
+    "kind": "Korean barbecue restaurant",
+    "summary": "A busy walk-in Korean barbecue spot on Tanjong Pagar Road's Korean strip. Thick-cut and bone-in pork belly and marbled beef are the draw; the brand is also known for jajangmyeon black bean noodles.",
+    "facts": [],
+    "recognition": {
+      "label": "Tatler 24 best Korean BBQ restaurants in Singapore 2025",
+      "year": 2025,
+      "source": {
+        "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+        "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+        "publisher": "Tatler Asia",
+        "checkedAt": "2026-10-22"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-22",
+    "reviewedBy": "Research agent (writer check; source pages opened for every award; pending team editor sign-off)",
+    "details": {
+      "address": {
+        "text": "63 Tanjong Pagar Road, Singapore 088484",
+        "postcode": "088484",
+        "source": {
+          "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+          "publisher": "Tatler Asia",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "phone": {
+        "text": "+65 6222 0840",
+        "source": {
+          "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+          "publisher": "Tatler Asia",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "website": {
+        "url": "https://obba-sg.com/",
+        "source": {
+          "title": "OBBA BBQ (Tanjong Pagar) – Burpple",
+          "url": "https://www.burpple.com/obba",
+          "publisher": "Burpple",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "hours": {
+        "text": "Wed–Mon 11:30–15:00, 17:00–23:00; closed Tue",
+        "source": {
+          "title": "OBBA BBQ (Tanjong Pagar) – Burpple",
+          "url": "https://www.burpple.com/obba",
+          "publisher": "Burpple",
+          "checkedAt": "2026-10-22"
+        }
+      },
+      "reviews": [
+        {
+          "title": "O.BBA – Time Out Singapore",
+          "url": "https://www.timeout.com/singapore/restaurants/o-bba",
+          "publisher": "Time Out Singapore"
+        },
+        {
+          "title": "24 best Korean BBQ restaurants to feast with friends and family in Singapore",
+          "url": "https://www.tatlerasia.com/dining/food/best-korean-bbq-restaurants-in-singapore",
+          "publisher": "Tatler Asia"
+        }
+      ],
+      "reviewSummary": {
+        "text": "Reviewers praise its grilled pork and beef and its black bean noodles, and say to come early because it takes no bookings.",
+        "sources": [
+          {
+            "title": "O.BBA – Time Out Singapore",
+            "url": "https://www.timeout.com/singapore/restaurants/o-bba",
+            "publisher": "Time Out Singapore",
+            "checkedAt": "2026-10-22"
+          },
+          {
+            "title": "18 Best Korean Barbecues In Singapore",
+            "url": "https://www.littledayout.com/best-korean-barbecues-in-singapore-kbbq/",
+            "publisher": "Little Day Out",
+            "checkedAt": "2026-10-22"
+          }
+        ]
+      }
+    }
   }
 ]

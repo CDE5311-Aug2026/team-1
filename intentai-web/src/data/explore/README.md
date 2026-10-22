@@ -8,7 +8,7 @@ Owned editorial data for Nearby. Validate after every edit: `npm run validate:ex
 | --- | --- | --- |
 | `earth-online` | 99 | A landmark or site of the **EARTH ONLINE · City Brush Singapore dataset** (github.com/Wsamme/earth_online): position of its 3D model, English/Chinese names, intro card (`description`, `quickFacts`). The intro cards are **not linked to sources**, so the app shows them as "From the EARTH ONLINE Singapore dataset" and shows no fun facts for these places. |
 | `earth-online+researched` | 22 | The same dataset place, plus researched fun facts with source links. |
-| `researched` | 42 | Places not modelled in the dataset (food centres, nature reserves, neighbourhoods; since 21 Oct also 20 Michelin-listed hawker stalls and Chinese restaurants for Editor's picks), researched with source links. The 3D view pins their point. |
+| `researched` | 52 | Places not modelled in the dataset (food centres, nature reserves, neighbourhoods; since 21 Oct also 20 Michelin-listed hawker stalls and Chinese restaurants, and since 22 Oct 10 Korean restaurants, for Editor's picks), researched with source links. The 3D view pins their point. |
 
 Research (20 Oct 2026): facts were written by research agents from pages they opened (Roots.gov.sg / NHB, NParks, NEA,
 URA, operators, Wikipedia), 40–80 words each, original wording, disputed claims left out. 14 places then had an
@@ -23,7 +23,7 @@ matches the 3D model).
 
 ## Editor's picks (21 Oct 2026)
 
-Three short lists (`kind: "picks"` in `collections.json`, 10 places each, opened from Explore's list button):
+Short lists (`kind: "picks"` in `collections.json`, 10 places each, opened from Explore's list button):
 `sg-michelin-hawkers` (Bib Gourmand stalls), `sg-chinese-restaurants` (8 one-star, 1 Bib Gourmand, 1 Selected) and
 `sg-hawker-centres` (the nine researched centres plus Chinatown Complex). All awards are from the **2026 MICHELIN
 Guide Singapore** (Bib Gourmand list 28 Jul 2026, full selection 4 Aug 2026); each entry's `recognition.source` is its
@@ -31,6 +31,16 @@ guide.michelin.com page, opened on 21 Oct 2026 (two re-opened independently). Aw
 when the next guide is out. Coordinates come from the map on each guide page (OpenStreetMap refused automated access),
 not cross-checked; Chinatown Complex uses the point of a stall inside it. Chinese names come from the guide's Chinese
 pages. Putien (Kitchener Road) is "Selected" (no star or Bib) — swap it out if the list should be starred / Bib only.
+
+`sg-korean-restaurants` (22 Oct 2026): the 2026 guide has only three Korean restaurants — Meta (two stars; the guide
+files it under "Innovative"), Nae:um (one star) and Na Oh (Selected, from the guide's full 2026 list article). The other
+seven come from dated editorial picks, each named in its `recognition`: Tatler Best Restaurants Spotlight 2026 (Cote,
+Gu:um), Korea's 2025 Outstanding Korean Restaurant designation (MAFRA and the Korean Food Promotion Institute, via The
+Korea Times: Seoul Restaurant, Um Yong Baek; Nae:um was the third), Time Out Singapore's 50 Best (Feb 2025; Anju,
+matched by its description — the page lists no names in text) and Tatler's best Korean BBQ list (Nov 2025; Chang,
+O.BBa). Re-check first: coordinates for those seven come from Tatler map links, Pearl, Burpple and Wanderlog, not
+Michelin; Cote's phone is the COMO hotel's number; Meta's hours and Um Yong Baek's hours and phone are left out because
+the sources disagree. No source gave Chinese names; 엄용백 (Um Yong Baek) is from MiddleClass.sg.
 
 ## Files
 

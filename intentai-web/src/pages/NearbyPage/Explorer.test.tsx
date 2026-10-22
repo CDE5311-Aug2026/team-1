@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, expect, test, vi } from 'vitest';
 import AppShell from '../../components/AppShell/AppShell';
-import { COLLECTIONS, collection, members, placesIn } from '../../features/nearby/catalogue';
+import { COLLECTIONS, collection, curatedPlace, members, placesIn } from '../../features/nearby/catalogue';
 import { getLocationState } from '../../features/nearby/location';
 import { deleteAllData, explorePersonalStore, settingsStore } from '../../data/stores';
 import { stateOf } from '../../features/nearby/personal';
@@ -80,6 +80,22 @@ describe('Explore', () => {
     await userEvent.click(within(sheet).getByRole('button', { name: 'Close this list' }));
     expect(screen.getByTestId('where')).not.toHaveTextContent('list=');
     expect(within(sheet).getByRole('heading', { level: 1, name: 'Nearby' })).toBeInTheDocument();
+  });
+
+  test("Korean restaurants to know: ten places, each with a dated, linked recognition; Hangul names show in their own language", async () => {
+    const list = collection('sg-korean-restaurants')!;
+    expect(list.memberIds).toHaveLength(10);
+    for (const id of list.memberIds) {
+      const p = curatedPlace(id)!;
+      expect(p.category).toBe('food');
+      expect(p.recognition?.source.url).toMatch(/^https:\/\//);
+      expect(p.recognition!.year).toBeGreaterThanOrEqual(2025);
+    }
+    renderAt('/nearby?list=sg-korean-restaurants&view=list');
+    const sheet = screen.getByRole('region', { name: 'Places' });
+    expect(within(sheet).getByRole('heading', { level: 1, name: 'Korean restaurants to know' })).toBeInTheDocument();
+    expect(within(sheet).getAllByRole('button', { name: /^Check in:/ })).toHaveLength(10);
+    expect(within(sheet).getByText('엄용백')).toHaveAttribute('lang', 'ko');
   });
 
   test('a submitted search needs 2–100 characters and searches only on submit', async () => {

@@ -132,6 +132,11 @@ export default function PlaceCard({
             {item.place.nameZh}
           </p>
         )}
+        {item.place.nameKo && (
+          <p className={styles.zh} lang="ko">
+            {item.place.nameKo}
+          </p>
+        )}
         <p className={styles.meta}>
           <span className={styles.srOnly}>{info.label}: </span>
           {item.kindLabel}

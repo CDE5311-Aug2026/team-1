@@ -44,6 +44,8 @@ export interface CuratedPlace {
   name: string;
   /** Chinese name from the EARTH ONLINE dataset (Simplified). */
   nameZh?: string;
+  /** Korean name (Hangul), when a source gives one (Korean restaurants). */
+  nameKo?: string;
   country: CountryCode;
   regionId: string;
   areaId: string;
