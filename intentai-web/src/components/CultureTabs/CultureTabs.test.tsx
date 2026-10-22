@@ -93,6 +93,22 @@ test('resets to the first tab when the categories change', async () => {
   expect(screen.getByRole('tab', { name: 'Festivals' })).toHaveAttribute('aria-selected', 'true');
 });
 
+test('one video plays at a time; a video whose length is unknown shows none', async () => {
+  const { container } = render(<CultureTabs categories={['foods', 'unesco', 'ich']} />);
+  const crab = screen.getByRole('article', { name: 'Chilli crab' });
+  expect(within(crab).getByRole('button', { name: 'Play video: Chilli Crab' })).toBeInTheDocument();
+  expect(crab).toHaveTextContent('Video · Roots Sg · Watch on YouTube');
+  // an article without a video keeps its photo, described
+  const rice = screen.getByRole('article', { name: 'Hainanese chicken rice' });
+  expect(within(rice).queryByRole('button', { name: /^Play video/ })).toBeNull();
+  await userEvent.click(within(crab).getByRole('button', { name: 'Play video: Chilli Crab' }));
+  expect(container.querySelectorAll('iframe')).toHaveLength(1);
+  await userEvent.click(screen.getByRole('tab', { name: 'Heritage' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Play video: Dikir Barat' }));
+  expect(container.querySelectorAll('iframe')).toHaveLength(1);
+  expect(container.querySelector('iframe')!.getAttribute('src')).toContain('hstiS2Q8Q8k');
+});
+
 test('switching tabs after playing a video stops it', async () => {
   const { container } = render(<CultureTabs categories={TABS} />);
   await userEvent.click(screen.getByRole('tab', { name: 'UNESCO' }));

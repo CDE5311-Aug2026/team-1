@@ -135,7 +135,8 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
   as wide as it was (`#span=` / `show {span}`; the lite page reports `view {at, span}` once it rests, and the 2D map
   opens there on the way back). 3D has the map's zoom (+ / −, message `zoom`) and recenter buttons; recenter (or
   opening 3D directly) frames the list, the area around you or the search results.
-- **Today ↔ Nearby:** a Today article, video or holiday that names a place links to it (`src/data/cultureLinks.ts`):
+- **Today's culture cards:** under the map tile the tabs lead straight to the cards; each card can carry its own short video (`ARTICLE_VIDEOS` in `src/data/videos.ts`, Roots Sg): a play button on its photo plays it there (youtube-nocookie, nothing loaded before the tap), one at a time. 5 of the 18 articles have one so far.
+- **Today ↔ Nearby:** a Today article or holiday that names a place links to it (`src/data/cultureLinks.ts`):
   "In Nearby" chips open the place selected on the map with its details, its area, or an editor's pick, and a ✓ shows
   a check-in. The place shows the article back as a "Culture · from Today" card. Links only where the text names the
   place, or "Try it" for a catalogue stall serving the dish; `cultureLinks.test.tsx` checks ids, labels and wording.

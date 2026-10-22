@@ -127,7 +127,7 @@ function ArticleCard({ article, playing, onPlay }: { article: Article; playing: 
       {video && (
         // the video's own YouTube page is its source
         <p className={styles.videoMeta}>
-          Video · {video.channel} · {video.length} ·{' '}
+          Video · {video.channel} · {video.length ? `${video.length} · ` : ''}
           <a className={styles.watch} href={video.sources[0].url} target="_blank" rel="noopener noreferrer">
             Watch on YouTube
           </a>
@@ -185,7 +185,7 @@ function CardMedia({
   }
   if (video) {
     return (
-      <button type="button" className={styles.media} aria-label={`Play video: ${video.title} (${video.length})`} onClick={onPlay}>
+      <button type="button" className={styles.media} aria-label={`Play video: ${video.title}${video.length ? ` (${video.length})` : ''}`} onClick={onPlay}>
         {image ? (
           <img className={styles.mediaPhoto} src={image.src} alt="" width={720} height={405} loading="lazy" />
         ) : (
@@ -196,9 +196,11 @@ function CardMedia({
             <path d="M8 5v14l11-7z" fill="currentColor" />
           </svg>
         </span>
-        <span className={styles.length} aria-hidden="true">
-          {video.length}
-        </span>
+        {video.length && (
+          <span className={styles.length} aria-hidden="true">
+            {video.length}
+          </span>
+        )}
       </button>
     );
   }
