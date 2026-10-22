@@ -11,7 +11,9 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     viewport: { width: 390, height: 844 },
-    // Tests start as a returning user (onboarding done). e2e/onboarding.spec.ts opts out.
+    // Optional: point at a preinstalled Chromium when the bundled browser revision is unavailable (CI images).
+    launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
+    // Tests start as a returning user (onboarding done, test name typed). e2e/onboarding.spec.ts opts out.
     storageState: {
       cookies: [],
       origins: [
@@ -22,6 +24,8 @@ export default defineConfig({
               name: 'intentai:v1:onboarding',
               value: JSON.stringify({ done: true, duration: '3 months – 1 year', topics: ['Work', 'Food', 'Daily life', 'Getting around'] }),
             },
+            // past the user test start screen (its own e2e starts from empty storage)
+            { name: 'intentai:v1:tester', value: JSON.stringify({ name: 'E2E' }) },
           ],
         },
       ],

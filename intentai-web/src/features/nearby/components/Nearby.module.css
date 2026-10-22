@@ -1,0 +1,1093 @@
+/* Nearby Explorer: shared layout pieces. Uses the app tokens (Inter, warm surfaces, --accent, 16px cards). */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-top: 0.875rem;
+  min-width: 0;
+}
+
+/* ---------- headers ---------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+}
+
+.logo {
+  width: 58px;
+  height: 58px;
+  margin: -15px -12px -11px -10px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chip {
+  position: relative;
+  flex-shrink: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  border: 0;
+  border-radius: var(--radius-pill-lg);
+  background: var(--chip-bg);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tab);
+  cursor: pointer;
+  text-align: left;
+}
+
+.chip::after {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+}
+
+.chipText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--text-quaternary);
+}
+
+.dotOn {
+  background: #3478f6;
+}
+
+.backHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2rem;
+}
+
+.back {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chip-bg);
+  cursor: pointer;
+}
+
+.back::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.detailTitle {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- section nav ---------- */
+
+.sections {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill-lg);
+  background: var(--chip-bg);
+}
+
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  border-radius: var(--radius-card);
+  font-size: var(--fs-button);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.sectionActive {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card-active);
+}
+
+/* ---------- forms, chips ---------- */
+
+.search {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill-lg);
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filterChip {
+  position: relative;
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill-lg);
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.filterChip::after {
+  content: '';
+  position: absolute;
+  inset: -4px -2px;
+}
+
+.filterChip[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--tint-warm-1);
+  color: #a3410b;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-pill-lg);
+  background: var(--chip-bg);
+}
+
+.segment {
+  min-height: 2.25rem;
+  min-width: 3.5rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 0.8125rem;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.segment[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card-active);
+}
+
+.select {
+  min-height: 2.25rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ---------- buttons ---------- */
+
+.primary,
+.secondary,
+.ghostButton,
+.linkButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 1.25rem;
+  font: inherit;
+  font-size: var(--fs-button);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+}
+
+.secondary,
+.linkButton {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.ghostButton {
+  border: 1px solid transparent;
+  background: var(--chip-bg);
+  color: var(--text-primary);
+}
+
+.ghostButton[aria-pressed='true'] {
+  border-color: var(--accent-tile-border);
+  background: var(--tint-warm-1);
+  color: #a3410b;
+}
+
+.textButton {
+  align-self: flex-start;
+  min-height: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--fs-button);
+  font-weight: 600;
+  color: #b4500f;
+  cursor: pointer;
+}
+
+.textButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.textLink {
+  font-size: var(--fs-button);
+  font-weight: 600;
+  color: #b4500f;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.ghostButton:focus-visible,
+.linkButton:focus-visible,
+.filterChip:focus-visible,
+.segment:focus-visible,
+.section:focus-visible,
+.chip:focus-visible,
+.back:focus-visible,
+.cardSelect:focus-visible,
+.searchInput:focus-visible,
+.select:focus-visible,
+.textLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- cards ---------- */
+
+.list {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.groupTitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.groupNote {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.cardSelected {
+  border: 1.5px solid var(--accent);
+  box-shadow: var(--shadow-card-active);
+}
+
+.cardTop {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.catTile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-tile-sm);
+  background: var(--chip-bg);
+  font-size: 1.125rem;
+}
+
+.cat_food {
+  background: var(--tint-warm-2);
+}
+.cat_nature {
+  background: #e7f3e9;
+}
+.cat_culture {
+  background: #f8e8f1;
+}
+.cat_landmark {
+  background: #ecebfa;
+}
+
+.cardText {
+  min-width: 0;
+}
+
+.cardName {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.cardSelect {
+  display: inline-block;
+  min-height: 24px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nameZh {
+  margin: 1px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.meta {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.reason {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: #3a3a3c;
+}
+
+.visitedBadge {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #22713b;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ---------- status, notes ---------- */
+
+.status {
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-tile-sm);
+  background: var(--surface-muted);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.warning {
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-tile-sm);
+  background: #fff4e5;
+  border: 1px solid #f3c58a;
+  font-size: 0.8125rem;
+  color: #6b3a00;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.empty {
+  margin: 0;
+  padding: 1.25rem 1rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* ---------- panels ---------- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card-lg);
+  background: var(--surface);
+}
+
+.flatPanel {
+  padding: 0.875rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.body {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.zh {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: #3a3a3c;
+}
+
+.sourceLine {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+}
+
+.sourceLine a {
+  color: #8a3d0c;
+}
+
+/* ---------- progress ---------- */
+
+.progressTrack {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(35, 33, 29, 0.1);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  background: #2f8a4b; /* check-ins are green everywhere (Check in, stamps, the map's visited pins) */
+}
+
+.milestone {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: var(--radius-card);
+  background: var(--tint-warm-1);
+  border: 1px solid var(--accent-tile-border);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b2c05;
+  animation: pop 400ms ease-out;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milestone {
+    animation: none;
+  }
+}
+
+/* ---------- layout: map + list side by side on wide screens ---------- */
+
+.split {
+  display: grid;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .split {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .splitMap {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Place detail: the map runs edge to edge (no small framed window). */
+.heroMap {
+  position: relative;
+  height: 260px;
+  margin: 0 calc(-1 * var(--gutter));
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .heroMap {
+    height: 340px;
+    margin: 0;
+    border-radius: var(--radius-card-lg);
+  }
+}
+
+/* place rows: one line each, a hairline between them */
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rows > li + li {
+  border-top: 1px solid var(--border);
+}
+
+/* place detail: its 3D picture beside the Chinese name and type */
+.detailIntro {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: -0.375rem;
+}
+
+/* ---------- check in (打卡) ---------- */
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkIn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 1.5rem;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.checkedIn {
+  background: #e3f1e6;
+  color: #22663a;
+  box-shadow: inset 0 0 0 1px #b9dcc2;
+}
+
+.checkedIn svg {
+  animation: pop 400ms ease-out;
+}
+
+.iconAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chip-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.iconAction[aria-pressed='true'] {
+  color: #b9500f;
+  background: var(--tint-warm-1);
+}
+
+.checkRow .linkButton {
+  min-height: 3rem;
+  border-radius: 1.5rem;
+  white-space: nowrap;
+}
+
+.checkIn {
+  min-width: 0;
+}
+
+/* narrow phones: Directions becomes a round button like Save */
+@media (max-width: 374px) {
+  .checkRow .directions {
+    width: 3rem;
+    padding: 0;
+  }
+
+  .directionsText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+.checkIn:focus-visible,
+.iconAction:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkedIn svg {
+    animation: none;
+  }
+}
+
+/* one scrolling row of category chips (collection checklist) */
+.chipsScroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.chipsScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* chips fill the row so it ends where the search field does; a phone too narrow for them scrolls instead */
+.chipsScroll > li {
+  flex: 1 0 auto;
+  display: flex;
+}
+
+.chipsScroll .filterChip {
+  flex: 1 0 auto;
+  padding: 0 0.625rem;
+}
+
+@media (max-width: 359px) {
+  .chipsScroll > li,
+  .chipsScroll .filterChip {
+    flex: none;
+  }
+}
+
+/* the same chip look as Explore: the chosen one is dark */
+.chipsScroll .filterChip[aria-pressed='true'] {
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+  color: #fff;
+}
+
+.searchRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.moreButton {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.moreButton[aria-expanded='true'],
+.moreActive {
+  border-color: var(--text-primary);
+}
+
+.moreBadge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--text-primary);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.moreButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.morePanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card-lg);
+  background: var(--surface);
+}
+
+.checkLine {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: -0.25rem;
+}
+
+.checkDate {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.textButtonInline {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.textButtonInline:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* a dated award (e.g. MICHELIN Guide Bib Gourmand 2025) at the top of About */
+.recognition {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.75rem;
+  background: #fbeee4;
+  color: #8a3509;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+/* a folded part of a place (Chinese intro, sources, more facts, corrections): one quiet line until opened */
+.fold {
+  font-size: 0.8125rem;
+}
+
+.foldSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2rem;
+  list-style: none;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.foldSummary::-webkit-details-marker {
+  display: none;
+}
+
+.foldSummary::after {
+  content: '';
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-left: 0.25rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.fold[open] > .foldSummary::after {
+  transform: rotate(-135deg) translateY(-1px);
+}
+
+.foldBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.foldSummary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* the page's own action on the right of the back header (Share) */
+.headerAction {
+  margin-left: auto;
+  flex: none;
+}
+
+.headerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chip-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.headerButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- practical details (hours, address, phone, website, maps) ---------- */
+.detailRows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.detailRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.detailRow:first-child {
+  border-top: 0;
+  padding-top: 0.125rem;
+}
+
+.detailIcon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--chip-bg);
+  color: var(--text-secondary);
+}
+
+.detailText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.detailValue {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.625rem;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.detailNote {
+  flex-basis: 100%;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.detailLink {
+  color: #b4500f;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.detailLink:hover {
+  text-decoration: underline;
+}
+
+.reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--border);
+}
+
+.reviewsTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.reviewLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reviewChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 1.125rem;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.detailLink:focus-visible,
+.reviewChip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.checkIn svg {
+  flex: none;
+}

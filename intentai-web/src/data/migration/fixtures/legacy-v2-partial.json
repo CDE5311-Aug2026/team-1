@@ -1,0 +1,19 @@
+{
+  "singlish-v2-state": {
+    "done": true,
+    "profile": { "from": "India", "time": "1 – 3 years", "role": "Engineer", "level": "Guru" },
+    "settings": { "daily": "yes", "occasions": false, "location": true },
+    "learned": ["chope", "lah-legacy"],
+    "notice": "maybe",
+    "place": "Beach",
+    "duration": "Forever",
+    "topics": ["Food", "Sports"],
+    "lookups": [
+      { "id": "ok1", "word": "kiasu", "meaning": "Afraid of losing out.", "source": "AI-generated" },
+      { "id": "bad1", "word": "jialat", "meaning": "Terrible.", "source": "My uncle" },
+      "not a lookup"
+    ],
+    "questions": [{ "id": "q9", "text": "no status" }],
+    "theme": "dark"
+  }
+}

@@ -17,3 +17,9 @@
     display: none;
   }
 }
+
+@media (hover: none) and (pointer: coarse) {
+  .indicator {
+    display: none;
+  }
+}

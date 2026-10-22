@@ -106,7 +106,8 @@ export function isSettings(value: unknown): value is Settings {
 
 /* ---------- Lookups (Ask writes, Moments reads) ---------- */
 
-export const LOOKUP_SOURCES = ['AI-generated', 'Confirmed by a local'] as const;
+/** 'IntentAI editorial': phrase guidance written by the team (Nearby place tips); not a local's confirmation. */
+export const LOOKUP_SOURCES = ['AI-generated', 'Confirmed by a local', 'IntentAI editorial'] as const;
 export type LookupSource = (typeof LOOKUP_SOURCES)[number];
 
 export interface Lookup {

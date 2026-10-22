@@ -2,7 +2,7 @@
 .card {
   padding: 0.25rem 0.5rem 0.25rem 0.875rem;
   border: 1px solid var(--ms-line);
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   background: var(--surface);
 }
 

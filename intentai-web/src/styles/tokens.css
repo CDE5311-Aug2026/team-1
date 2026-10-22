@@ -1,4 +1,6 @@
 :root {
+  /* the drawn phone status bar (the Figma frames); a real phone or tablet has its own, so it shrinks to a gap */
+  --status-h: 3rem;
   /* Colour — accent & surfaces */
   --accent: #e4671f;
   --accent-tile-border: #f4b389;
@@ -56,10 +58,12 @@
   --fs-streak: 0.875rem;     /* 14px */
 
   /* Radii */
-  /* v2: radius follows hierarchy — tiles 6px, cards 10px, hero 14px; pills stay pills. */
-  --radius-card: 0.625rem;      /* 10px */
-  --radius-card-lg: 0.625rem;   /* 10px */
-  --radius-hero: 0.875rem;      /* 14px */
+  /* v2: radius follows hierarchy — tiles 6px, controls 10px, every card 20px (as Today's Nearby map card);
+     pills stay pills. */
+  --radius-card: 1.25rem;       /* 20px: cards, panels, sheets, map and video frames */
+  --radius-card-lg: 1.25rem;    /* 20px (same; kept for older rules) */
+  --radius-hero: 1.25rem;       /* 20px (same) */
+  --radius-control: 0.625rem;   /* 10px: tabs, small boxes inside cards */
   --radius-tile-sm: 0.375rem;   /* 6px */
   --radius-tile-lg: 0.375rem;   /* 6px */
   --radius-chip: 0.375rem;      /* 6px */
@@ -82,4 +86,11 @@
 
   /* Faint woven linen, drawn inline so there is no image request. */
   --paper-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 0h6v1H0zM0 3h6v1H0z' fill='%2323211d' fill-opacity='.025'/%3E%3Cpath d='M0 0v6h1V0zM3 0v6h1V0z' fill='%2323211d' fill-opacity='.018'/%3E%3C/svg%3E");
+}
+
+/* a touch device (phone, tablet): the browser and the device draw the real status bar */
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --status-h: calc(0.5rem + env(safe-area-inset-top, 0px));
+  }
 }

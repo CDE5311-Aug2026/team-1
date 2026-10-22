@@ -28,7 +28,7 @@
   min-width: 0;
   padding: 0.625rem 0.5rem;
   border: 1px solid var(--m-border);
-  border-radius: var(--radius-tile-sm);
+  border-radius: var(--radius-card);
   background: var(--surface);
   box-shadow: var(--shadow-card);
   font: inherit;

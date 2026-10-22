@@ -1,9 +1,10 @@
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { ARTICLE_IMAGES } from '../../data/articleImages';
 import { articlesFor, categoryById, type Article, type CategoryId } from '../../data/culture';
-import { VIDEOS } from '../../data/videos';
+import { ARTICLE_VIDEOS, type Video } from '../../data/videos';
+import { ARTICLE_LINKS } from '../../data/cultureLinks';
+import NearbyLinks from '../NearbyLinks/NearbyLinks';
 import SourceLine from '../SourceLine/SourceLine';
-import VideoFacade from '../VideoFacade/VideoFacade';
 import { useSpan } from '../../usage/useSpan';
 import styles from './CultureTabs.module.css';
 
@@ -30,6 +31,7 @@ function Tabs({ categories }: CultureTabsProps) {
 
   const select = (i: number) => {
     setSelected(i);
+    setPlaying(null);
     tabRefs.current[i]?.focus();
   };
 
@@ -47,8 +49,8 @@ function Tabs({ categories }: CultureTabsProps) {
   };
 
   const category = categoryById(categories[selected]);
-  // Every tab leads with its short video, then three short articles (the survey has them tied first).
-  const video = VIDEOS[category.id];
+  // One video plays at a time: playing another card's video stops the first (its player is removed).
+  const [playing, setPlaying] = useState<string | null>(null);
   useSpan('section', `Today › ${category.label}`, true);
   const articles = articlesFor(category.id).slice(0, ARTICLES_PER_TAB);
 
@@ -68,19 +70,26 @@ function Tabs({ categories }: CultureTabsProps) {
             aria-controls={panelId(i)}
             tabIndex={i === selected ? 0 : -1}
             className={styles.tab}
-            onClick={() => setSelected(i)}
+            onClick={() => {
+              setSelected(i);
+              setPlaying(null);
+            }}
           >
             {categoryById(id).label}
           </button>
         ))}
       </div>
       <div role="tabpanel" id={panelId(selected)} aria-labelledby={tabId(selected)} className={styles.panel}>
-        <h2 className={styles.lead}>{category.topChoice}</h2>
-        {/* Keyed so a played video never carries over (and autoplays) on the next tab. */}
-        {video && <VideoFacade key={video.youtubeId} video={video} />}
+        {/* Straight to the cards: each card carries its own short video (a tap on its picture plays it). */}
+        <h2 className={styles.srOnly}>{category.topChoice}</h2>
         <div className={styles.grid}>
           {articles.map((article) => (
-            <ArticleCard key={article.id} article={article} />
+            <ArticleCard
+              key={article.id}
+              article={article}
+              playing={playing === article.id}
+              onPlay={() => setPlaying(article.id)}
+            />
           ))}
         </div>
       </div>
@@ -88,16 +97,17 @@ function Tabs({ categories }: CultureTabsProps) {
   );
 }
 
-function ArticleCard({ article }: { article: Article }) {
+function ArticleCard({ article, playing, onPlay }: { article: Article; playing: boolean; onPlay: () => void }) {
   const [open, setOpen] = useState(false);
   const titleId = useId();
   const deeperId = useId();
 
   const image = ARTICLE_IMAGES[article.id];
+  const video = ARTICLE_VIDEOS[article.id];
 
   return (
     <article className={styles.card} aria-labelledby={titleId}>
-      {image && <img className={styles.photo} src={image.src} alt={image.alt} width={720} height={405} loading="lazy" />}
+      <CardMedia image={image} video={video} playing={playing} onPlay={onPlay} />
       <p className={styles.kicker}>{article.kicker}</p>
       <h3 id={titleId} className={styles.title}>
         {article.title}
@@ -114,6 +124,16 @@ function ArticleCard({ article }: { article: Article }) {
           <SourceLine sources={article.sources} className={styles.source} />
         </div>
       )}
+      {video && (
+        // the video's own YouTube page is its source
+        <p className={styles.videoMeta}>
+          Video · {video.channel} · {video.length ? `${video.length} · ` : ''}
+          <a className={styles.watch} href={video.sources[0].url} target="_blank" rel="noopener noreferrer">
+            Watch on YouTube
+          </a>
+        </p>
+      )}
+      <NearbyLinks links={ARTICLE_LINKS[article.id]} />
       <div className={styles.footer}>
         {image && (
           <a className={styles.credit} href={image.url} target="_blank" rel="noopener noreferrer">
@@ -132,4 +152,57 @@ function ArticleCard({ article }: { article: Article }) {
       </div>
     </article>
   );
+}
+
+/**
+ * The card's picture. With a video it is the video's poster: a play button and the length on the local photo, and
+ * nothing loads from YouTube until the tap; then the privacy-mode (youtube-nocookie) player takes its place.
+ */
+function CardMedia({
+  image,
+  video,
+  playing,
+  onPlay,
+}: {
+  image?: (typeof ARTICLE_IMAGES)[string];
+  video?: Video;
+  playing: boolean;
+  onPlay: () => void;
+}) {
+  if (video && playing) {
+    return (
+      <div className={styles.media}>
+        <iframe
+          className={styles.player}
+          src={`https://www.youtube-nocookie.com/embed/${video.youtubeId}?autoplay=1`}
+          title={video.title}
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+  if (video) {
+    return (
+      <button type="button" className={styles.media} aria-label={`Play video: ${video.title}${video.length ? ` (${video.length})` : ''}`} onClick={onPlay}>
+        {image ? (
+          <img className={styles.mediaPhoto} src={image.src} alt="" width={720} height={405} loading="lazy" />
+        ) : (
+          <span className={styles.mediaBlank} />
+        )}
+        <span className={styles.play} aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24">
+            <path d="M8 5v14l11-7z" fill="currentColor" />
+          </svg>
+        </span>
+        {video.length && (
+          <span className={styles.length} aria-hidden="true">
+            {video.length}
+          </span>
+        )}
+      </button>
+    );
+  }
+  return image ? <img className={styles.photo} src={image.src} alt={image.alt} width={720} height={405} loading="lazy" /> : null;
 }

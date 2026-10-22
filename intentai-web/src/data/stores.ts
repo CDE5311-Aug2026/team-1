@@ -28,7 +28,10 @@ import {
 } from './domain';
 import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
+import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
+import { stopLocation } from '../features/nearby/location';
 import { createPersistentStore } from './persistentStore';
+import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
 // Every persisted key is declared here, once, with its schema. Pages import stores; they never create them.
@@ -134,6 +137,41 @@ export function ensureUsageId(): string {
   return usageIdStore.get();
 }
 
+/** User test: the name typed at the start screen (a test name, not an account). Empty = not started. */
+export interface Tester {
+  name: string;
+  startedAt?: number;
+}
+export const testerStore = createPersistentStore<Tester>({
+  key: 'tester',
+  fallback: { name: '' },
+  isValid: (value): value is Tester =>
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Tester).name === 'string' &&
+    ((value as Tester).startedAt === undefined || typeof (value as Tester).startedAt === 'number'),
+});
+
+/** Nearby Explorer: saved / visited places and exploration preferences. Never holds a location. */
+export const explorePersonalStore = createPersistentStore<ExplorePersonalData>({
+  key: 'explore-personal',
+  fallback: DEFAULT_EXPLORE_PERSONAL,
+  isValid: isExplorePersonalData,
+});
+
+let generation = 0;
+const generationListeners = new Set<() => void>();
+/** Bumped by deleteAllData: pending requests and Undo callbacks from before must not write back. */
+export function dataGeneration() {
+  return generation;
+}
+export function onDataDeleted(listener: () => void) {
+  generationListeners.add(listener);
+  return () => {
+    generationListeners.delete(listener);
+  };
+}
+
 /**
  * My Space "Delete all my data": writes empty values rather than removing keys, so seeded demo
  * content does not reappear, and the next launch starts at onboarding.
@@ -141,6 +179,10 @@ export function ensureUsageId(): string {
 export function deleteAllData() {
   // A pending Undo (e.g. a deleted lookup) must not write data back after everything is deleted.
   dismissToast();
+  generation++;
+  // Location is in memory only: clear it and invalidate any pending position or search callback.
+  stopLocation();
+  explorePersonalStore.set({ ...DEFAULT_EXPLORE_PERSONAL, places: [] });
   onboardingStore.set({ ...DEFAULT_ONBOARDING, done: false });
   profileStore.set(EMPTY_PROFILE);
   settingsStore.set(DEFAULT_SETTINGS);
@@ -155,4 +197,7 @@ export function deleteAllData() {
   culturePrefsStore.set(DEFAULT_PREFS);
   collectedStore.set([]);
   usageIdStore.set('');
+  // The user test goes on (the test name is not personal data); its records on this device are deleted.
+  clearLocalUsage();
+  generationListeners.forEach((listener) => listener());
 }
