@@ -184,3 +184,29 @@ test('Explore works at 320 px and on wide screens without horizontal overflow', 
     await page.screenshot({ path: `test-results/explore-${width}.png` });
   }
 });
+
+test('the Back button leaves Explore at once, however many map steps were taken (3D on and off, a list, details)', async ({ page }) => {
+  await open(page, paths.today);
+  await page.getByRole('button', { name: /Near you/ }).first().click();
+  await expect(page).toHaveURL(/\/nearby/);
+  await page.getByRole('button', { name: '3D' }).click();
+  await expect(page).toHaveURL(/view=3d/);
+  await page.getByRole('button', { name: 'Leave 3D, back to the map' }).click();
+  await expect(page).not.toHaveURL(/view=3d/);
+  await page.getByRole('button', { name: "Editor's picks" }).click();
+  await page.getByRole('dialog', { name: "Editor's picks" }).getByRole('button', { name: /Hawker centres to know/ }).click();
+  await expect(page).toHaveURL(/list=sg-hawker-centres/);
+  await page.getByRole('button', { name: 'Back' }).click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
+test.describe('on a real phone', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test('no drawn status bar: the device shows its own; the map controls move up into the space', async ({ page }) => {
+    await open(page, paths.nearby);
+    const search = (await page.getByRole('search').boundingBox())!;
+    expect(search.y).toBeLessThan(30);
+    await expect(page.getByText('9:00')).toBeHidden();
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+  });
+});

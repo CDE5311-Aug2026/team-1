@@ -63,6 +63,7 @@ import {
   type RadiusM,
 } from '../../features/nearby/types';
 import { paths } from '../../routes';
+import { statusBarPx } from '../../components/StatusBar/device';
 
 const COUNTRY = 'SG' as const;
 /** In map view the list under the map stays short; the List view shows everything. */
@@ -77,12 +78,19 @@ const SINGAPORE_CORNERS: LatLng[] = [
   { lat: 1.472, lng: 104.045 },
 ];
 
+const historyIdx = () => (window.history.state as { idx?: number } | null)?.idx ?? 0;
+
 export default function ExplorePage() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const personal = useExplorePersonal();
   const location = useLocationState();
-  const routerState = useLocation().state as { manual?: boolean } | null;
+  const routerState = useLocation().state as { manual?: boolean; exploreEntry?: number } | null;
+  // The history entry Explore was entered at. Explore's own steps (area, list, 3D, details…) are history entries too,
+  // so the browser's Back undoes them one by one; they all carry this index, so the Back button can leave Explore at
+  // once, even after visiting a place and coming back.
+  const [entryIdx] = useState(() => routerState?.exploreEntry ?? historyIdx());
+  const exploreState = { ...(routerState ?? {}), exploreEntry: entryIdx };
   // A fix is used once the user asked for it; choosing an area or "All of Singapore" sets it aside.
   const [ignoreFix, setIgnoreFix] = useState(routerState?.manual === true);
   const [mapCenter, setMapCenter] = useState<LatLng | null>(null);
@@ -98,7 +106,7 @@ export default function ExplorePage() {
       const next = new URLSearchParams(params);
       next.delete('sel');
       next.delete('info');
-      setParams(next, { replace: true });
+      setParams(next, { replace: true, state: exploreState });
     }
     setFocusId((n) => n + 1);
   });
@@ -146,7 +154,7 @@ export default function ExplorePage() {
       if (v === null || v === '') next.delete(k);
       else next.set(k, v);
     }
-    setParams(next, { replace });
+    setParams(next, { replace, state: exploreState });
   };
 
   // The device position counts only when the user asked for it, it is in Singapore, and location is on.
@@ -268,16 +276,41 @@ export default function ExplorePage() {
   const totalLabel = `${items.length} ${items.length === 1 ? 'place' : 'places'}`;
 
   // the uncovered part of the map: under the search bar, above the sheet, left of the map buttons
-  const mapInsets = wide ? { top: 0, bottom: 0, left: 432, right: 72 } : { top: 150, bottom: PEEK_PX, right: 64 };
+  // a real phone has no drawn status bar: everything under it sits higher by the difference
+  const [statusShift] = useState(() => 48 - statusBarPx());
+  const mapInsets = wide ? { top: 0, bottom: 0, left: 432, right: 72 } : { top: 150 - statusShift, bottom: PEEK_PX, right: 64 };
+  // Back leaves Explore: to the page before it (all of Explore's own steps at once), or Today if Explore was opened first
   const goBack = () => {
-    const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
-    if (idx > 0) navigate(-1);
+    if (entryIdx > 0) navigate(entryIdx - 1 - historyIdx());
     else navigate(paths.today);
   };
+  // 3D on and off: going back to the map undoes the step into 3D (so Back is not filled with 3D ⇄ map toggles)
+  const entered3d = useRef<number | null>(null);
+  const enter3d = () => {
+    entered3d.current = historyIdx() + 1;
+    patch({ view: '3d' });
+  };
+  const leave3dNow = () => {
+    if (entered3d.current !== null && entered3d.current === historyIdx()) navigate(-1);
+    else patch({ view: null }, true);
+    entered3d.current = null;
+  };
   const closePicks = useCallback(() => setPicksOpen(false), []);
+  // the browser may draw its own bars over the page's edges (Safari's floating toolbar): what shows through them is
+  // the sheet's paper, not the app background
+  useEffect(() => {
+    const root = document.documentElement;
+    const before = [root.style.backgroundColor, document.body.style.backgroundColor];
+    root.style.backgroundColor = 'var(--surface)';
+    document.body.style.backgroundColor = 'var(--surface)';
+    return () => {
+      root.style.backgroundColor = before[0];
+      document.body.style.backgroundColor = before[1];
+    };
+  }, []);
   // Esc leaves 3D (the iframe keeps its own keys while it has focus)
   const leave3d = useRef<() => void>(() => undefined);
-  leave3d.current = () => patch({ view: null });
+  leave3d.current = () => leave3dNow();
   useEffect(() => {
     if (view !== '3d') return;
     const onKey = (e: KeyboardEvent) => {
@@ -370,7 +403,7 @@ export default function ExplorePage() {
           <CityMap
             bleed
             insets={mapInsets}
-            controlsTop={wide ? 218 : 256}
+            controlsTop={(wide ? 218 : 256) - statusShift}
             label="Map of Singapore places. Every place on it is also in the list."
             pins={items.map((i) => ({ key: i.key, name: i.name, location: i.location, category: i.category, visited: stateByKey.get(i.key)?.visited }))}
             selectedKey={selectedKey ?? undefined}
@@ -461,7 +494,7 @@ export default function ExplorePage() {
 
       {/* 3D has no search bar: a clear way back to the map, top left (Esc and the browser's Back work too) */}
       {view === '3d' && (
-        <button type="button" className={x.exit3d} onClick={() => patch({ view: null })} aria-label="Leave 3D, back to the map">
+        <button type="button" className={x.exit3d} onClick={leave3dNow} aria-label="Leave 3D, back to the map">
           <Icon name="back" size={18} />
           Map
         </button>
@@ -469,7 +502,7 @@ export default function ExplorePage() {
 
       {/* Map buttons: 3D and your location (zoom and recenter are on the map itself). */}
       <div className={view === '3d' ? `${x.side} ${x.side3d}` : x.side} role="group" aria-label="Map view">
-        <button type="button" className={x.sideButton} aria-pressed={view === '3d'} onClick={() => patch({ view: view === '3d' ? null : '3d' })}>
+        <button type="button" className={x.sideButton} aria-pressed={view === '3d'} onClick={() => (view === '3d' ? leave3dNow() : enter3d())}>
           3D
         </button>
         <button type="button" className={x.sideButton} onClick={flow.start} aria-label="My location">

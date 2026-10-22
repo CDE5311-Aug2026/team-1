@@ -1,4 +1,6 @@
 :root {
+  /* the drawn phone status bar (the Figma frames); a real phone or tablet has its own, so it shrinks to a gap */
+  --status-h: 3rem;
   /* Colour — accent & surfaces */
   --accent: #e4671f;
   --accent-tile-border: #f4b389;
@@ -82,4 +84,11 @@
 
   /* Faint woven linen, drawn inline so there is no image request. */
   --paper-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 0h6v1H0zM0 3h6v1H0z' fill='%2323211d' fill-opacity='.025'/%3E%3Cpath d='M0 0v6h1V0zM3 0v6h1V0z' fill='%2323211d' fill-opacity='.018'/%3E%3C/svg%3E");
+}
+
+/* a touch device (phone, tablet): the browser and the device draw the real status bar */
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --status-h: calc(0.5rem + env(safe-area-inset-top, 0px));
+  }
 }

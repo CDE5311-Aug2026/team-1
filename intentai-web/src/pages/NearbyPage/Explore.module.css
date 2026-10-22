@@ -23,7 +23,7 @@
 
 /* 3D: below the status bar and above the sheet's peek, so the 3D page's own time bar and card show whole. */
 .stage3d {
-  top: 3rem;
+  top: var(--status-h);
   /* the sheet's peek (150 px) minus its rounded top */
   bottom: 134px;
 }
@@ -36,7 +36,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 3rem;
+  top: var(--status-h);
   z-index: 12;
   display: flex;
   flex-direction: column;
@@ -192,7 +192,7 @@
 .side {
   position: absolute;
   right: var(--gutter);
-  top: 9.875rem;
+  top: calc(var(--status-h) + 6.875rem);
   /* under the sheet: a full sheet (the list) covers the map buttons with the map */
   z-index: 9;
   display: flex;
@@ -205,7 +205,7 @@
 
 .side3d {
   /* the 3D view has no time bar: the buttons sit just under the status bar */
-  top: 3.75rem;
+  top: calc(var(--status-h) + 0.75rem);
 }
 
 .sideButton {
@@ -554,7 +554,7 @@
 .exit3d {
   position: absolute;
   left: var(--gutter);
-  top: 3.75rem;
+  top: calc(var(--status-h) + 0.75rem);
   z-index: 12;
   display: inline-flex;
   align-items: center;
@@ -583,5 +583,12 @@
   .exit3d {
     left: calc(432px + 1rem);
     top: 7.5rem;
+  }
+}
+
+/* a real phone: no drawn status bar to make readable over the map */
+@media (hover: none) and (pointer: coarse) {
+  .stage::before {
+    display: none;
   }
 }
