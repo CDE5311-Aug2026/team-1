@@ -52438,11 +52438,19 @@ function liteStream(force){
 function liteClamp(){
   const F = LITE.focus, t = controls.target, dx = t.x - F[0], dy = -t.z - F[1], d = Math.hypot(dx, dy);
   if (d > LITE.PAN){ const k = LITE.PAN/d, nx = F[0] + dx*k, nz = -(F[1] + dy*k); camera.position.x += nx - t.x; camera.position.z += nz - t.z; t.x = nx; t.z = nz; }
-  if (controls.maxDistance > 4200) controls.maxDistance = 4200;
+  if (controls.maxDistance > LITE_MAXD) controls.maxDistance = LITE_MAXD;
 }
 sgrStep = (orig => function(){ if (SGR.on){ liteClamp(); if ((LITE.frames++ & 15) === 0) liteStream(false); } return orig.apply(this, arguments); })(sgrStep);
-// the first view: over the point
-sgView = function(){ const F = LITE.focus, y = Math.max(0, hC(F[0], F[1])) + 4, k = LITE.card ? 0.7 : 1; controls.target.set(F[0], y, -F[1]); camera.position.set(F[0] + 420*k, y + 560*k, -F[1] + 760*k); };
+// the first view: over the point; with #span=<m>, as wide as the embedding page's 2D map was (the same view, tilted)
+const LITE_MAXD = 30000;
+function liteOffset(span, k){
+  if (!(isFinite(span) && span > 0)) return [420*k, 560*k, 760*k];
+  const hf = Math.atan(Math.tan(camera.fov*Math.PI/360)*Math.max(0.3, camera.aspect));
+  const d = Math.max(260, Math.min(LITE_MAXD - 50, (span/2)/Math.tan(hf))), el = (50 + 15*Math.max(0, Math.min(1, (span - 2000)/10000)))*Math.PI/180, n = Math.hypot(420, 760);
+  return [420/n*Math.cos(el)*d, Math.sin(el)*d, 760/n*Math.cos(el)*d];
+}
+sgView = function(){ const F = LITE.focus, y = Math.max(0, hC(F[0], F[1])) + 4, o = liteOffset(+LITE.q.get('span'), LITE.card ? 0.7 : 1);
+  controls.target.set(F[0], y, -F[1]); camera.position.set(F[0] + o[0], y + o[1], -F[1] + o[2]); };
 // map labels near the point only (the full map has thousands of road / POI labels)
 sgLabels = (orig => function(){
   const n0 = labelItems.length; const r = orig.apply(this, arguments); const F = LITE.focus, keep = labelItems.slice(0, n0);
@@ -52591,7 +52599,8 @@ function litePins(list, styles, selected){
   for (const p of list){
     const [x, y] = LITE.xy(p.at[0], p.at[1]), sel = p.key === LP.sel, gy = Math.max(0, hC(x, y));
     const s = new THREE.Sprite(new THREE.SpriteMaterial({map:litePinTex(p.cat, sel, !!p.visited), depthTest:false, depthWrite:false, sizeAttenuation:false, transparent:true}));
-    const k = sel ? 0.048 : 0.036; s.scale.set(k, k, 1);   // about 30 px (40 px selected) on a phone, like the 2D pins s.renderOrder = sel ? 13 : 11; s.position.set(x, gy + 10, -y);
+    // about 30 px (40 px selected) on a phone, like the 2D pins
+    const k = sel ? 0.048 : 0.036; s.scale.set(k, k, 1); s.renderOrder = sel ? 13 : 11; s.position.set(x, gy + 10, -y);
     LP.group.add(s); LP.items.push({key:p.key, x, y, gy, s, sel});
   }
 }
@@ -52620,8 +52629,20 @@ addEventListener('pointerup', e => {
   if (Math.hypot(e.clientX - D.x, e.clientY - D.y) > 10 || performance.now() - D.t > 650) return;
   litePost({type:'pick', key:D.key});
 }, true);
-function liteLook(x, y){
-  const g = Math.max(0, hC(x, y)) + 4, to = new THREE.Vector3(x + 420, g + 560, -y + 760), tt = new THREE.Vector3(x, g, -y);
+// the view as the embedding page's 2D map would show it: the point under the camera and the width seen there
+{
+  let last = '', still = 0;
+  setInterval(() => {
+    if (!LITE.ready) return;
+    const t = controls.target, d = camera.position.distanceTo(t), hf = Math.atan(Math.tan(camera.fov*Math.PI/360)*Math.max(0.3, camera.aspect));
+    const at = [-t.z/110574.0 + 1.315, t.x/111290.5 + 103.845], span = 2*d*Math.tan(hf);
+    const k = at.map(v => v.toFixed(4)).join(',') + ':' + Math.round(span/50);
+    if (k === last){ if (++still === 2) litePost({type:'view', at, span:Math.round(span)}); return; }
+    last = k; still = 0;
+  }, 400);
+}
+function liteLook(x, y, span){
+  const g = Math.max(0, hC(x, y)) + 4, o = liteOffset(span, 1), to = new THREE.Vector3(x + o[0], g + o[1], -y + o[2]), tt = new THREE.Vector3(x, g, -y);
   if (LITE.still || typeof flyTo !== 'function'){ controls.target.copy(tt); camera.position.copy(to); } else flyTo(to, tt, 1200);
 }
 // talking to the embedding page (only the landmark key and readiness go out; nothing about the viewer)
@@ -52630,6 +52651,13 @@ function litePost(m){ try { if (parent !== window) parent.postMessage(Object.ass
 // Within reach of the loaded area the camera moves there; farther away the page reloads around the new point.
 addEventListener('message', e => {
   const d0 = e.data; if (e.source !== parent || !d0 || d0.source !== 'intentai') return;
+  if (d0.type === 'zoom'){
+    const k = +d0.k; if (!(k > 0.2 && k < 5)) return;
+    const off = camera.position.clone().sub(controls.target), len = off.length(), nl = Math.max(controls.minDistance, Math.min(LITE_MAXD, len*k));
+    const to = controls.target.clone().add(off.multiplyScalar(nl/len));
+    if (LITE.still || typeof flyTo !== 'function'){ camera.position.copy(to); controls.update(); } else flyTo(to, controls.target.clone(), 350);
+    return;
+  }
   if (d0.type === 'pins'){
     if (!Array.isArray(d0.pins) || d0.pins.length > 400) return;
     const ok = d0.pins.filter(p => p && typeof p.key === 'string' && p.key.length <= 120 && typeof p.cat === 'string' && Array.isArray(p.at) && p.at.length === 2
@@ -52649,12 +52677,13 @@ addEventListener('message', e => {
   if (Math.hypot(p[0] - LITE.focus[0], p[1] - LITE.focus[1]) > LITE.PAN - 300){
     const q = new URLSearchParams(location.hash.slice(1)); q.set('at', d.at.map(v => v.toFixed(5)).join(',')); if (card) q.set('card', card); else q.delete('card');
     if (d.pin === false) q.set('pin', '0'); else q.delete('pin');
+    if (typeof d.span === 'number' && isFinite(d.span)) q.set('span', String(Math.round(d.span))); else q.delete('span');
     location.replace(location.pathname + location.search + '#' + q.toString()); location.reload(); return;
   }
   let opened = false;
   if (card){ try { opened = SGCard.open(card); } catch (e){ } }
   if (opened){ if (LITE.pinMesh) LITE.pinMesh.visible = false; if (!liteFrame(card, !LITE.still)) liteLook(p[0], p[1]); litePeek(); }
-  else { try { SGCard.close(); } catch (e){ } if (d.pin !== false) litePin(p[0], p[1]); liteLook(p[0], p[1]); }
+  else { try { SGCard.close(); } catch (e){ } if (d.pin !== false) litePin(p[0], p[1]); liteLook(p[0], p[1], typeof d.span === 'number' ? d.span : NaN); }
 });
 window.SGLite = {
   stats(){ let built = 0, live = 0; for (const T of SGR.tiles.values()){ if (T.done) built++; if (T.road || T.bld) live++; }

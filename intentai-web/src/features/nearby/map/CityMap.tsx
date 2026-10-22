@@ -31,6 +31,39 @@ export interface MapPin {
   visited?: boolean;
 }
 
+/** Zoom in, zoom out and recenter: the 2D map's buttons, also used over the 3D view so both look and work the same. */
+export function MapControls({
+  top,
+  onZoom,
+  onRecenter,
+  recenterLabel = 'Recenter map',
+  bleed = false,
+}: {
+  top?: number;
+  /** k > 1 zooms in. */
+  onZoom: (k: number) => void;
+  onRecenter?: () => void;
+  recenterLabel?: string;
+  /** Outside a full-bleed CityMap (the 3D view): the full-bleed look anyway. */
+  bleed?: boolean;
+}) {
+  return (
+    <div className={bleed ? `${styles.controls} ${styles.controlsBleed}` : styles.controls} style={top !== undefined ? { top } : undefined}>
+      <button type="button" className={styles.control} onClick={() => onZoom(1.6)} aria-label="Zoom in">
+        <Icon name="plus" />
+      </button>
+      <button type="button" className={styles.control} onClick={() => onZoom(1 / 1.6)} aria-label="Zoom out">
+        <Icon name="minus" />
+      </button>
+      {onRecenter && (
+        <button type="button" className={styles.control} onClick={onRecenter} aria-label={recenterLabel}>
+          <Icon name="recenter" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export interface MapFocus {
   /** Change the id to apply the focus again (recenter). */
   id: number;
@@ -55,6 +88,9 @@ interface CityMapProps {
   labels?: MapLabel[];
   /** Called when a user pan/zoom has settled, with the new centre. */
   onSettled?: (center: LatLng) => void;
+  /** The view shown in the uncovered part of the map (its centre and the radius that fits), after it settles:
+   *  the 3D view opens on the same view. */
+  onView?: (center: LatLng, radiusM: number) => void;
   onRecenter?: () => void;
   recenterLabel?: string;
   /** Fixed height in px. Omit with `bleed` to fill the parent (full-screen map). */
@@ -192,6 +228,7 @@ export default function CityMap({
   you,
   labels = [],
   onSettled,
+  onView,
   onRecenter,
   recenterLabel = 'Recenter map',
   height: fixedHeight,
@@ -258,6 +295,19 @@ export default function CityMap({
     // Re-run only when a new focus is requested or the size changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focus.id, width, height]);
+
+  // Report the view the user sees (focus changes and gestures alike), once it rests.
+  const onViewRef = useRef(onView);
+  onViewRef.current = onView;
+  useEffect(() => {
+    if (!onViewRef.current) return undefined;
+    const t = setTimeout(() => {
+      const { freeH, freeW, lift, slide } = free.current;
+      const c = { x: view.center.x + slide / view.scale, y: view.center.y + lift / view.scale };
+      onViewRef.current?.(toLatLng(c), Math.max(20, Math.min(freeW, freeH) / 2 - 24) / view.scale);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [view]);
 
   // Selecting a place from the list brings its pin into view (only when it is off-screen).
   useEffect(() => {
@@ -576,19 +626,12 @@ export default function CityMap({
           );
         })}
       </div>
-      <div className={styles.controls} style={controlsTop !== undefined ? { top: controlsTop } : insetTop ? { top: insetTop + 8 } : undefined}>
-        <button type="button" className={styles.control} onClick={() => zoomAt(1.6)} aria-label="Zoom in">
-          <Icon name="plus" />
-        </button>
-        <button type="button" className={styles.control} onClick={() => zoomAt(1 / 1.6)} aria-label="Zoom out">
-          <Icon name="minus" />
-        </button>
-        {onRecenter && (
-          <button type="button" className={styles.control} onClick={onRecenter} aria-label={recenterLabel}>
-            <Icon name="recenter" />
-          </button>
-        )}
-      </div>
+      <MapControls
+        top={controlsTop !== undefined ? controlsTop : insetTop ? insetTop + 8 : undefined}
+        onZoom={(k) => zoomAt(k)}
+        onRecenter={onRecenter}
+        recenterLabel={recenterLabel}
+      />
       {circle && !bleed && <p className={styles.radiusNote}>{circle.label}</p>}
       <p className={styles.attribution} style={insetBottom ? { bottom: insetBottom } : undefined}>
         EARTH ONLINE map · © OpenStreetMap contributors

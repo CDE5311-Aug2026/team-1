@@ -79,6 +79,15 @@ const SINGAPORE_CORNERS: LatLng[] = [
 ];
 
 /** The middle of a set of points (an editor's pick in 3D opens over its places). */
+/** How wide (m) a view must be to show all the points, with a margin. */
+function spanOf(points: LatLng[]): number {
+  const lats = points.map((p) => p.lat);
+  const lngs = points.map((p) => p.lng);
+  const w = (Math.max(...lngs) - Math.min(...lngs)) * 111_290;
+  const h = (Math.max(...lats) - Math.min(...lats)) * 110_574;
+  return Math.max(w, h) * 1.2 + 400;
+}
+
 function centreOf(points: LatLng[]): LatLng {
   const lat = points.map((p) => p.lat), lng = points.map((p) => p.lng);
   return { lat: (Math.min(...lat) + Math.max(...lat)) / 2, lng: (Math.min(...lng) + Math.max(...lng)) / 2 };
@@ -119,6 +128,22 @@ export default function ExplorePage() {
 
   const rawView = params.get('view');
   const view = rawView === 'list' ? 'list' : rawView === '3d' ? '3d' : 'map';
+  // 2D ⇄ 3D keeps what you were looking at: the 2D map's last view opens the 3D view (and the 3D view's, the map).
+  // `carry` holds that view for one focus id; any later focus (recenter, search, a list, My location) replaces it.
+  const view2d = useRef<{ center: LatLng; radiusM: number } | null>(null);
+  const view3d = useRef<{ center: LatLng; radiusM: number } | null>(null);
+  const [carry, setCarry] = useState<{ id: number; to: '3d' | 'map'; center: LatLng; radiusM: number } | null>(null);
+  const [prevView, setPrevView] = useState(view);
+  if (prevView !== view) {
+    setPrevView(view);
+    const from = view === '3d' ? view2d.current : prevView === '3d' ? view3d.current : null;
+    if (from) {
+      setCarry({ id: focusId + 1, to: view === '3d' ? '3d' : 'map', ...from });
+      setFocusId(focusId + 1);
+    }
+    if (view === '3d') view3d.current = null;
+  }
+  const carried = (to: '3d' | 'map') => (carry && carry.to === to && carry.id === focusId ? carry : null);
   // A landmark tapped in 3D that is not one of our places: its name from the 3D card.
   const [cardTitle, setCardTitle] = useState<string | null>(null);
   useEffect(() => setCardTitle(null), [view]);
@@ -226,13 +251,19 @@ export default function ExplorePage() {
   const selectedPlace = selected ? curatedPlace(selected.key) : undefined;
   // View details unfolds the place in the sheet (?info=1), under its card, instead of leaving Explore.
   const detailsOpen = !!selectedPlace && params.get('info') === '1';
+  // With nothing selected it is as wide as the 2D map was, or (recenter) the list, the area around you, the results.
+  const from2d = carried('3d');
   const target3d: View3DTarget = selectedPlace
     ? view3dTarget(selectedPlace)
-    : activeList && items.length
-      ? { at: centreOf(items.map((i) => i.location)), pin: false }
-      : origin
-      ? { at: origin.point, pin: origin.kind === 'approx' }
-      : { at: MARINA_BAY, pin: false };
+    : from2d
+      ? { at: from2d.center, span: from2d.radiusM * 2, pin: false }
+      : activeList && items.length
+        ? { at: centreOf(items.map((i) => i.location)), span: spanOf(items.map((i) => i.location)), pin: false }
+        : origin
+          ? { at: origin.point, span: radius * 2, pin: origin.kind === 'approx' }
+          : (query || category !== 'all') && filtered.length
+            ? { at: centreOf(filtered.map((p) => p.coordinates)), span: spanOf(filtered.map((p) => p.coordinates)), pin: false }
+            : { at: MARINA_BAY, span: 3000, pin: false };
   // Tapping a landmark in 3D selects it here when it is one of our places (the sheet shows it, as on the map).
   const onCard3d = (key: string | null, title: string | null) => {
     const p = placeByEarthKey(key);
@@ -242,7 +273,10 @@ export default function ExplorePage() {
     } else setCardTitle(key ? title : null);
   };
 
-  const focus: MapFocus = activeList
+  const from3d = carried('map');
+  const focus: MapFocus = from3d
+    ? { id: focusId, center: from3d.center, radiusM: from3d.radiusM }
+    : activeList
     ? { id: focusId, points: items.map((i) => i.location) }
     : origin
     ? { id: focusId, center: origin.point, radiusM: radius }
@@ -407,6 +441,11 @@ export default function ExplorePage() {
             pins={pins}
             selectedKey={selectedKey}
             onPick={select}
+            onView={(center, spanM) => {
+              view3d.current = { center, radiusM: spanM / 2 };
+            }}
+            controlsTop={(wide ? 218 : 256) - statusShift}
+            onRecenter={() => setFocusId((n) => n + 1)}
           />
         ) : (
           <CityMap
@@ -423,6 +462,9 @@ export default function ExplorePage() {
             labels={areasIn(COUNTRY).map((a) => ({ id: a.id, name: a.name.split(' & ')[0], location: a.center }))}
             onSettled={onSettled}
             onRecenter={() => setFocusId((n) => n + 1)}
+            onView={(center, radiusM) => {
+              view2d.current = { center, radiusM };
+            }}
           />
         )}
       </div>

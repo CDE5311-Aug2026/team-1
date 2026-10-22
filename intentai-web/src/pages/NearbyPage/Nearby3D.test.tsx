@@ -38,7 +38,7 @@ describe('Explore in 3D', () => {
     expect(screen.getByTestId('where')).toHaveTextContent('view=3d');
     const f = frame()!;
     expect(f).toHaveAttribute('title', '3D view of Singapore around Marina Bay');
-    expect(f.getAttribute('src')).toBe('/earth-online/sg/lite.html#at=1.28680%2C103.85450&pin=0&cards=0');
+    expect(f.getAttribute('src')).toBe('/earth-online/sg/lite.html#at=1.28680%2C103.85450&pin=0&span=3000&cards=0');
     expect(screen.getByText(/Loading 3D… The first time downloads up to 19 MB/)).toBeInTheDocument();
     // as in a maps app, the button now offers the other view
     expect(screen.queryByRole('button', { name: '3D' })).toBeNull();
@@ -80,10 +80,26 @@ describe('Explore in 3D', () => {
     expect(screen.getByRole('region', { name: 'Places' })).toHaveAttribute('data-detent', 'half');
   });
 
+  test('3D has the 2D map’s zoom and recenter buttons; recenter shows the whole list again', async () => {
+    renderAt('/nearby?list=sg-hawker-centres&view=3d');
+    const f = frame()!;
+    const post = vi.spyOn(f.contentWindow!, 'postMessage');
+    fromFrame({ source: 'earth-online-lite', type: 'ready' });
+    await userEvent.click(screen.getByRole('button', { name: 'Zoom in' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
+    const zooms = post.mock.calls.map(([m]) => m as { type: string; k?: number }).filter((m) => m.type === 'zoom');
+    expect(zooms.map((z) => z.k! < 1)).toEqual([true, false]);
+    // the 3D view reports where it rests; recenter goes back to the list, as wide as all its places
+    fromFrame({ source: 'earth-online-lite', type: 'view', at: [1.3, 103.8], span: 900 });
+    await userEvent.click(screen.getByRole('button', { name: 'Recenter map' }));
+    const show = post.mock.calls.map(([m]) => m as { type: string; span?: number }).filter((m) => m.type === 'show').pop()!;
+    expect(show.span).toBeGreaterThan(2000);
+  });
+
   test('an area opens 3D on the area; the point is in the hash only, never in the query', () => {
     renderAt('/nearby?view=3d&area=sg-chinatown');
     const src = frame()!.getAttribute('src')!;
-    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&pin=0&cards=0$/);
+    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&pin=0&span=\d+&cards=0$/);
     expect(new URL(src, 'https://intentai.test').search).toBe('');
   });
 

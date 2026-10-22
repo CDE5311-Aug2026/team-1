@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { earthOnline3dOrigin, view3dUrl, type View3DTarget } from '../links';
 import type { Category } from '../types';
+import { MapControls } from '../map/CityMap';
 import { ICON_PATHS } from './icons';
 import styles from './View3D.module.css';
 
@@ -31,6 +32,11 @@ export interface View3DProps {
   pins?: View3DPin[];
   selectedKey?: string | null;
   onPick?: (key: string) => void;
+  /** The view the user sees, once it rests (centre and width in metres): the 2D map opens there on the way back. */
+  onView?: (center: { lat: number; lng: number }, spanM: number) => void;
+  /** Full-bleed only: zoom (and recenter) buttons, the same as the 2D map's, with their top in px. */
+  controlsTop?: number;
+  onRecenter?: () => void;
 }
 
 export interface View3DPin {
@@ -51,18 +57,21 @@ const PIN_STYLES: Record<Category, { color: string; d: string }> = {
 type LiteMessage =
   | { source: 'earth-online-lite'; type: 'ready' }
   | { source: 'earth-online-lite'; type: 'card'; key: string | null; title?: string | null }
-  | { source: 'earth-online-lite'; type: 'pick'; key: string };
+  | { source: 'earth-online-lite'; type: 'pick'; key: string }
+  | { source: 'earth-online-lite'; type: 'view'; at: [number, number]; span: number };
 
 function isLiteMessage(d: unknown): d is LiteMessage {
   if (!d || typeof d !== 'object') return false;
   const m = d as Record<string, unknown>;
   return (
     m.source === 'earth-online-lite' &&
-    (m.type === 'ready' || (m.type === 'card' && (m.key === null || typeof m.key === 'string')) || (m.type === 'pick' && typeof m.key === 'string'))
+    (m.type === 'ready' || (m.type === 'card' && (m.key === null || typeof m.key === 'string')) || (m.type === 'pick' && typeof m.key === 'string') ||
+      (m.type === 'view' && Array.isArray(m.at) && m.at.length === 2 && m.at.every((v) => typeof v === 'number' && Number.isFinite(v)) &&
+        typeof m.span === 'number' && Number.isFinite(m.span)))
   );
 }
 
-const keyOf = (t: View3DTarget) => `${t.card ?? ''}@${t.at.lat.toFixed(5)},${t.at.lng.toFixed(5)}:${t.pin ?? ''}`;
+const keyOf = (t: View3DTarget) => `${t.card ?? ''}@${t.at.lat.toFixed(5)},${t.at.lng.toFixed(5)}:${t.pin ?? ''}~${t.span ? Math.round(t.span) : ''}`;
 
 function reducedMotion(): boolean {
   try {
@@ -72,7 +81,7 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick }: View3DProps) {
+export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick, onView, controlsTop, onRecenter }: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
@@ -93,6 +102,8 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
   youRef.current = you;
   const onPickRef = useRef(onPick);
   onPickRef.current = onPick;
+  const onViewRef = useRef(onView);
+  onViewRef.current = onView;
   const pinsRef = useRef({ pins, selectedKey });
   const pinsKeyRef = useRef('');
   pinsRef.current = { pins, selectedKey };
@@ -138,6 +149,8 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
         postPins(pinsKeyRef.current);
       } else if (e.data.type === 'pick') {
         onPickRef.current?.(e.data.key);
+      } else if (e.data.type === 'view') {
+        onViewRef.current?.({ lat: e.data.at[0], lng: e.data.at[1] }, e.data.span);
       }
       if (e.data.type === 'card') {
         openCard.current = e.data.key;
@@ -182,7 +195,7 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     lastShow.current = performance.now();
     if (target.card && target.card === openCard.current) return;
     frame.current?.contentWindow?.postMessage(
-      { source: 'intentai', type: 'show', at: [target.at.lat, target.at.lng], card: target.card, pin: target.pin ?? !target.card },
+      { source: 'intentai', type: 'show', at: [target.at.lat, target.at.lng], card: target.card, pin: target.pin ?? !target.card, span: target.span },
       earthOnline3dOrigin(),
     );
     // target is read through targetKey
@@ -219,6 +232,15 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
       <div className={styles.bleed}>
         <iframe ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
         {loading}
+        {controlsTop !== undefined && (
+          <MapControls
+            bleed
+            top={controlsTop}
+            // the 3D camera moves closer (k < 1) to zoom in
+            onZoom={(k) => frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'zoom', k: 1 / k }, earthOnline3dOrigin())}
+            onRecenter={onRecenter}
+          />
+        )}
       </div>
     );
   }

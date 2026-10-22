@@ -131,7 +131,10 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
 - **2D and 3D are one page:** switching keeps the search bar, Editor's picks, the area, the list, the sheet and its
   height; the button reads 3D in 2D and 2D in 3D (Esc also leaves 3D). The 3D view pins the same places as the 2D map
   (the list's filters, search or editor's pick) with the 2D pin look, sent by message (`pins`); a tap on a pin posts
-  `pick` and selects that place, as on the map. An editor's pick opens 3D over the middle of its places.
+  `pick` and selects that place, as on the map. Switching also keeps the view: 3D opens over the 2D map's centre and
+  as wide as it was (`#span=` / `show {span}`; the lite page reports `view {at, span}` once it rests, and the 2D map
+  opens there on the way back). 3D has the map's zoom (+ / −, message `zoom`) and recenter buttons; recenter (or
+  opening 3D directly) frames the list, the area around you or the search results.
 - **Today ↔ Nearby:** a Today article, video or holiday that names a place links to it (`src/data/cultureLinks.ts`):
   "In Nearby" chips open the place selected on the map with its details, its area, or an editor's pick, and a ✓ shows
   a check-in. The place shows the article back as a "Culture · from Today" card. Links only where the text names the

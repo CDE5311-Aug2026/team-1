@@ -224,7 +224,8 @@
 
 /* Full-bleed: the zoom / recenter buttons are one column of the same width as the page's map buttons above them,
    on the same right edge. */
-.bleed .controls {
+.bleed .controls,
+.controlsBleed {
   right: var(--gutter);
   gap: 0;
   overflow: hidden;
@@ -233,7 +234,8 @@
   box-shadow: 0 2px 10px rgba(35, 33, 29, 0.18);
 }
 
-.bleed .control {
+.bleed .control,
+.controlsBleed .control {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 0;
@@ -241,10 +243,12 @@
   box-shadow: none;
 }
 
-.bleed .control + .control {
+.bleed .control + .control,
+.controlsBleed .control + .control {
   border-top: 1px solid var(--border);
 }
 
-.bleed .control:focus-visible {
+.bleed .control:focus-visible,
+.controlsBleed .control:focus-visible {
   outline-offset: -3px;
 }

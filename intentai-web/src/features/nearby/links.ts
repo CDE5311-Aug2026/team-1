@@ -36,6 +36,8 @@ export interface View3DTarget {
   card?: string;
   /** Pin the point (places without a model, "you"). Default: pinned when there is no card. */
   pin?: boolean;
+  /** How wide the view is, in metres (as wide as the 2D map was). Default: the 3D page's street-level view. */
+  span?: number;
 }
 
 export function view3dTarget(place: Pick<CuratedPlace, 'earthKey' | 'coordinates'>): View3DTarget {
@@ -51,6 +53,7 @@ export function view3dUrl(target: View3DTarget, opts: { still?: boolean; hideCar
   params.set('at', `${target.at.lat.toFixed(5)},${target.at.lng.toFixed(5)}`);
   if (target.card) params.set('card', target.card);
   if (target.pin === false || (target.pin === undefined && target.card)) params.set('pin', '0');
+  if (target.span && Number.isFinite(target.span)) params.set('span', String(Math.round(target.span)));
   if (opts.still) params.set('still', '1');
   if (opts.hideCards) params.set('cards', '0');
   if (opts.lang && opts.lang !== 'en') params.set('lang', opts.lang);
