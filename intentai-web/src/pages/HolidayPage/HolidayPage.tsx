@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import back from '../../assets/my-space/back-chevron.svg';
 import AppShell from '../../components/AppShell/AppShell';
+import NearbyLinks from '../../components/NearbyLinks/NearbyLinks';
+import { HOLIDAY_LINKS } from '../../data/cultureLinks';
 import { todaysHoliday } from '../../data/holiday';
 import { recordLearningDay } from '../../data/progress';
 import { streakStore } from '../../data/stores';
@@ -50,6 +52,7 @@ export default function HolidayPage() {
               {paragraph}
             </p>
           ))}
+          <NearbyLinks links={HOLIDAY_LINKS[holiday.name]} label="See it in Nearby" />
           <div className={styles.source}>
             <p>Source: {holiday.source}</p>
             <a className={styles.credit} href={holiday.image.url} target="_blank" rel="noopener noreferrer">

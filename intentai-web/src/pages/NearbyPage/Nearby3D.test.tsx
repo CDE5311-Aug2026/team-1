@@ -40,23 +40,44 @@ describe('Explore in 3D', () => {
     expect(f).toHaveAttribute('title', '3D view of Singapore around Marina Bay');
     expect(f.getAttribute('src')).toBe('/earth-online/sg/lite.html#at=1.28680%2C103.85450&pin=0&cards=0');
     expect(screen.getByText(/Loading 3D… The first time downloads up to 19 MB/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '3D' })).toHaveAttribute('aria-pressed', 'true');
+    // as in a maps app, the button now offers the other view
+    expect(screen.queryByRole('button', { name: '3D' })).toBeNull();
     // 3D off again: the 2D map is back and the iframe (and its memory) is gone
-    await userEvent.click(screen.getByRole('button', { name: '3D' }));
+    await userEvent.click(screen.getByRole('button', { name: '2D' }));
     expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
     expect(frame()).toBeNull();
   });
 
-  test('there is always a way out of 3D: the Map button, Esc, or Back', async () => {
+  test('there is always a way out of 3D: the 2D button, Esc, or Back', async () => {
     renderAt('/nearby?area=sg-chinatown');
     await userEvent.click(screen.getByRole('button', { name: '3D' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Leave 3D, back to the map' }));
+    await userEvent.click(screen.getByRole('button', { name: '2D' }));
     expect(screen.getByTestId('where')).not.toHaveTextContent('view=3d');
     expect(frame()).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Leave 3D, back to the map' })).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: '3D' }));
     await userEvent.keyboard('{Escape}');
     expect(screen.getByTestId('where')).toHaveTextContent(/^\/nearby\?area=sg-chinatown$/);
+  });
+
+  test('3D keeps the page around it: search, Editor’s picks, the area and the list; the list’s places are its pins', async () => {
+    renderAt('/nearby?list=sg-hawker-centres');
+    const list = screen.getAllByRole('button', { name: /^(?!View details)/ }).length;
+    expect(list).toBeGreaterThan(0);
+    await userEvent.click(screen.getByRole('button', { name: '3D' }));
+    expect(screen.getByRole('search')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: "Editor's picks" })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Hawker centres to know' })).toBeInTheDocument();
+    const f = frame()!;
+    const post = vi.spyOn(f.contentWindow!, 'postMessage');
+    fromFrame({ source: 'earth-online-lite', type: 'ready' });
+    const pins = post.mock.calls.map(([m]) => m as { type: string; pins?: { key: string; cat: string }[] }).find((m) => m.type === 'pins')!;
+    expect(pins.pins).toHaveLength(10);
+    expect(pins.pins!.every((p) => p.cat === 'food')).toBe(true);
+    // a tap on a pin in 3D selects that place, as on the 2D map, and the sheet opens to show it
+    fromFrame({ source: 'earth-online-lite', type: 'pick', key: pins.pins![0].key });
+    expect(screen.getByTestId('where')).toHaveTextContent(`sel=${encodeURIComponent(pins.pins![0].key)}`);
+    expect(screen.getByRole('region', { name: 'Selected place' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Places' })).toHaveAttribute('data-detent', 'half');
   });
 
   test('an area opens 3D on the area; the point is in the hash only, never in the query', () => {
@@ -75,8 +96,9 @@ describe('Explore in 3D', () => {
     expect(screen.queryByText(/Loading 3D/)).toBeNull();
     const other = screen.getAllByRole('button', { name: /^(?!Merlion Park$).+/ }).find((b) => b.getAttribute('aria-pressed') === 'false' && b.closest('h3'))!;
     await userEvent.click(other);
-    expect(post).toHaveBeenCalledTimes(1);
-    const [msg] = post.mock.calls[0];
+    const shows = post.mock.calls.filter(([m]) => (m as { type: string }).type === 'show');
+    expect(shows).toHaveLength(1);
+    const [msg] = shows[0];
     expect(msg).toMatchObject({ source: 'intentai', type: 'show' });
     expect((msg as { at: number[] }).at).toHaveLength(2);
     expect(frame()).toBe(f);
@@ -92,7 +114,8 @@ describe('Explore in 3D', () => {
     const f = frame()!;
     const post = vi.spyOn(f.contentWindow!, 'postMessage');
     fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    expect(post).not.toHaveBeenCalled(); // no position asked for: nothing about you is sent
+    // no position asked for: nothing about you is sent (only the list's pins)
+    expect(post.mock.calls.map(([m]) => (m as { type: string }).type)).toEqual(['pins']);
     await userEvent.click(screen.getByRole('button', { name: 'My location' }));
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
     await screen.findByRole('button', { name: /Near you/ });
@@ -105,7 +128,7 @@ describe('Explore in 3D', () => {
     // a reload around a far point says 'ready' again: the dot is sent again
     post.mockClear();
     fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    expect(post.mock.calls.map(([m]) => (m as { type: string }).type)).toEqual(['you']);
+    expect(post.mock.calls.map(([m]) => (m as { type: string }).type).sort()).toEqual(['pins', 'you']);
   });
 
   test('a landmark tapped in 3D selects that place in the sheet; messages from anywhere else are ignored', () => {

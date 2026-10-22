@@ -78,6 +78,12 @@ const SINGAPORE_CORNERS: LatLng[] = [
   { lat: 1.472, lng: 104.045 },
 ];
 
+/** The middle of a set of points (an editor's pick in 3D opens over its places). */
+function centreOf(points: LatLng[]): LatLng {
+  const lat = points.map((p) => p.lat), lng = points.map((p) => p.lng);
+  return { lat: (Math.min(...lat) + Math.max(...lat)) / 2, lng: (Math.min(...lng) + Math.max(...lng)) / 2 };
+}
+
 const historyIdx = () => (window.history.state as { idx?: number } | null)?.idx ?? 0;
 
 export default function ExplorePage() {
@@ -119,14 +125,10 @@ export default function ExplorePage() {
   const wide = useWideLayout();
   const [place] = usePersistentStore(placeStore);
   // The sheet: the List view is the full sheet; otherwise peek or half (a selected place opens it to half).
-  const [mapDetent, setMapDetent] = useState<Exclude<Detent, 'full'>>(params.get('sel') && params.get('view') !== '3d' ? 'half' : 'peek');
+  const [mapDetent, setMapDetent] = useState<Exclude<Detent, 'full'>>(params.get('sel') ? 'half' : 'peek');
   const detent: Detent = view === 'list' ? 'full' : mapDetent;
   // The sheet's height while it is being dragged: "Show places in this area" hides once the sheet reaches it.
   const [sheetDragH, setSheetDragH] = useState<number | null>(null);
-  // 3D fills the space above the peek; the sheet steps down so the 3D view and its card show.
-  useEffect(() => {
-    if (view === '3d') setMapDetent('peek');
-  }, [view]);
   const rawCategory = params.get('category');
   const category: CategoryFilter = isCategoryFilter(rawCategory) ? rawCategory : 'all';
   const rawQuery = params.get('q')?.trim() ?? '';
@@ -204,9 +206,11 @@ export default function ExplorePage() {
       ].filter((g) => g.items.length > 0);
 
   const selected = items.find((i) => i.key === selectedKey) ?? null;
+  // the same pins in 2D and 3D: the list's own places, with what is checked in
+  const pins = items.map((i) => ({ key: i.key, name: i.name, location: i.location, category: i.category, visited: stateByKey.get(i.key)?.visited }));
   const select = (key: string) => {
     patch({ sel: key, info: null }, true);
-    if (view === 'map') setMapDetent((d) => (d === 'peek' ? 'half' : d));
+    if (view !== 'list') setMapDetent((d) => (d === 'peek' ? 'half' : d));
   };
   const setDetent = (d: Detent) => {
     if (d === 'full') patch({ view: 'list' });
@@ -224,7 +228,9 @@ export default function ExplorePage() {
   const detailsOpen = !!selectedPlace && params.get('info') === '1';
   const target3d: View3DTarget = selectedPlace
     ? view3dTarget(selectedPlace)
-    : origin
+    : activeList && items.length
+      ? { at: centreOf(items.map((i) => i.location)), pin: false }
+      : origin
       ? { at: origin.point, pin: origin.kind === 'approx' }
       : { at: MARINA_BAY, pin: false };
   // Tapping a landmark in 3D selects it here when it is one of our places (the sheet shows it, as on the map).
@@ -387,8 +393,8 @@ export default function ExplorePage() {
   return (
     // No app tab bar here: the map is a full screen of its own; Back (in the search bar) returns to where you came from.
     <AppShell background="var(--bg-screen-b)" layout="fill" chrome="status">
-      {/* The map (or the 3D view) is the page: edge to edge, under the status bar and the floating controls. */}
-      <div className={view === '3d' ? `${x.stage} ${x.stage3d}` : x.stage} data-allow-bleed>
+      {/* The map (or the 3D view, the same page around it: search, lists, sheet and map buttons) fills the screen. */}
+      <div className={x.stage} data-allow-bleed>
         {view === '3d' ? (
           <View3D
             bleed
@@ -398,6 +404,9 @@ export default function ExplorePage() {
             onCard={onCard3d}
             you={you}
             flyId={focusId}
+            pins={pins}
+            selectedKey={selectedKey}
+            onPick={select}
           />
         ) : (
           <CityMap
@@ -405,7 +414,7 @@ export default function ExplorePage() {
             insets={mapInsets}
             controlsTop={(wide ? 218 : 256) - statusShift}
             label="Map of Singapore places. Every place on it is also in the list."
-            pins={items.map((i) => ({ key: i.key, name: i.name, location: i.location, category: i.category, visited: stateByKey.get(i.key)?.visited }))}
+            pins={pins}
             selectedKey={selectedKey ?? undefined}
             onSelect={select}
             focus={focus}
@@ -418,92 +427,83 @@ export default function ExplorePage() {
         )}
       </div>
 
-      {/* Floating search and categories (hidden in 3D, where the 3D page's time bar sits at the top). */}
-      {view !== '3d' && (
-        <div className={x.top} data-allow-bleed>
-          <form className={x.search} role="search" onSubmit={submit}>
-            <button type="button" className={x.back} onClick={goBack} aria-label="Back">
-              <Icon name="back" />
-            </button>
-            <label htmlFor="nearby-search" className={styles.srOnly}>
-              Search places by name or type
-            </label>
-            <input
-              id="nearby-search"
-              className={x.searchInput}
-              type="search"
-              enterKeyHint="search"
-              value={draft}
-              maxLength={QUERY_MAX}
-              placeholder="Search places"
-              onChange={(e) => setDraft(e.target.value)}
-              aria-describedby={queryError ? 'nearby-search-error' : undefined}
-            />
-            <button type="submit" className={styles.srOnly}>
-              Search
-            </button>
-            {/* Editor's picks: themed lists of 10 places to check off */}
-            <button
-              type="button"
-              className={picksOpen || activeList ? `${x.picksButton} ${x.picksOn}` : x.picksButton}
-              aria-label="Editor's picks"
-              aria-expanded={picksOpen}
-              aria-controls="picks-panel"
-              onClick={() => setPicksOpen((o) => !o)}
-            >
-              <Icon name="menu" />
-            </button>
-          </form>
-          {picksOpen && (
-            <PicksPanel
-              id="picks-panel"
-              activeId={activeList?.id ?? null}
-              onClose={closePicks}
-              onChoose={(c) => {
-                setPicksOpen(false);
-                patch({ list: c.id, sel: null, info: null, q: null, category: null, view: view === 'list' ? null : params.get('view') });
-                setDraft('');
-                setMapDetent('half');
-                setFocusId((n) => n + 1);
-              }}
-            />
-          )}
-          {queryError && (
-            <p id="nearby-search-error" className={x.floatingNote} role="alert">
-              {queryError}
-            </p>
-          )}
-          {pendingCenter && searchAreaRoom && (
-            <button
-              type="button"
-              className={x.searchArea}
-              onClick={() => {
-                setIgnoreFix(true);
-                setSelectedArea(undefined);
-                setMapCenter(pendingCenter);
-                setPendingCenter(null);
-                patch({ q: null, sel: null, info: null });
-                setDraft('');
-              }}
-            >
-              Show places in this area
-            </button>
-          )}
-        </div>
-      )}
+      {/* Floating search and Editor's picks, the same in 2D and 3D. */}
+      <div className={x.top} data-allow-bleed>
+        <form className={x.search} role="search" onSubmit={submit}>
+          <button type="button" className={x.back} onClick={goBack} aria-label="Back">
+            <Icon name="back" />
+          </button>
+          <label htmlFor="nearby-search" className={styles.srOnly}>
+            Search places by name or type
+          </label>
+          <input
+            id="nearby-search"
+            className={x.searchInput}
+            type="search"
+            enterKeyHint="search"
+            value={draft}
+            maxLength={QUERY_MAX}
+            placeholder="Search places"
+            onChange={(e) => setDraft(e.target.value)}
+            aria-describedby={queryError ? 'nearby-search-error' : undefined}
+          />
+          <button type="submit" className={styles.srOnly}>
+            Search
+          </button>
+          {/* Editor's picks: themed lists of 10 places to check off */}
+          <button
+            type="button"
+            className={picksOpen || activeList ? `${x.picksButton} ${x.picksOn}` : x.picksButton}
+            aria-label="Editor's picks"
+            aria-expanded={picksOpen}
+            aria-controls="picks-panel"
+            onClick={() => setPicksOpen((o) => !o)}
+          >
+            <Icon name="menu" />
+          </button>
+        </form>
+        {picksOpen && (
+          <PicksPanel
+            id="picks-panel"
+            activeId={activeList?.id ?? null}
+            onClose={closePicks}
+            onChoose={(c) => {
+              setPicksOpen(false);
+              patch({ list: c.id, sel: null, info: null, q: null, category: null, view: view === 'list' ? null : params.get('view') });
+              setDraft('');
+              setMapDetent('half');
+              setFocusId((n) => n + 1);
+            }}
+          />
+        )}
+        {queryError && (
+          <p id="nearby-search-error" className={x.floatingNote} role="alert">
+            {queryError}
+          </p>
+        )}
+        {pendingCenter && searchAreaRoom && (
+          <button
+            type="button"
+            className={x.searchArea}
+            onClick={() => {
+              setIgnoreFix(true);
+              setSelectedArea(undefined);
+              setMapCenter(pendingCenter);
+              setPendingCenter(null);
+              patch({ q: null, sel: null, info: null });
+              setDraft('');
+            }}
+          >
+            Show places in this area
+          </button>
+        )}
+      </div>
 
-      {/* 3D has no search bar: a clear way back to the map, top left (Esc and the browser's Back work too) */}
-      {view === '3d' && (
-        <button type="button" className={x.exit3d} onClick={leave3dNow} aria-label="Leave 3D, back to the map">
-          <Icon name="back" size={18} />
-          Map
-        </button>
-      )}
-
-      {/* Map buttons: 3D and your location (zoom and recenter are on the map itself). */}
-      <div className={view === '3d' ? `${x.side} ${x.side3d}` : x.side} role="group" aria-label="Map view">
-        <button type="button" className={x.sideButton} aria-pressed={view === '3d'} onClick={() => (view === '3d' ? leave3dNow() : enter3d())}>
-          3D
+      {/* Map buttons: 2D ⇄ 3D and your location (zoom and recenter are on the map itself). */}
+      {/* 2D ⇄ 3D, as in a maps app: the button names the view it switches to (Esc also leaves 3D) */}
+      <div className={x.side} role="group" aria-label="Map view">
+        <button type="button" className={x.sideButton} onClick={() => (view === '3d' ? leave3dNow() : enter3d())}>
+          {view === '3d' ? '2D' : '3D'}
         </button>
         <button type="button" className={x.sideButton} onClick={flow.start} aria-label="My location">
           <Icon name="locate" />

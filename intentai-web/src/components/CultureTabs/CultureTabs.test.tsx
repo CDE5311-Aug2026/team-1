@@ -1,9 +1,14 @@
-import { render, screen, within } from '@testing-library/react';
+import { render as rtlRender, screen, within } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import type { CategoryId } from '../../data/culture';
 import { VIDEOS } from '../../data/videos';
 import CultureTabs from './CultureTabs';
+
+// the cards link to Nearby, so they render inside a router
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: ({ children }) => <MemoryRouter>{children}</MemoryRouter> });
 
 const TABS: CategoryId[] = ['foods', 'monuments', 'unesco'];
 
@@ -111,4 +116,9 @@ test('each article card opens with its photo and credits the photographer and li
   const credit = within(article).getByRole('link', { name: 'Photo: Terence Ong · CC BY 2.5 · cropped' });
   expect(credit).toHaveAttribute('href', 'https://commons.wikimedia.org/wiki/File:Hainanese_Chicken_Rice.jpg');
   expect(credit).toHaveAttribute('target', '_blank');
+});
+
+test('an article that names a place links to it in Nearby', () => {
+  render(<CultureTabs categories={['monuments', 'foods', 'holidays']} />);
+  expect(screen.getByRole('link', { name: 'Sri Mariamman Temple (opens Nearby)' })).toHaveAttribute('href', '/nearby?sel=curated%3Asg-sri-mariamman-temple&info=1');
 });

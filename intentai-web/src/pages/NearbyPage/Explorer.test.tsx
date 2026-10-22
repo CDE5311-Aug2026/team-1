@@ -268,6 +268,13 @@ describe('Place detail', () => {
     expect(within(details).getAllByText((_, el) => el?.tagName === 'P' && /^Hours, Address, Phone, Website, What people say: Summer Pavilion/.test(el.textContent ?? ''))).toHaveLength(1);
   });
 
+  test('a place that a Today article names shows that article in its culture cards', () => {
+    renderAt('/nearby/place/curated:sg-sultan-mosque');
+    const cards = screen.getByRole('group', { name: 'Culture and language cards for Sultan Mosque' });
+    expect(within(cards).getByText('Culture · from Today')).toBeInTheDocument();
+    expect(within(cards).getByText('A landmark mosque first built in the 1820s for Sultan Hussein Shah.')).toBeInTheDocument();
+  });
+
   test('a place with nothing confirmed still gets Apple Maps, and no empty rows', () => {
     renderAt('/nearby/place/curated:sg-coleman-bridge');
     const details = screen.getByRole('region', { name: 'Details' });

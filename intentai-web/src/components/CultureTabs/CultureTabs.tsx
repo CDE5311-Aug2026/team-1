@@ -2,6 +2,8 @@ import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { ARTICLE_IMAGES } from '../../data/articleImages';
 import { articlesFor, categoryById, type Article, type CategoryId } from '../../data/culture';
 import { VIDEOS } from '../../data/videos';
+import { ARTICLE_LINKS, VIDEO_LINKS } from '../../data/cultureLinks';
+import NearbyLinks from '../NearbyLinks/NearbyLinks';
 import SourceLine from '../SourceLine/SourceLine';
 import VideoFacade from '../VideoFacade/VideoFacade';
 import { useSpan } from '../../usage/useSpan';
@@ -78,6 +80,7 @@ function Tabs({ categories }: CultureTabsProps) {
         <h2 className={styles.lead}>{category.topChoice}</h2>
         {/* Keyed so a played video never carries over (and autoplays) on the next tab. */}
         {video && <VideoFacade key={video.youtubeId} video={video} />}
+        {video && <NearbyLinks links={VIDEO_LINKS[category.id]} label="See it in Nearby" />}
         <div className={styles.grid}>
           {articles.map((article) => (
             <ArticleCard key={article.id} article={article} />
@@ -114,6 +117,7 @@ function ArticleCard({ article }: { article: Article }) {
           <SourceLine sources={article.sources} className={styles.source} />
         </div>
       )}
+      <NearbyLinks links={ARTICLE_LINKS[article.id]} />
       <div className={styles.footer}>
         {image && (
           <a className={styles.credit} href={image.url} target="_blank" rel="noopener noreferrer">

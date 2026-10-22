@@ -18,6 +18,9 @@ import type { CuratedPlace, SourceReference } from '../domain';
 import { directionsUrl } from '../links';
 import { localToday, shortDate, stateOf } from '../personal';
 import { placeShare } from '../share';
+import { CATEGORIES, articlesFor } from '../../../data/culture';
+import { HOLIDAY_LINKS, articlesNaming } from '../../../data/cultureLinks';
+import { todaysHoliday } from '../../../data/holiday';
 import ShareButton from './ShareButton';
 import CardDeck, { type DeckCard } from './CardDeck';
 import PlaceDetails from './PlaceDetails';
@@ -44,6 +47,8 @@ function SourceLinks({ sources }: { sources: SourceReference[] }) {
     </p>
   );
 }
+
+const TODAY_ARTICLES = CATEGORIES.flatMap((c) => articlesFor(c.id));
 
 /** flat: inside another card (Explore's selected place, which has its own Save star): sections are divided by lines. */
 export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: { place: CuratedPlace; idPrefix?: string; flat?: boolean }) {
@@ -179,7 +184,53 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
       </>
     ),
   }));
-  const deck: DeckCard[] = [];
+  // Today's articles (and holiday) that name this place: the same reading, from the place's side
+  const fromToday: DeckCard[] = [
+    ...articlesNaming(place.id).flatMap((id) => {
+      const a = TODAY_ARTICLES.find((x) => x.id === id);
+      return a
+        ? [
+            {
+              id: `today-${a.id}`,
+              tone: 'culture' as const,
+              kicker: 'Culture · from Today',
+              body: (
+                <>
+                  <p className={styles.cardName}>{a.title}</p>
+                  <p className={styles.body}>{a.summary}</p>
+                  <details className={styles.fold}>
+                    <summary className={styles.foldSummary}>Read more</summary>
+                    <div className={styles.foldBody}>
+                      <p className={styles.body}>{a.deeper}</p>
+                      <p className={styles.sourceLine}>Source: {a.sources.map((x) => x.label).join('; ')}</p>
+                    </div>
+                  </details>
+                </>
+              ),
+            },
+          ]
+        : [];
+    }),
+    ...(HOLIDAY_LINKS[todaysHoliday.name]?.some((l) => l.kind === 'place' && l.id === place.id)
+      ? [
+          {
+            id: `today-holiday-${todaysHoliday.name}`,
+            tone: 'culture' as const,
+            kicker: `Festival · ${todaysHoliday.today}`,
+            body: (
+              <>
+                <p className={styles.cardName}>{todaysHoliday.name}</p>
+                <p className={styles.body}>{todaysHoliday.cardBody}</p>
+                <Link className={styles.textLink} to={paths.holiday}>
+                  Read about {todaysHoliday.name} on Today
+                </Link>
+              </>
+            ),
+          },
+        ]
+      : []),
+  ];
+  const deck: DeckCard[] = [...fromToday];
   for (let i = 0; i < Math.max(language.length, culture.length); i++) {
     if (language[i]) deck.push(language[i]);
     if (culture[i]) deck.push(culture[i]);

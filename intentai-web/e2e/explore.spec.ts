@@ -191,7 +191,7 @@ test('the Back button leaves Explore at once, however many map steps were taken 
   await expect(page).toHaveURL(/\/nearby/);
   await page.getByRole('button', { name: '3D' }).click();
   await expect(page).toHaveURL(/view=3d/);
-  await page.getByRole('button', { name: 'Leave 3D, back to the map' }).click();
+  await page.getByRole('button', { name: '2D' }).click();
   await expect(page).not.toHaveURL(/view=3d/);
   await page.getByRole('button', { name: "Editor's picks" }).click();
   await page.getByRole('dialog', { name: "Editor's picks" }).getByRole('button', { name: /Hawker centres to know/ }).click();

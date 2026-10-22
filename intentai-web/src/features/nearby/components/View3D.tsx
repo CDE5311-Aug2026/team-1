@@ -4,6 +4,8 @@
 // component mounts (the user asked for 3D) and removed when it unmounts, which frees its memory.
 import { useEffect, useRef, useState } from 'react';
 import { earthOnline3dOrigin, view3dUrl, type View3DTarget } from '../links';
+import type { Category } from '../types';
+import { ICON_PATHS } from './icons';
 import styles from './View3D.module.css';
 
 /** Bundled 3D page + its Singapore data, rounded up (first load; the browser caches it after that). */
@@ -25,14 +27,39 @@ export interface View3DProps {
   you?: { lat: number; lng: number; accuracyM?: number } | null;
   /** Changes when the view should go to the target again, even the same one ("My location" after panning away). */
   flyId?: number;
+  /** The places to pin in 3D: the same list the 2D map shows. A tap on one calls onPick. */
+  pins?: View3DPin[];
+  selectedKey?: string | null;
+  onPick?: (key: string) => void;
 }
 
-type LiteMessage = { source: 'earth-online-lite'; type: 'ready' } | { source: 'earth-online-lite'; type: 'card'; key: string | null; title?: string | null };
+export interface View3DPin {
+  key: string;
+  location: { lat: number; lng: number };
+  category: Category;
+  visited?: boolean;
+}
+
+/** The 2D map's pin look (ring colour and icon) for the 3D pins. */
+const PIN_STYLES: Record<Category, { color: string; d: string }> = {
+  landmark: { color: '#6b5bd6', d: ICON_PATHS.landmark },
+  food: { color: '#e4671f', d: ICON_PATHS.food },
+  nature: { color: '#2f8a4b', d: ICON_PATHS.nature },
+  culture: { color: '#c2408d', d: ICON_PATHS.culture },
+};
+
+type LiteMessage =
+  | { source: 'earth-online-lite'; type: 'ready' }
+  | { source: 'earth-online-lite'; type: 'card'; key: string | null; title?: string | null }
+  | { source: 'earth-online-lite'; type: 'pick'; key: string };
 
 function isLiteMessage(d: unknown): d is LiteMessage {
   if (!d || typeof d !== 'object') return false;
   const m = d as Record<string, unknown>;
-  return m.source === 'earth-online-lite' && (m.type === 'ready' || (m.type === 'card' && (m.key === null || typeof m.key === 'string')));
+  return (
+    m.source === 'earth-online-lite' &&
+    (m.type === 'ready' || (m.type === 'card' && (m.key === null || typeof m.key === 'string')) || (m.type === 'pick' && typeof m.key === 'string'))
+  );
 }
 
 const keyOf = (t: View3DTarget) => `${t.card ?? ''}@${t.at.lat.toFixed(5)},${t.at.lng.toFixed(5)}:${t.pin ?? ''}`;
@@ -45,7 +72,7 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0 }: View3DProps) {
+export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick }: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
@@ -64,6 +91,28 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
   onCardRef.current = onCard;
   const youRef = useRef(you);
   youRef.current = you;
+  const onPickRef = useRef(onPick);
+  onPickRef.current = onPick;
+  const pinsRef = useRef({ pins, selectedKey });
+  const pinsKeyRef = useRef('');
+  pinsRef.current = { pins, selectedKey };
+  // what this page was last sent (a reloaded page has none)
+  const pinsSent = useRef<string | null>(null);
+  const postPins = (key: string) => {
+    const { pins: list, selectedKey: sel } = pinsRef.current;
+    if (!list || pinsSent.current === key) return;
+    pinsSent.current = key;
+    frame.current?.contentWindow?.postMessage(
+      {
+        source: 'intentai',
+        type: 'pins',
+        pins: list.slice(0, 400).map((p) => ({ key: p.key, at: [p.location.lat, p.location.lng], cat: p.category, visited: !!p.visited })),
+        styles: PIN_STYLES,
+        selected: sel,
+      },
+      earthOnline3dOrigin(),
+    );
+  };
   // a dot was sent to this page (so "no position" has something to remove)
   const youSent = useRef<string | null>(null);
   const postYou = () => {
@@ -85,8 +134,12 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
         setReady(true);
         youSent.current = null; // a (re)loaded page has no dot yet
         postYou();
+        pinsSent.current = null;
+        postPins(pinsKeyRef.current);
+      } else if (e.data.type === 'pick') {
+        onPickRef.current?.(e.data.key);
       }
-      else {
+      if (e.data.type === 'card') {
         openCard.current = e.data.key;
         onCardRef.current?.(e.data.key, typeof e.data.title === 'string' ? e.data.title : null);
       }
@@ -100,6 +153,14 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     const t = window.setTimeout(() => setSlow(true), SLOW_MS);
     return () => window.clearTimeout(t);
   }, [ready]);
+
+  // The pins follow the page's list and selection.
+  const pinsKey = pins ? `${selectedKey ?? ''}|${pins.map((p) => `${p.key}${p.visited ? '+' : ''}`).join(',')}` : '';
+  pinsKeyRef.current = pinsKey;
+  useEffect(() => {
+    if (ready) postPins(pinsKey);
+    // pins are read through pinsKey
+  }, [ready, pinsKey]);
 
   // Your dot moves (or goes) with the position.
   const youKey = you ? `${you.lat.toFixed(5)},${you.lng.toFixed(5)}:${Math.round(you.accuracyM ?? 0)}` : '';

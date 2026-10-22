@@ -29,6 +29,9 @@ const PATHS: Record<string, string> = {
 
 export type IconName = keyof typeof PATHS;
 
+/** The path data (24 × 24, stroked), for drawing an icon outside React (the 3D view's pins). */
+export const ICON_PATHS: Readonly<Record<string, string>> = PATHS;
+
 export function Icon({ name, size = 20, filled = false, className }: { name: IconName | Category; size?: number; filled?: boolean; className?: string }) {
   return (
     <svg

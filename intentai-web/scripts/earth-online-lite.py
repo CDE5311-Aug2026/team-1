@@ -21,6 +21,7 @@ What the lite page does differently from the full page:
   - postMessage with the embedding page: out {source:'earth-online-lite', type:'ready' | 'card', key}; in (from the parent
     only) {source:'intentai', type:'show', at:[lat, lng], card?, pin?} moves the view (or reloads around a far point, via
     the hash). #pin=0 hides the pin, #still=1 skips camera flights (reduced motion).
+    {source:'intentai', type:'pins', pins, styles, selected} shows the page's places as pins (a tap posts {type:'pick', key});
     {source:'intentai', type:'you', at:[lat, lng] | null, acc?} shows (or removes) the viewer's own position as a blue dot;
     it is never in the address, and the embedding page sends it again after each 'ready'.
 """
@@ -323,6 +324,61 @@ function liteYou(at, acc){
   LITE.youMesh.position.set(x, Math.max(0, hC(x, y)) + 1.2, -y); LITE.youDot.position.y = 6;
   LITE.youDisc.scale.set(LITE.you.acc, LITE.you.acc, 1); LITE.youMesh.visible = true;
 }
+// The embedding page's places as pins, the same list its 2D map shows (its filters, its editor's pick, its search):
+// {type:'pins', pins:[{key, at:[lat, lng], cat, visited}], styles:{cat:{color, d}}, selected}. A pin is a white disc
+// with the category's ring and icon (the 2D map's pin), the same size on screen at any distance; the selected one is
+// larger with the accent ring. A tap on a pin goes back as {type:'pick', key}; it does not open a landmark card.
+const LP = {group:null, items:[], tex:new Map(), styles:{}, sel:null, down:null};
+function litePinTex(cat, sel, visited){
+  const k = cat + (sel ? ':s' : '') + (visited ? ':v' : '');
+  if (LP.tex.has(k)) return LP.tex.get(k);
+  const st = LP.styles[cat] || {color:'#2c2c2e', d:''}, c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'), R = 50;
+  g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = 8; g.shadowOffsetY = 3;
+  g.fillStyle = '#ffffff'; g.beginPath(); g.arc(64, 64, R, 0, 7); g.fill(); g.shadowColor = 'transparent';
+  g.lineWidth = sel ? 10 : 7; g.strokeStyle = sel ? '#e4671f' : st.color; g.beginPath(); g.arc(64, 64, R - g.lineWidth/2, 0, 7); g.stroke();
+  if (st.d){ try { g.save(); g.translate(64 - 30, 64 - 30); g.scale(2.5, 2.5); g.strokeStyle = st.color; g.lineWidth = 1.8; g.lineCap = 'round'; g.lineJoin = 'round'; g.stroke(new Path2D(st.d)); g.restore(); } catch (e){ } }
+  if (visited){ g.fillStyle = '#2f8a4b'; g.beginPath(); g.arc(104, 26, 17, 0, 7); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 5; g.beginPath(); g.moveTo(95, 26); g.lineTo(101, 33); g.lineTo(113, 19); g.stroke(); }
+  const t = new THREE.CanvasTexture(c); LP.tex.set(k, t); return t;
+}
+function litePins(list, styles, selected){
+  if (styles && typeof styles === 'object') for (const k in styles){ const v = styles[k]; if (v && /^#[0-9a-fA-F]{6}$/.test(v.color) && typeof v.d === 'string' && v.d.length < 600){ if (!LP.styles[k] || LP.styles[k].d !== v.d || LP.styles[k].color !== v.color){ LP.styles[k] = {color:v.color, d:v.d}; for (const tk of [...LP.tex.keys()]) if (tk.split(':')[0] === k){ LP.tex.get(tk).dispose(); LP.tex.delete(tk); } } } }
+  if (!LP.group){ LP.group = new THREE.Group(); LP.group.renderOrder = 11; scene.add(LP.group);
+    setInterval(() => { for (const it of LP.items){ const gy = Math.max(0, hC(it.x, it.y)); if (Math.abs(gy - it.gy) > 0.5){ it.gy = gy; it.s.position.y = gy + 10; } } }, 700); }
+  for (const it of LP.items){ LP.group.remove(it.s); it.s.material.dispose(); }
+  LP.items = []; LP.sel = selected || null;
+  for (const p of list){
+    const [x, y] = LITE.xy(p.at[0], p.at[1]), sel = p.key === LP.sel, gy = Math.max(0, hC(x, y));
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({map:litePinTex(p.cat, sel, !!p.visited), depthTest:false, depthWrite:false, sizeAttenuation:false, transparent:true}));
+    const k = sel ? 0.048 : 0.036; s.scale.set(k, k, 1);   // about 30 px (40 px selected) on a phone, like the 2D pins s.renderOrder = sel ? 13 : 11; s.position.set(x, gy + 10, -y);
+    LP.group.add(s); LP.items.push({key:p.key, x, y, gy, s, sel});
+  }
+}
+// a tap on a pin: the nearest pin within its radius on screen (pins in front of the camera only)
+function litePinAt(cx, cy){
+  if (!LP.items.length) return null;
+  const rect = renderer.domElement.getBoundingClientRect(), v = new THREE.Vector3(); let best = null, bd = 1e9;
+  for (const it of LP.items){
+    v.copy(it.s.position).project(camera); if (v.z > 1 || v.z < -1) continue;
+    const sx = rect.left + (v.x + 1)/2*rect.width, sy = rect.top + (1 - v.y)/2*rect.height, d = Math.hypot(sx - cx, sy - cy);
+    const rad = (it.sel ? 0.024 : 0.018)*rect.height + 6;
+    if (d < rad && d < bd){ bd = d; best = it; }
+  }
+  return best;
+}
+// after the card picker's own listeners (registered earlier): a press on a pin is ours, so the card picker forgets it
+addEventListener('pointerdown', e => {
+  LP.down = null; if (e.button !== 0 || e.target !== renderer.domElement) return;
+  const it = litePinAt(e.clientX, e.clientY); if (!it) return;
+  LP.down = {id:e.pointerId, x:e.clientX, y:e.clientY, t:performance.now(), key:it.key};
+  try { if (window.SGCard && SGCard._t && SGCard._t.SGC) SGCard._t.SGC.down = null; } catch (err){ }
+  e.stopImmediatePropagation();   // whichever runs first: the card picker and the orbit never see this press
+}, true);
+addEventListener('pointerup', e => {
+  const D = LP.down; LP.down = null; if (!D || e.pointerId !== D.id) return;
+  if (Math.hypot(e.clientX - D.x, e.clientY - D.y) > 10 || performance.now() - D.t > 650) return;
+  litePost({type:'pick', key:D.key});
+}, true);
 function liteLook(x, y){
   const g = Math.max(0, hC(x, y)) + 4, to = new THREE.Vector3(x + 420, g + 560, -y + 760), tt = new THREE.Vector3(x, g, -y);
   if (LITE.still || typeof flyTo !== 'function'){ controls.target.copy(tt); camera.position.copy(to); } else flyTo(to, tt, 1200);
@@ -333,6 +389,12 @@ function litePost(m){ try { if (parent !== window) parent.postMessage(Object.ass
 // Within reach of the loaded area the camera moves there; farther away the page reloads around the new point.
 addEventListener('message', e => {
   const d0 = e.data; if (e.source !== parent || !d0 || d0.source !== 'intentai') return;
+  if (d0.type === 'pins'){
+    if (!Array.isArray(d0.pins) || d0.pins.length > 400) return;
+    const ok = d0.pins.filter(p => p && typeof p.key === 'string' && p.key.length <= 120 && typeof p.cat === 'string' && Array.isArray(p.at) && p.at.length === 2
+      && p.at.every(v => typeof v === 'number' && isFinite(v)) && Math.abs(p.at[0] - 1.315) < 0.3 && Math.abs(p.at[1] - 103.845) < 0.3);
+    return litePins(ok, d0.styles, typeof d0.selected === 'string' ? d0.selected : null);
+  }
   if (d0.type === 'you'){
     if (d0.at === null) return liteYou(null);
     if (Array.isArray(d0.at) && d0.at.length === 2 && d0.at.every(v => typeof v === 'number' && isFinite(v)) && Math.abs(d0.at[0] - 1.315) < 0.3 && Math.abs(d0.at[1] - 103.845) < 0.3)
@@ -359,7 +421,11 @@ window.SGLite = {
     return {prune:LITE.prune, focus:LITE.focus.map(Math.round), mob:LITE.mob, tex:SGR_TEX, dpr:renderer.getPixelRatio(), tilesBuilt:built, tilesLive:live, queue:SGR.queue.length, freed:LITE.freed,
       landmarks:landmarks.length, of:LITE.allPlaces, sites:sgSites.length, labels:labelItems.length, geometries:m.geometries, textures:m.textures, calls:r.calls, tris:r.triangles,
       target:[Math.round(controls.target.x), Math.round(-controls.target.z)], cam:Math.round(camera.position.distanceTo(controls.target)),
-      you:LITE.you && LITE.youMesh && LITE.youMesh.visible ? [Math.round(LITE.you.x), Math.round(LITE.you.y), Math.round(LITE.you.acc)] : null}; },
+      you:LITE.you && LITE.youMesh && LITE.youMesh.visible ? [Math.round(LITE.you.x), Math.round(LITE.you.y), Math.round(LITE.you.acc)] : null,
+      pins:LP.items.length, selectedPin:LP.sel}; },
+  // tooling: where a pin is on screen (CSS px in this page), or null
+  pinXY(key){ const it = LP.items.find(i => i.key === key); if (!it) return null; const v = it.s.position.clone().project(camera), r = renderer.domElement.getBoundingClientRect();
+    return [Math.round(r.left + (v.x + 1)/2*r.width), Math.round(r.top + (1 - v.y)/2*r.height)]; },
   mem(){
     const seen = new Set(), seenO = new Set(), MB = b => Math.round(b/1048576*10)/10;
     const walk = (o, d) => { if (!o || typeof o !== 'object' || seenO.has(o) || d > 9) return 0; seenO.add(o);
