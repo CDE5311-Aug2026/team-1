@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, test } from 'vitest';
 import type { UsageEvent } from '../../src/usage/event.js';
 import { handleStats, handleTrack, type HandlerConfig } from './handlers.js';
-import { MAX_EVENTS, fileStore, memoryStore, redisStore, storeFromEnv, type RedisLike } from './store.js';
+import { MAX_EVENTS, fileStore, memoryStore, redisStore, storeFromEnv, tcpRedis, type RedisLike, type TcpClient } from './store.js';
 
 const EVENT: UsageEvent = { uid: 'u1', sid: 's1', kind: 'page', name: 'Today', ms: 1200, at: 1 };
 const PASSWORD = 'secret';
@@ -133,7 +133,32 @@ describe('stores', () => {
     expect(trimmedTo).toBe(-MAX_EVENTS);
   });
 
-  test('storeFromEnv picks Redis for either env pair, else null', () => {
+  test('a Redis server from REDIS_URL: one connection, reused; a failed connect is retried', async () => {
+    const lists = new Map<string, string[]>();
+    const fake: TcpClient = {
+      rPush: async (k, v) => lists.set(k, [...(lists.get(k) ?? []), ...v]),
+      lTrim: async (k, a, b) => lists.set(k, (lists.get(k) ?? []).slice(a < 0 ? Math.max(0, (lists.get(k) ?? []).length + a) : a, b === -1 ? undefined : b + 1)),
+      lRange: async (k) => lists.get(k) ?? [],
+      del: async (k) => lists.delete(k),
+    };
+    let calls = 0;
+    const connect = async () => {
+      calls++;
+      if (calls === 1) throw new Error('down');
+      return fake;
+    };
+    const store = redisStore(tcpRedis('redis://x', connect));
+    const e = { uid: 'u', sid: 's', kind: 'page' as const, name: 'Today', ms: 1000, at: 1 };
+    await expect(store.append([e])).rejects.toThrow('down');
+    await store.append([e]);
+    await store.append([e]);
+    expect(await store.all()).toHaveLength(2);
+    expect(calls).toBe(2);
+  });
+
+  test('storeFromEnv picks Redis for either env pair, or REDIS_URL, else null', () => {
+    expect(storeFromEnv({ REDIS_URL: 'redis://default:x@redis.example:6379' })?.kind).toBe('redis');
+    expect(storeFromEnv({ REDIS_URL: 'https://not-redis' })).toBeNull();
     expect(storeFromEnv({})).toBeNull();
     expect(storeFromEnv({ KV_REST_API_URL: 'https://a.upstash.io', KV_REST_API_TOKEN: 't' })?.kind).toBe('redis');
     expect(storeFromEnv({ UPSTASH_REDIS_REST_URL: 'https://a.upstash.io', UPSTASH_REDIS_REST_TOKEN: 't' })?.kind).toBe('redis');

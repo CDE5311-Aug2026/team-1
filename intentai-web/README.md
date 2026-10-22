@@ -142,7 +142,7 @@ overwrites `places.sg.json`, so after editors start editing that file, apply dat
   practise…), and every press on a button or link (`tap`: "Page › button name"; a link is recorded as the page it
   opens, never its text). Never what people type. Records carry the test name.
 - **No server needed.** Every record also goes to this device's log (`intentai:v1:usage-log`, last 20,000 records,
-  `src/usage/localLog.ts`). When the server is set up (`/api/track`, Upstash Redis + `ADMIN_PASSWORD`), records go
+  `src/usage/localLog.ts`). When the server is set up (`/api/track`, a Redis database — `REDIS_URL` (Redis Cloud) or the Upstash REST pair — + `ADMIN_PASSWORD`), records go
   there as well.
 - **Dashboard** (`/admin`): data from *This device* (no password), *Files* (JSON exported from each test device,
   merged; the same file twice counts once) or *Server* (password). It shows people / sessions / median session /

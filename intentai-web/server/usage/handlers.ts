@@ -14,7 +14,7 @@ export interface HandlerConfig {
 const text = (status: number, body: string) =>
   new Response(body, { status, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' } });
 const empty = (status: number) => new Response(null, { status, headers: { 'cache-control': 'no-store' } });
-const NOT_CONNECTED = 'Storage not connected. Add Upstash Redis to the Vercel project.';
+const NOT_CONNECTED = 'Storage not connected. Connect a Redis database (Redis Cloud or Upstash) to the Vercel project.';
 
 const digest = (value: string) => createHash('sha256').update(value).digest();
 /** Constant-time compare: hashing first gives both sides the same length. */
