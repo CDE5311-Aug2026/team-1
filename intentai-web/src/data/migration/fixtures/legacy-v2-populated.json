@@ -1,0 +1,25 @@
+{
+  "singlish-v2-state": {
+    "done": true,
+    "profile": { "from": "Vietnam", "time": "3 months – 1 year", "role": "Exchange student", "level": "Intermediate", "topics": ["Food", "Work"] },
+    "settings": { "daily": true, "occasions": true, "local": true, "rehearse": true, "judgement": true, "location": true },
+    "learned": ["chope", "can"],
+    "saved": ["can", "paiseh"],
+    "notice": "confirmed",
+    "occasion": "Team dinner",
+    "with": "Colleagues and manager",
+    "dismissed": false,
+    "place": "Office",
+    "duration": "3 months – 1 year",
+    "topics": ["Food", "Work"],
+    "lookups": [
+      { "id": "wah", "word": "wah, finally ah", "meaning": "Mostly teasing, with some impatience — both at once.", "source": "Confirmed by a local", "got": true, "encounters": 2 },
+      { "id": "c1", "word": "shiok", "meaning": "Very satisfying.", "source": "AI-generated", "example": "This laksa damn shiok." }
+    ],
+    "questions": [
+      { "id": "q1", "text": "“sian” — what does it mean?", "detail": "My friend said sian after the exam.", "context": "group chat · classmates", "status": "Pending" },
+      { "id": "paiseh", "text": "“paiseh to trouble you”", "context": "group chat · classmates", "detail": "My classmate said “paiseh to trouble you”. What does it mean?", "status": "Answered", "answer": "A friendly apology for inconveniencing someone: sorry to trouble you." }
+    ],
+    "reports": [{ "answer": "Save a seat, often with a tissue packet on the table.", "reason": "Too short" }]
+  }
+}

@@ -4,6 +4,8 @@ import { LIMITS, type UsageEvent, type UsageKind } from './event';
 export interface Tracker {
   /** Starts a span; the returned function stops it (safe to call twice). */
   start(kind: UsageKind, name: string): () => void;
+  /** One press on a button or link, named "Page › label" (no duration). */
+  tap(name: string): void;
   flush(): void;
   sessionId(): string;
 }
@@ -12,6 +14,8 @@ export interface TrackerDeps {
   now(): number;
   send(events: UsageEvent[]): void;
   uid(): string;
+  /** The test name typed at the start screen, if any. */
+  user?(): string | undefined;
   newId(): string;
   doc: Pick<Document, 'visibilityState' | 'addEventListener'>;
   win: Pick<Window, 'addEventListener'>;
@@ -38,6 +42,11 @@ export function createTracker(deps: TrackerDeps): Tracker {
   let sid = deps.newId();
   let lastSeen: number | null = null;
 
+  const userField = (): { user?: string } => {
+    const user = deps.user?.();
+    return user ? { user } : {};
+  };
+
   const flush = () => {
     if (queue.length > 0) deps.send(queue.splice(0));
   };
@@ -63,6 +72,7 @@ export function createTracker(deps: TrackerDeps): Tracker {
       ms: Math.min(ms, LIMITS.maxMs),
       at: now - ms,
       ...(cont ? { cont: true as const } : {}),
+      ...userField(),
     });
     if (queue.length >= LIMITS.maxBatch) flush();
   };
@@ -101,6 +111,14 @@ export function createTracker(deps: TrackerDeps): Tracker {
         cut(span, deps.now());
         if (kind === 'page') flush();
       };
+    },
+    tap(name) {
+      if (!visible) return;
+      const now = deps.now();
+      rotateIfAway(now);
+      lastSeen = now;
+      queue.push({ uid: deps.uid(), sid, kind: 'tap', name: name.slice(0, LIMITS.maxName), ms: 0, at: now, ...userField() });
+      if (queue.length >= LIMITS.maxBatch) flush();
     },
     flush,
     sessionId: () => sid,

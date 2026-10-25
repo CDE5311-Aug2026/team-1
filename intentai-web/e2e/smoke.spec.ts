@@ -10,6 +10,10 @@ test('every route renders without runtime errors or broken images', async ({ pag
     await page.goto(route);
     await expect(page.getByRole('main')).toBeVisible();
     expect(new URL(page.url()).pathname, `${route} redirected away`).toBe(route);
+    // lazily loaded screens (Nearby) first show a busy placeholder <main>; wait for the screen itself
+    await expect(page.locator('main[aria-busy="true"]')).toHaveCount(0);
+    // lazy images (Nearby place pictures) load now, so a missing file still counts as broken
+    await page.locator('img[loading="lazy"]').evaluateAll((imgs) => imgs.forEach((img) => ((img as HTMLImageElement).loading = 'eager')));
     await expect
       .poll(() => page.locator('img').evaluateAll((imgs) => imgs.every((img) => (img as HTMLImageElement).complete)))
       .toBe(true);
@@ -68,8 +72,11 @@ test('Learn more opens the holiday detail, and the back link returns to Today', 
 test.describe('first visit', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test('starts at Welcome, not Today', async ({ page }) => {
+  test('asks for a test name first, then starts at Welcome, not Today', async ({ page }) => {
     await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'Type your test name to start' })).toBeVisible();
+    await page.getByLabel('Test name').fill('P01');
+    await page.getByRole('button', { name: 'Start' }).click();
     await expect(page).toHaveURL(/\/onboarding$/);
   });
 });
@@ -114,6 +121,8 @@ test('every route uses the same content column as Today at 1440', async ({ page 
     await seed(page, route);
     await page.goto(route);
     await expect(page.getByRole('main')).toBeVisible();
+    // lazy pages first show a loading <main>; measure the page itself (flaky on a busy machine otherwise)
+    await expect(page.locator('main[aria-busy="true"]')).toHaveCount(0);
     const off = await page.evaluate(
       ({ left, width }) =>
         Array.from(document.querySelectorAll('main > *, main > * > *'))
@@ -122,7 +131,8 @@ test('every route uses the same content column as Today at 1440', async ({ page 
             const parent = getComputedStyle(el.parentElement!);
             return el.parentElement!.tagName === 'MAIN' || parent.display === 'block' || parent.flexDirection === 'column';
           })
-          .filter((el) => !el.closest('section, article, [role="tabpanel"], ul, form, dialog'))
+          // A full-screen map and what floats over it (Nearby Explore) are marked data-allow-bleed on purpose.
+          .filter((el) => !el.closest('section, article, [role="tabpanel"], ul, form, dialog, [data-allow-bleed]'))
           .map((el) => ({ el, box: el.getBoundingClientRect() }))
           .filter(({ box }) => box.width > width / 2)
           .filter(({ box }) => Math.abs(box.left - left) > 3 || Math.abs(box.width - width) > 3)

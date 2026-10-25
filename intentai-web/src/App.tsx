@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { usePersistentStore } from './data/persistentStore';
 import { onboardingStore } from './data/stores';
@@ -23,6 +24,21 @@ import TodaySetupPage from './pages/TodaySetup/TodaySetupPage';
 import AdminPage from './pages/AdminPage/AdminPage';
 import { ADMIN_PATH, paths, patterns } from './routes';
 import PageTracker from './usage/PageTracker';
+import UserGate from './components/UserGate/UserGate';
+
+// Nearby Explorer screens load on demand: the catalogue (~140 places) and the map stay out of Today's bundle.
+const ExplorePage = lazy(() => import('./pages/NearbyPage/ExplorePage'));
+const LocationPage = lazy(() => import('./pages/NearbyPage/LocationPage'));
+const PlaceDetailPage = lazy(() => import('./pages/NearbyPage/PlaceDetailPage'));
+const CollectionsPage = lazy(() => import('./pages/NearbyPage/CollectionsPage'));
+const CollectionDetailPage = lazy(() => import('./pages/NearbyPage/CollectionDetailPage'));
+const SavedPage = lazy(() => import('./pages/NearbyPage/SavedPage'));
+
+function Lazy({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<main className="route-loading" aria-busy="true">Loading Nearby…</main>}>{children}</Suspense>
+  );
+}
 
 export default function App() {
   const [onboarding] = usePersistentStore(onboardingStore);
@@ -30,40 +46,48 @@ export default function App() {
   return (
     <>
       <PageTracker />
-      <Routes>
-        <Route
-          path={paths.today}
-          element={
-            onboarding.done ? (
-              <TodayPage />
-            ) : (
-              // First visit starts at Welcome (Figma page 7); "Start learning" sets done.
-              <Navigate to={paths.welcome} replace />
-            )
-          }
-        />
-        <Route path={paths.holiday} element={<HolidayPage />} />
-        <Route path={paths.ask} element={<AskPage />} />
-        <Route path={paths.community} element={<CommunityPage />} />
-        <Route path={patterns.question} element={<QuestionPage />} />
-        <Route path={paths.moments} element={<MomentsPage />} />
-        <Route path={paths.nearby} element={<NearbyPage />} />
-        <Route path={paths.places} element={<PlacesPage />} />
-        <Route path={paths.mySpace} element={<MySpacePage />} />
-        <Route path={paths.notices} element={<NoticesPage />} />
-        <Route path={paths.noticeDetails} element={<NoticeDetailsPage />} />
-        <Route path={paths.noticeEdit} element={<NoticeEditPage />} />
-        <Route path={paths.noticeConfirmed} element={<NoticeResultPage outcome="confirmed" />} />
-        <Route path={paths.noticeRejected} element={<NoticeResultPage outcome="rejected" />} />
-        <Route path={paths.welcome} element={<WelcomePage />} />
-        <Route path={paths.onboardingTime} element={<TimePage />} />
-        <Route path={paths.onboardingTopics} element={<TopicsPage />} />
-        <Route path={paths.onboardingQuiz} element={<QuizPage />} />
-        <Route path={paths.onboardingResult} element={<ResultPage />} />
-        <Route path={paths.todaySetup} element={<TodaySetupPage />} />
-        <Route path={ADMIN_PATH} element={<AdminPage />} />
-        <Route path="*" element={<Navigate to={paths.today} replace />} />
-      </Routes>
+      <UserGate>
+        <Routes>
+          <Route
+            path={paths.today}
+            element={
+              onboarding.done ? (
+                <TodayPage />
+              ) : (
+                // First visit starts at Welcome (Figma page 7); "Start learning" sets done.
+                <Navigate to={paths.welcome} replace />
+              )
+            }
+          />
+          <Route path={paths.holiday} element={<HolidayPage />} />
+          <Route path={paths.ask} element={<AskPage />} />
+          <Route path={paths.community} element={<CommunityPage />} />
+          <Route path={patterns.question} element={<QuestionPage />} />
+          <Route path={paths.moments} element={<MomentsPage />} />
+          <Route path={paths.nearby} element={<Lazy><ExplorePage /></Lazy>} />
+          <Route path={paths.phrases} element={<NearbyPage />} />
+          <Route path={paths.places} element={<PlacesPage />} />
+          <Route path={paths.nearbyLocation} element={<Lazy><LocationPage /></Lazy>} />
+          <Route path={patterns.nearbyPlace} element={<Lazy><PlaceDetailPage /></Lazy>} />
+          <Route path={paths.collections} element={<Lazy><CollectionsPage /></Lazy>} />
+          <Route path={patterns.collection} element={<Lazy><CollectionDetailPage /></Lazy>} />
+          <Route path={paths.saved} element={<Lazy><SavedPage /></Lazy>} />
+          <Route path={paths.mySpace} element={<MySpacePage />} />
+          <Route path={paths.notices} element={<NoticesPage />} />
+          <Route path={paths.noticeDetails} element={<NoticeDetailsPage />} />
+          <Route path={paths.noticeEdit} element={<NoticeEditPage />} />
+          <Route path={paths.noticeConfirmed} element={<NoticeResultPage outcome="confirmed" />} />
+          <Route path={paths.noticeRejected} element={<NoticeResultPage outcome="rejected" />} />
+          <Route path={paths.welcome} element={<WelcomePage />} />
+          <Route path={paths.onboardingTime} element={<TimePage />} />
+          <Route path={paths.onboardingTopics} element={<TopicsPage />} />
+          <Route path={paths.onboardingQuiz} element={<QuizPage />} />
+          <Route path={paths.onboardingResult} element={<ResultPage />} />
+          <Route path={paths.todaySetup} element={<TodaySetupPage />} />
+          <Route path={ADMIN_PATH} element={<AdminPage />} />
+          <Route path="*" element={<Navigate to={paths.today} replace />} />
+        </Routes>
+      </UserGate>
     </>
   );
 }

@@ -18,6 +18,7 @@ import PractiseDialog from './PractiseDialog/PractiseDialog';
 import { clampPage, pageCount, pageSlice, showingCaption } from './paging';
 import MyTopics from './MyTopics/MyTopics';
 import PassportCard from './PassportCard/PassportCard';
+import PlaceStamps from './PlaceStamps/PlaceStamps';
 import TodaysThree from './TodaysThree/TodaysThree';
 import { useSpan } from '../../usage/useSpan';
 import styles from './MomentsPage.module.css';
@@ -136,6 +137,11 @@ export default function MomentsPage() {
           <p className={lookups.length > 0 ? styles.caption : styles.empty} data-node-id="7:1114">
             {lookups.length > 0 ? showingCaption(page, lookups.length) : 'No lookups yet. Ask about a phrase to save it here.'}
           </p>
+        </div>
+
+        {/* Nearby check-ins (打卡) as stamps: the places side of the passport. After the Figma frame (4:935), so its geometry stays. */}
+        <div className={styles.places}>
+          <PlaceStamps />
         </div>
       </div>
 

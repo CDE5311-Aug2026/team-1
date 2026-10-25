@@ -1,55 +1,34 @@
-import type { CategoryId, Source } from './culture';
+import type { Source } from './culture';
 
 export interface Video {
   youtubeId: string;
-  title: string; // exact YouTube title
+  title: string; // exact YouTube title (oEmbed)
   channel: string; // exact oEmbed author_name
-  length: string; // like '2:05'
+  /** like '2:05'; left out when it could not be checked */
+  length?: string;
   sources: Source[]; // [{ label: <channel>, url: 'https://www.youtube.com/watch?v=<id>' }]
 }
 
-/** One official video per culture category. */
-export const VIDEOS: Partial<Record<CategoryId, Video>> = {
-  foods: {
-    youtubeId: 'vkQhcnjDU3Y',
-    title: 'Nasi Lemak',
-    channel: 'Roots Sg',
-    length: '3:39',
-    sources: [{ label: 'Roots Sg', url: 'https://www.youtube.com/watch?v=vkQhcnjDU3Y' }],
-  },
-  monuments: {
-    youtubeId: 'igzFYGklDJI',
-    title: 'Our National Monuments',
-    channel: 'Roots Sg',
-    length: '1:58',
-    sources: [{ label: 'Roots Sg', url: 'https://www.youtube.com/watch?v=igzFYGklDJI' }],
-  },
-  holidays: {
-    youtubeId: 'DFkEZ8z4lmc',
-    title: 'Chinese New Year',
-    channel: 'Roots Sg',
-    length: '3:34',
-    sources: [{ label: 'Roots Sg', url: 'https://www.youtube.com/watch?v=DFkEZ8z4lmc' }],
-  },
-  unesco: {
-    youtubeId: 'l1gcm8g5EHY',
-    title: 'Hawker Culture in Singapore',
-    channel: 'Roots Sg',
-    length: '2:05',
-    sources: [{ label: 'Roots Sg', url: 'https://www.youtube.com/watch?v=l1gcm8g5EHY' }],
-  },
-  ich: {
-    youtubeId: 'yVeDqq5m3-M',
-    title: 'Stewards of Intangible Cultural Heritage Award - Thow Kwang',
-    channel: 'Roots Sg',
-    length: '2:25',
-    sources: [{ label: 'Roots Sg', url: 'https://www.youtube.com/watch?v=yVeDqq5m3-M' }],
-  },
-  history: {
-    youtubeId: 'ZAVuE2Ehtp4',
-    title: 'Roots.sg Presents: The Mythical Origins of Singapura',
-    channel: 'Roots Sg',
-    length: '3:49',
-    sources: [{ label: 'Roots Sg', url: 'https://www.youtube.com/watch?v=ZAVuE2Ehtp4' }],
-  },
+const yt = (youtubeId: string, title: string, channel: string, length?: string): Video => ({
+  youtubeId,
+  title,
+  channel,
+  length,
+  sources: [{ label: channel, url: `https://www.youtube.com/watch?v=${youtubeId}` }],
+});
+
+/**
+ * One short video per Today article, about that article's own topic, from the National Heritage Board's Roots Sg
+ * channel. An article without a checked video has none: its card shows only its photo.
+ * Checked 22 Oct 2026: hawker culture, Chinese New Year and the Singapura legend with YouTube oEmbed (earlier);
+ * chilli crab and dikir barat are the videos embedded on their own Roots.sg pages (title and channel from the
+ * oEmbed data; their length could not be checked from here, so the cards show none).
+ */
+export const ARTICLE_VIDEOS: Partial<Record<string, Video>> = {
+  'chilli-crab': yt('mJk6puL0_60', 'Chilli Crab', 'Roots Sg'),
+  'lunar-new-year': yt('DFkEZ8z4lmc', 'Chinese New Year', 'Roots Sg', '3:34'),
+  'hawker-culture': yt('l1gcm8g5EHY', 'Hawker Culture in Singapore', 'Roots Sg', '2:05'),
+  'dikir-barat': yt('hstiS2Q8Q8k', 'Dikir Barat', 'Roots Sg'),
+  // the Malay Annals' story of the island's renaming, which the article retells
+  'temasek-singapura': yt('ZAVuE2Ehtp4', 'Roots.sg Presents: The Mythical Origins of Singapura', 'Roots Sg', '3:49'),
 };

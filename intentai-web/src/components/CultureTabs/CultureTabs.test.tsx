@@ -1,9 +1,14 @@
-import { render, screen, within } from '@testing-library/react';
+import { render as rtlRender, screen, within } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import type { CategoryId } from '../../data/culture';
-import { VIDEOS } from '../../data/videos';
+import { ARTICLE_VIDEOS } from '../../data/videos';
 import CultureTabs from './CultureTabs';
+
+// the cards link to Nearby, so they render inside a router
+const render = (ui: ReactElement) => rtlRender(ui, { wrapper: ({ children }) => <MemoryRouter>{children}</MemoryRouter> });
 
 const TABS: CategoryId[] = ['foods', 'monuments', 'unesco'];
 
@@ -66,14 +71,19 @@ test('quick facts show first; Read more reveals the deeper read and Show less hi
   expect(within(article).queryByText(/Hainanese immigrants arrived/)).not.toBeInTheDocument();
 });
 
-test("every tab leads with its category's short video, short articles below", async () => {
-  render(<CultureTabs categories={TABS} />);
-  const panel = screen.getByRole('tabpanel', { name: 'Foods' });
-  expect(within(panel).getByRole('button', { name: `Play video: ${VIDEOS.foods!.title}` })).toBeInTheDocument();
-  expect(within(panel).getByRole('heading', { name: 'Hainanese chicken rice' })).toBeInTheDocument();
-
+test('a card with a video plays it in place of its picture; nothing loads from YouTube before the tap', async () => {
+  const { container } = render(<CultureTabs categories={TABS} />);
   await userEvent.click(screen.getByRole('tab', { name: 'UNESCO' }));
-  expect(screen.getByRole('button', { name: `Play video: ${VIDEOS.unesco!.title}` })).toBeInTheDocument();
+  const card = screen.getByRole('article', { name: 'Hawker culture' });
+  const video = ARTICLE_VIDEOS['hawker-culture']!;
+  expect(container.querySelector('iframe')).toBeNull();
+  expect(within(card).getByRole('link', { name: 'Watch on YouTube' })).toHaveAttribute('href', `https://www.youtube.com/watch?v=${video.youtubeId}`);
+  expect(card).toHaveTextContent(`Video · ${video.channel} · ${video.length}`);
+  await userEvent.click(within(card).getByRole('button', { name: `Play video: ${video.title} (${video.length})` }));
+  const player = within(card).getByTitle(video.title);
+  expect(player.getAttribute('src')).toBe(`https://www.youtube-nocookie.com/embed/${video.youtubeId}?autoplay=1`);
+  // no separate video above the cards any more
+  expect(container.querySelectorAll('iframe')).toHaveLength(1);
 });
 
 test('resets to the first tab when the categories change', async () => {
@@ -83,15 +93,30 @@ test('resets to the first tab when the categories change', async () => {
   expect(screen.getByRole('tab', { name: 'Festivals' })).toHaveAttribute('aria-selected', 'true');
 });
 
-test('switching tabs after playing a video shows the next video unplayed', async () => {
+test('one video plays at a time; a video whose length is unknown shows none', async () => {
+  const { container } = render(<CultureTabs categories={['foods', 'unesco', 'ich']} />);
+  const crab = screen.getByRole('article', { name: 'Chilli crab' });
+  expect(within(crab).getByRole('button', { name: 'Play video: Chilli Crab' })).toBeInTheDocument();
+  expect(crab).toHaveTextContent('Video · Roots Sg · Watch on YouTube');
+  // an article without a video keeps its photo, described
+  const rice = screen.getByRole('article', { name: 'Hainanese chicken rice' });
+  expect(within(rice).queryByRole('button', { name: /^Play video/ })).toBeNull();
+  await userEvent.click(within(crab).getByRole('button', { name: 'Play video: Chilli Crab' }));
+  expect(container.querySelectorAll('iframe')).toHaveLength(1);
+  await userEvent.click(screen.getByRole('tab', { name: 'Heritage' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Play video: Dikir Barat' }));
+  expect(container.querySelectorAll('iframe')).toHaveLength(1);
+  expect(container.querySelector('iframe')!.getAttribute('src')).toContain('hstiS2Q8Q8k');
+});
+
+test('switching tabs after playing a video stops it', async () => {
   const { container } = render(<CultureTabs categories={TABS} />);
-  await userEvent.click(screen.getByRole('button', { name: `Play video: ${VIDEOS.foods!.title}` }));
+  await userEvent.click(screen.getByRole('tab', { name: 'UNESCO' }));
+  await userEvent.click(screen.getByRole('button', { name: /^Play video: Hawker Culture in Singapore/ }));
   expect(container.querySelector('iframe')).not.toBeNull();
-
-  await userEvent.click(screen.getByRole('tab', { name: 'Monuments' }));
-
+  await userEvent.click(screen.getByRole('tab', { name: 'Foods' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'UNESCO' }));
   expect(container.querySelector('iframe')).toBeNull();
-  expect(screen.getByRole('button', { name: `Play video: ${VIDEOS.monuments!.title}` })).toBeInTheDocument();
 });
 
 test('every tab shows exactly three articles', async () => {
@@ -111,4 +136,9 @@ test('each article card opens with its photo and credits the photographer and li
   const credit = within(article).getByRole('link', { name: 'Photo: Terence Ong · CC BY 2.5 · cropped' });
   expect(credit).toHaveAttribute('href', 'https://commons.wikimedia.org/wiki/File:Hainanese_Chicken_Rice.jpg');
   expect(credit).toHaveAttribute('target', '_blank');
+});
+
+test('an article that names a place links to it in Nearby', () => {
+  render(<CultureTabs categories={['monuments', 'foods', 'holidays']} />);
+  expect(screen.getByRole('link', { name: 'Sri Mariamman Temple (opens Nearby)' })).toHaveAttribute('href', '/nearby?sel=curated%3Asg-sri-mariamman-temple&info=1');
 });

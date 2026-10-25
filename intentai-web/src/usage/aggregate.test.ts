@@ -59,6 +59,7 @@ test('people list sessions newest first with pages in order; total counts page t
       page: { Welcome: 4000, Today: 10_000, Ask: 20_000 },
       section: { 'Today › Foods': 6000 },
       activity: { 'Ask › typing': 5000 },
+      tap: {},
     },
   });
 });

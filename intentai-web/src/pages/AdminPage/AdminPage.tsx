@@ -1,7 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { formatDuration, summarize, toCsv, type SummaryRow } from '../../usage/aggregate';
 import type { UsageEvent, UsageKind } from '../../usage/event';
+import { usePersistentStore } from '../../data/persistentStore';
+import { testerStore } from '../../data/stores';
+import { clearLocalUsage, fromExport, mergeEvents, readLocalUsage, toExport } from '../../usage/localLog';
+import Analysis from './Analysis';
 import styles from './AdminPage.module.css';
+
+/** Where the dashboard's events come from: the server (password), this device's own log, or exported files. */
+type Source = 'device' | 'files' | 'server';
+const SOURCES: { id: Source; label: string }[] = [
+  { id: 'device', label: 'This device' },
+  { id: 'files', label: 'Files' },
+  { id: 'server', label: 'Server' },
+];
 
 /**
  * Team-only usage dashboard (v2 class user test). Not linked from the app and never tracked.
@@ -57,10 +69,38 @@ function downloadCsv(events: UsageEvent[]) {
 const cellValue = (row: SummaryRow, key: SortKey) =>
   key === 'name' || key === 'people' || key === 'visits' ? String(row[key]) : formatDuration(row[key]);
 
+/** File text (FileReader where Blob.text is missing, as in older Safari). */
+function readText(file: File): Promise<string> {
+  if (typeof file.text === 'function') return file.text();
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(r.error);
+    r.readAsText(file);
+  });
+}
+
+function downloadJson(events: UsageEvent[], who: string) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(toExport(events), null, 1)], { type: 'application/json' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `intentai-usage-${who || 'device'}-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState(readPassword);
   const [draft, setDraft] = useState('');
-  const [events, setEvents] = useState<UsageEvent[] | null>(null);
+  const [serverEvents, setEvents] = useState<UsageEvent[] | null>(null);
+  // A test runs with no server: this device's own log comes first when it has anything.
+  const [source, setSource] = useState<Source>(() => (readLocalUsage().length ? 'device' : 'server'));
+  const [deviceEvents, setDeviceEvents] = useState<UsageEvent[]>(readLocalUsage);
+  const [fileEvents, setFileEvents] = useState<UsageEvent[] | null>(null);
+  const [fileNote, setFileNote] = useState('');
+  const [tester, setTester] = usePersistentStore(testerStore);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const events = source === 'server' ? serverEvents : source === 'device' ? deviceEvents : fileEvents;
   const [error, setError] = useState('');
   const [kind, setKind] = useState<UsageKind>('page');
   const [sort, setSort] = useState<SortKey>('totalMs');
@@ -97,8 +137,26 @@ export default function AdminPage() {
   );
 
   useEffect(() => {
-    if (password) void load(password);
-  }, [password, load]);
+    if (password && source === 'server') void load(password);
+  }, [password, load, source]);
+
+  const openFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    const lists: UsageEvent[][] = [];
+    const bad: string[] = [];
+    for (const file of Array.from(files)) {
+      try {
+        const got = fromExport(JSON.parse(await readText(file)));
+        if (got) lists.push(got);
+        else bad.push(file.name);
+      } catch {
+        bad.push(file.name);
+      }
+    }
+    const merged = mergeEvents(...(fileEvents ? [fileEvents] : []), ...lists);
+    setFileEvents(merged);
+    setFileNote(`${lists.length} file${lists.length === 1 ? '' : 's'} added · ${merged.length} records${bad.length ? ` · not usage files: ${bad.join(', ')}` : ''}`);
+  };
 
   const signIn = (event: FormEvent) => {
     event.preventDefault();
@@ -139,7 +197,95 @@ export default function AdminPage() {
         </p>
       )}
 
-      {!password ? (
+      <div className={styles.filters} role="group" aria-label="Data from">
+        {SOURCES.map((s) => (
+          <button key={s.id} type="button" className={styles.filter} aria-pressed={source === s.id} onClick={() => setSource(s.id)}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {source === 'device' && (
+        <div className={styles.toolbar}>
+          <span className={styles.meta}>
+            {tester.name ? (
+              <>
+                Test name on this device: <strong>{tester.name}</strong>
+              </>
+            ) : (
+              'No test running on this device.'
+            )}{' '}
+            · {deviceEvents.length} records
+          </span>
+          <button type="button" className={styles.button} onClick={() => setDeviceEvents(readLocalUsage())}>
+            Refresh
+          </button>
+          <button type="button" className={styles.button} disabled={!deviceEvents.length} onClick={() => downloadJson(deviceEvents, tester.name)}>
+            Export file (JSON)
+          </button>
+          <button type="button" className={styles.button} disabled={!deviceEvents.length} onClick={() => downloadCsv(deviceEvents)}>
+            Download CSV
+          </button>
+          {tester.name && (
+            <button type="button" className={styles.button} onClick={() => setTester({ name: '' })}>
+              End test (next person types a new name)
+            </button>
+          )}
+          {confirmClear ? (
+            <span className={styles.confirm}>
+              Delete this device's records?
+              <button
+                type="button"
+                className={styles.danger}
+                onClick={() => {
+                  clearLocalUsage();
+                  setDeviceEvents([]);
+                  setConfirmClear(false);
+                }}
+              >
+                Yes, delete
+              </button>
+              <button type="button" className={styles.button} onClick={() => setConfirmClear(false)}>
+                Cancel
+              </button>
+            </span>
+          ) : (
+            <button type="button" className={styles.button} disabled={!deviceEvents.length} onClick={() => setConfirmClear(true)}>
+              Clear this device
+            </button>
+          )}
+        </div>
+      )}
+
+      {source === 'files' && (
+        <div className={styles.toolbar}>
+          <label className={`${styles.button} ${styles.fileLabel}`}>
+            Add exported files…
+            <input
+              type="file"
+              accept="application/json,.json"
+              multiple
+              className={styles.fileInput}
+              onChange={(e) => {
+                void openFiles(e.target.files);
+                e.target.value = '';
+              }}
+            />
+          </label>
+          <button type="button" className={styles.button} disabled={!fileEvents?.length} onClick={() => fileEvents && downloadCsv(fileEvents)}>
+            Download CSV
+          </button>
+          <button type="button" className={styles.button} disabled={!fileEvents} onClick={() => (setFileEvents(null), setFileNote(''))}>
+            Start over
+          </button>
+          {fileNote && <span className={styles.meta}>{fileNote}</span>}
+        </div>
+      )}
+      {source === 'files' && !fileEvents && (
+        <p className={styles.note}>Add the JSON files exported on each test device (This device → Export file). Files are merged; the same file twice counts once.</p>
+      )}
+
+      {source === 'server' && !password ? (
         <form className={styles.signIn} onSubmit={signIn}>
           <label htmlFor="admin-password">Admin password</label>
           <input
@@ -155,6 +301,7 @@ export default function AdminPage() {
         </form>
       ) : (
         <>
+          {source === 'server' && (
           <div className={styles.toolbar}>
             <button type="button" className={styles.button} onClick={() => void load(password)}>
               Refresh
@@ -178,11 +325,15 @@ export default function AdminPage() {
               </button>
             )}
           </div>
+          )}
 
           {summary && summary.people.length === 0 && <p className={styles.empty}>No usage data yet.</p>}
 
+          {events && events.length > 0 && <Analysis events={events} />}
+
           {summary && summary.people.length > 0 && (
             <>
+              <h2 className={styles.sub}>Totals by person</h2>
               <p className={styles.meta}>
                 {summary.people.length} {summary.people.length === 1 ? 'person' : 'people'} · {events!.length} timings
               </p>

@@ -94,7 +94,7 @@ test('a wrong password says so and asks again', async () => {
 });
 
 test("shows the server's error when storage is not connected", async () => {
-  fetchMock.mockImplementation(() => reply(503, 'Storage not connected. Add Upstash Redis to the Vercel project.'));
+  fetchMock.mockImplementation(() => reply(503, 'Storage not connected. Connect a Redis database (Redis Cloud or Upstash) to the Vercel project.'));
   await signIn();
   expect(screen.getByRole('alert')).toHaveTextContent('Storage not connected');
 });

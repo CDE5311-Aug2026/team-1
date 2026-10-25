@@ -12,6 +12,13 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.moments, 'Moments'],
   [paths.nearby, 'Nearby'],
   [paths.places, 'Places'],
+  // Nearby Explorer: names only, never the place or collection id in the path
+  [paths.phrases, 'Nearby phrases'],
+  [paths.nearbyLocation, 'Nearby location'],
+  [patterns.nearbyPlace, 'Nearby place'],
+  [paths.collections, 'Nearby collections'],
+  [patterns.collection, 'Nearby collection'],
+  [paths.saved, 'Nearby saved'],
   [paths.mySpace, 'My Space'],
   [paths.notices, 'Notices'],
   [paths.noticeDetails, 'Notice details'],
@@ -30,3 +37,6 @@ const PAGE_NAMES: [path: string, name: string][] = [
 export function pageNameFor(pathname: string): string | null {
   return PAGE_NAMES.find(([path]) => matchPath(path, pathname))?.[1] ?? null;
 }
+
+/** Every tracked page name once, in the route table's order (the dashboard lists pages nobody opened). */
+export const TRACKED_PAGE_NAMES: string[] = [...new Set(PAGE_NAMES.map(([, name]) => name))];

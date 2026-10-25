@@ -102,3 +102,15 @@
     display: none;
   }
 }
+
+/* a real phone or tablet shows its own status bar: no drawn copy, only a small gap */
+@media (hover: none) and (pointer: coarse) {
+  .statusBar {
+    height: var(--status-h);
+    padding: 0;
+  }
+
+  .statusBar > * {
+    display: none;
+  }
+}
