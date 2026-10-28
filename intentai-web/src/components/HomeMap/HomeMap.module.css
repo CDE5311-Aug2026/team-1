@@ -1,0 +1,84 @@
+.map {
+  position: absolute;
+  inset: 0;
+  background: #e8e4dc;
+  font-family: var(--font-family);
+}
+
+/* Leaflet's marker element: zero-size anchor at the place; the button is drawn around it. */
+.marker {
+  background: none;
+  border: 0;
+  overflow: visible;
+}
+
+.pin {
+  position: absolute;
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  /* Leaflet makes non-interactive markers pointer-events: none; the button opts back in. */
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pin:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+
+.glyph {
+  display: block;
+  flex: none;
+  filter: drop-shadow(0 1px 2px rgba(35, 33, 29, 0.3));
+}
+
+.label {
+  border-radius: var(--radius-chip);
+  padding: 0.1875rem 0.4375rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1rem;
+  box-shadow: 0 1px 3px rgba(35, 33, 29, 0.2);
+}
+
+/* Selected: teardrop tip on the place, dark label beside the head. */
+.selected {
+  left: -18px;
+  bottom: 0;
+  align-items: flex-start;
+}
+
+.selected .label {
+  margin-top: 0.5rem;
+  background: var(--text-primary);
+  color: #fff;
+}
+
+/* Others: round pin centred on the place, white label. */
+.other {
+  left: -11px;
+  top: -11px;
+  align-items: center;
+}
+
+.other .label {
+  background: #fff;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Home base: blue dot with a white ring. */
+.you {
+  border-radius: 50%;
+  background: #2f7bf5;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px rgba(35, 33, 29, 0.2), 0 1px 4px rgba(35, 33, 29, 0.3);
+  box-sizing: border-box;
+}
