@@ -376,3 +376,10 @@
   color: #fff;
   cursor: pointer;
 }
+
+/* Laptop: the four permissions on one row. */
+@media (min-width: 48rem) {
+  .perms {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
