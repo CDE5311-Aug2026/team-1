@@ -17,6 +17,8 @@ export const paths = {
   collection: (id: string) => `/nearby/collections/${encodeURIComponent(id)}`,
   saved: '/nearby/saved',
   nearbyPlace: (key: string) => `/nearby/place/${encodeURIComponent(key)}`,
+  /** Home place page (carousel "Open", Deepavali Berlin Wall row). */
+  homePlace: (id: string) => `/place/${encodeURIComponent(id)}`,
   mySpace: '/my-space',
   notices: '/my-space/notices',
   noticeDetails: '/my-space/notices/details',
@@ -37,6 +39,7 @@ export const ADMIN_PATH = '/admin';
 /** Route patterns with params, for <Route path>. Keep in sync with the builders in `paths`. */
 export const patterns = {
   question: '/community/:questionId',
+  homePlace: '/place/:placeId',
   nearbyPlace: '/nearby/place/:placeKey',
   collection: '/nearby/collections/:collectionId',
 } as const;

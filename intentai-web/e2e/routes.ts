@@ -8,6 +8,9 @@ export const ROUTES = [
   paths.nearbyPlace('curated:sg-maxwell-food-centre'),
   paths.nearbyPlace('curated:sg-esplanade-theatres-on-the-bay'),
   paths.collection('sg-100'),
+  paths.homePlace('berlin-wall-fragments'),
+  paths.homePlace('chinatown'),
+  paths.homePlace('unknown-place'),
 ];
 
 // Notice screens exist only while the occasion notice is live; seed the state each one needs.
