@@ -1,0 +1,119 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: var(--radius-card);
+  background: linear-gradient(160deg, #fff1e4 0%, #fde0c8 100%);
+  border: 1px solid var(--accent-tile-border);
+}
+
+.dots {
+  position: absolute;
+  top: 0.875rem;
+  right: 1rem;
+  width: 3rem;
+  height: 2rem;
+  fill: var(--accent);
+  pointer-events: none;
+}
+
+.kicker,
+.rowKicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.main {
+  all: unset;
+  display: inline;
+  cursor: pointer;
+}
+
+/* Stretched hit area: covers the card above the anniversary row. */
+.main::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 5.5rem 0;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+
+.main:focus-visible::after {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+}
+
+.body {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-secondary);
+}
+
+.row {
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-control);
+  background: #fff;
+  cursor: pointer;
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.thumb {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-control);
+  object-fit: cover;
+}
+
+.rowText {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.rowTitle {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.go {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  font-size: 1rem;
+}

@@ -15,3 +15,12 @@ test('the detail leads with the survey top choice and is layered: quick facts, d
   expect(todaysHoliday.deeper.length).toBeGreaterThan(0);
   expect(todaysHoliday.source).not.toBe('');
 });
+
+test('the hero card carries a kicker and the Berlin Wall anniversary row', () => {
+  expect(todaysHoliday.kicker).toBe('Sat 7 Nov · Long weekend');
+  expect(todaysHoliday.also).toEqual({
+    when: 'Also Mon 9 Nov · Near you',
+    title: 'The Berlin Wall fell 37 years ago',
+    placeId: 'berlin-wall-fragments',
+  });
+});
