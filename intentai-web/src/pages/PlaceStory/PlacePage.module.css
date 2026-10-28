@@ -67,8 +67,17 @@
 
 .sheet {
   position: relative;
-  margin-top: -16px;
-  padding: 18px 20px 0;
+  margin: -16px 20px 0;
+  padding: 18px 0 0;
+  isolation: isolate;
+}
+
+/* The rounded surface that overlaps the hero is full width; drawn as a layer so the text block keeps its gutters. */
+.sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0 -20px;
+  z-index: -1;
   border-radius: 16px 16px 0 0;
   background: var(--bg-app);
 }

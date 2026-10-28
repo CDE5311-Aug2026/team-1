@@ -1,5 +1,7 @@
 .header {
-  padding: 18px 20px 0;
+  /* Side gutters are margins so the block's own box stays inside them. */
+  margin: 0 20px;
+  padding: 18px 0 0;
 }
 
 .kicker {

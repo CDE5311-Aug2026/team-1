@@ -150,6 +150,8 @@ export default function HomeMap(props: HomeMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const appliedSeq = useRef(props.command.seq);
   const appliedInset = useRef(props.bottomInset);
+  /** Id of the pin that had keyboard focus when the markers were last rebuilt. */
+  const focusedPin = useRef<string | undefined>(undefined);
   // 'stopping': inside our stop(), whose events are ours. 'moving': our move until its moveend.
   const phase = useRef<'idle' | 'stopping' | 'moving'>('idle');
   // Effects read the newest props through this ref, so they can run on narrow dependencies.
@@ -265,9 +267,9 @@ export default function HomeMap(props: HomeMapProps) {
     const map = mapRef.current;
     const el = containerRef.current;
     if (!map || !el) return;
-    const focusedId = document.activeElement instanceof HTMLElement && el.contains(document.activeElement)
-      ? document.activeElement.dataset.placeId
-      : undefined;
+    // The previous run's cleanup already removed the old markers (and with them focus), so it noted the id.
+    const focusedId = focusedPin.current;
+    focusedPin.current = undefined;
     const { pins, selectedId } = latest.current;
     const markers = pins.map((p) => {
       const selected = p.id === selectedId;
@@ -279,6 +281,9 @@ export default function HomeMap(props: HomeMapProps) {
       for (const b of el.querySelectorAll<HTMLElement>('button[data-place-id]')) if (b.dataset.placeId === focusedId) b.focus();
     }
     return () => {
+      // Removing a focused pin drops focus to <body>; remember it so the next run can put it back.
+      const active = document.activeElement;
+      focusedPin.current = active instanceof HTMLElement && el.contains(active) ? active.dataset.placeId : undefined;
       for (const m of markers) m.remove();
     };
   }, [pinKey, props.selectedId]);

@@ -455,6 +455,15 @@ describe('HomeMap', () => {
     expect(screen.getByRole('region', { name: 'Map of places near you' })).toBeInTheDocument();
   });
 
+  it('a focused pin keeps keyboard focus when selecting it rebuilds the markers', () => {
+    const { rerender } = render(<HomeMap {...baseProps()} />);
+    screen.getByRole('button', { name: pinName(HOLLAND) }).focus();
+    rerender(<HomeMap {...baseProps({ selectedId: HOLLAND.id, command: focus(1, HOLLAND.point, false), lastFocus: HOLLAND.point })} />);
+    const pin = screen.getByRole('button', { name: pinName(HOLLAND) });
+    expect(pin).toHaveAttribute('data-selected', 'true');
+    expect(pin).toHaveFocus();
+  });
+
   it('each pin is one button named by the place; the marker element is not focusable', () => {
     const onPinActivate = vi.fn();
     const { container } = render(<HomeMap {...baseProps({ onPinActivate })} />);
