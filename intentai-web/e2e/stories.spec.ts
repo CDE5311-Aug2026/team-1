@@ -170,7 +170,7 @@ test.describe('place flows', () => {
 
   test('search open: the dropdown lists the places with cards and Escape closes it', async ({ page }) => {
     await openHome(page);
-    await page.getByRole('button', { name: 'Change search point' }).click();
+    await page.getByRole('button', { name: /Change search point$/ }).click();
     await expect(page.getByRole('textbox', { name: 'Search a place or area' })).toBeVisible();
     await expect(page.getByRole('list', { name: 'PLACES WITH CARDS' }).getByRole('listitem')).toHaveCount(2);
     await page.keyboard.press('Escape');

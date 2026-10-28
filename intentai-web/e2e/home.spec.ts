@@ -277,7 +277,7 @@ for (const width of [320, 390]) {
 
 test('search: the pill and the search button open one dropdown; picking a place selects its card', async ({ page }) => {
   await openHome(page);
-  const pill = page.getByRole('button', { name: 'Change search point' });
+  const pill = page.getByRole('button', { name: /Change search point$/ });
   await pill.click();
   const field = page.getByRole('textbox', { name: 'Search a place or area' });
   await expect(field).toBeVisible();
