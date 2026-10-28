@@ -1,6 +1,10 @@
 // Canvas copy and values for onboarding steps O2–O7 (labels, sub-labels, passport abbreviations,
 // preview copy, photos). The store keeps codes; labels live here, keyed by code.
 import deepavaliPhoto from '../../assets/holiday/deepavali.jpg';
+import bakKwaPhoto from '../../assets/onboarding/photos/bak-kwa.webp';
+import lanternsPhoto from '../../assets/onboarding/photos/lanterns.webp';
+import plan1822Photo from '../../assets/onboarding/photos/plan-1822.webp';
+import thianHockKengPhoto from '../../assets/onboarding/photos/thian-hock-keng.webp';
 import { STORY_IMAGES } from '../../assets/stories';
 import {
   CULTURE_TOPICS,
@@ -23,12 +27,13 @@ export interface OnbPhoto {
   credit: string;
 }
 
-/** Photos reused from the story/holiday assets (same files as the canvas, resized there). */
+/** Story/holiday photos. Topic tiles and find cards render large, so those four use full-size
+ * copies of the same photos (same credits); the rest only appear as small thumbs. */
 export const PHOTOS = {
-  food: STORY_IMAGES.bakKwa,
-  monument: STORY_IMAGES.thianHockKeng,
-  festival: STORY_IMAGES.lanterns,
-  history: STORY_IMAGES.plan1822,
+  food: { ...STORY_IMAGES.bakKwa, src: bakKwaPhoto },
+  monument: { ...STORY_IMAGES.thianHockKeng, src: thianHockKengPhoto },
+  festival: { ...STORY_IMAGES.lanterns, src: lanternsPhoto },
+  history: { ...STORY_IMAGES.plan1822, src: plan1822Photo },
   wall: STORY_IMAGES.wallPanels,
   spread: STORY_IMAGES.spreadWindow,
   chinatown: STORY_IMAGES.pagodaStreet,
