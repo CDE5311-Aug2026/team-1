@@ -1,4 +1,6 @@
 import { useSyncExternalStore } from 'react';
+import { usePersistentStore } from '../data/persistentStore';
+import { preferencesStore } from '../data/stores';
 
 const QUERY = '(prefers-reduced-motion: reduce)';
 
@@ -15,7 +17,9 @@ function subscribe(onChange: () => void) {
 
 const getSnapshot = () => query()?.matches ?? false;
 
-/** True when the user asks for reduced motion; follows changes to the setting. */
+/** True when the system or the My Space motion setting asks for reduced motion; follows changes to either. */
 export function useReducedMotion(): boolean {
-  return useSyncExternalStore(subscribe, getSnapshot, () => false);
+  const system = useSyncExternalStore(subscribe, getSnapshot, () => false);
+  const [prefs] = usePersistentStore(preferencesStore);
+  return system || prefs.motion === 'reduced';
 }

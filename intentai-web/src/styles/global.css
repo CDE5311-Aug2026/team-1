@@ -12,6 +12,15 @@ body {
   padding: 0;
 }
 
+/* My Space > Settings > Motion: Reduced turns off every animation and transition, like the system setting. */
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
 body {
   font-family: var(--font-family);
   background: var(--bg-app) var(--paper-texture);

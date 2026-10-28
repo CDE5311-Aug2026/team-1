@@ -23,6 +23,7 @@ import AdminPage from './pages/AdminPage/AdminPage';
 import { ADMIN_PATH, paths, patterns } from './routes';
 import PageTracker from './usage/PageTracker';
 import UserGate from './components/UserGate/UserGate';
+import { useAppPreferences } from './hooks/useAppPreferences';
 
 // Nearby Explorer screens load on demand: the catalogue (~140 places) and the map stay out of Today's bundle.
 const ExplorePage = lazy(() => import('./pages/NearbyPage/ExplorePage'));
@@ -40,6 +41,7 @@ function Lazy({ children }: { children: ReactNode }) {
 
 export default function App() {
   const [onboarding] = usePersistentStore(onboardingStore);
+  useAppPreferences();
 
   return (
     <>
