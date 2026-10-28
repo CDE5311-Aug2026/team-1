@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from './test';
+import type { Page } from '@playwright/test';
 import { paths } from '../src/routes';
 
 // Nearby Explorer journeys (PRD §17). The map is drawn from the bundled EARTH ONLINE ground image: no

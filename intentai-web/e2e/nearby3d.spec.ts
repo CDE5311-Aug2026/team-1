@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { paths } from '../src/routes';
 
 // The 3D view for real: the bundled EARTH ONLINE lite page boots in the iframe (WebGL through SwiftShader here), keeps only

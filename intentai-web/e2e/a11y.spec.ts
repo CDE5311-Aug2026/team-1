@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { ROUTES, seed } from './routes';
 
 // WCAG 2.2 A/AA automated checks (axe) on every route at phone size. Catches contrast, names,

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { ROUTES, seed } from './routes';
 
 test('every route renders without runtime errors or broken images', async ({ page }) => {

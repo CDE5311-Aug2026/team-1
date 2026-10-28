@@ -3,6 +3,8 @@ import { beforeEach } from 'vitest';
 import { STORAGE_PREFIX, resetPersistentStores } from '../data/persistentStore';
 import { dismissToast } from '../hooks/useToast';
 import { resetLocationForTests } from '../features/nearby/location';
+import { matchMediaShim, resetMedia } from './media';
+import { ResizeObserverMock, resetResizeObservers } from './resizeObserver';
 
 // jsdom has <dialog> but not its modal methods.
 if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
@@ -28,6 +30,24 @@ if (typeof window !== 'undefined' && typeof window.PointerEvent === 'undefined')
   (window as unknown as { PointerEvent: typeof PointerEventShim }).PointerEvent = PointerEventShim;
 }
 
+// jsdom has no matchMedia, scrollTo or ResizeObserver. Shims stay configurable so tests can vi.spyOn them.
+if (typeof window !== 'undefined') {
+  if (!window.matchMedia) {
+    Object.defineProperty(window, 'matchMedia', { configurable: true, writable: true, value: matchMediaShim });
+  }
+  if (typeof HTMLElement !== 'undefined' && typeof HTMLElement.prototype.scrollTo !== 'function') {
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+      configurable: true,
+      writable: true,
+      value: function scrollTo() {},
+    });
+  }
+  if (!('ResizeObserver' in window)) {
+    Object.defineProperty(window, 'ResizeObserver', { configurable: true, writable: true, value: ResizeObserverMock });
+    (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverMock;
+  }
+}
+
 /** Marks onboarding as finished, so a test that renders "/" lands on Today, not Welcome. */
 export const ONBOARDED = JSON.stringify({ done: true, duration: '3 months – 1 year', topics: ['Work', 'Food', 'Daily life', 'Getting around'] });
 
@@ -42,4 +62,6 @@ beforeEach(() => {
   resetPersistentStores();
   dismissToast();
   resetLocationForTests();
+  resetMedia();
+  resetResizeObservers();
 });
