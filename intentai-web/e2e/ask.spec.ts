@@ -71,11 +71,11 @@ test('Ask context, query and report work, and the phrase is kept as a lookup', a
   expect(stored.reports).toMatch(/Please check this wording\./);
 });
 
-test('More Singlish opens Today and Personalise setup opens Welcome', async ({ page }) => {
+test('More Singlish opens Today and Edit my profile opens My Space', async ({ page }) => {
   await page.getByRole('button', { name: 'More Singlish', exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
   await page.goto(paths.ask);
   await page.getByRole('button', { name: 'Chat options' }).click();
-  await page.getByRole('button', { name: 'Personalise setup' }).click();
-  await expect(page).toHaveURL(/\/onboarding$/);
+  await page.getByRole('button', { name: 'Edit my profile' }).click();
+  await expect(page).toHaveURL(new RegExp(`${paths.mySpace}$`));
 });

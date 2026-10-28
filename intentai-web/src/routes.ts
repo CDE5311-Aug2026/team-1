@@ -27,11 +27,7 @@ export const paths = {
   noticeEdit: '/my-space/notices/details/edit',
   noticeConfirmed: '/my-space/notices/confirmed',
   noticeRejected: '/my-space/notices/rejected',
-  welcome: '/onboarding',
-  onboardingTime: '/onboarding/time',
-  onboardingTopics: '/onboarding/topics',
-  onboardingQuiz: '/onboarding/quiz',
-  onboardingResult: '/onboarding/result',
+  onboarding: '/onboarding',
   todaySetup: '/today-setup',
 } as const;
 

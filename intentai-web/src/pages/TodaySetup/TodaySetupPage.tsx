@@ -6,9 +6,9 @@ import { DEFAULT_PREFS, canonicalPrefs } from '../../data/culturePrefs';
 import { culturePrefsStore } from '../../data/stores';
 import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
-import OnboardingScreen from '../OnboardingPage/OnboardingScreen';
-import screen from '../OnboardingPage/OnboardingScreen.module.css';
-import text from '../OnboardingPage/text.module.css';
+import OnboardingScreen from './OnboardingScreen';
+import screen from './OnboardingScreen.module.css';
+import text from './text.module.css';
 import styles from './TodaySetup.module.css';
 
 const PICKS = 3;
@@ -58,7 +58,7 @@ export default function TodaySetupPage() {
       <button
         type="button"
         className={styles.back}
-        // Onboarding reaches this screen from the result; My Space opens it with ?from=my-space.
+        // My Space opens this screen with ?from=my-space; otherwise Back returns to the previous page.
         onClick={() => (fromMySpace ? navigate(paths.mySpace) : navigate(-1))}
       >
         {fromMySpace ? 'Cancel' : 'Back'}

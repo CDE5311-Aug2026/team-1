@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { DEFAULT_ONBOARDING } from '../domain';
 import legacyV1 from './fixtures/legacy-v1-only.json';
 import legacyPartial from './fixtures/legacy-v2-partial.json';
 import legacyPopulated from './fixtures/legacy-v2-populated.json';
@@ -62,7 +63,7 @@ test('(1) migrates a populated legacy v2 state into the new stores', () => {
   const result = runLegacyMigration(s, NOW);
   expect(result.status).toBe('migrated');
 
-  expect(read(s, 'onboarding')).toEqual({ done: true, duration: '3 months – 1 year', topics: ['Food', 'Work'] });
+  expect(read(s, 'onboarding')).toEqual(DEFAULT_ONBOARDING);
   expect(read(s, 'profile')).toEqual({
     from: 'Vietnam',
     time: '3 months – 1 year',
@@ -110,7 +111,7 @@ test('(2a) invalid JSON in the v2 key falls back to v1 keys and keeps the raw va
 test('(2b) partial v2 state keeps what is valid and recovers the rest', () => {
   const s = seeded([legacyPartial]);
   expect(runLegacyMigration(s, NOW).status).toBe('migrated');
-  expect(read(s, 'onboarding')).toEqual({ done: true, duration: null, topics: ['Food'] });
+  expect(read(s, 'onboarding')).toEqual(DEFAULT_ONBOARDING);
   expect(read(s, 'profile')).toEqual({ from: 'India', time: '1 – 3 years', role: 'Engineer' });
   expect(read(s, 'settings')).toEqual({ daily: false, occasions: false, local: false, rehearse: false, judgement: false, location: false });
   expect(read(s, 'lookups').map((l: { word: string }) => l.word)).toEqual(['Chope', 'kiasu']);

@@ -171,11 +171,11 @@ test('AI notice edit, confirm, reject and undo work', async ({ page }) => {
 });
 
 // v0: data-deletion half of "Nearby manual place selection and data deletion work"
-test('Delete all my data returns to Welcome and stays there after a reload', async ({ page }) => {
+test('Delete all my data returns to onboarding and stays there after a reload', async ({ page }) => {
   await open(page, paths.notices);
   await page.getByRole('button', { name: 'Delete all my data', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Delete all my data', exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`${paths.welcome}$`));
+  await expect(page).toHaveURL(new RegExp(`${paths.onboarding}$`));
   await page.goto(paths.today);
-  await expect(page).toHaveURL(new RegExp(`${paths.welcome}$`));
+  await expect(page).toHaveURL(new RegExp(`${paths.onboarding}$`));
 });

@@ -27,23 +27,117 @@ export function levelFor(score: number): Level {
   return 'Beginner';
 }
 
+/** Home countries offered in onboarding, in canvas order (the answer is stored as the name). */
+export const ONB_COUNTRIES = [
+  'China',
+  'India',
+  'Malaysia',
+  'Indonesia',
+  'South Korea',
+  'United States',
+  'Philippines',
+  'Vietnam',
+  'Myanmar',
+  'Thailand',
+  'United Kingdom',
+  'Australia',
+] as const;
+export type OnbCountry = (typeof ONB_COUNTRIES)[number];
+
+export const ONB_TIMES = ['lt3m', '3to12m', '1to3y', 'gt3y'] as const;
+export type OnbTime = (typeof ONB_TIMES)[number];
+
+export const ONB_ROLES = ['student', 'intern', 'working', 'visiting', 'family', 'researcher'] as const;
+export type OnbRole = (typeof ONB_ROLES)[number];
+
+export const ONB_LANGS = ['en', 'zh', 'ms', 'ta', 'id', 'ko'] as const;
+export type OnbLang = (typeof ONB_LANGS)[number];
+
+export const CULTURE_TOPICS = ['food', 'monument', 'festival', 'history'] as const;
+export type CultureTopic = (typeof CULTURE_TOPICS)[number];
+
+export const ONB_FIELDS = ['from', 'time', 'role', 'language', 'base', 'topics'] as const;
+export type OnbField = (typeof ONB_FIELDS)[number];
+
+/** Home base the user dropped on the map. Bounds cover Singapore with some sea around it. */
+export interface HomeBase {
+  lat: number;
+  lng: number;
+  label: string;
+}
+export const HOME_BASE_BOUNDS = { latMin: 1.15, latMax: 1.48, lngMin: 103.6, lngMax: 104.1 } as const;
+
 export interface Onboarding {
   done: boolean;
-  /** null until the user picks one: onboarding pre-selects nothing. */
-  duration: Duration | null;
-  topics: Topic[];
+  from: OnbCountry | null;
+  time: OnbTime | null;
+  role: OnbRole | null;
+  language: OnbLang | null;
+  base: HomeBase | null;
+  /** Ranked, unique; all four once done. */
+  topics: CultureTopic[];
+  /** Fields the user hid with the eye toggle on the passport card. */
+  hidden: OnbField[];
+  /** ISO date the passport was stamped; null until done. */
+  completedAt: string | null;
 }
 
-export const DEFAULT_ONBOARDING: Onboarding = { done: false, duration: null, topics: [] };
+export const DEFAULT_ONBOARDING: Onboarding = {
+  done: false,
+  from: null,
+  time: null,
+  role: null,
+  language: null,
+  base: null,
+  topics: [],
+  hidden: ['from'],
+  completedAt: null,
+};
+
+function isUniqueOf<T extends string>(options: readonly T[], value: unknown): value is T[] {
+  return Array.isArray(value) && value.every((v) => isOneOf(options, v)) && new Set(value).size === value.length;
+}
+
+function isHomeBase(value: unknown): value is HomeBase {
+  if (!isRecord(value)) return false;
+  const { lat, lng, label } = value;
+  const b = HOME_BASE_BOUNDS;
+  return (
+    typeof lat === 'number' &&
+    Number.isFinite(lat) &&
+    lat >= b.latMin &&
+    lat <= b.latMax &&
+    typeof lng === 'number' &&
+    Number.isFinite(lng) &&
+    lng >= b.lngMin &&
+    lng <= b.lngMax &&
+    typeof label === 'string' &&
+    label.length > 0 &&
+    label.length <= 60
+  );
+}
+
+/** True when every answer is set and all four topics are ranked. */
+export function isOnboardingComplete(o: Onboarding): boolean {
+  return (
+    o.from !== null && o.time !== null && o.role !== null && o.language !== null && o.base !== null && o.topics.length === CULTURE_TOPICS.length
+  );
+}
 
 export function isOnboarding(value: unknown): value is Onboarding {
-  return (
-    isRecord(value) &&
-    typeof value.done === 'boolean' &&
-    (value.duration === null || isOneOf(DURATIONS, value.duration)) &&
-    Array.isArray(value.topics) &&
-    value.topics.every((topic) => isOneOf(TOPICS, topic))
-  );
+  if (!isRecord(value)) return false;
+  if (typeof value.done !== 'boolean') return false;
+  if (!(value.from === null || isOneOf(ONB_COUNTRIES, value.from))) return false;
+  if (!(value.time === null || isOneOf(ONB_TIMES, value.time))) return false;
+  if (!(value.role === null || isOneOf(ONB_ROLES, value.role))) return false;
+  if (!(value.language === null || isOneOf(ONB_LANGS, value.language))) return false;
+  if (!(value.base === null || isHomeBase(value.base))) return false;
+  if (!isUniqueOf(CULTURE_TOPICS, value.topics)) return false;
+  if (!isUniqueOf(ONB_FIELDS, value.hidden)) return false;
+  if (!(value.completedAt === null || (typeof value.completedAt === 'string' && Number.isFinite(Date.parse(value.completedAt))))) return false;
+  // A finished passport has every answer and a stamp date; anything else is not a state the app writes.
+  if (value.done) return isOnboardingComplete(value as unknown as Onboarding) && value.completedAt !== null;
+  return true;
 }
 
 /* ---------- Profile (My Space 12:40) ---------- */

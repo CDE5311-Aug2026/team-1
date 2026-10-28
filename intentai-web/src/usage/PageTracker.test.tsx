@@ -50,7 +50,7 @@ test('one page span per route, stopped on navigation; the redirect from / is not
   t.advance(1000);
   act(() => go('/ask'));
   expect(t.sent.map(({ name, ms }) => ({ name, ms }))).toEqual([
-    { name: 'Welcome', ms: 2000 },
+    { name: 'Onboarding', ms: 2000 },
     { name: 'Ask', ms: 3000 },
     { name: 'Moments', ms: 1000 },
   ]);

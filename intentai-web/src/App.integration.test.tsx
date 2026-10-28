@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { expect, test } from 'vitest';
 import App from './App';
-import { STORAGE_PREFIX } from './data/persistentStore';
 import { DEFAULT_SETTINGS } from './data/domain';
 import { todayKey } from './data/progress';
 import { lookupsStore, placeStore, settingsStore, streakStore } from './data/stores';
@@ -66,27 +65,6 @@ test('[Ask + Moments] a phrase asked about in Ask appears in Moments', async () 
   first.unmount();
   renderApp('/moments');
   expect(screen.getAllByText(/paiseh/i).length).toBeGreaterThan(0);
-});
-
-test('[Onboarding + Today + My Space] finishing onboarding with the top 3 opens Today; the time shows in My Space', async () => {
-  localStorage.removeItem(`${STORAGE_PREFIX}onboarding`);
-  const user = userEvent.setup();
-  const first = renderApp('/');
-  await user.click(screen.getByRole('button', { name: /get started/i }));
-  await user.click(screen.getByRole('button', { name: /1 – 3 years/i }));
-  await user.click(screen.getByRole('button', { name: /^continue/i }));
-  await user.click(screen.getByRole('button', { name: /^Food/ }));
-  await user.click(screen.getByRole('button', { name: /^continue/i }));
-  for (let i = 0; i < 3; i += 1) {
-    await user.click(screen.getByRole('button', { name: /skip/i }));
-  }
-  await user.click(screen.getByRole('button', { name: /start learning/i }));
-  await user.click(screen.getByRole('button', { name: 'Default' }));
-  expect(screen.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
-  first.unmount();
-  renderApp('/my-space');
-  expect(screen.getByText(/1 – 3 years/)).toBeInTheDocument();
 });
 
 test('Nearby "Ask IntentAI" asks about the shown phrase on arrival, once', async () => {

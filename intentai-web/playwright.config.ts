@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import { COMPLETED_ONBOARDING } from './src/test/onboardingFixture';
 
 // Dedicated port + no reuse: v0 and the Vite dev server both default to 5173, and a
 // reused server would silently test the wrong app. E2E runs against the production build.
@@ -22,7 +23,7 @@ export default defineConfig({
           localStorage: [
             {
               name: 'intentai:v1:onboarding',
-              value: JSON.stringify({ done: true, duration: '3 months – 1 year', topics: ['Work', 'Food', 'Daily life', 'Getting around'] }),
+              value: JSON.stringify(COMPLETED_ONBOARDING),
             },
             // past the user test start screen (its own e2e starts from empty storage)
             { name: 'intentai:v1:tester', value: JSON.stringify({ name: 'E2E' }) },

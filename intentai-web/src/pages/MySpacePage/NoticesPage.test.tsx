@@ -92,7 +92,7 @@ test('Delete all my data asks first; cancelling keeps everything', async () => {
   expect(currentPath()).toBe(paths.notices);
 });
 
-test('confirming Delete all my data clears the stores and returns to Welcome', async () => {
+test('confirming Delete all my data clears the stores and returns to onboarding', async () => {
   occasionsOn();
   renderAt(paths.notices);
   await userEvent.click(screen.getByRole('button', { name: 'Delete all my data' }));
@@ -102,5 +102,5 @@ test('confirming Delete all my data clears the stores and returns to Welcome', a
   expect(settingsStore.get()).toEqual(DEFAULT_SETTINGS);
   expect(lookupsStore.get()).toEqual([]);
   expect(onboardingStore.get().done).toBe(false);
-  expect(currentPath()).toBe(paths.welcome);
+  expect(currentPath()).toBe(paths.onboarding);
 });

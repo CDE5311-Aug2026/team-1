@@ -17,7 +17,7 @@ function renderAsk() {
       <Routes>
         <Route path={paths.ask} element={<AskPage />} />
         <Route path={paths.today} element={<p>today page</p>} />
-        <Route path={paths.welcome} element={<p>welcome page</p>} />
+        <Route path={paths.mySpace} element={<p>my space page</p>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -165,15 +165,15 @@ test('with no answer yet, the answer chips explain instead of failing silently',
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });
 
-test('Chat options: Clear chat empties the conversation; Personalise setup opens Welcome', async () => {
+test('Chat options: Clear chat empties the conversation; Edit my profile opens My Space', async () => {
   renderAsk();
   await userEvent.click(screen.getByRole('button', { name: 'Chat options' }));
   await userEvent.click(within(screen.getByRole('dialog', { name: 'Chat options' })).getByRole('button', { name: 'Clear chat' }));
   expect(screen.queryByRole('article', { name: /^IntentAI answer/ })).not.toBeInTheDocument();
 
   await userEvent.click(screen.getByRole('button', { name: 'Chat options' }));
-  await userEvent.click(screen.getByRole('button', { name: 'Personalise setup' }));
-  expect(screen.getByText('welcome page')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Edit my profile' }));
+  expect(screen.getByText('my space page')).toBeInTheDocument();
 });
 
 test('voice input fills the box when speech recognition exists, otherwise shows a toast', async () => {

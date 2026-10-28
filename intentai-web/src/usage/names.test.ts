@@ -9,7 +9,7 @@ test('every app page has a readable name', () => {
   expect(pageNameFor(paths.noticeConfirmed)).toBe('Notice result');
   expect(pageNameFor(paths.noticeRejected)).toBe('Notice result');
   expect(pageNameFor(paths.todaySetup)).toBe('Topic picker');
-  expect(pageNameFor(paths.welcome)).toBe('Welcome');
+  expect(pageNameFor(paths.onboarding)).toBe('Onboarding');
   // Nearby: the place / collection id in the path is never part of the name
   expect(pageNameFor(paths.nearbyPlace('curated:sg-merlion-park'))).toBe('Nearby place');
   expect(pageNameFor(paths.collection('sg-100'))).toBe('Nearby collection');

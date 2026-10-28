@@ -25,11 +25,7 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.noticeEdit, 'Notice edit'],
   [paths.noticeConfirmed, 'Notice result'],
   [paths.noticeRejected, 'Notice result'],
-  [paths.welcome, 'Welcome'],
-  [paths.onboardingTime, 'Onboarding time'],
-  [paths.onboardingTopics, 'Onboarding topics'],
-  [paths.onboardingQuiz, 'Onboarding quiz'],
-  [paths.onboardingResult, 'Onboarding result'],
+  [paths.onboarding, 'Onboarding'],
   [paths.todaySetup, 'Topic picker'],
 ];
 
