@@ -14,6 +14,8 @@ export interface StepProps {
   toast: (msg: string) => void;
   /** Same as tapping the flow CTA: checks `answered`, then moves on (welcome calls it after the cover opens). */
   next: () => void;
+  /** Rendered inside My Space's edit sheet: the sheet has its own title, so the question header is left out. */
+  embedded?: boolean;
 }
 
 /**

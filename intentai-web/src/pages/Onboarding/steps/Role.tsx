@@ -6,14 +6,14 @@ import { CheckBadge, TileIcon, choice, useRadioGroup } from './Choice';
 import styles from './Role.module.css';
 import type { StepDef, StepProps } from './types';
 
-function Body({ data, update }: StepProps) {
+function Body({ data, update, embedded }: StepProps) {
   const group = useRadioGroup(
     ROLES.findIndex((o) => o.code === data.role),
     (i) => update({ role: ROLES[i].code }),
   );
   return (
     <>
-      <QuestionHeader title="What brings you to Singapore?" helpers={[{ icon: 'info', text: 'Used to pick examples that suit your days' }]} />
+      <QuestionHeader hidden={embedded} title="What brings you to Singapore?" helpers={[{ icon: 'info', text: 'Used to pick examples that suit your days' }]} />
       <div role="radiogroup" aria-label="What brings you here" {...group.groupProps} className={`${choice.group} ${styles.grid}`}>
         {ROLES.map((r, i) => (
           <button

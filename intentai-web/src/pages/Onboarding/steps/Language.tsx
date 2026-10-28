@@ -6,14 +6,14 @@ import { choice, useRadioGroup } from './Choice';
 import styles from './Language.module.css';
 import type { StepDef, StepProps } from './types';
 
-function Body({ data, update }: StepProps) {
+function Body({ data, update, embedded }: StepProps) {
   const group = useRadioGroup(
     LANGS.findIndex((o) => o.code === data.language),
     (i) => update({ language: LANGS[i].code }),
   );
   return (
     <>
-      <QuestionHeader title="Which language do you prefer?" helpers={[{ icon: 'info', text: 'Used for translations on cards and in Ask' }]} />
+      <QuestionHeader hidden={embedded} title="Which language do you prefer?" helpers={[{ icon: 'info', text: 'Used for translations on cards and in Ask' }]} />
       <div role="radiogroup" aria-label="Language" {...group.groupProps} className={`${choice.group} ${styles.grid}`}>
         {LANGS.map((l, i) => (
           <button

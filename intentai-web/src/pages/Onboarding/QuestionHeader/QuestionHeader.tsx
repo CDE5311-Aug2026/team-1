@@ -16,8 +16,17 @@ const ICONS = {
   eye: <path d="M3 10c2.5 3 5.5 4.5 9 4.5s6.5-1.5 9-4.5M6.5 13.5 5 16M12 14.5V17M17.5 13.5 19 16" />,
 };
 
-/** Question title plus helper lines (info or closed-eye icon), each entering with a short stagger. */
-export default function QuestionHeader({ title, helpers = [] }: { title: string; helpers?: readonly QuestionHelper[] }) {
+/** Question title plus helper lines (info or closed-eye icon), each entering with a short stagger. `hidden` renders nothing. */
+export default function QuestionHeader({
+  title,
+  helpers = [],
+  hidden = false,
+}: {
+  title: string;
+  helpers?: readonly QuestionHelper[];
+  hidden?: boolean;
+}) {
+  if (hidden) return null;
   return (
     <>
       <h1 className={`${styles.title} ${motion.aUp}`}>{title}</h1>

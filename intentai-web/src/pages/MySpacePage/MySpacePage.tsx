@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { OnbField } from '../../data/domain';
 import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
+import EditSheet from './EditSheet/EditSheet';
+import KnowsGrid from './KnowsGrid/KnowsGrid';
 import LinkList from './LinkList/LinkList';
 import MySpaceLayout from './MySpaceLayout/MySpaceLayout';
-import { Gear, Help, Redo } from './icons';
+import PassportSummary from './PassportSummary/PassportSummary';
+import { EyeClosed, Gear, Help, Redo } from './icons';
 import { redoOnboarding } from './redo';
 import styles from './MySpacePage.module.css';
 
@@ -12,6 +17,7 @@ export const FEEDBACK_TOAST = 'Feedback is collected in the user test';
 /** My Space (canvas S1): passport, what the app knows, switches, privacy summary and links. */
 export default function MySpacePage() {
   const navigate = useNavigate();
+  const [editing, setEditing] = useState<OnbField | null>(null);
 
   return (
     <MySpaceLayout
@@ -23,6 +29,14 @@ export default function MySpacePage() {
       }
     >
       <div className={styles.body}>
+        <PassportSummary />
+        <div className={styles.headingRow}>
+          <h2 className={styles.heading}>What the app knows</h2>
+          <span className={styles.legend}>
+            <EyeClosed /> Closed eye = private
+          </span>
+        </div>
+        <KnowsGrid onEdit={setEditing} />
         <LinkList
           rows={[
             { label: 'Settings', icon: <Gear />, tone: ['#f6f5f2', '#23211d'], onSelect: () => navigate(paths.mySpaceSettings) },
@@ -40,6 +54,7 @@ export default function MySpacePage() {
           ]}
         />
       </div>
+      {editing && <EditSheet field={editing} onClose={() => setEditing(null)} />}
     </MySpaceLayout>
   );
 }

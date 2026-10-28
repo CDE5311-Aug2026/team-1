@@ -19,14 +19,14 @@ function flag(c: CountryOption): CSSProperties {
   return { '--flag': c.color } as CSSProperties;
 }
 
-function Body({ data, update }: StepProps) {
+function Body({ data, update, embedded }: StepProps) {
   const group = useRadioGroup(
     COUNTRIES.findIndex((c) => c.name === data.from),
     (i) => update({ from: COUNTRIES[i].name }),
   );
   return (
     <>
-      <QuestionHeader title="Where are you from?" helpers={HELPERS} />
+      <QuestionHeader hidden={embedded} title="Where are you from?" helpers={HELPERS} />
       <div role="radiogroup" aria-label="Where you are from" {...group.groupProps} className={styles.outer}>
         <div className={styles.grid}>
           {PRIMARY.map((c, i) => (

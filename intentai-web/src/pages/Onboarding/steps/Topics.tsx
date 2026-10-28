@@ -9,11 +9,11 @@ import type { StepDef, StepProps } from './types';
 const HELPERS: readonly QuestionHelper[] = [{ icon: 'info', text: 'Tap in order. Home shows your #1 first' }];
 
 /** O7: tap-to-rank. Tapping an unranked tile ranks it next; tapping a ranked one removes just that one. */
-function Body({ data, update }: StepProps) {
+function Body({ data, update, embedded }: StepProps) {
   const ranks = data.topics;
   return (
     <>
-      <QuestionHeader title="Rank the topics you enjoy most" helpers={HELPERS} />
+      <QuestionHeader hidden={embedded} title="Rank the topics you enjoy most" helpers={HELPERS} />
       <div role="group" aria-label="Topics, tap to rank" className={styles.grid}>
         {TOPIC_OPTIONS.map((o, i) => {
           const r = ranks.indexOf(o.id);

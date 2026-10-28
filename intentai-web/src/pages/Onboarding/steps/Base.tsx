@@ -19,7 +19,7 @@ const BERLIN = homePlace('berlin-wall-fragments')!;
 export const LOCATE_LABEL = BERLIN.name;
 const CHINATOWN = homePlace('chinatown')!;
 
-function Body({ data, update, toast }: StepProps) {
+function Body({ data, update, toast, embedded }: StepProps) {
   // Counts drops so a re-drop on the same spot still recentres and replays the pin.
   const [drops, setDrops] = useState(0);
 
@@ -36,7 +36,7 @@ function Body({ data, update, toast }: StepProps) {
 
   return (
     <>
-      <QuestionHeader title="Where do you spend most of your time?" helpers={[{ icon: 'info', text: 'Tap the map to set where Nearby searches from' }]} />
+      <QuestionHeader hidden={embedded} title="Where do you spend most of your time?" helpers={[{ icon: 'info', text: 'Tap the map to set where Nearby searches from' }]} />
       <div className={`${styles.map} ${motion.aUp}`} style={{ animationDelay: '0.08s' }}>
         <OnboardingMapFrame
           base={data.base}
