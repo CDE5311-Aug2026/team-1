@@ -47,7 +47,7 @@ const areas = (areasJson as { areas: RawArea[] }).areas;
 
 // Written out here so the Nearby catalogue (places.sg.json) stays out of the main bundle;
 // homePlaces.test.ts checks these against the catalogue.
-function nearbyPlace(id: string, name: string, area: string, point: LatLng): HomePlace {
+function nearbyPlace(id: string, name: string, area: string, point: LatLng, aliases?: readonly string[]): HomePlace {
   return {
     id,
     name,
@@ -59,6 +59,7 @@ function nearbyPlace(id: string, name: string, area: string, point: LatLng): Hom
     credit: THUMB_CREDIT,
     hasCards: false,
     pinAlways: true,
+    aliases,
   };
 }
 
@@ -92,9 +93,9 @@ export const HOME_PLACES: readonly HomePlace[] = [
     pinAlways: false,
     aliases: ['Pagoda Street'],
   },
-  nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }),
-  nearbyPlace('curated:sg-haw-par-villa', 'Haw Par Villa', 'Queenstown & Holland', { lat: 1.28405, lng: 103.78142 }),
-  nearbyPlace('curated:sg-holland-village', 'Holland Village', 'Queenstown & Holland', { lat: 1.31194, lng: 103.79611 }),
+  nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }, ['NUS', 'UTown']),
+  nearbyPlace('curated:sg-haw-par-villa', 'Haw Par Villa', 'Queenstown & Holland', { lat: 1.28405, lng: 103.78142 }, ['Haw Par', 'Tiger Balm Garden']),
+  nearbyPlace('curated:sg-holland-village', 'Holland Village', 'Queenstown & Holland', { lat: 1.31194, lng: 103.79611 }, ['Holland V', 'Holland Road']),
 ];
 
 export function homePlace(id: string): HomePlace | undefined {

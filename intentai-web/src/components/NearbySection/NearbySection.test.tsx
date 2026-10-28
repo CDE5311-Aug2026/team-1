@@ -179,7 +179,7 @@ test('search: "Use my location" goes back to the home base and the radar runs fo
   const user = userEvent.setup();
   const { card } = setup(CHINATOWN);
   await screen.findByTestId('map');
-  await user.click(screen.getByRole('button', { name: 'Change search point' }));
+  await user.click(screen.getByRole('button', { name: /^Near you · .+\. Change search point$/ }));
   vi.useFakeTimers();
   fireEvent.click(screen.getByRole('button', { name: /Use my location/ }));
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');

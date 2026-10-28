@@ -17,7 +17,7 @@ function setup(label = 'NUS University Town') {
       <p>outside</p>
     </div>,
   );
-  const pill = () => screen.getByRole('button', { name: 'Change search point' });
+  const pill = () => screen.getByRole('button', { name: /^Near you · .+\. Change search point$/ });
   const searchButton = () => screen.getByRole('button', { name: 'Search' });
   const input = () => screen.queryByRole('textbox', { name: 'Search a place or area' });
   const rows = () =>

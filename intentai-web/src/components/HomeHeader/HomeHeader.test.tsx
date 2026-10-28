@@ -21,7 +21,7 @@ function renderHeader() {
 test('logo, then the streak chip and the bell', () => {
   renderHeader();
   expect(screen.getByRole('img', { name: 'IntentAI' })).toHaveAttribute('src', '/logo.png');
-  const streak = screen.getByRole('link', { name: '1-day streak. See your rank and badges' });
+  const streak = screen.getByRole('link', { name: '1 day streak. See your rank and badges' });
   expect(streak).toHaveTextContent('day');
   expect(screen.getByRole('link', { name: 'Notifications: Mei answered your question' })).toBeInTheDocument();
 });
@@ -29,7 +29,7 @@ test('logo, then the streak chip and the bell', () => {
 test('the streak digits roll from the day before to today; the flame flickers', () => {
   streakStore.set({ date: todayKey(), count: 4 });
   renderHeader();
-  const streak = screen.getByRole('link', { name: '4-day streak. See your rank and badges' });
+  const streak = screen.getByRole('link', { name: '4 day streak. See your rank and badges' });
   const strip = screen.getByTestId('streak-count').firstElementChild!;
   expect(strip).toHaveClass('roll');
   expect([...strip.children].map((c) => c.textContent)).toEqual(['3', '4']);

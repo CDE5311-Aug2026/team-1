@@ -80,6 +80,13 @@
   cursor: pointer;
 }
 
+/* Keeps the 30px look; the invisible box brings the tap target to 44px. */
+.count::before {
+  content: '';
+  position: absolute;
+  inset: -7px -4px;
+}
+
 .count strong {
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;

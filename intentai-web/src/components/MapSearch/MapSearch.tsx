@@ -140,7 +140,7 @@ export function MapSearch({ label, onPick, onUseLocation }: Props) {
           ref={pillRef}
           type="button"
           className={styles.pill}
-          aria-label="Change search point"
+          aria-label={`Near you · ${label}. Change search point`}
           aria-expanded={open}
           aria-controls={open ? panelId : undefined}
           onClick={toggle}

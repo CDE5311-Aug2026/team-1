@@ -14,6 +14,12 @@ import { paths } from '../../routes';
 /** Router state for Home: the Nearby place to select on arrival. */
 export interface HomeRouteState {
   focusPlace?: string;
+  /** Also bring the Nearby map into view (links that promise the map). */
+  showMap?: boolean;
+}
+
+function showMapOf(state: unknown): boolean {
+  return typeof state === 'object' && state !== null && (state as HomeRouteState).showMap === true;
 }
 
 function focusPlaceOf(state: unknown): string | undefined {
@@ -29,11 +35,13 @@ export default function TodayPage() {
   const location = useLocation();
   const navigationType = useNavigationType();
   const [focusPlace] = useState(() => focusPlaceOf(location.state));
+  const [showMap] = useState(() => showMapOf(location.state));
+  const selected = useRef(focusPlace);
   const heading = useRef<HTMLHeadingElement>(null);
 
   // A new visit starts at the top with the h1 focused; Back/Forward keeps the browser's scroll position.
   useEffect(() => {
-    if (navigationType === 'POP') return;
+    if (navigationType === 'POP' || showMap) return;
     window.scrollTo(0, 0);
     heading.current?.focus({ preventScroll: true });
     // Mount-only.
@@ -52,10 +60,14 @@ export default function TodayPage() {
       <TodayHero
         holiday={todaysHoliday}
         onOpenHoliday={() => navigate(paths.holiday)}
-        onOpenAlso={(id) => leaveFor(id, paths.placeCard(id, 'festival'))}
+        onOpenAlso={(id) => leaveFor(selected.current ?? id, paths.placeCard(id, 'festival'))}
       />
       <NearbySection
         focusId={focusPlace}
+        revealMap={showMap && navigationType !== 'POP'}
+        onSelectionChange={(id) => {
+          selected.current = id;
+        }}
         onOpenPlace={(id) => leaveFor(id, paths.homePlace(id))}
         onExplore={() => navigate(paths.nearby)}
       />

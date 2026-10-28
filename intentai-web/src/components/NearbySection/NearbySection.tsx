@@ -8,6 +8,7 @@ import { FLY_OVER_M, type MapCommand } from '../HomeMap/camera';
 import HomeMapFrame from '../HomeMap/HomeMapFrame';
 import { MapSearch } from '../MapSearch/MapSearch';
 import { PlaceCarousel } from '../PlaceCarousel/PlaceCarousel';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 import styles from './NearbySection.module.css';
 
 const BERLIN_ID = 'berlin-wall-fragments';
@@ -91,10 +92,14 @@ interface Props {
   onExplore(): void;
   /** Place selected on arrival (router state from a place or card page). */
   focusId?: string;
+  /** Arrived from a link to the map: scroll the section into view and focus its heading. */
+  revealMap?: boolean;
+  /** Called with the selected place id on mount and whenever the selection changes. */
+  onSelectionChange?(id: string): void;
 }
 
 /** Home's Nearby block: the map and the place carousel share one selection and one camera. */
-export function NearbySection({ onOpenPlace, onExplore, focusId }: Props) {
+export function NearbySection({ onOpenPlace, onExplore, focusId, revealMap = false, onSelectionChange }: Props) {
   const [state, dispatch] = useReducer(nearbyReducer, focusId, initNearbyState);
   const [stories] = usePersistentStore(placeStoriesStore);
   const [inset, setInset] = useState(0);
@@ -103,6 +108,22 @@ export function NearbySection({ onOpenPlace, onExplore, focusId }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const headingId = useId();
+  const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const reduced = useReducedMotion();
+  const changed = useRef(onSelectionChange);
+  changed.current = onSelectionChange;
+
+  useEffect(() => {
+    changed.current?.(state.selectedId);
+  }, [state.selectedId]);
+
+  useEffect(() => {
+    if (!revealMap) return;
+    sectionRef.current?.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+    headingRef.current?.focus({ preventScroll: true });
+    // Mount-only.
+  }, []);
 
   // The map keeps the selected pin above the cards, so it needs to know how much of it they cover.
   useEffect(() => {
@@ -141,9 +162,9 @@ export function NearbySection({ onOpenPlace, onExplore, focusId }: Props) {
   };
 
   return (
-    <section className={styles.root} aria-labelledby={headingId}>
+    <section ref={sectionRef} className={styles.root} aria-labelledby={headingId}>
       <div className={`a-up ${styles.heading}`}>
-        <h2 id={headingId} className={styles.title}>
+        <h2 ref={headingRef} id={headingId} tabIndex={-1} className={styles.title}>
           Nearby
         </h2>
         <p className={styles.hint}>Swipe a card or tap a pin</p>

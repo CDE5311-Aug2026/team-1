@@ -18,7 +18,7 @@ export default function HomeHeader({ logoSrc }: Props) {
     <header className={`a-up ${styles.header}`}>
       <img className={styles.logo} src={logoSrc} alt="IntentAI" width={44} height={44} />
       <span className={styles.spacer} />
-      <Link to={paths.moments} className={`press ${styles.streak}`} aria-label={`${count}-day streak. See your rank and badges`}>
+      <Link to={paths.moments} className={`press ${styles.streak}`} aria-label={`${count} day streak. See your rank and badges`}>
         <span className={styles.flame} aria-hidden="true">
           <svg className="flick" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" focusable="false">
             <path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.2 2.2-5.3 3.6-7.4.3 1.9 1.3 3 2.4 3.6C11.3 7.6 12.6 5 15.2 3c-.3 2.8.6 4.6 1.9 6.2 1 1.3 1.9 2.8 1.9 5C19 18.4 16.1 21 12 21Z" />

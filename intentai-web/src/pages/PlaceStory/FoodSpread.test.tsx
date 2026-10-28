@@ -177,7 +177,7 @@ test('visit card: open now, address, hours (today in bold) and the phone number 
 test('"Directions from the Wall" goes to Home focused on Berlin Wall Fragments', () => {
   renderCard();
   fireEvent.click(screen.getByRole('link', { name: 'Directions from the Wall' }));
-  expect(screen.getByTestId('at')).toHaveTextContent('/ {"focusPlace":"berlin-wall-fragments"}');
+  expect(screen.getByTestId('at')).toHaveTextContent('/ {"focusPlace":"berlin-wall-fragments","showMap":true}');
 });
 
 test('credit line and the NEXT card to the monument card', () => {

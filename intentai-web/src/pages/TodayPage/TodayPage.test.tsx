@@ -55,6 +55,7 @@ function renderWithRoutes(initialEntries: Parameters<typeof MemoryRouter>[0]['in
         <Route path="/moments" element={<p>moments page</p>} />
         <Route path="/nearby" element={<p>nearby page</p>} />
         <Route path="/community" element={<p>community page</p>} />
+        <Route path="/mapward" element={<GoHome state={{ focusPlace: 'chinatown', showMap: true }} />} />
         <Route path="/elsewhere" element={<GoHome state={{ focusPlace: 'chinatown' }} />} />
       </Routes>
     </MemoryRouter>,
@@ -78,7 +79,7 @@ test('greets the tester by name in the page h1', () => {
 
 test('the streak chip opens Moments', async () => {
   renderWithRoutes();
-  await userEvent.click(screen.getByRole('link', { name: '1-day streak. See your rank and badges' }));
+  await userEvent.click(screen.getByRole('link', { name: '1 day streak. See your rank and badges' }));
   expect(screen.getByText('moments page')).toBeInTheDocument();
 });
 
@@ -128,6 +129,38 @@ test('Open on Chinatown, then browser Back: Home shows the Chinatown card again'
   expect(screen.getByText('place page /place/chinatown')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'browser back' }));
   expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+});
+
+test('the anniversary row remembers the selected card, not always Berlin', async () => {
+  const user = userEvent.setup();
+  renderWithRoutes();
+  await user.click(card('Chinatown'));
+  await user.click(screen.getByRole('button', { name: /The Berlin Wall fell 37 years ago/ }));
+  expect(screen.getByText('card page /place/berlin-wall-fragments/festival')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'browser back' }));
+  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+});
+
+test('arriving with showMap selects the card, scrolls the Nearby section into view and focuses its heading', async () => {
+  const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  const into = vi.fn();
+  Element.prototype.scrollIntoView = into;
+  renderWithRoutes(['/mapward']);
+  await userEvent.click(screen.getByRole('button', { name: 'go home' }));
+  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+  expect(into).toHaveBeenCalledTimes(1);
+  expect(into.mock.contexts[0]).toBe(screen.getByRole('heading', { level: 2, name: 'Nearby' }).closest('section'));
+  expect(screen.getByRole('heading', { level: 2, name: 'Nearby' })).toHaveFocus();
+  expect(scrollTo).not.toHaveBeenCalled();
+  scrollTo.mockRestore();
+});
+
+test('arriving without showMap does not scroll to the map', async () => {
+  const into = vi.fn();
+  Element.prototype.scrollIntoView = into;
+  renderWithRoutes(['/elsewhere']);
+  await userEvent.click(screen.getByRole('button', { name: 'go home' }));
+  expect(into).not.toHaveBeenCalled();
 });
 
 test('the places to explore chip opens Nearby Explore', async () => {

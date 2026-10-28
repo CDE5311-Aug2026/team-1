@@ -120,7 +120,7 @@ test('[Today + streak] opening the app does not add a day; reading the holiday d
   const yesterday = todayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
   streakStore.set({ date: yesterday, count: 2 });
   renderApp('/');
-  expect(screen.getByRole('link', { name: /^2-day streak/ })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /^2 day streak/ })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'Deepavali long weekend starts today' }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/holidays\/deepavali$/);
   expect(streakStore.get()).toEqual({ date: todayKey(), count: 3 });

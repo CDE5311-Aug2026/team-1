@@ -103,6 +103,15 @@ test('search: empty query lists the two card places, then the three Cards-soon p
   ]);
 });
 
+test('search: the Cards-soon places answer to their short names', () => {
+  const nus = 'curated:sg-national-university-of-singapore';
+  expect(ids(searchHomePlaces('UTown'))).toEqual([[], [nus]]);
+  expect(ids(searchHomePlaces('utown'))).toEqual([[], [nus]]);
+  expect(ids(searchHomePlaces('NUS'))[1]).toEqual([nus]);
+  expect(ids(searchHomePlaces('tiger balm'))).toEqual([[], ['curated:sg-haw-par-villa']]);
+  expect(ids(searchHomePlaces('holland road'))).toEqual([[], ['curated:sg-holland-village']]);
+});
+
 test('search: case-insensitive on name, area and aliases', () => {
   expect(ids(searchHomePlaces('tembusu'))).toEqual([['berlin-wall-fragments'], []]);
   expect(ids(searchHomePlaces('BERLIN'))).toEqual([['berlin-wall-fragments'], []]);

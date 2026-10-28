@@ -105,7 +105,7 @@ test('the Mei tip opens Community', () => {
 test('"See it on the Nearby map" goes to Home focused on Chinatown', () => {
   renderCard();
   fireEvent.click(screen.getByRole('link', { name: 'See it on the Nearby map' }));
-  expect(screen.getByTestId('at')).toHaveTextContent('/ {"focusPlace":"chinatown"}');
+  expect(screen.getByTestId('at')).toHaveTextContent('/ {"focusPlace":"chinatown","showMap":true}');
 });
 
 test('credit line and the NEXT card to the monument card', () => {

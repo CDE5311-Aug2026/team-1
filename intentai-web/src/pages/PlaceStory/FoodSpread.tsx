@@ -116,7 +116,7 @@ export default function FoodSpread({ placeId }: FoodSpreadProps) {
           <span className={styles.phone}>{visit.phone.text}</span>
         </div>
         <div className={styles.buttons}>
-          <Link to={paths.today} state={{ focusPlace: placeId }} className={`press ${styles.directions}`}>
+          <Link to={paths.today} state={{ focusPlace: placeId, showMap: true }} className={`press ${styles.directions}`}>
             Directions from the Wall
           </Link>
           <a href={visit.phone.href} className={`press ${styles.call}`} aria-label={`Call The Spread, ${visit.phone.text}`}>
