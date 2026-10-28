@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { AREAS, OVERVIEW_AREAS, formatDistance, labelFor } from './areas';
+import { AREAS, NEAR_AREA_M, OVERVIEW_AREAS, formatDistance, labelFor } from './areas';
 import { HOME_BASE_BOUNDS } from '../../data/domain';
 
 const M_PER_DEG_LAT = 111_194.93; // R = 6 371 008.8 m, as geo.ts
@@ -31,6 +31,8 @@ test('formatDistance rounds under 1 km to 50 m, never below 50, then uses km', (
 test('labelFor names the nearest area within 860 m and says Near otherwise', () => {
   const toa = AREAS.find((a) => a.name === 'Toa Payoh')!;
   expect(labelFor(toa)).toBe('Toa Payoh');
+  // exactly 860 m is not "within" (canvas uses a strict <)
+  expect(labelFor({ lat: toa.lat + NEAR_AREA_M / M_PER_DEG_LAT, lng: toa.lng })).toBe('Near Toa Payoh');
   expect(labelFor({ lat: toa.lat + 859 / M_PER_DEG_LAT, lng: toa.lng })).toBe('Toa Payoh');
   expect(labelFor({ lat: toa.lat + 861 / M_PER_DEG_LAT, lng: toa.lng })).toBe('Near Toa Payoh');
   expect(labelFor({ lat: 1.3, lng: 103.9 })).toBe('Near Bugis');

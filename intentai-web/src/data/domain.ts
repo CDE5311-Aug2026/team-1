@@ -117,6 +117,16 @@ function isHomeBase(value: unknown): value is HomeBase {
   );
 }
 
+/** `YYYY-MM-DD` or `YYYY-MM-DDTHH:mm:ss(.sss)Z`, and a real calendar date. */
+function isIsoDate(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:T([01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,3})?Z)?$/.exec(value);
+  if (!m) return false;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const dt = new Date(Date.UTC(y, mo - 1, d));
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === mo - 1 && dt.getUTCDate() === d;
+}
+
 /** True when every answer is set and all four topics are ranked. */
 export function isOnboardingComplete(o: Onboarding): boolean {
   return (
@@ -134,7 +144,7 @@ export function isOnboarding(value: unknown): value is Onboarding {
   if (!(value.base === null || isHomeBase(value.base))) return false;
   if (!isUniqueOf(CULTURE_TOPICS, value.topics)) return false;
   if (!isUniqueOf(ONB_FIELDS, value.hidden)) return false;
-  if (!(value.completedAt === null || (typeof value.completedAt === 'string' && Number.isFinite(Date.parse(value.completedAt))))) return false;
+  if (!(value.completedAt === null || isIsoDate(value.completedAt))) return false;
   // A finished passport has every answer and a stamp date; anything else is not a state the app writes.
   if (value.done) return isOnboardingComplete(value as unknown as Onboarding) && value.completedAt !== null;
   return true;

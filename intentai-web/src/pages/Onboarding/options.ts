@@ -116,9 +116,9 @@ export const FROM_EMPTY = 'Pick a country to see how cards compare with home.';
 export function fromPreview(from: OnbCountry | null): Preview {
   if (from === null) return { photo: PHOTOS.festival, body: FROM_EMPTY };
   if (from === 'India') {
-    return { photo: PHOTOS.deepavali, chip: 'Compare with India', body: 'Little India’s light-up, side by side with Diwali at home.' };
+    return { photo: PHOTOS.deepavali, title: 'Deepavali', chip: 'Compare with India', body: 'Little India’s light-up, side by side with Diwali at home.' };
   }
-  return { photo: PHOTOS.festival, chip: `Compare with ${from}`, body: 'How Singapore celebrates it, next to how it’s done back home.' };
+  return { photo: PHOTOS.festival, title: 'Lunar New Year', chip: `Compare with ${from}`, body: 'How Singapore celebrates it, next to how it’s done back home.' };
 }
 
 /* ---------- O3 time ---------- */

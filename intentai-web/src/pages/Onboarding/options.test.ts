@@ -50,8 +50,8 @@ test('every photo and icon resolves', () => {
 
 test('from preview: India compares Deepavali, others Lunar New Year, empty prompts', () => {
   expect(fromPreview(null).chip).toBeUndefined();
-  expect(fromPreview('India')).toMatchObject({ chip: 'Compare with India', photo: PHOTOS.deepavali });
-  expect(fromPreview('Vietnam')).toMatchObject({ chip: 'Compare with Vietnam', photo: PHOTOS.festival });
+  expect(fromPreview('India')).toMatchObject({ title: 'Deepavali', chip: 'Compare with India', photo: PHOTOS.deepavali });
+  expect(fromPreview('Vietnam')).toMatchObject({ title: 'Lunar New Year', chip: 'Compare with Vietnam', photo: PHOTOS.festival });
 });
 
 test('topics preview names #1 and the rest', () => {

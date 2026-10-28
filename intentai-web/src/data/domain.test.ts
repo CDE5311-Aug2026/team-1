@@ -96,6 +96,12 @@ describe('isOnboarding', () => {
     expect(bad({ hidden: ['mood'] })).toBe(false);
     expect(bad({ completedAt: 'last Tuesday' })).toBe(false);
     expect(bad({ completedAt: 5 })).toBe(false);
+    for (const v of ['10/28/2026', '123', '2026-02-30', '2026-13-01', '2026-10-28T25:00:00Z', '2026-10-28T10:00:00']) {
+      expect(bad({ completedAt: v }), v).toBe(false);
+    }
+    for (const v of ['2026-10-28', '2026-10-28T10:00:00Z', '2026-10-28T10:00:00.123Z', '2024-02-29']) {
+      expect(bad({ completedAt: v }), v).toBe(true);
+    }
   });
 
   test('rejects a home base outside Singapore, non-finite, or with a bad label', () => {
