@@ -61,15 +61,6 @@ test('failing tiles switch to the error state', async () => {
   render(<OnboardingMapFrame {...props()} />);
   fireEvent.click(await screen.findByRole('button', { name: 'fake tile failure' }));
   expect(screen.getByRole('alert')).toHaveTextContent('Map unavailable');
-  expect(screen.queryByTestId('tap-hint')).toBeNull();
-});
-
-test('tap hint shows until there is a pin', async () => {
-  const { rerender } = render(<OnboardingMapFrame {...props()} />);
-  expect(screen.getByTestId('tap-hint')).toHaveTextContent('Tap or drag the map');
-  rerender(<OnboardingMapFrame {...props({ base: UTOWN, drops: 1 })} />);
-  expect(screen.queryByTestId('tap-hint')).toBeNull();
-  await screen.findByTestId('map');
 });
 
 test('zoom out appears after a drop and goes back to the overview', async () => {

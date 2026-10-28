@@ -11,10 +11,8 @@ import { ICON_PATHS, PHOTOS, type IconKey, type OnbPhoto } from '../options';
 import styles from './Done.module.css';
 import type { StepDef, StepProps } from './types';
 
-/** The finds fan turns to the next card this often... */
+/** The finds fan turns to the next card this often, until it is hovered, tapped or focused by keyboard. */
 export const FIND_ROTATE_MS = 3400;
-/** ...unless a card was tapped within this long. */
-export const FIND_TAP_PAUSE_MS = 5000;
 
 function place(id: string): HomePlace {
   const p = HOME_PLACES.find((h) => h.id === id);
@@ -66,7 +64,7 @@ const SLOTS = [
   { x: -96, rot: -9, scale: 0.86, z: 1 },
 ];
 
-/** Keyboard focus (not a mouse click) pauses the fan. Browsers without :focus-visible count every focus. */
+/** Keyboard focus (not a mouse click) stops the fan. Browsers without :focus-visible count every focus. */
 function isFocusVisible(el: Element): boolean {
   try {
     return el.matches(':focus-visible');
@@ -78,16 +76,16 @@ function isFocusVisible(el: Element): boolean {
 function Fan({ finds }: { finds: Find[] }) {
   const reduced = useReducedMotion();
   const [front, setFront] = useState(0);
-  const lastTap = useRef(-Infinity);
-  const focusInside = useRef(false);
+  // Auto-advance is paused while the pointer is over the fan and stops for good after a manual tap or keyboard focus.
+  const hovering = useRef(false);
+  const stopped = useRef(false);
   const focusFront = useRef(false);
   const frontLink = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (reduced) return;
     const id = window.setInterval(() => {
-      // A keyboard user inside the fan keeps the card they are on.
-      if (focusInside.current || Date.now() - lastTap.current <= FIND_TAP_PAUSE_MS) return;
+      if (hovering.current || stopped.current) return;
       setFront((f) => (f + 1) % finds.length);
     }, FIND_ROTATE_MS);
     return () => window.clearInterval(id);
@@ -101,7 +99,7 @@ function Fan({ finds }: { finds: Find[] }) {
   }, [front]);
 
   const bring = (i: number, button: HTMLButtonElement) => {
-    lastTap.current = Date.now();
+    stopped.current = true;
     // Only follow with focus when the button had it (keyboard, or a browser that focuses on click).
     focusFront.current = document.activeElement === button;
     setFront(i);
@@ -114,11 +112,14 @@ function Fan({ finds }: { finds: Find[] }) {
         aria-label="Your first finds"
         className={`${styles.fan} ${motion.aUp}`}
         style={{ animationDelay: '1.15s' }}
-        onFocus={(e) => {
-          focusInside.current = isFocusVisible(e.target);
+        onPointerEnter={() => {
+          hovering.current = true;
         }}
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) focusInside.current = false;
+        onPointerLeave={() => {
+          hovering.current = false;
+        }}
+        onFocus={(e) => {
+          if (isFocusVisible(e.target)) stopped.current = true;
         }}
       >
         {finds.map((c, i) => {

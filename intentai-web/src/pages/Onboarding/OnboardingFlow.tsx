@@ -6,7 +6,7 @@ import { usePersistentStore } from '../../data/persistentStore';
 import { onboardingStore } from '../../data/stores';
 import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
-import { applyPatch, finishOnboarding, resumeStep } from './flow';
+import { applyPatch, finishOnboarding, resumeStep, syncProfile } from './flow';
 import OnboardingCta, { CtaBar } from './OnboardingCta/OnboardingCta';
 import motion from './Onboarding.module.css';
 import styles from './OnboardingFlow.module.css';
@@ -19,7 +19,13 @@ const toast = (msg: string) => {
   showToast(msg);
 };
 
-const update = (patch: Partial<Onboarding>) => onboardingStore.set((previous) => applyPatch(previous, patch));
+const update = (patch: Partial<Onboarding>) => {
+  const previous = onboardingStore.get();
+  const next = applyPatch(previous, patch);
+  onboardingStore.set(next);
+  // An answer edited after the stamp keeps My Space's profile in step with the passport.
+  if (next.done && (next.from !== previous.from || next.time !== previous.time || next.role !== previous.role)) syncProfile(next);
+};
 
 const BackIcon = (
   <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -69,8 +75,9 @@ export default function OnboardingFlow() {
     }
     if (def.id === 'topics' && !finishOnboarding()) {
       // An answer vanished (e.g. the store was reset in another tab): back to the first open question.
-      go(resumeStep(STEPS, onboardingStore.get()), -1);
-      toast('Pick one to continue');
+      const target = resumeStep(STEPS, onboardingStore.get());
+      go(target, -1);
+      if (STEPS[target].shell !== 'none') toast(STEPS[target].blockedToast);
       return;
     }
     if (current < STEPS.length - 1) go(current + 1, 1);

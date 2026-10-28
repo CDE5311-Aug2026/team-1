@@ -115,6 +115,14 @@ test('Stamp my passport does not advance when finishing fails; it returns to the
   expect(onboardingStore.get().done).toBe(false);
 });
 
+test('a failed finish toasts the target step own message', async () => {
+  renderFlow(ALL_ANSWERS);
+  onboardingStore.set({ ...ALL_ANSWERS, base: null });
+  await userEvent.click(cta('Stamp my passport'));
+  expect(heading()).toHaveTextContent('Where do you spend most of your time?');
+  expect(toastText()).toBe('Tap the map to drop your pin');
+});
+
 test('resumes at the first unanswered step with earlier segments full', () => {
   renderFlow({ ...DEFAULT_ONBOARDING, from: 'India', time: '1to3y' });
   expect(heading()).toHaveTextContent('What brings you to Singapore?');

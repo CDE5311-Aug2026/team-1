@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, test, vi } from 'vitest';
 import { isOnboarding, type Onboarding } from '../../data/domain';
 import { STORAGE_PREFIX, resetPersistentStores } from '../../data/persistentStore';
-import { onboardingStore } from '../../data/stores';
+import { onboardingStore, profileStore } from '../../data/stores';
 import { paths } from '../../routes';
 import { COMPLETED_ONBOARDING } from '../../test/onboardingFixture';
 import OnboardingFlow from './OnboardingFlow';
@@ -20,6 +20,9 @@ vi.mock('./steps/Topics', async (importOriginal) => {
         <Stub {...props} />
         <button type="button" onClick={() => props.update({ topics: props.data.topics.slice(1) })}>
           Unrank first
+        </button>
+        <button type="button" onClick={() => props.update({ time: '1to3y' })}>
+          Edit time
         </button>
         <button type="button" onClick={() => props.update({ topics: ['food', 'festival', 'monument', 'history'] })}>
           Rank all
@@ -68,4 +71,13 @@ test('editing an answer after the stamp clears done and completedAt together; re
   expect(onboardingStore.get().completedAt).not.toBeNull();
   expect(firstStamp).not.toBeNull();
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Your passport is ready');
+});
+
+test('editing from, time or role after the stamp keeps the profile in sync', async () => {
+  renderFlow(ALL_ANSWERS);
+  await userEvent.click(screen.getByRole('button', { name: 'Stamp my passport' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit time' }));
+  expect(onboardingStore.get()).toMatchObject({ done: true, time: '1to3y' });
+  expect(profileStore.get().time).toBe('1–3 years');
 });

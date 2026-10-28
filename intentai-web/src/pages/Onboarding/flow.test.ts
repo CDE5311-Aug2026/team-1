@@ -3,7 +3,7 @@ import { DEFAULT_ONBOARDING, isOnboarding, type Onboarding } from '../../data/do
 import { STORAGE_PREFIX } from '../../data/persistentStore';
 import { onboardingStore, profileStore } from '../../data/stores';
 import { COMPLETED_ONBOARDING } from '../../test/onboardingFixture';
-import { applyPatch, finishOnboarding, resumeStep } from './flow';
+import { applyPatch, finishOnboarding, resumeStep, syncProfile } from './flow';
 import { STEPS } from './steps';
 
 const draft = (patch: Partial<Onboarding>): Onboarding => ({ ...DEFAULT_ONBOARDING, ...patch });
@@ -47,6 +47,25 @@ test('applyPatch that makes a finished record incomplete clears done and complet
   const next = applyPatch(COMPLETED_ONBOARDING, { topics: ['food', 'festival', 'monument'] });
   expect(next).toMatchObject({ done: false, completedAt: null, topics: ['food', 'festival', 'monument'] });
   expect(isOnboarding(next)).toBe(true);
+});
+
+test('applyPatch always returns a record the store accepts', () => {
+  expect(isOnboarding(applyPatch(COMPLETED_ONBOARDING, { completedAt: null }))).toBe(true);
+  expect(applyPatch(COMPLETED_ONBOARDING, { completedAt: null })).toMatchObject({ done: false, completedAt: null });
+  const undated = applyPatch(ALL_ANSWERS, { done: true });
+  expect(undated).toMatchObject({ done: false, completedAt: null });
+  expect(isOnboarding(undated)).toBe(true);
+  const stale = applyPatch(ALL_ANSWERS, { completedAt: '2026-10-29T08:30:00.000Z' });
+  expect(stale.completedAt).toBeNull();
+  expect(isOnboarding(stale)).toBe(true);
+});
+
+test('syncProfile writes the labels and ignores an incomplete record', () => {
+  const before = profileStore.get();
+  syncProfile(draft({ from: 'India' }));
+  expect(profileStore.get()).toEqual(before);
+  syncProfile({ ...ALL_ANSWERS, time: '1to3y' });
+  expect(profileStore.get()).toMatchObject({ from: 'China', time: '1–3 years' });
 });
 
 test('finishOnboarding stamps the record and writes the profile labels', () => {
