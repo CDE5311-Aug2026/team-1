@@ -2,6 +2,7 @@ import { expect, test } from './test';
 import { ROUTES, seed } from './routes';
 
 test('every route renders without runtime errors or broken images', async ({ page }) => {
+  test.setTimeout(180_000); // one page load per route; WebKit needs longer than Chromium
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
@@ -26,6 +27,7 @@ test('every route renders without runtime errors or broken images', async ({ pag
 });
 
 test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
+  test.setTimeout(240_000); // every route at three widths
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');

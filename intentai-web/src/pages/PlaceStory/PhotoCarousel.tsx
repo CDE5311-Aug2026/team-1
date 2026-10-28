@@ -68,17 +68,31 @@ export function PhotoCarousel({ label, groups, slides, delay = 0.2 }: PhotoCarou
     return () => ro.disconnect();
   }, []);
 
-  // Ease toward the target (12 % per 16 ms frame); idle frames change nothing.
-  useEffect(() => {
-    if (reduced) return;
-    const id = window.setInterval(() => {
-      if (drag.current) return;
+  // Ease toward the target (12 % per 16 ms frame). The timer only runs while something is moving: it starts when a
+  // target is set (kick) and stops itself once the position has arrived or a drag takes over.
+  const loop = useRef<number | null>(null);
+  const stopLoop = () => {
+    if (loop.current !== null) window.clearInterval(loop.current);
+    loop.current = null;
+  };
+  const kick = () => {
+    if (reduced || loop.current !== null) return;
+    loop.current = window.setInterval(() => {
+      if (drag.current) {
+        stopLoop();
+        return;
+      }
       setPos((p) => {
         const d = target.current - p;
-        return Math.abs(d) > 0.0008 ? p + d * 0.12 : target.current;
+        if (Math.abs(d) > 0.0008) return p + d * 0.12;
+        stopLoop();
+        return target.current;
       });
     }, 16);
-    return () => window.clearInterval(id);
+  };
+  useEffect(() => stopLoop, []);
+  useEffect(() => {
+    if (reduced) stopLoop();
   }, [reduced]);
 
   const active = clamp(Math.round(pos), 0, n);
@@ -86,6 +100,7 @@ export function PhotoCarousel({ label, groups, slides, delay = 0.2 }: PhotoCarou
   const goTo = (i: number) => {
     target.current = clamp(i, 0, n);
     if (reduced) setPos(target.current);
+    else kick();
   };
   const prev = () => goTo(Math.round(target.current) - 1);
   const next = () => goTo(Math.round(target.current) + 1);

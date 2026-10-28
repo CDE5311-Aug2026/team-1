@@ -59,6 +59,7 @@ export function MapSearch({ label, onPick, onUseLocation }: Props) {
   const [hint, setHint] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const panelId = useId();
   const labelId = useId();
   const shown = useScramble(label, reduced);
@@ -74,6 +75,12 @@ export function MapSearch({ label, onPick, onUseLocation }: Props) {
     setQuery('');
     setHint(0);
   };
+
+  // Opening moves focus into the field: Escape, typing and Tab then work wherever the browser sends clicks
+  // (Safari does not focus a button when it is clicked).
+  useEffect(() => {
+    if (open) inputRef.current?.focus({ preventScroll: true });
+  }, [open]);
 
   // A press anywhere outside closes the dropdown; focus goes back to the pill unless the press lands on another control.
   useEffect(() => {
@@ -176,6 +183,7 @@ export function MapSearch({ label, onPick, onUseLocation }: Props) {
             <SearchIcon size={18} muted />
             <span className={styles.srOnly}>Search a place or area</span>
             <input
+              ref={inputRef}
               className={styles.input}
               type="text"
               value={query}
