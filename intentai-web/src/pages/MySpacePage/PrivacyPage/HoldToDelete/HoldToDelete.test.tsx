@@ -82,3 +82,30 @@ test('the armed state ends after 5 s and when the page is hidden', () => {
   fireEvent.keyDown(button, { key: 'Enter' });
   expect(onDelete).not.toHaveBeenCalled();
 });
+
+test('cancelling a pointer gesture also disarms a pending Enter', () => {
+  const { onDelete, button } = setup();
+  fireEvent.keyDown(button, { key: 'Enter' });
+  fireEvent.pointerDown(button, { button: 0, pointerId: 1 });
+  fireEvent.pointerCancel(button);
+  fireEvent.keyDown(button, { key: 'Enter' });
+  expect(onDelete).not.toHaveBeenCalled();
+  expect(button).toHaveAccessibleName('Press again to confirm');
+  fireEvent.pointerDown(button, { button: 0, pointerId: 1 });
+  fireEvent(button, new Event('lostpointercapture', { bubbles: true }));
+  fireEvent.keyDown(button, { key: 'Enter' });
+  expect(onDelete).not.toHaveBeenCalled();
+});
+
+test('assistive-technology clicks (no pointer) arm, then delete; pointer clicks do not count', () => {
+  const { onDelete, button } = setup();
+  fireEvent.click(button, { detail: 1 });
+  expect(button).toHaveAccessibleName('Hold to delete all my data');
+  fireEvent.click(button, { detail: 0 });
+  expect(button).toHaveAccessibleName('Press again to confirm');
+  advance(ARM_MS + 1);
+  fireEvent.click(button, { detail: 0 });
+  expect(onDelete).not.toHaveBeenCalled();
+  fireEvent.click(button, { detail: 0 });
+  expect(onDelete).toHaveBeenCalledTimes(1);
+});

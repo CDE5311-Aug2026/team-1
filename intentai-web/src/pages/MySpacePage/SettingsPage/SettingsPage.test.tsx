@@ -89,3 +89,34 @@ test('More: privacy, Today’s topics, licences, feedback', async () => {
   await user.click(screen.getByRole('button', { name: /Today’s topics/ }));
   expect(currentPath()).toBe(paths.todaySetup);
 });
+
+test('opening Today’s topics never names the saved picks in usage timings', async () => {
+  const { render } = await import('@testing-library/react');
+  const { MemoryRouter } = await import('react-router-dom');
+  const { createTracker } = await import('../../../usage/tracker');
+  const { default: PageTracker } = await import('../../../usage/PageTracker');
+  const { default: SettingsPage } = await import('./SettingsPage');
+  const { culturePrefsStore } = await import('../../../data/stores');
+  const names: string[] = [];
+  const tracker = createTracker({
+    now: () => 0,
+    send: (events) => names.push(...events.map((e) => e.name)),
+    uid: () => 'me',
+    newId: () => 's',
+    doc: { visibilityState: 'visible', addEventListener: () => {} } as never,
+    win: { addEventListener: () => {} } as never,
+  });
+  culturePrefsStore.set({ categories: ['history', 'unesco', 'ich'] });
+  const user = setup();
+  render(
+    <MemoryRouter useTransitions={false} initialEntries={[paths.mySpaceSettings]}>
+      <PageTracker t={tracker} />
+      <SettingsPage />
+    </MemoryRouter>,
+  );
+  await user.click(screen.getByRole('button', { name: /Today’s topics/ }));
+  await user.click(screen.getByRole('button', { name: /Send feedback/ }));
+  tracker.flush();
+  expect(names.some((n) => n.includes('Send feedback'))).toBe(true);
+  expect(names.join(' | ')).not.toMatch(/History|UNESCO|Heritage/i);
+});

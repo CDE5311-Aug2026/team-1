@@ -69,10 +69,9 @@ export default function HoldToDelete({ onDelete }: { onDelete: () => void }) {
     showToast('Keep holding to delete');
   };
 
-  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    e.preventDefault();
-    if (e.repeat || fired.current) return;
+  // A discrete press (Enter, Space, or an assistive-technology click): the first arms, the second deletes.
+  const press = () => {
+    if (fired.current) return;
     if (armed) {
       fire();
       return;
@@ -81,6 +80,12 @@ export default function HoldToDelete({ onDelete }: { onDelete: () => void }) {
     showToast('Press again to delete everything');
     window.clearTimeout(armTimer.current);
     armTimer.current = window.setTimeout(() => setArmed(false), ARM_MS);
+  };
+
+  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    if (!e.repeat) press();
   };
 
   const label = holding ? 'Keep holding…' : armed ? 'Press again to confirm' : 'Hold to delete all my data';
@@ -93,8 +98,10 @@ export default function HoldToDelete({ onDelete }: { onDelete: () => void }) {
         aria-describedby={hintId}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
-        onPointerCancel={stopHold}
-        onLostPointerCapture={stopHold}
+        onPointerCancel={reset}
+        onLostPointerCapture={reset}
+        // Pointer clicks (detail >= 1) are the hold gesture; a click with no pointer comes from assistive technology.
+        onClick={(e) => e.detail === 0 && press()}
         onBlur={reset}
         onKeyDown={onKeyDown}
         onKeyUp={(e) => e.key === ' ' && e.preventDefault()}

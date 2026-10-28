@@ -272,6 +272,7 @@ export default function SettingsPage() {
             {
               label: 'Today’s topics',
               value: topics,
+              noTrack: true,
               icon: <span>1</span>,
               tone: ['#fff3ea', '#a3410b'],
               onSelect: () => navigate(`${paths.todaySetup}?from=my-space`),
