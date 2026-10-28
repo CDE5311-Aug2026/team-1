@@ -9,18 +9,20 @@ interface QuestionDialogProps {
   askContext?: boolean;
   /** Pre-filled message (e.g. from Moments "Not sure"). */
   defaultMessage?: string;
-  onSave: (message: string, context: string) => void;
+  /** Answering as a local: an optional name shown with the answer. */
+  askName?: boolean;
+  onSave: (message: string, context: string, name: string) => void;
   onClose: () => void;
 }
 
 /** Anonymous message form used to ask, add context, and answer as a local. */
-export default function QuestionDialog({ title, askContext = false, defaultMessage, onSave, onClose }: QuestionDialogProps) {
+export default function QuestionDialog({ title, askContext = false, defaultMessage, askName = false, onSave, onClose }: QuestionDialogProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const message = requireText(event.currentTarget, 'message');
     if (message === null) return;
     const form = new FormData(event.currentTarget);
-    onSave(message, String(form.get('context') ?? '').trim());
+    onSave(message, String(form.get('context') ?? '').trim(), String(form.get('name') ?? '').trim());
   };
 
   return (
@@ -31,6 +33,12 @@ export default function QuestionDialog({ title, askContext = false, defaultMessa
           Your message
           <textarea name="message" required maxLength={1000} defaultValue={defaultMessage} />
         </label>
+        {askName && (
+          <label>
+            Name shown with your answer (optional)
+            <input name="name" maxLength={24} placeholder="e.g. Mei · leave empty for “A local”" />
+          </label>
+        )}
         {askContext && (
           <label>
             Where did you hear it?

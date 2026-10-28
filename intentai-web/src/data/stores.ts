@@ -16,6 +16,7 @@ import {
   isReportList,
   isSavedIds,
   isSettings,
+  isTipList,
   makeId,
   type Lookup,
   type Notices,
@@ -25,6 +26,7 @@ import {
   type Question,
   type Report,
   type Settings,
+  type Tip,
 } from './domain';
 import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
@@ -125,6 +127,21 @@ export const collectedStore = createPersistentStore<string[]>({
   isValid: isSavedIds,
 });
 
+/** Local answers added to culture cards (Community → card → Ask). */
+export const tipsStore = createPersistentStore<Tip[]>({
+  key: 'tips',
+  fallback: [],
+  isValid: isTipList,
+});
+
+/** Culture-card (Today article) ids the user has opened: Read more on Today, or Open on an Ask source card. Ask's
+ * "Recommended for you" says which one a pick comes from. */
+export const openedCardsStore = createPersistentStore<string[]>({
+  key: 'opened-cards',
+  fallback: [],
+  isValid: isSavedIds,
+});
+
 /** Anonymous random id sent with usage timings (time only, never content). Empty until first needed. */
 export const usageIdStore = createPersistentStore<string>({
   key: 'usage-id',
@@ -196,6 +213,8 @@ export function deleteAllData() {
   streakStore.set(NO_STREAK);
   culturePrefsStore.set(DEFAULT_PREFS);
   collectedStore.set([]);
+  openedCardsStore.set([]);
+  tipsStore.set([]);
   usageIdStore.set('');
   // The user test goes on (the test name is not personal data); its records on this device are deleted.
   clearLocalUsage();

@@ -153,16 +153,43 @@ export function addLookup(
 
 /* ---------- Community questions ---------- */
 
-export const QUESTION_STATUSES = ['Pending', 'Answered'] as const;
+/**
+ * Pending = posted, waiting for a local · Seen = a local opened it (Answer as a local) · Answered · Added = the answer
+ * was added to the card or phrase the question came from. Older records only have Pending / Answered.
+ */
+export const QUESTION_STATUSES = ['Pending', 'Seen', 'Answered', 'Added'] as const;
 export type QuestionStatus = (typeof QUESTION_STATUSES)[number];
 
-export interface Question {
+export const QUESTION_TOPICS = ['food', 'monument', 'festival', 'history', 'other'] as const;
+export type QuestionTopic = (typeof QUESTION_TOPICS)[number];
+
+/** Where a question came from and what a local's answer can be added to. All optional, so old records stay valid. */
+export interface QuestionLink {
+  /** Nearby area id (e.g. sg-chinatown) and its short name, so locals know where the asker means. */
+  areaId?: string;
+  areaName?: string;
+  topic?: QuestionTopic;
+  /** The culture card (Today article id) the question came from: an answer becomes a tip on it. */
+  cardId?: string;
+  /** The Moments phrase (lookup id) the question came from: an answer confirms it. */
+  lookupId?: string;
+  from?: 'ask' | 'community' | 'moments';
+}
+
+export interface Question extends QuestionLink {
   id: string;
   text: string;
   context: string;
   detail: string;
   status: QuestionStatus;
   answer?: string;
+  /** The first name or label the local chose to show with the answer; never the asker's. */
+  answeredBy?: string;
+  postedAt?: number;
+  seenAt?: number;
+  answeredAt?: number;
+  /** Seeded demo content, shown with a Sample label. */
+  sample?: boolean;
 }
 
 export const SEED_QUESTIONS: Question[] = [
@@ -173,6 +200,8 @@ export const SEED_QUESTIONS: Question[] = [
     detail:
       '“After the manager gave me extra forms, my colleague laughed and said ‘wah, you kena sabo lah.’ Was she being rude to me?”',
     status: 'Pending',
+    lookupId: 'sabo',
+    sample: true,
   },
   {
     id: 'paiseh',
@@ -181,8 +210,11 @@ export const SEED_QUESTIONS: Question[] = [
     detail: 'My classmate said “paiseh to trouble you”. What does it mean?',
     status: 'Answered',
     answer: 'A friendly apology for inconveniencing someone: sorry to trouble you.',
+    sample: true,
   },
 ];
+
+const optional = (value: unknown, type: 'string' | 'number' | 'boolean') => value === undefined || typeof value === type;
 
 function isQuestion(value: unknown): value is Question {
   return (
@@ -192,15 +224,60 @@ function isQuestion(value: unknown): value is Question {
     typeof value.context === 'string' &&
     typeof value.detail === 'string' &&
     isOneOf(QUESTION_STATUSES, value.status) &&
-    (value.answer === undefined || typeof value.answer === 'string')
+    optional(value.answer, 'string') &&
+    optional(value.areaId, 'string') &&
+    optional(value.areaName, 'string') &&
+    (value.topic === undefined || isOneOf(QUESTION_TOPICS, value.topic)) &&
+    optional(value.cardId, 'string') &&
+    optional(value.lookupId, 'string') &&
+    (value.from === undefined || isOneOf(['ask', 'community', 'moments'] as const, value.from)) &&
+    optional(value.answeredBy, 'string') &&
+    optional(value.postedAt, 'number') &&
+    optional(value.seenAt, 'number') &&
+    optional(value.answeredAt, 'number') &&
+    optional(value.sample, 'boolean')
   );
 }
 export const isQuestionList = arrayOf(isQuestion);
 
 /** A new anonymous question, pending until a local answers it. */
-export function newQuestion(text: string, context: string): Question {
-  return { id: makeId(), text, context, detail: text, status: 'Pending' };
+export function newQuestion(text: string, context: string, link: QuestionLink = {}, now: number = Date.now()): Question {
+  const clean = Object.fromEntries(Object.entries(link).filter(([, v]) => v !== undefined && v !== '')) as QuestionLink;
+  return { id: makeId(), text, context, detail: text, status: 'Pending', postedAt: now, ...clean };
 }
+
+/** Answered or added: a local has replied. */
+export function isAnswered(question: Question): boolean {
+  return question.status === 'Answered' || question.status === 'Added';
+}
+
+/* ---------- Local tips (Community writes, Ask and cards read) ---------- */
+
+/** A local's answer, added to the culture card the question came from. */
+export interface Tip {
+  id: string;
+  cardId: string;
+  questionId: string;
+  text: string;
+  by: string;
+  areaName?: string;
+  createdAt: number;
+  /** How many Ask answers have cited it. */
+  cited: number;
+  sample?: boolean;
+}
+
+function isTip(value: unknown): value is Tip {
+  return (
+    isRecord(value) &&
+    ['id', 'cardId', 'questionId', 'text', 'by'].every((k) => typeof value[k] === 'string') &&
+    optional(value.areaName, 'string') &&
+    typeof value.createdAt === 'number' &&
+    typeof value.cited === 'number' &&
+    optional(value.sample, 'boolean')
+  );
+}
+export const isTipList = arrayOf(isTip);
 
 /* ---------- Nearby place (11:1571) ---------- */
 

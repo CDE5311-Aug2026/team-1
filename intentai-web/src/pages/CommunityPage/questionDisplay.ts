@@ -1,4 +1,5 @@
 import type { Question } from '../../data/domain';
+import { cardTitle } from '../../data/localAnswer';
 
 /** Figma 7:1119 shows richer copy for the seeded "sabo" question than the store keeps. */
 interface QuestionExtras {
@@ -46,7 +47,18 @@ export function displayQuestion(question: Question): QuestionDisplay {
   };
 }
 
-/** List-card note next to the status pill (Figma 3:899 / 3:909). */
+/** List-card note next to the status pill (Figma 3:899 / 3:909). Says only what is known on this device. */
 export function statusNote(question: Question): string {
-  return question.status === 'Answered' ? 'by a local, now in the entry' : '2 locals reviewing';
+  switch (question.status) {
+    case 'Added': {
+      const card = question.cardId ? cardTitle(question.cardId) : undefined;
+      return card ? `added to your ${card} card` : 'added to your phrase in Moments';
+    }
+    case 'Answered':
+      return 'by a local';
+    case 'Seen':
+      return 'a local has seen it';
+    default:
+      return 'waiting for a local';
+  }
 }

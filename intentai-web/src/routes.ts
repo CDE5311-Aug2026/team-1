@@ -1,3 +1,4 @@
+import type { QuestionLink } from './data/domain';
 // Every app path, defined once. Pages navigate with these constants, never with string literals.
 export const paths = {
   today: '/',
@@ -48,9 +49,15 @@ export const ALL_STATIC_PATHS: string[] = Object.values(paths).filter((p) => typ
 export interface AskHandoff {
   prompt: string;
   context?: string;
+  /** Nearby area id: Ask asks about that area's culture cards when it has any. */
+  area?: string;
 }
 
-/** Router state that opens Community's "Ask a local" dialog with a draft (Moments → "Not sure"). */
+/** Router state that opens Community's "Ask a local" dialog with a draft (Moments → "Not sure", Ask → "Ask a local"). */
 export interface CommunityHandoff {
   askLocal: string;
+  /** Where the phrase was heard (Ask's context), filled into the dialog. */
+  context?: string;
+  /** What the question is about and what a local's answer can be added to. */
+  link?: QuestionLink;
 }

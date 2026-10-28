@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import chevronLeft from '../../assets/community/chevron-left.svg';
 import stepDone from '../../assets/community/step-done.svg';
 import stepNow from '../../assets/community/step-now.svg';
 import stepTodo from '../../assets/community/step-todo.svg';
-import type { Question } from '../../data/domain';
+import { isAnswered, type Question } from '../../data/domain';
+import { answerMessage, answerQuestion, cardTitle, linkedLookup, markSeen, progressOf } from '../../data/localAnswer';
 import { usePersistentStore } from '../../data/persistentStore';
-import { lookupsStore, questionsStore, settingsStore } from '../../data/stores';
+import { lookupsStore, questionsStore, settingsStore, tipsStore } from '../../data/stores';
 import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import CommunityLayout from './CommunityLayout';
@@ -19,28 +20,15 @@ import styles from './QuestionPage.module.css';
 const NODE_IDS = { tabBar: '7:1135', segment: '7:1157', switch: '7:1162' };
 
 type StepState = 'done' | 'now' | 'todo';
-interface Step {
-  state: StepState;
-  title: string;
-  note: string;
-}
-
 const MARKERS: Record<StepState, string> = { done: stepDone, now: stepNow, todo: stepTodo };
 
-function progressSteps(question: Question, sentNote: string): Step[] {
-  const sent: Step = { state: 'done', title: 'Question sent', note: sentNote };
-  if (question.status === 'Answered') {
-    return [
-      sent,
-      { state: 'done', title: 'Answered by a local', note: 'checked for tone, not just the word' },
-      { state: 'done', title: 'Answer written into the entry', note: 'saved on this device' },
-    ];
-  }
-  return [
-    sent,
-    { state: 'now', title: '2 locals reviewing', note: 'usually answered within a day' },
-    { state: 'todo', title: 'Answer written into the entry', note: 'you’ll get a notification' },
-  ];
+/** One line under each step: only what this device knows. */
+function stepNote(key: string, question: Question, sentNote: string): string {
+  if (key === 'posted') return sentNote;
+  if (key === 'seen') return question.seenAt ? 'opened by a local in Answer as a local' : 'shown to locals who answer near this place';
+  if (key === 'answered') return isAnswered(question) ? `by ${question.answeredBy ?? 'a local'}` : 'answers arrive here';
+  const card = question.cardId ? cardTitle(question.cardId) : undefined;
+  return card ? `as a local tip on your ${card} card` : 'to your phrase in Moments';
 }
 
 export default function QuestionPage() {
@@ -48,39 +36,40 @@ export default function QuestionPage() {
   const navigate = useNavigate();
   const [questions, setQuestions] = usePersistentStore(questionsStore);
   const [settings] = usePersistentStore(settingsStore);
+  const [lookups] = usePersistentStore(lookupsStore);
+  const [tips] = usePersistentStore(tipsStore);
   const [dialog, setDialog] = useState<'context' | 'answer' | null>(null);
   useSpan('activity', 'Community question › add context', dialog === 'context');
   useSpan('activity', 'Community question › answer', dialog === 'answer');
 
   const index = questions.findIndex((item) => item.id === questionId);
+  const current = index === -1 ? undefined : questions[index];
+  // A local opening a waiting question has seen it (Answer as a local on this device).
+  useEffect(() => {
+    if (current && settings.local && current.status === 'Pending') {
+      questionsStore.set((prev) => prev.map((item) => (item.id === current.id ? markSeen(item) : item)));
+    }
+  }, [current, settings.local]);
   if (index === -1) return <Navigate to={paths.community} replace />;
   const question = questions[index];
   const display = displayQuestion(question);
   // An answered question isn't answered again; locals can still add context.
-  const answering = settings.local && question.status !== 'Answered';
+  const answering = settings.local && !isAnswered(question);
+  const card = question.cardId ? cardTitle(question.cardId) : undefined;
+  const phrase = card ? undefined : linkedLookup(question, lookups);
+  const linked = Boolean(card || phrase);
+  const tip = tips.find((t) => t.questionId === question.id);
 
   const updateQuestion = (change: (previous: Question) => Question) =>
     setQuestions((prev) => prev.map((item) => (item.id === question.id ? change(item) : item)));
 
-  const handleSave = (message: string) => {
+  const handleSave = (message: string, _context: string, name: string) => {
     if (dialog === 'answer') {
-      updateQuestion((prev) => ({ ...prev, status: 'Answered', answer: message }));
-      // Figma notes: the answer is added to the phrase's entry, i.e. the Moments lookup whose phrase
-      // the question mentions (longest match wins: "can or not" over "can").
-      const text = question.text.toLowerCase();
-      const entry = lookupsStore
-        .get()
-        .filter((lookup) => text.includes(lookup.word.toLowerCase()))
-        .sort((a, b) => b.word.length - a.word.length)[0];
-      const hasEntry = entry !== undefined;
-      if (entry) {
-        lookupsStore.set((prev) =>
-          prev.map((lookup) =>
-            lookup.id === entry.id ? { ...lookup, meaning: message, source: 'Confirmed by a local' } : lookup,
-          ),
-        );
-      }
-      showToast(hasEntry ? 'Answer added to the phrase’s entry' : 'Saved on this device');
+      const result = answerQuestion(question, { text: message, by: name }, lookupsStore.get());
+      updateQuestion(() => result.question);
+      if (result.outcome.kind === 'phrase') lookupsStore.set(result.lookups);
+      if (result.tip) tipsStore.set((prev) => [result.tip!, ...prev]);
+      showToast(answerMessage(result.outcome));
     } else {
       updateQuestion((prev) => ({ ...prev, detail: `${prev.detail}\n${message}` }));
       showToast('Saved on this device');
@@ -101,7 +90,6 @@ export default function QuestionPage() {
     });
   };
 
-  const pending = question.status === 'Pending';
 
   return (
     <CommunityLayout nodeIds={NODE_IDS} onList={false}>
@@ -151,34 +139,44 @@ export default function QuestionPage() {
             Progress
           </h3>
           <ol className={styles.steps} aria-labelledby="question-progress">
-            {progressSteps(question, display.sentNote).map((step) => (
-              <li key={step.title} className={styles[step.state]} aria-current={step.state === 'now' ? 'step' : undefined}>
+            {progressOf(question, linked).map((step) => (
+              <li key={step.key} className={styles[step.state]} aria-current={step.state === 'now' ? 'step' : undefined}>
                 <img src={MARKERS[step.state]} alt="" className={styles.marker} />
                 <span className={styles.stepText}>
                   <span className={styles.stepTitle}>{step.title}</span>
-                  <span className={styles.stepNote}>{step.note}</span>
+                  <span className={styles.stepNote}>{stepNote(step.key, question, display.sentNote)}</span>
                 </span>
               </li>
             ))}
           </ol>
         </section>
 
-        {pending ? (
-          <div className={styles.reviewers}>
-            <span className={styles.avatars} aria-hidden="true">
-              <span className={styles.avatarM}>M</span>
-              <span className={styles.avatarJ}>J</span>
-            </span>
-            <p className={styles.reviewersNote}>{display.reviewersNote}</p>
-          </div>
-        ) : (
+        {isAnswered(question) ? (
           <section className={styles.section} aria-labelledby="question-answer">
             <h3 id="question-answer" className={styles.label}>
-              Local answer
+              {question.answeredBy && question.answeredBy !== 'A local' ? `${question.answeredBy} · local answer` : 'Local answer'}
             </h3>
             <p className={styles.answer}>{question.answer}</p>
           </section>
+        ) : (
+          <p className={styles.reviewersNote}>
+            {question.areaName
+              ? `Locals who answer near ${question.areaName} will see it.`
+              : 'Locals who switch on Answer as a local will see it.'}
+          </p>
         )}
+
+        <p className={styles.linkLine}>
+          {card
+            ? question.status === 'Added' && tip
+              ? `Added to your ${card} card as a local tip${tip.cited > 0 ? ` · cited in Ask ${tip.cited === 1 ? 'once' : `${tip.cited} times`}` : ''}.`
+              : `Linked to your ${card} card: an answer will be added to it.`
+            : phrase
+              ? question.status === 'Added'
+                ? `Added to “${phrase.word}” in Moments.`
+                : `Linked to “${phrase.word}” in Moments: an answer will be added to it.`
+              : 'Not linked to a card or phrase: the answer stays here.'}
+        </p>
 
         <div className={styles.actions}>
           <button type="button" className={styles.secondary} data-node-id="7:1246" onClick={handleWithdraw}>
@@ -213,6 +211,7 @@ export default function QuestionPage() {
       {dialog && (
         <QuestionDialog
           title={dialog === 'answer' ? 'Answer question' : 'Add more context'}
+          askName={dialog === 'answer'}
           onSave={handleSave}
           onClose={() => setDialog(null)}
         />

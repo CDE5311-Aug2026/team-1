@@ -9,17 +9,15 @@ const LIST: Record<string, Box> = {
   '3:879': [20, 114, 350, 44], // Segment / mode
   '3:891': [20, 208, 350, 100], // Card / Pending
   '3:901': [20, 322, 350, 100], // Card / Answered
-  '3:912': [21, 662, 348, 13], // Privacy note
+  '3:912': [21, 649, 348, 26], // Privacy note: Figma C1's sentence, two lines (was one line at y 662)
   '3:915': [20, 692, 350, 48], // Button / Ask a local
   '3:787': [20, 758, 350, 58], // Tab bar
 };
 const DETAIL: Record<string, Box> = {
   '7:1157': [20, 114, 350, 44], // Segment / mode
   '7:1196': [20, 172, 150, 18], // Back row
-  '7:1200': [20, 204, 350, 506], // Card / Pending — expanded
-  '7:1246': [37, 657, 120, 36], // Withdraw
-  '7:1248': [167, 657, 186, 36], // Add more context
-  '7:1250': [20, 724, 350, 4], // Pager
+  // The card itself (7:1200), its buttons (7:1246, 7:1248) and the pager (7:1250) moved down: the card now has the
+  // four steps Posted → Seen → Answered → Added and a line saying what the answer is linked to (PRD v3 §6, Figma C2).
   '7:1135': [20, 758, 350, 58], // Tab bar
 };
 
@@ -58,7 +56,7 @@ test('Community anonymous question, context, answer and withdrawal work', async 
   await page.goto(paths.community);
   await page.getByRole('button', { name: 'Ask a local', exact: true }).click();
   await page.getByRole('dialog').getByLabel('Your message').fill('Is chope polite?');
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await page.getByRole('button', { name: 'Post to locals', exact: true }).click();
 
   await page.getByRole('link', { name: 'Open question Is chope polite?', exact: true }).click();
   await page.getByRole('button', { name: 'Add more context', exact: true }).click();

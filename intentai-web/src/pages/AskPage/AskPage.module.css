@@ -85,7 +85,94 @@
   inset: -5px;
 }
 
+/* ---------- Asking about ---------- */
+
+.subjectBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.25rem 0 0.5rem;
+  border-bottom: 1px solid var(--ask-rule);
+}
+
+.subjectLabel {
+  font-size: 0.75rem;
+  color: var(--ask-muted);
+  white-space: nowrap;
+}
+
+.subjectSelect {
+  min-width: 0;
+  max-width: 12rem;
+  height: 2rem;
+  padding: 0 1.75rem 0 0.75rem;
+  border: 1px solid var(--ask-line);
+  border-radius: 1rem;
+  background: var(--surface)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235f5b54' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right 0.625rem center;
+  appearance: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ask-ink);
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.cardCount {
+  margin-left: auto;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-chip);
+  background: var(--ask-orange-badge);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #8a3a0c;
+  white-space: nowrap;
+}
+
 /* ---------- Chat ---------- */
+
+.exchange {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  scroll-margin-top: 0.5rem;
+}
+
+.aside {
+  color: var(--ask-muted);
+  font-size: 0.8125rem;
+}
+
+.aiBubble p + p.aside {
+  margin-top: 0.5rem;
+}
+
+.aiMessageWide {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.aiRow:has(.aiMessageWide) {
+  align-self: stretch;
+}
+
+.questionTag {
+  padding: 0.1875rem 0.5rem;
+  border: 1px solid var(--ask-line);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  font-size: 0.6875rem;
+  color: var(--ask-chip-text);
+}
+
 
 .chat {
   flex: 1 1 0;
@@ -188,6 +275,7 @@
   border: 0;
   border-radius: 50%;
   background: none;
+  color: var(--ask-muted);
   cursor: pointer;
 }
 
@@ -269,8 +357,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
-  margin: 1.25rem -0.4375rem 0; /* y=627, x=9, 371px wide */
-  padding: 0.625rem 1rem 0.25rem;
+  margin: 0.25rem -0.4375rem 0.5rem; /* x=9, 371px wide */
+  padding: 0.5rem 0 0;
   border-top: 1px solid var(--ask-rule);
   /* v2: on the paper like the input bar below it; a surface band here read as a stray strip. */
   background: transparent;
@@ -304,6 +392,8 @@
 }
 
 .disclaimer {
+  flex-shrink: 0;
+  padding-top: 0.375rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -426,4 +516,10 @@
   .inputBar {
     margin-inline: 0;
   }
+}
+
+.phraseChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }

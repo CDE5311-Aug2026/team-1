@@ -59,7 +59,7 @@ export default function MomentsPage() {
   };
 
   const notSure = (lookup: Lookup) => {
-    const handoff: CommunityHandoff = { askLocal: `What does “${lookup.word}” mean here?` };
+    const handoff: CommunityHandoff = { askLocal: `What does “${lookup.word}” mean here?`, link: { lookupId: lookup.id, from: 'moments' } };
     navigate(paths.community, { state: handoff });
   };
 

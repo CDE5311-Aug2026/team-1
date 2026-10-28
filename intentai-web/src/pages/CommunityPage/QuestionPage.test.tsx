@@ -2,7 +2,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
 import { newQuestion } from '../../data/domain';
-import { lookupsStore, questionsStore, settingsStore } from '../../data/stores';
+import { lookupsStore, questionsStore, settingsStore, tipsStore } from '../../data/stores';
 import { paths } from '../../routes';
 import { renderCommunity } from './testUtils';
 
@@ -19,11 +19,13 @@ test('shows the pending question with what I wrote and its progress', () => {
   expect(screen.getByText(/after the manager gave me extra forms/i)).toBeInTheDocument();
   const progress = screen.getByRole('list', { name: 'Progress' });
   expect(within(progress).getAllByRole('listitem').map((item) => item.textContent)).toEqual([
-    'Question sent8:55, shared anonymously',
-    '2 locals reviewingusually answered within a day',
-    'Answer written into the entryyou’ll get a notification',
+    'Posted8:55, shared anonymously',
+    'Seen by a localshown to locals who answer near this place',
+    'Answeredanswers arrive here',
+    'Added to your phraseto your phrase in Moments',
   ]);
-  expect(screen.getByText('Locals who speak Hokkien & Singlish are looking at the tone, not just the word.')).toBeInTheDocument();
+  expect(screen.getByText('Locals who switch on Answer as a local will see it.')).toBeInTheDocument();
+  expect(screen.getByText('Linked to “sabo” in Moments: an answer will be added to it.')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Your questions · 1 of 2' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Withdraw' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Add more context' })).toBeInTheDocument();
@@ -32,10 +34,16 @@ test('shows the pending question with what I wrote and its progress', () => {
 test('an answered question shows the local answer and finished progress', () => {
   renderCommunity(paths.question('paiseh'));
 
-  expect(screen.getByText('Answered')).toBeInTheDocument();
+  // the status pill and the progress step
+  expect(screen.getAllByText('Answered')).toHaveLength(2);
   expect(screen.getByText('A friendly apology for inconveniencing someone: sorry to trouble you.')).toBeInTheDocument();
-  expect(screen.getByText('Answer written into the entry')).toBeInTheDocument();
-  expect(screen.queryByText(/locals reviewing/i)).not.toBeInTheDocument();
+  const progress = screen.getByRole('list', { name: 'Progress' });
+  expect(within(progress).getAllByRole('listitem').map((item) => item.querySelector('span span')?.textContent)).toEqual([
+    'Posted',
+    'Seen by a local',
+    'Answered',
+  ]);
+  expect(screen.getByText('Not linked to a card or phrase: the answer stays here.')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Your questions · 2 of 2' })).toBeInTheDocument();
 });
 
@@ -88,14 +96,14 @@ test('as a local, answering marks the question answered and writes it into the p
   await userEvent.type(within(dialog).getByLabelText('Your message'), 'Just teasing, not rude.');
   await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
 
-  expect(screen.getByText('Answered')).toBeInTheDocument();
+  expect(screen.getByText('Added')).toBeInTheDocument();
   expect(screen.getByText('Just teasing, not rude.')).toBeInTheDocument();
-  expect(questionsStore.get()[0]).toMatchObject({ status: 'Answered', answer: 'Just teasing, not rude.' });
+  expect(questionsStore.get()[0]).toMatchObject({ status: 'Added', answer: 'Just teasing, not rude.', answeredBy: 'A local' });
   expect(lookupsStore.get().find((lookup) => lookup.id === 'sabo')).toMatchObject({
     meaning: 'Just teasing, not rude.',
     source: 'Confirmed by a local',
   });
-  expect(screen.getByRole('status')).toHaveTextContent('Answer added to the phrase’s entry');
+  expect(screen.getByRole('status')).toHaveTextContent('Answer added to “sabo” in Moments');
 });
 
 test('an answer to a question I created finds the phrase entry by the phrase, not the id', async () => {
@@ -129,4 +137,51 @@ test('Withdraw removes the question, returns to the list, and Undo brings it bac
 
   expect(questionsStore.get().map((question) => question.id)).toEqual(['sabo', 'paiseh']);
   expect(screen.getByRole('link', { name: /open question “sabo”/i })).toBeInTheDocument();
+});
+
+test('a local opening a waiting question marks it seen', () => {
+  settingsStore.set((prev) => ({ ...prev, local: true }));
+  renderCommunity(paths.question('sabo'));
+  expect(questionsStore.get()[0]).toMatchObject({ status: 'Seen', seenAt: expect.any(Number) });
+});
+
+test('answering a question from an Ask card adds the answer to that card as a tip', async () => {
+  const q = newQuestion('When is the queue shortest at Tian Tian?', 'near Chinatown', {
+    cardId: 'chicken-rice', areaName: 'Chinatown', topic: 'food', from: 'ask',
+  });
+  questionsStore.set([q]);
+  tipsStore.set([]);
+  settingsStore.set((prev) => ({ ...prev, local: true }));
+  renderCommunity(paths.question(q.id));
+  expect(screen.getByText('Linked to your Hainanese chicken rice card: an answer will be added to it.')).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole('button', { name: 'Answer question' }));
+  const dialog = screen.getByRole('dialog', { name: 'Answer question' });
+  await userEvent.type(within(dialog).getByLabelText('Your message'), 'Weekday mornings, before 11.');
+  await userEvent.type(within(dialog).getByLabelText(/Name shown with your answer/), 'Mei');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+  expect(screen.getByRole('status')).toHaveTextContent('Answer added to the Hainanese chicken rice card as a local tip');
+  expect(screen.getByText('Mei · local answer')).toBeInTheDocument();
+  expect(screen.getByText('Added to your Hainanese chicken rice card as a local tip.')).toBeInTheDocument();
+  expect(tipsStore.get()).toEqual([
+    expect.objectContaining({ cardId: 'chicken-rice', questionId: q.id, text: 'Weekday mornings, before 11.', by: 'Mei', cited: 0 }),
+  ]);
+});
+
+test('answering a question with no link saves only the answer, and says so', async () => {
+  const q = newQuestion('Where can I buy a SIM card near Chinatown?', 'near Chinatown', { areaName: 'Chinatown' });
+  questionsStore.set([q]);
+  tipsStore.set([]);
+  settingsStore.set((prev) => ({ ...prev, local: true }));
+  renderCommunity(paths.question(q.id));
+
+  await userEvent.click(screen.getByRole('button', { name: 'Answer question' }));
+  const dialog = screen.getByRole('dialog', { name: 'Answer question' });
+  await userEvent.type(within(dialog).getByLabelText('Your message'), 'Any 7-Eleven.');
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+  expect(screen.getByRole('status')).toHaveTextContent('Answer saved. It isn’t linked to a card or phrase.');
+  expect(questionsStore.get()[0].status).toBe('Answered');
+  expect(tipsStore.get()).toEqual([]);
 });

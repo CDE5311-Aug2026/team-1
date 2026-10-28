@@ -89,15 +89,11 @@ test('[Onboarding + Today + My Space] finishing onboarding with the top 3 opens 
 });
 
 test('Nearby "Ask IntentAI" asks about the shown phrase on arrival, once', async () => {
-  const plain = renderApp('/ask');
-  const seeded = screen.getAllByRole('article').length;
-  plain.unmount();
-
   renderApp('/nearby/phrases');
   await userEvent.click(screen.getByRole('button', { name: 'Ask IntentAI' }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/ask$/);
   expect(screen.getByRole('article', { name: /IntentAI answer: What does chope mean\?/ })).toBeInTheDocument();
-  expect(screen.getAllByRole('article')).toHaveLength(seeded + 1);
+  expect(screen.getAllByRole('article', { name: /^IntentAI answer/ })).toHaveLength(1);
 });
 
 test('Nearby "Ask IntentAI" carries the place as an Ask context the answer understands', async () => {

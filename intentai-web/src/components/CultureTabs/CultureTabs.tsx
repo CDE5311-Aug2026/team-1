@@ -3,6 +3,7 @@ import { ARTICLE_IMAGES } from '../../data/articleImages';
 import { articlesFor, categoryById, type Article, type CategoryId } from '../../data/culture';
 import { ARTICLE_VIDEOS, type Video } from '../../data/videos';
 import { ARTICLE_LINKS } from '../../data/cultureLinks';
+import { markCardOpened } from '../../data/openedCards';
 import NearbyLinks from '../NearbyLinks/NearbyLinks';
 import SourceLine from '../SourceLine/SourceLine';
 import { useSpan } from '../../usage/useSpan';
@@ -145,7 +146,10 @@ function ArticleCard({ article, playing, onPlay }: { article: Article; playing: 
           className={styles.more}
           aria-expanded={open}
           aria-controls={deeperId}
-          onClick={() => setOpen((o) => !o)}
+          onClick={() => {
+            if (!open) markCardOpened(article.id);
+            setOpen((o) => !o);
+          }}
         >
           {open ? 'Show less' : 'Read more'}
         </button>

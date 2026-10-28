@@ -3,13 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import chevronRight from '../../assets/community/chevron-right.svg';
 import lockIcon from '../../assets/community/lock.svg';
 import plusIcon from '../../assets/community/plus.svg';
-import { newQuestion } from '../../data/domain';
+import { newQuestion, type QuestionLink } from '../../data/domain';
 import { usePersistentStore } from '../../data/persistentStore';
 import { questionsStore, settingsStore } from '../../data/stores';
 import { showToast } from '../../hooks/useToast';
 import { paths, type CommunityHandoff } from '../../routes';
 import CommunityLayout from './CommunityLayout';
-import QuestionDialog from './QuestionDialog';
+import AskLocalSheet, { PRIVACY_LINE } from './AskLocalSheet';
 import StatusPill from './StatusPill';
 import { statusNote } from './questionDisplay';
 import { useSpan } from '../../usage/useSpan';
@@ -29,15 +29,15 @@ export default function CommunityPage() {
   const [questions, setQuestions] = usePersistentStore(questionsStore);
   const [settings] = usePersistentStore(settingsStore);
   // Moments "Not sure" arrives with a drafted question for the "Ask a local" dialog.
-  const draft = (useLocation().state as CommunityHandoff | null)?.askLocal;
-  const [asking, setAsking] = useState(draft !== undefined);
+  const handoff = useLocation().state as CommunityHandoff | null;
+  const [asking, setAsking] = useState(handoff?.askLocal !== undefined);
   useSpan('activity', 'Community › ask a local', asking);
 
-  const handleAsk = (text: string, context: string) => {
-    const question = newQuestion(text, context);
+  const handleAsk = (text: string, context: string, link: QuestionLink) => {
+    const question = newQuestion(text, context, { from: 'community', ...link });
     setQuestions((prev) => [question, ...prev]);
     setAsking(false);
-    showToast('Saved on this device');
+    showToast('Posted. Answers arrive in My questions.');
   };
 
   return (
@@ -62,6 +62,7 @@ export default function CommunityPage() {
                   <span className={styles.cardStatus}>
                     <StatusPill status={question.status} />
                     <span className={styles.cardNote}>{statusNote(question)}</span>
+                    {question.sample && <span className={styles.sample}>Sample</span>}
                   </span>
                 </span>
                 <img src={chevronRight} alt="" className={styles.chevron} />
@@ -75,7 +76,7 @@ export default function CommunityPage() {
       <div className={styles.footer}>
         <p className={styles.privacy} data-node-id="3:912">
           <img src={lockIcon} alt="" className={styles.lock} />
-          Your questions are shown to locals without your name or profile.
+          {PRIVACY_LINE}
         </p>
         <button type="button" className={styles.askButton} data-node-id="3:915" onClick={() => setAsking(true)}>
           <img src={plusIcon} alt="" className={styles.plus} />
@@ -84,7 +85,13 @@ export default function CommunityPage() {
       </div>
 
       {asking && (
-        <QuestionDialog title="Ask a local" askContext defaultMessage={draft} onSave={handleAsk} onClose={() => setAsking(false)} />
+        <AskLocalSheet
+          defaultMessage={handoff?.askLocal}
+          defaultContext={handoff?.context}
+          link={handoff?.link}
+          onPost={handleAsk}
+          onClose={() => setAsking(false)}
+        />
       )}
     </CommunityLayout>
   );

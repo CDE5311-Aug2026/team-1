@@ -131,6 +131,7 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
                     const handoff: AskHandoff = {
                       prompt: `What does ${tip.headsUp.title.toLowerCase()} mean?`,
                       context: askContextForPlace(place.languageTip!.context),
+                      area: place.areaId,
                     };
                     navigate(paths.ask, { state: handoff });
                   }}

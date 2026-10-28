@@ -12,12 +12,13 @@ test('lists my questions with their status, the count and the privacy note', () 
   expect(screen.getByRole('heading', { level: 2, name: /your questions/i })).toHaveTextContent('2');
   const sabo = screen.getByRole('link', { name: /open question “sabo” — did my colleague insult me\?/i });
   expect(within(sabo).getByText('Pending')).toBeInTheDocument();
-  expect(within(sabo).getByText('2 locals reviewing')).toBeInTheDocument();
+  expect(within(sabo).getByText('waiting for a local')).toBeInTheDocument();
+  expect(within(sabo).getByText('Sample')).toBeInTheDocument();
   const paiseh = screen.getByRole('link', { name: /open question “paiseh to trouble you”/i });
   expect(within(paiseh).getByText('Answered')).toBeInTheDocument();
-  expect(within(paiseh).getByText('by a local, now in the entry')).toBeInTheDocument();
+  expect(within(paiseh).getByText('by a local')).toBeInTheDocument();
   expect(screen.getByText('Nothing else pending — you can ask a local from any entry.')).toBeInTheDocument();
-  expect(screen.getByText('Your questions are shown to locals without your name or profile.')).toBeInTheDocument();
+  expect(screen.getByText('Locals see your question and place, never your name or location.')).toBeInTheDocument();
 });
 
 test('opening a question goes to its detail route', async () => {
@@ -39,10 +40,11 @@ test('Ask a local saves an anonymous question at the top of the list', async () 
 
   await userEvent.click(screen.getByRole('button', { name: 'Ask a local' }));
   const dialog = screen.getByRole('dialog', { name: 'Ask a local' });
-  expect(within(dialog).getByText(/your name is not attached/i)).toBeInTheDocument();
+  expect(within(dialog).getByText(/never your name or location/i)).toBeInTheDocument();
+  expect(within(dialog).getByText('Not linked to a card. A local’s answer will stay in My questions.')).toBeInTheDocument();
   await userEvent.type(within(dialog).getByLabelText('Your message'), 'Is chope polite?');
   await userEvent.type(within(dialog).getByLabelText('Where did you hear it?'), 'Hawker centre · lunch');
-  await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Post to locals' }));
 
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   const links = screen.getAllByRole('link', { name: /^open question/i });
@@ -51,15 +53,15 @@ test('Ask a local saves an anonymous question at the top of the list', async () 
   expect(within(links[0]).getByText('Hawker centre · lunch')).toBeInTheDocument();
   expect(within(links[0]).getByText('Pending')).toBeInTheDocument();
   expect(screen.getByRole('heading', { level: 2, name: /your questions/i })).toHaveTextContent('3');
-  expect(questionsStore.get()[0]).toMatchObject({ text: 'Is chope polite?', status: 'Pending' });
-  expect(screen.getByRole('status')).toHaveTextContent('Saved on this device');
+  expect(questionsStore.get()[0]).toMatchObject({ text: 'Is chope polite?', status: 'Pending', from: 'community', topic: 'other' });
+  expect(screen.getByRole('status')).toHaveTextContent('Posted. Answers arrive in My questions.');
 });
 
 test('an empty message is not saved', async () => {
   renderCommunity(paths.community);
 
   await userEvent.click(screen.getByRole('button', { name: 'Ask a local' }));
-  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Post to locals' }));
 
   expect(screen.getByRole('dialog')).toBeInTheDocument();
   expect(questionsStore.get()).toHaveLength(2);

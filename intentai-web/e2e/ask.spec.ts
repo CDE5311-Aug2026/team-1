@@ -4,18 +4,12 @@ import { paths } from '../src/routes';
 const TOL = 3; // px, decision D2
 type Box = [x: number, y: number, width: number, height: number];
 
-// Figma frame 2:429 (Ask Feature), 390×844, boxes from get_metadata relative to the frame.
+// Figma frame 2:429 (Ask Feature), 390×844, boxes from get_metadata relative to the frame. The chat itself now follows
+// docs/design-boards/ask-board.png (Ask from cards), so only the frame around it is still checked against Figma.
 const ASK: Record<string, Box> = {
   '71:8': [9, 49, 58, 58], // Mascot
   '2:722': [291, 57, 34, 34], // New chat
   '2:716': [335, 57, 34, 34], // Chat options
-  '2:304': [16, 122, 320, 60], // Greeting
-  '2:312': [16, 194, 358, 193], // User message + context
-  '2:316': [148, 280, 190, 107], // Context selector
-  '2:321': [16, 399, 320, 164], // AI answer + actions
-  '2:339': [9, 627, 371, 67], // Composer
-  '2:341': [25, 638, 65, 29], // Report chip
-  '2:347': [9, 694, 371, 45], // Input
   '2:545': [20, 758, 350, 58], // Tab bar
 };
 
@@ -52,11 +46,12 @@ test('Ask context, query and report work, and the phrase is kept as a lookup', a
 
   await page.getByRole('textbox', { name: /ask intentai/i }).fill('What does paiseh mean?');
   await page.getByRole('button', { name: 'Send', exact: true }).click();
+  const answer = page.getByRole('article', { name: /IntentAI answer: What does paiseh mean/ });
   await expect(page.getByText(/is Singlish for feeling sorry or embarrassed/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'context: Office · work' })).toBeVisible();
   await expect(page.getByText(/Your colleague is apologising/)).toBeVisible();
 
-  await page.getByRole('button', { name: 'Report', exact: true }).click();
+  await answer.getByRole('button', { name: 'Report this answer' }).click();
   const reportDialog = page.getByRole('dialog', { name: 'Report this answer' });
   await reportDialog.getByLabel('What seems wrong?').fill('Please check this wording.');
   await reportDialog.getByRole('button', { name: 'Save', exact: true }).click();
@@ -70,10 +65,16 @@ test('Ask context, query and report work, and the phrase is kept as a lookup', a
   expect(stored.reports).toMatch(/Please check this wording\./);
 });
 
-test('More Singlish opens Today and Personalise setup opens Welcome', async ({ page }) => {
-  await page.getByRole('button', { name: 'More Singlish', exact: true }).click();
-  await expect(page).toHaveURL(/\/$/);
-  await page.goto(paths.ask);
+test('Ask from cards: a suggested question answers from its card, and Open shows the card', async ({ page }) => {
+  await expect(page.getByLabel('Asking about')).toHaveValue('sg-chinatown');
+  await page.getByRole('button', { name: /What is the story of Sri Mariamman Temple\?/ }).click();
+  const answer = page.getByRole('article', { name: /IntentAI answer: What is the story of Sri Mariamman Temple/ });
+  await expect(answer).toContainText('Source · Chinatown · Monument card');
+  await answer.getByRole('button', { name: 'Open the Sri Mariamman Temple card' }).click();
+  await expect(page.getByRole('dialog', { name: 'Sri Mariamman Temple' })).toContainText('Naraina Pillai');
+});
+
+test('Personalise setup opens Welcome', async ({ page }) => {
   await page.getByRole('button', { name: 'Chat options' }).click();
   await page.getByRole('button', { name: 'Personalise setup' }).click();
   await expect(page).toHaveURL(/\/onboarding$/);
