@@ -81,6 +81,8 @@ export default function HomeMap(props: HomeMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const appliedSeq = useRef(props.command.seq);
   const appliedInset = useRef(props.bottomInset);
+  // True from our stop() until our own move settles on props.zoom; zooms meanwhile are not the user's.
+  const ourMove = useRef(false);
   // Effects read the newest props through this ref, so they can run on narrow dependencies.
   const latest = useRef({ ...props, reduced });
   latest.current = { ...props, reduced };
@@ -120,11 +122,21 @@ export default function HomeMap(props: HomeMapProps) {
     }).addTo(map);
     you.getElement()?.setAttribute('aria-hidden', 'true');
 
-    // Our own moves always land on props.zoom; any other zoom came from the user.
+    // Leaflet's stop() snaps a running flight to an intermediate zoom and fires zoomend; that and our
+    // own moves are not user zooms. The flag clears once the view settles on props.zoom.
+    const settle = () => {
+      if (ourMove.current && map.getZoom() === latest.current.zoom) ourMove.current = false;
+    };
     map.on('zoomend', () => {
+      if (ourMove.current) return settle();
       const z = map.getZoom();
       if (z !== latest.current.zoom) latest.current.onUserZoom(z);
     });
+    map.on('moveend', settle);
+
+    // Keep the centre on resize: with a bottom inset, that keeps the target centred in the visible area.
+    const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => map.invalidateSize({ pan: true }));
+    resize?.observe(el);
 
     // One activation path for every pin: the pin's own <button>.
     const onClick = (e: MouseEvent) => {
@@ -136,6 +148,7 @@ export default function HomeMap(props: HomeMapProps) {
 
     return () => {
       el.removeEventListener('click', onClick);
+      resize?.disconnect();
       map.remove();
       mapRef.current = null;
     };
@@ -187,6 +200,7 @@ export default function HomeMap(props: HomeMapProps) {
     const centreFor = (t: LatLng, z: number) => offsetCentre(project, unproject, t, z, bottomInset);
     const anim: L.ZoomPanOptions = still ? { animate: false } : { animate: true, duration: PAN_MS / 1000, easeLinearity: 0.25 };
 
+    ourMove.current = true;
     map.stop();
     if (batched) {
       // Intermediate commands were never seen: go to the absolute state.
@@ -196,6 +210,8 @@ export default function HomeMap(props: HomeMapProps) {
     } else if (command.kind === 'focus') {
       const c = centreFor(command.target, zoom);
       if (command.fly) map.flyTo(c, zoom, anim);
+      // stop() may have left an interrupted flight's zoom; a plain pan would keep it.
+      else if (map.getZoom() !== zoom) map.setView(c, zoom, anim);
       else map.panTo(c, anim);
     } else {
       const anchor = visibleCentre(project, unproject, map.getCenter(), map.getZoom(), bottomInset);
@@ -203,5 +219,5 @@ export default function HomeMap(props: HomeMapProps) {
     }
   }, [props.command.seq]);
 
-  return <div ref={containerRef} className={styles.map} />;
+  return <div ref={containerRef} className={styles.map} role="region" aria-label="Map of places near you" />;
 }

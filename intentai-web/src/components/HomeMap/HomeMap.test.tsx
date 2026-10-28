@@ -4,6 +4,7 @@ import type { ComponentProps } from 'react';
 import { HOME_BASE, homePlace, visiblePins } from '../../data/homePlaces';
 import type { LatLng } from '../../features/nearby/types';
 import { setReducedMotion } from '../../test/media';
+import { triggerResize } from '../../test/resizeObserver';
 import HomeMap from './HomeMap';
 import HomeMapFrame from './HomeMapFrame';
 import { offsetCentre, visibleCentre, type MapCommand } from './camera';
@@ -39,6 +40,8 @@ vi.mock('leaflet', () => {
       el,
       options,
       removed: false,
+      /** Test hook: what Leaflet's stop() does to the view (it snaps a running flight's zoom). */
+      onStop: null as null | (() => void),
       project: (ll: { lat: number; lng: number }, z: number) => proj(ll, z),
       unproject: (p: [number, number], z: number) => unproj(p, z),
       getCenter: () => center,
@@ -46,29 +49,45 @@ vi.mock('leaflet', () => {
       getContainer: () => el,
       stop() {
         fake.calls.push(['stop']);
+        m.onStop?.();
         return m;
+      },
+      // Moves end at once (as with animate: false), firing zoomend (if the zoom changed) then moveend.
+      end(prevZoom: number) {
+        if (zoom !== prevZoom) m.fire('zoomend');
+        m.fire('moveend');
       },
       setView(c: { lat: number; lng: number }, z: number, opts?: unknown) {
         fake.calls.push(['setView', c, z, opts]);
+        const z0 = zoom;
         center = c;
         zoom = z;
+        m.end(z0);
         return m;
       },
       flyTo(c: { lat: number; lng: number }, z: number, opts?: unknown) {
         fake.calls.push(['flyTo', c, z, opts]);
+        const z0 = zoom;
         center = c;
         zoom = z;
+        m.end(z0);
         return m;
       },
       panTo(c: { lat: number; lng: number }, opts?: unknown) {
         fake.calls.push(['panTo', c, opts]);
         center = c;
+        m.end(zoom);
         return m;
       },
       panBy(off: [number, number], opts?: unknown) {
         fake.calls.push(['panBy', off, opts]);
         const p = proj(center, zoom);
         center = unproj([p.x + off[0], p.y + off[1]], zoom);
+        m.end(zoom);
+        return m;
+      },
+      invalidateSize(opts?: unknown) {
+        fake.calls.push(['invalidateSize', opts]);
         return m;
       },
       /** Test helper: a manual pan/zoom by the user (not recorded as a camera call). */
@@ -333,6 +352,47 @@ describe('HomeMap', () => {
     lastMap().userMove(BERLIN.point, 18);
     lastMap().fire('zoomend');
     expect(onUserZoom).toHaveBeenCalledWith(18);
+  });
+
+  it('a flight interrupted by stop() is not reported as a user zoom, and the next pan lands on props.zoom', () => {
+    const onUserZoom = vi.fn();
+    const { rerender } = render(<HomeMap {...baseProps({ onUserZoom })} />);
+    rerender(<HomeMap {...baseProps({ onUserZoom, command: zoomCmd(1, 1), zoom: 17 })} />);
+    rerender(<HomeMap {...baseProps({ onUserZoom, zoom: 17, command: focus(2, CHINATOWN.point, true), lastFocus: CHINATOWN.point })} />);
+    const map = lastMap();
+    // Mid-flight: Leaflet is zoomed out to 14.6; its stop() snaps to 15 and fires zoomend + moveend.
+    map.userMove({ lat: 1.29, lng: 103.81 }, 14.6);
+    map.onStop = () => {
+      map.userMove(map.getCenter(), 15);
+      map.fire('zoomend');
+      map.fire('moveend');
+    };
+    fake.calls.length = 0;
+    rerender(<HomeMap {...baseProps({ onUserZoom, zoom: 17, command: focus(3, HAW_PAR.point, false), lastFocus: HAW_PAR.point })} />);
+    expect(onUserZoom).not.toHaveBeenCalled();
+    expect(map.getZoom()).toBe(17);
+    const m = moves();
+    expect(m).toHaveLength(1);
+    expect(m[0][0]).toBe('setView');
+    expectLatLng(m[0][1], oc(HAW_PAR.point, 17));
+    expect(m[0][2]).toBe(17);
+    // Once our move has settled, a real user zoom is reported again.
+    map.onStop = null;
+    map.userMove(map.getCenter(), 16);
+    map.fire('zoomend');
+    expect(onUserZoom).toHaveBeenCalledWith(16);
+  });
+
+  it('refreshes its size when the container resizes, keeping the centre', () => {
+    const { container } = render(<HomeMap {...baseProps()} />);
+    fake.calls.length = 0;
+    triggerResize(container.firstElementChild!, { width: 360, height: 520 });
+    expect(fake.calls).toEqual([['invalidateSize', { pan: true }]]);
+  });
+
+  it('names the map region', () => {
+    render(<HomeMap {...baseProps()} />);
+    expect(screen.getByRole('region', { name: 'Map of places near you' })).toBeInTheDocument();
   });
 
   it('each pin is one button named by the place; the marker element is not focusable', () => {
