@@ -61,12 +61,13 @@ test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
   }
 });
 
-test('Learn more opens the holiday detail, and the back link returns to Today', async ({ page }) => {
+test('the hero opens the holiday detail, and the back link returns to Home', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Learn more', exact: true }).click();
+  await page.getByRole('button', { name: 'Deepavali long weekend starts today', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Deepavali' })).toBeVisible();
   await page.getByRole('button', { name: 'Back to Today', exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeVisible();
 });
 
 test.describe('first visit', () => {

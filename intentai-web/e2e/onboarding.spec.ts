@@ -92,7 +92,8 @@ test.describe('first run', () => {
     await expect(page).toHaveURL(/\/$/);
     await page.reload();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeVisible();
     const profile = await page.evaluate(() => JSON.parse(localStorage.getItem('intentai:v1:profile') ?? '{}'));
     expect(profile).toMatchObject({ time: 'Less than 3 months', level: 'Experienced', topics: ['Work', 'Food', 'Daily life'] });
   });

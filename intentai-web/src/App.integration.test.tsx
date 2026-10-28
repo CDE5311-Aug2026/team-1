@@ -23,16 +23,16 @@ function renderApp(path: string) {
   );
 }
 
-test('Today’s Near you card opens Nearby Explore with location off or on (PRD §6)', async () => {
+test('Home’s Near you pill opens Nearby Explore with location off or on (PRD §6)', async () => {
   const first = renderApp('/');
-  await userEvent.click(screen.getByRole('button', { name: /near you/i }));
+  await userEvent.click(screen.getByRole('button', { name: /^near you/i }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby$/);
   expect(await screen.findByRole('button', { name: /All of Singapore/ }, { timeout: 5000 })).toBeInTheDocument();
   first.unmount();
 
   settingsStore.set({ ...DEFAULT_SETTINGS, location: true });
   renderApp('/');
-  await userEvent.click(screen.getByRole('button', { name: /near you/i }));
+  await userEvent.click(screen.getByRole('button', { name: /^near you/i }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/nearby$/);
 });
 
@@ -82,7 +82,8 @@ test('[Onboarding + Today + My Space] finishing onboarding with the top 3 opens 
   }
   await user.click(screen.getByRole('button', { name: /start learning/i }));
   await user.click(screen.getByRole('button', { name: 'Default' }));
-  expect(screen.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
   first.unmount();
   renderApp('/my-space');
   expect(screen.getByText(/1 – 3 years/)).toBeInTheDocument();
@@ -120,7 +121,7 @@ test('[Today + streak] opening the app does not add a day; reading the holiday d
   streakStore.set({ date: yesterday, count: 2 });
   renderApp('/');
   expect(screen.getByLabelText('2 day streak')).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Learn more' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Deepavali long weekend starts today' }));
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/holidays\/deepavali$/);
   expect(streakStore.get()).toEqual({ date: todayKey(), count: 3 });
 });

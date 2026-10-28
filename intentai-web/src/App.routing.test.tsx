@@ -4,13 +4,14 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, test } from 'vitest';
 import App from './App';
 
-test('default route shows Today with the greeting title', () => {
+test('default route shows Home with the greeting and the holiday title', () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
       <App />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
 });
 
 test('clicking the Ask tab navigates to the Ask page', async () => {
@@ -29,5 +30,5 @@ test('an unknown route redirects to Today instead of rendering blank', () => {
       <App />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
 });

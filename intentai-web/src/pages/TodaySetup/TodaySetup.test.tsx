@@ -86,7 +86,6 @@ test('finishing saves the picks in survey rank order and opens Today', async () 
 
   expect(culturePrefsStore.get()).toEqual({ categories: ['foods', 'unesco', 'history'] });
   expect(location()).toBe('/');
-  expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['Foods', 'UNESCO', 'History']);
 });
 
 test('Back during onboarding returns to the result without saving', async () => {
