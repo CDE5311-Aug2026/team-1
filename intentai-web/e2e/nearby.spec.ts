@@ -64,8 +64,8 @@ test('Place list matches Figma frame geometry at 390x844', async ({ page }) => {
 // Port of v0 "Nearby manual place selection" — now reached from Explore → "Phrases for a setting".
 test('Nearby manual phrase-setting selection works', async ({ page }) => {
   await open(page, paths.today);
-  // The Home map's search pill; the hero's anniversary row also mentions "Near you".
-  await page.getByRole('button', { name: /^near you/i }).click();
+  // The Home map's "places to explore" chip.
+  await page.getByRole('button', { name: /places to explore$/ }).click();
   await expect(page).toHaveURL(/\/nearby$/); // Explore opens even with location off
   // the sheet's first row: the phrases for the picked setting; Change leads to the nine settings
   await page.getByRole('link', { name: /Local phrases/ }).click();

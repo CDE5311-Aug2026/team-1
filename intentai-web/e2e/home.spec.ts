@@ -106,7 +106,7 @@ test('swiping to card 2 selects Chinatown; Locate goes back to the home base', a
   await expect(selectedPin(page)).toHaveAttribute('data-place-id', 'chinatown');
   await expect.poll(() => pinOverCarousel(page)).toBeLessThan(0);
 
-  await page.getByRole('button', { name: 'Show my home base' }).click();
+  await page.getByRole('button', { name: 'Show my location' }).click();
   await expect(card(page, 'Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
   await expect(pin(page, 'chinatown')).toHaveCount(0);
   // The home-base dot is the only hidden marker; it must end up in the map area the cards leave visible.
@@ -181,17 +181,17 @@ test('tapping a pin selects its card; pins work from the keyboard', async ({ pag
       return !!p && !!m && !!c && p.y >= m.y + 60 && p.y + p.height <= c.y && p.x >= m.x && p.x + p.width <= m.x + m.width;
     })
     .toBe(true);
-  await page.getByRole('button', { name: 'Haw Par Villa', exact: true }).click();
+  await page.getByRole('button', { name: 'Show Haw Par Villa on the map' }).click();
   await expect(card(page, 'Haw Par Villa')).toHaveAttribute('aria-current', 'true');
 
-  // Tab from the hero's anniversary row to the search pill passes each pin exactly once.
-  await page.getByRole('button', { name: /The Berlin Wall fell/ }).focus();
+  // Tab from the search button to the "places to explore" chip passes each pin exactly once.
+  await page.getByRole('button', { name: 'Search', exact: true }).focus();
   const reached: string[] = [];
   for (let i = 0; i < 20; i += 1) {
     await page.keyboard.press('Tab');
     const id = await page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset.placeId ?? null);
     if (id) reached.push(id);
-    if (await page.getByRole('button', { name: /^Near you/ }).evaluate((el) => el === document.activeElement)) break;
+    if (await page.getByRole('button', { name: /places to explore$/ }).evaluate((el) => el === document.activeElement)) break;
   }
   expect([...reached].sort()).toEqual([...PINNED].sort());
 
@@ -217,7 +217,7 @@ test('tapping a pin selects its card; pins work from the keyboard', async ({ pag
   await expect(pin(page, holland)).toBeFocused();
   expect(await pinClicks()).toEqual([holland]);
 
-  await page.getByRole('button', { name: 'Haw Par Villa', exact: true }).focus();
+  await page.getByRole('button', { name: 'Show Haw Par Villa on the map' }).focus();
   await page.keyboard.press('Enter');
   await expect(card(page, 'Haw Par Villa')).toHaveAttribute('aria-current', 'true');
 
@@ -225,6 +225,102 @@ test('tapping a pin selects its card; pins work from the keyboard', async ({ pag
   await page.keyboard.press('Space');
   await expect(card(page, 'Holland Village')).toHaveAttribute('aria-current', 'true');
   expect(await pinClicks()).toEqual([holland, 'curated:sg-haw-par-villa', holland]);
+});
+
+/** True when the topmost element at the centre of `locator` is inside it. */
+async function onTop(locator: ReturnType<Page['locator']>): Promise<boolean> {
+  return locator.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return !!hit && el.contains(hit);
+  });
+}
+
+test('the tab bar stays above the carousel when the cards scroll under it', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 700 });
+  await openHome(page);
+  const tabs = page.getByRole('navigation', { name: 'Primary' });
+  // Scroll until the card strip sits behind the tab bar.
+  const bar = await box(page, tabs);
+  const strip = await box(page, carousel(page));
+  await page.evaluate((dy) => window.scrollBy(0, dy), strip.y + strip.height / 2 - (bar.y + bar.height / 2));
+  const b = await box(page, tabs);
+  const c = await box(page, carousel(page));
+  expect(c.y < b.y + b.height && c.y + c.height > b.y, 'cards are under the tab bar').toBe(true);
+  for (const name of ['Home', 'Ask', 'Community', 'Moments', 'My Space']) {
+    expect(await onTop(tabs.getByRole('button', { name, exact: true })), `${name} tab on top`).toBe(true);
+  }
+});
+
+for (const width of [320, 390]) {
+  test(`the selected pin's label is fully visible at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await openHome(page);
+    for (const id of ['berlin-wall-fragments', 'chinatown']) {
+      if (id === 'chinatown') await selectCard(page, 1);
+      await page.getByTestId('nearby-map').evaluate((el) => el.scrollIntoView({ block: 'center' }));
+      const label = selectedPin(page).locator('[data-label]');
+      await expect(selectedPin(page)).toHaveAttribute('data-place-id', id);
+      await expect
+        .poll(async () => {
+          const l = await label.boundingBox();
+          const m = await page.getByTestId('nearby-map').boundingBox();
+          if (!l || !m) return false;
+          const inside = l.x >= m.x && l.x + l.width <= m.x + m.width && l.y >= m.y;
+          return inside && (await onTop(label));
+        })
+        .toBe(true);
+    }
+  });
+}
+
+test('search: the pill and the search button open one dropdown; picking a place selects its card', async ({ page }) => {
+  await openHome(page);
+  const pill = page.getByRole('button', { name: 'Change search point' });
+  await pill.click();
+  const field = page.getByRole('textbox', { name: 'Search a place or area' });
+  await expect(field).toBeVisible();
+  await expect(page.getByRole('list', { name: 'PLACES WITH CARDS' }).getByRole('listitem')).toHaveCount(2);
+  // The dropdown is drawn over the map and the cards.
+  for (const name of [/^Berlin Wall Fragments/, /^National University of Singapore/]) {
+    const row = page.getByRole('button', { name });
+    await row.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    expect(await onTop(row)).toBe(true);
+  }
+  await page.keyboard.press('Escape');
+  await expect(field).toBeHidden();
+  await expect(pill).toBeFocused();
+
+  await page.getByRole('button', { name: 'Search', exact: true }).click();
+  await field.fill('pagoda');
+  await page.getByRole('button', { name: /^Chinatown/ }).click();
+  await expect(field).toBeHidden();
+  await expect(card(page, 'Chinatown')).toHaveAttribute('aria-current', 'true');
+  await expect(page.getByTestId('search-point')).toHaveText('Chinatown & Tanjong Pagar');
+  await expect.poll(() => pinOverCarousel(page)).toBeLessThan(0);
+});
+
+test('Open goes to the place page; browser Back brings Home back on that card, at the same scroll', async ({ page }) => {
+  await openHome(page);
+  await selectCard(page, 1);
+  await carousel(page).scrollIntoViewIfNeeded();
+  const y = await page.evaluate(() => window.scrollY);
+  expect(y).toBeGreaterThan(0);
+  await card(page, 'Chinatown').getByRole('button', { name: /^Open/ }).click();
+  await expect(page).toHaveURL(/\/place\/chinatown$/);
+  await page.goBack();
+  await expect(card(page, 'Chinatown')).toHaveAttribute('aria-current', 'true');
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(y - 40);
+});
+
+test('streak chip opens Moments, bell opens Community', async ({ page }) => {
+  await openHome(page);
+  await page.getByRole('link', { name: /day streak\. See your rank and badges$/ }).click();
+  await expect(page).toHaveURL(/\/moments$/);
+  await page.goBack();
+  await page.getByRole('link', { name: 'Notifications: Mei answered your question' }).click();
+  await expect(page).toHaveURL(/\/community$/);
 });
 
 test('when tiles fail: "Map unavailable" + Retry, and Open still navigates', async ({ page }) => {

@@ -18,3 +18,11 @@ test('clicking a tab fires onNavigate with its path', async () => {
   await userEvent.click(screen.getByRole('button', { name: /^ask$/i }));
   expect(onNavigate).toHaveBeenCalledWith('/ask');
 });
+
+test('pop animates the active tab only; off by default', () => {
+  const { rerender } = render(<TabBar active="/" onNavigate={vi.fn()} />);
+  expect(screen.getByRole('button', { name: /home/i })).not.toHaveClass('a-pill');
+  rerender(<TabBar active="/" onNavigate={vi.fn()} pop />);
+  expect(screen.getByRole('button', { name: /home/i })).toHaveClass('a-pill');
+  expect(screen.getByRole('button', { name: /^ask$/i })).not.toHaveClass('a-pill');
+});

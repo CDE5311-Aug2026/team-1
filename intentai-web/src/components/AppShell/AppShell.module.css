@@ -31,6 +31,8 @@
   position: sticky;
   bottom: 1.75rem;
   padding-top: 0.5rem;
+  /* Above anything a page positions (e.g. Home's carousel cards), below the home indicator and toasts. */
+  z-index: 4;
 }
 
 /* Wider screens have no home indicator to clear; stay pinned so short laptop windows still show the tabs. */

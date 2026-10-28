@@ -5,7 +5,7 @@ import { HOME_BASE, homePlace, visiblePins } from '../../data/homePlaces';
 import type { LatLng } from '../../features/nearby/types';
 import { setReducedMotion } from '../../test/media';
 import { triggerResize } from '../../test/resizeObserver';
-import HomeMap from './HomeMap';
+import HomeMap, { LABELS_MIN_ZOOM, PIN_OTHER, PIN_SELECTED, placeLabel } from './HomeMap';
 import HomeMapFrame from './HomeMapFrame';
 import { offsetCentre, visibleCentre, type MapCommand } from './camera';
 
@@ -175,6 +175,7 @@ const BERLIN = homePlace('berlin-wall-fragments')!;
 const CHINATOWN = homePlace('chinatown')!;
 const HAW_PAR = homePlace('curated:sg-haw-par-villa')!;
 const HOLLAND = homePlace('curated:sg-holland-village')!;
+const pinName = (p: { name: string }) => `Show ${p.name} on the map`;
 
 type MapProps = ComponentProps<typeof HomeMap>;
 
@@ -265,8 +266,8 @@ describe('HomeMap', () => {
     fake.calls.length = 0;
     rerender(<HomeMap {...baseProps({ selectedId: HAW_PAR.id })} />);
     expect(moves()).toEqual([]);
-    expect(screen.getByRole('button', { name: HAW_PAR.name })).toHaveAttribute('data-selected', 'true');
-    expect(screen.getByRole('button', { name: BERLIN.name })).toHaveAttribute('data-selected', 'false');
+    expect(screen.getByRole('button', { name: pinName(HAW_PAR) })).toHaveAttribute('data-selected', 'true');
+    expect(screen.getByRole('button', { name: pinName(BERLIN) })).toHaveAttribute('data-selected', 'false');
   });
 
   it('mounts at the current focus, not at Berlin, when it loads late', () => {
@@ -466,8 +467,8 @@ describe('HomeMap', () => {
       expect(m).not.toHaveAttribute('role');
     }
     for (const mk of fake.markers) expect(mk.options).toMatchObject({ keyboard: false, interactive: false });
-    for (const p of visiblePins('berlin-wall-fragments')) expect(screen.getByRole('button', { name: p.name })).toHaveAttribute('type', 'button');
-    fireEvent.click(screen.getByRole('button', { name: HAW_PAR.name }));
+    for (const p of visiblePins('berlin-wall-fragments')) expect(screen.getByRole('button', { name: pinName(p) })).toHaveAttribute('type', 'button');
+    fireEvent.click(screen.getByRole('button', { name: pinName(HAW_PAR) }));
     expect(onPinActivate).toHaveBeenCalledTimes(1);
     expect(onPinActivate).toHaveBeenCalledWith(HAW_PAR.id);
   });
@@ -475,7 +476,7 @@ describe('HomeMap', () => {
   it('escapes place names in pin markup', () => {
     const odd = { ...HAW_PAR, id: 'odd', name: 'A <b>"Q"</b> & co' };
     render(<HomeMap {...baseProps({ pins: [odd], selectedId: 'odd' })} />);
-    expect(screen.getByRole('button', { name: 'A <b>"Q"</b> & co' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show A <b>"Q"</b> & co on the map' })).toBeInTheDocument();
   });
 
   it('adds a non-interactive home-base dot', () => {
@@ -487,13 +488,101 @@ describe('HomeMap', () => {
   });
 });
 
+describe('pins and labels', () => {
+  const svgOf = (p: { name: string }) => screen.getByRole('button', { name: pinName(p) }).querySelector('svg')!;
+
+  it('the selected pin is a 36x46 filled teardrop that bounces in; the others are 28x36 white teardrops', () => {
+    render(<HomeMap {...baseProps()} />);
+    const sel = svgOf(BERLIN);
+    expect([sel.getAttribute('width'), sel.getAttribute('height')]).toEqual([String(PIN_SELECTED.width), String(PIN_SELECTED.height)]);
+    expect(sel).toHaveClass('pin-on');
+    expect(sel.querySelector('path')).toHaveAttribute('fill', '#e4671f');
+    const other = svgOf(HAW_PAR);
+    expect([other.getAttribute('width'), other.getAttribute('height')]).toEqual([String(PIN_OTHER.width), String(PIN_OTHER.height)]);
+    expect(other).not.toHaveClass('pin-on');
+    expect(other.querySelector('path')).toHaveAttribute('fill', '#fff');
+  });
+
+  it('below zoom 14 only the selected pin keeps its label', () => {
+    const { container } = render(<HomeMap {...baseProps()} />);
+    const region = container.querySelector('[role="region"]')!;
+    expect(region).toHaveAttribute('data-labels', 'all');
+    lastMap().userMove(BERLIN.point, LABELS_MIN_ZOOM - 1);
+    act(() => lastMap().fire('zoomend'));
+    expect(region).toHaveAttribute('data-labels', 'selected');
+    lastMap().userMove(BERLIN.point, LABELS_MIN_ZOOM);
+    act(() => lastMap().fire('zoomend'));
+    expect(region).toHaveAttribute('data-labels', 'all');
+  });
+
+  // Map 350 wide; pin head 36 wide; label 150 x 22.
+  const pinAt = (x: number, top = 100) => ({ left: x - 18, right: x + 18, top, bottom: top + 46 });
+  const LABEL = { width: 150, height: 22 };
+
+  it('placeLabel: right of the pin when it fits', () => {
+    expect(placeLabel(pinAt(100), LABEL, 350, [])).toEqual({ side: 'right' });
+  });
+
+  it('placeLabel: flips left near the right edge', () => {
+    expect(placeLabel(pinAt(250), LABEL, 350, [])).toEqual({ side: 'left' });
+  });
+
+  it('placeLabel: flips left when a control beside it would cover it, and ignores controls above or below', () => {
+    const zoom = { left: 294, right: 338, top: 68, bottom: 157 };
+    const short = { width: 110, height: 22 };
+    expect(placeLabel(pinAt(180), short, 350, [zoom])).toEqual({ side: 'left' });
+    expect(placeLabel(pinAt(180, 200), short, 350, [zoom])).toEqual({ side: 'right' });
+  });
+
+  it('placeLabel: when it fits on neither side it wraps on the roomier side', () => {
+    const zoom = { left: 294, right: 338, top: 68, bottom: 157 };
+    const placed = placeLabel(pinAt(175), { width: 161, height: 22 }, 350, [zoom]);
+    expect(placed.side).toBe('left');
+    expect(placed.maxWidth).toBe(175 - 18 - 2 - 6);
+  });
+
+  it('lays out the selected label against the controls whenever the map moves', async () => {
+    const rects = new Map<Element, DOMRect>();
+    const box = (left: number, top: number, width: number, height: number) =>
+      ({ left, top, width, height, right: left + width, bottom: top + height, x: left, y: top, toJSON() {} }) as DOMRect;
+    const spy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      return rects.get(this) ?? box(0, 0, 0, 0);
+    });
+    const { container } = render(
+      <div data-map-bounds="">
+        <HomeMap {...baseProps()} />
+        <div data-map-obstacle="" data-testid="zoom" />
+      </div>,
+    );
+    const region = container.querySelector('[role="region"]')!;
+    const button = screen.getByRole('button', { name: pinName(BERLIN) });
+    const label = button.querySelector('[data-label]')!;
+    rects.set(region, box(0, 0, 350, 500));
+    rects.set(button.querySelector('svg')!, box(100, 100, 36, 46));
+    rects.set(label, box(138, 106, 150, 22));
+    rects.set(screen.getByTestId('zoom'), box(294, 68, 44, 89));
+
+    await act(async () => lastMap().fire('move'));
+    expect(button).toHaveAttribute('data-side', 'right');
+
+    // Laid out once every listener has run, so markers repositioned by the same event are measured where they land.
+    rects.set(button.querySelector('svg')!, box(160, 100, 36, 46));
+    lastMap().fire('viewreset');
+    expect(button).toHaveAttribute('data-side', 'right');
+    await act(async () => {});
+    expect(button).toHaveAttribute('data-side', 'left');
+    expect((label as HTMLElement).style.maxWidth).toBe('');
+    spy.mockRestore();
+  });
+});
+
 describe('HomeMapFrame', () => {
   type FrameProps = ComponentProps<typeof HomeMapFrame>;
   function frameProps(over: Partial<FrameProps> = {}): FrameProps {
     return {
       ...baseProps(),
-      onSearch: vi.fn(),
       onLocate: vi.fn(),
+      onExplore: vi.fn(),
       onZoom: vi.fn(),
       ...over,
     } as FrameProps;
@@ -507,22 +596,27 @@ describe('HomeMapFrame', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the pill, count chip, controls and attribution, and wires them', async () => {
+  it('renders the count chip, controls and attribution, and wires them', async () => {
     const p = frameProps();
-    render(<HomeMapFrame {...p} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Near you · NUS University Town' }));
-    expect(p.onSearch).toHaveBeenCalledTimes(1);
-    expect(screen.getByText((_, el) => el?.tagName === 'P' && el.textContent === '4 places to explore')).toBeInTheDocument();
+    const { rerender } = render(<HomeMapFrame {...p} />);
+    fireEvent.click(screen.getByRole('button', { name: '4 places to explore' }));
+    expect(p.onExplore).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }));
     expect(p.onZoom).toHaveBeenLastCalledWith(1);
     fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
     expect(p.onZoom).toHaveBeenLastCalledWith(-1);
-    fireEvent.click(screen.getByRole('button', { name: 'Show my home base' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Show my location' }));
     expect(p.onLocate).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('locating')).toBeNull();
+    rerender(<HomeMapFrame {...p} locating />);
+    expect(screen.getByTestId('locating')).toHaveClass('radar');
+    // The controls are what the selected pin's label steers clear of.
+    expect(screen.getByRole('button', { name: 'Show my location' })).toHaveAttribute('data-map-obstacle');
+    expect(screen.getByRole('button', { name: 'Zoom in' }).parentElement).toHaveAttribute('data-map-obstacle');
     const link = screen.getByRole('link', { name: '© OpenStreetMap contributors' });
     expect(link).toHaveAttribute('href', 'https://www.openstreetmap.org/copyright');
     // The lazy map (default loader) arrives with its pins.
-    expect(await screen.findByRole('button', { name: BERLIN.name })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: pinName(BERLIN) })).toBeInTheDocument();
   });
 
   it('mounts with the zoom reached while the chunk was loading', async () => {
@@ -532,7 +626,7 @@ describe('HomeMapFrame', () => {
     rerender(<HomeMapFrame {...frameProps({ loadMap, command: zoomCmd(1, 1), zoom: 17 })} />);
     rerender(<HomeMapFrame {...frameProps({ loadMap, command: zoomCmd(2, 1), zoom: 18 })} />);
     await act(async () => resolve({ default: HomeMap }));
-    await screen.findByRole('button', { name: BERLIN.name });
+    await screen.findByRole('button', { name: pinName(BERLIN) });
     expect(moves()).toHaveLength(1);
     expect(moves()[0][0]).toBe('setView');
     expectLatLng(moves()[0][1], oc(BERLIN.point, 18));
@@ -542,7 +636,7 @@ describe('HomeMapFrame', () => {
   it('forwards manual zoom', async () => {
     const onUserZoom = vi.fn();
     render(<HomeMapFrame {...frameProps({ onUserZoom })} />);
-    await screen.findByRole('button', { name: BERLIN.name });
+    await screen.findByRole('button', { name: pinName(BERLIN) });
     lastMap().userMove(BERLIN.point, 15);
     lastMap().fire('zoomend');
     expect(onUserZoom).toHaveBeenCalledWith(15);
@@ -550,7 +644,7 @@ describe('HomeMapFrame', () => {
 
   it('keeps zoom across a fly and a Retry', async () => {
     const { rerender } = render(<HomeMapFrame {...frameProps()} />);
-    await screen.findByRole('button', { name: BERLIN.name });
+    await screen.findByRole('button', { name: pinName(BERLIN) });
     rerender(<HomeMapFrame {...frameProps({ command: zoomCmd(1, 1), zoom: 17 })} />);
     rerender(<HomeMapFrame {...frameProps({ command: zoomCmd(2, 1), zoom: 18 })} />);
     const chin = { pins: visiblePins('chinatown'), selectedId: 'chinatown', lastFocus: CHINATOWN.point, zoom: 18 };
@@ -566,7 +660,7 @@ describe('HomeMapFrame', () => {
     });
     fake.calls.length = 0;
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    await screen.findByRole('button', { name: 'Chinatown' });
+    await screen.findByRole('button', { name: pinName(CHINATOWN) });
     expect(moves()[0][0]).toBe('setView');
     expectLatLng(moves()[0][1], oc(CHINATOWN.point, 18));
     expect(moves()[0][2]).toBe(18);
@@ -583,7 +677,7 @@ describe('HomeMapFrame', () => {
     let now = 1_000_000;
     vi.spyOn(Date, 'now').mockImplementation(() => now);
     render(<HomeMapFrame {...frameProps()} />);
-    await screen.findByRole('button', { name: BERLIN.name });
+    await screen.findByRole('button', { name: pinName(BERLIN) });
     const fire = (type: string) => act(() => lastTiles().fire(type));
 
     // 2 errors, a load, 2 errors: fine.
@@ -608,7 +702,7 @@ describe('HomeMapFrame', () => {
     expect(lastMap().removed).toBe(true);
 
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(await screen.findByRole('button', { name: BERLIN.name })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: pinName(BERLIN) })).toBeInTheDocument();
     expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
   });
 
@@ -624,7 +718,7 @@ describe('HomeMapFrame', () => {
     expect(await screen.findByText('Map unavailable')).toBeInTheDocument();
     window.removeEventListener('error', quiet);
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(await screen.findByRole('button', { name: BERLIN.name })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: pinName(BERLIN) })).toBeInTheDocument();
     expect(loadMap).toHaveBeenCalledTimes(2);
   });
 });

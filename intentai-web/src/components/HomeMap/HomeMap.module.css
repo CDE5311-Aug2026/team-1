@@ -12,10 +12,13 @@
   overflow: visible;
 }
 
+/* Teardrop tip on the place; the name label sits beside the pin head. */
 .pin {
   position: absolute;
+  bottom: 0;
   display: inline-flex;
-  gap: 0.25rem;
+  align-items: flex-start;
+  gap: 2px;
   padding: 0;
   border: 0;
   background: none;
@@ -36,49 +39,76 @@
 .glyph {
   display: block;
   flex: none;
-  filter: drop-shadow(0 1px 2px rgba(35, 33, 29, 0.3));
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
 }
 
 .label {
-  border-radius: var(--radius-chip);
-  padding: 0.1875rem 0.4375rem;
+  border-radius: 6px;
+  padding: 3px 7px;
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1rem;
-  box-shadow: 0 1px 3px rgba(35, 33, 29, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
-/* Selected: teardrop tip on the place, dark label beside the head. */
+/* Selected: 36x46 filled teardrop, dark label to its right (or left, near the right edge). */
 .selected {
   left: -18px;
-  bottom: 0;
-  align-items: flex-start;
+}
+
+.selected[data-side='left'] {
+  left: auto;
+  right: -18px;
+  flex-direction: row-reverse;
+}
+
+.selected .glyph {
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
 }
 
 .selected .label {
-  margin-top: 0.5rem;
+  margin-top: 6px;
   background: var(--text-primary);
   color: #fff;
 }
 
-/* Others: round pin centred on the place, white label. */
+/* Others: 28x36 white teardrop, white label. */
 .other {
-  left: -11px;
-  top: -11px;
-  align-items: center;
+  left: -14px;
 }
 
 .other .label {
-  background: #fff;
+  margin-top: 4px;
+  background: rgba(255, 255, 255, 0.95);
   color: var(--text-primary);
-  font-weight: 600;
 }
 
-/* Home base: blue dot with a white ring. */
+/* Zoomed out: only the selected pin keeps its name. */
+.map[data-labels='selected'] .other .label {
+  display: none;
+}
+
+/* Home base: blue dot with a white ring and a pulsing halo (Leaflet sizes the marker 18x18). */
 .you {
+  overflow: visible;
+}
+
+.youDot {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
-  background: #2f7bf5;
+  background: var(--story-blue);
   border: 3px solid #fff;
-  box-shadow: 0 0 0 1px rgba(35, 33, 29, 0.2), 0 1px 4px rgba(35, 33, 29, 0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
+}
+
+.youHalo {
+  position: absolute;
+  left: -9px;
+  top: -9px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(26, 115, 232, 0.35);
 }

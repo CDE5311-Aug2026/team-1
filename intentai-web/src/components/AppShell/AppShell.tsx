@@ -20,6 +20,8 @@ interface AppShellProps {
   layout?: 'page' | 'fill';
   /** story: place and culture-card pages. No tab bar, no inherited side padding (pages set their own gutters). */
   variant?: 'default' | 'story';
+  /** The active tab pops in on arrival (Home). */
+  tabPop?: boolean;
 }
 
 function activeTab(pathname: string): string {
@@ -37,6 +39,7 @@ export default function AppShell({
   homeIndicatorNodeId,
   layout = 'page',
   variant = 'default',
+  tabPop = false,
 }: AppShellProps) {
   const fill = layout === 'fill';
   const { pathname } = useLocation();
@@ -61,7 +64,7 @@ export default function AppShell({
       >{children}</main>
       {showChrome && (
         <div className={fill ? `${styles.tabBarWrap} ${styles.fillTabBar}` : styles.tabBarWrap}>
-          <TabBar active={activeTab(pathname)} onNavigate={navigate} nodeId={tabBarNodeId} />
+          <TabBar active={activeTab(pathname)} onNavigate={navigate} nodeId={tabBarNodeId} pop={tabPop} />
         </div>
       )}
       {homeIndicatorNodeId && <HomeIndicator nodeId={homeIndicatorNodeId} />}

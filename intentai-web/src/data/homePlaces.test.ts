@@ -6,6 +6,7 @@ import {
   PINNED_COUNT,
   formatHomeDistance,
   homePlace,
+  searchHomePlaces,
   visiblePins,
 } from './homePlaces';
 import placesJson from './explore/places.sg.json';
@@ -91,4 +92,25 @@ test('literal places 3 to 5 match the Nearby catalogue', () => {
     expect(p.point).toEqual({ lat: raw.coordinates.lat, lng: raw.coordinates.lng });
     expect(p.area).toBe(areas.find((a) => a.id === raw.areaId)!.name);
   }
+});
+
+const ids = (r: ReturnType<typeof searchHomePlaces>) => [r.withCards.map((p) => p.id), r.others.map((p) => p.id)];
+
+test('search: empty query lists the two card places, then the three Cards-soon places', () => {
+  expect(ids(searchHomePlaces('  '))).toEqual([
+    ['berlin-wall-fragments', 'chinatown'],
+    ['curated:sg-national-university-of-singapore', 'curated:sg-haw-par-villa', 'curated:sg-holland-village'],
+  ]);
+});
+
+test('search: case-insensitive on name, area and aliases', () => {
+  expect(ids(searchHomePlaces('tembusu'))).toEqual([['berlin-wall-fragments'], []]);
+  expect(ids(searchHomePlaces('BERLIN'))).toEqual([['berlin-wall-fragments'], []]);
+  expect(ids(searchHomePlaces('pagoda street'))).toEqual([['chinatown'], []]);
+  expect(ids(searchHomePlaces('tanjong'))).toEqual([['chinatown'], []]);
+  expect(ids(searchHomePlaces('haw par'))).toEqual([[], ['curated:sg-haw-par-villa']]);
+  // "Queenstown & Holland" is the area of all three Cards-soon places.
+  expect(ids(searchHomePlaces('queenstown'))[1]).toHaveLength(3);
+  expect(ids(searchHomePlaces('University Town'))).toEqual([['berlin-wall-fragments'], []]);
+  expect(ids(searchHomePlaces('zzz'))).toEqual([[], []]);
 });
