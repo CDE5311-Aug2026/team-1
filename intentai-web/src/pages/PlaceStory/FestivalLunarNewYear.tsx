@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { InfoCard, NextCard, SampleVideo, SourceLine, StatTiles, StoryArticle, StoryHeader } from '../../components/story';
 import { LUNAR_NEW_YEAR } from '../../data/stories/chinatown';
+import { withNextCredit } from '../../data/stories/places';
 import styles from './FestivalLunarNewYear.module.css';
 
 interface FestivalLunarNewYearProps {
@@ -37,7 +38,6 @@ export default function FestivalLunarNewYear({ placeId }: FestivalLunarNewYearPr
         <button
           type="button"
           className={`press ${styles.remind} ${reminded ? styles.on : ''}`}
-          aria-pressed={reminded}
           onClick={() => setReminded((r) => !r)}
         >
           {reminded ? (
@@ -55,7 +55,7 @@ export default function FestivalLunarNewYear({ placeId }: FestivalLunarNewYearPr
         </button>
       </InfoCard>
 
-      <SourceLine delay={0.68}>{LUNAR_NEW_YEAR.source}</SourceLine>
+      <SourceLine delay={0.68}>{withNextCredit(LUNAR_NEW_YEAR.source, LUNAR_NEW_YEAR.next.credit)}</SourceLine>
 
       <NextCard placeId={placeId} facet="history" title={LUNAR_NEW_YEAR.next.title} thumb={LUNAR_NEW_YEAR.next.thumb} delay={0.74} top={16} />
     </>

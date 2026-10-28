@@ -77,7 +77,7 @@ test('article with Read more, and the source line', () => {
   expect(screen.getByText('Read more')).toBeInTheDocument();
   expect(screen.getByText(/Elmar Prost and his company/)).toBeInTheDocument();
   expect(screen.getByText(/Look at the paint\. Graffiti covered the Wall’s western face/)).toBeInTheDocument();
-  expect(screen.getByText('Source: Tembusu College, NUS')).toBeInTheDocument();
+  expect(screen.getByText('Source: Tembusu College, NUS · Photo: Daderot · CC0')).toBeInTheDocument();
 });
 
 test('the NEXT card goes to the festival card', () => {

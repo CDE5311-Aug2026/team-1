@@ -23,7 +23,7 @@ interface TimelineProps {
   rows: readonly TimelineRow[];
   /** Footer source line. */
   source: ReactNode;
-  /** Spine ends 44 px above the bottom and grows over 2 s (p11) instead of 40 px / 1.6 s. */
+  /** Spine ends 44 px above the bottom and grows over 2 s (history timeline) instead of 40 px / 1.6 s. */
   longSpine?: boolean;
 }
 

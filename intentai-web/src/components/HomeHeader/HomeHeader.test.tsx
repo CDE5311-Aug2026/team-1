@@ -36,6 +36,12 @@ test('the streak digits roll from the day before to today; the flame flickers', 
   expect(streak.querySelector('svg')).toHaveClass('flick');
 });
 
+test('a new user sees 0 rolling to 1, never a negative number', () => {
+  renderHeader();
+  const strip = screen.getByTestId('streak-count').firstElementChild!;
+  expect([...strip.children].map((c) => c.textContent)).toEqual(['0', '1']);
+});
+
 test('the streak chip opens Moments', async () => {
   renderHeader();
   await userEvent.click(screen.getByRole('link', { name: /day streak/ }));

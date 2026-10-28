@@ -35,7 +35,7 @@ test('Read more toggles to Show less and back', async () => {
   expect(summary).toHaveTextContent('Read more');
 });
 
-test('top padding variants map to their own classes (12 for p03, 16, default 18)', () => {
+test('top padding variants map to their own classes (12, 16, default 18)', () => {
   const { container, rerender } = render(<StoryArticle lead="Lead" more={[]} top={12} />);
   const cls = () => container.querySelector('article')!.className;
   const c12 = cls();

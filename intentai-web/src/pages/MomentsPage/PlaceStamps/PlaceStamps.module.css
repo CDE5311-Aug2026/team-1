@@ -174,3 +174,10 @@
   outline-offset: 2px;
   border-radius: var(--radius-card);
 }
+
+.credits {
+  margin: 0;
+  font-size: 0.625rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}

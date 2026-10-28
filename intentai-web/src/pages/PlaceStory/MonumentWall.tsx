@@ -1,5 +1,6 @@
 import { NextCard, SampleVideo, SourceLine, StatTiles, StoryArticle, StoryHeader } from '../../components/story';
 import { WALL_PANELS } from '../../data/stories/berlin';
+import { withNextCredit } from '../../data/stories/places';
 
 interface MonumentWallProps {
   placeId: string;
@@ -18,7 +19,7 @@ export default function MonumentWall({ placeId }: MonumentWallProps) {
 
       <StoryArticle leadDelay={0.4} lead={WALL_PANELS.lead} more={WALL_PANELS.more}>
         <SourceLine inArticle delay={0.6}>
-          {WALL_PANELS.source}
+          {withNextCredit(WALL_PANELS.source, WALL_PANELS.next.credit)}
         </SourceLine>
       </StoryArticle>
 

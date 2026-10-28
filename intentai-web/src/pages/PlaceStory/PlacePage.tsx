@@ -5,7 +5,7 @@ import { AlbumRail, SourceLine, type RailItem } from '../../components/story';
 import { usePersistentStore } from '../../data/persistentStore';
 import { FACETS, placeState } from '../../data/placeStories';
 import { placeStoriesStore, setCheckedIn } from '../../data/stores';
-import { storyPlace, type StoryPlace } from '../../data/stories/places';
+import { placePhotoCredits, storyPlace, type StoryPlace } from '../../data/stories/places';
 import { initialRailIndex, type PlaceRouteState } from '../../data/stories/railMemory';
 import { paths } from '../../routes';
 import PlaceNotFound from './PlaceNotFound';
@@ -108,8 +108,6 @@ function PlaceView({ place }: { place: StoryPlace }) {
         <button
           type="button"
           className={`press ${styles.checkIn} ${state.checkedIn ? styles.checked : ''}`}
-          aria-label="Check in"
-          aria-pressed={state.checkedIn}
           onClick={checkIn}
         >
           <span aria-hidden="true" className={styles.checkIcon}>
@@ -153,7 +151,7 @@ function PlaceView({ place }: { place: StoryPlace }) {
 
       <AlbumRail items={items} initialIndex={railIndex} onOpen={onOpen} />
 
-      <SourceLine>{place.hero.credit}</SourceLine>
+      <SourceLine>{`Credits: ${placePhotoCredits(place).join(' · ')}`}</SourceLine>
     </AppShell>
   );
 }

@@ -11,7 +11,7 @@ interface InfoCardProps {
   children: ReactNode;
   /** Card fade-up delay, s. Omit for a static card. */
   delay?: number;
-  /** Kicker-only fade-up delay, s (p09 "Look for"). */
+  /** Kicker-only fade-up delay, s ("Look for"). */
   kickerDelay?: number;
   /** Top margin: 16 (default), 12 or 18. */
   top?: 12 | 16 | 18;

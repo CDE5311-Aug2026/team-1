@@ -1,5 +1,6 @@
 import { NextCard, SampleVideo, SourceLine, StatTiles, StoryArticle, StoryHeader } from '../../components/story';
 import { FALL_OF_THE_WALL } from '../../data/stories/berlin';
+import { withNextCredit } from '../../data/stories/places';
 
 interface FestivalWallProps {
   placeId: string;
@@ -18,7 +19,7 @@ export default function FestivalWall({ placeId }: FestivalWallProps) {
 
       <StoryArticle leadDelay={0.4} lead={FALL_OF_THE_WALL.lead} more={FALL_OF_THE_WALL.more}>
         <SourceLine inArticle delay={0.6}>
-          {FALL_OF_THE_WALL.source}
+          {withNextCredit(FALL_OF_THE_WALL.source, FALL_OF_THE_WALL.next.credit)}
         </SourceLine>
       </StoryArticle>
 

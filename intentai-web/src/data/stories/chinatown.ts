@@ -49,7 +49,7 @@ export const BAK_KWA = {
     mapButton: 'See it on the Nearby map',
   },
   source: 'Source: Singapore Infopedia (NLB); chinatown.sg · Photo: Alpha · CC BY-SA 2.0',
-  next: { title: 'Thian Hock Keng Temple', thumb: STORY_IMAGES.thianHockKeng.src },
+  next: { title: 'Thian Hock Keng Temple', thumb: STORY_IMAGES.thianHockKeng.src, credit: STORY_IMAGES.thianHockKeng.credit },
 };
 
 /** Monument card: Thian Hock Keng Temple (Chinatown). */
@@ -92,7 +92,7 @@ export const THIAN_HOCK_KENG = {
     { icon: 'roof', text: 'Dragons on the curved roof ridges' },
     { icon: 'joinery', text: 'Timber joinery with no nails' },
   ] as const,
-  next: { title: 'Lunar New Year', thumb: STORY_IMAGES.lanterns.src },
+  next: { title: 'Lunar New Year', thumb: STORY_IMAGES.lanterns.src, credit: STORY_IMAGES.lanterns.credit },
 };
 
 /** Festival card: Lunar New Year (Chinatown). */
@@ -132,7 +132,7 @@ export const LUNAR_NEW_YEAR = {
     reminded: 'Reminder set for 6 Feb',
   },
   source: 'Source: IntentAI editorial; Singapore 2027 public holidays (MOM) · Photo: Dileep Kaluaratchie · CC BY-SA 4.0',
-  next: { title: 'From the 1822 town plan to today', thumb: STORY_IMAGES.plan1822.src },
+  next: { title: 'From the 1822 town plan to today', thumb: STORY_IMAGES.plan1822.src, credit: STORY_IMAGES.plan1822.credit },
 };
 
 /** History card: from the 1822 town plan to today (Chinatown). */

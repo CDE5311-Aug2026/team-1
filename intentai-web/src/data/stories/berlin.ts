@@ -78,7 +78,7 @@ export const SPREAD = {
     phone: { text: '+65 6908 5955', href: 'tel:+6569085955' },
   },
   source: 'Source: thespread.sg (hours, address); NUS Business School · Photos: The Spread',
-  next: { title: 'The Wall panels', thumb: STORY_IMAGES.wallPanels.src },
+  next: { title: 'The Wall panels', thumb: STORY_IMAGES.wallPanels.src, credit: STORY_IMAGES.wallPanels.credit },
 };
 
 /** Monument card: the Wall panels (Berlin Wall Fragments). */
@@ -107,7 +107,7 @@ export const WALL_PANELS = {
     'Look at the paint. Graffiti covered the Wall’s western face, which West Berliners could walk right up to. The eastern side faced a guarded border strip.',
   ],
   source: 'Source: Tembusu College, NUS',
-  next: { title: 'Fall of the Wall · 9 Nov', thumb: STORY_IMAGES.balloons2014.src },
+  next: { title: 'Fall of the Wall · 9 Nov', thumb: STORY_IMAGES.balloons2014.src, credit: STORY_IMAGES.balloons2014.credit },
 };
 
 /** Festival card: the fall of the Wall, 9 November (Berlin Wall Fragments). */
@@ -136,7 +136,7 @@ export const FALL_OF_THE_WALL = {
     'Germany’s national holiday is Unity Day on 3 October; 9 November is a day of remembrance. For the 25th anniversary in 2014, 8,000 lit balloons traced 15 km of the Wall’s old route.',
   ],
   source: 'Source: berlin.de · Photo: Daderot · CC0',
-  next: { title: 'From 1961 to a Singapore garden', thumb: STORY_IMAGES.wall1989.src },
+  next: { title: 'From 1961 to a Singapore garden', thumb: STORY_IMAGES.wall1989.src, credit: STORY_IMAGES.wall1989.credit },
 };
 
 /** History card: 1961 to 2016 (Berlin Wall Fragments). */

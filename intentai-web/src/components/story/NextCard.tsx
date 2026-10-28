@@ -16,7 +16,7 @@ interface NextCardProps {
   top?: 16 | 18;
 }
 
-/** Dark "NEXT · FACET" footer link to the next card. Replaces the entry so Back leaves the chain (D14). */
+/** Dark "NEXT · FACET" footer link to the next card. Replaces the entry so Back leaves the chain. */
 export function NextCard({ placeId, facet, title, thumb, delay, top = 18 }: NextCardProps) {
   return (
     <Link

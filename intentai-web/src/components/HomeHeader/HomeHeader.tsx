@@ -27,7 +27,7 @@ export default function HomeHeader({ logoSrc }: Props) {
         {/* The count rolls up from the day before to today's. */}
         <span className={styles.digits} aria-hidden="true" data-testid="streak-count">
           <span className={`roll ${styles.strip}`}>
-            <span>{count - 1}</span>
+            <span>{Math.max(0, count - 1)}</span>
             <span>{count}</span>
           </span>
         </span>

@@ -65,6 +65,15 @@ test('story stamps get their own row above Nearby, newest first, linking to the 
   expect(lists.indexOf(screen.getByRole('list', { name: 'Place stories' }))).toBeLessThan(lists.indexOf(screen.getByRole('list', { name: 'Places checked in' })));
 });
 
+test('the story stamp thumbnails carry their credits once, in one line under the row', () => {
+  placeStoriesStore.set({
+    'berlin-wall-fragments': { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-20' },
+    chinatown: { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-28' },
+  });
+  renderStamps();
+  expect(screen.getByText('Credits: Photo: kallerna · CC BY-SA 4.0 · Source: Tembusu College, NUS')).toBeInTheDocument();
+});
+
 test('with nine Nearby stamps the story stamps are still all shown', () => {
   placeStoriesStore.set({
     'berlin-wall-fragments': { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-20' },

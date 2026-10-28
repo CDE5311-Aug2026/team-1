@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { InfoCard, NextCard, SourceLine, StoryArticle, StoryHeader, StoryIcon, useCountUp } from '../../components/story';
 import { SPREAD } from '../../data/stories/berlin';
+import { withNextCredit } from '../../data/stories/places';
 import { paths } from '../../routes';
 import styles from './FoodSpread.module.css';
 import { PhotoCarousel } from './PhotoCarousel';
@@ -127,7 +128,7 @@ export default function FoodSpread({ placeId }: FoodSpreadProps) {
         </div>
       </InfoCard>
 
-      <SourceLine delay={0.6}>{SPREAD.source}</SourceLine>
+      <SourceLine delay={0.6}>{withNextCredit(SPREAD.source, SPREAD.next.credit)}</SourceLine>
 
       <NextCard placeId={placeId} facet="monument" title={SPREAD.next.title} thumb={SPREAD.next.thumb} delay={0.66} top={16} />
     </>

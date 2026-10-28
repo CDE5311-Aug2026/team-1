@@ -86,7 +86,7 @@ test('Fall of the Wall: article, Read more, credit and NEXT to history', () => {
   expect(screen.getByText('Read more')).toBeInTheDocument();
   expect(screen.getByText(/Bornholmer Straße, guards raised the barrier late that night/)).toBeInTheDocument();
   expect(screen.getByText(/Unity Day on 3 October/)).toBeInTheDocument();
-  expect(screen.getByText('Source: berlin.de · Photo: Daderot · CC0')).toBeInTheDocument();
+  expect(screen.getByText('Source: berlin.de · Photo: Daderot · CC0 · Photo: Lear 21 · CC BY-SA 3.0')).toBeInTheDocument();
   const next = screen.getByRole('link', { name: /NEXT · HISTORY/ });
   expect(next).toHaveAttribute('href', paths.placeCard(BERLIN, 'history'));
   expect(next).toHaveTextContent('From 1961 to a Singapore garden');
@@ -132,28 +132,30 @@ test('Lunar New Year: article and Read more', () => {
   expect(screen.getByText(/lanterns and a festive street market/)).toBeInTheDocument();
 });
 
-test('Lunar New Year: the reminder button toggles text, style and aria-pressed both ways', () => {
+test('Lunar New Year: the reminder button toggles text (the name), style and keeps focus both ways', () => {
   renderCard('chinatown');
   const card = screen.getByRole('region', { name: 'Next Lunar New Year' });
   expect(within(card).getByText('NEXT TIME')).toBeInTheDocument();
   expect(within(card).getByText('Sat 6 Feb 2027')).toBeInTheDocument();
   expect(within(card).getByText('Holidays Sat 6 and Sun 7 Feb; Mon 8 Feb is off in lieu.')).toBeInTheDocument();
   const off = within(card).getByRole('button', { name: 'Remind me' });
-  expect(off).toHaveAttribute('aria-pressed', 'false');
+  expect(off).not.toHaveAttribute('aria-pressed');
+  off.focus();
   const offClass = off.className;
   fireEvent.click(off);
   const on = within(card).getByRole('button', { name: 'Reminder set for 6 Feb' });
-  expect(on).toHaveAttribute('aria-pressed', 'true');
+  expect(on).not.toHaveAttribute('aria-pressed');
+  expect(on).toHaveFocus();
   expect(on.className).not.toBe(offClass);
   fireEvent.click(on);
   const again = within(card).getByRole('button', { name: 'Remind me' });
-  expect(again).toHaveAttribute('aria-pressed', 'false');
+  expect(again).toHaveFocus();
   expect(again.className).toBe(offClass);
 });
 
 test('Lunar New Year: source line and NEXT to history', () => {
   renderCard('chinatown');
-  expect(screen.getByText('Source: IntentAI editorial; Singapore 2027 public holidays (MOM) · Photo: Dileep Kaluaratchie · CC BY-SA 4.0')).toBeInTheDocument();
+  expect(screen.getByText('Source: IntentAI editorial; Singapore 2027 public holidays (MOM) · Photo: Dileep Kaluaratchie · CC BY-SA 4.0 · Map: Lt Philip Jackson, 1822 · Public domain')).toBeInTheDocument();
   const next = screen.getByRole('link', { name: /NEXT · HISTORY/ });
   expect(next).toHaveAttribute('href', paths.placeCard('chinatown', 'history'));
   expect(next).toHaveTextContent('From the 1822 town plan to today');

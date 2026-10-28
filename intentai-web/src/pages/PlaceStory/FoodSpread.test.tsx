@@ -128,6 +128,22 @@ test('dragging the carousel moves to the nearest photo', () => {
   expect(counter()).toBe('02 / 07');
 });
 
+test('after a drag, a pointer click is swallowed but a keyboard activation still picks the photo', () => {
+  renderCard();
+  const carousel = screen.getByRole('region', { name: /^Photos of The Spread\. Use/ });
+  fireEvent.pointerDown(carousel, { clientX: 300 });
+  fireEvent.pointerMove(carousel, { clientX: 100 });
+  fireEvent.pointerUp(carousel);
+  settle();
+  expect(counter()).toBe('02 / 07');
+  fireEvent.click(screen.getByRole('button', { name: 'Show Window seats' }), { detail: 1 });
+  settle();
+  expect(counter()).toBe('02 / 07');
+  fireEvent.click(screen.getByRole('button', { name: 'Show Window seats' }), { detail: 0 });
+  settle();
+  expect(counter()).toBe('01 / 07');
+});
+
 test('photos shift against the drag (parallax) and the progress line follows', () => {
   renderCard();
   const shift = (title: string) => photoOf(title).querySelector('img')!.style.transform;
@@ -182,7 +198,7 @@ test('"Directions from the Wall" goes to Home focused on Berlin Wall Fragments',
 
 test('credit line and the NEXT card to the monument card', () => {
   renderCard();
-  expect(screen.getByText('Source: thespread.sg (hours, address); NUS Business School · Photos: The Spread')).toBeInTheDocument();
+  expect(screen.getByText('Source: thespread.sg (hours, address); NUS Business School · Photos: The Spread · Source: Tembusu College, NUS')).toBeInTheDocument();
   const next = screen.getByRole('link', { name: /NEXT · MONUMENT/ });
   expect(next).toHaveAttribute('href', paths.placeCard(ID, 'monument'));
   expect(next).toHaveTextContent('The Wall panels');

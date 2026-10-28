@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { usePersistentStore } from '../../../data/persistentStore';
 import { placeStoriesStore } from '../../../data/stores';
-import { STORY_PLACE_IDS, storyPlace } from '../../../data/stories/places';
+import { STORY_PLACE_IDS, storyPlace, uniqueCredits } from '../../../data/stories/places';
 import { useExplorePersonal } from '../../../features/nearby/actions';
 import { MAIN_COLLECTION, collectionProgress, collectionTitle, curatedPlace } from '../../../features/nearby/catalogue';
 import { PlaceThumb } from '../../../features/nearby/components/PlaceCard';
@@ -67,6 +67,7 @@ export default function PlaceStamps() {
               </li>
             ))}
           </ul>
+          <p className={styles.credits}>{`Credits: ${uniqueCredits(storyStamps.map(({ place }) => place.hero)).join(' · ')}`}</p>
         </>
       )}
 

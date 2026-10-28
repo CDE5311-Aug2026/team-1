@@ -1,5 +1,6 @@
 import { InfoCard, NextCard, SampleVideo, SourceLine, StatTiles, StoryArticle, StoryHeader } from '../../components/story';
 import { THIAN_HOCK_KENG } from '../../data/stories/chinatown';
+import { withNextCredit } from '../../data/stories/places';
 import styles from './MonumentThianHockKeng.module.css';
 import { ThenNow } from './ThenNow';
 
@@ -58,7 +59,7 @@ export default function MonumentThianHockKeng({ placeId }: MonumentThianHockKeng
         </ul>
       </InfoCard>
 
-      <SourceLine delay={0.9}>{`Source: National Heritage Board, Roots.gov.sg · Photos: ${credits}`}</SourceLine>
+      <SourceLine delay={0.9}>{withNextCredit(`Source: National Heritage Board, Roots.gov.sg · Photos: ${credits}`, THIAN_HOCK_KENG.next.credit)}</SourceLine>
 
       <NextCard placeId={placeId} facet="festival" title={THIAN_HOCK_KENG.next.title} thumb={THIAN_HOCK_KENG.next.thumb} delay={0.96} top={16} />
     </>

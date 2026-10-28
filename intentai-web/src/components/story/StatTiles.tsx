@@ -17,7 +17,7 @@ export interface StatTile {
 
 interface StatTilesProps {
   tiles: readonly [StatTile, StatTile, StatTile];
-  /** Third tile in the orange tint (p05, p08, p09, p10). */
+  /** Third tile in the orange tint (the festival, bak kwa and Spread cards). */
   highlightThird?: boolean;
   /** Section name (default "Key facts"). */
   label?: string;

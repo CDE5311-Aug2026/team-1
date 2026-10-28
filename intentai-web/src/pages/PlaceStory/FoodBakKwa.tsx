@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { InfoCard, NextCard, SampleVideo, SourceLine, StatTiles, StoryArticle, StoryHeader } from '../../components/story';
 import { BAK_KWA } from '../../data/stories/chinatown';
+import { withNextCredit } from '../../data/stories/places';
 import { paths } from '../../routes';
 import styles from './FoodBakKwa.module.css';
 
@@ -67,7 +68,7 @@ export default function FoodBakKwa({ placeId }: FoodBakKwaProps) {
           {BAK_KWA.steps.map((step, i) => (
             <li
               key={step.name}
-              className={`a-step ${styles.step} ${step.icon === 'grill' ? styles.grill : ''}`}
+              className={`a-step ${styles.step}`}
               style={{ animationDelay: `${[0.55, 0.7, 0.85][i]}s` }}
             >
               {step.icon === 'grill' && (
@@ -146,7 +147,7 @@ export default function FoodBakKwa({ placeId }: FoodBakKwaProps) {
         </Link>
       </InfoCard>
 
-      <SourceLine delay={0.78}>{BAK_KWA.source}</SourceLine>
+      <SourceLine delay={0.78}>{withNextCredit(BAK_KWA.source, BAK_KWA.next.credit)}</SourceLine>
 
       <NextCard placeId={placeId} facet="monument" title={BAK_KWA.next.title} thumb={BAK_KWA.next.thumb} delay={0.84} top={16} />
     </>

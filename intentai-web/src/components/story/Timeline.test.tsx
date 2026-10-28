@@ -55,7 +55,7 @@ test('embedded photo with credit, side thumbnail, and the long spine variant', (
   expect(container.querySelector('.a-line')).toHaveClass('a-line-long');
 });
 
-test('a row can carry extra content (p11 map, chips)', () => {
+test('a row can carry extra content (map, chips)', () => {
   render(<Timeline rows={[{ date: 'STREET BY STREET', text: 'Each dialect group settled its own streets.', dot: 'ring', delay: 1, extra: <span>Hokkien · Telok Ayer St</span> }]} source="Source" />);
   expect(screen.getByText('Hokkien · Telok Ayer St')).toBeInTheDocument();
 });

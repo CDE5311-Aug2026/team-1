@@ -127,3 +127,18 @@ export function isFacet(value: string): value is Facet {
 }
 
 export const STORY_PLACE_IDS: readonly string[] = PLACES.map((p) => p.id);
+
+/** Credit strings of the given photos, each once, in first-seen order. */
+export function uniqueCredits(images: readonly StoryImage[]): string[] {
+  return [...new Set(images.map((i) => i.credit))];
+}
+
+/** Every photo a place page shows (hero + the four rail covers), as one deduplicated list of credits. */
+export function placePhotoCredits(place: StoryPlace): string[] {
+  return uniqueCredits([place.hero, ...place.cards.map((c) => c.image)]);
+}
+
+/** A card's source line plus the NEXT thumbnail's credit, unless the line already carries it. */
+export function withNextCredit(source: string, credit: string): string {
+  return source.includes(credit) ? source : `${source} · ${credit}`;
+}

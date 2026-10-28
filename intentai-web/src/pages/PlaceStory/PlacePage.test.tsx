@@ -61,7 +61,7 @@ test('Berlin Wall Fragments: hero, focused h1, location, progress at 0, hero cre
   expect(screen.getByText('0 of 4 cards opened')).toBeInTheDocument();
   expect(document.querySelectorAll('[data-bar="done"]')).toHaveLength(0);
   expect(document.querySelectorAll('[data-bar="todo"]')).toHaveLength(4);
-  expect(screen.getByText('Source: Tembusu College, NUS')).toBeInTheDocument();
+  expect(screen.getByText(/^Credits: Source: Tembusu College, NUS/)).toBeInTheDocument();
   expect(scrollTo).toHaveBeenCalledWith(0, 0);
   // A fresh visit opens the rail on the second card.
   expect(panelTitle()).toBe('The Wall panels');
@@ -73,8 +73,8 @@ test('Chinatown: its own copy and hero', () => {
   expect(screen.getByRole('heading', { level: 1, name: 'Chinatown' })).toBeInTheDocument();
   expect(screen.getByRole('img', { name: 'Pagoda Street in Chinatown, lined with shophouses and shops' })).toBeInTheDocument();
   expect(screen.getByText('Chinatown & Tanjong Pagar · Niu Che Shui')).toBeInTheDocument();
-  expect(screen.getByText('Photo: kallerna · CC BY-SA 4.0')).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Check in' })).toHaveAttribute('aria-pressed', 'false');
+  expect(screen.getByText('Credits: Photo: kallerna · CC BY-SA 4.0 · Photo: Alpha · CC BY-SA 2.0 · Zairon, CC BY-SA 4.0 · Photo: Dileep Kaluaratchie · CC BY-SA 4.0 · Map: Lt Philip Jackson, 1822 · Public domain')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Check in' })).not.toHaveAttribute('aria-pressed');
   expect(panelTitle()).toBe('Thian Hock Keng Temple');
   expect(screen.getByText('MONUMENT · 2 OF 4')).toBeInTheDocument();
 });
@@ -90,8 +90,8 @@ test('check-in toggles, persists and bursts aria-hidden sparks only when checkin
   const button = screen.getByRole('button', { name: 'Check in' });
   button.focus();
   fireEvent.click(button);
-  expect(button).toHaveAccessibleName('Check in');
-  expect(button).toHaveAttribute('aria-pressed', 'true');
+  expect(button).toHaveAccessibleName('Checked in');
+  expect(button).not.toHaveAttribute('aria-pressed');
   expect(button).toHaveFocus();
   expect(placeState(placeStoriesStore.get(), 'berlin-wall-fragments').checkedIn).toBe(true);
   const sparks = button.querySelectorAll('.spark');
@@ -101,7 +101,7 @@ test('check-in toggles, persists and bursts aria-hidden sparks only when checkin
   expect(button.querySelectorAll('.spark')).toHaveLength(0);
   fireEvent.click(button);
   expect(button).toHaveAccessibleName('Check in');
-  expect(button).toHaveAttribute('aria-pressed', 'false');
+  expect(button).toHaveFocus();
   expect(button.querySelectorAll('.spark')).toHaveLength(0);
   expect(placeState(placeStoriesStore.get(), 'berlin-wall-fragments').checkedIn).toBe(false);
 });
@@ -109,7 +109,15 @@ test('check-in toggles, persists and bursts aria-hidden sparks only when checkin
 test('a stored check-in shows as checked', () => {
   placeStoriesStore.set({ chinatown: { opened: [], checkedIn: true, stamped: false } });
   renderAt([paths.homePlace('chinatown')]);
-  expect(screen.getByRole('button', { name: 'Check in' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Checked in' })).toBeInTheDocument();
+});
+
+test('every photo on the place page has its credit once: hero plus the four rail covers', () => {
+  renderAt([berlin]);
+  const line = screen.getByText(/^Credits: /).textContent!;
+  for (const credit of ['Source: Tembusu College, NUS', 'Photos: The Spread', 'Photo: Daderot · CC0', 'Photo: Lear 21 · CC BY-SA 3.0']) {
+    expect(line.split(credit).length - 1).toBe(1);
+  }
 });
 
 test('progress row, done badges, "opened" sleeves and kicker follow real opened cards', () => {

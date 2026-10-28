@@ -8,7 +8,7 @@ interface StoryArticleProps {
   more: readonly ReactNode[];
   /** Lead paragraph animation delay, s (default .4). */
   leadDelay?: number;
-  /** Top padding: 18 (default), 16 or 12 (p03). */
+  /** Top padding: 18 (default), 16 or 12 (the Wall panels card). */
   top?: 12 | 16 | 18;
   /** Rendered after the details, e.g. a SourceLine. */
   children?: ReactNode;

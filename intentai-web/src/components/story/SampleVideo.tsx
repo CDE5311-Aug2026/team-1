@@ -48,7 +48,7 @@ export function SampleVideo({ poster, title, duration, captions, top = 18 }: Sam
   const orbitId = useId();
   const playRef = useRef<HTMLButtonElement>(null);
   const pauseRef = useRef<HTMLButtonElement>(null);
-  // Set when the control that had focus is about to be swapped out (D16), consumed after render.
+  // Set when the control that had focus is about to be swapped out, consumed after render.
   const moveFocus = useRef(false);
 
   useEffect(() => {

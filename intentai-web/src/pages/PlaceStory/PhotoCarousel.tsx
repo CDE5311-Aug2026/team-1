@@ -205,8 +205,8 @@ export function PhotoCarousel({ label, groups, slides, delay = 0.2 }: PhotoCarou
                   type="button"
                   className={styles.pick}
                   aria-label={`Show ${s.title}`}
-                  onClick={() => {
-                    if (!moved.current) goTo(i);
+                  onClick={(e) => {
+                    if (e.detail === 0 || !moved.current) goTo(i);
                   }}
                 />
               )}

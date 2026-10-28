@@ -110,7 +110,7 @@ test('"See it on the Nearby map" goes to Home focused on Chinatown', () => {
 
 test('credit line and the NEXT card to the monument card', () => {
   renderCard();
-  expect(screen.getByText('Source: Singapore Infopedia (NLB); chinatown.sg · Photo: Alpha · CC BY-SA 2.0')).toBeInTheDocument();
+  expect(screen.getByText('Source: Singapore Infopedia (NLB); chinatown.sg · Photo: Alpha · CC BY-SA 2.0 · Zairon, CC BY-SA 4.0')).toBeInTheDocument();
   const next = screen.getByRole('link', { name: /NEXT · MONUMENT/ });
   expect(next).toHaveAttribute('href', paths.placeCard(ID, 'monument'));
   expect(next).toHaveTextContent('Thian Hock Keng Temple');

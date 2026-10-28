@@ -14,6 +14,9 @@ test('every app page has a readable name', () => {
   expect(pageNameFor(paths.nearbyPlace('curated:sg-merlion-park'))).toBe('Nearby place');
   expect(pageNameFor(paths.collection('sg-100'))).toBe('Nearby collection');
   expect(pageNameFor(paths.nearby)).toBe('Nearby');
+  // Place stories: the place and card ids are never part of the name
+  expect(pageNameFor(paths.homePlace('chinatown'))).toBe('Place');
+  for (const facet of ['food', 'monument', 'festival', 'history']) expect(pageNameFor(paths.placeCard('berlin-wall-fragments', facet))).toBe('Place card');
 });
 
 test('the dashboard and unknown paths are never tracked', () => {

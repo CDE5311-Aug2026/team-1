@@ -199,7 +199,7 @@ test('article, Look for rows, credits and the NEXT card to Lunar New Year', () =
   ]);
   expect(
     screen.getByText(
-      'Source: National Heritage Board, Roots.gov.sg · Photos: Zairon, CC BY-SA 4.0; Lambert & Co. c.1890, KITLV, public domain; Terence Ong 2006, CC BY 2.5',
+      'Source: National Heritage Board, Roots.gov.sg · Photos: Zairon, CC BY-SA 4.0; Lambert & Co. c.1890, KITLV, public domain; Terence Ong 2006, CC BY 2.5 · Photo: Dileep Kaluaratchie · CC BY-SA 4.0',
     ),
   ).toBeInTheDocument();
   const next = screen.getByRole('link', { name: /NEXT · FESTIVAL/ });
