@@ -61,3 +61,15 @@ test('an unknown place shows not found', () => {
   renderAt(paths.placeCard('nope', 'food'));
   expect(screen.getByRole('heading', { level: 1, name: 'Place not found' })).toBeInTheDocument();
 });
+
+test('the food route renders each place\'s food card and marks food opened once', () => {
+  const first = renderAt(paths.placeCard('berlin-wall-fragments', 'food'));
+  expect(screen.getByRole('heading', { level: 1, name: 'Lunch near the Wall: The Spread' })).toBeInTheDocument();
+  first.unmount();
+  const second = renderAt(paths.placeCard('berlin-wall-fragments', 'food'));
+  expect(placeState(placeStoriesStore.get(), 'berlin-wall-fragments').opened).toEqual(['food']);
+  second.unmount();
+  renderAt(paths.placeCard('chinatown', 'food'));
+  expect(screen.getByRole('heading', { level: 1, name: 'Bak kwa, Chinatown’s festive queue' })).toBeInTheDocument();
+  expect(placeState(placeStoriesStore.get(), 'chinatown').opened).toEqual(['food']);
+});

@@ -41,7 +41,7 @@ test('a place card route renders that card; an unknown facet renders not found',
       <App />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('heading', { level: 1, name: 'Bak kwa' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: 'Bak kwa, Chinatown’s festive queue' })).toBeInTheDocument();
   unmount();
   render(
     <MemoryRouter useTransitions={false} initialEntries={[paths.placeCard('chinatown', 'nope')]}>
