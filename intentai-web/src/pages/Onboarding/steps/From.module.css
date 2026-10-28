@@ -1,0 +1,73 @@
+.outer {
+  margin-top: 14px;
+}
+
+.grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tile {
+  height: 92px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.chip {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.badge {
+  right: 6px;
+  top: 6px;
+}
+
+.more {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  /* room for the focus ring */
+  padding: 3px 2px;
+}
+
+.pill {
+  height: 36px;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px 0 4px;
+  border-width: 1.5px;
+  border-color: #dedad2;
+  border-radius: 18px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pill[aria-checked='true'] {
+  scale: 1;
+}
+
+.pillChip {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+}

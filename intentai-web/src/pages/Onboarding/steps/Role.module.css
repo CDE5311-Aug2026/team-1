@@ -1,0 +1,29 @@
+.grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.tile {
+  height: 100px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.chip {
+  width: 42px;
+  height: 42px;
+  border-radius: 21px;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.badge {
+  right: 6px;
+  top: 6px;
+}
