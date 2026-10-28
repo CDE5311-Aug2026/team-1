@@ -15,6 +15,10 @@ const TILE_WINDOW_MS = 5000;
 /** Same range the Nearby reducer clamps to, so a pinch cannot report a zoom outside it. */
 const MIN_ZOOM = 12;
 const MAX_ZOOM = 19;
+/** A press that moves this far (px, as Leaflet's drag threshold) is a drag, not a tap on a pin. */
+const TAP_TOLERANCE = 3;
+/** A click this soon after a pin press ended is that press's own click, already handled on release. */
+const PRESS_CLICK_MS = 1000;
 
 export interface HomeMapProps {
   pins: HomePlace[];
@@ -244,15 +248,47 @@ export default function HomeMap(props: HomeMapProps) {
           });
     resize?.observe(el);
 
-    // One activation path for every pin: the pin's own <button>.
-    const onClick = (e: MouseEvent) => {
-      const target = e.target instanceof Element ? e.target : null;
-      const button = target?.closest<HTMLElement>('button[data-place-id]');
-      if (button && el.contains(button) && button.dataset.placeId) latest.current.onPinActivate(button.dataset.placeId);
+    // Pins are activated by their own <button>. A pointer press counts on release: it must start and end on the same
+    // pin without becoming a map drag. It does not wait for the click the browser derives from the press, which
+    // WebKit did not reliably deliver here. Keyboard and assistive-tech clicks (no press before them) still count.
+    const pinId = (target: EventTarget | null) => {
+      const button = target instanceof Element ? target.closest<HTMLElement>('button[data-place-id]') : null;
+      return button && el.contains(button) ? button.dataset.placeId : undefined;
     };
+    let press: { id: string; pointerId: number; x: number; y: number; dragged: boolean } | null = null;
+    let pressEndedAt = Number.NEGATIVE_INFINITY;
+    const onPressStart = (e: PointerEvent) => {
+      const id = pinId(e.target);
+      press = id && e.isPrimary && e.button === 0 ? { id, pointerId: e.pointerId, x: e.clientX, y: e.clientY, dragged: false } : null;
+    };
+    const onPressEnd = (e: PointerEvent) => {
+      if (!press || e.pointerId !== press.pointerId) return;
+      const { id, x, y, dragged } = press;
+      press = null;
+      pressEndedAt = Date.now();
+      const moved = Math.abs(e.clientX - x) + Math.abs(e.clientY - y) >= TAP_TOLERANCE;
+      if (e.type === 'pointerup' && !dragged && !moved && pinId(e.target) === id) latest.current.onPinActivate(id);
+    };
+    map.on('dragstart', () => {
+      if (press) press.dragged = true;
+    });
+    const onClick = (e: MouseEvent) => {
+      const id = pinId(e.target);
+      if (!id) return;
+      // A pointer click (detail > 0) right after a pin press belongs to that press, which was decided on release.
+      if (e.detail > 0 && Date.now() - pressEndedAt < PRESS_CLICK_MS) return;
+      latest.current.onPinActivate(id);
+    };
+    el.addEventListener('pointerdown', onPressStart);
+    // On window, so a press released or cancelled off the map still ends.
+    window.addEventListener('pointerup', onPressEnd);
+    window.addEventListener('pointercancel', onPressEnd);
     el.addEventListener('click', onClick);
 
     return () => {
+      el.removeEventListener('pointerdown', onPressStart);
+      window.removeEventListener('pointerup', onPressEnd);
+      window.removeEventListener('pointercancel', onPressEnd);
       el.removeEventListener('click', onClick);
       for (const type of inputs) el.removeEventListener(type, userInput);
       resize?.disconnect();

@@ -482,6 +482,95 @@ describe('HomeMap', () => {
     expect(onPinActivate).toHaveBeenCalledWith(HAW_PAR.id);
   });
 
+  describe('pointer presses on pins', () => {
+    // jsdom has no PointerEvent: a MouseEvent with the pointer fields added.
+    function pointer(type: 'pointerdown' | 'pointerup' | 'pointercancel', target: Element, at = { x: 50, y: 60 }, init: { pointerId?: number; isPrimary?: boolean; button?: number } = {}) {
+      const e = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: at.x, clientY: at.y, button: init.button ?? 0 });
+      Object.assign(e, { pointerId: init.pointerId ?? 1, isPrimary: init.isPrimary ?? true });
+      act(() => {
+        target.dispatchEvent(e);
+      });
+    }
+    const pointerClick = (target: Element) => fireEvent.click(target, { detail: 1 });
+    const glyph = (p: { name: string }) => screen.getByRole('button', { name: pinName(p) }).querySelector('path')!;
+
+    it('a press released on the same pin activates it without waiting for the click (WebKit may not send one)', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      pointer('pointerdown', glyph(HAW_PAR));
+      pointer('pointerup', glyph(HAW_PAR));
+      expect(onPinActivate).toHaveBeenCalledTimes(1);
+      expect(onPinActivate).toHaveBeenCalledWith(HAW_PAR.id);
+    });
+
+    it('the click that follows the press does not activate the pin a second time', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      const pin = screen.getByRole('button', { name: pinName(HAW_PAR) });
+      pointer('pointerdown', pin);
+      pointer('pointerup', pin);
+      pointerClick(pin);
+      expect(onPinActivate).toHaveBeenCalledTimes(1);
+    });
+
+    it('a press that becomes a map drag does not select the pin, even when released on it', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      const pin = screen.getByRole('button', { name: pinName(HAW_PAR) });
+      pointer('pointerdown', pin);
+      act(() => lastMap().fire('dragstart'));
+      pointer('pointerup', pin);
+      pointerClick(pin);
+      expect(onPinActivate).not.toHaveBeenCalled();
+    });
+
+    it('a press that moves past the drag threshold, or ends on another pin or off the map, does not activate', () => {
+      const onPinActivate = vi.fn();
+      const { container } = render(<HomeMap {...baseProps({ onPinActivate })} />);
+      const pin = screen.getByRole('button', { name: pinName(HAW_PAR) });
+      pointer('pointerdown', pin, { x: 50, y: 60 });
+      pointer('pointerup', pin, { x: 50, y: 64 });
+      pointer('pointerdown', pin);
+      pointer('pointerup', screen.getByRole('button', { name: pinName(HOLLAND) }));
+      pointer('pointerdown', pin);
+      pointer('pointerup', document.body);
+      pointer('pointerdown', pin);
+      pointer('pointercancel', pin);
+      // A press that starts on bare map and ends on a pin is not a tap on it either.
+      pointer('pointerdown', container.firstElementChild!);
+      pointer('pointerup', pin);
+      expect(onPinActivate).not.toHaveBeenCalled();
+    });
+
+    it('ignores secondary buttons and non-primary pointers', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      const pin = screen.getByRole('button', { name: pinName(HAW_PAR) });
+      pointer('pointerdown', pin, undefined, { button: 2 });
+      pointer('pointerup', pin, undefined, { button: 2 });
+      pointer('pointerdown', pin, undefined, { pointerId: 2, isPrimary: false });
+      pointer('pointerup', pin, undefined, { pointerId: 2, isPrimary: false });
+      expect(onPinActivate).not.toHaveBeenCalled();
+    });
+
+    it('keyboard activation (a click with no press) still works right after a pointer press', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      pointer('pointerdown', glyph(HAW_PAR));
+      pointer('pointerup', glyph(HAW_PAR));
+      // Enter / Space on a focused button: a click with detail 0.
+      fireEvent.click(screen.getByRole('button', { name: pinName(HOLLAND) }), { detail: 0 });
+      expect(onPinActivate.mock.calls).toEqual([[HAW_PAR.id], [HOLLAND.id]]);
+    });
+
+    it('a pointer click with no press seen (assistive tech) activates', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      pointerClick(screen.getByRole('button', { name: pinName(HOLLAND) }));
+      expect(onPinActivate).toHaveBeenCalledWith(HOLLAND.id);
+    });
+  });
+
   it('escapes place names in pin markup', () => {
     const odd = { ...HAW_PAR, id: 'odd', name: 'A <b>"Q"</b> & co' };
     render(<HomeMap {...baseProps({ pins: [odd], selectedId: 'odd' })} />);
