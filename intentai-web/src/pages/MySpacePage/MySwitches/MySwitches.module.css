@@ -1,0 +1,83 @@
+.card {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #dedad2;
+  border-radius: 1rem;
+  background: #fff;
+  overflow: hidden;
+}
+
+.item {
+  padding: 0.75rem 0.875rem;
+}
+
+.item + .item {
+  border-top: 1px solid #efebe4;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chip {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  background: #f6f5f2;
+  color: #8a7f72;
+}
+
+.chipOn {
+  background: #fff3ea;
+  color: #a3410b;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #23211d;
+}
+
+.sub {
+  font-size: 0.75rem;
+  color: #5f5b54;
+}
+
+.preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin: 0.625rem 0 0 3.25rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.75rem;
+  border: 1px solid #f8d6bf;
+  background: #fff3ea;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #23211d;
+  cursor: pointer;
+}
+
+.preview svg {
+  color: #a3410b;
+}
+
+.preview:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}

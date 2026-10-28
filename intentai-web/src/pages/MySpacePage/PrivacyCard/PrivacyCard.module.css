@@ -1,0 +1,67 @@
+.card {
+  display: block;
+  width: 100%;
+  margin-top: 0.625rem;
+  padding: 0.875rem;
+  border: 1px solid #dedad2;
+  border-radius: 1rem;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  color: #23211d;
+  cursor: pointer;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chip {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  background: #e6f4ea;
+  color: #1e6b34;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 0.9375rem;
+  font-weight: 800;
+}
+
+.sub {
+  font-size: 0.75rem;
+  color: #5f5b54;
+}
+
+.chevron {
+  display: inline-flex;
+  color: #5f5b54;
+}
+
+.bar {
+  display: flex;
+  gap: 2px;
+  height: 0.5rem;
+  margin-top: 0.75rem;
+  border-radius: 4px;
+  background: #f0ece6;
+  overflow: hidden;
+}

@@ -7,7 +7,9 @@ import EditSheet from './EditSheet/EditSheet';
 import KnowsGrid from './KnowsGrid/KnowsGrid';
 import LinkList from './LinkList/LinkList';
 import MySpaceLayout from './MySpaceLayout/MySpaceLayout';
+import MySwitches from './MySwitches/MySwitches';
 import PassportSummary from './PassportSummary/PassportSummary';
+import PrivacyCard from './PrivacyCard/PrivacyCard';
 import { EyeClosed, Gear, Help, Redo } from './icons';
 import { redoOnboarding } from './redo';
 import styles from './MySpacePage.module.css';
@@ -37,6 +39,9 @@ export default function MySpacePage() {
           </span>
         </div>
         <KnowsGrid onEdit={setEditing} />
+        <h2 className={`${styles.heading} ${styles.section}`}>Switches</h2>
+        <MySwitches />
+        <PrivacyCard />
         <LinkList
           rows={[
             { label: 'Settings', icon: <Gear />, tone: ['#f6f5f2', '#23211d'], onSelect: () => navigate(paths.mySpaceSettings) },

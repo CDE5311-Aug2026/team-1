@@ -56,3 +56,7 @@
   text-transform: uppercase;
   color: var(--ms-muted);
 }
+
+.section {
+  margin-top: 0.75rem;
+}
