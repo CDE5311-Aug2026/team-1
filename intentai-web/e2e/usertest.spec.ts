@@ -9,10 +9,10 @@ test.describe('user test without a server', () => {
   test('a named session reaches the dashboard from this device, which passes axe and exports', async ({ page }) => {
     await page.goto('/');
     await page.getByLabel('Test name').fill('P09');
-    await page.getByRole('button', { name: 'Start' }).click();
-    await page.getByRole('button', { name: 'Get started' }).click();
+    await page.getByRole('button', { name: 'Start', exact: true }).click();
+    await page.getByRole('button', { name: 'Start the hunt' }).click();
     await page.waitForTimeout(1200);
-    await page.goto('/nearby'); // a full load ends the Welcome visit (pagehide) and starts a new one
+    await page.goto('/nearby'); // a full load ends the Onboarding visit (pagehide) and starts a new one
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: "Editor's picks" }).click();
     await page.waitForTimeout(600);
