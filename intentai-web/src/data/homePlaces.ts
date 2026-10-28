@@ -1,4 +1,6 @@
 import areasJson from './explore/areas.json';
+import berlinPhoto from '../assets/home/berlin-wall-fragments.webp';
+import berlinThumb from '../assets/home/berlin-wall-thumb.webp';
 import chinatownPhoto from '../assets/home/chinatown.webp';
 import { distanceM } from '../features/nearby/geo';
 import { THUMB_CREDIT, thumbUrl } from '../features/nearby/thumbs';
@@ -13,13 +15,16 @@ export interface HomePlace {
   area: string;
   point: LatLng;
   distance: string;
-  /** Missing until a licensed photo exists; the UI shows a placeholder. */
+  /** Optional; the UI shows a placeholder when a place has no photo. */
   photo?: string;
   photoAlt: string;
   credit: string;
   hasCards: boolean;
   pinAlways: boolean;
 }
+
+/** 80x80 crop of the right-hand panel, for the Deepavali card's anniversary row. */
+export const BERLIN_THUMB: string = berlinThumb;
 
 export const HOME_BASE: LatLng = { lat: 1.3042, lng: 103.7734 };
 export const HOME_BASE_LABEL = 'NUS University Town';
@@ -65,8 +70,9 @@ export const HOME_PLACES: readonly HomePlace[] = [
     area: 'NUS University Town',
     point: { lat: 1.30583, lng: 103.77472 },
     distance: '200 m',
-    photoAlt: '',
-    credit: '',
+    photo: berlinPhoto,
+    photoAlt: 'Two painted Berlin Wall panels in a garden at NUS University Town',
+    credit: 'Photo supplied by the IntentAI team',
     hasCards: true,
     pinAlways: true,
   },

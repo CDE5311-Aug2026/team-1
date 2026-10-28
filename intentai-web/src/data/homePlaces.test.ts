@@ -1,5 +1,6 @@
 import { beforeEach, expect, test } from 'vitest';
 import {
+  BERLIN_THUMB,
   FACETS,
   HOME_PLACES,
   PINNED_COUNT,
@@ -70,15 +71,18 @@ test('places 3 to 5 have computed distance labels', () => {
   }
 });
 
-test('every place with a photo has credit and alt; Berlin has none yet', () => {
+test('every place has a photo with credit and alt', () => {
   for (const p of HOME_PLACES) {
-    if (p.photo) {
-      expect(p.credit).not.toBe('');
-      expect(p.photoAlt).not.toBe('');
-    }
+    expect(p.photo).toBeTruthy();
+    expect(p.credit).not.toBe('');
+    expect(p.photoAlt).not.toBe('');
   }
-  expect(HOME_PLACES[0].photo).toBeUndefined();
-  expect(HOME_PLACES.slice(1).every((p) => p.photo)).toBe(true);
+  expect(HOME_PLACES[0].photo).toBeDefined();
+});
+
+test('BERLIN_THUMB is a non-empty url string', () => {
+  expect(typeof BERLIN_THUMB).toBe('string');
+  expect(BERLIN_THUMB.length).toBeGreaterThan(0);
 });
 
 test('isPlaceProgress and openedCount', () => {
