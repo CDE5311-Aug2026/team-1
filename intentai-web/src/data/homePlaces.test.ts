@@ -9,6 +9,8 @@ import {
   openedCount,
   visiblePins,
 } from './homePlaces';
+import placesJson from './explore/places.sg.json';
+import areasJson from './explore/areas.json';
 import { deleteAllData, placeProgressStore } from './stores';
 import { resetPersistentStores } from './persistentStore';
 
@@ -95,4 +97,15 @@ test('placeProgressStore ignores invalid storage and is cleared by deleteAllData
   expect(placeProgressStore.get()).toEqual({ chinatown: ['food'] });
   deleteAllData();
   expect(placeProgressStore.get()).toEqual({});
+});
+
+test('literal places 3 to 5 match the Nearby catalogue', () => {
+  const areas = (areasJson as { areas: { id: string; name: string }[] }).areas;
+  const places = placesJson as { id: string; name: string; areaId: string; coordinates: { lat: number; lng: number } }[];
+  for (const p of HOME_PLACES.slice(2)) {
+    const raw = places.find((r) => r.id === p.id)!;
+    expect(p.name).toBe(raw.name);
+    expect(p.point).toEqual({ lat: raw.coordinates.lat, lng: raw.coordinates.lng });
+    expect(p.area).toBe(areas.find((a) => a.id === raw.areaId)!.name);
+  }
 });

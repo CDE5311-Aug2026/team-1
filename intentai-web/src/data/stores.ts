@@ -30,7 +30,7 @@ import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
 import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
 import { stopLocation } from '../features/nearby/location';
-import { isPlaceProgress, type PlaceProgress } from './homePlaces';
+import { isPlaceProgress, type PlaceProgress } from './placeProgress';
 import { createPersistentStore } from './persistentStore';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';

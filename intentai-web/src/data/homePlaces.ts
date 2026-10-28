@@ -1,12 +1,11 @@
 import areasJson from './explore/areas.json';
-import placesJson from './explore/places.sg.json';
 import chinatownPhoto from '../assets/home/chinatown.webp';
 import { distanceM } from '../features/nearby/geo';
 import { THUMB_CREDIT, thumbUrl } from '../features/nearby/thumbs';
 import type { LatLng } from '../features/nearby/types';
 
-export type Facet = 'food' | 'monument' | 'festival' | 'history';
-export const FACETS: readonly Facet[] = ['food', 'monument', 'festival', 'history'];
+export { FACETS, isPlaceProgress, openedCount } from './placeProgress';
+export type { Facet, PlaceProgress } from './placeProgress';
 
 export interface HomePlace {
   id: string;
@@ -31,12 +30,6 @@ export function formatHomeDistance(metres: number): string {
   return `${(metres / 1000).toFixed(1)} km`;
 }
 
-interface RawPlace {
-  id: string;
-  name: string;
-  areaId: string;
-  coordinates: { lat: number; lng: number };
-}
 interface RawArea {
   id: string;
   name: string;
@@ -44,20 +37,18 @@ interface RawArea {
 }
 
 const areas = (areasJson as { areas: RawArea[] }).areas;
-const places = placesJson as RawPlace[];
 
-function nearbyPlace(id: string): HomePlace {
-  const raw = places.find((p) => p.id === id);
-  if (!raw) throw new Error(`Home place ${id} missing from places.sg.json`);
-  const point = { lat: raw.coordinates.lat, lng: raw.coordinates.lng };
+// Written out here so the Nearby catalogue (places.sg.json) stays out of the main bundle;
+// homePlaces.test.ts checks these against the catalogue.
+function nearbyPlace(id: string, name: string, area: string, point: LatLng): HomePlace {
   return {
     id,
-    name: raw.name,
-    area: areas.find((a) => a.id === raw.areaId)?.name ?? '',
+    name,
+    area,
     point,
     distance: formatHomeDistance(distanceM(HOME_BASE, point)),
     photo: thumbUrl(id)!,
-    photoAlt: `${raw.name} (3D map view)`,
+    photoAlt: `${name} (3D map view)`,
     credit: THUMB_CREDIT,
     hasCards: false,
     pinAlways: true,
@@ -91,9 +82,9 @@ export const HOME_PLACES: readonly HomePlace[] = [
     hasCards: true,
     pinAlways: false,
   },
-  nearbyPlace('curated:sg-national-university-of-singapore'),
-  nearbyPlace('curated:sg-haw-par-villa'),
-  nearbyPlace('curated:sg-holland-village'),
+  nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }),
+  nearbyPlace('curated:sg-haw-par-villa', 'Haw Par Villa', 'Queenstown & Holland', { lat: 1.28405, lng: 103.78142 }),
+  nearbyPlace('curated:sg-holland-village', 'Holland Village', 'Queenstown & Holland', { lat: 1.31194, lng: 103.79611 }),
 ];
 
 export function homePlace(id: string): HomePlace | undefined {
@@ -103,17 +94,4 @@ export function homePlace(id: string): HomePlace | undefined {
 /** Always-pinned places, plus the selected one when it is not always pinned. */
 export function visiblePins(selectedId: string): HomePlace[] {
   return HOME_PLACES.filter((p) => p.pinAlways || p.id === selectedId);
-}
-
-export type PlaceProgress = Record<string, Facet[]>;
-
-export function isPlaceProgress(v: unknown): v is PlaceProgress {
-  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false;
-  return Object.values(v).every(
-    (list) => Array.isArray(list) && list.every((f) => FACETS.includes(f as Facet)),
-  );
-}
-
-export function openedCount(progress: PlaceProgress, id: string): number {
-  return new Set(progress[id] ?? []).size;
 }
