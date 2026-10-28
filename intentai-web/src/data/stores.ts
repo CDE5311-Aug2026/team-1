@@ -30,6 +30,7 @@ import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
 import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
 import { stopLocation } from '../features/nearby/location';
+import { isPlaceProgress, type PlaceProgress } from './homePlaces';
 import { createPersistentStore } from './persistentStore';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
@@ -125,6 +126,13 @@ export const collectedStore = createPersistentStore<string[]>({
   isValid: isSavedIds,
 });
 
+/** Facets opened per Home place (a facet counts once). */
+export const placeProgressStore = createPersistentStore<PlaceProgress>({
+  key: 'placeProgress',
+  fallback: {},
+  isValid: isPlaceProgress,
+});
+
 /** Anonymous random id sent with usage timings (time only, never content). Empty until first needed. */
 export const usageIdStore = createPersistentStore<string>({
   key: 'usage-id',
@@ -196,6 +204,7 @@ export function deleteAllData() {
   streakStore.set(NO_STREAK);
   culturePrefsStore.set(DEFAULT_PREFS);
   collectedStore.set([]);
+  placeProgressStore.set({});
   usageIdStore.set('');
   // The user test goes on (the test name is not personal data); its records on this device are deleted.
   clearLocalUsage();
