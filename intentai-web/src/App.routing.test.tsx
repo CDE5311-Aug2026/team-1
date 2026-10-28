@@ -1,8 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, test, vi } from 'vitest';
 import App from './App';
+import { resetPersistentStores } from './data/persistentStore';
 import { paths, patterns } from './routes';
 
 test('default route shows Home with the greeting and the holiday title', () => {
@@ -67,4 +68,27 @@ test('a place route renders the place page', () => {
 test('paths.placeCard encodes both segments', () => {
   expect(paths.placeCard('a b', 'food')).toBe('/place/a%20b/food');
   expect(patterns.placeCard).toBe('/place/:placeId/:facet');
+});
+
+test('collecting the Berlin history stamp shows it in the Moments "Place stories" row, and it survives a reload', async () => {
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  const first = render(
+    <MemoryRouter useTransitions={false} initialEntries={[paths.placeCard('berlin-wall-fragments', 'history')]}>
+      <App />
+    </MemoryRouter>,
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Collect stamp' }));
+  await userEvent.click(screen.getByRole('link', { name: 'Stamped · see passport' }));
+  const row = () => within(screen.getByRole('list', { name: 'Place stories' })).getAllByRole('link');
+  expect(row().map((a) => a.textContent)).toEqual([expect.stringMatching(/^Berlin Wall Fragments/)]);
+  first.unmount();
+  // A reload keeps only localStorage: drop the in-memory store caches and mount the app fresh.
+  resetPersistentStores();
+  render(
+    <MemoryRouter useTransitions={false} initialEntries={[paths.moments]}>
+      <App />
+    </MemoryRouter>,
+  );
+  expect(row().map((a) => a.textContent)).toEqual([expect.stringMatching(/^Berlin Wall Fragments/)]);
+  vi.restoreAllMocks();
 });

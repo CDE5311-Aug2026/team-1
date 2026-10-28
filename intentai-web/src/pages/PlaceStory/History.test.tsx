@@ -120,6 +120,12 @@ test('Wall history: Back to place replaces with the place and railIndex 3', () =
   expect(screen.getByTestId('at')).toHaveTextContent('/place/berlin-wall-fragments {"railIndex":3}');
 });
 
+test('Wall history: the top bar Back link goes to the place on the history rail', () => {
+  renderCard(BERLIN);
+  fireEvent.click(screen.getByRole('link', { name: 'Back to Berlin Wall Fragments' }));
+  expect(screen.getByTestId('at')).toHaveTextContent('/place/berlin-wall-fragments {"railIndex":3}');
+});
+
 test('Chinatown history: header, subtitle, top bar and video', () => {
   renderCard('chinatown');
   expect(placeState(placeStoriesStore.get(), 'chinatown').opened).toContain('history');
@@ -163,7 +169,8 @@ test('Chinatown history: six rows, map highlight and label, chips, photo and sou
 
 test('Chinatown history: numbers count up from 0 to 3,317 and 1,200', () => {
   renderCard('chinatown');
-  const nums = () => Array.from(document.querySelectorAll('b')).map((b) => b.textContent);
+  const timeline = screen.getByRole('region', { name: 'Timeline' });
+  const nums = () => Array.from(timeline.querySelectorAll('b')).map((b) => b.textContent);
   expect(nums()).toEqual(['0', '0']);
   act(() => vi.advanceTimersByTime(900 + 700));
   const mid = nums();
@@ -176,7 +183,8 @@ test('Chinatown history: numbers count up from 0 to 3,317 and 1,200', () => {
 test('Chinatown history: reduced motion shows the final numbers at once', () => {
   setReducedMotion(true);
   renderCard('chinatown');
-  expect(Array.from(document.querySelectorAll('b')).map((b) => b.textContent)).toEqual(['3,317', '1,200']);
+  const timeline = screen.getByRole('region', { name: 'Timeline' });
+  expect(Array.from(timeline.querySelectorAll('b')).map((b) => b.textContent)).toEqual(['3,317', '1,200']);
 });
 
 test('Chinatown history: Collect stamps, Home replaces with focusPlace chinatown', () => {

@@ -1,6 +1,7 @@
 import { act, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, test } from 'vitest';
+import { PUBLISHED_PLACES } from '../../../features/nearby/catalogue';
 import { markVisited } from '../../../features/nearby/actions';
 import { shortDate } from '../../../features/nearby/personal';
 import { explorePersonalStore, placeStoriesStore } from '../../../data/stores';
@@ -69,13 +70,18 @@ test('with nine Nearby stamps the story stamps are still all shown', () => {
     'berlin-wall-fragments': { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-20' },
     chinatown: { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-28' },
   });
-  const keys = ['sg-merlion-park', 'sg-lau-pa-sat', 'sg-gardens-by-the-bay', 'sg-marina-bay-sands', 'sg-sentosa', 'sg-chinatown', 'sg-little-india', 'sg-kampong-glam', 'sg-haw-par-villa'];
+  const keys = PUBLISHED_PLACES.slice(0, 9).map((p) => p.id.replace(/^curated:/, ''));
   explorePersonalStore.set((d) => ({
     ...d,
     places: keys.map((k, i) => ({ placeKey: `curated:${k}`, saved: false, visited: true, visitedOn: `2026-01-0${i + 1}`, updatedAt: '2026-01-05T00:00:00.000Z' })),
   }));
   renderStamps();
   expect(within(screen.getByRole('list', { name: 'Place stories' })).getAllByRole('link')).toHaveLength(2);
+  // The Nearby strip is still cut at 8, and none of the story stamps leaked into it.
+  const nearby = within(screen.getByRole('list', { name: 'Places checked in' })).getAllByRole('link');
+  expect(nearby).toHaveLength(8);
+  expect(nearby.every((a) => a.getAttribute('href')?.startsWith('/nearby/place/'))).toBe(true);
+  expect(nearby.map((a) => a.textContent).join(' ')).not.toMatch(/Berlin Wall Fragments/);
 });
 
 test('an unstamped story place shows no row', () => {
