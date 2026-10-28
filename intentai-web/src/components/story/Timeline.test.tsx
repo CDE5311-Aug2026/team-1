@@ -25,6 +25,7 @@ const ROWS: TimelineRow[] = [
 test('renders an ordered list of rows, each with a decorative dot, date and text', () => {
   render(<Timeline rows={ROWS} source="Source: berlin.de; Tembusu College, NUS" />);
   const section = screen.getByRole('region', { name: 'Timeline' });
+  expect(within(section).getByRole('list')).toHaveAttribute('role', 'list');
   const items = within(section).getAllByRole('listitem');
   expect(items).toHaveLength(3);
   items.forEach((li, i) => {

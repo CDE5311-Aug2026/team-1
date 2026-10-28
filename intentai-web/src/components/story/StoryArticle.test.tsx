@@ -35,6 +35,18 @@ test('Read more toggles to Show less and back', async () => {
   expect(summary).toHaveTextContent('Read more');
 });
 
+test('top padding variants map to their own classes (12 for p03, 16, default 18)', () => {
+  const { container, rerender } = render(<StoryArticle lead="Lead" more={[]} top={12} />);
+  const cls = () => container.querySelector('article')!.className;
+  const c12 = cls();
+  rerender(<StoryArticle lead="Lead" more={[]} top={16} />);
+  const c16 = cls();
+  rerender(<StoryArticle lead="Lead" more={[]} />);
+  const c18 = cls();
+  expect(new Set([c12, c16, c18]).size).toBe(3);
+  expect(c12).toMatch(/top12/);
+});
+
 test('children render after the details (source line)', () => {
   renderArticle();
   const source = screen.getByText('Source: Tembusu College, NUS');

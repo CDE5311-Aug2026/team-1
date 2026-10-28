@@ -16,7 +16,7 @@ interface StoryHeaderProps {
 export function StoryHeader({ kicker, icon, title, subtitle }: StoryHeaderProps) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
-    heading.current?.focus();
+    heading.current?.focus({ preventScroll: true });
   }, []);
 
   return (

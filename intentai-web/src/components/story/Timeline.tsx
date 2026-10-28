@@ -34,9 +34,10 @@ export function Timeline({ rows, source, longSpine = false }: TimelineProps) {
   return (
     <section aria-label="Timeline" className={styles.card}>
       <span aria-hidden="true" className={`a-line ${longSpine ? 'a-line-long' : ''} ${styles.spine} ${longSpine ? styles.spineLong : ''}`} />
-      <ol className={styles.rows}>
-        {rows.map((row) => (
-          <li key={row.date} className={`a-up ${styles.row}`} style={{ animationDelay: `${row.delay}s` }}>
+      {/* list-style: none drops list semantics in Safari; keep them. */}
+      <ol role="list" className={styles.rows}>
+        {rows.map((row, i) => (
+          <li key={`${i}-${row.date}`} className={`a-up ${styles.row}`} style={{ animationDelay: `${row.delay}s` }}>
             <span
               aria-hidden="true"
               data-dot={row.dot}

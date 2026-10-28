@@ -8,8 +8,8 @@ interface StoryArticleProps {
   more: readonly ReactNode[];
   /** Lead paragraph animation delay, s (default .4). */
   leadDelay?: number;
-  /** Top padding: 18 (default) or 16. */
-  top?: 16 | 18;
+  /** Top padding: 18 (default), 16 or 12 (p03). */
+  top?: 12 | 16 | 18;
   /** Rendered after the details, e.g. a SourceLine. */
   children?: ReactNode;
 }
@@ -18,7 +18,7 @@ interface StoryArticleProps {
 export function StoryArticle({ lead, more, leadDelay = 0.4, top = 18, children }: StoryArticleProps) {
   const [open, setOpen] = useState(false);
   return (
-    <article className={`${styles.article} ${top === 16 ? styles.top16 : ''}`}>
+    <article className={`${styles.article} ${top === 16 ? styles.top16 : top === 12 ? styles.top12 : ''}`}>
       <p className={`a-up ${styles.lead}`} style={{ animationDelay: `${leadDelay}s` }}>
         {lead}
       </p>

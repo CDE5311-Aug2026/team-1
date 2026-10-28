@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { StoryHeader } from './StoryHeader';
 
 test('renders the kicker, a blur-word heading and the optional subtitle', () => {
@@ -29,4 +29,11 @@ test('focuses the h1 on mount (route entry), without making it a tab stop', () =
 test('no subtitle paragraph when none is given', () => {
   const { container } = render(<StoryHeader kicker="FESTIVAL · CHINATOWN" icon="festival" title={['Lunar', 'New Year']} />);
   expect(container.querySelectorAll('header p')).toHaveLength(1);
+});
+
+test('focusing the h1 does not scroll (the page owns scroll position)', () => {
+  const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+  render(<StoryHeader kicker="FOOD · CHINATOWN" icon="food" title={['Bak kwa,']} />);
+  expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+  focus.mockRestore();
 });
