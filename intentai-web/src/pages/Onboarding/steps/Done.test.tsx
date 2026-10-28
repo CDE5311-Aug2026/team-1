@@ -13,7 +13,7 @@ import { COMPLETED_ONBOARDING } from '../../../test/onboardingFixture';
 import { formatDistance } from '../areas';
 import { PHOTOS } from '../options';
 import OnboardingFlow from '../OnboardingFlow';
-import { FIND_ROTATE_MS, FIND_TAP_PAUSE_MS, formatStampDate, step } from './Done';
+import { FIND_ROTATE_MS, formatStampDate, step } from './Done';
 
 const DONE: Onboarding = { ...COMPLETED_ONBOARDING, completedAt: '2026-10-27T12:00:00.000Z' };
 const WALL = HOME_PLACES.find((p) => p.id === 'berlin-wall-fragments')!;
@@ -87,11 +87,10 @@ test('a back card promotes to the front, takes focus, and the dots follow', asyn
   expect(within(fan()).getAllByRole('button').map((b) => b.getAttribute('aria-label'))).toEqual(['Show Berlin Wall Fragments', 'Show Bak kwa']);
 });
 
-test('auto-rotates every 3400 ms, and pauses for 5000 ms after a tap', () => {
+test('auto-rotates every 3400 ms', () => {
   vi.useFakeTimers();
   renderDone();
   expect(FIND_ROTATE_MS).toBe(3400);
-  expect(FIND_TAP_PAUSE_MS).toBe(5000);
   act(() => vi.advanceTimersByTime(3399));
   expect(activeDot()).toBe(0);
   act(() => vi.advanceTimersByTime(1));
@@ -100,24 +99,37 @@ test('auto-rotates every 3400 ms, and pauses for 5000 ms after a tap', () => {
   expect(activeDot()).toBe(2);
   act(() => vi.advanceTimersByTime(3400));
   expect(activeDot()).toBe(0);
-  // Tap at t=10200: the ticks at +3400 (3.4 s since the tap) skip, the one at +6800 rotates.
-  fireEvent.click(screen.getByRole('button', { name: 'Show Lunar New Year' }));
-  expect(activeDot()).toBe(2);
-  act(() => vi.advanceTimersByTime(3400));
-  expect(activeDot()).toBe(2);
-  act(() => vi.advanceTimersByTime(3400));
-  expect(activeDot()).toBe(0);
 });
 
-test('does not rotate while focus is inside the fan', () => {
+test('pauses while the pointer is over the fan and resumes when it leaves', () => {
+  vi.useFakeTimers();
+  renderDone();
+  fireEvent.pointerEnter(fan());
+  act(() => vi.advanceTimersByTime(3400 * 3));
+  expect(activeDot()).toBe(0);
+  fireEvent.pointerLeave(fan());
+  act(() => vi.advanceTimersByTime(3400));
+  expect(activeDot()).toBe(1);
+});
+
+test('stops for good after a manual tap', () => {
+  vi.useFakeTimers();
+  renderDone();
+  fireEvent.click(screen.getByRole('button', { name: 'Show Lunar New Year' }));
+  expect(activeDot()).toBe(2);
+  act(() => vi.advanceTimersByTime(3400 * 10));
+  expect(activeDot()).toBe(2);
+});
+
+test('stops for good once keyboard focus has been inside the fan', () => {
   vi.useFakeTimers();
   renderDone();
   act(() => frontLink().focus());
   act(() => vi.advanceTimersByTime(3400 * 3));
   expect(activeDot()).toBe(0);
   act(() => frontLink().blur());
-  act(() => vi.advanceTimersByTime(3400));
-  expect(activeDot()).toBe(1);
+  act(() => vi.advanceTimersByTime(3400 * 3));
+  expect(activeDot()).toBe(0);
 });
 
 test('stamp: WELCOME and the completion date, plus the splash ring', () => {
