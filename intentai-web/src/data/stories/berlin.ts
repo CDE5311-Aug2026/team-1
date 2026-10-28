@@ -1,4 +1,5 @@
 import { STORY_IMAGES, type StoryImage } from '../../assets/stories';
+import type { TimelineRow } from '../../components/story/Timeline';
 
 /** One photo of The Spread's carousel. `group` indexes `SPREAD.groups`. */
 export interface SpreadSlide {
@@ -136,4 +137,47 @@ export const FALL_OF_THE_WALL = {
   ],
   source: 'Source: berlin.de · Photo: Daderot · CC0',
   next: { title: 'From 1961 to a Singapore garden', thumb: STORY_IMAGES.wall1989.src },
+};
+
+/** History card: 1961 to 2016 (Berlin Wall Fragments). */
+export const WALL_HISTORY = {
+  kicker: 'HISTORY · BERLIN WALL FRAGMENTS',
+  title: ['From 1961 to a', 'Singapore garden'],
+  video: {
+    title: 'How the Wall rose and fell',
+    duration: 160,
+    poster: STORY_IMAGES.wall1989,
+    captions: [
+      'In August 1961, East Germany began building the Wall.',
+      'For 28 years, it split Berlin in two.',
+      'On 9 November 1989, the crossings opened.',
+      'In 2016, two panels came to Tembusu College.',
+    ] as const,
+  },
+  timeline: [
+    { date: '1961 · 13 AUG', text: 'East Germany begins building the Wall around West Berlin. It stands for 28 years.', dot: 'ring', delay: 0.5, dotDelay: 0.6 },
+    {
+      date: '1989 · 9 NOV',
+      text: 'The crossings open. Berliners climb onto the Wall at the Brandenburg Gate.',
+      dot: 'fill',
+      delay: 0.75,
+      dotDelay: 0.9,
+      image: { src: STORY_IMAGES.wall1989.src, alt: 'Crowds on the Wall in front of the Brandenburg Gate, 1989', credit: STORY_IMAGES.wall1989.credit },
+    },
+    { date: '1990 · 3 OCT', text: 'Germany is reunified. The Wall comes down, and pieces go to places around the world.', dot: 'ring', delay: 1, dotDelay: 1.15 },
+    {
+      date: '2016 · 18 OCT',
+      text: 'Two panels are unveiled behind Tembusu College, NUS. You are here.',
+      dot: 'here',
+      delay: 1.25,
+      dotDelay: 1.4,
+      thumb: { src: STORY_IMAGES.wallPanels.src, alt: 'The two panels at Tembusu College' },
+    },
+  ] as readonly TimelineRow[],
+  source: 'Source: berlin.de; Tembusu College, NUS',
+  collect: {
+    title: 'That’s all 4 cards here',
+    before: 'Check in at the panels to add this place to your passport.',
+    after: 'Berlin Wall Fragments is in your passport in Moments.',
+  },
 };

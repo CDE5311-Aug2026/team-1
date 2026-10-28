@@ -134,3 +134,41 @@ export const LUNAR_NEW_YEAR = {
   source: 'Source: IntentAI editorial; Singapore 2027 public holidays (MOM) · Photo: Dileep Kaluaratchie · CC BY-SA 4.0',
   next: { title: 'From the 1822 town plan to today', thumb: STORY_IMAGES.plan1822.src },
 };
+
+/** History card: from the 1822 town plan to today (Chinatown). */
+export const CHINATOWN_HISTORY = {
+  kicker: 'HISTORY · CHINATOWN',
+  title: ['From the 1822', 'town plan', 'to today'],
+  subtitle: '牛车水 Niu Che Shui · “bullock-cart water”',
+  video: {
+    title: 'How Chinatown began',
+    duration: 150,
+    poster: STORY_IMAGES.plan1822,
+    captions: [
+      'In 1822, a town plan set land aside for the Chinese.',
+      'It lay west of the Singapore River.',
+      'Bullock carts brought water, giving the name Niu Che Shui.',
+      'In 1989, its shophouses were protected.',
+    ] as const,
+  },
+  plan: {
+    src: STORY_IMAGES.plan1822.src,
+    alt: 'The 1822 Plan of the Town of Singapore, with the Chinese Campong on the left bank of the river',
+    label: 'Chinese Campong',
+    credit: STORY_IMAGES.plan1822.credit,
+  },
+  planText: 'Raffles’s Town Plan, drawn up by Lt Philip Jackson, set aside the land west of the Singapore River as the Chinese Campong.',
+  people: { to: 3317, after: ' people live there, almost a third of the town.' },
+  nameText: 'Niu Che Shui means “bullock-cart water”, after the carts that brought water to the area. The Hokkien and Cantonese names mean the same.',
+  streetText: 'Each dialect group settled its own streets, with its own temple at the centre.',
+  chips: ['Hokkien · Telok Ayer St', 'Cantonese · Temple St', 'Teochew · South Canal Rd'],
+  buildings: { to: 1200, after: ' buildings are given conservation status, so the old shophouses stay.' },
+  todayText: 'The Chinatown Heritage Centre opens in three restored shophouses on Pagoda Street.',
+  today: { src: STORY_IMAGES.pagodaStreet.src, alt: 'Pagoda Street today, busy with visitors between shophouses', credit: STORY_IMAGES.pagodaStreet.credit },
+  source: 'Source: Singapore Infopedia (NLB), “Chinatown”',
+  collect: {
+    title: 'That’s all 4 Chinatown cards',
+    before: 'Check in nearby to add Chinatown to your passport.',
+    after: 'Chinatown is in your passport in Moments.',
+  },
+};

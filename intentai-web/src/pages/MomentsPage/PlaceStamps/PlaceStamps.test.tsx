@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, test } from 'vitest';
 import { markVisited } from '../../../features/nearby/actions';
 import { shortDate } from '../../../features/nearby/personal';
-import { explorePersonalStore } from '../../../data/stores';
+import { explorePersonalStore, placeStoriesStore } from '../../../data/stores';
 import PlaceStamps from './PlaceStamps';
 
 const renderStamps = () =>
@@ -44,4 +44,42 @@ test('a check-in in Nearby becomes a stamp at once, newest first, and undoing it
 test('short dates: day and month this year, with the year otherwise', () => {
   expect(shortDate('2026-10-21', '2026-12-01')).toBe('21 Oct');
   expect(shortDate('2025-03-02', '2026-12-01')).toBe('2 Mar 2025');
+});
+
+test('story stamps get their own row above Nearby, newest first, linking to the place; the count adds both', () => {
+  placeStoriesStore.set({
+    'berlin-wall-fragments': { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-20' },
+    chinatown: { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-28' },
+  });
+  explorePersonalStore.set((d) => ({
+    ...d,
+    places: [{ placeKey: 'curated:sg-merlion-park', saved: false, visited: true, visitedOn: '2026-01-05', updatedAt: '2026-01-05T00:00:00.000Z' }],
+  }));
+  renderStamps();
+  const stories = within(screen.getByRole('list', { name: 'Place stories' })).getAllByRole('link');
+  expect(stories.map((a) => a.textContent)).toEqual([expect.stringMatching(/^Chinatown/), expect.stringMatching(/^Berlin Wall Fragments/)]);
+  expect(stories[0]).toHaveAttribute('href', '/place/chinatown');
+  expect(screen.getByText('3', { selector: '[data-stat="places"]' })).toBeInTheDocument();
+  const lists = screen.getAllByRole('list');
+  expect(lists.indexOf(screen.getByRole('list', { name: 'Place stories' }))).toBeLessThan(lists.indexOf(screen.getByRole('list', { name: 'Places checked in' })));
+});
+
+test('with nine Nearby stamps the story stamps are still all shown', () => {
+  placeStoriesStore.set({
+    'berlin-wall-fragments': { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-20' },
+    chinatown: { opened: [], checkedIn: false, stamped: true, stampedOn: '2026-10-28' },
+  });
+  const keys = ['sg-merlion-park', 'sg-lau-pa-sat', 'sg-gardens-by-the-bay', 'sg-marina-bay-sands', 'sg-sentosa', 'sg-chinatown', 'sg-little-india', 'sg-kampong-glam', 'sg-haw-par-villa'];
+  explorePersonalStore.set((d) => ({
+    ...d,
+    places: keys.map((k, i) => ({ placeKey: `curated:${k}`, saved: false, visited: true, visitedOn: `2026-01-0${i + 1}`, updatedAt: '2026-01-05T00:00:00.000Z' })),
+  }));
+  renderStamps();
+  expect(within(screen.getByRole('list', { name: 'Place stories' })).getAllByRole('link')).toHaveLength(2);
+});
+
+test('an unstamped story place shows no row', () => {
+  placeStoriesStore.set({ chinatown: { opened: ['food'], checkedIn: false, stamped: false } });
+  renderStamps();
+  expect(screen.queryByRole('list', { name: 'Place stories' })).toBeNull();
 });

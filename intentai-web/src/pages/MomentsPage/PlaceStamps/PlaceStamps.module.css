@@ -85,6 +85,18 @@
   transform: rotate(-6deg);
 }
 
+.ring img {
+  display: block;
+  object-fit: cover;
+}
+
+.rowLabel {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .ring img,
 .ring > span {
   width: 56px;
