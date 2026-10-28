@@ -108,3 +108,32 @@ export const WALL_PANELS = {
   source: 'Source: Tembusu College, NUS',
   next: { title: 'Fall of the Wall · 9 Nov', thumb: STORY_IMAGES.balloons2014.src },
 };
+
+/** Festival card: the fall of the Wall, 9 November (Berlin Wall Fragments). */
+export const FALL_OF_THE_WALL = {
+  kicker: 'FESTIVAL · MON 9 NOV',
+  title: ['Fall of the Wall:', 'the night the', 'border opened'],
+  video: {
+    title: 'How Berlin marks 9 November',
+    duration: 125,
+    poster: STORY_IMAGES.balloons2014,
+    captions: [
+      'On 9 November 1989, the travel rules changed by surprise.',
+      'Crowds rushed to the crossings that night.',
+      'At Bornholmer Straße, the guards raised the barrier.',
+      'In 2014, 8,000 lit balloons traced the Wall’s route.',
+    ] as const,
+  },
+  tiles: [
+    { from: 1961, to: 1989, label: 'the Wall opened' },
+    { to: 20000, prefix: '~', format: (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}k` : String(n)), label: 'crossed in an hour' },
+    { to: 37, label: 'years on Mon' },
+  ] as const,
+  lead: 'On the evening of 9 November 1989, East German official Günter Schabowski announced new travel rules at a press conference, before they were meant to start.',
+  more: [
+    'Crowds rushed to the crossings. At Bornholmer Straße, guards raised the barrier late that night, and about 20,000 people crossed in the next hour.',
+    'Germany’s national holiday is Unity Day on 3 October; 9 November is a day of remembrance. For the 25th anniversary in 2014, 8,000 lit balloons traced 15 km of the Wall’s old route.',
+  ],
+  source: 'Source: berlin.de · Photo: Daderot · CC0',
+  next: { title: 'From 1961 to a Singapore garden', thumb: STORY_IMAGES.wall1989.src },
+};

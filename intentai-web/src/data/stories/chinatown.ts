@@ -94,3 +94,43 @@ export const THIAN_HOCK_KENG = {
   ] as const,
   next: { title: 'Lunar New Year', thumb: STORY_IMAGES.lanterns.src },
 };
+
+/** Festival card: Lunar New Year (Chinatown). */
+export const LUNAR_NEW_YEAR = {
+  kicker: 'FESTIVAL · CHINATOWN',
+  title: ['Lunar', 'New Year'],
+  subtitle: 'Chinese · January or February',
+  video: {
+    title: 'From reunion dinner to day 15',
+    duration: 130,
+    poster: STORY_IMAGES.lanterns,
+    captions: [
+      'The Chinese lunar year begins with a new moon.',
+      'Families gather for the reunion dinner on the eve.',
+      'Visits and feasting carry on for 15 days.',
+      'Chinatown’s streets fill with red lanterns.',
+    ] as const,
+  },
+  tiles: [
+    { to: 15, label: 'days of visits' },
+    { to: 0, format: () => 'Jan–Feb', label: 'day one falls' },
+    { to: 0, format: () => '6 Feb', label: 'next, in 2027' },
+  ] as const,
+  lead: 'The start of the Chinese lunar year, celebrated over 15 days of family visits and feasting.',
+  more: [
+    'The first day usually falls between 21 January and 20 February. The reunion dinner on New Year’s Eve is the main family gathering of the year.',
+    'In the weeks before, Chinatown’s streets fill with lanterns and a festive street market.',
+  ],
+  nextTime: {
+    label: 'Next Lunar New Year',
+    kicker: 'NEXT TIME',
+    month: 'FEB',
+    day: '6',
+    date: 'Sat 6 Feb 2027',
+    note: 'Holidays Sat 6 and Sun 7 Feb; Mon 8 Feb is off in lieu.',
+    remind: 'Remind me',
+    reminded: 'Reminder set for 6 Feb',
+  },
+  source: 'Source: IntentAI editorial; Singapore 2027 public holidays (MOM) · Photo: Dileep Kaluaratchie · CC BY-SA 4.0',
+  next: { title: 'From the 1822 town plan to today', thumb: STORY_IMAGES.plan1822.src },
+};

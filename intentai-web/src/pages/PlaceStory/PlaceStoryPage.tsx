@@ -6,6 +6,8 @@ import { FACETS, type Facet } from '../../data/placeStories';
 import { markOpened } from '../../data/stores';
 import { isFacet, storyPlace, type StoryPlace } from '../../data/stories/places';
 import { rememberRailIndex } from '../../data/stories/railMemory';
+import FestivalLunarNewYear from './FestivalLunarNewYear';
+import FestivalWall from './FestivalWall';
 import FoodBakKwa from './FoodBakKwa';
 import FoodSpread from './FoodSpread';
 import MonumentThianHockKeng from './MonumentThianHockKeng';
@@ -36,6 +38,8 @@ function CardRoute({ place, facet }: { place: StoryPlace; facet: Facet }) {
         place.id === 'chinatown' ? <FoodBakKwa placeId={place.id} /> : <FoodSpread placeId={place.id} />
       ) : facet === 'monument' ? (
         place.id === 'chinatown' ? <MonumentThianHockKeng placeId={place.id} /> : <MonumentWall placeId={place.id} />
+      ) : facet === 'festival' ? (
+        place.id === 'chinatown' ? <FestivalLunarNewYear placeId={place.id} /> : <FestivalWall placeId={place.id} />
       ) : (
         // Interim body until each card layout lands: the card's rail panel copy.
         <StoryHeader kicker={card.kicker} icon={facet} title={[card.title]} subtitle={card.blurb} />

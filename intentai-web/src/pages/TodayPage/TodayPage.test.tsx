@@ -24,6 +24,10 @@ function PlacePath() {
   return <p>place page {useLocation().pathname}</p>;
 }
 
+function CardPath() {
+  return <p>card page {useLocation().pathname}</p>;
+}
+
 function renderWithRoutes() {
   return render(
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
@@ -31,6 +35,7 @@ function renderWithRoutes() {
         <Route path="/" element={<TodayPage />} />
         <Route path="/holidays/deepavali" element={<p>holiday page</p>} />
         <Route path="/place/:placeId" element={<PlacePath />} />
+        <Route path="/place/:placeId/:facet" element={<CardPath />} />
         <Route path="/nearby" element={<p>nearby page</p>} />
         <Route path="/my-space/notices" element={<p>notices page</p>} />
       </Routes>
@@ -57,10 +62,10 @@ test('the hero title button opens the holiday page', async () => {
   expect(screen.getByText('holiday page')).toBeInTheDocument();
 });
 
-test('the anniversary row opens the Berlin Wall place page', async () => {
+test('the anniversary row opens the Fall of the Wall festival card', async () => {
   renderWithRoutes();
   await userEvent.click(screen.getByRole('button', { name: /The Berlin Wall fell 37 years ago/ }));
-  expect(screen.getByText('place page /place/berlin-wall-fragments')).toBeInTheDocument();
+  expect(screen.getByText('card page /place/berlin-wall-fragments/festival')).toBeInTheDocument();
 });
 
 test('the culture tabs are gone', () => {

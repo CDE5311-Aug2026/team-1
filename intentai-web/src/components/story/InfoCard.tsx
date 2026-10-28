@@ -13,8 +13,8 @@ interface InfoCardProps {
   delay?: number;
   /** Kicker-only fade-up delay, s (p09 "Look for"). */
   kickerDelay?: number;
-  /** Top margin: 16 (default) or 12. */
-  top?: 12 | 16;
+  /** Top margin: 16 (default), 12 or 18. */
+  top?: 12 | 16 | 18;
 }
 
 /** Surface panel with a mono kicker, then content. */
@@ -30,7 +30,7 @@ export function InfoCard({ label, kicker, aside, children, delay, kickerDelay, t
   return (
     <section
       aria-label={label}
-      className={`${delay !== undefined ? 'a-up ' : ''}${styles.card} ${top === 12 ? styles.top12 : ''}`}
+      className={`${delay !== undefined ? 'a-up ' : ''}${styles.card} ${top === 12 ? styles.top12 : top === 18 ? styles.top18 : ''}`}
       style={delay !== undefined ? { animationDelay: `${delay}s` } : undefined}
     >
       {aside ? (

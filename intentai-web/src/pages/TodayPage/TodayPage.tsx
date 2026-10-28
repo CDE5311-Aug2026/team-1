@@ -20,7 +20,7 @@ export default function TodayPage() {
     <AppShell tabBarNodeId="1:317" homeIndicatorNodeId="1:338">
       <AppHeader greeting={false} logoSrc={homeLogo} onBell={() => navigate(paths.notices)} />
       <HomeGreeting date={todaysHoliday.today} name={tester.name} />
-      <TodayHero holiday={todaysHoliday} onOpenHoliday={() => navigate(paths.holiday)} onOpenAlso={openPlace} />
+      <TodayHero holiday={todaysHoliday} onOpenHoliday={() => navigate(paths.holiday)} onOpenAlso={(id) => navigate(paths.placeCard(id, 'festival'))} />
       <NearbySection onOpenPlace={openPlace} onSearch={() => navigate(paths.nearby)} />
     </AppShell>
   );
