@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FIT_FLOOR, useFitText } from './useFitText';
 
@@ -67,6 +67,42 @@ describe('useFitText', () => {
     expect(parseFloat(getByTestId('t').style.fontSize)).toBeLessThan(first);
     rerender(<Probe text="Short" />);
     expect(getByTestId('t').style.fontSize).toBe('');
+  });
+
+  it('refits from the CSS size when fonts finish loading, without a width change', () => {
+    mockWidths(150);
+    let listener: (() => void) | undefined;
+    const fonts = {
+      ready: new Promise(() => {}),
+      addEventListener: (_: string, fn: () => void) => (listener = fn),
+      removeEventListener: vi.fn(),
+    };
+    Object.defineProperty(document, 'fonts', { configurable: true, value: fonts });
+    let charW = 1;
+    Object.defineProperty(HTMLElement.prototype, 'scrollWidth', {
+      configurable: true,
+      get(this: HTMLElement) {
+        const size = parseFloat(this.style.fontSize) || BASE;
+        return Math.max(150, (this.textContent ?? '').length * size * charW);
+      },
+    });
+    const { getByTestId, unmount } = render(<Probe text="Fourteen chars" />);
+    const before = parseFloat(getByTestId('t').style.fontSize);
+    charW = 0.5; // narrower font: 14 * 13 * 0.5 = 91 fits at the base size
+    act(() => listener!());
+    expect(getByTestId('t').style.fontSize).toBe('');
+    charW = 1.2;
+    act(() => listener!());
+    expect(parseFloat(getByTestId('t').style.fontSize)).toBeLessThan(before);
+    unmount();
+    expect(fonts.removeEventListener).toHaveBeenCalled();
+    delete (document as unknown as Record<string, unknown>).fonts;
+  });
+
+  it('does not throw without document.fonts', () => {
+    mockWidths(100);
+    expect('fonts' in document && document.fonts !== undefined).toBe(false);
+    expect(() => render(<Probe text="Home" />)).not.toThrow();
   });
 
   it('does not throw without ResizeObserver', () => {

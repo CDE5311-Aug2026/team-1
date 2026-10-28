@@ -28,7 +28,18 @@ export function useFitText(ref: RefObject<HTMLElement | null>, text: string, flo
       el.style.fontSize = `${Math.floor(base * ratio * 100) / 100}px`;
     };
     fit();
-    if (typeof ResizeObserver === 'undefined') return;
+    // Glyph widths change when the web font arrives, with the box unchanged: refit from the CSS size.
+    const fonts = typeof document !== 'undefined' ? document.fonts : undefined;
+    let alive = true;
+    fonts?.ready?.then(() => {
+      if (alive) fit();
+    });
+    fonts?.addEventListener?.('loadingdone', fit);
+    const stopFonts = () => {
+      alive = false;
+      fonts?.removeEventListener?.('loadingdone', fit);
+    };
+    if (typeof ResizeObserver === 'undefined') return stopFonts;
     const ro = new ResizeObserver(() => {
       const w = el.clientWidth;
       if (w === lastWidth) return;
@@ -36,6 +47,9 @@ export function useFitText(ref: RefObject<HTMLElement | null>, text: string, flo
       fit();
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      stopFonts();
+    };
   }, [ref, text, floor]);
 }
