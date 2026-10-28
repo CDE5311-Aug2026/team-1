@@ -8,6 +8,8 @@ import { isFacet, storyPlace, type StoryPlace } from '../../data/stories/places'
 import { rememberRailIndex } from '../../data/stories/railMemory';
 import FoodBakKwa from './FoodBakKwa';
 import FoodSpread from './FoodSpread';
+import MonumentThianHockKeng from './MonumentThianHockKeng';
+import MonumentWall from './MonumentWall';
 import PlaceNotFound from './PlaceNotFound';
 
 /** Culture card route: picks the card for place + facet. Unknown place or facet → not found. */
@@ -32,6 +34,8 @@ function CardRoute({ place, facet }: { place: StoryPlace; facet: Facet }) {
       <StoryTopBar placeId={place.id} facet={facet} backLabel={place.name} />
       {facet === 'food' ? (
         place.id === 'chinatown' ? <FoodBakKwa placeId={place.id} /> : <FoodSpread placeId={place.id} />
+      ) : facet === 'monument' ? (
+        place.id === 'chinatown' ? <MonumentThianHockKeng placeId={place.id} /> : <MonumentWall placeId={place.id} />
       ) : (
         // Interim body until each card layout lands: the card's rail panel copy.
         <StoryHeader kicker={card.kicker} icon={facet} title={[card.title]} subtitle={card.blurb} />

@@ -79,3 +79,32 @@ export const SPREAD = {
   source: 'Source: thespread.sg (hours, address); NUS Business School · Photos: The Spread',
   next: { title: 'The Wall panels', thumb: STORY_IMAGES.wallPanels.src },
 };
+
+/** Monument card: the Wall panels (Berlin Wall Fragments). */
+export const WALL_PANELS = {
+  kicker: 'MONUMENT · BERLIN WALL FRAGMENTS',
+  title: ['Two slabs of the', 'Berlin Wall, in a', 'UTown garden'],
+  video: {
+    title: 'The panels up close',
+    duration: 108,
+    poster: STORY_IMAGES.wallPanels,
+    captions: [
+      'Behind Tembusu College stand two panels of the Berlin Wall.',
+      'Each one is about 3.6 metres tall.',
+      'They marked 50 years of German–Singapore ties.',
+      'The graffiti was on the western face.',
+    ] as const,
+  },
+  tiles: [
+    { to: 3.6, decimals: 1, unit: 'm', label: 'tall' },
+    { to: 4, prefix: '~', unit: 't', label: 'each' },
+    { from: 1961, to: 2016, label: 'unveiled' },
+  ] as const,
+  lead: 'Behind Tembusu College stand two concrete panels from the Berlin Wall. Each is about 3.6 metres tall and weighs around four tonnes.',
+  more: [
+    'German businessman Elmar Prost and his company gave them to Singapore’s Ministry of Foreign Affairs to mark 50 years of diplomatic ties. They were unveiled here on 18 October 2016 and are on loan to NUS.',
+    'Look at the paint. Graffiti covered the Wall’s western face, which West Berliners could walk right up to. The eastern side faced a guarded border strip.',
+  ],
+  source: 'Source: Tembusu College, NUS',
+  next: { title: 'Fall of the Wall · 9 Nov', thumb: STORY_IMAGES.balloons2014.src },
+};
