@@ -42,6 +42,8 @@ vi.mock('leaflet', () => {
       removed: false,
       /** Test hook: what Leaflet's stop() does to the view (it snaps a running flight's zoom). */
       onStop: null as null | (() => void),
+      /** Test hook: leave moves running; the test fires their moveend. */
+      deferEnd: false,
       project: (ll: { lat: number; lng: number }, z: number) => proj(ll, z),
       unproject: (p: [number, number], z: number) => unproj(p, z),
       getCenter: () => center,
@@ -54,14 +56,19 @@ vi.mock('leaflet', () => {
       },
       // Moves end at once (as with animate: false), firing zoomend (if the zoom changed) then moveend.
       end(prevZoom: number) {
+        if (m.deferEnd) return;
         if (zoom !== prevZoom) m.fire('zoomend');
         m.fire('moveend');
+      },
+      clamp(z: number) {
+        const o = options as { minZoom?: number; maxZoom?: number };
+        return Math.min(o.maxZoom ?? Infinity, Math.max(o.minZoom ?? -Infinity, z));
       },
       setView(c: { lat: number; lng: number }, z: number, opts?: unknown) {
         fake.calls.push(['setView', c, z, opts]);
         const z0 = zoom;
         center = c;
-        zoom = z;
+        zoom = m.clamp(z);
         m.end(z0);
         return m;
       },
@@ -69,7 +76,7 @@ vi.mock('leaflet', () => {
         fake.calls.push(['flyTo', c, z, opts]);
         const z0 = zoom;
         center = c;
-        zoom = z;
+        zoom = m.clamp(z);
         m.end(z0);
         return m;
       },
@@ -232,7 +239,7 @@ describe('camera', () => {
 describe('HomeMap', () => {
   it('creates an OpenStreetMap layer with its own controls off', () => {
     render(<HomeMap {...baseProps()} />);
-    expect(lastMap().options).toMatchObject({ zoomControl: false, attributionControl: false });
+    expect(lastMap().options).toMatchObject({ zoomControl: false, attributionControl: false, minZoom: 12, maxZoom: 19 });
     expect(lastTiles().url).toBe('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
     expect(lastTiles().options).toMatchObject({ maxZoom: 19 });
   });
@@ -370,6 +377,8 @@ describe('HomeMap', () => {
     fake.calls.length = 0;
     rerender(<HomeMap {...baseProps({ onUserZoom, zoom: 17, command: focus(3, HAW_PAR.point, false), lastFocus: HAW_PAR.point })} />);
     expect(onUserZoom).not.toHaveBeenCalled();
+    // Mid-flight, Leaflet's stop() would start an animated snap that swallows the next setView: skipped.
+    expect(fake.calls.map((c) => c[0])).not.toContain('stop');
     expect(map.getZoom()).toBe(17);
     const m = moves();
     expect(m).toHaveLength(1);
@@ -380,6 +389,56 @@ describe('HomeMap', () => {
     map.onStop = null;
     map.userMove(map.getCenter(), 16);
     map.fire('zoomend');
+    expect(onUserZoom).toHaveBeenCalledWith(16);
+  });
+
+  it('a user zoom during our pan is reported when the pan ends', () => {
+    const onUserZoom = vi.fn();
+    const { rerender } = render(<HomeMap {...baseProps({ onUserZoom })} />);
+    const map = lastMap();
+    map.deferEnd = true;
+    rerender(<HomeMap {...baseProps({ onUserZoom, command: focus(1, HAW_PAR.point, false), lastFocus: HAW_PAR.point })} />);
+    // A pinch the container did not see as input (no touchstart): its zoomend lands mid-pan.
+    map.userMove(map.getCenter(), 18);
+    map.fire('zoomend');
+    expect(onUserZoom).not.toHaveBeenCalled();
+    map.fire('moveend');
+    expect(onUserZoom).toHaveBeenCalledWith(18);
+    // The phase is over: the next user zoom is reported straight away.
+    map.deferEnd = false;
+    map.userMove(map.getCenter(), 15);
+    map.fire('zoomend');
+    expect(onUserZoom).toHaveBeenLastCalledWith(15);
+  });
+
+  it('user input during our move ends our phase at once', () => {
+    const onUserZoom = vi.fn();
+    const { rerender, container } = render(<HomeMap {...baseProps({ onUserZoom })} />);
+    const map = lastMap();
+    map.deferEnd = true;
+    rerender(<HomeMap {...baseProps({ onUserZoom, command: focus(1, HAW_PAR.point, false), lastFocus: HAW_PAR.point })} />);
+    fireEvent.wheel(container.firstElementChild!);
+    map.userMove(map.getCenter(), 17);
+    map.fire('zoomend');
+    expect(onUserZoom).toHaveBeenCalledWith(17);
+
+    onUserZoom.mockClear();
+    rerender(<HomeMap {...baseProps({ onUserZoom, command: focus(2, HOLLAND.point, false), lastFocus: HOLLAND.point })} />);
+    map.fire('dragstart');
+    map.userMove(map.getCenter(), 14);
+    map.fire('zoomend');
+    expect(onUserZoom).toHaveBeenCalledWith(14);
+  });
+
+  it('a zoom Leaflet clamps is reported as clamped, and later user zooms still are', () => {
+    const onUserZoom = vi.fn();
+    const { rerender } = render(<HomeMap {...baseProps({ onUserZoom, zoom: 19 })} />);
+    rerender(<HomeMap {...baseProps({ onUserZoom, zoom: 20, command: zoomCmd(1, 1) })} />);
+    expect(lastMap().getZoom()).toBe(19);
+    expect(onUserZoom).toHaveBeenCalledWith(19);
+    onUserZoom.mockClear();
+    lastMap().userMove(lastMap().getCenter(), 16);
+    lastMap().fire('zoomend');
     expect(onUserZoom).toHaveBeenCalledWith(16);
   });
 

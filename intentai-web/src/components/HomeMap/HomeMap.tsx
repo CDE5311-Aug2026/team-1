@@ -12,6 +12,9 @@ export const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 /** Tiles count as failed after this many errors inside the window with no successful load. */
 const TILE_ERRORS = 3;
 const TILE_WINDOW_MS = 5000;
+/** Same range the Nearby reducer clamps to, so a pinch cannot report a zoom outside it. */
+const MIN_ZOOM = 12;
+const MAX_ZOOM = 19;
 
 export interface HomeMapProps {
   pins: HomePlace[];
@@ -81,8 +84,8 @@ export default function HomeMap(props: HomeMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const appliedSeq = useRef(props.command.seq);
   const appliedInset = useRef(props.bottomInset);
-  // True from our stop() until our own move settles on props.zoom; zooms meanwhile are not the user's.
-  const ourMove = useRef(false);
+  // 'stopping': inside our stop(), whose events are ours. 'moving': our move until its moveend.
+  const phase = useRef<'idle' | 'stopping' | 'moving'>('idle');
   // Effects read the newest props through this ref, so they can run on narrow dependencies.
   const latest = useRef({ ...props, reduced });
   latest.current = { ...props, reduced };
@@ -90,7 +93,7 @@ export default function HomeMap(props: HomeMapProps) {
   // Create the map and restore the camera from props, without animation (first load and every Retry).
   useEffect(() => {
     const el = containerRef.current!;
-    const map = L.map(el, { zoomControl: false, attributionControl: false });
+    const map = L.map(el, { zoomControl: false, attributionControl: false, minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM });
     mapRef.current = map;
     const { lastFocus, zoom, bottomInset, command } = latest.current;
     map.setView(offsetCentre(projectOf(map), unprojectOf(map), lastFocus, zoom, bottomInset), zoom, { animate: false });
@@ -122,17 +125,27 @@ export default function HomeMap(props: HomeMapProps) {
     }).addTo(map);
     you.getElement()?.setAttribute('aria-hidden', 'true');
 
-    // Leaflet's stop() snaps a running flight to an intermediate zoom and fires zoomend; that and our
-    // own moves are not user zooms. The flag clears once the view settles on props.zoom.
-    const settle = () => {
-      if (ourMove.current && map.getZoom() === latest.current.zoom) ourMove.current = false;
-    };
+    // Zooms during our own stop()/move are not the user's. Our move's moveend ends that phase; if the
+    // view then differs from props.zoom (user input mid-move, Leaflet's clamp, a dropped animated zoom),
+    // the real zoom is reported so the reducer matches the map.
     map.on('zoomend', () => {
-      if (ourMove.current) return settle();
+      if (phase.current !== 'idle') return;
       const z = map.getZoom();
       if (z !== latest.current.zoom) latest.current.onUserZoom(z);
     });
-    map.on('moveend', settle);
+    map.on('moveend', () => {
+      if (phase.current !== 'moving') return;
+      phase.current = 'idle';
+      const z = map.getZoom();
+      if (z !== latest.current.zoom) latest.current.onUserZoom(z);
+    });
+    // Any user input ends our phase, so its zoom is reported at once.
+    const userInput = () => {
+      phase.current = 'idle';
+    };
+    map.on('dragstart', userInput);
+    const inputs = ['wheel', 'touchstart', 'pointerdown', 'keydown'] as const;
+    for (const type of inputs) el.addEventListener(type, userInput, { passive: true });
 
     // Keep the centre on resize: with a bottom inset, that keeps the target centred in the visible area.
     const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => map.invalidateSize({ pan: true }));
@@ -148,6 +161,7 @@ export default function HomeMap(props: HomeMapProps) {
 
     return () => {
       el.removeEventListener('click', onClick);
+      for (const type of inputs) el.removeEventListener(type, userInput);
       resize?.disconnect();
       map.remove();
       mapRef.current = null;
@@ -200,8 +214,12 @@ export default function HomeMap(props: HomeMapProps) {
     const centreFor = (t: LatLng, z: number) => offsetCentre(project, unproject, t, z, bottomInset);
     const anim: L.ZoomPanOptions = still ? { animate: false } : { animate: true, duration: PAN_MS / 1000, easeLinearity: 0.25 };
 
-    ourMove.current = true;
-    map.stop();
+    // stop() cancels a running pan. Mid-flight (fractional zoom) it would also start an animated snap
+    // to a whole zoom that swallows our next setView; skip it there, as setView/panTo/flyTo stop a
+    // running flight themselves.
+    phase.current = 'stopping';
+    if (Number.isInteger(map.getZoom())) map.stop();
+    phase.current = 'moving';
     if (batched) {
       // Intermediate commands were never seen: go to the absolute state.
       const c = centreFor(lastFocus, zoom);
@@ -210,7 +228,7 @@ export default function HomeMap(props: HomeMapProps) {
     } else if (command.kind === 'focus') {
       const c = centreFor(command.target, zoom);
       if (command.fly) map.flyTo(c, zoom, anim);
-      // stop() may have left an interrupted flight's zoom; a plain pan would keep it.
+      // An interrupted flight leaves a fractional zoom; a plain pan would keep it.
       else if (map.getZoom() !== zoom) map.setView(c, zoom, anim);
       else map.panTo(c, anim);
     } else {
