@@ -1,0 +1,137 @@
+.wrap {
+  position: absolute;
+  inset: 0;
+}
+
+/* Leaflet's container. Crosshair while idle, grabbing while dragging (canvas). */
+.map {
+  position: absolute;
+  inset: 0;
+  background: #e9e6e0;
+  font-family: var(--font-family);
+}
+
+.map:global(.leaflet-grab) {
+  cursor: crosshair;
+}
+
+:global(.leaflet-dragging) .map:global(.leaflet-grab) {
+  cursor: grabbing;
+}
+
+.map:focus-visible {
+  outline: 3px solid var(--text-primary);
+  outline-offset: -3px;
+}
+
+/* Muted street map, as the canvas's map image. */
+.map :global(.leaflet-tile-pane) {
+  filter: saturate(0.45) brightness(1.04);
+}
+
+/* Leaflet's marker element: a zero-size anchor at the point. */
+.marker {
+  background: none;
+  border: 0;
+  overflow: visible;
+}
+
+/* ---- Area names ---- */
+.area {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: #23211d;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+.areaName {
+  font-size: 10px;
+  font-weight: 800;
+  color: #23211d;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+}
+
+/* Overview shows the 9 main areas; the pinned zoom shows all 17. The pin's own area hides its dot. */
+.wrap[data-zoomed='false'] .area:not(.overview),
+.areaHidden {
+  opacity: 0;
+}
+
+/* ---- Pin ---- */
+.ping {
+  position: absolute;
+  left: -24px;
+  top: -24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background: rgba(228, 103, 31, 0.35);
+  pointer-events: none;
+}
+
+.drop {
+  position: absolute;
+  left: -20px;
+  top: -50px;
+  width: 40px;
+  height: 50px;
+  pointer-events: none;
+}
+
+.drop svg {
+  display: block;
+}
+
+.pillAnchor {
+  position: absolute;
+  left: 0;
+  top: -84px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.pill {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 14px;
+  background: #23211d;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 28px;
+  white-space: nowrap;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .area {
+    transition: none;
+  }
+}
