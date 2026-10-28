@@ -96,7 +96,7 @@ export interface CountryOption {
 
 export const COUNTRIES: readonly CountryOption[] = [
   { name: 'China', code: 'CN', color: '#C8102E', primary: true },
-  { name: 'India', code: 'IN', color: '#E07B00', primary: true },
+  { name: 'India', code: 'IN', color: '#B85C00', primary: true },
   { name: 'Malaysia', code: 'MY', color: '#0032A0', primary: true },
   { name: 'Indonesia', code: 'ID', color: '#A3410B', primary: true },
   { name: 'South Korea', code: 'KR', color: '#23211D', primary: true },

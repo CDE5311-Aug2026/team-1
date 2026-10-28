@@ -48,7 +48,7 @@ function Body({ data, update }: StepProps) {
             </button>
           ))}
         </div>
-        <div className={`${styles.more} ${motion.aUp}`} style={{ animationDelay: '0.3s' }}>
+        <div role="group" aria-label="More countries" tabIndex={0} className={`${styles.more} ${motion.aUp}`} style={{ animationDelay: '0.3s' }}>
           {MORE.map((c, j) => (
             <button
               key={c.name}
