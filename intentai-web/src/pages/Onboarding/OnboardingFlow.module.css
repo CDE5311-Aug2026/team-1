@@ -10,16 +10,21 @@
   font-family: var(--font-family);
 }
 
-/* The canvas is a 390px phone; past phone width the column stays card-sized instead of stretching. */
+/* Same content column as every other page. */
 .column {
   position: relative;
   width: 100%;
-  max-width: min(var(--content-max), 35rem);
+  max-width: var(--content-max);
   height: 100%;
   display: flex;
   flex-direction: column;
   padding-top: env(safe-area-inset-top, 0px);
   box-sizing: border-box;
+}
+
+/* Headings take focus on step change (a reading position, not a control): no ring. */
+.column h1[tabindex='-1']:focus {
+  outline: none;
 }
 
 .topBar {

@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { afterEach, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { DEFAULT_ONBOARDING, isOnboarding, type Onboarding } from '../../data/domain';
 import { STORAGE_PREFIX, resetPersistentStores } from '../../data/persistentStore';
 import { onboardingStore, profileStore } from '../../data/stores';
@@ -182,4 +182,53 @@ test('Back from the stamp returns to topics with answers kept and still done', a
 test('already onboarded when the flow mounts: goes home', () => {
   renderFlow(COMPLETED_ONBOARDING);
   expect(screen.getByText('today page')).toBeInTheDocument();
+});
+
+describe('focus moves to the new step heading after navigation', () => {
+  const focused = () => document.activeElement as HTMLElement;
+
+  test('not on first open', () => {
+    renderFlow({ ...DEFAULT_ONBOARDING, from: 'India' });
+    expect(heading()).not.toHaveFocus();
+  });
+
+  test('welcome to the first question', async () => {
+    setReducedMotion(true);
+    renderFlow(null);
+    await userEvent.click(cta('Start the hunt'));
+    expect(heading()).toHaveTextContent('Where are you from?');
+    expect(heading()).toHaveFocus();
+    expect(focused()).toHaveAttribute('tabindex', '-1');
+  });
+
+  test('question to question, and back', async () => {
+    renderFlow({ ...DEFAULT_ONBOARDING, from: 'India', time: '1to3y' });
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(heading()).toHaveTextContent('How long have you been in Singapore?');
+    expect(heading()).toHaveFocus();
+    await userEvent.click(cta());
+    expect(heading()).toHaveTextContent('What brings you to Singapore?');
+    expect(heading()).toHaveFocus();
+  });
+
+  test('back from the first question to welcome', async () => {
+    renderFlow({ ...DEFAULT_ONBOARDING, from: 'India' });
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(heading()).toHaveTextContent('Welcome to the');
+    expect(heading()).toHaveFocus();
+  });
+
+  test('topics to the stamp', async () => {
+    renderFlow(ALL_ANSWERS);
+    await userEvent.click(cta('Stamp my passport'));
+    expect(heading()).toHaveTextContent('Your passport is ready');
+    expect(heading()).toHaveFocus();
+  });
+
+  test('a blocked Continue keeps focus on the CTA', async () => {
+    renderFlow({ ...DEFAULT_ONBOARDING, from: 'India' });
+    await userEvent.click(cta());
+    expect(cta()).toHaveFocus();
+  });
 });

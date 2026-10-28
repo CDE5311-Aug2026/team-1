@@ -36,10 +36,21 @@ export default function OnboardingFlow() {
   const [dir, setDir] = useState<1 | -1>(1);
   const stepRef = useRef(step);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const columnRef = useRef<HTMLDivElement>(null);
+  // The step whose heading last had focus moved to it (the first one never does).
+  const focusedStep = useRef(step);
 
   useEffect(() => {
     stepRef.current = step;
     scrollRef.current?.scrollTo?.({ top: 0 });
+    // After a step change (not on first open), focus moves to the new step's heading so keyboard and
+    // screen reader users land on the new content. Steps never manage this themselves.
+    if (focusedStep.current === step) return;
+    focusedStep.current = step;
+    const heading = columnRef.current?.querySelector<HTMLElement>('h1');
+    if (!heading) return;
+    if (!heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1');
+    heading.focus({ preventScroll: true });
   }, [step]);
 
   const go = useCallback((to: number, direction: 1 | -1) => {
@@ -82,7 +93,7 @@ export default function OnboardingFlow() {
   return (
     <AppShell chrome="none" layout="fill" background="#eceae5">
       <div className={`${styles.screen} ${motion.root}`}>
-        <div className={styles.column}>
+        <div className={styles.column} ref={columnRef}>
           {def.shell === 'none' ? (
             <Body {...props} />
           ) : (
