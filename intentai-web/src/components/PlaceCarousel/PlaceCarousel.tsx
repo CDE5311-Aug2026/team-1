@@ -37,6 +37,8 @@ export function PlaceCarousel({ places, selectedId, progress, onSelect, onActiva
   const photoRefs = useRef<(HTMLDivElement | null)[]>([]);
   /** scrollLeft we are scrolling to for an outside selection; settles are ignored while set. */
   const programmaticTarget = useRef<number | null>(null);
+  /** A finger or pointer is down on the strip: the fallback settle waits for it to lift. */
+  const pointerActive = useRef(false);
   const mounted = useRef(false);
   const latest = useRef({ places, selectedId, onSelect, reduced });
   latest.current = { places, selectedId, onSelect, reduced };
@@ -84,9 +86,20 @@ export function PlaceCarousel({ places, selectedId, progress, onSelect, onActiva
       const id = current[i]?.id;
       if (id && id !== sel) select(id);
     };
+    // Only for browsers without scrollend, which fire it themselves once the gesture ends.
+    const fallback = () => {
+      if (pointerActive.current) {
+        timer = setTimeout(fallback, SETTLE_MS);
+        return;
+      }
+      settle();
+    };
+    const release = () => {
+      pointerActive.current = false;
+    };
     const onScroll = () => {
       clearTimeout(timer);
-      timer = setTimeout(settle, SETTLE_MS);
+      timer = 'onscrollend' in window ? undefined : setTimeout(fallback, SETTLE_MS);
       if (!latest.current.reduced && frame === 0) {
         frame = requestAnimationFrame(() => {
           frame = 0;
@@ -98,7 +111,11 @@ export function PlaceCarousel({ places, selectedId, progress, onSelect, onActiva
     track.addEventListener('scroll', onScroll, { passive: true });
     track.addEventListener('scrollend', settle);
     window.addEventListener('resize', applyParallax);
+    // On window, so a drag released outside the strip still counts.
+    const releaseEvents = ['pointerup', 'pointercancel', 'touchend', 'touchcancel'] as const;
+    for (const type of releaseEvents) window.addEventListener(type, release);
     return () => {
+      for (const type of releaseEvents) window.removeEventListener(type, release);
       clearTimeout(timer);
       if (frame !== 0) cancelAnimationFrame(frame);
       track.removeEventListener('scroll', onScroll);
@@ -127,6 +144,10 @@ export function PlaceCarousel({ places, selectedId, progress, onSelect, onActiva
   /** Any user input on the strip means the user owns the scroll again. */
   const handBack = () => {
     programmaticTarget.current = null;
+  };
+  const pressStart = () => {
+    handBack();
+    pointerActive.current = true;
   };
 
   const onSectionKeyDown = (e: KeyboardEvent<HTMLElement>) => {
@@ -166,9 +187,9 @@ export function PlaceCarousel({ places, selectedId, progress, onSelect, onActiva
       <div
         ref={trackRef}
         className={styles.track}
-        onPointerDown={handBack}
+        onPointerDown={pressStart}
         onWheel={handBack}
-        onTouchStart={handBack}
+        onTouchStart={pressStart}
         onKeyDown={handBack}
       >
         {places.map((place, i) => {

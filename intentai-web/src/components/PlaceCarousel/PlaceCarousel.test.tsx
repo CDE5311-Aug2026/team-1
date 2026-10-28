@@ -33,6 +33,15 @@ function Wrap({ children }: { children: ReactNode }) {
   );
 }
 
+/** jsdom has window.onscrollend; this removes it so the component takes its no-scrollend fallback. */
+function withoutScrollEnd(): () => void {
+  const desc = Object.getOwnPropertyDescriptor(window, 'onscrollend');
+  delete (window as { onscrollend?: unknown }).onscrollend;
+  return () => {
+    if (desc) Object.defineProperty(window, 'onscrollend', desc);
+  };
+}
+
 function setup(opts: { selectedId?: string; progress?: PlaceProgress } = {}) {
   const onSelect = vi.fn();
   const onActivate = vi.fn();
@@ -217,6 +226,7 @@ test('a settle on the selected card does not call onSelect', () => {
 
 test('without scrollend, selection settles 150 ms after the last scroll', () => {
   vi.useFakeTimers();
+  const restore = withoutScrollEnd();
   try {
     const { track, onSelect } = setup();
     track.scrollLeft = leftOf(1);
@@ -226,6 +236,7 @@ test('without scrollend, selection settles 150 ms after the last scroll', () => 
     act(() => vi.advanceTimersByTime(60));
     expect(onSelect).toHaveBeenCalledWith(ids[1]);
   } finally {
+    restore();
     vi.useRealTimers();
   }
 });
@@ -271,6 +282,68 @@ test('rapid outside selections target the last one, and its settle selects nothi
   expect(scrollTo).toHaveBeenLastCalledWith({ left: leftOf(3), behavior: 'smooth' });
   act(() => scrollCarousel(track, leftOf(3)));
   expect(onSelect).not.toHaveBeenCalled();
+});
+
+test('rapid outside selections: a settle passing the earlier target without user input selects nothing', () => {
+  const { track, onSelect, select } = setup();
+  select(ids[1]);
+  select(ids[3]);
+  act(() => scrollCarousel(track, leftOf(1)));
+  expect(onSelect).not.toHaveBeenCalled();
+});
+
+test('the fallback settle waits while a finger or pointer is still down', () => {
+  vi.useFakeTimers();
+  const restore = withoutScrollEnd();
+  try {
+    const { track, onSelect } = setup();
+    fireEvent.pointerDown(track);
+    track.scrollLeft = leftOf(1);
+    fireEvent.scroll(track);
+    act(() => vi.advanceTimersByTime(160));
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent.pointerUp(track);
+    act(() => vi.advanceTimersByTime(160));
+    expect(onSelect).toHaveBeenCalledWith(ids[1]);
+  } finally {
+    restore();
+    vi.useRealTimers();
+  }
+});
+
+test('touch: the fallback settle waits for touchend', () => {
+  vi.useFakeTimers();
+  const restore = withoutScrollEnd();
+  try {
+    const { track, onSelect } = setup();
+    fireEvent.touchStart(track);
+    track.scrollLeft = leftOf(2);
+    fireEvent.scroll(track);
+    act(() => vi.advanceTimersByTime(400));
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent.touchEnd(track);
+    act(() => vi.advanceTimersByTime(160));
+    expect(onSelect).toHaveBeenCalledWith(ids[2]);
+  } finally {
+    restore();
+    vi.useRealTimers();
+  }
+});
+
+test('browsers with scrollend do not arm the fallback timer', () => {
+  vi.useFakeTimers();
+  expect('onscrollend' in window).toBe(true);
+  try {
+    const { track, onSelect } = setup();
+    track.scrollLeft = leftOf(1);
+    fireEvent.scroll(track);
+    act(() => vi.advanceTimersByTime(500));
+    expect(onSelect).not.toHaveBeenCalled();
+    fireEvent(track, new Event('scrollend'));
+    expect(onSelect).toHaveBeenCalledWith(ids[1]);
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 test('the programmatic guard clears after one settle', () => {
