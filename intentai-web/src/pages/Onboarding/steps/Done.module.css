@@ -207,3 +207,24 @@
   background: #e4671f;
   font-size: 16px;
 }
+
+.credits {
+  margin-top: 12px;
+  font-size: var(--fs-chip);
+  color: var(--text-secondary);
+}
+
+.creditsSummary {
+  cursor: pointer;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.creditsList {
+  margin: 0.375rem 0 0;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  text-align: left;
+}

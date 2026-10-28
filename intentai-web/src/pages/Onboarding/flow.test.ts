@@ -51,7 +51,7 @@ test('applyPatch that makes a finished record incomplete clears done and complet
 
 test('finishOnboarding stamps the record and writes the profile labels', () => {
   onboardingStore.set(ALL_ANSWERS);
-  finishOnboarding(new Date('2026-10-29T08:30:00.000Z'));
+  expect(finishOnboarding(new Date('2026-10-29T08:30:00.000Z'))).toBe(true);
   expect(onboardingStore.get()).toEqual({ ...ALL_ANSWERS, done: true, completedAt: '2026-10-29T08:30:00.000Z' });
   expect(isOnboarding(JSON.parse(window.localStorage.getItem(`${STORAGE_PREFIX}onboarding`)!))).toBe(true);
   expect(profileStore.get()).toMatchObject({ from: 'China', time: 'Less than 3 months', role: 'Student intern' });
@@ -61,7 +61,7 @@ test('finishOnboarding does nothing while an answer is missing', () => {
   const partial = { ...ALL_ANSWERS, base: null };
   onboardingStore.set(partial);
   const before = profileStore.get();
-  finishOnboarding();
+  expect(finishOnboarding()).toBe(false);
   expect(onboardingStore.get()).toEqual(partial);
   expect(profileStore.get()).toEqual(before);
 });

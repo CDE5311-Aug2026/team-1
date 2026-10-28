@@ -176,3 +176,74 @@ test('no WCAG A/AA violations on any onboarding step', async ({ page }) => {
   await settle(2200);
   await check('done');
 });
+
+// /onboarding is filtered out of e2e/routes.ts (a finished user is redirected), so the page-level
+// checks smoke.spec.ts runs on every route run here, on every step of a first-time user's walk.
+async function walkSteps(page: Page, onStep: (id: string) => Promise<void>) {
+  const at = async (id: string) => {
+    await expect(step(page, id)).toBeVisible();
+    await onStep(id);
+  };
+  await page.goto('/');
+  await expect(cta(page, 'Start the hunt')).toBeVisible();
+  await onStep('welcome');
+  await cta(page, 'Start the hunt').click();
+  await at('from');
+  await answerFrom(page);
+  await at('time');
+  await answerTime(page);
+  await at('role');
+  await answerRole(page);
+  await at('language');
+  await answerLanguage(page);
+  await at('base');
+  await dropPinWithKeyboard(page);
+  await at('topics');
+  await rankTopics(page);
+  await cta(page, 'Stamp my passport').click();
+  await at('done');
+}
+
+test('no runtime errors or broken images on any onboarding step', async ({ page }) => {
+  test.setTimeout(120_000);
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await walkSteps(page, async (id) => {
+    await expect(page.getByRole('main')).toBeVisible();
+    await page.locator('img[loading="lazy"]').evaluateAll((imgs) => imgs.forEach((img) => ((img as HTMLImageElement).loading = 'eager')));
+    await expect
+      .poll(() => page.locator('img').evaluateAll((imgs) => imgs.every((img) => (img as HTMLImageElement).complete)))
+      .toBe(true);
+    const broken = await page.locator('img').evaluateAll((imgs) =>
+      imgs.filter((img) => (img as HTMLImageElement).naturalWidth === 0).map((img) => (img as HTMLImageElement).src),
+    );
+    expect(broken, `broken image on ${id}`).toEqual([]);
+  });
+  expect(errors).toEqual([]);
+});
+
+for (const width of [320, 390, 1440]) {
+  test(`no horizontal overflow on any onboarding step at ${width}px`, async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width, height: 900 });
+    await walkSteps(page, async (id) => {
+      const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+      expect(overflows, `${id} overflows at ${width}px`).toBe(false);
+    });
+  });
+}
+
+test('every onboarding step uses the shared centred content column at 1440', async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const widths = new Set<number>();
+  await page.goto('/');
+  const contentMax = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--content-max')));
+  await walkSteps(page, async (id) => {
+    if (id === 'welcome') return; // the cover draws no step column
+    const box = (await page.locator('main > * > *').first().boundingBox())!; // the flow's column
+    expect(Math.abs(box.x + box.width / 2 - 720), `${id} is off-centre`).toBeLessThanOrEqual(3);
+    widths.add(Math.round(box.width));
+  });
+  expect([...widths], "one column width, the shared --content-max").toEqual([contentMax]);
+});

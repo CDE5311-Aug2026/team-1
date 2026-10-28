@@ -67,7 +67,12 @@ export default function OnboardingFlow() {
       toast(def.blockedToast);
       return;
     }
-    if (def.id === 'topics') finishOnboarding();
+    if (def.id === 'topics' && !finishOnboarding()) {
+      // An answer vanished (e.g. the store was reset in another tab): back to the first open question.
+      go(resumeStep(STEPS, onboardingStore.get()), -1);
+      toast('Pick one to continue');
+      return;
+    }
     if (current < STEPS.length - 1) go(current + 1, 1);
   }, [go]);
 

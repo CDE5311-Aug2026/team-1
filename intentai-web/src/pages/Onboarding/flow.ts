@@ -22,10 +22,10 @@ export function resumeStep(steps: readonly StepDef[], data: Onboarding): number 
   return (open ?? questions[questions.length - 1]).i;
 }
 
-/** Stamps the passport: done + date, and the profile My Space shows (from, time, role labels). */
-export function finishOnboarding(now: Date = new Date()) {
+/** Stamps the passport: done + date, and the profile My Space shows (from, time, role labels). False (nothing written) if an answer is missing. */
+export function finishOnboarding(now: Date = new Date()): boolean {
   const current = onboardingStore.get();
-  if (!isOnboardingComplete(current)) return;
+  if (!isOnboardingComplete(current)) return false;
   onboardingStore.set({ ...current, done: true, completedAt: now.toISOString() });
   profileStore.set((profile) => ({
     ...profile,
@@ -33,4 +33,5 @@ export function finishOnboarding(now: Date = new Date()) {
     time: timeLabel(current.time!),
     role: roleLabel(current.role!),
   }));
+  return true;
 }

@@ -164,6 +164,9 @@ function Fan({ finds }: { finds: Find[] }) {
   );
 }
 
+/** One line per distinct credit; covers every photo the flow can show. */
+const PHOTO_CREDITS = [...new Set(Object.values(PHOTOS).map((photo) => photo.credit))];
+
 /** O8: confetti, heading, privacy hint and the first finds fan. */
 function Body({ data }: StepProps) {
   const reduced = useReducedMotion();
@@ -187,6 +190,14 @@ function Body({ data }: StepProps) {
         YOUR FIRST FINDS
       </p>
       <Fan finds={findsFor(data)} />
+      <details className={styles.credits}>
+        <summary className={styles.creditsSummary}>Photo credits</summary>
+        <ul className={styles.creditsList}>
+          {PHOTO_CREDITS.map((credit) => (
+            <li key={credit}>{credit}</li>
+          ))}
+        </ul>
+      </details>
     </>
   );
 }

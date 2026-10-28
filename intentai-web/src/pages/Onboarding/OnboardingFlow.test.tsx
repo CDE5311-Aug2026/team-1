@@ -104,6 +104,17 @@ test('blocked toasts: Pick one to continue on a choice step, Tap all 4 topics on
   expect(onboardingStore.get().done).toBe(false);
 });
 
+test('Stamp my passport does not advance when finishing fails; it returns to the first open question', async () => {
+  renderFlow(ALL_ANSWERS);
+  expect(heading()).toHaveTextContent('Rank the topics you enjoy most');
+  // Another tab reset an answer after this one rendered: topics still look answered here.
+  onboardingStore.set({ ...ALL_ANSWERS, from: null });
+  await userEvent.click(cta('Stamp my passport'));
+  expect(heading()).toHaveTextContent('Where are you from?');
+  expect(toastText()).toBe('Pick one to continue');
+  expect(onboardingStore.get().done).toBe(false);
+});
+
 test('resumes at the first unanswered step with earlier segments full', () => {
   renderFlow({ ...DEFAULT_ONBOARDING, from: 'India', time: '1to3y' });
   expect(heading()).toHaveTextContent('What brings you to Singapore?');

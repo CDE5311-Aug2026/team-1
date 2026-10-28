@@ -11,6 +11,7 @@ import { paths } from '../../../routes';
 import { setReducedMotion } from '../../../test/media';
 import { COMPLETED_ONBOARDING } from '../../../test/onboardingFixture';
 import { formatDistance } from '../areas';
+import { PHOTOS } from '../options';
 import OnboardingFlow from '../OnboardingFlow';
 import { FIND_ROTATE_MS, FIND_TAP_PAUSE_MS, formatStampDate, step } from './Done';
 
@@ -181,4 +182,12 @@ test('in the flow: finishing O7 shows the stamp in the passport and exactly the 
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Rank the topics you enjoy most');
   expect(onboardingStore.get()).toMatchObject({ done: true, topics: COMPLETED_ONBOARDING.topics });
+});
+
+test('lists the credit of every onboarding photo once, in a closed Photo credits disclosure', () => {
+  renderDone();
+  const details = screen.getByText('Photo credits').closest('details')!;
+  expect(details).not.toHaveAttribute('open');
+  const lines = within(details).getAllByRole('listitem', { hidden: true }).map((li) => li.textContent);
+  expect(lines).toEqual([...new Set(Object.values(PHOTOS).map((p) => p.credit))]);
 });

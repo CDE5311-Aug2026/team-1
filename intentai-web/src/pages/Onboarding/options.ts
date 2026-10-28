@@ -7,11 +7,6 @@ import plan1822Photo from '../../assets/onboarding/photos/plan-1822.webp';
 import thianHockKengPhoto from '../../assets/onboarding/photos/thian-hock-keng.webp';
 import { STORY_IMAGES } from '../../assets/stories';
 import {
-  CULTURE_TOPICS,
-  ONB_COUNTRIES,
-  ONB_LANGS,
-  ONB_ROLES,
-  ONB_TIMES,
   type CultureTopic,
   type OnbCountry,
   type OnbField,
@@ -226,10 +221,6 @@ export const LANGS: readonly LangOption[] = [
 export const LANG_PREVIEW_BODY = 'Monument · Telok Ayer Street';
 export const LANG_PREVIEW_EMPTY = 'Pick a language for your cards.';
 
-/* ---------- O6 base ---------- */
-
-export const BASE_PREVIEW_EMPTY = 'Drop a pin to see what’s closest.';
-
 /* ---------- O7 topics ---------- */
 
 export interface TopicOption {
@@ -267,6 +258,3 @@ export const timeLabel = (code: OnbTime): string => byCode(TIMES, code)!.label;
 export const roleLabel = (code: OnbRole): string => byCode(ROLES, code)!.label;
 export const langLabel = (code: OnbLang): string => byCode(LANGS, code)!.label;
 export const topicLabel = (id: CultureTopic): string => TOPIC_OPTIONS.find((t) => t.id === id)!.label;
-
-/** Every code the store accepts, so a test can prove each has a label. */
-export const ALL_CODES = { from: ONB_COUNTRIES, time: ONB_TIMES, role: ONB_ROLES, language: ONB_LANGS, topics: CULTURE_TOPICS } as const;
