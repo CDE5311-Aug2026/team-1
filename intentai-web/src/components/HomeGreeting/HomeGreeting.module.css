@@ -1,0 +1,24 @@
+.block {
+  padding-top: 0.75rem;
+}
+
+.date {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.title {
+  margin: 0.25rem 0 0;
+  font-size: 1.75rem; /* 28px */
+  line-height: 1.15;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.name {
+  color: var(--accent);
+}

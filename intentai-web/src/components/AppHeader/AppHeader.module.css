@@ -14,6 +14,17 @@
   flex-shrink: 0;
 }
 
+/* A custom logo is a plain 32px square: no mascot bleed into the gutter. Must follow .logo. */
+.logoCustom {
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+}
+
+.spacer {
+  flex: 1;
+}
+
 .greeting {
   flex: 1;
   min-width: 0;

@@ -8,10 +8,12 @@ interface HomeLinkProps {
   className: string;
   nodeId?: string;
   onClick?: () => void;
+  /** Logo image; defaults to the mascot. */
+  src?: string;
 }
 
 /** The header mascot on every tab: takes the user back to Today. */
-export default function HomeLink({ className, nodeId, onClick }: HomeLinkProps) {
+export default function HomeLink({ className, nodeId, onClick, src = mascotLogo }: HomeLinkProps) {
   return (
     <Link
       to={paths.today}
@@ -21,7 +23,7 @@ export default function HomeLink({ className, nodeId, onClick }: HomeLinkProps) 
       data-node-id={nodeId}
       onClick={onClick}
     >
-      <img src={mascotLogo} alt="" className={styles.image} />
+      <img src={src} alt="" className={styles.image} />
     </Link>
   );
 }
