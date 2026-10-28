@@ -1,0 +1,239 @@
+.root {
+  --card-w: min(250px, 68vw);
+  --card-h: 165px;
+  --card-gap: 10px;
+  position: relative;
+  width: 100%;
+}
+
+/* The scroll container. Inline padding lets the first and last cards centre too. */
+.track {
+  position: relative;
+  display: flex;
+  gap: var(--card-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding-block: 4px;
+  padding-inline: calc((100% - var(--card-w)) / 2);
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  position: relative;
+  flex: 0 0 var(--card-w);
+  height: var(--card-h);
+  border-radius: 16px;
+  overflow: hidden;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  background: #3a3731;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(35, 33, 29, 0.25);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+/* 150% wide so a parallax shift of up to a quarter card never shows an edge. */
+.photo {
+  position: absolute;
+  inset-block: 0;
+  left: -25%;
+  width: 150%;
+  will-change: transform;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+.noPhoto {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(228, 103, 31, 0.55), transparent 60%),
+    linear-gradient(135deg, #5f5b54, #23211d);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.75) 100%);
+  pointer-events: none;
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--fs-chip);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.pin {
+  fill: var(--accent);
+}
+
+.text {
+  margin-top: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.area {
+  margin: 1px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  opacity: 0.92;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.bar {
+  display: flex;
+  gap: 3px;
+}
+
+.segment {
+  width: 12px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.segment[data-filled='true'] {
+  background: var(--accent);
+}
+
+.count {
+  margin: 0;
+  font-size: 0.625rem;
+  line-height: 1.2;
+}
+
+.countLabel {
+  display: block;
+}
+
+.open,
+.soon {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.open {
+  background: #fff;
+  color: var(--text-primary);
+}
+
+.arrow {
+  color: var(--accent);
+}
+
+.soon {
+  background: rgba(35, 33, 29, 0.6);
+  color: #fff;
+  cursor: default;
+}
+
+.lock {
+  fill: currentColor;
+}
+
+.open:focus-visible,
+.soon:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(35, 33, 29, 0.25);
+}
+
+.dotOn {
+  width: 14px;
+  background: var(--accent);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo {
+    transform: none !important;
+  }
+}
