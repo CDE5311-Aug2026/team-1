@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import type { Page } from '@playwright/test';
+import type { Page } from './test';
 import { paths } from '../src/routes';
 
 const TOL = 3; // px, decision D2

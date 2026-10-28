@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import type { Page } from '@playwright/test';
+import type { Page } from './test';
 import { quizFor } from '../src/pages/OnboardingPage/quiz';
 import { paths } from '../src/routes';
 

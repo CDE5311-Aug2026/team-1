@@ -4,7 +4,9 @@ let reducedMotion = false;
 const subscribers = new Set<{ query: string; listener: Listener; mql: MediaQueryList }>();
 
 function matchesQuery(query: string): boolean {
-  return reducedMotion && /prefers-reduced-motion:\s*reduce/.test(query);
+  if (/prefers-reduced-motion:\s*reduce/.test(query)) return reducedMotion;
+  if (/prefers-reduced-motion:\s*no-preference/.test(query)) return !reducedMotion;
+  return false;
 }
 
 /** jsdom has no matchMedia. This shim answers prefers-reduced-motion only; everything else is false. */

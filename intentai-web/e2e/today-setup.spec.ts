@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './test';
-import type { Page } from '@playwright/test';
+import type { Page } from './test';
 
 // Topic picker after onboarding, and the culture tabs on Today. No Figma frames, so no geometry.
 

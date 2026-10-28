@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './test';
-import type { Page } from '@playwright/test';
+import type { Page } from './test';
 
 // Local stand-in password (server/usage/vitePlugin.ts); the preview server stores timings in
 // .data/e2e-<port>.jsonl.

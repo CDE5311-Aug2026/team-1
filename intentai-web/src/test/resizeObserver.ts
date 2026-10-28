@@ -17,7 +17,8 @@ export class ResizeObserverMock {
   /** @internal */
   fire(el: Element, rect: Partial<DOMRectReadOnly>): void {
     if (!this.targets.has(el)) return;
-    const entry = { target: el, contentRect: rect } as unknown as ResizeObserverEntry;
+    const contentRect = { x: 0, y: 0, width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0, ...rect };
+    const entry = { target: el, contentRect } as unknown as ResizeObserverEntry;
     this.callback([entry], this as unknown as ResizeObserver);
   }
 }
