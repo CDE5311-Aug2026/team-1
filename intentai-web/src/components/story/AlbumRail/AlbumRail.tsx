@@ -368,7 +368,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
   const current = items[focus];
 
   return (
-    <section aria-label={ARIA} className={styles.rail} onKeyDown={onKeyDown} onFocus={stopAuto}>
+    <section aria-label={ARIA} data-allow-bleed="" className={styles.rail} onKeyDown={onKeyDown} onFocus={stopAuto}>
       <div
         ref={stageRef}
         data-rail-stage=""

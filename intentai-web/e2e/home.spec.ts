@@ -139,7 +139,10 @@ test('rapid ArrowRight x3 selects and focuses card 4 without scrolling the page'
 test('after dragging the map, tapping the selected card brings its pin back above the cards', async ({ page }) => {
   await openHome(page);
   await expect.poll(() => pinOverCarousel(page)).toBeLessThan(0);
-  const before = await box(page, selectedPin(page));
+  // The pin's offset inside the map frame. Clicking a card low on the page makes Playwright scroll the
+  // page (the tab bar covers the strip's bottom edge), which moves every viewport coordinate but not this.
+  const inMap = async () => (await box(page, selectedPin(page))).y - (await box(page, page.getByTestId('nearby-map'))).y;
+  const before = await inMap();
 
   // A spot on bare map (a tile, not a pin, control or card) above the cards, dragged down onto them.
   const start = await page.getByTestId('nearby-map').evaluate((frame) => {
@@ -158,17 +161,19 @@ test('after dragging the map, tapping the selected card brings its pin back abov
   await page.mouse.down();
   await page.mouse.move(start!.x, start!.end, { steps: 12 });
   await page.mouse.up();
-  await expect.poll(async () => (await box(page, selectedPin(page))).y - before.y).toBeGreaterThan(100);
+  await expect.poll(async () => (await inMap()) - before).toBeGreaterThan(100);
 
   // The card body, away from its buttons.
   const selected = current(page);
   const c = await box(page, selected);
   await selected.click({ position: { x: c.width - 24, y: 16 } });
   await expect.poll(() => pinOverCarousel(page)).toBeLessThan(0);
-  await expect.poll(async () => Math.abs((await box(page, selectedPin(page))).y - before.y)).toBeLessThan(4);
+  await expect.poll(async () => Math.abs((await inMap()) - before)).toBeLessThan(4);
 });
 
 test('tapping a pin selects its card; pins work from the keyboard', async ({ page }) => {
+  // Without animation each Zoom out click lands; an eased zoom drops clicks made while it is still running.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await openHome(page);
   // Zoom out to the widest view so every pinned place is on screen.
   for (let i = 0; i < 4; i += 1) await page.getByRole('button', { name: 'Zoom out' }).click();
@@ -383,7 +388,7 @@ for (const [width, height] of [
     if (phone) expect(l[3].left, 'card 4 is cut by the left edge').toBeLessThan(0);
 
     // No card covers the OpenStreetMap attribution.
-    const attribution = await box(page, page.getByText('© OpenStreetMap contributors').locator('xpath=..'));
+    const attribution = await box(page, page.getByTestId('nearby-map').getByText('© OpenStreetMap contributors').locator('xpath=..'));
     const strip = await box(page, track(page));
     const overlaps = await cards(page).evaluateAll(
       (els, [a, s]) =>

@@ -15,6 +15,16 @@ for (const route of ROUTES) {
     await seed(page, route);
     await page.goto(route);
     await expect(page.getByRole('main')).toBeVisible();
+    // Entrance animations fade text in; axe would read the half-faded colours. Let every finite animation and
+    // transition finish so the real colours are checked (nothing is skipped or relaxed).
+    await page.evaluate(() =>
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => Number.isFinite(a.effect?.getComputedTiming().endTime ?? Number.POSITIVE_INFINITY))
+          .map((a) => a.finished.catch(() => undefined)),
+      ),
+    );
     const { violations } = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze();

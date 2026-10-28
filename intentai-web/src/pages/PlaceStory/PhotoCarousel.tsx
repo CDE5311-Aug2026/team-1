@@ -145,7 +145,7 @@ export function PhotoCarousel({ label, groups, slides, delay = 0.2 }: PhotoCarou
   const prog = clamp(pos / n, 0, 1);
 
   return (
-    <section aria-label={label} className={`a-up ${styles.section}`} style={{ animationDelay: `${delay}s` }}>
+    <section aria-label={label} data-allow-bleed="" className={`a-up ${styles.section}`} style={{ animationDelay: `${delay}s` }}>
       <div
         ref={stage}
         className={`${styles.stage} ${grabbing ? styles.grabbing : ''}`}

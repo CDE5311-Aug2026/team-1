@@ -93,7 +93,7 @@ function PlaceView({ place }: { place: StoryPlace }) {
 
   return (
     <AppShell variant="story">
-      <div className={styles.hero}>
+      <div className={styles.hero} data-allow-bleed="">
         <img className={`a-hero ${styles.heroImg}`} src={place.hero.src} alt={place.hero.alt} />
         <Link
           to={paths.today}
