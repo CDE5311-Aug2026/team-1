@@ -14,7 +14,7 @@ function watchRequests(page: Page) {
   const external: string[] = [];
   page.on('request', (r) => {
     const u = new URL(r.url());
-    if (u.hostname !== 'localhost') external.push(u.hostname);
+    if (u.hostname !== 'localhost' && u.hostname !== '127.0.0.1') external.push(u.hostname);
   });
   return external;
 }
