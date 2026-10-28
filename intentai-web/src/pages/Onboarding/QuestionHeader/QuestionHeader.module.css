@@ -1,0 +1,24 @@
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.helper {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: #5f5b54;
+}
+
+.helper svg {
+  flex-shrink: 0;
+}
+
+.helperNext {
+  margin-top: 4px;
+}

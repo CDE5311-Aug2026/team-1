@@ -1,0 +1,117 @@
+/* Onboarding motion: every keyframe and animation class the onboarding steps use, in one place.
+   Steps compose these classes (styles.aUp, styles.press, ...) and set per-element delays inline.
+   Put `.root` on the flow's outermost element: the reduced-motion rule below is scoped to it. */
+
+@keyframes up { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: none; } }
+@keyframes blurIn { 0% { opacity: 0; filter: blur(10px); transform: translateY(8px); } 100% { opacity: 1; filter: blur(0); transform: none; } }
+@keyframes fwd { 0% { opacity: 0; transform: translateX(40px); } 100% { opacity: 1; transform: none; } }
+@keyframes back { 0% { opacity: 0; transform: translateX(-40px); } 100% { opacity: 1; transform: none; } }
+@keyframes valIn { 0% { opacity: 0; transform: translateY(6px); filter: blur(4px); } 100% { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes pop { 0% { transform: scale(0.3); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: none; opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(1deg); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes shine { 0% { background-position: 180% 0; } 100% { background-position: -80% 0; } }
+@keyframes thump {
+  0% { transform: scale(2.3) rotate(-20deg); opacity: 0; }
+  45% { opacity: 1; }
+  62% { transform: scale(0.92) rotate(-8deg); }
+  78% { transform: scale(1.04) rotate(-8deg); }
+  100% { transform: scale(1) rotate(-8deg); }
+}
+@keyframes splash { 0% { transform: scale(0.4); opacity: 0.55; } 100% { transform: scale(1.8); opacity: 0; } }
+@keyframes burst {
+  0% { transform: rotate(var(--r)) translateY(-40px) scale(1); opacity: 1; }
+  100% { transform: rotate(var(--r)) translateY(-120px) scale(0.3); opacity: 0; }
+}
+@keyframes ping { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.2); opacity: 0; } }
+@keyframes drop { 0% { opacity: 0; transform: translateY(-26px) scale(0.6); } 60% { opacity: 1; transform: translateY(3px) scale(1.04); } 100% { transform: none; } }
+@keyframes tap { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(0.82); opacity: 1; } }
+@keyframes spinB { to { transform: rotate(360deg); } }
+@keyframes caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+/* Scope for the reduced-motion rule. */
+.root {
+  --onb-motion: on;
+}
+
+/* Entrances */
+.aUp { animation: up 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+/* Preview card content swap (the canvas class is undefined; it is the a-up fade). */
+.aSwap { animation: up 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.aBlur { display: inline-block; animation: blurIn 0.6s ease both; }
+.aVal { display: inline-block; animation: valIn 0.4s ease both; }
+.aPop { animation: pop 0.35s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+.aDrop { animation: drop 0.55s cubic-bezier(0.3, 1.3, 0.5, 1) both; }
+
+/* Step slide, by navigation direction. */
+.slideFwd { animation: fwd 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.slideBack { animation: back 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+
+/* Idle loops */
+.float { animation: float 4s ease-in-out infinite; }
+.bob { animation: bob 3s ease-in-out infinite; }
+.ping { animation: ping 1.6s ease-out infinite; }
+.tapHint { animation: tap 1.4s ease-in-out infinite; }
+.star { animation: spinB 2.6s linear infinite; }
+.spinSlow { animation: spinB 16s linear infinite; }
+.foil {
+  background: linear-gradient(110deg, #c98a5e 35%, #ffe6cf 50%, #c98a5e 65%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 3.2s linear infinite;
+}
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 12px;
+  margin-left: 2px;
+  vertical-align: -1px;
+  background: #e4671f;
+  animation: caret 0.9s steps(1) infinite;
+}
+
+/* Passport stamp: lands at -8deg; that is also its resting state without motion. */
+.aThump { transform: rotate(-8deg); animation: thump 0.75s cubic-bezier(0.3, 0.7, 0.4, 1) both; }
+.splash { animation: splash 0.8s ease-out both; }
+/* Confetti piece; set --r (rotation) and background per piece. */
+.burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 12px;
+  margin: -6px 0 0 -4px;
+  border-radius: 2px;
+  animation: burst 1s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/* Welcome passport cover: idles with .float, swings open with .coverOpen. */
+.cover {
+  transform-origin: left center;
+  transition: transform 0.9s cubic-bezier(0.6, 0.05, 0.25, 1), opacity 0.9s ease;
+}
+.coverOpen {
+  transform: rotateY(-110deg);
+  opacity: 0;
+}
+
+/* Tap feedback */
+.press { transition: transform 0.15s ease; }
+.press:active { transform: scale(0.95); }
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .root * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .splash,
+  .burst {
+    display: none !important;
+  }
+  .press:active {
+    transform: none;
+  }
+}
