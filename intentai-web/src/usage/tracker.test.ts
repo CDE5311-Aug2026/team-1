@@ -211,21 +211,23 @@ test('a span keeps the id it started with, even if Delete all my data resets it 
   expect(sent[0].uid).toBe('old');
 });
 
-test('discard drops queued events and restarts open spans under the current uid', () => {
+test('discard drops queued events and restarts open spans under the current uid and a new session', () => {
   let uid = 'old';
   let clock = 0;
+  let ids = 0;
   const sent: UsageEvent[][] = [];
   const doc = { visibilityState: 'visible' as DocumentVisibilityState, addEventListener: () => {} };
   const tracker = createTracker({
     now: () => clock,
     send: (events) => sent.push(events),
     uid: () => uid,
-    newId: () => 's',
+    newId: () => `s${++ids}`,
     doc: doc as unknown as TrackerDeps['doc'],
     win: { addEventListener: () => {} } as unknown as TrackerDeps['win'],
   });
   const stop = tracker.start('page', 'Privacy');
   tracker.tap('Privacy > Clear');
+  const before = tracker.sessionId();
   uid = 'new';
   clock = 5000;
   tracker.discard();
@@ -235,4 +237,5 @@ test('discard drops queued events and restarts open spans under the current uid'
   const events = sent.flat();
   expect(events.some((e) => e.kind === 'tap')).toBe(false);
   expect(events).toEqual([expect.objectContaining({ kind: 'page', name: 'Privacy', ms: 1000, uid: 'new' })]);
+  expect(events[0].sid).not.toBe(before);
 });

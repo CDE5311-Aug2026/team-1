@@ -71,3 +71,8 @@
   color: #5f5b54;
   text-align: center;
 }
+
+/* Reduced motion removes the fill animation: show the held state as a static tint instead. */
+:global(:root[data-motion='reduced']) .holding {
+  background: #f3c5bd;
+}

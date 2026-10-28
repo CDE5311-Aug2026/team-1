@@ -2,6 +2,7 @@
 // or use the arrows / arrow keys. The cards behind peek out a little, each at its own slight angle, like cards
 // dropped on a table. Only the top card can be read or pressed; the others are hidden from assistive tech.
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
+import { isReducedMotion } from '../../../hooks/useReducedMotion';
 import { GESTURE_EVENT } from '../../../usage/gesture';
 import styles from './CardDeck.module.css';
 
@@ -28,14 +29,6 @@ export function jitter(id: string): { rot: number; dx: number } {
   const a = ((h >>> 0) % 1000) / 1000;
   const b = ((h >>> 10) % 1000) / 1000;
   return { rot: Math.round((a * 7 - 3.5) * 10) / 10, dx: Math.round(b * 18 - 9) };
-}
-
-function reducedMotion(): boolean {
-  try {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  } catch {
-    return false;
-  }
 }
 
 export default function CardDeck({ cards, label }: { cards: DeckCard[]; label: string }) {
@@ -76,7 +69,7 @@ export default function CardDeck({ cards, label }: { cards: DeckCard[]; label: s
     if (n < 2 || leaving) return;
     // a swipe is no click, so it is counted for the user test here (the arrow buttons count as presses)
     if (swiped) document.dispatchEvent(new CustomEvent(GESTURE_EVENT, { detail: 'Swipe card' }));
-    if (reducedMotion()) {
+    if (isReducedMotion()) {
       go(1);
       return;
     }

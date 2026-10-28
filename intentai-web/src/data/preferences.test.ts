@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { STORAGE_PREFIX, resetPersistentStores } from './persistentStore';
-import { DEFAULT_PREFERENCES, isPreferences } from './preferences';
+import { DEFAULT_PREFERENCES, isPreferences, repairPreferences } from './preferences';
 import { deleteAllData, preferencesStore } from './stores';
 
 test('isPreferences accepts the defaults and rejects out-of-range or missing values', () => {
@@ -23,4 +23,16 @@ test('deleteAllData resets preferences', () => {
   preferencesStore.set({ ...DEFAULT_PREFERENCES, usageTiming: false, textSize: 4 });
   deleteAllData();
   expect(preferencesStore.get()).toEqual(DEFAULT_PREFERENCES);
+});
+
+test('a damaged record keeps its valid fields, so page timing that was turned off stays off', () => {
+  window.localStorage.setItem(`${STORAGE_PREFIX}preferences`, JSON.stringify({ usageTiming: false, motion: 'bogus', textSize: 3, notify: { near: false } }));
+  resetPersistentStores();
+  const prefs = preferencesStore.get();
+  expect(prefs.usageTiming).toBe(false);
+  expect(prefs.textSize).toBe(3);
+  expect(prefs.motion).toBe(DEFAULT_PREFERENCES.motion);
+  expect(prefs.notify).toEqual({ ...DEFAULT_PREFERENCES.notify, near: false });
+  expect(isPreferences(prefs)).toBe(true);
+  expect(repairPreferences('nope')).toBeNull();
 });

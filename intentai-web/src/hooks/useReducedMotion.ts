@@ -17,6 +17,11 @@ function subscribe(onChange: () => void) {
 
 const getSnapshot = () => query()?.matches ?? false;
 
+/** Non-hook check for code that animates outside render (map glides, the 3D fly-in, card throws). */
+export function isReducedMotion(): boolean {
+  return getSnapshot() || preferencesStore.get().motion === 'reduced';
+}
+
 /** True when the system or the My Space motion setting asks for reduced motion; follows changes to either. */
 export function useReducedMotion(): boolean {
   const system = useSyncExternalStore(subscribe, getSnapshot, () => false);

@@ -32,7 +32,7 @@ import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalDa
 import { stopLocation } from '../features/nearby/location';
 import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeState } from './placeStories';
 import { createPersistentStore } from './persistentStore';
-import { DEFAULT_PREFERENCES, isPreferences, type Preferences } from './preferences';
+import { DEFAULT_PREFERENCES, isPreferences, repairPreferences, type Preferences } from './preferences';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -76,6 +76,7 @@ export const preferencesStore = createPersistentStore<Preferences>({
   key: 'preferences',
   fallback: DEFAULT_PREFERENCES,
   isValid: isPreferences,
+  repair: repairPreferences,
 });
 
 /** Ask and lessons add lookups; Moments lists, marks and deletes them. */
