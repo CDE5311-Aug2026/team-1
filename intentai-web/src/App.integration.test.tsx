@@ -145,7 +145,7 @@ async function onboardFresh() {
 test('[Onboarding] a fresh user goes O1 → O8, the stamp lands in the passport, Start exploring opens Home', async () => {
   await onboardFresh();
   const saved = onboardingStore.get();
-  expect(saved).toMatchObject({ done: true, topics: ['festival', 'food', 'history', 'monument'], base: { label: 'NUS UTown' } });
+  expect(saved).toMatchObject({ done: true, topics: ['festival', 'food', 'history', 'monument'], base: { label: 'Berlin Wall Fragments' } });
   expect(isOnboarding(saved)).toBe(true);
   expect(within(screen.getByRole('region', { name: 'Your passport' })).getByText('WELCOME')).toBeInTheDocument();
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/onboarding$/);

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import OnboardingMapFrame from '../../../components/OnboardingMap/OnboardingMapFrame';
 import { inBaseBounds } from '../../../components/OnboardingMap/bounds';
-import { HOME_BASE, homePlace } from '../../../data/homePlaces';
+import { homePlace } from '../../../data/homePlaces';
 import { distanceM } from '../../../features/nearby/geo';
 import type { LatLng } from '../../../features/nearby/types';
 import { formatDistance, labelFor } from '../areas';
@@ -13,15 +13,20 @@ import styles from './Base.module.css';
 import type { StepDef, StepProps } from './types';
 
 export const LOCATE_TOAST = 'Location used once, only for Nearby';
-/** Locate does not ask for the device location (canvas): it drops at NUS UTown. */
-export const LOCATE_LABEL = 'NUS UTown';
 
 const BERLIN = homePlace('berlin-wall-fragments')!;
+/** The step opens with the pin on Berlin Wall Fragments, and Locate does not ask for the device location: it drops there too. */
+export const LOCATE_LABEL = BERLIN.name;
 const CHINATOWN = homePlace('chinatown')!;
 
 function Body({ data, update, toast }: StepProps) {
   // Counts drops so a re-drop on the same spot still recentres and replays the pin.
   const [drops, setDrops] = useState(0);
+
+  // Pre-pin on arrival; DEFAULT_ONBOARDING keeps base null so a reload still resumes at this step.
+  useEffect(() => {
+    if (data.base === null) update({ base: { lat: BERLIN.point.lat, lng: BERLIN.point.lng, label: BERLIN.name } });
+  }, []);
 
   const save = (point: LatLng, label: string) => {
     if (!inBaseBounds(point)) return;
@@ -38,7 +43,7 @@ function Body({ data, update, toast }: StepProps) {
           drops={drops}
           onDrop={(point) => save(point, labelFor(point))}
           onLocate={() => {
-            save(HOME_BASE, LOCATE_LABEL);
+            save(BERLIN.point, LOCATE_LABEL);
             toast(LOCATE_TOAST);
           }}
         />
@@ -60,7 +65,7 @@ function Preview({ data }: StepProps) {
   const toWall = distanceM(base, BERLIN.point);
   const toChinatown = distanceM(base, CHINATOWN.point);
   const wallNearer = toWall <= toChinatown;
-  const area = base.label.replace(/^Near /, '');
+  const area = labelFor(base).replace(/^Near /, '');
   return (
     <PreviewCard kicker="PREVIEW · NEARBY FROM HERE" empty={false}>
       <PreviewRow

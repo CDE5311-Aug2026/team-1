@@ -94,11 +94,13 @@ test('reloading mid-flow resumes at the first unanswered step with answers kept'
   await answerRole(page);
   await answerLanguage(page);
   await expect(step(page, 'base')).toBeVisible();
+  await expect(page.getByRole('application')).toHaveAttribute('aria-label', /Home base set to Berlin Wall Fragments/);
 
+  // O6 pre-pins the wall, so a reload there counts the base as answered and resumes at O7.
   await page.reload();
-  await expect(step(page, 'base')).toBeVisible();
+  await expect(step(page, 'topics')).toBeVisible();
   const saved = await stored(page);
-  expect(saved).toMatchObject({ done: false, from: 'China', time: 'lt3m', role: 'intern', language: 'en', base: null });
+  expect(saved).toMatchObject({ done: false, from: 'China', time: 'lt3m', role: 'intern', language: 'en', base: { label: 'Berlin Wall Fragments' } });
 });
 
 test('a user who has finished onboarding is sent from /onboarding to Home', async ({ page }) => {

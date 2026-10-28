@@ -83,12 +83,12 @@ test('question shell: back, progress 1/6 with a 35% partial fill, passport, disa
   expect(cta()).toHaveAttribute('aria-disabled', 'true');
 });
 
-test('blocked Continue stays on the step and toasts the canvas copy', async () => {
+test('O6 opens pre-pinned on Berlin Wall Fragments and Continue works at once', async () => {
   renderFlow({ ...DEFAULT_ONBOARDING, from: 'India', time: 'lt3m', role: 'student', language: 'en' });
   expect(heading()).toHaveTextContent('Where do you spend most of your time?');
+  expect(onboardingStore.get().base).toMatchObject({ label: 'Berlin Wall Fragments' });
   await userEvent.click(cta());
-  expect(heading()).toHaveTextContent('Where do you spend most of your time?');
-  expect(toastText()).toBe('Tap the map to drop your pin');
+  expect(heading()).toHaveTextContent('Rank the topics you enjoy most');
 });
 
 test('blocked toasts: Pick one to continue on a choice step, Tap all 4 topics on topics', async () => {
