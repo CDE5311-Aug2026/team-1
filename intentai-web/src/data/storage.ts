@@ -154,6 +154,8 @@ let unsubscribeAll: (() => void) | null = null;
 function subscribe(listener: () => void) {
   reportListeners.add(listener);
   if (!unsubscribeAll) {
+    // Nothing was listening, so writes since the last snapshot were not counted: start fresh.
+    version++;
     const stores = [...Object.values(CLEARABLE).flatMap((list) => list.map(([s]) => s)), ...PROFILE_STORES];
     const offs = stores.map((s) => s.subscribe(bump));
     window.addEventListener(LOCAL_USAGE_EVENT, bump);
