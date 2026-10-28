@@ -44,9 +44,9 @@ function expectBox(name: string, box: { x: number; y: number; width: number; hei
   }
 }
 
-// The default header (mascot + greeting) is no longer on Home; the Home place page still draws it.
+// The default header (mascot + greeting) is no longer on Home; the place not-found page still draws it.
 test('header mascot (34:21) and greeting match Figma at 390x844', async ({ page }) => {
-  await page.goto('/place/berlin-wall-fragments');
+  await page.goto('/place/unknown-place');
   await page.evaluate(() => document.fonts.ready.then(() => true));
   expectBox('mascot', await page.locator('header img').first().boundingBox(), [8, 47, 58, 58]); // Home 34:19
   const greeting = (await page.getByText('Good Morning, W').boundingBox())!;
