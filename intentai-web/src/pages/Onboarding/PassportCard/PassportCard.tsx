@@ -1,9 +1,10 @@
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import type { OnbField, Onboarding } from '../../../data/domain';
 import { FIELD_LABEL } from '../options';
 import motion from '../Onboarding.module.css';
 import { FIELD_NAME, PASSPORT_FIELDS, mrzLine, passportValue } from './passport';
 import styles from './PassportCard.module.css';
+import { useFitText } from './useFitText';
 
 interface PassportCardProps {
   data: Onboarding;
@@ -22,6 +23,17 @@ const EYE_OPEN = (
   </>
 );
 const EYE_CLOSED = <path d="M3 10c2.5 3 5.5 4.5 9 4.5s6.5-1.5 9-4.5M6.5 13.5 5 16M12 14.5V17M17.5 13.5 19 16" />;
+
+/** The value line: its text shrinks (down to a floor) rather than ellipsising. */
+function FitText({ text, children }: { text: string; children: ReactNode }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useFitText(ref, text);
+  return (
+    <span ref={ref} className={styles.valueText}>
+      {children}
+    </span>
+  );
+}
 
 /** The ID page that fills in as the user answers: six fields, eye toggles, MRZ line, optional stamp. */
 export default function PassportCard({ data, active, onToggleHidden, stamp }: PassportCardProps) {
@@ -44,7 +56,7 @@ export default function PassportCard({ data, active, onToggleHidden, stamp }: Pa
               <div key={field} className={`${styles.field} ${lineClass}`} data-field={field}>
                 <dt className={styles.label}>{FIELD_LABEL[field]}</dt>
                 <dd className={styles.value}>
-                  <span className={styles.valueText}>
+                  <FitText text={has && !hidden ? value : ''}>
                     {has && !hidden && (
                       <span key={value} className={motion.aVal}>
                         {value}
@@ -67,7 +79,7 @@ export default function PassportCard({ data, active, onToggleHidden, stamp }: Pa
                         <span className={styles.srOnly}>Not set</span>
                       </>
                     )}
-                  </span>
+                  </FitText>
                   {has && (
                     <button
                       type="button"

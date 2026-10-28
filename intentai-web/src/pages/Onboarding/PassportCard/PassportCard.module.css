@@ -109,6 +109,13 @@
   text-overflow: ellipsis;
 }
 
+.valueText[data-fit-floor] > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
 .masked {
   color: #8a7f72;
   letter-spacing: 0.14em;
