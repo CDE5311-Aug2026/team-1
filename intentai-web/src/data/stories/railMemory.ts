@@ -36,10 +36,13 @@ export function lastRailIndex(placeId: string): number | undefined {
  * session ?? 0. On the entry "Open card" left from, the last card viewed wins: a NEXT chain replaces card
  * entries, so browser Back lands on the card the chain ended on.
  */
+/** A fresh visit opens the rail on the second card. */
+export const DEFAULT_RAIL_INDEX = 1;
+
 export function initialRailIndex(state: unknown, placeId: string): number {
   const s = (typeof state === 'object' && state !== null ? state : {}) as PlaceRouteState;
   const fromState = validIndex(s.railIndex);
   const last = lastRailIndex(placeId);
-  if (s.railFrom === 'open') return last ?? fromState ?? 0;
-  return fromState ?? last ?? 0;
+  if (s.railFrom === 'open') return last ?? fromState ?? DEFAULT_RAIL_INDEX;
+  return fromState ?? last ?? DEFAULT_RAIL_INDEX;
 }

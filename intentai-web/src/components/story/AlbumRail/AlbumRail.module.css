@@ -6,12 +6,22 @@
 .stage {
   position: relative;
   height: 230px;
-  perspective: 900px;
-  perspective-origin: 50% 40%;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
   overflow: hidden;
+}
+
+/* Unscaled 230px-tall scene; the rail scales it up on wide screens. */
+.scene {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 230px;
+  transform-origin: 0 0;
+  perspective: 900px;
+  perspective-origin: 50% 40%;
 }
 
 /* left is set from the measured stage width; this centres it until the first measurement. */

@@ -54,6 +54,14 @@ const DRAG_THRESHOLD = 6;
 const RULER_THRESHOLD = 4;
 const EDGE = 0.3; // drag resistance past the ends
 const MOMENTUM = 120;
+const STAGE_H = 230;
+// Wide screens scale the whole stage up: 1 on a phone, up to MAX_SCALE on desktop.
+const SCALE_BASE = 520;
+const MAX_SCALE = 1.8;
+
+export function stageScale(width: number): number {
+  return width > 0 ? Math.min(MAX_SCALE, Math.max(1, width / SCALE_BASE)) : 1;
+}
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
@@ -148,6 +156,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
     };
   });
   const [width, setWidth] = useState(0);
+  const k = stageScale(width);
   const stageRef = useRef<HTMLDivElement>(null);
   const loop = useRef<number | null>(null);
   const reducedRef = useRef(reduced);
@@ -286,7 +295,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
     if (!h) return;
     const dx = e.clientX - h.x;
     if (Math.abs(dx) > DRAG_THRESHOLD) s.moved = true;
-    let p = h.p - dx / SP;
+    let p = h.p - dx / (SP * k);
     if (p < 0) p *= EDGE;
     if (p > last) p = last + (p - last) * EDGE;
     s.pos = p;
@@ -303,7 +312,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
     const h = s.held;
     if (!h) return;
     s.held = null;
-    go(Math.round(s.pos - (h.v * MOMENTUM) / SP));
+    go(Math.round(s.pos - (h.v * MOMENTUM) / (SP * k)));
   };
   const railIn = () => {
     s.railHover = true;
@@ -355,7 +364,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
   const playing = s.playing;
   const dragging = s.held !== null || s.ruler !== null;
   const transition = dragging || reduced ? 'none' : 'transform .18s linear';
-  const left = width > 0 ? `${(width - C) / 2}px` : undefined;
+  const left = width > 0 ? `${(width / k - C) / 2}px` : undefined;
   const current = items[focus];
 
   return (
@@ -370,7 +379,12 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
         onPointerCancel={up}
         onPointerEnter={railIn}
         onPointerLeave={railOut}
+        style={{ height: `${STAGE_H * k}px` }}
       >
+        <div
+          className={styles.scene}
+          style={width > 0 ? { width: `${width / k}px`, transform: `scale(${k})` } : undefined}
+        >
         {items.map((item, i) => {
           const o = i - s.pos;
           const a = Math.abs(o);
@@ -423,6 +437,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
             </div>
           );
         })}
+        </div>
       </div>
 
       <div className={styles.controls}>

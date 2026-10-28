@@ -63,8 +63,9 @@ test('Berlin Wall Fragments: hero, focused h1, location, progress at 0, hero cre
   expect(document.querySelectorAll('[data-bar="todo"]')).toHaveLength(4);
   expect(screen.getByText('Source: Tembusu College, NUS')).toBeInTheDocument();
   expect(scrollTo).toHaveBeenCalledWith(0, 0);
-  expect(panelTitle()).toBe('Lunch nearby: The Spread');
-  expect(screen.getByText('FOOD · POPULAR ON CAMPUS · 1 OF 4')).toBeInTheDocument();
+  // A fresh visit opens the rail on the second card.
+  expect(panelTitle()).toBe('The Wall panels');
+  expect(screen.getByText('MONUMENT · 2 OF 4')).toBeInTheDocument();
 });
 
 test('Chinatown: its own copy and hero', () => {
@@ -74,8 +75,8 @@ test('Chinatown: its own copy and hero', () => {
   expect(screen.getByText('Chinatown & Tanjong Pagar · Niu Che Shui')).toBeInTheDocument();
   expect(screen.getByText('Photo: kallerna · CC BY-SA 4.0')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Check in' })).toHaveAttribute('aria-pressed', 'false');
-  expect(panelTitle()).toBe('Bak kwa');
-  expect(screen.getByText('FOOD · 1 OF 4')).toBeInTheDocument();
+  expect(panelTitle()).toBe('Thian Hock Keng Temple');
+  expect(screen.getByText('MONUMENT · 2 OF 4')).toBeInTheDocument();
 });
 
 test('Back to Home goes to Home with focusPlace state', () => {
@@ -113,7 +114,7 @@ test('a stored check-in shows as checked', () => {
 
 test('progress row, done badges, "opened" sleeves and kicker follow real opened cards', () => {
   placeStoriesStore.set({ chinatown: { opened: ['food', 'festival'], checkedIn: false, stamped: false } });
-  renderAt([paths.homePlace('chinatown')]);
+  renderAt([{ pathname: paths.homePlace('chinatown'), state: { railIndex: 0 } }]);
   expect(screen.getByText('2 of 4 cards opened')).toBeInTheDocument();
   const bars = [...document.querySelectorAll('[data-bar]')].map((b) => b.getAttribute('data-bar'));
   expect(bars).toEqual(['done', 'todo', 'done', 'todo']);

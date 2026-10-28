@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { setReducedMotion } from '../../../test/media';
 import { triggerResize } from '../../../test/resizeObserver';
-import { AlbumRail, coverStyle, rulerTicks, type RailItem } from './AlbumRail';
+import { AlbumRail, coverStyle, rulerTicks, stageScale, type RailItem } from './AlbumRail';
 
 const ITEMS: RailItem[] = ['Food', 'Monument', 'Festival', 'History'].map((name, i) => ({
   key: name.toLowerCase(),
@@ -39,6 +39,13 @@ const panelTitle = () => screen.getByRole('heading', { level: 2 }).textContent;
 const front = () => screen.getByRole('button', { name: /(Tap to slide the record out|Record out)\.$/ });
 const stage = () => document.querySelector('[data-rail-stage]') as HTMLElement;
 const ruler = () => document.querySelector('[data-rail-ruler]') as HTMLElement;
+
+test('stage scale: 1 on a phone, grows with width, capped on desktop', () => {
+  expect(stageScale(0)).toBe(1);
+  expect(stageScale(358)).toBe(1);
+  expect(stageScale(780)).toBe(1.5);
+  expect(stageScale(1040)).toBe(1.8);
+});
 
 test('cover maths: centre, neighbours, stacked far items, playing spread', () => {
   expect(coverStyle(0, false)).toEqual({
