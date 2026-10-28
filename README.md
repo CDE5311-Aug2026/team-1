@@ -1,18 +1,65 @@
-Hi, see our live demo here on Vercel: https://cde-5311.vercel.app
+# IntentAI
 
-# Singlish Daily — React + SwiftUI
+**A phone-first guide to Singapore's culture, one place at a time.** Open a place near you, read its food, monument,
+festival and history cards, and collect a passport stamp for every place you finish.
 
-The React web app covers all seven pages and 19 main screens; the native SwiftUI prototype covers the two Home screens in the [Week 7 Figma file](https://www.figma.com/design/aAPocY386mzfKwK5nqjGkB/Week-7?node-id=1-2).
+The current app is the React + TypeScript web app in [`intentai-web/`](intentai-web/README.md). The live demo
+(https://cde-5311.vercel.app) still serves the older [`web/`](web/README.md) app until production switches over.
+
+<table>
+  <tr>
+    <td align="center" width="50%"><img src="docs/readme/home.webp" width="260" alt="Home: swiping the place cards moves the map pin to each place, from Berlin Wall Fragments to Chinatown, NUS and Haw Par Villa"></td>
+    <td align="center" width="50%"><img src="docs/readme/place.webp" width="260" alt="Chinatown place page: the album rail of four culture cards, then the Thian Hock Keng monument card with its then-and-now photo slider"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Home</b><br>A live map of places near you, synced to a swipeable photo carousel.</td>
+    <td align="center"><b>Place stories</b><br>Four culture cards per place: Food, Monument, Festival, History.</td>
+  </tr>
+</table>
+
+## What's in the app
+
+| Tab | What you can do |
+|---|---|
+| **Home** | Today's holiday or festival, then **Nearby**: an OpenStreetMap map with pins that follow the photo cards, a place search, and **Explore** for the full Nearby map (2D, list and the 3D city model). |
+| **Place stories** | Berlin Wall Fragments (NUS University Town) and Chinatown each have a place page and four cards with articles, stats, a then-and-now slider and timelines. Finish all four to collect the place's **passport stamp**. |
+| **Ask** | Ask about a phrase, a dish or a custom and get an answer with examples. |
+| **Community** | Ask locals and read answered questions. |
+| **Moments** | Your passport: stamps, places and the phrases you have collected. |
+| **My Space** | Your profile, settings and data. |
+
+Everything is stored on the phone (`localStorage`); there is no account. The only network traffic is map tiles and
+anonymous page timing for the user test.
+
+## Run it
+
+```sh
+cd intentai-web
+npm install
+npx vite --host 127.0.0.1   # then open http://127.0.0.1:5173
+```
+
+Tests (from `intentai-web/`): `npx tsc -b && npm test` for unit tests, `npx playwright test` for end-to-end and
+accessibility checks. `npm run dev` works too; it serves on `localhost`, which on some Windows machines resolves to IPv6 only and does not
+connect, hence `127.0.0.1` above. More detail, including the production switch from `web/` to `intentai-web/`, is in the
+[intentai-web README](intentai-web/README.md).
+
+## Repository layout
+
+| Path | What it is |
+|---|---|
+| [`intentai-web/`](intentai-web/README.md) | **The current app.** React 18, TypeScript, Vite, CSS Modules, Vitest and Playwright. |
+| [`web/`](web/README.md) | The older JavaScript web app that the Vercel demo still serves. |
+| `SinglishDaily*`, `project.yml` | Native SwiftUI prototype (see below). |
+| `docs/` | Team documents: the [Nearby Explorer PRD](docs/NEARBY-EXPLORER-PRD.md) and the clips used in this README. |
 
 ## Nearby Explorer (in `intentai-web/`)
 
-The newer TypeScript app in [`intentai-web/`](intentai-web/README.md) now has **Nearby Explorer**: a 2D map of Singapore places with a synchronized list, area and location modes, place stories with source-linked fun facts, a draft "Singapore collection" of 100 places with Save / self-reported Visited, backup/restore, phrase tips that open Ask and Moments, and a draggable 3D view of the EARTH ONLINE (City Brush) Singapore model around each place (time of day, weather and sound; tap a landmark for its card), built to load only the nearby area on phones. It is built on the EARTH ONLINE Singapore dataset and calls no Google APIs. Scope and decisions: [PRD](docs/NEARBY-EXPLORER-PRD.md) (its Google Places and Malaysia parts were dropped by team decision on 20 Oct 2026) and the [intentai-web README](intentai-web/README.md).
+**Nearby Explorer** is a 2D map of Singapore places with a synchronized list, area and location modes, place stories with source-linked fun facts, a draft "Singapore collection" of 100 places with Save / self-reported Visited, backup/restore, phrase tips that open Ask and Moments, and a draggable 3D view of the EARTH ONLINE (City Brush) Singapore model around each place (time of day, weather and sound; tap a landmark for its card), built to load only the nearby area on phones. It is built on the EARTH ONLINE Singapore dataset and calls no Google APIs. Scope and decisions: [PRD](docs/NEARBY-EXPLORER-PRD.md) (its Google Places and Malaysia parts were dropped by team decision on 20 Oct 2026) and the [intentai-web README](intentai-web/README.md).
 
 The deployed site still serves `web/`. Switching production to `intentai-web/` (with one-time migration of existing browser data, and rollback) is described in [intentai-web/README.md](intentai-web/README.md#deployment-root-migration-and-rollback).
 
-<img src="docs/screenshots/home.png" width="240" alt="Native SwiftUI Home overview"> <img src="docs/screenshots/lesson.png" width="240" alt="Native SwiftUI lesson">
-
-## React web version — Vercel
+## Older web app (`web/`) — Vercel
 
 The currently deployed React app is in [`web/`](web/README.md); the TypeScript successor is in [`intentai-web/`](intentai-web/README.md). The native SwiftUI app is included alongside them.
 
@@ -24,7 +71,11 @@ npm run dev
 
 For Vercel, import this repository and set **Root Directory** to **web**, framework **Vite**, build command **npm run build**, and output directory **dist**. No environment variables are required. See the [web setup and deployment guide](web/README.md).
 
-## SwiftUI iOS version
+## SwiftUI iOS prototype
+
+The native prototype covers the two Home screens of the original design and extends them to the other tabs for demonstration.
+
+<img src="docs/screenshots/home.png" width="240" alt="Native SwiftUI Home overview"> <img src="docs/screenshots/lesson.png" width="240" alt="Native SwiftUI lesson">
 
 ### Open and run
 

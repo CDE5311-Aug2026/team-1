@@ -28,7 +28,7 @@ rewrites (e.g. `VITE_ROUTER=hash npx vite build --base ./` for a click-through p
 
 ## Nearby Explorer
 
-Home's way into Nearby is its **Nearby section** (`src/components/NearbySection`): a live OpenStreetMap map with pins synced to a place carousel; the map's "Near you" search pill opens Explore (location off or on). Explore is a full-screen map (like a maps app): Back,
+Home's way into Nearby is its **Nearby section** (`src/components/NearbySection`): a live OpenStreetMap map with pins synced to a place carousel; the "N places to explore" chip opens Explore (location off or on), and the "Near you" pill opens a place search. Explore is a full-screen map (like a maps app): Back,
 search and the area chip on top, category chips under them, one column of map buttons on the right (3D, My location,
 zoom, recenter), and a sheet of places at the bottom (peek, half, full = the List view; a side panel on wide screens).
 The Nearby pages hide the app's tab bar. The sheet starts with the local phrases for the place picked on the phrase
