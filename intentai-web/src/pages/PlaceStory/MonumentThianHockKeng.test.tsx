@@ -4,6 +4,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { placeState } from '../../data/placeStories';
 import { placeStoriesStore } from '../../data/stores';
 import { paths, patterns } from '../../routes';
+import { setReducedMotion } from '../../test/media';
 import PlaceStoryPage from './PlaceStoryPage';
 
 const ID = 'chinatown';
@@ -204,4 +205,85 @@ test('article, Look for rows, credits and the NEXT card to Lunar New Year', () =
   const next = screen.getByRole('link', { name: /NEXT · FESTIVAL/ });
   expect(next).toHaveAttribute('href', paths.placeCard(ID, 'festival'));
   expect(next).toHaveTextContent('Lunar New Year');
+});
+
+test('the slider and the video clock do not affect each other', () => {
+  renderCard();
+  touchFirst();
+  fireEvent.click(screen.getByRole('button', { name: 'Play video: A temple once on the sea' }));
+  act(() => vi.advanceTimersByTime(5000));
+  expect(screen.getByText('Mazu is the goddess of the sea.')).toBeInTheDocument();
+  fireEvent.keyDown(slider(), { key: 'End' });
+  settle();
+  expect(valueNow()).toBe('100');
+  expect(screen.getByText(/A rickshaw waits outside the temple/)).toBeInTheDocument();
+  expect(screen.getByText('Mazu is the goddess of the sea.')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Pause video' })).toBeInTheDocument();
+  act(() => vi.advanceTimersByTime(5000));
+  expect(screen.getByText('Sailors gave thanks here after the voyage from China.')).toBeInTheDocument();
+  expect(valueNow()).toBe('100');
+  fireEvent.click(screen.getByRole('button', { name: 'Pause video' }));
+  fireEvent.keyDown(slider(), { key: 'Home' });
+  settle();
+  expect(valueNow()).toBe('0');
+  expect(screen.getByRole('button', { name: 'Play video: A temple once on the sea' })).toBeInTheDocument();
+});
+
+test('reduced motion: no intro sweep, and keys snap at once', () => {
+  setReducedMotion(true);
+  renderCard();
+  run(3600);
+  expect(valueNow()).toBe('50');
+  fireEvent.keyDown(slider(), { key: 'ArrowRight' });
+  act(() => vi.advanceTimersByTime(20));
+  expect(valueNow()).toBe('55');
+});
+
+test('the slider is a focusable non-button element', () => {
+  renderCard();
+  expect(slider().tagName).not.toBe('BUTTON');
+  expect(slider()).toHaveAttribute('tabindex', '0');
+});
+
+test('the caption is silent during the intro sweep and polite once it ends', () => {
+  renderCard();
+  const live = () => screen.getByTestId('then-now-caption').getAttribute('aria-live');
+  expect(live()).toBe('off');
+  run(2000);
+  expect(live()).toBe('off');
+  run(1500);
+  expect(live()).toBe('polite');
+});
+
+test('the caption turns polite at the first interaction', () => {
+  renderCard();
+  fireEvent.keyDown(slider(), { key: 'ArrowRight' });
+  expect(screen.getByTestId('then-now-caption')).toHaveAttribute('aria-live', 'polite');
+});
+
+test('a drag still ends on release when pointer capture throws', () => {
+  renderCard();
+  touchFirst();
+  const box = screen.getByTestId('then-now-box');
+  box.getBoundingClientRect = () => ({ left: 0, top: 0, width: 200, height: 264, right: 200, bottom: 264, x: 0, y: 0, toJSON: () => {} });
+  box.setPointerCapture = () => {
+    throw new Error('no capture');
+  };
+  fireEvent.pointerDown(box, { clientX: 160, pointerId: 1 });
+  expect(valueNow()).toBe('80');
+  fireEvent.pointerUp(window, { pointerId: 1 });
+  fireEvent.pointerMove(box, { clientX: 40, pointerId: 1 });
+  expect(valueNow()).toBe('80');
+});
+
+test('losing pointer capture ends the drag', () => {
+  renderCard();
+  touchFirst();
+  const box = screen.getByTestId('then-now-box');
+  box.getBoundingClientRect = () => ({ left: 0, top: 0, width: 200, height: 264, right: 200, bottom: 264, x: 0, y: 0, toJSON: () => {} });
+  box.setPointerCapture = vi.fn();
+  fireEvent.pointerDown(box, { clientX: 160, pointerId: 1 });
+  fireEvent.lostPointerCapture(box, { pointerId: 1 });
+  fireEvent.pointerMove(box, { clientX: 40, pointerId: 1 });
+  expect(valueNow()).toBe('80');
 });

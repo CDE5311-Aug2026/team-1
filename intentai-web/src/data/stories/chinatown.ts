@@ -92,7 +92,5 @@ export const THIAN_HOCK_KENG = {
     { icon: 'roof', text: 'Dragons on the curved roof ridges' },
     { icon: 'joinery', text: 'Timber joinery with no nails' },
   ] as const,
-  source:
-    'Source: National Heritage Board, Roots.gov.sg · Photos: Zairon, CC BY-SA 4.0; Lambert & Co. c.1890, KITLV, public domain; Terence Ong 2006, CC BY 2.5',
   next: { title: 'Lunar New Year', thumb: STORY_IMAGES.lanterns.src },
 };

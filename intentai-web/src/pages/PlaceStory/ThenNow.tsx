@@ -26,6 +26,7 @@ export function ThenNow() {
   const [target, setTarget] = useState(50);
   const [pct, setPct] = useState(50);
   const [dragging, setDragging] = useState(false);
+  const [announce, setAnnounce] = useState(false);
   const pctRef = useRef(50);
   const touched = useRef(false);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -55,14 +56,35 @@ export function ThenNow() {
 
   // Intro demo: sweep once to hint at the drag, unless the visitor got there first.
   useEffect(() => {
-    if (reduced) return;
+    if (reduced) {
+      setAnnounce(true);
+      return;
+    }
     const ids = [74, 26, 50].map((v, i) =>
       window.setTimeout(() => {
         if (!touched.current) setTarget(v);
+        if (i === 2) setAnnounce(true);
       }, [1400, 2300, 3200][i]),
     );
     return () => ids.forEach(window.clearTimeout);
   }, [reduced]);
+
+  const touch = () => {
+    touched.current = true;
+    setAnnounce(true);
+  };
+
+  // If pointer capture was unavailable, a release outside the box must still end the drag.
+  useEffect(() => {
+    if (!dragging) return;
+    const end = () => setDragging(false);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    return () => {
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+    };
+  }, [dragging]);
 
   const moveTo = (clientX: number) => {
     const r = boxRef.current!.getBoundingClientRect();
@@ -72,7 +94,7 @@ export function ThenNow() {
   };
 
   const onDown = (e: PointerEvent<HTMLDivElement>) => {
-    touched.current = true;
+    touch();
     setDragging(true);
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
@@ -86,7 +108,7 @@ export function ThenNow() {
   };
   const onUp = () => setDragging(false);
 
-  const onKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
     const step = e.shiftKey ? 20 : 5;
     let v: number;
     if (e.key === 'ArrowLeft') v = target - step;
@@ -95,7 +117,7 @@ export function ThenNow() {
     else if (e.key === 'End') v = 100;
     else return;
     e.preventDefault();
-    touched.current = true;
+    touch();
     setTarget(clamp(v));
   };
 
@@ -124,6 +146,7 @@ export function ThenNow() {
         onPointerMove={onMove}
         onPointerUp={onUp}
         onPointerCancel={onUp}
+        onLostPointerCapture={onUp}
       >
         <img className={styles.photo} src={thenNow.now.src} alt={thenNow.now.alt} draggable={false} />
         <div className={styles.thenLayer} style={{ clipPath: `inset(0 ${(100 - pct).toFixed(2)}% 0 0)` }}>
@@ -137,8 +160,8 @@ export function ThenNow() {
           2006
         </span>
         <span aria-hidden="true" className={styles.divider} style={{ left: `${pct.toFixed(2)}%` }} />
-        <button
-          type="button"
+        <div
+          tabIndex={0}
           role="slider"
           aria-label={thenNow.sliderLabel}
           aria-valuemin={0}
@@ -152,7 +175,7 @@ export function ThenNow() {
           <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 7l-5 5 5 5M15 7l5 5-5 5" />
           </svg>
-        </button>
+        </div>
       </div>
 
       <Segmented
@@ -161,12 +184,12 @@ export function ThenNow() {
         value={view}
         className={styles.segmented}
         onChange={(v) => {
-          touched.current = true;
+          touch();
           setTarget(VIEW_PCT[v]);
         }}
       />
 
-      <div aria-live="polite" className={styles.caption}>
+      <div data-testid="then-now-caption" aria-live={announce ? 'polite' : 'off'} className={styles.caption}>
         <p key={captionKey} className={`a-cap ${styles.captionText}`}>
           <b>{caption.lead}</b>
           {caption.text}
