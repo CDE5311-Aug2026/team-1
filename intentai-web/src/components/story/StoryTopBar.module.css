@@ -1,0 +1,64 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+}
+
+.back {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back:hover {
+  color: var(--text-primary);
+}
+
+.segments {
+  flex-grow: 1;
+  display: flex;
+  gap: 4px;
+}
+
+.segment {
+  flex: 1;
+  height: 4px;
+  border-radius: 1px;
+}
+
+.done {
+  background: var(--accent);
+}
+
+.todo {
+  background: var(--border);
+}
+
+.current {
+  background: var(--progress-track);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 4px;
+  background: var(--accent);
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

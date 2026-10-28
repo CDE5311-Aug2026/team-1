@@ -62,7 +62,7 @@
 .smoke { animation: smoke 2.4s ease-out infinite; }
 .a-drop { transform-origin: top; animation: drop 0.3s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
 .a-hint { display: inline-block; animation: hintIn 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
-.a-pill { animation: pillIn 0.45s cubic-bezier(0.3, 1.3, 0.5, 1) both; }
+.a-pill { animation: pillIn 0.45s cubic-bezier(0.3, 1.3, 0.5, 1) 0.5s both; }
 .shiny {
   background: linear-gradient(110deg, #c2410c 38%, #f4b389 50%, #c2410c 62%);
   background-size: 220% 100%;
@@ -90,5 +90,8 @@
   .press { transition: none !important; }
   .press:active { transform: none; }
   .spark { display: none; }
+  /* Endless decorative loops would freeze as solid shapes; hide them. Twinkle dots stay, fully visible. */
+  .ring, .mark, .pulse, .ping, .halo, .radar, .smoke { opacity: 0 !important; visibility: hidden; }
+  .tw { opacity: 1; }
   .shiny { background-position: 0 0; }
 }

@@ -1,0 +1,65 @@
+.next {
+  margin: 18px 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 10px;
+  border-radius: 12px;
+  background: var(--text-primary);
+  color: var(--surface);
+  text-decoration: none;
+}
+
+.next:hover {
+  color: var(--surface);
+}
+
+.next:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.top16 {
+  margin-top: 16px;
+}
+
+.thumb {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.text {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--accent-tile-border);
+}
+
+.title {
+  display: block;
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.go {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

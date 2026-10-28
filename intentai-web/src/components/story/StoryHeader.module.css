@@ -1,0 +1,40 @@
+.header {
+  padding: 18px 20px 0;
+}
+
+.kicker {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--story-orange-text);
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.title {
+  margin: 8px 0 0;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* Focused programmatically on route entry; not a control, so no ring. */
+.title:focus {
+  outline: none;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}

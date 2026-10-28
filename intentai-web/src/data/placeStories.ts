@@ -11,8 +11,6 @@ export interface PlaceState {
 }
 export type PlaceStories = Record<string, PlaceState>;
 
-const DEFAULT_STATE: PlaceState = { opened: [], checkedIn: false, stamped: false };
-
 function isPlaceState(v: unknown): v is PlaceState {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return false;
   const s = v as Record<string, unknown>;
@@ -31,7 +29,7 @@ export function isPlaceStories(v: unknown): v is PlaceStories {
 }
 
 export function placeState(stories: PlaceStories, id: string): PlaceState {
-  return stories[id] ?? DEFAULT_STATE;
+  return stories[id] ?? { opened: [], checkedIn: false, stamped: false };
 }
 
 export function openedCount(stories: PlaceStories, id: string): number {
