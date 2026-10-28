@@ -1,0 +1,209 @@
+/* Confetti anchor: a 1px point at the top of the body the pieces burst from. */
+.confetti {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 1px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 2px 0 0;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.helper {
+  margin: 6px 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #5f5b54;
+}
+
+.kicker {
+  margin: 16px 0 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #a3410b;
+}
+
+/* ---------- finds fan ---------- */
+
+.fan {
+  position: relative;
+  margin-top: 8px;
+  height: 214px;
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 150px;
+  height: 200px;
+  margin-left: -75px;
+  transition: transform 0.55s cubic-bezier(0.3, 1.25, 0.4, 1);
+}
+
+.cardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #23211d;
+  box-shadow: 0 18px 30px -16px rgba(35, 33, 29, 0.7);
+}
+
+.cardPhoto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(24, 22, 19, 0.1) 30%, rgba(24, 22, 19, 0.88) 100%);
+}
+
+.chipRow {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  right: 8px;
+  display: flex;
+}
+
+.chip {
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px 0 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #23211d;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.cardText {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  color: #ffffff;
+  text-align: left;
+}
+
+.cardTitle {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.cardSub {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #eceae5;
+}
+
+/* Full-card hit area: the front card's link, or a back card's "bring to front" button. */
+.cover {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+}
+
+.coverButton {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cover:focus-visible {
+  outline: 3px solid #e4671f;
+  outline-offset: 2px;
+}
+
+.dots {
+  margin-top: 4px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: #cfc9bf;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.dotActive {
+  width: 16px;
+  background: #e4671f;
+}
+
+/* ---------- stamp (inside the passport card's 74x74 stamp slot) ---------- */
+
+.splash {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid #e4671f;
+}
+
+.stampSvg {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- bottom links ---------- */
+
+.links {
+  display: flex;
+  gap: 8px;
+}
+
+.see,
+.go {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  box-sizing: border-box;
+  color: #23211d;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.see {
+  flex: 1;
+  border: 1px solid #dedad2;
+  background: #ffffff;
+  font-size: 15px;
+}
+
+.go {
+  flex: 1.4;
+  gap: 8px;
+  background: #e4671f;
+  font-size: 16px;
+}
