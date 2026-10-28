@@ -110,7 +110,7 @@ test('retake from My Space pre-fills the saved picks, and Cancel returns without
   await userEvent.click(tile('Foods'));
   await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-  expect(location()).toBe('/my-space');
+  expect(location()).toBe('/my-space/settings');
   expect(culturePrefsStore.get()).toEqual(CUSTOM);
 });
 

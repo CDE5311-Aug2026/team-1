@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './test';
+import { paths } from '../src/routes';
 import { ROUTES, seed } from './routes';
 
 // WCAG 2.2 A/AA automated checks (axe) on every route at phone size. Catches contrast, names,
@@ -9,24 +10,36 @@ import { ROUTES, seed } from './routes';
 // white text and backgrounds, below AA's 4.5:1. Every other colour pair must pass.
 const FIGMA_BRAND_ORANGES = ['#e4671f', '#e8622c'];
 
+async function violations(page: import('./test').Page) {
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  // For contrast, report the colour pair and ratio so a failure says what to change.
+  return violations.flatMap((v) =>
+    v.nodes.flatMap((n) => {
+      const data = n.any[0]?.data as { fgColor?: string; bgColor?: string; contrastRatio?: number } | undefined;
+      if (data && [data.fgColor, data.bgColor].some((c) => FIGMA_BRAND_ORANGES.includes(c ?? ''))) return [];
+      const colours = data?.fgColor ? ` ${data.fgColor} on ${data.bgColor} = ${data.contrastRatio}:1` : '';
+      return [`${v.id}${colours} @ ${n.target.join(' ')}`];
+    }),
+  );
+}
+
+test('no WCAG A/AA violations with the My Space Time sheet open', async ({ page }) => {
+  await page.goto('/');
+  await seed(page, paths.mySpace);
+  await page.goto(paths.mySpace);
+  await page.getByRole('button', { name: /^In Singapore:/ }).click();
+  await expect(page.getByRole('slider', { name: 'Time in Singapore' })).toBeVisible();
+  expect(await violations(page)).toEqual([]);
+});
+
 for (const route of ROUTES) {
   test(`no WCAG A/AA violations on ${route}`, async ({ page }) => {
     await page.goto('/');
     await seed(page, route);
     await page.goto(route);
     await expect(page.getByRole('main')).toBeVisible();
-    const { violations } = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-      .analyze();
-    // For contrast, report the colour pair and ratio so a failure says what to change.
-    const summary = violations.flatMap((v) =>
-      v.nodes.flatMap((n) => {
-        const data = n.any[0]?.data as { fgColor?: string; bgColor?: string; contrastRatio?: number } | undefined;
-        if (data && [data.fgColor, data.bgColor].some((c) => FIGMA_BRAND_ORANGES.includes(c ?? ''))) return [];
-        const colours = data?.fgColor ? ` ${data.fgColor} on ${data.bgColor} = ${data.contrastRatio}:1` : '';
-        return [`${v.id}${colours} @ ${n.target.join(' ')}`];
-      }),
-    );
-    expect(summary).toEqual([]);
+    expect(await violations(page)).toEqual([]);
   });
 }

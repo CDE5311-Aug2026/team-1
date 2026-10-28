@@ -25,16 +25,17 @@ export function tileValue(data: Onboarding, field: OnbField): string {
 
 const CHIP: Record<OnbField, string> = { from: '', time: '', role: 'ID', language: 'Aa', base: 'SG', topics: '1 2 3' };
 
-function Visual({ field, data }: { field: OnbField; data: Onboarding }) {
+// While a tile is blurred (hidden or unset) its visual carries no text: it is decoration, not content.
+function Visual({ field, data, blurred }: { field: OnbField; data: Onboarding; blurred: boolean }) {
   if (field === 'from') {
     const country = COUNTRIES.find((c) => c.name === data.from);
     return (
       <span className={styles.fromVisual}>
         <span className={styles.flag} style={{ background: country?.color ?? '#CFC9BF' }}>
-          {country?.code ?? '··'}
+          {blurred ? '' : (country?.code ?? '··')}
         </span>
         <span className={styles.arc} />
-        <span className={styles.sg}>SG</span>
+        <span className={styles.sg}>{blurred ? '' : 'SG'}</span>
       </span>
     );
   }
@@ -49,7 +50,7 @@ function Visual({ field, data }: { field: OnbField; data: Onboarding }) {
       </span>
     );
   }
-  return <span className={styles.chip}>{CHIP[field]}</span>;
+  return <span className={styles.chip}>{blurred ? '' : CHIP[field]}</span>;
 }
 
 /** "What the app knows": six tiles that open the edit sheet, each with an eye toggle that makes it private. */
@@ -81,7 +82,7 @@ export default function KnowsGrid({ onEdit }: { onEdit: (field: OnbField) => voi
             >
               <span className={styles.label}>{name}</span>
               <span className={`${styles.visual} ${hidden || unset ? styles.blurred : ''}`} aria-hidden="true">
-                <Visual field={field} data={onboarding} />
+                <Visual field={field} data={onboarding} blurred={hidden || unset} />
               </span>
               <span className={`${styles.value} ${unset && !hidden ? styles.unset : ''} ${hidden ? styles.hiddenValue : ''}`}>
                 {hidden && <Lock />}

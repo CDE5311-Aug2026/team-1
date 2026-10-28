@@ -6,14 +6,6 @@ const TOL = 3; // px, decision D2
 type Box = [x: number, y: number, width: number, height: number];
 
 // Figma boxes relative to each 390×844 frame (get_metadata, frame x/y subtracted).
-const ABOUT_YOU: Record<string, Box> = {
-  '21:1338': [20, 104, 350, 42], // Segment
-  '21:1345': [20, 158, 350, 25], // Section / About you
-  '21:1347': [20, 195, 350, 168], // Card / Profile
-  '21:1380': [20, 375, 350, 25], // Section / Switches
-  '21:1384': [20, 412, 350, 227], // Card / Switches (v2: four rows, Figma's 284 had five)
-  '12:155': [20, 758, 350, 58], // Tab bar
-};
 const NOTICES: Record<string, Box> = {
   '21:1419': [20, 104, 350, 42],
   '21:1426': [20, 158, 350, 128], // Local fix
@@ -88,12 +80,6 @@ const OCCASIONS_ON = {
 const notice = (status: string) => ({ status, dismissed: false, occasion: 'Team dinner', with: 'Colleagues and manager' });
 
 test.describe('geometry at 390x844', () => {
-  test('About you (12:40)', async ({ page }) => {
-    await open(page, paths.mySpace);
-    await expectFrames(page, ABOUT_YOU);
-    await page.screenshot({ path: 'test-results/my-space-12-40.png' });
-  });
-
   test('Notices (12:182)', async ({ page }) => {
     await open(page, paths.notices, OCCASIONS_ON);
     await expectFrames(page, NOTICES);
@@ -127,30 +113,116 @@ test.describe('geometry at 390x844', () => {
   });
 });
 
-// v0: "profile editing and all five switches persist, with switches initially off" (v2 drops "Daily card")
-test('profile editing and all four switches persist, with switches initially off', async ({ page }) => {
-  await open(page, paths.mySpace);
-  for (const name of ['Flag occasions', 'Answer as a local', 'Rehearse with AI', 'No-judgement mode']) {
+const DONE = {
+  onboarding: {
+    done: true,
+    from: 'China',
+    time: 'lt3m',
+    role: 'intern',
+    language: 'en',
+    base: { lat: 1.3049, lng: 103.7735, label: 'NUS UTown' },
+    topics: ['food', 'festival', 'monument', 'history'],
+    hidden: ['from'],
+    completedAt: '2026-10-28T00:00:00.000Z',
+  },
+};
+
+test('profile tiles: edit a role and save, privacy eye, switches start off and persist', async ({ page }) => {
+  await open(page, paths.mySpace, DONE);
+  for (const name of ['Flag occasions', 'Answer as a local']) {
     await expect(page.getByRole('switch', { name, exact: true })).toHaveAttribute('aria-checked', 'false');
   }
-  await page.getByRole('button', { name: 'Edit From', exact: true }).click();
-  await page.getByRole('dialog').getByRole('textbox', { name: 'From' }).fill('Malaysia');
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await page.getByRole('button', { name: /^Here as:/ }).click();
+  const sheet = page.getByRole('dialog', { name: 'Role' });
+  await sheet.getByRole('radio', { name: /Working/ }).click();
+  await sheet.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText('Role updated')).toBeVisible();
+  await page.getByRole('button', { name: 'Show from' }).click();
   await page.getByRole('switch', { name: 'Answer as a local', exact: true }).click();
   await page.reload();
-  await expect(page.getByText('Malaysia', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Here as: Working\./ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^From: China\./ })).toBeVisible();
   await expect(page.getByRole('switch', { name: 'Answer as a local', exact: true })).toHaveAttribute('aria-checked', 'true');
-  await page.getByRole('button', { name: 'Delete From', exact: true }).click();
-  await expect(page.getByText('Not set')).toBeVisible();
-  await page.getByRole('button', { name: 'Undo', exact: true }).click();
-  await expect(page.getByText('Malaysia', { exact: true })).toBeVisible();
+});
+
+test('an incomplete Topics ranking explains inside the open sheet', async ({ page }) => {
+  await open(page, paths.mySpace, DONE);
+  await page.getByRole('button', { name: /^Topics:/ }).click();
+  const sheet = page.getByRole('dialog', { name: 'Topics' });
+  await sheet.getByRole('button', { name: /^History, ranked 4/ }).click();
+  // Save stays tappable while incomplete (aria-disabled) so it can explain what is missing.
+  await sheet.getByRole('button', { name: 'Save', exact: true }).click({ force: true });
+  await expect(sheet.getByRole('status')).toHaveText('Tap all 4 topics to set the order');
+  await expect(sheet.getByRole('button', { name: 'Save', exact: true })).toBeInViewport();
+});
+
+test('largest text at 320px: no sideways scrolling, sheet footer on screen', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await open(page, paths.mySpace, { ...DONE, preferences: { notify: { answers: true, recap: true, occasions: false, near: true }, recapTime: 'evening', radiusKm: 3, motion: 'full', textSize: 4, captions: true, haptics: true, permissions: { calendar: 0, notifications: 0, camera: 0 }, usageTiming: true } });
+  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  await expect.poll(() => page.evaluate(() => document.documentElement.style.fontSize)).toBe('130%');
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await page.getByRole('button', { name: /^Here as:/ }).click();
+  await expect(page.getByRole('dialog', { name: 'Role' }).getByRole('button', { name: 'Save', exact: true })).toBeInViewport();
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  for (const path of [paths.mySpaceSettings, paths.mySpacePrivacy]) {
+    await page.goto(path);
+    expect(await overflow(), path).toBeLessThanOrEqual(0);
+  }
+});
+
+test('Settings text size applies to the whole app and survives a reload', async ({ page }) => {
+  await open(page, paths.mySpaceSettings, DONE);
+  await page.getByLabel('Text size').focus();
+  await page.keyboard.press('End');
+  await expect(page.getByText('Largest', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Back to My Space' }).click();
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => document.documentElement.style.fontSize)).toBe('130%');
+});
+
+test('hold to delete everything, then a new passport; Tab stays in the overlay', async ({ page }) => {
+  await open(page, paths.mySpacePrivacy, DONE);
+  const button = page.getByRole('button', { name: 'Hold to delete all my data' });
+  await button.scrollIntoViewIfNeeded();
+  const box = (await button.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(1800);
+  await page.mouse.up();
+  const dialog = page.getByRole('dialog', { name: 'Everything is deleted' });
+  await expect(dialog).toBeVisible();
+  for (let i = 0; i < 3; i++) {
+    await page.keyboard.press('Tab');
+    // Focus may leave for the browser UI (body), but never lands on a page control behind the modal.
+    const outside = await page.evaluate(() => {
+      const el = document.activeElement;
+      return Boolean(el && el !== document.body && !el.closest('dialog'));
+    });
+    expect(outside).toBe(false);
+  }
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Make a new passport' }).click();
+  await expect(page).toHaveURL(new RegExp(`${paths.onboarding}$`));
+  await page.goto(paths.today);
+  await expect(page).toHaveURL(new RegExp(`${paths.onboarding}$`));
+});
+
+test('Redo onboarding opens the welcome screen', async ({ page }) => {
+  await open(page, paths.mySpace, DONE);
+  await page.getByRole('button', { name: /Redo onboarding/ }).click();
+  await expect(page).toHaveURL(new RegExp(`${paths.onboarding}$`));
+  await page.reload();
+  await expect(page).toHaveURL(new RegExp(`${paths.onboarding}$`));
 });
 
 // v0: "AI notice edit, confirm, reject and undo work"
 test('AI notice edit, confirm, reject and undo work', async ({ page }) => {
   await open(page, paths.mySpace);
   await page.getByRole('switch', { name: 'Flag occasions', exact: true }).click();
-  await page.getByRole('button', { name: /^notices/i }).click();
+  // The bell (Home header) opens Notices; My Space no longer has a Notices tab.
+  await page.goto(paths.notices);
   await expect(page.getByText('AI · Medium confidence')).toBeVisible();
   await page.getByRole('button', { name: 'Details', exact: true }).click();
   await page.getByRole('button', { name: /edit occasion/i }).click();
@@ -170,12 +242,3 @@ test('AI notice edit, confirm, reject and undo work', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Confirm', exact: true })).toBeVisible();
 });
 
-// v0: data-deletion half of "Nearby manual place selection and data deletion work"
-test('Delete all my data returns to onboarding and stays there after a reload', async ({ page }) => {
-  await open(page, paths.notices);
-  await page.getByRole('button', { name: 'Delete all my data', exact: true }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Delete all my data', exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`${paths.onboarding}$`));
-  await page.goto(paths.today);
-  await expect(page).toHaveURL(new RegExp(`${paths.onboarding}$`));
-});

@@ -58,8 +58,8 @@ export default function TodaySetupPage() {
       <button
         type="button"
         className={styles.back}
-        // My Space opens this screen with ?from=my-space; otherwise Back returns to the previous page.
-        onClick={() => (fromMySpace ? navigate(paths.mySpace) : navigate(-1))}
+        // My Space settings open this screen with ?from=my-space; otherwise Back returns to the previous page.
+        onClick={() => (fromMySpace ? navigate(paths.mySpaceSettings) : navigate(-1))}
       >
         {fromMySpace ? 'Cancel' : 'Back'}
       </button>
