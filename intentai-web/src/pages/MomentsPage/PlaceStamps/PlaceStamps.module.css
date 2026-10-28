@@ -85,6 +85,18 @@
   transform: rotate(-6deg);
 }
 
+.ring img {
+  display: block;
+  object-fit: cover;
+}
+
+.rowLabel {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .ring img,
 .ring > span {
   width: 56px;
@@ -161,4 +173,11 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-card);
+}
+
+.credits {
+  margin: 0;
+  font-size: 0.625rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
 }

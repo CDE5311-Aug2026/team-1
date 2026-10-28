@@ -21,6 +21,8 @@ export interface HomePlace {
   credit: string;
   hasCards: boolean;
   pinAlways: boolean;
+  /** Other names the Home search matches (besides name and area). */
+  aliases?: readonly string[];
 }
 
 /** 80x80 crop of the right-hand panel, for the Deepavali card's anniversary row. */
@@ -45,7 +47,7 @@ const areas = (areasJson as { areas: RawArea[] }).areas;
 
 // Written out here so the Nearby catalogue (places.sg.json) stays out of the main bundle;
 // homePlaces.test.ts checks these against the catalogue.
-function nearbyPlace(id: string, name: string, area: string, point: LatLng): HomePlace {
+function nearbyPlace(id: string, name: string, area: string, point: LatLng, aliases?: readonly string[]): HomePlace {
   return {
     id,
     name,
@@ -57,6 +59,7 @@ function nearbyPlace(id: string, name: string, area: string, point: LatLng): Hom
     credit: THUMB_CREDIT,
     hasCards: false,
     pinAlways: true,
+    aliases,
   };
 }
 
@@ -75,6 +78,7 @@ export const HOME_PLACES: readonly HomePlace[] = [
     credit: 'Photo supplied by the IntentAI team',
     hasCards: true,
     pinAlways: true,
+    aliases: ['Tembusu College', 'Berlin'],
   },
   {
     id: 'chinatown',
@@ -87,10 +91,11 @@ export const HOME_PLACES: readonly HomePlace[] = [
     credit: 'Marcin Konsek, CC BY-SA 4.0, via Wikimedia Commons',
     hasCards: true,
     pinAlways: false,
+    aliases: ['Pagoda Street'],
   },
-  nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }),
-  nearbyPlace('curated:sg-haw-par-villa', 'Haw Par Villa', 'Queenstown & Holland', { lat: 1.28405, lng: 103.78142 }),
-  nearbyPlace('curated:sg-holland-village', 'Holland Village', 'Queenstown & Holland', { lat: 1.31194, lng: 103.79611 }),
+  nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }, ['NUS', 'UTown']),
+  nearbyPlace('curated:sg-haw-par-villa', 'Haw Par Villa', 'Queenstown & Holland', { lat: 1.28405, lng: 103.78142 }, ['Haw Par', 'Tiger Balm Garden']),
+  nearbyPlace('curated:sg-holland-village', 'Holland Village', 'Queenstown & Holland', { lat: 1.31194, lng: 103.79611 }, ['Holland V', 'Holland Road']),
 ];
 
 export function homePlace(id: string): HomePlace | undefined {
@@ -100,4 +105,16 @@ export function homePlace(id: string): HomePlace | undefined {
 /** Always-pinned places, plus the selected one when it is not always pinned. */
 export function visiblePins(selectedId: string): HomePlace[] {
   return HOME_PLACES.filter((p) => p.pinAlways || p.id === selectedId);
+}
+
+/**
+ * Home search: case-insensitive substring match on name, area and aliases. An empty query lists every place.
+ * Places with cards come first, the rest keep their card order.
+ */
+export function searchHomePlaces(query: string): { withCards: HomePlace[]; others: HomePlace[] } {
+  const q = query.trim().toLowerCase();
+  const hits = HOME_PLACES.filter(
+    (p) => !q || [p.name, p.area, ...(p.aliases ?? [])].some((text) => text.toLowerCase().includes(q)),
+  );
+  return { withCards: hits.filter((p) => p.hasCards), others: hits.filter((p) => !p.hasCards) };
 }

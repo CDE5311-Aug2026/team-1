@@ -25,6 +25,14 @@ test('placeState defaults to nothing done; openedCount is 0', () => {
   expect(openedCount({}, 'chinatown')).toBe(0);
 });
 
+test('placeState returns a fresh default each call, so a caller cannot mutate shared state', () => {
+  const a = placeState({}, 'chinatown');
+  a.opened.push('food');
+  a.checkedIn = true;
+  expect(placeState({}, 'chinatown')).toEqual({ opened: [], checkedIn: false, stamped: false });
+  expect(placeState({}, 'chinatown')).not.toBe(placeState({}, 'chinatown'));
+});
+
 test('markOpened is idempotent and keeps facet order of first opening', () => {
   markOpened('chinatown', 'food');
   markOpened('chinatown', 'food');

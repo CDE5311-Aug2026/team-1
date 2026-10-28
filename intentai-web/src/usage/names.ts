@@ -5,6 +5,9 @@ import { paths, patterns } from '../routes';
 // question ids never leave the phone.
 const PAGE_NAMES: [path: string, name: string][] = [
   [paths.today, 'Today'],
+  // Place stories: names only, never the place or card id in the path
+  [patterns.placeCard, 'Place card'],
+  [patterns.homePlace, 'Place'],
   [paths.holiday, 'Holiday'],
   [paths.ask, 'Ask'],
   [paths.community, 'Community'],

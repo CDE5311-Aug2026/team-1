@@ -29,7 +29,7 @@ export const todaysHoliday: Holiday = {
   today: 'Sat 7 Nov',
   kicker: 'Sat 7 Nov · Long weekend',
   cardTitle: 'Deepavali long weekend starts today',
-  cardBody: 'The festival of lights falls on Sun 8 Nov. Mon 9 Nov is a public holiday too.',
+  cardBody: 'The festival of lights is on Sun 8 Nov. Mon 9 Nov is a public holiday too.',
   also: {
     when: 'Also Mon 9 Nov · Near you',
     title: 'The Berlin Wall fell 37 years ago',

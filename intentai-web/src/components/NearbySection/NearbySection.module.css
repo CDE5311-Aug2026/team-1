@@ -8,27 +8,31 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0.25rem 0.75rem;
+  gap: 0.25rem 0.5rem;
+  animation-delay: 0.28s;
 }
 
 .title {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 
 .hint {
   margin: 0;
-  font-size: var(--fs-chip);
+  font-size: 13px;
   color: var(--text-secondary);
 }
 
-/* The carousel sits inside the bottom of the map card. */
+/* The carousel sits inside the bottom of the map card. Its own stacking context: nothing in here
+   (cards, search dropdown) can paint over the tab bar. */
 .stage {
   position: relative;
+  isolation: isolate;
   height: 31.25rem;
+  animation-delay: 0.34s;
 }
 
 .map {
@@ -41,6 +45,15 @@
   right: 0;
   bottom: 0.75rem;
   z-index: 2;
+}
+
+/* Search bar and its dropdown, over the map and the cards. */
+.search {
+  position: absolute;
+  z-index: 3;
+  left: 12px;
+  right: 12px;
+  top: 12px;
 }
 
 .credits {

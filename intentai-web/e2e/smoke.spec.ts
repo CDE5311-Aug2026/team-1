@@ -2,6 +2,7 @@ import { expect, test } from './test';
 import { ROUTES, seed } from './routes';
 
 test('every route renders without runtime errors or broken images', async ({ page }) => {
+  test.setTimeout(180_000); // one page load per route; WebKit needs longer than Chromium
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
@@ -26,6 +27,7 @@ test('every route renders without runtime errors or broken images', async ({ pag
 });
 
 test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
+  test.setTimeout(240_000); // every route at three widths
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
@@ -133,7 +135,11 @@ test('every route uses the same content column as Today at 1440', async ({ page 
             return el.parentElement!.tagName === 'MAIN' || parent.display === 'block' || parent.flexDirection === 'column';
           })
           // A full-screen map and what floats over it (Nearby Explore) are marked data-allow-bleed on purpose.
-          .filter((el) => !el.closest('section, article, [role="tabpanel"], ul, form, dialog, [data-allow-bleed]'))
+          // Story pages (place + culture cards) set their own gutters and bleed the hero to the column edge.
+          .filter(
+            (el) =>
+              !el.closest('section, article, [role="tabpanel"], ul, form, dialog, [data-allow-bleed], main[data-variant="story"]'),
+          )
           .map((el) => ({ el, box: el.getBoundingClientRect() }))
           .filter(({ box }) => box.width > width / 2)
           .filter(({ box }) => Math.abs(box.left - left) > 3 || Math.abs(box.width - width) > 3)

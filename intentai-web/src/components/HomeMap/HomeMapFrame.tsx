@@ -1,5 +1,5 @@
 import { Component, Suspense, lazy, useState, type ComponentType, type CSSProperties, type ReactNode } from 'react';
-import { HOME_BASE_LABEL, PINNED_COUNT, type HomePlace } from '../../data/homePlaces';
+import { PINNED_COUNT, type HomePlace } from '../../data/homePlaces';
 import type { LatLng } from '../../features/nearby/types';
 import type { MapCommand } from './camera';
 import type { HomeMapProps } from './HomeMap';
@@ -16,8 +16,11 @@ export interface HomeMapFrameProps {
   /** Height (px) of the carousel covering the bottom of the map. */
   bottomInset: number;
   onPinActivate(id: string): void;
-  onSearch(): void;
   onLocate(): void;
+  /** The "places to explore" chip opens Nearby Explore. */
+  onExplore(): void;
+  /** Locate was just pressed: the button shows a radar ring. */
+  locating?: boolean;
   onZoom(delta: 1 | -1): void;
   onUserZoom(zoom: number): void;
   /** Loads the map chunk; injectable for tests. */
@@ -39,27 +42,25 @@ class MapErrorBoundary extends Component<{ onError(): void; children: ReactNode 
   }
 }
 
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
-      <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="2" />
-      <path d="m12.6 12.6 4.4 4.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function LocateIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
-      <circle cx="12" cy="12" r="2.2" fill="currentColor" />
-      <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
     </svg>
   );
 }
 
-/** Home's map card: static chrome (pill, count chip, controls, attribution) around the lazily loaded map. */
-export default function HomeMapFrame({ onSearch, onLocate, onZoom, loadMap = defaultLoadMap, ...mapProps }: HomeMapFrameProps) {
+function ZoomIcon({ plus }: { plus: boolean }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true" focusable="false">
+      <path d={plus ? 'M12 5v14M5 12h14' : 'M5 12h14'} />
+    </svg>
+  );
+}
+
+/** Home's map card: static chrome (count chip, controls, attribution) around the lazily loaded map. */
+export default function HomeMapFrame({ onLocate, onExplore, onZoom, locating = false, loadMap = defaultLoadMap, ...mapProps }: HomeMapFrameProps) {
   // A fresh lazy() per attempt, so Retry does not reuse a cached rejected import.
   const [LazyMap, setLazyMap] = useState(() => lazy(loadMap));
   const [attempt, setAttempt] = useState(0);
@@ -72,7 +73,7 @@ export default function HomeMapFrame({ onSearch, onLocate, onZoom, loadMap = def
   };
 
   return (
-    <div className={styles.frame} style={{ '--map-inset': `${mapProps.bottomInset}px` } as CSSProperties}>
+    <div className={styles.frame} style={{ '--map-inset': `${mapProps.bottomInset}px` } as CSSProperties} data-map-frame="">
       <div className={styles.canvas}>
         {failed ? (
           <div className={styles.error} role="alert">
@@ -90,35 +91,26 @@ export default function HomeMapFrame({ onSearch, onLocate, onZoom, loadMap = def
         )}
       </div>
 
-      <div className={styles.top}>
-        <button type="button" className={styles.pill} onClick={onSearch}>
-          <span className={styles.pillText}>
-            <span className={styles.dot} aria-hidden="true" />
-            <span className={styles.near}>Near you</span> · <span className={styles.base}>{HOME_BASE_LABEL}</span>
-          </span>
-          <span className={styles.search}>
-            <SearchIcon />
-          </span>
-        </button>
-        <p className={styles.count}>
-          <strong>{PINNED_COUNT}</strong> places to explore
-        </p>
-      </div>
+      <button type="button" className={`press ${styles.count}`} onClick={onExplore} data-map-obstacle="">
+        <strong>{PINNED_COUNT}</strong> places to explore
+      </button>
 
-      <div className={styles.zoom}>
-        <button type="button" className={styles.zoomButton} aria-label="Zoom in" onClick={() => onZoom(1)}>
-          <span aria-hidden="true">+</span>
+      <div className={styles.zoom} data-map-obstacle="">
+        <button type="button" className={`press ${styles.zoomButton}`} aria-label="Zoom in" onClick={() => onZoom(1)}>
+          <ZoomIcon plus />
         </button>
-        <button type="button" className={styles.zoomButton} aria-label="Zoom out" onClick={() => onZoom(-1)}>
-          <span aria-hidden="true">−</span>
+        <span className={styles.zoomDivider} aria-hidden="true" />
+        <button type="button" className={`press ${styles.zoomButton}`} aria-label="Zoom out" onClick={() => onZoom(-1)}>
+          <ZoomIcon plus={false} />
         </button>
       </div>
 
-      <button type="button" className={styles.locate} aria-label="Show my home base" onClick={onLocate}>
+      <button type="button" className={`press ${styles.locate}`} aria-label="Show my location" onClick={onLocate} data-map-obstacle="">
+        {locating && <span className={`radar ${styles.radar}`} aria-hidden="true" data-testid="locating" />}
         <LocateIcon />
       </button>
 
-      <p className={styles.attribution}>
+      <p className={styles.attribution} data-map-obstacle="">
         <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
           © OpenStreetMap contributors
         </a>

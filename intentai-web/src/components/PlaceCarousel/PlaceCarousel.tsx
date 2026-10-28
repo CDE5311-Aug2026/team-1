@@ -223,45 +223,44 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
                   <PinIcon />
                   {place.distance}
                 </span>
-                <div className={styles.text}>
-                  <p className={styles.name}>{place.name}</p>
+                <div className={styles.bottom}>
+                  <h3 className={styles.name}>{place.name}</h3>
                   <p className={styles.area}>{place.area}</p>
-                </div>
-                <div className={styles.footer}>
-                  <div className={styles.bar} aria-hidden="true">
-                    {FACETS.map((f, k) => (
-                      <span key={f} className={styles.segment} data-filled={k < opened ? 'true' : 'false'} />
-                    ))}
+                  <div className={styles.footer}>
+                    <span className={styles.bar} aria-hidden="true">
+                      {FACETS.map((f, k) => (
+                        <span key={f} className={styles.segment} data-filled={k < opened ? 'true' : 'false'} />
+                      ))}
+                    </span>
+                    <span className={styles.count}>
+                      {opened} of {FACETS.length} opened
+                    </span>
+                    {/* Only the card in the centre offers its action. */}
+                    {isSelected &&
+                      (place.hasCards ? (
+                        <button type="button" className={`press ${styles.open}`} onClick={(e) => open(e, place.id)}>
+                          Open
+                          <ArrowIcon />
+                        </button>
+                      ) : (
+                        <button type="button" className={styles.soon} aria-disabled="true" onClick={(e) => soon(e, place.name)}>
+                          <LockIcon />
+                          Cards soon
+                        </button>
+                      ))}
                   </div>
-                  <p className={styles.count}>
-                    {opened} of {FACETS.length}{' '}
-                    <span className={styles.countLabel}>opened</span>
-                  </p>
-                  {place.hasCards ? (
-                    <button type="button" className={styles.open} onClick={(e) => open(e, place.id)}>
-                      Open <span className={styles.arrow} aria-hidden="true">→</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.soon}
-                      aria-disabled="true"
-                      onClick={(e) => soon(e, place.name)}
-                    >
-                      <LockIcon />
-                      Cards soon
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
           );
         })}
       </div>
-      <div className={styles.dots} aria-hidden="true">
-        {places.map((p, i) => (
-          <span key={p.id} className={i === selectedIndex ? `${styles.dot} ${styles.dotOn}` : styles.dot} />
-        ))}
+      <div className={styles.progress} aria-hidden="true">
+        <span
+          className={styles.thumb}
+          data-testid="carousel-thumb"
+          style={{ left: `${places.length > 1 ? (selectedIndex / (places.length - 1)) * 54 : 0}px` }}
+        />
       </div>
       <p aria-live="polite" className={styles.visuallyHidden}>
         {selected ? `${selected.name}, ${selectedIndex + 1} of ${places.length}, ${selected.distance}` : ''}
@@ -272,16 +271,25 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
 
 function PinIcon() {
   return (
-    <svg className={styles.pin} viewBox="0 0 12 16" width="9" height="12" aria-hidden="true" focusable="false">
-      <path d="M6 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6Zm0 8.5A2.5 2.5 0 1 1 6 3.5a2.5 2.5 0 0 1 0 5Z" />
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11Z" />
+    </svg>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   );
 }
 
 function LockIcon() {
   return (
-    <svg className={styles.lock} viewBox="0 0 12 14" width="10" height="12" aria-hidden="true" focusable="false">
-      <path d="M3 6V4a3 3 0 0 1 6 0v2h.5A1.5 1.5 0 0 1 11 7.5v5A1.5 1.5 0 0 1 9.5 14h-7A1.5 1.5 0 0 1 1 12.5v-5A1.5 1.5 0 0 1 2.5 6H3Zm1.5 0h3V4a1.5 1.5 0 0 0-3 0v2Z" />
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
     </svg>
   );
 }

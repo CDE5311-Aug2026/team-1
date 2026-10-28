@@ -44,9 +44,9 @@ function expectBox(name: string, box: { x: number; y: number; width: number; hei
   }
 }
 
-// The default header (mascot + greeting) is no longer on Home; the Home place page still draws it.
+// The default header (mascot + greeting) is no longer on Home; the place not-found page still draws it.
 test('header mascot (34:21) and greeting match Figma at 390x844', async ({ page }) => {
-  await page.goto('/place/berlin-wall-fragments');
+  await page.goto('/place/unknown-place');
   await page.evaluate(() => document.fonts.ready.then(() => true));
   expectBox('mascot', await page.locator('header img').first().boundingBox(), [8, 47, 58, 58]); // Home 34:19
   const greeting = (await page.getByText('Good Morning, W').boundingBox())!;
@@ -55,15 +55,20 @@ test('header mascot (34:21) and greeting match Figma at 390x844', async ({ page 
 
 // Design canvas (Home): logo left, streak chip + bell right-aligned, the date + greeting block under the header.
 test('Home header: logo left, streak and bell right-aligned, greeting block below', async ({ page }) => {
+  // Measure the settled layout, not the entrance animation.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   const header = (await page.locator('header').first().boundingBox())!;
   const logo = (await page.locator('header img').first().boundingBox())!;
-  const streak = (await page.getByLabel(/day streak$/).boundingBox())!;
-  const bell = (await page.getByRole('button', { name: 'Notifications' }).boundingBox())!;
+  const streak = (await page.getByRole('link', { name: /day streak/ }).boundingBox())!;
+  const bell = (await page.getByRole('link', { name: /^Notifications/ }).boundingBox())!;
   const greeting = (await page.getByRole('heading', { level: 1, name: /^Good morning/ }).boundingBox())!;
   const date = (await page.getByText('Sat 7 Nov', { exact: true }).boundingBox())!;
 
   expect(Math.abs(logo.x - header.x), `logo x: got ${logo.x}, header ${header.x}`).toBeLessThanOrEqual(TOL);
-  expect(Math.abs(logo.width - 32), `logo width: got ${logo.width}`).toBeLessThanOrEqual(TOL);
+  expect(Math.abs(logo.width - 44), `logo width: got ${logo.width}`).toBeLessThanOrEqual(TOL);
+  // Streak chip and bell are 44px tall tap targets.
+  expect(Math.abs(streak.height - 44)).toBeLessThanOrEqual(TOL);
+  expect(Math.abs(bell.width - 44)).toBeLessThanOrEqual(TOL);
   const headerRight = header.x + header.width;
   expect(Math.abs(bell.x + bell.width - headerRight), `bell right: got ${bell.x + bell.width}, header ${headerRight}`).toBeLessThanOrEqual(TOL);
   expect(streak.x + streak.width, 'streak chip sits left of the bell').toBeLessThanOrEqual(bell.x);

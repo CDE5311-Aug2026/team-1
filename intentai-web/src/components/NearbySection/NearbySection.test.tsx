@@ -3,9 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, test, vi } from 'vitest';
 import { HOME_BASE, homePlace } from '../../data/homePlaces';
+import { setReducedMotion } from '../../test/media';
 import { triggerResize } from '../../test/resizeObserver';
 import type { HomeMapProps } from '../HomeMap/HomeMap';
-import { NearbySection, initialNearbyState, nearbyReducer, type NearbyState } from './NearbySection';
+import { LOCATING_MS, NearbySection, initNearbyState, initialNearbyState, nearbyReducer, type NearbyState } from './NearbySection';
 
 // Stub for the lazily loaded Leaflet map: pins as buttons, the inset as a data attribute.
 vi.mock('../HomeMap/HomeMap', () => ({
@@ -88,16 +89,16 @@ test('userZoom sets zoom without a command; unknown ids are ignored', () => {
   expect(nearbyReducer(initialNearbyState, { type: 'select', id: 'nope' })).toBe(initialNearbyState);
 });
 
-function setup() {
+function setup(focusId?: string) {
   const onOpenPlace = vi.fn();
-  const onSearch = vi.fn();
+  const onExplore = vi.fn();
   render(
     <MemoryRouter useTransitions={false}>
-      <NearbySection onOpenPlace={onOpenPlace} onSearch={onSearch} />
+      <NearbySection onOpenPlace={onOpenPlace} onExplore={onExplore} focusId={focusId} />
     </MemoryRouter>,
   );
   const card = (name: string) => screen.getByRole('group', { name });
-  return { onOpenPlace, onSearch, card };
+  return { onOpenPlace, onExplore, card };
 }
 
 const pinCount = () => within(screen.getByTestId('map')).getAllByRole('button').length;
@@ -111,9 +112,9 @@ test('renders the heading and hint, 4 pins and the Berlin card current', async (
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
 });
 
-test('cards, pins and Locate stay in sync; Open and the search pill call the props', async () => {
+test('cards, pins and Locate stay in sync; Open calls onOpenPlace', async () => {
   const user = userEvent.setup();
-  const { card, onOpenPlace, onSearch } = setup();
+  const { card, onOpenPlace } = setup();
   const map = await screen.findByTestId('map');
 
   fireEvent.keyDown(card('Berlin Wall Fragments'), { key: 'ArrowRight' });
@@ -121,18 +122,72 @@ test('cards, pins and Locate stay in sync; Open and the search pill call the pro
   expect(pinCount()).toBe(5);
   expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'Show my home base' }));
+  await user.click(screen.getByRole('button', { name: 'Show my location' }));
   expect(pinCount()).toBe(4);
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
 
   await user.click(within(map).getByRole('button', { name: 'Haw Par Villa' }));
   expect(card('Haw Par Villa')).toHaveAttribute('aria-current', 'true');
 
+  // Only the centred card offers its action.
+  expect(within(card('Chinatown')).queryByRole('button', { name: /Open/ })).toBeNull();
+  await user.click(card('Chinatown'));
   await user.click(within(card('Chinatown')).getByRole('button', { name: /Open/ }));
   expect(onOpenPlace).toHaveBeenCalledWith(CHINATOWN);
+});
 
-  await user.click(screen.getByRole('button', { name: /Near you/ }));
-  expect(onSearch).toHaveBeenCalledTimes(1);
+test('initNearbyState selects and centres the focus place; unknown ids fall back to Berlin', () => {
+  expect(initNearbyState(CHINATOWN)).toEqual({
+    ...initialNearbyState,
+    selectedId: CHINATOWN,
+    command: { seq: 0, kind: 'focus', target: chinatown.point, fly: false },
+    lastFocus: chinatown.point,
+  });
+  expect(initNearbyState('nope')).toBe(initialNearbyState);
+  expect(initNearbyState(undefined)).toBe(initialNearbyState);
+});
+
+test('focusId selects that card on arrival, with its pin', async () => {
+  const { card } = setup(CHINATOWN);
+  const map = await screen.findByTestId('map');
+  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+  expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
+});
+
+test('the places to explore chip calls onExplore', async () => {
+  const { onExplore } = setup();
+  await userEvent.click(screen.getByRole('button', { name: '4 places to explore' }));
+  expect(onExplore).toHaveBeenCalledTimes(1);
+});
+
+test('search: picking a place selects its card and shows its area in the pill', async () => {
+  // Reduced motion: the pill shows the new area at once (the decode effect is covered in MapSearch).
+  setReducedMotion(true);
+  const user = userEvent.setup({ delay: null });
+  const { card } = setup();
+  const map = await screen.findByTestId('map');
+  await user.click(screen.getByRole('button', { name: 'Search' }));
+  await user.type(screen.getByRole('textbox', { name: 'Search a place or area' }), 'pagoda');
+  await user.click(screen.getByRole('button', { name: /^Chinatown/ }));
+  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+  expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
+  expect(screen.queryByRole('textbox')).toBeNull();
+  expect(screen.getByTestId('search-point')).toHaveTextContent('Chinatown & Tanjong Pagar');
+});
+
+test('search: "Use my location" goes back to the home base and the radar runs for a moment', async () => {
+  const user = userEvent.setup();
+  const { card } = setup(CHINATOWN);
+  await screen.findByTestId('map');
+  await user.click(screen.getByRole('button', { name: /^Near you · .+\. Change search point$/ }));
+  vi.useFakeTimers();
+  fireEvent.click(screen.getByRole('button', { name: /Use my location/ }));
+  expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
+  expect(screen.getByTestId('locating')).toBeInTheDocument();
+  act(() => vi.advanceTimersByTime(LOCATING_MS));
+  expect(screen.queryByTestId('locating')).toBeNull();
+  expect(screen.getByTestId('search-point')).toHaveTextContent('NUS University Town');
+  vi.useRealTimers();
 });
 
 test('measures the carousel overlap with the map and passes it as the inset', async () => {

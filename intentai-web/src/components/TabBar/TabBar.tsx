@@ -6,9 +6,11 @@ interface TabBarProps {
   active: string;
   onNavigate: (path: string) => void;
   nodeId?: string;
+  /** The active tab pops in (Home only). */
+  pop?: boolean;
 }
 
-export default function TabBar({ active, onNavigate, nodeId }: TabBarProps) {
+export default function TabBar({ active, onNavigate, nodeId, pop = false }: TabBarProps) {
   return (
     <nav className={styles.bar} aria-label="Primary" data-node-id={nodeId}>
       {staticCopy.tabs.map((tab) => {
@@ -17,7 +19,7 @@ export default function TabBar({ active, onNavigate, nodeId }: TabBarProps) {
           <button
             key={tab.path}
             type="button"
-            className={isActive ? `${styles.tab} ${styles.active}` : styles.tab}
+            className={isActive ? `${styles.tab} ${styles.active}${pop ? ' a-pill' : ''}` : styles.tab}
             onClick={() => onNavigate(tab.path)}
             aria-current={isActive ? 'page' : undefined}
           >

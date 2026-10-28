@@ -1,7 +1,7 @@
 .root {
-  --card-w: min(250px, 68vw);
-  --card-h: 165px;
-  --card-gap: 10px;
+  --card-w: min(248px, 70vw);
+  --card-h: 168px;
+  --card-gap: 14px;
   position: relative;
   width: 100%;
 }
@@ -27,14 +27,14 @@
   position: relative;
   flex: 0 0 var(--card-w);
   height: var(--card-h);
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   scroll-snap-align: center;
   scroll-snap-stop: always;
-  background: #3a3731;
+  background: var(--text-primary);
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(35, 33, 29, 0.25);
+  box-shadow: 0 14px 28px -14px rgba(35, 33, 29, 0.75);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -70,7 +70,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.75) 100%);
+  background: linear-gradient(180deg, rgba(24, 22, 19, 0.05) 18%, rgba(24, 22, 19, 0.5) 56%, rgba(24, 22, 19, 0.92) 100%);
   pointer-events: none;
 }
 
@@ -78,59 +78,57 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 12px;
 }
 
 .chip {
+  position: absolute;
+  left: 10px;
+  top: 10px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: #fff;
+  height: 24px;
+  padding: 0 7px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
   color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: var(--fs-chip);
-  font-weight: 600;
-  line-height: 1.3;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.pin {
-  fill: var(--accent);
-}
-
-.text {
-  margin-top: auto;
-  min-width: 0;
-  max-width: 100%;
+.bottom {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  color: #fff;
 }
 
 .name {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.25;
-  white-space: nowrap;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .area {
-  margin: 1px 0 0;
-  font-size: 0.75rem;
-  line-height: 1.3;
-  opacity: 0.92;
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--bg-app);
 }
 
 .footer {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
+  min-height: 36px;
   margin-top: 8px;
 }
 
@@ -140,10 +138,10 @@
 }
 
 .segment {
-  width: 12px;
+  width: 14px;
   height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.4);
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.32);
 }
 
 .segment[data-filled='true'] {
@@ -151,48 +149,47 @@
 }
 
 .count {
-  margin: 0;
-  font-size: 0.625rem;
-  line-height: 1.2;
-}
-
-.countLabel {
-  display: block;
-}
-
-.open,
-.soon {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 11px;
-  border: 0;
-  border-radius: 999px;
-  font: inherit;
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.3;
-  cursor: pointer;
+  flex-grow: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--bg-app);
 }
 
 .open {
+  flex-shrink: 0;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-radius: 8px;
   background: #fff;
   color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.arrow {
-  color: var(--accent);
-}
-
+/* Locked chip; pressing it explains with a toast. */
 .soon {
-  background: rgba(35, 33, 29, 0.6);
+  flex-shrink: 0;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
   color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
   cursor: default;
-}
-
-.lock {
-  fill: currentColor;
 }
 
 .open:focus-visible,
@@ -201,23 +198,25 @@
   outline-offset: 2px;
 }
 
-.dots {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 6px;
+/* Position of the centred card along the strip. */
+.progress {
+  position: relative;
+  width: 72px;
+  height: 4px;
+  margin: 6px auto 0;
+  border-radius: 2px;
+  background: rgba(35, 33, 29, 0.18);
+  overflow: hidden;
 }
 
-.dot {
-  width: 4px;
+.thumb {
+  position: absolute;
+  top: 0;
+  width: 18px;
   height: 4px;
   border-radius: 2px;
-  background: rgba(35, 33, 29, 0.25);
-}
-
-.dotOn {
-  width: 14px;
   background: var(--accent);
+  transition: left 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 
 .visuallyHidden {
@@ -235,5 +234,9 @@
 @media (prefers-reduced-motion: reduce) {
   .photo {
     transform: none !important;
+  }
+
+  .thumb {
+    transition: none;
   }
 }

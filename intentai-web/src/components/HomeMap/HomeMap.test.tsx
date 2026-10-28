@@ -5,7 +5,7 @@ import { HOME_BASE, homePlace, visiblePins } from '../../data/homePlaces';
 import type { LatLng } from '../../features/nearby/types';
 import { setReducedMotion } from '../../test/media';
 import { triggerResize } from '../../test/resizeObserver';
-import HomeMap from './HomeMap';
+import HomeMap, { LABELS_MIN_ZOOM, PIN_OTHER, PIN_SELECTED, placeLabel, preventFocusScroll } from './HomeMap';
 import HomeMapFrame from './HomeMapFrame';
 import { offsetCentre, visibleCentre, type MapCommand } from './camera';
 
@@ -175,6 +175,7 @@ const BERLIN = homePlace('berlin-wall-fragments')!;
 const CHINATOWN = homePlace('chinatown')!;
 const HAW_PAR = homePlace('curated:sg-haw-par-villa')!;
 const HOLLAND = homePlace('curated:sg-holland-village')!;
+const pinName = (p: { name: string }) => `Show ${p.name} on the map`;
 
 type MapProps = ComponentProps<typeof HomeMap>;
 
@@ -218,6 +219,52 @@ beforeEach(() => {
   fake.maps.length = 0;
   fake.tiles.length = 0;
   fake.markers.length = 0;
+});
+
+describe('preventFocusScroll', () => {
+  function fakeMap() {
+    const container = document.createElement('div');
+    container.tabIndex = 0;
+    document.body.append(container);
+    let enabled = true;
+    const keyboard = {
+      _focused: false,
+      _map: { getContainer: () => container },
+      _onMouseDown() {
+        container.focus();
+        window.scrollTo(0, 0);
+      },
+      enabled: () => enabled,
+      enable: vi.fn(() => { enabled = true; }),
+      disable: vi.fn(() => { enabled = false; }),
+    };
+    return { container, keyboard, map: { keyboard } as unknown as Parameters<typeof preventFocusScroll>[0] };
+  }
+
+  it('re-binds the press handler so a press focuses the map without scrolling the page', () => {
+    const { container, keyboard, map } = fakeMap();
+    const focus = vi.spyOn(container, 'focus');
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    preventFocusScroll(map);
+    expect(keyboard.disable).toHaveBeenCalledTimes(1);
+    expect(keyboard.enable).toHaveBeenCalledTimes(1);
+    keyboard._onMouseDown();
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(scrollTo).not.toHaveBeenCalled();
+    scrollTo.mockRestore();
+    container.remove();
+  });
+
+  it('does nothing once the map already has focus, and tolerates a map without keyboard support', () => {
+    const { container, keyboard, map } = fakeMap();
+    preventFocusScroll(map);
+    keyboard._focused = true;
+    const focus = vi.spyOn(container, 'focus');
+    keyboard._onMouseDown();
+    expect(focus).not.toHaveBeenCalled();
+    expect(() => preventFocusScroll({ keyboard: undefined } as unknown as Parameters<typeof preventFocusScroll>[0])).not.toThrow();
+    container.remove();
+  });
 });
 
 describe('camera', () => {
@@ -265,8 +312,8 @@ describe('HomeMap', () => {
     fake.calls.length = 0;
     rerender(<HomeMap {...baseProps({ selectedId: HAW_PAR.id })} />);
     expect(moves()).toEqual([]);
-    expect(screen.getByRole('button', { name: HAW_PAR.name })).toHaveAttribute('data-selected', 'true');
-    expect(screen.getByRole('button', { name: BERLIN.name })).toHaveAttribute('data-selected', 'false');
+    expect(screen.getByRole('button', { name: pinName(HAW_PAR) })).toHaveAttribute('data-selected', 'true');
+    expect(screen.getByRole('button', { name: pinName(BERLIN) })).toHaveAttribute('data-selected', 'false');
   });
 
   it('mounts at the current focus, not at Berlin, when it loads late', () => {
@@ -454,6 +501,15 @@ describe('HomeMap', () => {
     expect(screen.getByRole('region', { name: 'Map of places near you' })).toBeInTheDocument();
   });
 
+  it('a focused pin keeps keyboard focus when selecting it rebuilds the markers', () => {
+    const { rerender } = render(<HomeMap {...baseProps()} />);
+    screen.getByRole('button', { name: pinName(HOLLAND) }).focus();
+    rerender(<HomeMap {...baseProps({ selectedId: HOLLAND.id, command: focus(1, HOLLAND.point, false), lastFocus: HOLLAND.point })} />);
+    const pin = screen.getByRole('button', { name: pinName(HOLLAND) });
+    expect(pin).toHaveAttribute('data-selected', 'true');
+    expect(pin).toHaveFocus();
+  });
+
   it('each pin is one button named by the place; the marker element is not focusable', () => {
     const onPinActivate = vi.fn();
     const { container } = render(<HomeMap {...baseProps({ onPinActivate })} />);
@@ -466,16 +522,105 @@ describe('HomeMap', () => {
       expect(m).not.toHaveAttribute('role');
     }
     for (const mk of fake.markers) expect(mk.options).toMatchObject({ keyboard: false, interactive: false });
-    for (const p of visiblePins('berlin-wall-fragments')) expect(screen.getByRole('button', { name: p.name })).toHaveAttribute('type', 'button');
-    fireEvent.click(screen.getByRole('button', { name: HAW_PAR.name }));
+    for (const p of visiblePins('berlin-wall-fragments')) expect(screen.getByRole('button', { name: pinName(p) })).toHaveAttribute('type', 'button');
+    fireEvent.click(screen.getByRole('button', { name: pinName(HAW_PAR) }));
     expect(onPinActivate).toHaveBeenCalledTimes(1);
     expect(onPinActivate).toHaveBeenCalledWith(HAW_PAR.id);
+  });
+
+  describe('pointer presses on pins', () => {
+    // jsdom has no PointerEvent: a MouseEvent with the pointer fields added.
+    function pointer(type: 'pointerdown' | 'pointerup' | 'pointercancel', target: Element, at = { x: 50, y: 60 }, init: { pointerId?: number; isPrimary?: boolean; button?: number } = {}) {
+      const e = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: at.x, clientY: at.y, button: init.button ?? 0 });
+      Object.assign(e, { pointerId: init.pointerId ?? 1, isPrimary: init.isPrimary ?? true });
+      act(() => {
+        target.dispatchEvent(e);
+      });
+    }
+    const pointerClick = (target: Element) => fireEvent.click(target, { detail: 1 });
+    const glyph = (p: { name: string }) => screen.getByRole('button', { name: pinName(p) }).querySelector('path')!;
+
+    it('a press released on the same pin activates it without waiting for the click (WebKit may not send one)', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      pointer('pointerdown', glyph(HAW_PAR));
+      pointer('pointerup', glyph(HAW_PAR));
+      expect(onPinActivate).toHaveBeenCalledTimes(1);
+      expect(onPinActivate).toHaveBeenCalledWith(HAW_PAR.id);
+    });
+
+    it('the click that follows the press does not activate the pin a second time', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      const pin = screen.getByRole('button', { name: pinName(HAW_PAR) });
+      pointer('pointerdown', pin);
+      pointer('pointerup', pin);
+      pointerClick(pin);
+      expect(onPinActivate).toHaveBeenCalledTimes(1);
+    });
+
+    it('a press that becomes a map drag does not select the pin, even when released on it', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      const pin = screen.getByRole('button', { name: pinName(HAW_PAR) });
+      pointer('pointerdown', pin);
+      act(() => lastMap().fire('dragstart'));
+      pointer('pointerup', pin);
+      pointerClick(pin);
+      expect(onPinActivate).not.toHaveBeenCalled();
+    });
+
+    it('a press that moves past the drag threshold, or ends on another pin or off the map, does not activate', () => {
+      const onPinActivate = vi.fn();
+      const { container } = render(<HomeMap {...baseProps({ onPinActivate })} />);
+      const pin = screen.getByRole('button', { name: pinName(HAW_PAR) });
+      pointer('pointerdown', pin, { x: 50, y: 60 });
+      pointer('pointerup', pin, { x: 50, y: 64 });
+      pointer('pointerdown', pin);
+      pointer('pointerup', screen.getByRole('button', { name: pinName(HOLLAND) }));
+      pointer('pointerdown', pin);
+      pointer('pointerup', document.body);
+      pointer('pointerdown', pin);
+      pointer('pointercancel', pin);
+      // A press that starts on bare map and ends on a pin is not a tap on it either.
+      pointer('pointerdown', container.firstElementChild!);
+      pointer('pointerup', pin);
+      expect(onPinActivate).not.toHaveBeenCalled();
+    });
+
+    it('ignores secondary buttons and non-primary pointers', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      const pin = screen.getByRole('button', { name: pinName(HAW_PAR) });
+      pointer('pointerdown', pin, undefined, { button: 2 });
+      pointer('pointerup', pin, undefined, { button: 2 });
+      pointer('pointerdown', pin, undefined, { pointerId: 2, isPrimary: false });
+      pointer('pointerup', pin, undefined, { pointerId: 2, isPrimary: false });
+      expect(onPinActivate).not.toHaveBeenCalled();
+    });
+
+    it('keyboard activation (a click with no press) still works right after a pointer press', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      pointer('pointerdown', glyph(HAW_PAR));
+      pointer('pointerup', glyph(HAW_PAR));
+      // Enter / Space on a focused button: a click with detail 0.
+      fireEvent.click(screen.getByRole('button', { name: pinName(HOLLAND) }), { detail: 0 });
+      expect(onPinActivate.mock.calls).toEqual([[HAW_PAR.id], [HOLLAND.id]]);
+    });
+
+    it('a pointer click with no press seen (assistive tech) activates', () => {
+      const onPinActivate = vi.fn();
+      render(<HomeMap {...baseProps({ onPinActivate })} />);
+      pointerClick(screen.getByRole('button', { name: pinName(HOLLAND) }));
+      expect(onPinActivate).toHaveBeenCalledWith(HOLLAND.id);
+    });
   });
 
   it('escapes place names in pin markup', () => {
     const odd = { ...HAW_PAR, id: 'odd', name: 'A <b>"Q"</b> & co' };
     render(<HomeMap {...baseProps({ pins: [odd], selectedId: 'odd' })} />);
-    expect(screen.getByRole('button', { name: 'A <b>"Q"</b> & co' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show A <b>"Q"</b> & co on the map' })).toBeInTheDocument();
   });
 
   it('adds a non-interactive home-base dot', () => {
@@ -487,13 +632,101 @@ describe('HomeMap', () => {
   });
 });
 
+describe('pins and labels', () => {
+  const svgOf = (p: { name: string }) => screen.getByRole('button', { name: pinName(p) }).querySelector('svg')!;
+
+  it('the selected pin is a 36x46 filled teardrop that bounces in; the others are 28x36 white teardrops', () => {
+    render(<HomeMap {...baseProps()} />);
+    const sel = svgOf(BERLIN);
+    expect([sel.getAttribute('width'), sel.getAttribute('height')]).toEqual([String(PIN_SELECTED.width), String(PIN_SELECTED.height)]);
+    expect(sel).toHaveClass('pin-on');
+    expect(sel.querySelector('path')).toHaveAttribute('fill', '#e4671f');
+    const other = svgOf(HAW_PAR);
+    expect([other.getAttribute('width'), other.getAttribute('height')]).toEqual([String(PIN_OTHER.width), String(PIN_OTHER.height)]);
+    expect(other).not.toHaveClass('pin-on');
+    expect(other.querySelector('path')).toHaveAttribute('fill', '#fff');
+  });
+
+  it('below zoom 14 only the selected pin keeps its label', () => {
+    const { container } = render(<HomeMap {...baseProps()} />);
+    const region = container.querySelector('[role="region"]')!;
+    expect(region).toHaveAttribute('data-labels', 'all');
+    lastMap().userMove(BERLIN.point, LABELS_MIN_ZOOM - 1);
+    act(() => lastMap().fire('zoomend'));
+    expect(region).toHaveAttribute('data-labels', 'selected');
+    lastMap().userMove(BERLIN.point, LABELS_MIN_ZOOM);
+    act(() => lastMap().fire('zoomend'));
+    expect(region).toHaveAttribute('data-labels', 'all');
+  });
+
+  // Map 350 wide; pin head 36 wide; label 150 x 22.
+  const pinAt = (x: number, top = 100) => ({ left: x - 18, right: x + 18, top, bottom: top + 46 });
+  const LABEL = { width: 150, height: 22 };
+
+  it('placeLabel: right of the pin when it fits', () => {
+    expect(placeLabel(pinAt(100), LABEL, 350, [])).toEqual({ side: 'right' });
+  });
+
+  it('placeLabel: flips left near the right edge', () => {
+    expect(placeLabel(pinAt(250), LABEL, 350, [])).toEqual({ side: 'left' });
+  });
+
+  it('placeLabel: flips left when a control beside it would cover it, and ignores controls above or below', () => {
+    const zoom = { left: 294, right: 338, top: 68, bottom: 157 };
+    const short = { width: 110, height: 22 };
+    expect(placeLabel(pinAt(180), short, 350, [zoom])).toEqual({ side: 'left' });
+    expect(placeLabel(pinAt(180, 200), short, 350, [zoom])).toEqual({ side: 'right' });
+  });
+
+  it('placeLabel: when it fits on neither side it wraps on the roomier side', () => {
+    const zoom = { left: 294, right: 338, top: 68, bottom: 157 };
+    const placed = placeLabel(pinAt(175), { width: 161, height: 22 }, 350, [zoom]);
+    expect(placed.side).toBe('left');
+    expect(placed.maxWidth).toBe(175 - 18 - 2 - 6);
+  });
+
+  it('lays out the selected label against the controls whenever the map moves', async () => {
+    const rects = new Map<Element, DOMRect>();
+    const box = (left: number, top: number, width: number, height: number) =>
+      ({ left, top, width, height, right: left + width, bottom: top + height, x: left, y: top, toJSON() {} }) as DOMRect;
+    const spy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      return rects.get(this) ?? box(0, 0, 0, 0);
+    });
+    const { container } = render(
+      <div data-map-bounds="">
+        <HomeMap {...baseProps()} />
+        <div data-map-obstacle="" data-testid="zoom" />
+      </div>,
+    );
+    const region = container.querySelector('[role="region"]')!;
+    const button = screen.getByRole('button', { name: pinName(BERLIN) });
+    const label = button.querySelector('[data-label]')!;
+    rects.set(region, box(0, 0, 350, 500));
+    rects.set(button.querySelector('svg')!, box(100, 100, 36, 46));
+    rects.set(label, box(138, 106, 150, 22));
+    rects.set(screen.getByTestId('zoom'), box(294, 68, 44, 89));
+
+    await act(async () => lastMap().fire('move'));
+    expect(button).toHaveAttribute('data-side', 'right');
+
+    // Laid out once every listener has run, so markers repositioned by the same event are measured where they land.
+    rects.set(button.querySelector('svg')!, box(160, 100, 36, 46));
+    lastMap().fire('viewreset');
+    expect(button).toHaveAttribute('data-side', 'right');
+    await act(async () => {});
+    expect(button).toHaveAttribute('data-side', 'left');
+    expect((label as HTMLElement).style.maxWidth).toBe('');
+    spy.mockRestore();
+  });
+});
+
 describe('HomeMapFrame', () => {
   type FrameProps = ComponentProps<typeof HomeMapFrame>;
   function frameProps(over: Partial<FrameProps> = {}): FrameProps {
     return {
       ...baseProps(),
-      onSearch: vi.fn(),
       onLocate: vi.fn(),
+      onExplore: vi.fn(),
       onZoom: vi.fn(),
       ...over,
     } as FrameProps;
@@ -507,22 +740,27 @@ describe('HomeMapFrame', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the pill, count chip, controls and attribution, and wires them', async () => {
+  it('renders the count chip, controls and attribution, and wires them', async () => {
     const p = frameProps();
-    render(<HomeMapFrame {...p} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Near you · NUS University Town' }));
-    expect(p.onSearch).toHaveBeenCalledTimes(1);
-    expect(screen.getByText((_, el) => el?.tagName === 'P' && el.textContent === '4 places to explore')).toBeInTheDocument();
+    const { rerender } = render(<HomeMapFrame {...p} />);
+    fireEvent.click(screen.getByRole('button', { name: '4 places to explore' }));
+    expect(p.onExplore).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }));
     expect(p.onZoom).toHaveBeenLastCalledWith(1);
     fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
     expect(p.onZoom).toHaveBeenLastCalledWith(-1);
-    fireEvent.click(screen.getByRole('button', { name: 'Show my home base' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Show my location' }));
     expect(p.onLocate).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('locating')).toBeNull();
+    rerender(<HomeMapFrame {...p} locating />);
+    expect(screen.getByTestId('locating')).toHaveClass('radar');
+    // The controls are what the selected pin's label steers clear of.
+    expect(screen.getByRole('button', { name: 'Show my location' })).toHaveAttribute('data-map-obstacle');
+    expect(screen.getByRole('button', { name: 'Zoom in' }).parentElement).toHaveAttribute('data-map-obstacle');
     const link = screen.getByRole('link', { name: '© OpenStreetMap contributors' });
     expect(link).toHaveAttribute('href', 'https://www.openstreetmap.org/copyright');
     // The lazy map (default loader) arrives with its pins.
-    expect(await screen.findByRole('button', { name: BERLIN.name })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: pinName(BERLIN) })).toBeInTheDocument();
   });
 
   it('mounts with the zoom reached while the chunk was loading', async () => {
@@ -532,7 +770,7 @@ describe('HomeMapFrame', () => {
     rerender(<HomeMapFrame {...frameProps({ loadMap, command: zoomCmd(1, 1), zoom: 17 })} />);
     rerender(<HomeMapFrame {...frameProps({ loadMap, command: zoomCmd(2, 1), zoom: 18 })} />);
     await act(async () => resolve({ default: HomeMap }));
-    await screen.findByRole('button', { name: BERLIN.name });
+    await screen.findByRole('button', { name: pinName(BERLIN) });
     expect(moves()).toHaveLength(1);
     expect(moves()[0][0]).toBe('setView');
     expectLatLng(moves()[0][1], oc(BERLIN.point, 18));
@@ -542,7 +780,7 @@ describe('HomeMapFrame', () => {
   it('forwards manual zoom', async () => {
     const onUserZoom = vi.fn();
     render(<HomeMapFrame {...frameProps({ onUserZoom })} />);
-    await screen.findByRole('button', { name: BERLIN.name });
+    await screen.findByRole('button', { name: pinName(BERLIN) });
     lastMap().userMove(BERLIN.point, 15);
     lastMap().fire('zoomend');
     expect(onUserZoom).toHaveBeenCalledWith(15);
@@ -550,7 +788,7 @@ describe('HomeMapFrame', () => {
 
   it('keeps zoom across a fly and a Retry', async () => {
     const { rerender } = render(<HomeMapFrame {...frameProps()} />);
-    await screen.findByRole('button', { name: BERLIN.name });
+    await screen.findByRole('button', { name: pinName(BERLIN) });
     rerender(<HomeMapFrame {...frameProps({ command: zoomCmd(1, 1), zoom: 17 })} />);
     rerender(<HomeMapFrame {...frameProps({ command: zoomCmd(2, 1), zoom: 18 })} />);
     const chin = { pins: visiblePins('chinatown'), selectedId: 'chinatown', lastFocus: CHINATOWN.point, zoom: 18 };
@@ -566,7 +804,7 @@ describe('HomeMapFrame', () => {
     });
     fake.calls.length = 0;
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    await screen.findByRole('button', { name: 'Chinatown' });
+    await screen.findByRole('button', { name: pinName(CHINATOWN) });
     expect(moves()[0][0]).toBe('setView');
     expectLatLng(moves()[0][1], oc(CHINATOWN.point, 18));
     expect(moves()[0][2]).toBe(18);
@@ -583,7 +821,7 @@ describe('HomeMapFrame', () => {
     let now = 1_000_000;
     vi.spyOn(Date, 'now').mockImplementation(() => now);
     render(<HomeMapFrame {...frameProps()} />);
-    await screen.findByRole('button', { name: BERLIN.name });
+    await screen.findByRole('button', { name: pinName(BERLIN) });
     const fire = (type: string) => act(() => lastTiles().fire(type));
 
     // 2 errors, a load, 2 errors: fine.
@@ -608,7 +846,7 @@ describe('HomeMapFrame', () => {
     expect(lastMap().removed).toBe(true);
 
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(await screen.findByRole('button', { name: BERLIN.name })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: pinName(BERLIN) })).toBeInTheDocument();
     expect(screen.queryByText('Map unavailable')).not.toBeInTheDocument();
   });
 
@@ -624,7 +862,7 @@ describe('HomeMapFrame', () => {
     expect(await screen.findByText('Map unavailable')).toBeInTheDocument();
     window.removeEventListener('error', quiet);
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(await screen.findByRole('button', { name: BERLIN.name })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: pinName(BERLIN) })).toBeInTheDocument();
     expect(loadMap).toHaveBeenCalledTimes(2);
   });
 });

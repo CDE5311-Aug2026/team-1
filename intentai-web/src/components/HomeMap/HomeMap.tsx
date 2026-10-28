@@ -15,6 +15,10 @@ const TILE_WINDOW_MS = 5000;
 /** Same range the Nearby reducer clamps to, so a pinch cannot report a zoom outside it. */
 const MIN_ZOOM = 12;
 const MAX_ZOOM = 19;
+/** A press that moves this far (px, as Leaflet's drag threshold) is a drag, not a tap on a pin. */
+const TAP_TOLERANCE = 3;
+/** A click this soon after a pin press ended is that press's own click, already handled on release. */
+const PRESS_CLICK_MS = 1000;
 
 export interface HomeMapProps {
   pins: HomePlace[];
@@ -30,37 +34,120 @@ export interface HomeMapProps {
   onUserZoom(zoom: number): void;
 }
 
+/**
+ * Leaflet's keyboard handler focuses the map on every press and then scrolls the window back. WebKit scrolls the
+ * map into view on that focus before the press ends, so the page jumps and the release misses the pin under it.
+ * Focusing without scrolling keeps arrow-key panning and leaves the page still.
+ */
+export function preventFocusScroll(map: L.Map): void {
+  const keyboard = map.keyboard as L.Handler & { _focused?: boolean; _map: L.Map; _onMouseDown: () => void };
+  if (!keyboard) return;
+  const wasEnabled = keyboard.enabled();
+  if (wasEnabled) keyboard.disable();
+  keyboard._onMouseDown = function onMouseDown(this: typeof keyboard) {
+    if (this._focused) return;
+    this._map.getContainer().focus({ preventScroll: true });
+  };
+  if (wasEnabled) keyboard.enable();
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
-// Large teardrop with a white building glyph (selected place).
-const TEARDROP_SVG =
-  '<svg class="' +
-  styles.glyph +
-  '" viewBox="0 0 36 44" width="36" height="44" aria-hidden="true" focusable="false">' +
-  '<path d="M18 42.5C18 42.5 3 27.5 3 17.5a15 15 0 0 1 30 0c0 10-15 25-15 25z" fill="#e4671f" stroke="#fff" stroke-width="2"/>' +
-  '<path d="M11 15.5 18 11l7 4.5z" fill="#fff"/>' +
-  '<rect x="12" y="16.5" width="2" height="6" fill="#fff"/><rect x="17" y="16.5" width="2" height="6" fill="#fff"/>' +
-  '<rect x="22" y="16.5" width="2" height="6" fill="#fff"/><rect x="11" y="23" width="14" height="2" fill="#fff"/>' +
-  '</svg>';
+// Canvas pin: a teardrop with a columns glyph; filled orange when selected, white with an orange outline otherwise.
+const COLUMNS = 'M3 9.5 12 4l9 5.5M5.5 10v8M9.5 10v8M14.5 10v8M18.5 10v8M3 20h18';
+const TEARDROP = 'M18 45s-15-14.3-15-26.5a15 15 0 0 1 30 0C33 30.7 18 45 18 45Z';
 
-// Small round pin (other places).
-const ROUND_SVG =
-  '<svg class="' +
-  styles.glyph +
-  '" viewBox="0 0 22 22" width="22" height="22" aria-hidden="true" focusable="false">' +
-  '<circle cx="11" cy="11" r="9.5" fill="#e4671f" stroke="#fff" stroke-width="2"/><circle cx="11" cy="11" r="3" fill="#fff"/>' +
-  '</svg>';
+/** Pin sizes (px): the selected teardrop is larger. */
+export const PIN_SELECTED = { width: 36, height: 46 } as const;
+export const PIN_OTHER = { width: 28, height: 36 } as const;
+/** Below this zoom only the selected pin keeps its name label. */
+export const LABELS_MIN_ZOOM = 14;
+
+function pinSvg(selected: boolean): string {
+  const { width, height } = selected ? PIN_SELECTED : PIN_OTHER;
+  const fill = selected ? '#e4671f' : '#fff';
+  const stroke = selected ? '#fff' : '#e4671f';
+  return (
+    `<svg class="${styles.glyph}${selected ? ' pin-on' : ''}" viewBox="0 0 36 46" width="${width}" height="${height}" aria-hidden="true" focusable="false">` +
+    `<path d="${TEARDROP}" fill="${fill}" stroke="${stroke}" stroke-width="${selected ? 2 : 2.5}"/>` +
+    `<g transform="translate(10.5 10.5) scale(.625)" fill="none" stroke="${stroke}" stroke-width="${selected ? 2.4 : 2.6}" stroke-linecap="round" stroke-linejoin="round">` +
+    `<path d="${COLUMNS}"/></g></svg>`
+  );
+}
 
 function pinIcon(place: HomePlace, selected: boolean): L.DivIcon {
   const name = escapeHtml(place.name);
   const html =
     `<button type="button" class="${styles.pin} ${selected ? styles.selected : styles.other}" ` +
-    `data-place-id="${escapeHtml(place.id)}" data-selected="${selected}" aria-label="${name}">` +
-    (selected ? TEARDROP_SVG : ROUND_SVG) +
-    `<span class="${styles.label}" aria-hidden="true">${name}</span></button>`;
+    `data-place-id="${escapeHtml(place.id)}" data-selected="${selected}" data-side="right" aria-label="Show ${name} on the map">` +
+    pinSvg(selected) +
+    `<span class="${styles.label}" data-label="" aria-hidden="true">${name}</span></button>`;
   return L.divIcon({ className: styles.marker, html, iconSize: [0, 0] });
+}
+
+export interface Box {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+/** Gap between the pin head and its label, and the margin kept from the map edges and controls. */
+const LABEL_GAP = 2;
+const LABEL_MARGIN = 6;
+/** The label sits this far below the top of the selected pin. */
+const LABEL_DROP = 6;
+
+/**
+ * Where the selected pin's label goes. Right of the pin head; on the left when it would run into the map edge or a
+ * control there. If it fits on neither side it wraps on the roomier side (`maxWidth`).
+ * Boxes are in map pixels; `obstacles` are the controls drawn over the map.
+ */
+export function placeLabel(
+  pin: Box,
+  label: { width: number; height: number },
+  mapWidth: number,
+  obstacles: readonly Box[],
+): { side: 'right' | 'left'; maxWidth?: number } {
+  const top = pin.top + LABEL_DROP;
+  const bottom = top + label.height;
+  const across = obstacles.filter((o) => o.bottom > top && o.top < bottom);
+  let rightLimit = mapWidth - LABEL_MARGIN;
+  let leftLimit = LABEL_MARGIN;
+  for (const o of across) {
+    if (o.left >= pin.right) rightLimit = Math.min(rightLimit, o.left - LABEL_MARGIN);
+    else if (o.right <= pin.left) leftLimit = Math.max(leftLimit, o.right + LABEL_MARGIN);
+  }
+  const roomRight = rightLimit - (pin.right + LABEL_GAP);
+  const roomLeft = pin.left - LABEL_GAP - leftLimit;
+  if (label.width <= roomRight) return { side: 'right' };
+  if (label.width <= roomLeft) return { side: 'left' };
+  return roomRight >= roomLeft ? { side: 'right', maxWidth: Math.max(48, roomRight) } : { side: 'left', maxWidth: Math.max(48, roomLeft) };
+}
+
+/** Lays out the selected pin's label inside `container` (the Leaflet element) against the controls drawn over it. */
+function layoutSelectedLabel(container: HTMLElement) {
+  const button = container.querySelector<HTMLElement>('button[data-selected="true"]');
+  const label = button?.querySelector<HTMLElement>('[data-label]');
+  const glyph = button?.querySelector('svg');
+  if (!button || !label || !glyph) return;
+  button.dataset.side = 'right';
+  label.style.maxWidth = '';
+  label.style.whiteSpace = '';
+  const map = container.getBoundingClientRect();
+  if (map.width === 0) return;
+  const rel = (r: DOMRect): Box => ({ left: r.left - map.left, top: r.top - map.top, right: r.right - map.left, bottom: r.bottom - map.top });
+  const bounds = container.closest('[data-map-bounds]') ?? container.parentElement;
+  const obstacles = [...(bounds?.querySelectorAll<HTMLElement>('[data-map-obstacle]') ?? [])].map((o) => rel(o.getBoundingClientRect()));
+  const l = label.getBoundingClientRect();
+  const placed = placeLabel(rel(glyph.getBoundingClientRect()), { width: l.width, height: l.height }, map.width, obstacles);
+  button.dataset.side = placed.side;
+  if (placed.maxWidth !== undefined) {
+    label.style.maxWidth = `${placed.maxWidth}px`;
+    label.style.whiteSpace = 'normal';
+  }
 }
 
 function projectOf(map: L.Map): Project {
@@ -84,6 +171,8 @@ export default function HomeMap(props: HomeMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const appliedSeq = useRef(props.command.seq);
   const appliedInset = useRef(props.bottomInset);
+  /** Id of the pin that had keyboard focus when the markers were last rebuilt. */
+  const focusedPin = useRef<string | undefined>(undefined);
   // 'stopping': inside our stop(), whose events are ours. 'moving': our move until its moveend.
   const phase = useRef<'idle' | 'stopping' | 'moving'>('idle');
   // Effects read the newest props through this ref, so they can run on narrow dependencies.
@@ -94,6 +183,7 @@ export default function HomeMap(props: HomeMapProps) {
   useEffect(() => {
     const el = containerRef.current!;
     const map = L.map(el, { zoomControl: false, attributionControl: false, minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM });
+    preventFocusScroll(map);
     mapRef.current = map;
     const { lastFocus, zoom, bottomInset, command } = latest.current;
     map.setView(offsetCentre(projectOf(map), unprojectOf(map), lastFocus, zoom, bottomInset), zoom, { animate: false });
@@ -119,7 +209,7 @@ export default function HomeMap(props: HomeMapProps) {
       .addTo(map);
 
     const you = L.marker(HOME_BASE, {
-      icon: L.divIcon({ className: styles.you, html: '', iconSize: [16, 16] }),
+      icon: L.divIcon({ className: styles.you, html: `<span class="halo ${styles.youHalo}"></span><span class="${styles.youDot}"></span>`, iconSize: [18, 18] }),
       keyboard: false,
       interactive: false,
     }).addTo(map);
@@ -128,6 +218,25 @@ export default function HomeMap(props: HomeMapProps) {
     // Zooms during our own stop()/move are not the user's. Our move's moveend ends that phase; if the
     // view then differs from props.zoom (user input mid-move, Leaflet's clamp, a dropped animated zoom),
     // the real zoom is reported so the reducer matches the map.
+    const showLabels = () => {
+      el.dataset.labels = map.getZoom() >= LABELS_MIN_ZOOM ? 'all' : 'selected';
+    };
+    showLabels();
+    // After the event has reached every listener: markers reposition in their own 'viewreset'/'zoom' handlers.
+    let relabelQueued = false;
+    const relabel = () => {
+      if (relabelQueued) return;
+      relabelQueued = true;
+      queueMicrotask(() => {
+        relabelQueued = false;
+        if (mapRef.current === map) layoutSelectedLabel(el);
+      });
+    };
+    for (const type of ['move', 'moveend', 'viewreset']) map.on(type, relabel);
+    map.on('zoomend', () => {
+      showLabels();
+      relabel();
+    });
     map.on('zoomend', () => {
       if (phase.current !== 'idle') return;
       const z = map.getZoom();
@@ -148,18 +257,56 @@ export default function HomeMap(props: HomeMapProps) {
     for (const type of inputs) el.addEventListener(type, userInput, { passive: true });
 
     // Keep the centre on resize: with a bottom inset, that keeps the target centred in the visible area.
-    const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => map.invalidateSize({ pan: true }));
+    const resize =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            map.invalidateSize({ pan: true });
+            relabel();
+          });
     resize?.observe(el);
 
-    // One activation path for every pin: the pin's own <button>.
-    const onClick = (e: MouseEvent) => {
-      const target = e.target instanceof Element ? e.target : null;
-      const button = target?.closest<HTMLElement>('button[data-place-id]');
-      if (button && el.contains(button) && button.dataset.placeId) latest.current.onPinActivate(button.dataset.placeId);
+    // Pins are activated by their own <button>. A pointer press counts on release: it must start and end on the same
+    // pin without becoming a map drag. It does not wait for the click the browser derives from the press, which
+    // WebKit did not reliably deliver here. Keyboard and assistive-tech clicks (no press before them) still count.
+    const pinId = (target: EventTarget | null) => {
+      const button = target instanceof Element ? target.closest<HTMLElement>('button[data-place-id]') : null;
+      return button && el.contains(button) ? button.dataset.placeId : undefined;
     };
+    let press: { id: string; pointerId: number; x: number; y: number; dragged: boolean } | null = null;
+    let pressEndedAt = Number.NEGATIVE_INFINITY;
+    const onPressStart = (e: PointerEvent) => {
+      const id = pinId(e.target);
+      press = id && e.isPrimary && e.button === 0 ? { id, pointerId: e.pointerId, x: e.clientX, y: e.clientY, dragged: false } : null;
+    };
+    const onPressEnd = (e: PointerEvent) => {
+      if (!press || e.pointerId !== press.pointerId) return;
+      const { id, x, y, dragged } = press;
+      press = null;
+      pressEndedAt = Date.now();
+      const moved = Math.abs(e.clientX - x) + Math.abs(e.clientY - y) >= TAP_TOLERANCE;
+      if (e.type === 'pointerup' && !dragged && !moved && pinId(e.target) === id) latest.current.onPinActivate(id);
+    };
+    map.on('dragstart', () => {
+      if (press) press.dragged = true;
+    });
+    const onClick = (e: MouseEvent) => {
+      const id = pinId(e.target);
+      if (!id) return;
+      // A pointer click (detail > 0) right after a pin press belongs to that press, which was decided on release.
+      if (e.detail > 0 && Date.now() - pressEndedAt < PRESS_CLICK_MS) return;
+      latest.current.onPinActivate(id);
+    };
+    el.addEventListener('pointerdown', onPressStart);
+    // On window, so a press released or cancelled off the map still ends.
+    window.addEventListener('pointerup', onPressEnd);
+    window.addEventListener('pointercancel', onPressEnd);
     el.addEventListener('click', onClick);
 
     return () => {
+      el.removeEventListener('pointerdown', onPressStart);
+      window.removeEventListener('pointerup', onPressEnd);
+      window.removeEventListener('pointercancel', onPressEnd);
       el.removeEventListener('click', onClick);
       for (const type of inputs) el.removeEventListener(type, userInput);
       resize?.disconnect();
@@ -174,19 +321,23 @@ export default function HomeMap(props: HomeMapProps) {
     const map = mapRef.current;
     const el = containerRef.current;
     if (!map || !el) return;
-    const focusedId = document.activeElement instanceof HTMLElement && el.contains(document.activeElement)
-      ? document.activeElement.dataset.placeId
-      : undefined;
+    // The previous run's cleanup already removed the old markers (and with them focus), so it noted the id.
+    const focusedId = focusedPin.current;
+    focusedPin.current = undefined;
     const { pins, selectedId } = latest.current;
     const markers = pins.map((p) => {
       const selected = p.id === selectedId;
       return L.marker(p.point, { icon: pinIcon(p, selected), keyboard: false, interactive: false, zIndexOffset: selected ? 1000 : 0 }).addTo(map);
     });
+    layoutSelectedLabel(el);
     // Keep keyboard focus on the pin the user just activated.
     if (focusedId) {
       for (const b of el.querySelectorAll<HTMLElement>('button[data-place-id]')) if (b.dataset.placeId === focusedId) b.focus();
     }
     return () => {
+      // Removing a focused pin drops focus to <body>; remember it so the next run can put it back.
+      const active = document.activeElement;
+      focusedPin.current = active instanceof HTMLElement && el.contains(active) ? active.dataset.placeId : undefined;
       for (const m of markers) m.remove();
     };
   }, [pinKey, props.selectedId]);

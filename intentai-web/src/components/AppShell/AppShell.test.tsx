@@ -99,3 +99,15 @@ test('the default variant has no data-variant attribute', () => {
   renderAt('/');
   expect(screen.getByRole('main')).not.toHaveAttribute('data-variant');
 });
+
+test('tabPop pops the active tab in; off by default', () => {
+  const { unmount } = renderAt('/');
+  expect(screen.getByRole('button', { name: 'Home' })).not.toHaveClass('a-pill');
+  unmount();
+  render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell tabPop>x</AppShell>
+    </MemoryRouter>,
+  );
+  expect(screen.getByRole('button', { name: 'Home' })).toHaveClass('a-pill');
+});

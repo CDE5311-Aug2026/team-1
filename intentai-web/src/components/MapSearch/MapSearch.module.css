@@ -1,0 +1,269 @@
+/* The parent positions the root over the map (left/right/top 12px). */
+.root {
+  position: relative;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px -4px rgba(35, 33, 29, 0.35);
+}
+
+.pill {
+  flex-grow: 1;
+  min-width: 0;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 8px 0 14px;
+  border: 0;
+  border-radius: 12px 0 0 12px;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dot {
+  position: relative;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+}
+
+.dotRing,
+.dotCore {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  background: #2f8a4b;
+}
+
+.dotCore {
+  box-shadow: 0 0 0 2px #e3f1e6;
+}
+
+.near {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--story-orange-text);
+}
+
+.sep {
+  color: var(--text-secondary);
+}
+
+.point {
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 24px;
+  background: var(--divider);
+}
+
+.searchButton {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin: 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.pill:focus-visible,
+.searchButton:focus-visible,
+.row:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+}
+
+/* Over the map and the cards below the bar; scrolls inside itself on a short map. */
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: 25rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 18px 36px -14px rgba(35, 33, 29, 0.45);
+}
+
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-sizing: border-box;
+}
+
+.field:focus-within {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 1px;
+}
+
+.fieldIcon {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.input {
+  flex-grow: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.hint {
+  position: absolute;
+  left: 36px;
+  top: 0;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  font-size: 15px;
+  color: #6b6b72;
+}
+
+.row {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.list .row {
+  margin-top: 0;
+}
+
+.row:hover {
+  background: var(--surface);
+}
+
+.locIcon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--story-blue-tint);
+  color: var(--story-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumb {
+  flex-shrink: 0;
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--chip-bg);
+}
+
+.rowText {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.rowName {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rowMeta {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.group {
+  margin: 6px 8px 2px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The Cards-soon places, after the places with cards. */
+.others {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--divider);
+}
+
+.empty {
+  margin: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

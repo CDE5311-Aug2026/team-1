@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom';
+import { usePersistentStore } from '../../../data/persistentStore';
+import { placeStoriesStore } from '../../../data/stores';
+import { STORY_PLACE_IDS, storyPlace, uniqueCredits } from '../../../data/stories/places';
 import { useExplorePersonal } from '../../../features/nearby/actions';
 import { MAIN_COLLECTION, collectionProgress, collectionTitle, curatedPlace } from '../../../features/nearby/catalogue';
 import { PlaceThumb } from '../../../features/nearby/components/PlaceCard';
@@ -20,6 +23,13 @@ export default function PlaceStamps() {
     .map((s) => ({ s, place: curatedPlace(s.placeKey) }))
     .filter((x): x is { s: typeof x.s; place: NonNullable<typeof x.place> } => !!x.place)
     .sort((a, b) => ((a.s.visitedOn ?? '') === (b.s.visitedOn ?? '') ? (a.s.updatedAt < b.s.updatedAt ? 1 : -1) : (a.s.visitedOn ?? '') < (b.s.visitedOn ?? '') ? 1 : -1));
+  const [stories] = usePersistentStore(placeStoriesStore);
+  // Story stamps are few (two places today), so they get their own row and are never cut off by the strip.
+  const storyStamps = STORY_PLACE_IDS.flatMap((id) => {
+    const place = storyPlace(id);
+    const on = stories[id]?.stamped ? (stories[id].stampedOn ?? '') : null;
+    return place && on !== null ? [{ place, on }] : [];
+  }).sort((a, b) => (a.on < b.on ? 1 : a.on > b.on ? -1 : 0));
   const collection = MAIN_COLLECTION;
   const progress = collection ? collectionProgress(collection, personal) : null;
 
@@ -30,7 +40,7 @@ export default function PlaceStamps() {
           My places
         </h2>
         <span className={styles.count} data-stat="places">
-          {stamps.length}
+          {stamps.length + storyStamps.length}
         </span>
         {stamps.length > 0 && (
           <Link className={styles.more} to={`${paths.saved}?tab=visited`}>
@@ -38,6 +48,28 @@ export default function PlaceStamps() {
           </Link>
         )}
       </div>
+
+      {storyStamps.length > 0 && (
+        <>
+          <p id="place-stories-label" className={styles.rowLabel}>
+            Place stories
+          </p>
+          <ul className={styles.strip} aria-labelledby="place-stories-label">
+            {storyStamps.map(({ place, on }) => (
+              <li key={place.id}>
+                <Link className={styles.stamp} to={paths.homePlace(place.id)}>
+                  <span className={styles.ring}>
+                    <img src={place.hero.src} alt="" width={56} height={56} loading="lazy" />
+                  </span>
+                  <span className={styles.name}>{place.name}</span>
+                  <span className={styles.date}>{on ? shortDate(on) : 'Stamped'}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className={styles.credits}>{`Credits: ${uniqueCredits(storyStamps.map(({ place }) => place.hero)).join(' · ')}`}</p>
+        </>
+      )}
 
       {stamps.length === 0 ? (
         <p className={styles.empty}>

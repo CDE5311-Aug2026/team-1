@@ -1,0 +1,248 @@
+.steps {
+  margin: 14px 16px 0;
+  padding: 14px;
+  border-radius: var(--story-radius-panel);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--story-orange-text);
+}
+
+.list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.step {
+  position: relative;
+  padding: 10px 8px;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+
+.puffs {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  display: flex;
+  gap: 5px;
+  margin-left: -9px;
+}
+
+.puff {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--story-smoke);
+}
+
+.icon {
+  display: flex;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.stepName {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stepSub {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.shop {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pinTile {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--tint-warm-2);
+  border: 1px solid var(--accent-tile-border);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.shopText {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.shopName {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.shopAddress {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.blurb {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-ink-2);
+}
+
+.chips {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--chip-bg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-ink-2);
+}
+
+.tip {
+  margin-top: 12px;
+  display: block;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--accent-tile-border);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.tip:hover {
+  color: var(--text-primary);
+}
+
+.tipHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--story-hero-tint);
+  color: var(--story-orange-text);
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.who {
+  flex-grow: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.role {
+  color: var(--text-secondary);
+}
+
+.badge {
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 7px;
+  border-radius: 6px;
+  background: var(--story-green-bg);
+  color: var(--story-green-text);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.quote {
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-ink-2);
+}
+
+.tipFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--story-orange-text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.map {
+  margin-top: 12px;
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  background: var(--text-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.map:hover {
+  color: #fff;
+}
+
+.tip:focus-visible,
+.map:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -1,0 +1,129 @@
+.card {
+  margin: 16px 16px 0;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--story-hero-tint);
+  border: 1px solid var(--story-hero-border);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stampWrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.stamp {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border-radius: 26px;
+  border: 2px dashed var(--accent-tile-border);
+  background: transparent;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(0deg);
+  transition: all 0.4s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.stamped {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  transform: rotate(-12deg);
+}
+
+.text {
+  flex-grow: 1;
+}
+
+.title {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.note {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.collect,
+.passport,
+.secondary {
+  height: 44px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.collect {
+  flex-grow: 1;
+  border: none;
+  background: var(--text-primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.passport {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--story-green-bg);
+  border: 1px solid var(--story-green-border);
+  color: var(--story-green-text);
+  font-weight: 800;
+}
+
+.passport:hover {
+  color: var(--story-green-text);
+}
+
+.secondary {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: #fff;
+  border: 1px solid var(--accent-tile-border);
+  color: var(--text-primary);
+}
+
+.secondary:hover {
+  color: var(--text-primary);
+}
+
+.collect:focus-visible,
+.passport:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp {
+    transition: none;
+  }
+}

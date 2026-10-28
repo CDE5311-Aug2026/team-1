@@ -12,43 +12,11 @@
   color: var(--text-secondary);
 }
 
-.figure {
-  margin: 0 0 0.5rem;
-}
-
-.photo {
-  display: block;
-  width: 100%;
-  max-height: 16rem;
-  object-fit: cover;
-  border-radius: var(--radius-card);
-}
-
-.credit {
-  margin-top: 0.375rem;
-  font-size: var(--fs-phonetic);
-  color: var(--text-secondary);
-}
-
-.noPhoto {
-  height: 10rem;
-  margin-bottom: 0.5rem;
-  border-radius: var(--radius-card);
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
-}
-
 .heading {
   margin: 0;
   font-size: var(--fs-card-title);
   font-weight: 700;
   color: var(--text-primary);
-}
-
-.area {
-  margin: 0;
-  font-size: var(--fs-body);
-  color: var(--text-secondary);
 }
 
 .soon {

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -88,12 +88,13 @@ test('renders a carousel region with one group per place, in order, the first cu
   }
 });
 
-test('cards with culture cards offer Open; the others offer a disabled-looking Cards soon', () => {
-  const { groups } = setup();
+test('only the centred card offers its action: Open for places with cards, a locked Cards soon otherwise', () => {
   HOME_PLACES.forEach((p, i) => {
+    const { groups } = setup({ selectedId: p.id });
     const g = within(groups[i]);
     expect(g.getByText(p.distance)).toBeInTheDocument();
     expect(g.getByText(p.area)).toBeInTheDocument();
+    expect(g.getByRole('heading', { level: 3, name: p.name })).toBeInTheDocument();
     if (p.hasCards) {
       expect(g.getByRole('button', { name: 'Open' })).toBeInTheDocument();
       expect(g.queryByRole('button', { name: 'Cards soon' })).toBeNull();
@@ -101,9 +102,22 @@ test('cards with culture cards offer Open; the others offer a disabled-looking C
       expect(g.getByRole('button', { name: 'Cards soon' })).toHaveAttribute('aria-disabled', 'true');
       expect(g.queryByRole('button', { name: 'Open' })).toBeNull();
     }
+    // The other cards show no action.
+    groups.forEach((other, k) => {
+      if (k !== i) expect(within(other).queryByRole('button')).toBeNull();
+    });
+    cleanup();
   });
-  expect(within(groups[0]).getByRole('button', { name: 'Open' })).toBeInTheDocument();
-  expect(within(groups[1]).getByRole('button', { name: 'Open' })).toBeInTheDocument();
+});
+
+test('the progress thumb follows the centred card along its 72px track', () => {
+  const { region, select } = setup();
+  const thumb = within(region).getByTestId('carousel-thumb');
+  expect(thumb.style.left).toBe('0px');
+  select('curated:sg-haw-par-villa');
+  expect(thumb.style.left).toBe('40.5px');
+  select('curated:sg-holland-village');
+  expect(thumb.style.left).toBe('54px');
 });
 
 test('shows opened progress per place', () => {
@@ -161,7 +175,7 @@ test('Open calls onOpen with the place id', async () => {
 
 test('Cards soon shows a toast and does not open', async () => {
   const user = userEvent.setup();
-  const { groups, onOpen, onActivate } = setup();
+  const { groups, onOpen, onActivate } = setup({ selectedId: ids[2] });
   await user.click(within(groups[2]).getByRole('button', { name: 'Cards soon' }));
   expect(await screen.findByText(`Culture cards for ${HOME_PLACES[2].name} are coming soon`)).toBeInTheDocument();
   expect(onOpen).not.toHaveBeenCalled();
@@ -198,7 +212,7 @@ test('Enter and Space on a focused Open button open only', async () => {
 
 test('Enter and Space on a focused Cards soon button show the toast only', async () => {
   const user = userEvent.setup();
-  const { groups, onOpen, onActivate, onSelect } = setup();
+  const { groups, onOpen, onActivate, onSelect } = setup({ selectedId: ids[2] });
   within(groups[2]).getByRole('button', { name: 'Cards soon' }).focus();
   await user.keyboard('{Enter}');
   expect(await screen.findByText(/are coming soon/)).toBeInTheDocument();
