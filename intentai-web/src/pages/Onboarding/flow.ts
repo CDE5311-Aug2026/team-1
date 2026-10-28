@@ -1,4 +1,4 @@
-import { isOnboardingComplete, type Onboarding } from '../../data/domain';
+import { isOnboarding, isOnboardingComplete, type Onboarding } from '../../data/domain';
 import { onboardingStore, profileStore } from '../../data/stores';
 import { roleLabel, timeLabel } from './options';
 import type { StepDef } from './steps/types';
@@ -10,10 +10,11 @@ import type { StepDef } from './steps/types';
  * the same write.
  */
 export function applyPatch(previous: Onboarding, patch: Partial<Onboarding>): Onboarding {
-  const next = { ...previous, ...patch };
-  if (!next.done) return next.completedAt === null ? next : { ...next, completedAt: null };
-  if (!isOnboardingComplete(next) || next.completedAt === null) return { ...next, done: false, completedAt: null };
-  return next;
+  let next = { ...previous, ...patch };
+  if (!next.done) next = next.completedAt === null ? next : { ...next, completedAt: null };
+  else if (!isOnboardingComplete(next) || next.completedAt === null) next = { ...next, done: false, completedAt: null };
+  // A patch carrying a value the store would reject on load (bad date, repeated topic, base off the map) is dropped.
+  return isOnboarding(next) ? next : previous;
 }
 
 /** Where a (re)opened flow starts: welcome before any answer, else the first unanswered question (topics if none). */

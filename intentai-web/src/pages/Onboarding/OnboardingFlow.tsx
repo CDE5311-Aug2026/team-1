@@ -20,11 +20,16 @@ const toast = (msg: string) => {
 };
 
 const update = (patch: Partial<Onboarding>) => {
-  const previous = onboardingStore.get();
-  const next = applyPatch(previous, patch);
-  onboardingStore.set(next);
+  let previous: Onboarding | undefined;
+  let next: Onboarding | undefined;
+  // Merged inside the setter so an answer saved in another tab meanwhile is kept.
+  onboardingStore.set((current) => {
+    previous = current;
+    next = applyPatch(current, patch);
+    return next;
+  });
   // An answer edited after the stamp keeps My Space's profile in step with the passport.
-  if (next.done && (next.from !== previous.from || next.time !== previous.time || next.role !== previous.role)) syncProfile(next);
+  if (previous && next?.done && (next.from !== previous.from || next.time !== previous.time || next.role !== previous.role)) syncProfile(next);
 };
 
 const BackIcon = (

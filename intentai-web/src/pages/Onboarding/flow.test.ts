@@ -84,3 +84,16 @@ test('finishOnboarding does nothing while an answer is missing', () => {
   expect(onboardingStore.get()).toEqual(partial);
   expect(profileStore.get()).toEqual(before);
 });
+
+test('applyPatch drops a patch the store would reject on load', () => {
+  expect(applyPatch(COMPLETED_ONBOARDING, { completedAt: 'not-a-date' })).toBe(COMPLETED_ONBOARDING);
+  expect(applyPatch(COMPLETED_ONBOARDING, { topics: ['food', 'food', 'monument', 'festival'] as Onboarding['topics'] })).toBe(COMPLETED_ONBOARDING);
+});
+
+test('applyPatch merges onto the latest stored record, not a stale copy', () => {
+  onboardingStore.set({ ...DEFAULT_ONBOARDING, from: 'China' });
+  const stale = onboardingStore.get();
+  window.localStorage.setItem(`${STORAGE_PREFIX}onboarding`, JSON.stringify({ ...stale, from: 'India' }));
+  onboardingStore.set((current) => applyPatch(current, { time: 'lt3m' }));
+  expect(onboardingStore.get().from).toBe('India');
+});
