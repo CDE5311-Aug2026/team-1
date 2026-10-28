@@ -34,6 +34,23 @@ export interface HomeMapProps {
   onUserZoom(zoom: number): void;
 }
 
+/**
+ * Leaflet's keyboard handler focuses the map on every press and then scrolls the window back. WebKit scrolls the
+ * map into view on that focus before the press ends, so the page jumps and the release misses the pin under it.
+ * Focusing without scrolling keeps arrow-key panning and leaves the page still.
+ */
+export function preventFocusScroll(map: L.Map): void {
+  const keyboard = map.keyboard as L.Handler & { _focused?: boolean; _map: L.Map; _onMouseDown: () => void };
+  if (!keyboard) return;
+  const wasEnabled = keyboard.enabled();
+  if (wasEnabled) keyboard.disable();
+  keyboard._onMouseDown = function onMouseDown(this: typeof keyboard) {
+    if (this._focused) return;
+    this._map.getContainer().focus({ preventScroll: true });
+  };
+  if (wasEnabled) keyboard.enable();
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }
@@ -166,6 +183,7 @@ export default function HomeMap(props: HomeMapProps) {
   useEffect(() => {
     const el = containerRef.current!;
     const map = L.map(el, { zoomControl: false, attributionControl: false, minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM });
+    preventFocusScroll(map);
     mapRef.current = map;
     const { lastFocus, zoom, bottomInset, command } = latest.current;
     map.setView(offsetCentre(projectOf(map), unprojectOf(map), lastFocus, zoom, bottomInset), zoom, { animate: false });

@@ -5,7 +5,7 @@ import { HOME_BASE, homePlace, visiblePins } from '../../data/homePlaces';
 import type { LatLng } from '../../features/nearby/types';
 import { setReducedMotion } from '../../test/media';
 import { triggerResize } from '../../test/resizeObserver';
-import HomeMap, { LABELS_MIN_ZOOM, PIN_OTHER, PIN_SELECTED, placeLabel } from './HomeMap';
+import HomeMap, { LABELS_MIN_ZOOM, PIN_OTHER, PIN_SELECTED, placeLabel, preventFocusScroll } from './HomeMap';
 import HomeMapFrame from './HomeMapFrame';
 import { offsetCentre, visibleCentre, type MapCommand } from './camera';
 
@@ -219,6 +219,52 @@ beforeEach(() => {
   fake.maps.length = 0;
   fake.tiles.length = 0;
   fake.markers.length = 0;
+});
+
+describe('preventFocusScroll', () => {
+  function fakeMap() {
+    const container = document.createElement('div');
+    container.tabIndex = 0;
+    document.body.append(container);
+    let enabled = true;
+    const keyboard = {
+      _focused: false,
+      _map: { getContainer: () => container },
+      _onMouseDown() {
+        container.focus();
+        window.scrollTo(0, 0);
+      },
+      enabled: () => enabled,
+      enable: vi.fn(() => { enabled = true; }),
+      disable: vi.fn(() => { enabled = false; }),
+    };
+    return { container, keyboard, map: { keyboard } as unknown as Parameters<typeof preventFocusScroll>[0] };
+  }
+
+  it('re-binds the press handler so a press focuses the map without scrolling the page', () => {
+    const { container, keyboard, map } = fakeMap();
+    const focus = vi.spyOn(container, 'focus');
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    preventFocusScroll(map);
+    expect(keyboard.disable).toHaveBeenCalledTimes(1);
+    expect(keyboard.enable).toHaveBeenCalledTimes(1);
+    keyboard._onMouseDown();
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(scrollTo).not.toHaveBeenCalled();
+    scrollTo.mockRestore();
+    container.remove();
+  });
+
+  it('does nothing once the map already has focus, and tolerates a map without keyboard support', () => {
+    const { container, keyboard, map } = fakeMap();
+    preventFocusScroll(map);
+    keyboard._focused = true;
+    const focus = vi.spyOn(container, 'focus');
+    keyboard._onMouseDown();
+    expect(focus).not.toHaveBeenCalled();
+    expect(() => preventFocusScroll({ keyboard: undefined } as unknown as Parameters<typeof preventFocusScroll>[0])).not.toThrow();
+    container.remove();
+  });
 });
 
 describe('camera', () => {
