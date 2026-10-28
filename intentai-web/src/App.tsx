@@ -10,6 +10,9 @@ import PlaceStoryPage from './pages/PlaceStory/PlaceStoryPage';
 import QuestionPage from './pages/CommunityPage/QuestionPage';
 import MomentsPage from './pages/MomentsPage/MomentsPage';
 import MySpacePage from './pages/MySpacePage/MySpacePage';
+import SettingsPage from './pages/MySpacePage/SettingsPage/SettingsPage';
+import PrivacyPage from './pages/MySpacePage/PrivacyPage/PrivacyPage';
+import LicencesPage from './pages/MySpacePage/LicencesPage/LicencesPage';
 import OnboardingFlow from './pages/Onboarding/OnboardingFlow';
 import NoticeDetailsPage from './pages/MySpacePage/NoticeDetailsPage';
 import NoticeEditPage from './pages/MySpacePage/NoticeEditPage';
@@ -75,6 +78,9 @@ export default function App() {
           <Route path={patterns.collection} element={<Lazy><CollectionDetailPage /></Lazy>} />
           <Route path={paths.saved} element={<Lazy><SavedPage /></Lazy>} />
           <Route path={paths.mySpace} element={<MySpacePage />} />
+          <Route path={paths.mySpaceSettings} element={<SettingsPage />} />
+          <Route path={paths.mySpacePrivacy} element={<PrivacyPage />} />
+          <Route path={paths.licences} element={<LicencesPage />} />
           <Route path={paths.notices} element={<NoticesPage />} />
           <Route path={paths.noticeDetails} element={<NoticeDetailsPage />} />
           <Route path={paths.noticeEdit} element={<NoticeEditPage />} />

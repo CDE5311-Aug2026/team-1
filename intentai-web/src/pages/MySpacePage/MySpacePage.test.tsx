@@ -1,110 +1,46 @@
-import { screen, within } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test } from 'vitest';
-import { DEFAULT_PROFILE } from '../../data/domain';
-import { culturePrefsStore, profileStore, settingsStore } from '../../data/stores';
+import { onboardingStore } from '../../data/stores';
+import { COMPLETED_ONBOARDING } from '../../test/onboardingFixture';
 import { paths } from '../../routes';
+import { FEEDBACK_TOAST } from './MySpacePage';
 import { currentPath, renderAt } from './testUtils';
 
-const SWITCHES = ['Flag occasions', 'Answer as a local', 'Rehearse with AI', 'No-judgement mode'];
-
-test('shows the Figma copy with one h1', () => {
+test('one h1, no old About/Notices segments or Today button', () => {
   renderAt(paths.mySpace);
   expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-  expect(screen.getByRole('heading', { level: 1, name: 'My Space' })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'What the app knows' })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'Switches' })).toBeInTheDocument();
-  expect(screen.getByText('All off by default')).toBeInTheDocument();
-  expect(screen.getByText('Used for translations')).toBeInTheDocument();
-  // v2: the daily card became Moments' always-on "Today's three", so its switch is gone.
-  expect(screen.queryByText('Daily card')).not.toBeInTheDocument();
+  expect(screen.queryByRole('tab', { name: /about you/i })).toBeNull();
+  expect(screen.queryByRole('button', { name: /change today/i })).toBeNull();
 });
 
-test('profile fields show stored values, "In Singapore" verbatim, and "Not set" when empty', () => {
-  profileStore.set({ ...DEFAULT_PROFILE, time: '1 – 3 years', role: '' });
+test('the gear and the Settings row open Settings', async () => {
+  const user = userEvent.setup();
   renderAt(paths.mySpace);
-  expect(screen.getByText('China')).toBeInTheDocument();
-  expect(screen.getByText('1 – 3 years')).toBeInTheDocument();
-  expect(screen.getByText('Not set')).toBeInTheDocument();
+  await user.click(screen.getAllByRole('button', { name: 'Settings' })[0]);
+  expect(currentPath()).toBe(paths.mySpaceSettings);
+  await user.click(screen.getByRole('button', { name: 'Back to My Space' }));
+  expect(currentPath()).toBe(paths.mySpace);
+  await user.click(screen.getAllByRole('button', { name: 'Settings' })[1]);
+  expect(currentPath()).toBe(paths.mySpaceSettings);
 });
 
-test('all four switches start off and persist when toggled', async () => {
+test('Redo onboarding clears the answers, keeps privacy choices and opens the welcome screen', async () => {
+  const user = userEvent.setup();
+  onboardingStore.set({ ...COMPLETED_ONBOARDING, hidden: ['from', 'role'] });
   renderAt(paths.mySpace);
-  for (const name of SWITCHES) {
-    expect(screen.getByRole('switch', { name })).toHaveAttribute('aria-checked', 'false');
-  }
-  await userEvent.click(screen.getByRole('switch', { name: 'Answer as a local' }));
-  expect(screen.getByRole('switch', { name: 'Answer as a local' })).toHaveAttribute('aria-checked', 'true');
-  expect(settingsStore.get().local).toBe(true);
-  await userEvent.click(screen.getByRole('switch', { name: 'No-judgement mode' }));
-  expect(settingsStore.get().judgement).toBe(true);
+  await user.click(screen.getByText('Redo onboarding'));
+  expect(currentPath()).toBe(paths.onboarding);
+  const o = onboardingStore.get();
+  expect(o.done).toBe(false);
+  expect(o.from).toBeNull();
+  expect(o.topics).toEqual([]);
+  expect(o.hidden).toEqual(['from', 'role']);
 });
 
-test('turning on "Flag occasions" adds the AI notice to Notices', async () => {
+test('Help & feedback explains where feedback goes', async () => {
+  const user = userEvent.setup();
   renderAt(paths.mySpace);
-  const notices = screen.getByRole('button', { name: /^notices/i });
-  expect(notices).toHaveTextContent('1');
-  await userEvent.click(screen.getByRole('switch', { name: 'Flag occasions' }));
-  expect(settingsStore.get().occasions).toBe(true);
-  expect(notices).toHaveTextContent('2');
-  expect(screen.getByRole('status')).toHaveTextContent(/added to notices/i);
-});
-
-test('editing a profile field saves it', async () => {
-  renderAt(paths.mySpace);
-  await userEvent.click(screen.getByRole('button', { name: 'Edit From' }));
-  const dialog = screen.getByRole('dialog', { name: 'Edit From' });
-  const input = within(dialog).getByRole('textbox', { name: 'From' });
-  expect(input).toHaveValue('China');
-  await userEvent.clear(input);
-  await userEvent.type(input, '  Malaysia ');
-  await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  expect(screen.getByText('Malaysia')).toBeInTheDocument();
-  expect(profileStore.get().from).toBe('Malaysia');
-});
-
-test('a blank edit is not saved and cancel leaves the field unchanged', async () => {
-  renderAt(paths.mySpace);
-  await userEvent.click(screen.getByRole('button', { name: 'Edit Here as' }));
-  const dialog = screen.getByRole('dialog', { name: 'Edit Here as' });
-  await userEvent.clear(within(dialog).getByRole('textbox', { name: 'Here as' }));
-  await userEvent.type(within(dialog).getByRole('textbox', { name: 'Here as' }), '   ');
-  await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
-  expect(profileStore.get().role).toBe('Student intern');
-  await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }));
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  expect(screen.getByText('Student intern')).toBeInTheDocument();
-});
-
-test('deleting a profile field shows "Not set" and Undo restores it', async () => {
-  renderAt(paths.mySpace);
-  await userEvent.click(screen.getByRole('button', { name: 'Delete From' }));
-  expect(screen.getByText('Not set')).toBeInTheDocument();
-  expect(profileStore.get().from).toBe('');
-  expect(screen.getByRole('status')).toHaveTextContent('Detail deleted');
-  await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
-  expect(screen.getByText('China')).toBeInTheDocument();
-  expect(profileStore.get().from).toBe('China');
-});
-
-test('the Notices segment opens Notices', async () => {
-  renderAt(paths.mySpace);
-  expect(screen.getByRole('button', { name: 'About you' })).toHaveAttribute('aria-current', 'page');
-  await userEvent.click(screen.getByRole('button', { name: /^notices/i }));
-  expect(currentPath()).toBe(paths.notices);
-});
-
-test("a Today section below the switches shows the current picks and opens the questionnaire pre-filled", async () => {
-  culturePrefsStore.set({ categories: ['unesco', 'ich', 'history'] });
-  renderAt(paths.mySpace);
-  const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
-  expect(headings.indexOf('Today')).toBeGreaterThan(headings.indexOf('Switches'));
-  expect(screen.getByText('UNESCO, Heritage, History')).toBeInTheDocument();
-
-  await userEvent.click(screen.getByRole('button', { name: "Change Today's Topics" }));
-
-  expect(currentPath()).toBe('/today-setup');
-  expect(screen.getByRole('button', { name: /^Heritage\b/ })).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  await user.click(screen.getByText('Help & feedback'));
+  expect(screen.getByText(FEEDBACK_TOAST)).toBeInTheDocument();
 });
