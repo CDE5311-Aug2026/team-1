@@ -6,8 +6,8 @@ import { distanceM } from '../features/nearby/geo';
 import { THUMB_CREDIT, thumbUrl } from '../features/nearby/thumbs';
 import type { LatLng } from '../features/nearby/types';
 
-export { FACETS, isPlaceProgress, openedCount } from './placeProgress';
-export type { Facet, PlaceProgress } from './placeProgress';
+export { FACETS, openedCount } from './placeStories';
+export type { Facet, PlaceStories } from './placeStories';
 
 export interface HomePlace {
   id: string;

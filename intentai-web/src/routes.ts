@@ -19,6 +19,8 @@ export const paths = {
   nearbyPlace: (key: string) => `/nearby/place/${encodeURIComponent(key)}`,
   /** Home place page (carousel "Open", Deepavali Berlin Wall row). */
   homePlace: (id: string) => `/place/${encodeURIComponent(id)}`,
+  /** Culture card of a Home place (food, monument, festival, history). */
+  placeCard: (id: string, facet: string) => `/place/${encodeURIComponent(id)}/${encodeURIComponent(facet)}`,
   mySpace: '/my-space',
   notices: '/my-space/notices',
   noticeDetails: '/my-space/notices/details',
@@ -40,6 +42,7 @@ export const ADMIN_PATH = '/admin';
 export const patterns = {
   question: '/community/:questionId',
   homePlace: '/place/:placeId',
+  placeCard: '/place/:placeId/:facet',
   nearbyPlace: '/nearby/place/:placeKey',
   collection: '/nearby/collections/:collectionId',
 } as const;

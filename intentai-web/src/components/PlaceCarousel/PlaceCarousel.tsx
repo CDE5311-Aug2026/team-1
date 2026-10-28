@@ -1,5 +1,5 @@
 import { useEffect, useRef, type KeyboardEvent, type MouseEvent } from 'react';
-import { FACETS, openedCount, type HomePlace, type PlaceProgress } from '../../data/homePlaces';
+import { FACETS, openedCount, type HomePlace, type PlaceStories } from '../../data/homePlaces';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { showToast } from '../../hooks/useToast';
 import styles from './PlaceCarousel.module.css';
@@ -22,7 +22,7 @@ export function nearestCardIndex(scrollLeft: number, cardCentres: number[], view
 interface Props {
   places: readonly HomePlace[];
   selectedId: string;
-  progress: PlaceProgress;
+  stories: PlaceStories;
   onSelect(id: string): void;
   onActivate(id: string): void;
   onOpen(id: string): void;
@@ -30,7 +30,7 @@ interface Props {
 
 const cardCentre = (card: HTMLElement) => card.offsetLeft + card.offsetWidth / 2;
 
-export function PlaceCarousel({ places, selectedId, progress, onSelect, onActivate, onOpen }: Props) {
+export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivate, onOpen }: Props) {
   const reduced = useReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -194,7 +194,7 @@ export function PlaceCarousel({ places, selectedId, progress, onSelect, onActiva
       >
         {places.map((place, i) => {
           const isSelected = i === selectedIndex;
-          const opened = openedCount(progress, place.id);
+          const opened = openedCount(stories, place.id);
           return (
             <div
               key={place.id}

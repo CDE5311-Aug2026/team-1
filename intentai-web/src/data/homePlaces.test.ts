@@ -6,13 +6,10 @@ import {
   PINNED_COUNT,
   formatHomeDistance,
   homePlace,
-  isPlaceProgress,
-  openedCount,
   visiblePins,
 } from './homePlaces';
 import placesJson from './explore/places.sg.json';
 import areasJson from './explore/areas.json';
-import { deleteAllData, placeProgressStore } from './stores';
 import { resetPersistentStores } from './persistentStore';
 
 beforeEach(() => {
@@ -83,24 +80,6 @@ test('every place has a photo with credit and alt', () => {
 test('BERLIN_THUMB is a non-empty url string', () => {
   expect(typeof BERLIN_THUMB).toBe('string');
   expect(BERLIN_THUMB.length).toBeGreaterThan(0);
-});
-
-test('isPlaceProgress and openedCount', () => {
-  expect(isPlaceProgress({ chinatown: ['x'] })).toBe(false);
-  const ok = { chinatown: ['food', 'food', 'history'] };
-  expect(isPlaceProgress(ok)).toBe(true);
-  expect(openedCount(ok as never, 'chinatown')).toBe(2);
-  expect(openedCount({}, 'chinatown')).toBe(0);
-});
-
-test('placeProgressStore ignores invalid storage and is cleared by deleteAllData', () => {
-  localStorage.setItem('intentai:v1:placeProgress', '{"chinatown":["x"]}');
-  resetPersistentStores();
-  expect(placeProgressStore.get()).toEqual({});
-  placeProgressStore.set({ chinatown: ['food'] });
-  expect(placeProgressStore.get()).toEqual({ chinatown: ['food'] });
-  deleteAllData();
-  expect(placeProgressStore.get()).toEqual({});
 });
 
 test('literal places 3 to 5 match the Nearby catalogue', () => {

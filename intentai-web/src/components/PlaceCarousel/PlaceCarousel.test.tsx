@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { dismissToast } from '../../hooks/useToast';
-import { HOME_PLACES, type PlaceProgress } from '../../data/homePlaces';
+import { HOME_PLACES, type PlaceStories } from '../../data/homePlaces';
 import { setCarouselGeometry, scrollCarousel } from '../../test/carouselGeometry';
 import { setReducedMotion } from '../../test/media';
 import AppShell from '../AppShell/AppShell';
@@ -42,7 +42,7 @@ function withoutScrollEnd(): () => void {
   };
 }
 
-function setup(opts: { selectedId?: string; progress?: PlaceProgress } = {}) {
+function setup(opts: { selectedId?: string; stories?: PlaceStories } = {}) {
   const onSelect = vi.fn();
   const onActivate = vi.fn();
   const onOpen = vi.fn();
@@ -50,7 +50,7 @@ function setup(opts: { selectedId?: string; progress?: PlaceProgress } = {}) {
     <PlaceCarousel
       places={HOME_PLACES}
       selectedId={selectedId}
-      progress={opts.progress ?? {}}
+      stories={opts.stories ?? {}}
       onSelect={onSelect}
       onActivate={onActivate}
       onOpen={onOpen}
@@ -107,7 +107,7 @@ test('cards with culture cards offer Open; the others offer a disabled-looking C
 });
 
 test('shows opened progress per place', () => {
-  const { groups } = setup({ progress: { chinatown: ['food', 'history'] } });
+  const { groups } = setup({ stories: { chinatown: { opened: ['food', 'history'], checkedIn: false, stamped: false } } });
   expect(groups[1]).toHaveTextContent('2 of 4 opened');
   for (const i of [0, 2, 3, 4]) expect(groups[i]).toHaveTextContent('0 of 4 opened');
   const filled = groups[1].querySelectorAll('[data-filled="true"]');
@@ -396,7 +396,7 @@ test('a place without a photo gets a placeholder', () => {
     <PlaceCarousel
       places={places}
       selectedId={ids[0]}
-      progress={{}}
+      stories={{}}
       onSelect={() => {}}
       onActivate={() => {}}
       onOpen={() => {}}

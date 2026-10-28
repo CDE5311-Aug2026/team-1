@@ -83,3 +83,19 @@ test('chrome="status" keeps the status bar but drops the tab bar', () => {
   expect(screen.queryByRole('navigation', { name: 'Primary' })).not.toBeInTheDocument();
   expect(screen.getByRole('main')).toHaveTextContent('edit');
 });
+
+test('variant="story" has no tab bar and marks the page for story styling', () => {
+  render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell variant="story">story</AppShell>
+    </MemoryRouter>,
+  );
+  expect(screen.queryByRole('navigation', { name: 'Primary' })).not.toBeInTheDocument();
+  expect(screen.getByRole('main')).toHaveAttribute('data-variant', 'story');
+  expect(screen.getByRole('main')).toHaveTextContent('story');
+});
+
+test('the default variant has no data-variant attribute', () => {
+  renderAt('/');
+  expect(screen.getByRole('main')).not.toHaveAttribute('data-variant');
+});

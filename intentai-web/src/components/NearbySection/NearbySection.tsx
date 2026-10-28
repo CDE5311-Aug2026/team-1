@@ -1,7 +1,7 @@
 import { useEffect, useId, useReducer, useRef, useState } from 'react';
 import { HOME_BASE, HOME_PLACES, homePlace, visiblePins, type HomePlace } from '../../data/homePlaces';
 import { usePersistentStore } from '../../data/persistentStore';
-import { placeProgressStore } from '../../data/stores';
+import { placeStoriesStore } from '../../data/stores';
 import { distanceM } from '../../features/nearby/geo';
 import type { LatLng } from '../../features/nearby/types';
 import { FLY_OVER_M, type MapCommand } from '../HomeMap/camera';
@@ -82,7 +82,7 @@ interface Props {
 /** Home's Nearby block: the map and the place carousel share one selection and one camera. */
 export function NearbySection({ onOpenPlace, onSearch }: Props) {
   const [state, dispatch] = useReducer(nearbyReducer, initialNearbyState);
-  const [progress] = usePersistentStore(placeProgressStore);
+  const [stories] = usePersistentStore(placeStoriesStore);
   const [inset, setInset] = useState(0);
   const mapRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -136,7 +136,7 @@ export function NearbySection({ onOpenPlace, onSearch }: Props) {
           <PlaceCarousel
             places={HOME_PLACES}
             selectedId={state.selectedId}
-            progress={progress}
+            stories={stories}
             onSelect={select}
             onActivate={activate}
             onOpen={onOpenPlace}

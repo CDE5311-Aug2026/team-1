@@ -35,7 +35,7 @@
   /* Typography */
   --font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   /* Numbers only (counts, dates, levels): the typewriter-ledger touch. */
-  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --fs-title: 1.625rem;      /* 26px */
   --lh-title: 2rem;          /* 32px */
   --ls-title: -0.39px;
@@ -79,6 +79,31 @@
   --shadow-card-active: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 3px rgba(35, 33, 29, 0.1);
   --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 2px rgba(35, 33, 29, 0.06);
   --shadow-tabbar: 0 4px 7px rgba(0, 0, 0, 0.06);
+
+  /* Story screens (place pages and culture cards). Only values with no token above. */
+  --story-track: #e2ded6;
+  --story-dark-ph: #2b2925;
+  --story-orange-text: #a3410b;
+  --story-orange-hover: #7c3008;
+  --story-orange-deep: #c2410c;
+  --story-hero-tint: #fdeee6;
+  --story-hero-border: #f8d6bf;
+  --story-green-text: #1e6b34;
+  --story-green-bg: #e6f4ea;
+  --story-green-border: #a8d5b5;
+  --story-green-dot: #2e9e4f;
+  --story-blue: #1a73e8;
+  --story-blue-tint: #e8f0fe;
+  --story-scrim: rgba(24, 22, 19, 0.75);
+  --story-smoke: #b9b2a6;
+  --story-radius-card: 14px;
+  --story-radius-panel: 12px;
+  --story-radius-sheet: 16px;
+  --story-shadow-video: 0 22px 36px -22px rgba(35, 33, 29, 0.7);
+  --story-shadow-photo: 0 18px 30px -18px rgba(35, 33, 29, 0.7);
+  --story-shadow-sleeve: 0 18px 26px -14px rgba(35, 33, 29, 0.55);
+  --story-shadow-play: 0 8px 20px rgba(0, 0, 0, 0.28);
+  --story-shadow-float: 0 4px 14px rgba(0, 0, 0, 0.18);
 
   /* Layout */
   --gutter: 1.25rem;        /* 20px */

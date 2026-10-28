@@ -3,7 +3,15 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
 import { runLegacyMigration } from './data/migration/legacyMigration';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/inter/800.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
 import './styles/global.css';
+import './styles/motion.css';
 
 // Before any store is read: copy the old web/ app's state (singlish-v2-state) into the v1 stores, once.
 runLegacyMigration();
