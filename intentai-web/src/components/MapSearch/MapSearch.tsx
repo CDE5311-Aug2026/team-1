@@ -91,8 +91,16 @@ export function MapSearch({ label, onPick, onUseLocation }: Props) {
       setQuery('');
       pillRef.current?.focus({ preventScroll: true });
     };
+    // Escape closes from anywhere, not only when focus is inside (WebKit may leave focus on the body).
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
     document.addEventListener('pointerdown', onDown, true);
-    return () => document.removeEventListener('pointerdown', onDown, true);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown, true);
+      document.removeEventListener('keydown', onKey);
+    };
   }, [open]);
 
   // Placeholder hints take turns while the field is empty (one fixed hint under reduced motion).

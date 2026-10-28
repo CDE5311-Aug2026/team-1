@@ -11,6 +11,9 @@ const FIGMA_BRAND_ORANGES = ['#e4671f', '#e8622c'];
 
 for (const route of ROUTES) {
   test(`no WCAG A/AA violations on ${route}`, async ({ page }) => {
+    // Scan the settled page: reduced motion stops decorative loops (Ken Burns, spinning text) and shows final
+    // states, so axe reads real colours and WebKit's software renderer is not kept busy painting.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     await seed(page, route);
     await page.goto(route);
