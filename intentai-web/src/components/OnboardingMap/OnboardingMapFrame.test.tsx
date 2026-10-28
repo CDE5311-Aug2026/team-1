@@ -95,6 +95,16 @@ test('starts zoomed in when a pin is already set', async () => {
   expect(screen.getByRole('button', { name: 'Zoom out' })).toBeInTheDocument();
 });
 
+test('a pin that appears without a drop (the pre-pin) zooms the map in once', async () => {
+  const p = props();
+  const { rerender } = render(<OnboardingMapFrame {...p} />);
+  expect(await screen.findByTestId('map')).toHaveAttribute('data-zoomed', 'false');
+  rerender(<OnboardingMapFrame {...p} base={UTOWN} />);
+  expect(screen.getByTestId('map')).toHaveAttribute('data-zoomed', 'true');
+  fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
+  expect(screen.getByTestId('map')).toHaveAttribute('data-zoomed', 'false');
+});
+
 test('locate and zoom out do not reach the map underneath', async () => {
   const onLocate = vi.fn();
   const outer = { pointer: vi.fn(), click: vi.fn() };

@@ -43,11 +43,12 @@ export default function OnboardingMapFrame({ base, drops, onDrop, onLocate, load
   const [failed, setFailed] = useState(false);
   const locateRef = useRef<HTMLButtonElement>(null);
   // Two zoom levels only: a drop zooms in on the pin, the zoom-out button goes back to the overview.
-  const [view, setView] = useState({ zoomed: base !== null, drops, outSeq: 0 });
+  // A pin that appears without a drop (the step's pre-pin) zooms in too, once.
+  const [view, setView] = useState({ zoomed: base !== null, drops, outSeq: 0, hadBase: base !== null });
   let zoomed = view.zoomed;
-  if (view.drops !== drops) {
+  if (view.drops !== drops || (base !== null && !view.hadBase)) {
     zoomed = true;
-    setView({ ...view, zoomed, drops });
+    setView({ ...view, zoomed, drops, hadBase: base !== null || view.hadBase });
   }
 
   const retry = () => {

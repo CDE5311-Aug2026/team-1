@@ -167,6 +167,21 @@ describe('OnboardingMapView', () => {
     expect(fake.calls[0]).toEqual(['setView', UTOWN, PINNED_ZOOM, { animate: false }]);
   });
 
+  it('a base that appears after mount (pre-pin) recentres on it at the pinned zoom', () => {
+    const { rerender } = render(<OnboardingMapView {...props()} />);
+    fake.calls.length = 0;
+    rerender(<OnboardingMapView {...props({ base: UTOWN, zoomed: true })} />);
+    expect(fake.calls).toContainEqual(['flyTo', UTOWN, PINNED_ZOOM, { duration: 0.8 }]);
+  });
+
+  it('the same with reduced motion: setView, no animation', () => {
+    setReducedMotion(true);
+    const { rerender } = render(<OnboardingMapView {...props()} />);
+    fake.calls.length = 0;
+    rerender(<OnboardingMapView {...props({ base: UTOWN, zoomed: true })} />);
+    expect(fake.calls).toEqual([['setView', UTOWN, PINNED_ZOOM, { animate: false }]]);
+  });
+
   it('a tap drops the pin at the tapped point', () => {
     const onDrop = vi.fn();
     render(<OnboardingMapView {...props({ onDrop })} />);
