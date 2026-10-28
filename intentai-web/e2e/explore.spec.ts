@@ -14,7 +14,7 @@ function watchRequests(page: Page) {
   const external: string[] = [];
   page.on('request', (r) => {
     const u = new URL(r.url());
-    if (u.hostname !== 'localhost' && u.hostname !== '127.0.0.1') external.push(u.hostname);
+    if (u.hostname !== '127.0.0.1' && u.hostname !== 'localhost') external.push(u.hostname);
   });
   return external;
 }
@@ -188,7 +188,7 @@ test('Explore works at 320 px and on wide screens without horizontal overflow', 
 
 test('the Back button leaves Explore at once, however many map steps were taken (3D on and off, a list, details)', async ({ page }) => {
   await open(page, paths.today);
-  await page.getByRole('button', { name: /^Near you/ }).click();
+  await page.getByRole('button', { name: /places to explore$/ }).click();
   await expect(page).toHaveURL(/\/nearby/);
   await page.getByRole('button', { name: '3D' }).click();
   await expect(page).toHaveURL(/view=3d/);

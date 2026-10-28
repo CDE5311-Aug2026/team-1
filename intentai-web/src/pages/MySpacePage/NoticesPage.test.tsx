@@ -1,9 +1,10 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { DEFAULT_NOTICES, DEFAULT_SETTINGS, EMPTY_PROFILE } from '../../data/domain';
 import { lookupsStore, noticesStore, onboardingStore, profileStore, settingsStore } from '../../data/stores';
 import { paths } from '../../routes';
+import * as appTracker from '../../usage/appTracker';
 import { currentPath, renderAt } from './testUtils';
 
 const occasionsOn = () => settingsStore.set({ ...DEFAULT_SETTINGS, occasions: true });
@@ -103,4 +104,14 @@ test('confirming Delete all my data clears the stores and returns to onboarding'
   expect(lookupsStore.get()).toEqual([]);
   expect(onboardingStore.get().done).toBe(false);
   expect(currentPath()).toBe(paths.onboarding);
+});
+
+test('Delete all my data also starts a new usage session, like Privacy & data', async () => {
+  const discard = vi.spyOn(appTracker.tracker, 'discard');
+  renderAt(paths.notices);
+  await userEvent.click(screen.getByRole('button', { name: 'Delete all my data' }));
+  const dialog = screen.getByRole('dialog', { name: 'Delete your data?' });
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Delete all my data' }));
+  expect(discard).toHaveBeenCalledTimes(1);
+  discard.mockRestore();
 });

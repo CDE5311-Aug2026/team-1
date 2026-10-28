@@ -12,7 +12,7 @@ import QuestionHeader from '../QuestionHeader/QuestionHeader';
 import styles from './Base.module.css';
 import type { StepDef, StepProps } from './types';
 
-export const LOCATE_TOAST = 'Location used once, only for Nearby';
+export const LOCATE_TOAST = 'Pin set to Berlin Wall Fragments';
 
 const BERLIN = homePlace('berlin-wall-fragments')!;
 /** The step opens with the pin on Berlin Wall Fragments, and Locate does not ask for the device location: it drops there too. */

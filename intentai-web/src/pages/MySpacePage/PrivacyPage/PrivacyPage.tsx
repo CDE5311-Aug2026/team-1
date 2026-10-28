@@ -151,7 +151,7 @@ export default function PrivacyPage() {
           </span>
           <span>
             <span className={styles.summaryTitle}>Your data stays on this phone</span>
-            <span className={styles.summaryBody}>Only questions you post to Community leave it, without your name or location.</span>
+            <span className={styles.summaryBody}>Only questions you post to Community, and anonymous page timing while it is on, leave it, never your name or location.</span>
           </span>
         </section>
 

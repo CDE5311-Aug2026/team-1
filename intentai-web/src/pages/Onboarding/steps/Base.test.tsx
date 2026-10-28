@@ -113,7 +113,7 @@ test('locate drops at Berlin Wall Fragments without geolocation and toasts', () 
   expect(saved()).toEqual(WALL);
   expect(LOCATE_LABEL).toBe('Berlin Wall Fragments');
   expect(toast).toHaveBeenCalledWith(LOCATE_TOAST);
-  expect(LOCATE_TOAST).toBe('Location used once, only for Nearby');
+  expect(LOCATE_TOAST).toBe('Pin set to Berlin Wall Fragments');
   expect(geo).not.toHaveBeenCalled();
   // Locating twice still counts as a new drop (the map recentres).
   fireEvent.click(screen.getByRole('button', { name: 'Use my location' }));

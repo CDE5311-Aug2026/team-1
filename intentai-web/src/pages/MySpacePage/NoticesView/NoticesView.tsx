@@ -7,6 +7,7 @@ import chevron from '../../../assets/my-space/link-chevron.svg';
 import Dialog from '../../../components/Dialog/Dialog';
 import { usePersistentStore } from '../../../data/persistentStore';
 import { deleteAllData, noticesStore } from '../../../data/stores';
+import { tracker } from '../../../usage/appTracker';
 import { showToast } from '../../../hooks/useToast';
 import { paths } from '../../../routes';
 import AskLocalDialog from '../AskLocalDialog/AskLocalDialog';
@@ -48,6 +49,8 @@ export default function NoticesView({ occasion, nodeIds }: NoticesViewProps) {
 
   const deleteEverything = () => {
     deleteAllData();
+    // Same as Privacy & data: timings from before the delete must not be written back.
+    tracker.discard();
     navigate(paths.onboarding);
   };
 
