@@ -74,13 +74,15 @@ test('4 sleeves, first in front, done badge only on done items, panel for the fr
   expect(panelTitle()).toBe('Food title');
   expect(screen.getByText('FOOD · 1 OF 4')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Open card' })).toHaveAttribute('href', '/place/p/food');
-  expect(screen.getByRole('button', { name: 'Previous card' })).toHaveStyle({ opacity: '0.35' });
+  expect(screen.getByRole('button', { name: 'Previous card' })).toHaveAttribute('aria-disabled', 'true');
+  expect(screen.getByRole('button', { name: 'Next card' })).not.toHaveAttribute('aria-disabled');
 });
 
 test('initialIndex opens on that card', () => {
   renderRail({ initialIndex: 3 });
   expect(panelTitle()).toBe('History title');
-  expect(screen.getByRole('button', { name: 'Next card' })).toHaveStyle({ opacity: '0.35' });
+  expect(screen.getByRole('button', { name: 'Next card' })).toHaveAttribute('aria-disabled', 'true');
+  expect(screen.getByRole('button', { name: 'Previous card' })).not.toHaveAttribute('aria-disabled');
 });
 
 test('Prev / Next and arrow keys step the index and stay in range', () => {
@@ -174,6 +176,49 @@ test('Open card calls onOpen with the front index and links to the card', () => 
   expect(link).toHaveAttribute('href', '/place/p/monument');
   fireEvent.click(link);
   expect(onOpen).toHaveBeenCalledWith(1);
+});
+
+test('Open card: modified or non-primary clicks do not call onOpen', () => {
+  const onOpen = vi.fn();
+  renderRail({ onOpen });
+  const link = screen.getByRole('link', { name: 'Open card' });
+  for (const init of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }]) {
+    fireEvent.click(link, init);
+  }
+  expect(onOpen).not.toHaveBeenCalled();
+  fireEvent.click(link);
+  expect(onOpen).toHaveBeenCalledTimes(1);
+});
+
+const panel = () => screen.getByRole('heading', { level: 2 }).closest('[aria-live]') as HTMLElement;
+
+test('the info panel is silent while autoplay runs, polite once it has stopped', () => {
+  renderRail();
+  expect(panel()).toHaveAttribute('aria-live', 'off');
+  fireEvent.click(screen.getByRole('button', { name: 'Next card' }));
+  expect(panel()).toHaveAttribute('aria-live', 'polite');
+});
+
+test('the info panel is polite from the start under reduced motion', () => {
+  setReducedMotion(true);
+  renderRail();
+  expect(panel()).toHaveAttribute('aria-live', 'polite');
+});
+
+test('focus entering the rail stops autoplay', () => {
+  renderRail();
+  expect(panel()).toHaveAttribute('aria-live', 'off');
+  act(() => screen.getByRole('link', { name: 'Open card' }).focus());
+  expect(panel()).toHaveAttribute('aria-live', 'polite');
+  advance(20000);
+  expect(panelTitle()).toBe('Food title');
+});
+
+test('focusing a sleeve stops autoplay', () => {
+  renderRail();
+  act(() => screen.getByRole('button', { name: /^History card/ }).focus());
+  advance(20000);
+  expect(panelTitle()).toBe('Food title');
 });
 
 test('autoplay advances every 4 s and wraps, until the first interaction', () => {

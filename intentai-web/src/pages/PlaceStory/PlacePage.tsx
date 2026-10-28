@@ -29,8 +29,19 @@ function PlaceView({ place }: { place: StoryPlace }) {
   const state = placeState(stories, place.id);
   const opened = new Set(state.opened);
   const [railIndex] = useState(() => initialRailIndex(location.state, place.id));
+  const [entryState] = useState(() => location.state);
   const [sparking, setSparking] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
+
+  // "Open card" flagged this entry; the flag has now been consumed, so later Back/Forward visits use railIndex.
+  useEffect(() => {
+    const s = entryState as PlaceRouteState | null;
+    if (s && typeof s === 'object' && s.railFrom === 'open') {
+      const { railFrom: _consumed, ...rest } = s;
+      navigate(location, { replace: true, state: rest });
+    }
+    // Mount-only.
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -54,10 +65,10 @@ function PlaceView({ place }: { place: StoryPlace }) {
   };
 
   const openedKey = state.opened.join(',');
-  const items: RailItem[] = useMemo(
-    () =>
-      place.cards.map((card) => {
-        const done = opened.has(card.facet);
+  const items: RailItem[] = useMemo(() => {
+    const doneSet = new Set(openedKey ? openedKey.split(',') : []);
+    return place.cards.map((card) => {
+        const done = doneSet.has(card.facet);
         return {
           key: card.facet,
           image: card.image.src,
@@ -69,10 +80,8 @@ function PlaceView({ place }: { place: StoryPlace }) {
           format: card.format,
           href: paths.placeCard(place.id, card.facet),
         };
-      }),
-    // `opened` is rebuilt each render; its contents are keyed by openedKey.
-    [place, openedKey],
-  );
+      });
+  }, [place, openedKey]);
 
   // Leaving through "Open card": this entry remembers the rail card, so browser Back returns to it.
   const onOpen = (index: number) => {
@@ -99,6 +108,7 @@ function PlaceView({ place }: { place: StoryPlace }) {
         <button
           type="button"
           className={`press ${styles.checkIn} ${state.checkedIn ? styles.checked : ''}`}
+          aria-label="Check in"
           aria-pressed={state.checkedIn}
           onClick={checkIn}
         >

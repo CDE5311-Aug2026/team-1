@@ -24,7 +24,7 @@ function CardRoute({ place, facet }: { place: StoryPlace; facet: Facet }) {
     window.scrollTo(0, 0);
   }, [place.id, facet]);
 
-  const card = place.cards[FACETS.indexOf(facet)];
+  const card = place.cards.find((c) => c.facet === facet)!;
   return (
     <AppShell variant="story">
       <StoryTopBar placeId={place.id} facet={facet} backLabel={place.name} />

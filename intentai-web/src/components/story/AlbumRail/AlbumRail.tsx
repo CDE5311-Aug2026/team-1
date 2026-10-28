@@ -233,7 +233,9 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
   }, []);
 
   const stopAuto = () => {
+    if (!s.autoplay) return;
     s.autoplay = false;
+    render(); // the info panel's live region switches on
   };
 
   const go = (i: number) => {
@@ -357,7 +359,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
   const current = items[focus];
 
   return (
-    <section aria-label={ARIA} className={styles.rail} onKeyDown={onKeyDown}>
+    <section aria-label={ARIA} className={styles.rail} onKeyDown={onKeyDown} onFocus={stopAuto}>
       <div
         ref={stageRef}
         data-rail-stage=""
@@ -428,6 +430,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
           type="button"
           aria-label="Previous card"
           className={`press ${styles.arrow} ${styles.prev}`}
+          aria-disabled={focus === 0 ? 'true' : undefined}
           style={{ opacity: focus === 0 ? 0.35 : 1 }}
           onClick={prev}
         >
@@ -473,6 +476,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
           type="button"
           aria-label="Next card"
           className={`press ${styles.arrow} ${styles.next}`}
+          aria-disabled={focus === last ? 'true' : undefined}
           style={{ opacity: focus === last ? 0.35 : 1 }}
           onClick={next}
         >
@@ -482,7 +486,7 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
         </button>
       </div>
 
-      <div aria-live="polite" className={styles.panel}>
+      <div aria-live={autoplayOn() ? 'off' : 'polite'} className={styles.panel}>
         {current && (
           <div key={current.key} className="a-swap">
             <p className={styles.kicker}>{current.kicker}</p>
@@ -490,7 +494,12 @@ export function AlbumRail({ items, initialIndex = 0, onOpen }: AlbumRailProps) {
             <p className={styles.blurb}>{current.blurb}</p>
             <div className={styles.row}>
               <span className={styles.format}>{current.format}</span>
-              <Link to={current.href} className={`press ${styles.open}`} onClick={() => onOpen?.(focus)}>
+              <Link to={current.href} className={`press ${styles.open}`} onClick={(e) => {
+                  // Modified and non-primary clicks (new tab / window) are the browser's; the rail keeps its place.
+                  if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+                  onOpen?.(focus);
+                }}
+              >
                 Open card
                 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F4B389" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M13 6l6 6-6 6" />

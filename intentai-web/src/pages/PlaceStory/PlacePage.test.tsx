@@ -89,7 +89,7 @@ test('check-in toggles, persists and bursts aria-hidden sparks only when checkin
   const button = screen.getByRole('button', { name: 'Check in' });
   button.focus();
   fireEvent.click(button);
-  expect(button).toHaveAccessibleName('Checked in');
+  expect(button).toHaveAccessibleName('Check in');
   expect(button).toHaveAttribute('aria-pressed', 'true');
   expect(button).toHaveFocus();
   expect(placeState(placeStoriesStore.get(), 'berlin-wall-fragments').checkedIn).toBe(true);
@@ -108,7 +108,7 @@ test('check-in toggles, persists and bursts aria-hidden sparks only when checkin
 test('a stored check-in shows as checked', () => {
   placeStoriesStore.set({ chinatown: { opened: [], checkedIn: true, stamped: false } });
   renderAt([paths.homePlace('chinatown')]);
-  expect(screen.getByRole('button', { name: 'Checked in' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Check in' })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('progress row, done badges, "opened" sleeves and kicker follow real opened cards', () => {
@@ -154,6 +154,18 @@ test('after Open, Back shows the card a NEXT chain ended on (last viewed wins)',
   window.sessionStorage.setItem(`${STORAGE_PREFIX}storyRail:berlin-wall-fragments`, '3');
   fireEvent.click(screen.getByRole('button', { name: 'browser back' }));
   expect(panelTitle()).toBe('From 1961 to a Singapore garden');
+});
+
+test('the place page clears railFrom on mount, so later Back visits use the stored railIndex', () => {
+  renderAt([paths.today, { pathname: berlin, state: { railIndex: 1, railFrom: 'open' } }, paths.placeCard('berlin-wall-fragments', 'monument')]);
+  fireEvent.click(screen.getByRole('button', { name: 'browser back' }));
+  // Consumed on mount: last viewed (none) falls back to railIndex, and the flag is gone from the entry.
+  expect(panelTitle()).toBe('The Wall panels');
+  expect(screen.queryByText(/railFrom/)).toBeNull();
+  window.sessionStorage.setItem(`${STORAGE_PREFIX}storyRail:berlin-wall-fragments`, '3');
+  fireEvent.click(screen.getByRole('link', { name: 'Back to Home' }));
+  fireEvent.click(screen.getByRole('button', { name: 'browser back' }));
+  expect(panelTitle()).toBe('The Wall panels');
 });
 
 test('an unknown place shows not found with a way back', () => {
