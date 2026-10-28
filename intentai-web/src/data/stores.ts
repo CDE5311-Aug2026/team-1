@@ -32,6 +32,7 @@ import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalDa
 import { stopLocation } from '../features/nearby/location';
 import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeState } from './placeStories';
 import { createPersistentStore } from './persistentStore';
+import { DEFAULT_PREFERENCES, isPreferences, type Preferences } from './preferences';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -68,6 +69,13 @@ export const settingsStore = createPersistentStore<Settings>({
   key: 'settings',
   fallback: DEFAULT_SETTINGS,
   isValid: isSettings,
+});
+
+/** My Space settings and privacy choices (text size, motion, notifications, permissions, page timing). */
+export const preferencesStore = createPersistentStore<Preferences>({
+  key: 'preferences',
+  fallback: DEFAULT_PREFERENCES,
+  isValid: isPreferences,
 });
 
 /** Ask and lessons add lookups; Moments lists, marks and deletes them. */
@@ -213,6 +221,7 @@ export function deleteAllData() {
   onboardingStore.set({ ...DEFAULT_ONBOARDING, done: false });
   profileStore.set(EMPTY_PROFILE);
   settingsStore.set(DEFAULT_SETTINGS);
+  preferencesStore.set(DEFAULT_PREFERENCES);
   lookupsStore.set([]);
   questionsStore.set([]);
   placeStore.set(DEFAULT_PLACE);

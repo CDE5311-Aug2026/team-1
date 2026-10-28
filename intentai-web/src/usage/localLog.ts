@@ -9,6 +9,12 @@ export const LOCAL_USAGE_MAX = 20_000;
 
 export const EXPORT_FORMAT = 'intentai-usage';
 
+/** Window event fired after the log changes (same tab), so storage sizes can refresh. */
+export const LOCAL_USAGE_EVENT = 'intentai:usage-log';
+const changed = () => {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(LOCAL_USAGE_EVENT));
+};
+
 export interface UsageExport {
   format: typeof EXPORT_FORMAT;
   version: 1;
@@ -33,6 +39,7 @@ export function appendLocalUsage(events: UsageEvent[]): void {
   } catch {
     // Storage full or blocked: the timing is only lost on this device.
   }
+  changed();
 }
 
 export function clearLocalUsage(): void {
@@ -41,6 +48,7 @@ export function clearLocalUsage(): void {
   } catch {
     // nothing to clear
   }
+  changed();
 }
 
 export function toExport(events: UsageEvent[], now = new Date()): UsageExport {
