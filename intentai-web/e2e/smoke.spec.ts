@@ -91,7 +91,7 @@ test('only the active tab icon is orange', async ({ page }) => {
       .first()
       .evaluate((el) => getComputedStyle(el).backgroundColor);
   expect(await iconColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await iconColour('Today')).toBe('rgb(43, 41, 36)');
+  expect(await iconColour('Home')).toBe('rgb(43, 41, 36)');
   // The glyph comes from a CSS mask; an invalid url() silently drops it and shows a solid square.
   const masks = await page
     .getByRole('navigation', { name: 'Primary' })
@@ -105,7 +105,7 @@ test('only the active tab icon is orange', async ({ page }) => {
       .getByText(name, { exact: true })
       .evaluate((el) => getComputedStyle(el).color);
   expect(await labelColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await labelColour('Today')).toBe('rgb(43, 41, 36)');
+  expect(await labelColour('Home')).toBe('rgb(43, 41, 36)');
 });
 
 // v2: on a laptop every page uses Today's content column. Any wide block near the top of <main>
