@@ -2,22 +2,25 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './test';
 import type { Page } from './test';
 
-// Home: greeting, hero and the Nearby map + place carousel, against the real Leaflet map.
-// Tiles come from the shared fixture's stub (e2e/test.ts); no test reaches the real tile servers.
+// Home: greeting, hero and the Nearby map + place carousel, on our own Singapore map (CityMap: canvas ground and
+// roads, DOM pin buttons with `data-pin`, clusters, its own zoom / recenter buttons). It makes no tile requests.
 
-const PINNED = ['berlin-wall-fragments', 'curated:sg-haw-par-villa', 'curated:sg-holland-village', 'curated:sg-national-university-of-singapore'];
 const BRAND_ORANGES = ['#e4671f', '#e8622c']; // accepted contrast exception, as in a11y.spec.ts
 
 type Rect = { x: number; y: number; width: number; height: number };
 
+const map = (page: Page) => page.getByTestId('nearby-map');
 const carousel = (page: Page) => page.getByTestId('nearby-carousel');
 const cards = (page: Page) => carousel(page).getByRole('group');
 const card = (page: Page, name: string) => carousel(page).getByRole('group', { name, exact: true });
 const current = (page: Page) => carousel(page).locator('[aria-current="true"]');
 const track = (page: Page) => carousel(page).locator('[aria-roledescription="carousel"] > div').first();
-const pins = (page: Page) => page.getByTestId('nearby-map').locator('button[data-place-id]');
-const pin = (page: Page, id: string) => page.getByTestId('nearby-map').locator(`button[data-place-id="${id}"]`);
-const selectedPin = (page: Page) => page.getByTestId('nearby-map').locator('button[data-place-id][data-selected="true"]');
+const pins = (page: Page) => map(page).locator('button[data-pin]');
+const pin = (page: Page, id: string) => map(page).locator(`button[data-pin="${id}"]`);
+const selectedPin = (page: Page) => map(page).locator('button[data-pin][aria-pressed="true"]');
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** A pin's accessible name is "<place name>, <Category>". */
+const pinNamed = (name: string) => new RegExp(`^${escape(name)}, `);
 
 async function box(page: Page, locator: ReturnType<Page['locator']>): Promise<Rect> {
   const b = await locator.boundingBox();
@@ -25,10 +28,11 @@ async function box(page: Page, locator: ReturnType<Page['locator']>): Promise<Re
   return b!;
 }
 
-/** Opens Home and waits for the lazily loaded map to draw its pins. */
+/** Opens Home and waits for the lazily loaded map to draw its pins, with Berlin selected. */
 async function openHome(page: Page) {
   await page.goto('/');
-  await expect(pins(page)).toHaveCount(4);
+  await expect(cards(page)).toHaveCount(175);
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'berlin-wall-fragments');
 }
 
 /** Bottom of the selected pin minus the carousel's top edge (negative: the pin is above the cards). */
@@ -37,6 +41,15 @@ async function pinOverCarousel(page: Page): Promise<number> {
   const c = await carousel(page).boundingBox();
   if (!p || !c) return Number.POSITIVE_INFINITY;
   return p.y + p.height - c.y;
+}
+
+/** True when the selected pin is wholly inside the map, below its top bar and above the cards. */
+async function selectedPinInView(page: Page): Promise<boolean> {
+  const p = await selectedPin(page).boundingBox();
+  const m = await map(page).boundingBox();
+  const c = await carousel(page).boundingBox();
+  if (!p || !m || !c) return false;
+  return p.x >= m.x && p.x + p.width <= m.x + m.width && p.y >= m.y + 40 && p.y + p.height <= c.y;
 }
 
 /** Selects the card at `index` with the arrow keys and waits until the strip has scrolled it to the centre. */
@@ -75,25 +88,53 @@ async function cardLayout(page: Page) {
   });
 }
 
+/** True when the topmost element at the centre of `locator` is inside it. */
+async function onTop(locator: ReturnType<Page['locator']>): Promise<boolean> {
+  return locator.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return !!hit && el.contains(hit);
+  });
+}
+
+/** Ids of the unselected pins whose centre is on top (not under a control, the search bar or a card). */
+async function tappablePins(page: Page): Promise<string[]> {
+  return map(page)
+    .locator('button[data-pin][aria-pressed="false"]')
+    .evaluateAll((els) => {
+      const cards = document.querySelector('[data-testid="nearby-carousel"]')!.getBoundingClientRect();
+      return els
+        .filter((el) => {
+          const r = el.getBoundingClientRect();
+          const x = r.left + r.width / 2;
+          const y = r.top + r.height / 2;
+          const hit = document.elementFromPoint(x, y);
+          return !!hit && el.contains(hit) && r.bottom < cards.top - 4;
+        })
+        .map((el) => (el as HTMLElement).dataset.pin!);
+    });
+}
+
 test('load: every real place as a card (2 stories + 173), Berlin current, "173 places to explore"', async ({ page }) => {
+  const tiles: string[] = [];
+  page.on('request', (r) => {
+    if (/tile\.openstreetmap\.org/.test(new URL(r.url()).hostname)) tiles.push(r.url());
+  });
   await openHome(page);
   await expect(cards(page)).toHaveCount(175);
   await expect(current(page)).toHaveCount(1);
   await expect(current(page)).toHaveAttribute('aria-label', 'Berlin Wall Fragments');
-  await expect(page.getByTestId('nearby-map')).toContainText('173 places to explore');
+  await expect(map(page)).toContainText('173 places to explore');
   await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
+  // The map draws pins (and clusters) for the places around the selected one, and asks no tile server.
+  expect(await pins(page).count()).toBeGreaterThan(1);
+  await expect(selectedPin(page)).toHaveAttribute('aria-label', pinNamed('Berlin Wall Fragments'));
+  await expect.poll(() => selectedPinInView(page)).toBe(true);
+  expect(tiles).toEqual([]);
 });
 
-test('every tile request is answered by the stub', async ({ page, tileStub }) => {
-  let requested = 0;
-  page.on('request', (r) => {
-    if (new URL(r.url()).hostname === 'tile.openstreetmap.org') requested += 1;
-  });
-  await openHome(page);
-  await expect.poll(() => requested).toBeGreaterThan(0);
-  await page.waitForLoadState('networkidle');
-  expect(tileStub.fulfilled).toBe(requested);
-});
+// Removed: "every tile request is answered by the stub" and "when tiles fail: Map unavailable + Retry" — they tested
+// Leaflet's OpenStreetMap tiles; our map draws a bundled ground image and makes no tile requests.
 
 test('swiping to card 2 selects Chinatown; Locate goes back to the home base', async ({ page }) => {
   await openHome(page);
@@ -102,28 +143,18 @@ test('swiping to card 2 selects Chinatown; Locate goes back to the home base', a
     t.scrollTo({ left: c.offsetLeft + c.offsetWidth / 2 - t.clientWidth / 2, behavior: 'smooth' });
   });
   await expect(card(page, 'Chinatown')).toHaveAttribute('aria-current', 'true');
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'chinatown');
   await expect(pin(page, 'chinatown')).toBeVisible();
-  await expect(selectedPin(page)).toHaveAttribute('data-place-id', 'chinatown');
-  await expect.poll(() => pinOverCarousel(page)).toBeLessThan(0);
+  await expect.poll(() => selectedPinInView(page)).toBe(true);
 
   await page.getByRole('button', { name: 'Show my location' }).click();
   await expect(card(page, 'Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
-  await expect(pin(page, 'chinatown')).toHaveCount(0);
-  // The home-base dot is the only hidden marker; it must end up in the map area the cards leave visible.
-  const dot = page.getByTestId('nearby-map').locator('.leaflet-marker-pane > [aria-hidden="true"]');
-  await expect(dot).toHaveCount(1);
-  await expect
-    .poll(async () => {
-      const d = await dot.boundingBox();
-      const m = await page.getByTestId('nearby-map').boundingBox();
-      const c = await carousel(page).boundingBox();
-      if (!d || !m || !c) return false;
-      return d.x >= m.x && d.x + d.width <= m.x + m.width && d.y >= m.y && d.y + d.height <= c.y;
-    })
-    .toBe(true);
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'berlin-wall-fragments');
+  // Home base is back in the map area the cards leave visible.
+  await expect.poll(() => selectedPinInView(page)).toBe(true);
 });
 
-test('rapid ArrowRight x3 selects and focuses card 4 without scrolling the page', async ({ page }) => {
+test('rapid ArrowRight x3 selects and focuses card 4 without scrolling the page; the map shows its pin', async ({ page }) => {
   await openHome(page);
   await current(page).focus();
   const scrollY = await page.evaluate(() => window.scrollY);
@@ -134,6 +165,9 @@ test('rapid ArrowRight x3 selects and focuses card 4 without scrolling the page'
   await expect(fourth).toHaveAttribute('aria-current', 'true');
   await expect(fourth).toBeFocused();
   expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
+  const name = (await fourth.getAttribute('aria-label'))!;
+  await expect(selectedPin(page)).toHaveAttribute('aria-label', pinNamed(name));
+  await expect.poll(() => selectedPinInView(page)).toBe(true);
 });
 
 test('after dragging the map, tapping the selected card brings its pin back above the cards', async ({ page }) => {
@@ -141,17 +175,17 @@ test('after dragging the map, tapping the selected card brings its pin back abov
   await expect.poll(() => pinOverCarousel(page)).toBeLessThan(0);
   // The pin's offset inside the map frame. Clicking a card low on the page makes Playwright scroll the
   // page (the tab bar covers the strip's bottom edge), which moves every viewport coordinate but not this.
-  const inMap = async () => (await box(page, selectedPin(page))).y - (await box(page, page.getByTestId('nearby-map'))).y;
+  const inMap = async () => (await box(page, selectedPin(page))).y - (await box(page, map(page))).y;
   const before = await inMap();
 
-  // A spot on bare map (a tile, not a pin, control or card) above the cards, dragged down onto them.
-  const start = await page.getByTestId('nearby-map').evaluate((frame) => {
-    const map = frame.querySelector('.leaflet-container')!.getBoundingClientRect();
+  // A spot on bare map (not a pin, control or card) above the cards, dragged down onto them.
+  const start = await map(page).evaluate((frame) => {
+    const surface = frame.querySelector('[data-testid="city-map"]')!;
+    const m = surface.getBoundingClientRect();
     const cards = document.querySelector('[data-testid="nearby-carousel"]')!.getBoundingClientRect();
-    for (let y = map.top + 90; y < cards.top - 30; y += 8) {
-      for (let x = map.left + 24; x < map.right - 60; x += 8) {
-        const el = document.elementFromPoint(x, y);
-        if (el?.closest('.leaflet-tile-pane') || el?.classList.contains('leaflet-container')) return { x, y, end: cards.top + 80 };
+    for (let y = m.top + 90; y < cards.top - 30; y += 8) {
+      for (let x = m.left + 24; x < m.right - 60; x += 8) {
+        if (document.elementFromPoint(x, y) === surface) return { x, y, end: cards.top + 80 };
       }
     }
     return null;
@@ -171,75 +205,73 @@ test('after dragging the map, tapping the selected card brings its pin back abov
   await expect.poll(async () => Math.abs((await inMap()) - before)).toBeLessThan(4);
 });
 
-test('tapping a pin selects its card; pins work from the keyboard', async ({ page }) => {
-  // Without animation each Zoom out click lands; an eased zoom drops clicks made while it is still running.
+test('tapping a pin selects its card; pins work from the keyboard; a cluster zooms in', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await openHome(page);
-  // Zoom out to the widest view so every pinned place is on screen.
-  for (let i = 0; i < 4; i += 1) await page.getByRole('button', { name: 'Zoom out' }).click();
-  const hawPar = pin(page, 'curated:sg-haw-par-villa');
-  await expect
-    .poll(async () => {
-      const p = await hawPar.boundingBox();
-      const m = await page.getByTestId('nearby-map').boundingBox();
-      const c = await carousel(page).boundingBox();
-      return !!p && !!m && !!c && p.y >= m.y + 60 && p.y + p.height <= c.y && p.x >= m.x && p.x + p.width <= m.x + m.width;
-    })
-    .toBe(true);
-  await page.getByRole('button', { name: 'Show Haw Par Villa on the map' }).click();
-  await expect(card(page, 'Haw Par Villa')).toHaveAttribute('aria-current', 'true');
 
-  // Tab from the search button to the "places to explore" chip passes each pin exactly once.
-  await page.getByRole('button', { name: 'Search', exact: true }).focus();
-  const reached: string[] = [];
-  for (let i = 0; i < 20; i += 1) {
-    await page.keyboard.press('Tab');
-    const id = await page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset.placeId ?? null);
-    if (id) reached.push(id);
-    if (await page.getByRole('button', { name: /places to explore$/ }).evaluate((el) => el === document.activeElement)) break;
-  }
-  expect([...reached].sort()).toEqual([...PINNED].sort());
+  // Tap a pin: its card becomes current and the pin is the selected one.
+  const [first] = await tappablePins(page);
+  expect(first, 'no tappable pin on the map').toBeTruthy();
+  const firstName = (await pin(page, first).getAttribute('aria-label'))!.split(', ')[0];
+  await pin(page, first).click();
+  await expect(card(page, firstName)).toHaveAttribute('aria-current', 'true');
+  await expect(pin(page, first)).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => selectedPinInView(page)).toBe(true);
 
-  // Enter and Space each activate a pin exactly once.
+  // Enter and Space each activate a pin exactly once, and focus stays on the pin.
   await page.evaluate(() => {
     const w = window as unknown as { pinClicks: string[] };
     w.pinClicks = [];
     document.addEventListener(
       'click',
       (e) => {
-        const b = (e.target as Element | null)?.closest<HTMLElement>('button[data-place-id]');
-        if (b) w.pinClicks.push(b.dataset.placeId!);
+        const b = (e.target as Element | null)?.closest<HTMLElement>('button[data-pin]');
+        if (b) w.pinClicks.push(b.dataset.pin!);
       },
       true,
     );
   });
   const pinClicks = () => page.evaluate(() => (window as unknown as { pinClicks: string[] }).pinClicks);
-  const holland = 'curated:sg-holland-village';
 
-  await pin(page, holland).focus();
+  const [second] = await tappablePins(page);
+  expect(second, 'no second pin on the map').toBeTruthy();
+  const secondName = (await pin(page, second).getAttribute('aria-label'))!.split(', ')[0];
+  await pin(page, second).focus();
   await page.keyboard.press('Enter');
-  await expect(card(page, 'Holland Village')).toHaveAttribute('aria-current', 'true');
-  await expect(pin(page, holland)).toBeFocused();
-  expect(await pinClicks()).toEqual([holland]);
+  await expect(card(page, secondName)).toHaveAttribute('aria-current', 'true');
+  await expect(pin(page, second)).toBeFocused();
+  expect(await pinClicks()).toEqual([second]);
 
-  await page.getByRole('button', { name: 'Show Haw Par Villa on the map' }).focus();
-  await page.keyboard.press('Enter');
-  await expect(card(page, 'Haw Par Villa')).toHaveAttribute('aria-current', 'true');
-
-  await pin(page, holland).focus();
+  await pin(page, first).focus();
   await page.keyboard.press('Space');
-  await expect(card(page, 'Holland Village')).toHaveAttribute('aria-current', 'true');
-  expect(await pinClicks()).toEqual([holland, 'curated:sg-haw-par-villa', holland]);
+  await expect(card(page, firstName)).toHaveAttribute('aria-current', 'true');
+  await expect(pin(page, first)).toBeFocused();
+  expect(await pinClicks()).toEqual([second, first]);
+
+  // Zoom out until places cluster; a cluster zooms the map in.
+  const surface = map(page).getByTestId('city-map');
+  const clusters = map(page).getByRole('button', { name: /^\d+ places here\. Zoom in$/ });
+  for (let i = 0; i < 4 && (await clusters.count()) === 0; i += 1) await map(page).getByRole('button', { name: 'Zoom out' }).click();
+  await expect(clusters.first()).toBeVisible();
+  const scale = Number(await surface.getAttribute('data-scale'));
+  await clusters.first().focus();
+  await page.keyboard.press('Enter');
+  await expect.poll(async () => Number(await surface.getAttribute('data-scale'))).toBeGreaterThan(scale);
 });
 
-/** True when the topmost element at the centre of `locator` is inside it. */
-async function onTop(locator: ReturnType<Page['locator']>): Promise<boolean> {
-  return locator.evaluate((el) => {
-    const r = el.getBoundingClientRect();
-    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    return !!hit && el.contains(hit);
-  });
-}
+test('the 3D link opens the selected place in Nearby 3D', async ({ page }) => {
+  await openHome(page);
+  const link = map(page).getByRole('link', { name: 'Open this place in 3D' });
+  // Berlin is a story place, not in the 3D model's catalogue: the 3D view opens without a selection.
+  await expect(link).toHaveAttribute('href', '/nearby?view=3d');
+  await page.getByRole('button', { name: 'Search', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Search a place or area' }).fill('Holland Village');
+  await page.getByRole('button', { name: /^Holland Village/ }).first().click();
+  await expect(card(page, 'Holland Village')).toHaveAttribute('aria-current', 'true');
+  const id = (await selectedPin(page).getAttribute('data-pin'))!;
+  expect(id).toMatch(/^curated:/);
+  await expect(link).toHaveAttribute('href', `/nearby?view=3d&sel=${encodeURIComponent(id)}`);
+});
 
 test('the tab bar stays above the carousel when the cards scroll under it', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 700 });
@@ -258,24 +290,15 @@ test('the tab bar stays above the carousel when the cards scroll under it', asyn
 });
 
 for (const width of [320, 390]) {
-  test(`the selected pin's label is fully visible at ${width}px`, async ({ page }) => {
+  test(`the selected pin is fully visible and on top at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await openHome(page);
     for (const id of ['berlin-wall-fragments', 'chinatown']) {
       if (id === 'chinatown') await selectCard(page, 1);
-      await page.getByTestId('nearby-map').evaluate((el) => el.scrollIntoView({ block: 'center' }));
-      const label = selectedPin(page).locator('[data-label]');
-      await expect(selectedPin(page)).toHaveAttribute('data-place-id', id);
-      await expect
-        .poll(async () => {
-          const l = await label.boundingBox();
-          const m = await page.getByTestId('nearby-map').boundingBox();
-          if (!l || !m) return false;
-          const inside = l.x >= m.x && l.x + l.width <= m.x + m.width && l.y >= m.y;
-          return inside && (await onTop(label));
-        })
-        .toBe(true);
+      await map(page).evaluate((el) => el.scrollIntoView({ block: 'center' }));
+      await expect(selectedPin(page)).toHaveAttribute('data-pin', id);
+      await expect.poll(async () => (await selectedPinInView(page)) && (await onTop(selectedPin(page)))).toBe(true);
     }
   });
 }
@@ -289,7 +312,8 @@ test('search: the pill and the search button open one dropdown; picking a place 
   await expect(page.getByRole('list', { name: 'PLACES WITH CARDS' }).getByRole('listitem')).toHaveCount(2);
   // The dropdown is drawn over the map and the cards.
   for (const name of [/^Berlin Wall Fragments/, /^National University of Singapore/]) {
-    const row = page.getByRole('button', { name });
+    // (map pins share the place names; the rows are the other buttons)
+    const row = page.getByRole('button', { name }).and(page.locator(':not([data-pin])'));
     await row.evaluate((el) => el.scrollIntoView({ block: 'center' }));
     expect(await onTop(row)).toBe(true);
   }
@@ -303,6 +327,7 @@ test('search: the pill and the search button open one dropdown; picking a place 
   await expect(field).toBeHidden();
   await expect(card(page, 'Chinatown')).toHaveAttribute('aria-current', 'true');
   await expect(page.getByTestId('search-point')).toHaveText('Chinatown & Tanjong Pagar');
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'chinatown');
   await expect.poll(() => pinOverCarousel(page)).toBeLessThan(0);
 });
 
@@ -316,6 +341,7 @@ test('Open goes to the place page; browser Back brings Home back on that card, a
   await expect(page).toHaveURL(/\/place\/chinatown$/);
   await page.goBack();
   await expect(card(page, 'Chinatown')).toHaveAttribute('aria-current', 'true');
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'chinatown');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(y - 40);
 });
 
@@ -326,17 +352,6 @@ test('streak chip opens Moments, bell opens Community', async ({ page }) => {
   await page.goBack();
   await page.getByRole('link', { name: 'Notifications: Mei answered your question' }).click();
   await expect(page).toHaveURL(/\/community$/);
-});
-
-test('when tiles fail: "Map unavailable" + Retry, and Open still navigates', async ({ page }) => {
-  // Registered after the fixture's stub, so it takes precedence.
-  await page.route('https://tile.openstreetmap.org/**', (route) => route.abort());
-  await page.goto('/');
-  const alert = page.getByRole('alert').filter({ hasText: 'Map unavailable' });
-  await expect(alert).toBeVisible();
-  await expect(alert.getByRole('button', { name: 'Retry' })).toBeVisible();
-  await card(page, 'Berlin Wall Fragments').getByRole('button', { name: /^Open/ }).click();
-  await expect(page).toHaveURL(/\/place\/berlin-wall-fragments$/);
 });
 
 test('reduced motion: card photos do not move', async ({ page }) => {
@@ -380,15 +395,15 @@ for (const [width, height] of [
       expect(l[3].right, 'card 4 is cut by the right edge').toBeGreaterThan(l[3].strip);
     }
 
-    // Card 5: card 4 shows on the left, nothing after card 5.
+    // Card 5: card 4 shows on the left, card 6 on the right.
     await selectCard(page, 4);
     l = await cardLayout(page);
     expect(l[3].visible, 'card 4 peeks on the left').toBeGreaterThan(0);
-    expect(l[4].right, 'nothing after card 5').toBeLessThan(l[4].strip);
+    expect(l[5].visible, 'card 6 peeks on the right').toBeGreaterThan(0);
     if (phone) expect(l[3].left, 'card 4 is cut by the left edge').toBeLessThan(0);
 
-    // No card covers the OpenStreetMap attribution.
-    const attribution = await box(page, page.getByTestId('nearby-map').getByText('© OpenStreetMap contributors').locator('xpath=..'));
+    // No card covers the map credit (EARTH ONLINE map · © OpenStreetMap contributors).
+    const attribution = await box(page, map(page).getByText(/© OpenStreetMap contributors/));
     const strip = await box(page, track(page));
     const overlaps = await cards(page).evaluateAll(
       (els, [a, s]) =>
@@ -407,7 +422,20 @@ for (const [width, height] of [
 }
 
 test('Home has no WCAG A/AA violations except the brand orange', async ({ page }) => {
+  // As in a11y.spec.ts: check the settled page, not text caught mid-fade.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await openHome(page);
+  await page.evaluate(() =>
+    Promise.race([
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => a.playState === 'running' && Number.isFinite(a.effect?.getComputedTiming().endTime ?? Number.POSITIVE_INFINITY))
+          .map((a) => a.finished.catch(() => undefined)),
+      ),
+      new Promise((resolve) => setTimeout(resolve, 4000)),
+    ]),
+  );
   const { violations } = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
     .analyze();

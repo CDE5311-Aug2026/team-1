@@ -228,6 +228,17 @@ describe('Explore', () => {
     expect(screen.queryByText(/from you(?!r)/)).not.toBeInTheDocument();
   });
 
+  test('My Space › Nearby radius is the default radius; the URL still wins', async () => {
+    const { mySpacePrefsStore } = await import('../../data/profile/profile');
+    mySpacePrefsStore.set((p) => ({ ...p, radiusM: 3000 }));
+    renderAt('/nearby?area=sg-chinatown&view=list');
+    expect(screen.getByText(/places within 3 km/)).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Radius' })).toHaveValue('3000');
+    cleanup();
+    renderAt('/nearby?area=sg-chinatown&view=list&radius=1000');
+    expect(screen.getByText(/places within 1 km/)).toBeInTheDocument();
+  });
+
   test('with location granted: explanation first, then distances "from you"; switching off clears it', async () => {
     const getCurrentPosition = mockGeolocation({ lat: 1.2803, lng: 103.8447, accuracy: 15 });
     renderAt('/nearby?view=list');

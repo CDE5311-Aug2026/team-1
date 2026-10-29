@@ -37,6 +37,7 @@ import { communitySocialStore } from '../../data/community/social';
 import { localProfileStore, publicTags, withPrefill } from '../../data/profile/localProfile';
 import LocalProfileSheet from '../CommunityPage/LocalProfileSheet';
 import { HelpDialog, Switch } from './v3/Parts';
+import StorageBar from './v3/StorageBar';
 import styles from './v3/MySpace.module.css';
 
 function Holder({ profile }: { profile: ProfileV3 }) {
@@ -274,10 +275,12 @@ export default function MySpacePage() {
     <AppShell background="#edebe5">
       <div className={styles.screen}>
         <header className={styles.header}>
-          <Link to={paths.today} aria-label="Home" className={styles.logoLink}>
-            <img src={logo} alt="" width={44} height={44} />
-          </Link>
-          <h1 className={styles.srOnly}>My Space</h1>
+          <span className={styles.brand}>
+            <Link to={paths.today} aria-label="Home" className={styles.logoLink}>
+              <img src={logo} alt="" width={44} height={44} />
+            </Link>
+            <h1 className={styles.brandTitle}>My Space</h1>
+          </span>
           <Link to={paths.mySpaceSettings} className={styles.square} aria-label="Settings">
             <Icon name="gear" size={22} />
           </Link>
@@ -350,13 +353,24 @@ export default function MySpacePage() {
           </div>
         </div>
 
+        {/* PR #5's privacy summary: real size on this phone, private details, and the storage bar by area. */}
+        <Link to={paths.mySpacePrivacy} className={styles.privacyCard}>
+          <span className={styles.row}>
+            <span className={styles.rowIcon}>
+              <Icon name="shield" size={18} />
+            </span>
+            <span className={styles.rowText}>
+              <span className={styles.rowTitle}>Privacy & data</span>
+              <span className={styles.rowSub}>
+                {`${formatBytes(totalBytes())} · on this phone only${privateCount ? ` · ${privateCount} detail${privateCount === 1 ? '' : 's'} private` : ''}`}
+              </span>
+            </span>
+            <Icon name="chevron" size={18} className={styles.rowChevron} />
+          </span>
+          <StorageBar />
+        </Link>
+
         <nav className={styles.card} aria-label="More">
-          <Row
-            icon="shield"
-            title="Privacy & data"
-            sub={`${formatBytes(totalBytes())} · on this phone only${privateCount ? ` · ${privateCount} detail${privateCount === 1 ? '' : 's'} private` : ''}`}
-            to={paths.mySpacePrivacy}
-          />
           <Row icon="gear" title="Settings" to={paths.mySpaceSettings} />
           <Row icon="redo" title="Redo onboarding" sub="6 questions" onClick={() => navigate(`${paths.welcome}?step=1`)} />
           <Row icon="help" title="Help & feedback" onClick={() => setHelp(true)} />

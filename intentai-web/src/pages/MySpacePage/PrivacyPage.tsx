@@ -1,11 +1,12 @@
 // My Space v3 S3 · Privacy & data: permissions this app actually uses, what is stored on this phone per area with real
-// sizes (Clear with Undo), what leaves the phone, export a copy, and "Hold to delete all my data".
+// sizes (Clear with Undo), what leaves the phone (with PR #5's page-timing switch), export a copy, and "Hold to delete all
+// my data".
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import { buildStamps } from '../../data/moments/moments';
 import { usePersistentStore } from '../../data/persistentStore';
-import { clearProfileData, localDate } from '../../data/profile/profile';
+import { clearProfileData, localDate, mySpacePrefsStore } from '../../data/profile/profile';
 import { STORAGE_AREAS, areaBytes, clearArea, exportData, formatBytes, totalBytes, type StorageAreaId } from '../../data/profile/storage';
 import {
   askThreadsStore,
@@ -19,19 +20,14 @@ import {
 } from '../../data/stores';
 import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
-import Icon, { type IconName } from '../OnboardingPage/v3/icons';
-import { SubHeader } from './v3/Parts';
+import { tracker } from '../../usage/appTracker';
+import Icon from '../OnboardingPage/v3/icons';
+import { SubHeader, Switch } from './v3/Parts';
+import StorageBar, { AREA_LOOK } from './v3/StorageBar';
 import styles from './v3/MySpace.module.css';
 
 /** How long "Hold to delete" must be held. */
 export const HOLD_MS = 1600;
-
-const AREA_LOOK: Record<StorageAreaId, { icon: IconName; color: string }> = {
-  passport: { icon: 'cards', color: '#e4671f' },
-  ask: { icon: 'chat', color: '#f2b48c' },
-  community: { icon: 'people', color: '#2c3e8f' },
-  profile: { icon: 'user', color: '#8f8a82' },
-};
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
@@ -104,6 +100,7 @@ export default function PrivacyPage() {
   const [insights] = usePersistentStore(insightsStore);
   const [questions] = usePersistentStore(questionsStore);
   const [tips] = usePersistentStore(tipsStore);
+  const [prefs, setPrefs] = usePersistentStore(mySpacePrefsStore);
   // Sizes are read from storage on each render; the stores above re-render the page after a Clear.
   const total = totalBytes();
   const stamps = buildStamps(personal, opened, stories).filter((s) => s.collected).length;
@@ -114,7 +111,6 @@ export default function PrivacyPage() {
     profile: 'What the app knows',
   };
   const sizes = STORAGE_AREAS.map((a) => areaBytes(a));
-  const sum = sizes.reduce((a, b) => a + b, 0) || 1;
 
   const clear = (index: number) => {
     const area = STORAGE_AREAS[index];
@@ -138,6 +134,8 @@ export default function PrivacyPage() {
   const deleteAll = () => {
     deleteAllData();
     clearProfileData();
+    // Open timings and queued taps from before the delete must not be sent under the old ids.
+    tracker.discard();
     showToast('All your data is deleted from this phone');
     navigate(paths.welcome, { replace: true });
   };
@@ -153,7 +151,11 @@ export default function PrivacyPage() {
           </span>
           <div>
             <h2 className={styles.heroTitle}>Your data stays on this phone</h2>
-            <p className={styles.heroText}>Nothing you type leaves it. Only anonymous page timings are sent, to improve the app.</p>
+            <p className={styles.heroText}>
+              {prefs.usageTiming
+                ? 'Nothing you type leaves it. Only anonymous page timings are sent, to improve the app.'
+                : 'Nothing leaves it: anonymous page timing is off.'}
+            </p>
           </div>
         </section>
 
@@ -219,11 +221,7 @@ export default function PrivacyPage() {
           <span className={styles.total}>{formatBytes(total)}</span>
         </div>
         <div className={styles.card}>
-          <div className={styles.bar} aria-hidden="true">
-            {STORAGE_AREAS.map((a, i) => (
-              <span key={a.id} style={{ flexGrow: Math.max(sizes[i] / sum, 0.02), background: AREA_LOOK[a.id].color }} />
-            ))}
-          </div>
+          <StorageBar sizes={sizes} />
           {STORAGE_AREAS.map((a, i) => (
             <div key={a.id} className={styles.storeRow}>
               <span className={styles.storeIcon} style={{ background: AREA_LOOK[a.id].color }}>
@@ -257,9 +255,21 @@ export default function PrivacyPage() {
           <div className={styles.switchRow}>
             <span className={styles.rowText}>
               <span className={styles.rowTitle}>Anonymous page timing</span>
-              <span className={styles.rowSub}>How long screens stay open and which buttons you press, never what you type</span>
+              <span className={styles.rowSub} id="hint-timing">
+                {prefs.usageTiming
+                  ? 'We record how long you spend on each page and which buttons you press, never what you type'
+                  : 'Off: nothing is sent. A copy stays on this phone for your test session'}
+              </span>
             </span>
-            <span className={styles.permOn}>During the test</span>
+            <Switch
+              label="Anonymous page timing"
+              describedBy="hint-timing"
+              checked={prefs.usageTiming}
+              onChange={(usageTiming) => {
+                setPrefs((p) => ({ ...p, usageTiming }));
+                showToast(usageTiming ? 'Page timing on' : 'Page timing off: nothing leaves this phone');
+              }}
+            />
           </div>
         </div>
 

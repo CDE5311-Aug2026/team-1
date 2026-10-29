@@ -7,6 +7,7 @@ import type { Duration } from '../domain';
 import { createPersistentStore } from '../persistentStore';
 import { culturePrefsStore, explorePersonalStore, onboardingStore, onDataDeleted, profileStore } from '../stores';
 import { isRecord } from '../validate';
+import { DEFAULT_RADIUS_M, isRadius, type RadiusM } from '../../features/nearby/types';
 
 /* ---------- Options (the Figma tiles) ---------- */
 
@@ -145,30 +146,75 @@ export interface MySpacePrefs {
   notifyTime: 'morning' | 'evening';
   captions: boolean;
   haptics: boolean;
+  /** Text size step (TEXT_SCALE): the root font size of the whole app. */
+  textSize: TextSize;
+  /** Nearby's default search radius, one of Explore's radii (metres). */
+  radiusM: RadiusM;
+  /** Anonymous page timing may leave the phone (Privacy & data). Off: nothing is sent. */
+  usageTiming: boolean;
 }
+
+export const TEXT_SIZES = [0, 1, 2, 3, 4] as const;
+export type TextSize = (typeof TEXT_SIZES)[number];
+/** Root font scale per text size step (the app is sized in rem). */
+export const TEXT_SCALE: Record<TextSize, number> = { 0: 0.9, 1: 1, 2: 1.1, 3: 1.2, 4: 1.3 };
+export const TEXT_SIZE_LABELS: Record<TextSize, string> = { 0: 'Small', 1: 'Default', 2: 'Large', 3: 'Larger', 4: 'Largest' };
 
 export const DEFAULT_MY_SPACE_PREFS: MySpacePrefs = {
   notify: { localAnswers: false, recaps: false, occasions: false, nearYou: false },
   notifyTime: 'evening',
   captions: true,
   haptics: false,
+  textSize: 1,
+  radiusM: DEFAULT_RADIUS_M,
+  usageTiming: true,
 };
+
+const isBool = (v: unknown): v is boolean => typeof v === 'boolean';
+const isTextSize = (v: unknown): v is TextSize => (TEXT_SIZES as readonly unknown[]).includes(v);
+const isNotifyTime = (v: unknown): v is MySpacePrefs['notifyTime'] => v === 'morning' || v === 'evening';
 
 export function isMySpacePrefs(value: unknown): value is MySpacePrefs {
   return (
     isRecord(value) &&
     isRecord(value.notify) &&
-    Object.keys(DEFAULT_MY_SPACE_PREFS.notify).every((k) => typeof (value.notify as Record<string, unknown>)[k] === 'boolean') &&
-    (value.notifyTime === 'morning' || value.notifyTime === 'evening') &&
-    typeof value.captions === 'boolean' &&
-    typeof value.haptics === 'boolean'
+    Object.keys(DEFAULT_MY_SPACE_PREFS.notify).every((k) => isBool((value.notify as Record<string, unknown>)[k])) &&
+    isNotifyTime(value.notifyTime) &&
+    isBool(value.captions) &&
+    isBool(value.haptics) &&
+    isTextSize(value.textSize) &&
+    isRadius(value.radiusM) &&
+    isBool(value.usageTiming)
   );
+}
+
+/** Keeps each valid field of an older or damaged record and defaults the rest, so a choice like page timing off is never silently undone. */
+export function repairMySpacePrefs(value: unknown): MySpacePrefs | null {
+  if (!isRecord(value)) return null;
+  const d = DEFAULT_MY_SPACE_PREFS;
+  const notify = isRecord(value.notify) ? value.notify : {};
+  const bool = (v: unknown, fallback: boolean) => (isBool(v) ? v : fallback);
+  return {
+    notify: {
+      localAnswers: bool(notify.localAnswers, d.notify.localAnswers),
+      recaps: bool(notify.recaps, d.notify.recaps),
+      occasions: bool(notify.occasions, d.notify.occasions),
+      nearYou: bool(notify.nearYou, d.notify.nearYou),
+    },
+    notifyTime: isNotifyTime(value.notifyTime) ? value.notifyTime : d.notifyTime,
+    captions: bool(value.captions, d.captions),
+    haptics: bool(value.haptics, d.haptics),
+    textSize: isTextSize(value.textSize) ? value.textSize : d.textSize,
+    radiusM: isRadius(value.radiusM) ? value.radiusM : d.radiusM,
+    usageTiming: bool(value.usageTiming, d.usageTiming),
+  };
 }
 
 export const mySpacePrefsStore = createPersistentStore<MySpacePrefs>({
   key: 'my-space-prefs',
   fallback: DEFAULT_MY_SPACE_PREFS,
   isValid: isMySpacePrefs,
+  repair: repairMySpacePrefs,
 });
 
 /** Resets this file's stores. deleteAllData() runs it through onDataDeleted until the integrator lists them there. */

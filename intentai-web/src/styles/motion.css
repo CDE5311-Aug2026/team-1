@@ -95,3 +95,12 @@
   .tw { opacity: 1; }
   .shiny { background-position: 0 0; }
 }
+
+/* The app's own Reduce motion setting (My Space › Settings, html.reduce-motion from src/data/motion.ts) stops animations
+   globally (global.css); hide or settle the same decorative pieces as the OS setting above, so loops never freeze as
+   solid shapes. From PR #5, on our class instead of its data-motion attribute. */
+html.reduce-motion .spark { display: none; }
+html.reduce-motion :is(.ring, .mark, .pulse, .ping, .halo, .radar, .smoke) { opacity: 0 !important; visibility: hidden; }
+html.reduce-motion .tw { opacity: 1; }
+html.reduce-motion .shiny { background-position: 0 0; }
+html.reduce-motion .press:active { transform: none; }

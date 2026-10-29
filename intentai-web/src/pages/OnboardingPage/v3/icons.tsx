@@ -143,6 +143,16 @@ const PATHS = {
     </>
   ),
   close: <path d="M6 6l12 12M18 6L6 18" />,
+  /** Text size: a large and a small A. */
+  text: <path d="M3 19l5-13 5 13M4.8 14.5h6.4M14 19l3.5-8 3.5 8M15.2 16.5h4.6" />,
+  /** Nearby radius: a point inside a circle. */
+  radius: (
+    <>
+      <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+      <circle cx="12" cy="12" r="2" />
+      <path d="M12 12h9" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof PATHS;

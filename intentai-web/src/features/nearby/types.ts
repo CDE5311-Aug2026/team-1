@@ -9,7 +9,7 @@ export type Category = (typeof CATEGORIES)[number];
 /** Discovery filter: one category or all of them. */
 export type CategoryFilter = Category | 'all';
 
-export const RADII_M = [1000, 2000, 5000] as const;
+export const RADII_M = [1000, 2000, 3000, 5000] as const;
 export type RadiusM = (typeof RADII_M)[number];
 export const DEFAULT_RADIUS_M: RadiusM = 2000;
 

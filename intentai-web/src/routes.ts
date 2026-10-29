@@ -28,6 +28,8 @@ export const paths = {
   /** Figma S2 / S3. */
   mySpaceSettings: '/my-space/settings',
   mySpacePrivacy: '/my-space/privacy',
+  /** Terms & licences: photo credits, map attribution (from Settings). */
+  licences: '/my-space/licences',
   /** Figma 2 / 7: a place's Album Rail of cards (place key = Nearby catalogue key or area id). */
   place: (key: string) => `/place/${encodeURIComponent(key)}`,
   /** Figma 3–6 / 8–11: one culture card (Today article id). */

@@ -2,7 +2,7 @@
 // same metric frame as the 3D model. Pan (drag / arrow keys), zoom (wheel, pinch, + / −), recenter,
 // selectable pins with clustering, a radius overlay and an optional precise "you" dot.
 // No third-party map service is contacted. Every place shown here is also in the list beside it.
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
 import groundUrl from '../../../assets/nearby/sg-ground.webp';
 import { CATEGORY_INFO } from '../domain';
 import { Icon } from '../components/icons';
@@ -38,6 +38,7 @@ export function MapControls({
   onRecenter,
   recenterLabel = 'Recenter map',
   bleed = false,
+  boxRef,
 }: {
   top?: number;
   /** k > 1 zooms in. */
@@ -46,9 +47,11 @@ export function MapControls({
   recenterLabel?: string;
   /** Outside a full-bleed CityMap (the 3D view): the full-bleed look anyway. */
   bleed?: boolean;
+  /** The buttons' box (CityMap keeps pins out from under it). */
+  boxRef?: Ref<HTMLDivElement>;
 }) {
   return (
-    <div className={bleed ? `${styles.controls} ${styles.controlsBleed}` : styles.controls} style={top !== undefined ? { top } : undefined}>
+    <div ref={boxRef} className={bleed ? `${styles.controls} ${styles.controlsBleed}` : styles.controls} style={top !== undefined ? { top } : undefined}>
       <button type="button" className={styles.control} onClick={() => onZoom(1.6)} aria-label="Zoom in">
         <Icon name="plus" />
       </button>
@@ -115,6 +118,8 @@ export const MAP_ATTRIBUTION = 'EARTH ONLINE map · © OpenStreetMap contributor
 const KEY_PAN_PX = 60;
 /** Pins closer than this merge, so 30–34 px targets never overlap (WCAG 2.5.8). */
 const CLUSTER_PX = 38;
+/** Half the largest unselected target (a 34 px cluster plus its 4 px touch ring). */
+const TARGET_HALF_PX = 21;
 const SETTLE_MS = 400;
 const GLIDE_MS = 480;
 function prefersReducedMotion(): boolean {
@@ -254,6 +259,9 @@ export default function CityMap({
 }: CityMapProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
+  /** The zoom / recenter buttons' box in map px; a pin under it could be neither seen nor tapped. */
+  const [controlsBox, setControlsBox] = useState<{ l: number; r: number; t: number; b: number } | null>(null);
   const [width, setWidth] = useState(350);
   const [boxHeight, setBoxHeight] = useState(fixedHeight ?? 300);
   const height = fixedHeight ?? boxHeight;
@@ -284,6 +292,13 @@ export default function CityMap({
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  // Where the zoom / recenter buttons sit over the map (they move only with the map's size and the insets).
+  useLayoutEffect(() => {
+    const box = boxRef.current?.getBoundingClientRect();
+    const c = controlsRef.current?.getBoundingClientRect();
+    setControlsBox(box && c && c.width > 0 ? { l: c.left - box.left, r: c.right - box.left, t: c.top - box.top, b: c.bottom - box.top } : null);
+  }, [width, height, controlsTop, insetTop]);
 
   // Apply focus (initial view, recenter, new search area) within the uncovered part of the map: the focus point
   // sits in the middle of the area between the top and bottom insets.
@@ -561,9 +576,14 @@ export default function CityMap({
     // button keeps its place in the DOM (focus is not lost when it becomes selected).
     const selectedPin = visible.find((p) => p.key === selectedKey);
     const rest = cluster(visible.filter((p) => p !== selectedPin), (p) => p.s, CLUSTER_PX);
-    const all = selectedPin ? [...rest, { id: selectedPin.key, x: selectedPin.s.x, y: selectedPin.s.y, items: [selectedPin] }] : rest;
+    // A pin or cluster under the zoom buttons is hidden (it could not be tapped, and its target would be covered:
+    // WCAG 2.5.8); panning brings it out. The selected pin always shows.
+    const clear = controlsBox
+      ? rest.filter((c) => c.x + TARGET_HALF_PX <= controlsBox.l || c.x - TARGET_HALF_PX >= controlsBox.r || c.y + TARGET_HALF_PX <= controlsBox.t || c.y - TARGET_HALF_PX >= controlsBox.b)
+      : rest;
+    const all = selectedPin ? [...clear, { id: selectedPin.key, x: selectedPin.s.x, y: selectedPin.s.y, items: [selectedPin] }] : clear;
     return all.sort((a, b) => (a.items[0].key < b.items[0].key ? -1 : a.items[0].key > b.items[0].key ? 1 : 0));
-  }, [pins, view, width, height, selectedKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pins, view, width, height, selectedKey, controlsBox]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openCluster = (items: { pin: MapPin }[]) => {
     const pts = items.map((i) => toXY(i.pin.location));
@@ -681,6 +701,7 @@ export default function CityMap({
         })}
       </div>
       <MapControls
+        boxRef={controlsRef}
         top={controlsTop !== undefined ? controlsTop : insetTop ? insetTop + 8 : undefined}
         onZoom={(k) => zoomAt(k)}
         onRecenter={onRecenter}

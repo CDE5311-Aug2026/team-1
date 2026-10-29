@@ -2,6 +2,7 @@ import { lazy, Suspense, type ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { MotionConfig } from 'motion/react';
 import { useReduceMotionSetting } from './data/motion';
+import { useTextSizeSetting } from './data/textSize';
 import { usePersistentStore } from './data/persistentStore';
 import { onboardingStore } from './data/stores';
 import AskPage from './pages/AskPage/AskPage';
@@ -15,6 +16,7 @@ import MomentsPage from './pages/MomentsPage/MomentsPage';
 import MySpacePage from './pages/MySpacePage/MySpacePage';
 import MySpaceSettingsPage from './pages/MySpacePage/SettingsPage';
 import MySpacePrivacyPage from './pages/MySpacePage/PrivacyPage';
+import MySpaceLicencesPage from './pages/MySpacePage/LicencesPage';
 import NoticeDetailsPage from './pages/MySpacePage/NoticeDetailsPage';
 import NoticeEditPage from './pages/MySpacePage/NoticeEditPage';
 import NoticeResultPage from './pages/MySpacePage/NoticeResultPage';
@@ -50,6 +52,7 @@ function Lazy({ children }: { children: ReactNode }) {
 export default function App() {
   const [onboarding] = usePersistentStore(onboardingStore);
   const reduceMotion = useReduceMotionSetting();
+  useTextSizeSetting();
 
   return (
     // "user" follows the system setting; the app's own Reduce motion switch forces it off everywhere.
@@ -87,6 +90,7 @@ export default function App() {
           <Route path={paths.mySpace} element={<MySpacePage />} />
           <Route path={paths.mySpaceSettings} element={<MySpaceSettingsPage />} />
           <Route path={paths.mySpacePrivacy} element={<MySpacePrivacyPage />} />
+          <Route path={paths.licences} element={<MySpaceLicencesPage />} />
           <Route path={patterns.card} element={<CardRoute />} />
           <Route path={paths.notices} element={<NoticesPage />} />
           <Route path={paths.noticeDetails} element={<NoticeDetailsPage />} />

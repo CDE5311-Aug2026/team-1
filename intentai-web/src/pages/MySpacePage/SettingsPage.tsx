@@ -1,28 +1,42 @@
 // My Space v3 S2 · Settings: notification choices (kept on this phone; the app sends none), language and home base
 // with the same editors as onboarding, look & feel (Reduce motion = the app-wide reduceMotionStore, captions, haptics),
-// and links to Privacy & data, photo credits and feedback.
+// and links to Privacy & data, photo credits and feedback. From PR #5: Text size (applied app-wide), Nearby radius (Explore's
+// default), Today's topics, Terms & licences as a page, and notification switches that wait for their My Space switch.
 import { motion, useReducedMotionConfig } from 'motion/react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { V3_PHOTO_CREDITS } from '../../assets/v3/credits';
 import AppShell from '../../components/AppShell/AppShell';
-import { ARTICLE_IMAGES } from '../../data/articleImages';
-import placePhotos from '../../data/explore/photos.json';
-import { curatedPlace } from '../../features/nearby/catalogue';
+import { categoryLabel } from '../../data/culture';
+import { canonicalPrefs } from '../../data/culturePrefs';
 import { usePersistentStore } from '../../data/persistentStore';
 import { areaById } from '../../data/profile/finds';
-import { languageOf, mySpacePrefsStore, profileV3Store, type FieldKey, type MySpacePrefs } from '../../data/profile/profile';
+import {
+  TEXT_SCALE,
+  TEXT_SIZES,
+  TEXT_SIZE_LABELS,
+  languageOf,
+  mySpacePrefsStore,
+  profileV3Store,
+  type FieldKey,
+  type MySpacePrefs,
+} from '../../data/profile/profile';
 import { formatBytes, totalBytes } from '../../data/profile/storage';
-import { reduceMotionStore, settingsStore } from '../../data/stores';
+import { culturePrefsStore, reduceMotionStore, settingsStore } from '../../data/stores';
+import { RADII_M } from '../../features/nearby/types';
+import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import Icon, { type IconName } from '../OnboardingPage/v3/icons';
 import FieldEditor from './v3/FieldEditor';
 import MemorySection from './v3/MemorySection';
 import { HelpDialog, SubHeader, Switch } from './v3/Parts';
-import Sheet from './v3/Sheet';
 import styles from './v3/MySpace.module.css';
 
 type NotifyKey = keyof MySpacePrefs['notify'];
+export const NEEDS_OCCASIONS = 'Turn on Flag occasions in My Space first';
+export const NEEDS_LOCAL = 'Turn on Answer as a local in My Space first';
+export const TEXT_PREVIEW = 'Bak kwa is sweet, smoky dried pork, grilled over charcoal.';
+const km = (m: number) => `${m / 1000} km`;
+
 const NOTIFY: { key: NotifyKey; icon: IconName; title: string; sub: string }[] = [
   { key: 'localAnswers', icon: 'chat', title: 'Local answers', sub: 'When a local answers your question' },
   { key: 'recaps', icon: 'cards', title: 'Recap reminders', sub: 'A 1-minute recap of your cards' },
@@ -55,72 +69,28 @@ function MotionPreview({ reduced }: { reduced: boolean }) {
   );
 }
 
-function CreditsSheet({ onClose }: { onClose: () => void }) {
-  const photos = Object.values(ARTICLE_IMAGES);
-  return (
-    <Sheet title="Terms & licences" subtitle="Photos used in the app and their licences" icon={<Icon name="book" size={20} />} onClose={onClose}>
-      <ul className={styles.credits}>
-        {photos.map((p) => (
-          <li key={p.url}>
-            <span className={styles.creditSubject}>{p.alt}</span>
-            <a href={p.url} target="_blank" rel="noreferrer">
-              {p.credit}
-            </a>
-          </li>
-        ))}
-        {V3_PHOTO_CREDITS.map((c) => (
-          <li key={c.file}>
-            <span className={styles.creditSubject}>{c.subject}</span>
-            <span>{c.credit}</span>
-          </li>
-        ))}
-        <li>
-          <span className={styles.creditSubject}>Map picture</span>
-          <span>© OpenStreetMap contributors</span>
-        </li>
-        {Object.entries((placePhotos as { photos: Record<string, { credit: string; source: string }> }).photos).map(([id, p]) => (
-          <li key={id}>
-            <span className={styles.creditSubject}>{curatedPlace(id)?.name ?? id}</span>
-            <a href={p.source} target="_blank" rel="noreferrer">
-              {p.credit}, via Wikimedia Commons
-            </a>
-          </li>
-        ))}
-        <li>
-          <span className={styles.creditSubject}>Community avatars</span>
-          <a href="https://www.dicebear.com/styles/notionists/" target="_blank" rel="noreferrer">
-            DiceBear “Notionists” by Zoish · CC0 1.0
-          </a>
-        </li>
-        <li>
-          <span className={styles.creditSubject}>Community portraits and question photos</span>
-          <span>IntentAI community card kit: AI-generated illustrations of fictional people and everyday scenes</span>
-        </li>
-        <li>
-          <span className={styles.creditSubject}>Demo community</span>
-          <span>This demo build shows illustrative community members, questions and activity.</span>
-        </li>
-      </ul>
-      <button type="button" className={styles.save} onClick={onClose}>
-        Done
-      </button>
-    </Sheet>
-  );
-}
-
 export default function SettingsPage() {
   const [prefs, setPrefs] = usePersistentStore(mySpacePrefsStore);
   const [reduceMotion, setReduceMotion] = usePersistentStore(reduceMotionStore);
   const [settings] = usePersistentStore(settingsStore);
   const [profile] = usePersistentStore(profileV3Store);
+  const [culture] = usePersistentStore(culturePrefsStore);
   const [editing, setEditing] = useState<FieldKey | null>(null);
-  const [credits, setCredits] = useState(false);
   const [help, setHelp] = useState(false);
+  const radiusId = useId();
+  const sizeId = useId();
   const [params] = useSearchParams();
   const language = languageOf(profile.language);
   const base = areaById(profile.base);
 
   const setNotify = (key: NotifyKey, on: boolean) => setPrefs((p) => ({ ...p, notify: { ...p.notify, [key]: on } }));
+  // A notification that needs a My Space switch waits for it: shown off and unavailable, with the reason.
+  const blocked: Partial<Record<NotifyKey, string>> = {
+    ...(settings.occasions ? {} : { occasions: NEEDS_OCCASIONS }),
+    ...(settings.local ? {} : { nearYou: NEEDS_LOCAL }),
+  };
+  const radiusIndex = Math.max(0, RADII_M.indexOf(prefs.radiusM));
+  const topics = canonicalPrefs(culture.categories).categories.map(categoryLabel).join(', ');
 
   return (
     <AppShell background="#edebe5">
@@ -130,20 +100,30 @@ export default function SettingsPage() {
 
         <h2 className={styles.kicker}>Notifications</h2>
         <div className={styles.card}>
-          {NOTIFY.map((n) => (
-            <div key={n.key} className={styles.switchRow}>
-              <span className={styles.rowIcon}>
-                <Icon name={n.icon} size={18} />
-              </span>
-              <span className={styles.rowText}>
-                <span className={styles.rowTitle}>{n.title}</span>
-                <span className={styles.rowSub} id={`hint-${n.key}`}>
-                  {n.key === 'occasions' && settings.occasions ? 'Flag occasions is on' : n.key === 'nearYou' && settings.local ? 'Answer as a local is on' : n.sub}
+          {NOTIFY.map((n) => {
+            const needs = blocked[n.key];
+            return (
+              <div key={n.key} className={styles.switchRow}>
+                <span className={styles.rowIcon}>
+                  <Icon name={n.icon} size={18} />
                 </span>
-              </span>
-              <Switch label={n.title} describedBy={`hint-${n.key}`} checked={prefs.notify[n.key]} onChange={(on) => setNotify(n.key, on)} />
-            </div>
-          ))}
+                <span className={styles.rowText}>
+                  <span className={styles.rowTitle}>{n.title}</span>
+                  <span className={needs ? `${styles.rowSub} ${styles.blockedHint}` : styles.rowSub} id={`hint-${n.key}`}>
+                    {needs ?? (n.key === 'occasions' ? 'Flag occasions is on' : n.key === 'nearYou' ? 'Answer as a local is on' : n.sub)}
+                  </span>
+                </span>
+                <Switch
+                  label={n.title}
+                  describedBy={`hint-${n.key}`}
+                  checked={!needs && prefs.notify[n.key]}
+                  disabled={!!needs}
+                  onBlocked={() => showToast(needs!)}
+                  onChange={(on) => setNotify(n.key, on)}
+                />
+              </div>
+            );
+          })}
           <div className={styles.rowPad}>
             <Segmented
               label="When"
@@ -182,6 +162,47 @@ export default function SettingsPage() {
             <span className={styles.rowValue}>{base ? base.name.split(/\s*[&,]\s*/)[0] : 'Not set'}</span>
             <Icon name="chevron" size={18} className={styles.rowChevron} />
           </button>
+          <div className={styles.rowPad}>
+            <div className={styles.sliderHead}>
+              <span className={styles.rowIcon}>
+                <Icon name="radius" size={18} />
+              </span>
+              <label htmlFor={radiusId} className={styles.rowTitle}>
+                Nearby radius
+              </label>
+              <span className={styles.rowValue}>{km(prefs.radiusM)}</span>
+            </div>
+            <input
+              id={radiusId}
+              type="range"
+              className={styles.range}
+              min={0}
+              max={RADII_M.length - 1}
+              step={1}
+              value={radiusIndex}
+              aria-valuetext={`${prefs.radiusM / 1000} kilometres`}
+              aria-describedby={`${radiusId}-hint`}
+              onChange={(e) => setPrefs((p) => ({ ...p, radiusM: RADII_M[Number(e.target.value)] ?? p.radiusM }))}
+            />
+            <span className={styles.rangeTicks} aria-hidden="true">
+              {RADII_M.map((r) => (
+                <span key={r}>{km(r)}</span>
+              ))}
+            </span>
+            <span className={styles.rowSub} id={`${radiusId}-hint`}>
+              How far Nearby searches around you or your home base
+            </span>
+          </div>
+          <button type="button" className={styles.row} onClick={() => setEditing('topics')}>
+            <span className={styles.rowIcon}>
+              <Icon name="star" size={18} />
+            </span>
+            <span className={styles.rowText}>
+              <span className={styles.rowTitle}>Today’s topics</span>
+              <span className={styles.rowSub}>{topics}</span>
+            </span>
+            <Icon name="chevron" size={18} className={styles.rowChevron} />
+          </button>
         </div>
 
         <MemorySection highlight={params.get('section') === 'memory'} />
@@ -205,6 +226,35 @@ export default function SettingsPage() {
               ]}
               onChange={(v) => setReduceMotion(v === 'reduced')}
             />
+          </div>
+          <div className={styles.rowPad}>
+            <div className={styles.sliderHead}>
+              <span className={styles.rowIcon}>
+                <Icon name="text" size={18} />
+              </span>
+              <label htmlFor={sizeId} className={styles.rowTitle}>
+                Text size
+              </label>
+              <span className={styles.rowValue}>{TEXT_SIZE_LABELS[prefs.textSize]}</span>
+            </div>
+            <input
+              id={sizeId}
+              type="range"
+              className={styles.range}
+              min={0}
+              max={TEXT_SIZES.length - 1}
+              step={1}
+              value={prefs.textSize}
+              aria-valuetext={TEXT_SIZE_LABELS[prefs.textSize]}
+              onChange={(e) => {
+                const textSize = TEXT_SIZES[Number(e.target.value)];
+                if (textSize !== undefined) setPrefs((p) => ({ ...p, textSize }));
+              }}
+            />
+            {/* Root-relative, so it shows the new size even before the page reflows around it. */}
+            <p className={styles.textPreview} data-testid="text-preview" style={{ fontSize: `${0.9375 * TEXT_SCALE[prefs.textSize]}rem` }}>
+              {TEXT_PREVIEW}
+            </p>
           </div>
           <div className={styles.switchRow}>
             <span className={styles.rowIcon}>
@@ -258,7 +308,7 @@ export default function SettingsPage() {
             <span className={styles.rowValue}>{formatBytes(totalBytes())}</span>
             <Icon name="chevron" size={18} className={styles.rowChevron} />
           </Link>
-          <button type="button" className={styles.row} onClick={() => setCredits(true)}>
+          <Link to={paths.licences} className={styles.row}>
             <span className={styles.rowIcon}>
               <Icon name="book" size={18} />
             </span>
@@ -267,7 +317,7 @@ export default function SettingsPage() {
               <span className={styles.rowSub}>Photo credits</span>
             </span>
             <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </button>
+          </Link>
           <button type="button" className={styles.row} onClick={() => setHelp(true)}>
             <span className={styles.rowIcon}>
               <Icon name="help" size={18} />
@@ -281,7 +331,6 @@ export default function SettingsPage() {
         <p className={styles.footerNote}>IntentAI · beta</p>
       </div>
       {editing && <FieldEditor field={editing} profile={profile} onClose={() => setEditing(null)} />}
-      {credits && <CreditsSheet onClose={() => setCredits(false)} />}
       {help && <HelpDialog onClose={() => setHelp(false)} />}
     </AppShell>
   );

@@ -26,6 +26,7 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.mySpace, 'My Space'],
   [paths.mySpaceSettings, 'My Space settings'],
   [paths.mySpacePrivacy, 'My Space privacy'],
+  [paths.licences, 'My Space licences'],
   [patterns.place, 'Place'],
   [patterns.card, 'Card'],
   [paths.notices, 'Notices'],

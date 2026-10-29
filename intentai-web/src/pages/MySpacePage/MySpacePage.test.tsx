@@ -144,7 +144,7 @@ test('S2: Reduce motion is the app-wide setting; notification choices are kept l
   expect(mySpacePrefsStore.get().captions).toBe(false);
 });
 
-test('S2: language opens the script tiles and Terms & licences lists photo credits', async () => {
+test('S2: language opens the script tiles and Terms & licences opens its page of photo credits', async () => {
   renderAt(paths.mySpaceSettings);
   await userEvent.click(screen.getByRole('button', { name: /Language/ }));
   await userEvent.click(within(screen.getByRole('dialog', { name: 'Language' })).getByRole('button', { name: '한국어, Korean' }));
@@ -152,9 +152,12 @@ test('S2: language opens the script tiles and Terms & licences lists photo credi
   expect(profileV3Store.get().language).toBe('ko');
   expect(screen.getByText('Cards in English for now')).toBeInTheDocument();
 
-  await userEvent.click(screen.getByRole('button', { name: /Terms & licences/ }));
-  const credits = screen.getByRole('dialog', { name: 'Terms & licences' });
-  expect(within(credits).getByText('Photo: Zairon · CC BY-SA 4.0')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('link', { name: /Terms & licences/ }));
+  expect(currentPath()).toBe(paths.licences);
+  expect(screen.getByRole('heading', { level: 1, name: 'Terms & licences' })).toBeInTheDocument();
+  expect(screen.getAllByText('Photo: Zairon · CC BY-SA 4.0').length).toBeGreaterThan(0);
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(currentPath()).toBe(paths.mySpaceSettings);
 });
 
 test('S3: stored areas show sizes and counts; Clear has Undo', async () => {

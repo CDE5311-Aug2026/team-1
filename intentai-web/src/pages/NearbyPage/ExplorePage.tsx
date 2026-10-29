@@ -38,6 +38,7 @@ import x from './Explore.module.css';
 import { staticCopy } from '../../data/expressions';
 import { usePersistentStore } from '../../data/persistentStore';
 import { placeStore } from '../../data/stores';
+import { mySpacePrefsStore } from '../../data/profile/profile';
 import { CATEGORY_INFO } from '../../features/nearby/domain';
 import { distanceM, formatDistance } from '../../features/nearby/geo';
 import { parsePlaceKey } from '../../features/nearby/identity';
@@ -52,7 +53,6 @@ import {
   type Origin,
 } from '../../features/nearby/ranking';
 import {
-  DEFAULT_RADIUS_M,
   QUERY_MAX,
   QUERY_MIN,
   RADII_M,
@@ -155,6 +155,8 @@ export default function ExplorePage() {
   useEffect(() => setCardTitle(null), [view]);
   const wide = useWideLayout();
   const [place] = usePersistentStore(placeStore);
+  // My Space › Settings › Nearby radius: the radius used when the URL names none.
+  const [{ radiusM: defaultRadius }] = usePersistentStore(mySpacePrefsStore);
   // The sheet: the List view is the full sheet; otherwise peek or half (a selected place opens it to half).
   const [mapDetent, setMapDetent] = useState<Exclude<Detent, 'full'>>(params.get('sel') ? 'half' : 'peek');
   const detent: Detent = view === 'list' ? 'full' : mapDetent;
@@ -167,7 +169,7 @@ export default function ExplorePage() {
   const selectedArea = areaById(params.get('area') ?? undefined);
   const area = selectedArea && !selectedArea.overview && selectedArea.country === COUNTRY ? selectedArea : undefined;
   const radiusParam = Number(params.get('radius'));
-  const radius: RadiusM = isRadius(radiusParam) ? radiusParam : DEFAULT_RADIUS_M;
+  const radius: RadiusM = isRadius(radiusParam) ? radiusParam : defaultRadius;
   const sort = params.get('sort') === 'nearest' ? 'nearest' : 'recommended';
   const selectedKey = parsePlaceKey(params.get('sel'));
   // ?list=<id>: one editor's pick (or the big collection) on its own, as a checklist
@@ -644,7 +646,7 @@ export default function ExplorePage() {
                 className={x.pill}
                 aria-label="Radius"
                 value={radius}
-                onChange={(e) => patch({ radius: e.target.value === String(DEFAULT_RADIUS_M) ? null : e.target.value })}
+                onChange={(e) => patch({ radius: e.target.value === String(defaultRadius) ? null : e.target.value })}
               >
                 {RADII_M.map((r) => (
                   <option key={r} value={r}>

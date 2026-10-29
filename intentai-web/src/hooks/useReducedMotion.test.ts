@@ -23,3 +23,15 @@ test('updates when the preference changes, and stops listening on unmount', () =
   unmount();
   expect(() => setReducedMotion(true)).not.toThrow();
 });
+
+test('the app’s own Reduce motion setting counts too, live', async () => {
+  const { reduceMotionStore } = await import('../data/stores');
+  const { isReducedMotion } = await import('./useReducedMotion');
+  const { result } = renderHook(() => useReducedMotion());
+  expect(result.current).toBe(false);
+  act(() => reduceMotionStore.set(true));
+  expect(result.current).toBe(true);
+  expect(isReducedMotion()).toBe(true);
+  act(() => reduceMotionStore.set(false));
+  expect(result.current).toBe(false);
+});

@@ -128,6 +128,22 @@ test('My Space switches persist, and Settings › Reduced motion stops the app�
   await expect(page.locator('html')).toHaveClass(/reduce-motion/);
 });
 
+// From PR #5: Text size scales the app's rem-sized text and survives a reload; Terms & licences is its own page.
+test('Settings › Text size applies app-wide, and Terms & licences opens its page', async ({ page }) => {
+  await open(page, paths.mySpaceSettings);
+  const slider = page.getByRole('slider', { name: 'Text size', exact: true });
+  await slider.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(slider).toHaveAttribute('aria-valuetext', 'Large');
+  await expect(page.locator('html')).toHaveAttribute('style', /font-size: 110%/);
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('style', /font-size: 110%/);
+  await page.getByRole('link', { name: /Terms & licences/ }).click();
+  await expect(page).toHaveURL(new RegExp(`${paths.licences}$`));
+  await expect(page.getByRole('heading', { level: 1, name: 'Terms & licences' })).toBeVisible();
+  await expect(page.getByText('© OpenStreetMap contributors', { exact: true })).toBeVisible();
+});
+
 // v0: "AI notice edit, confirm, reject and undo work"
 test('AI notice edit, confirm, reject and undo work', async ({ page }) => {
   await open(page, paths.notices, OCCASIONS_ON);
