@@ -199,3 +199,19 @@ test('the result page without a home base says how to get finds', () => {
   renderAt('/onboarding/result');
   expect(screen.getByText('Set a home base in My Space to see what’s closest.')).toBeInTheDocument();
 });
+
+test('a first-run user can skip onboarding with ✕: it counts as done and Home opens', async () => {
+  renderAt('/onboarding?step=2');
+  await userEvent.click(screen.getByRole('button', { name: 'Skip onboarding for now' }));
+  expect(onboardingStore.get().done).toBe(true);
+  expect(location()).toBe('/');
+});
+
+test('a returning user leaves onboarding with ✕ and is back in My Space, answers kept', async () => {
+  onboardingStore.set((prev) => ({ ...prev, done: true }));
+  profileV3Store.set({ ...DEFAULT_PROFILE_V3, from: 'IN' });
+  renderAt('/onboarding?step=3');
+  await userEvent.click(screen.getByRole('button', { name: 'Leave onboarding' }));
+  expect(location()).toBe('/my-space');
+  expect(profileV3Store.get().from).toBe('IN');
+});

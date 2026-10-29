@@ -4,6 +4,9 @@ import { useReducedMotion } from '../../hooks/useReducedMotion';
 import styles from './PlaceCarousel.module.css';
 import { useMouseDrag } from './useMouseDrag';
 
+/** Cards on each side of the centred one that load their photo. */
+const PHOTO_WINDOW = 4;
+
 /** A photo moves this fraction of its card's distance from the centre, against the card's motion. */
 export const PARALLAX = 0.25;
 /** Settle fallback for browsers without `scrollend`. */
@@ -212,7 +215,10 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
                 className={place.photo ? styles.photo : `${styles.photo} ${styles.noPhoto}`}
                 data-parallax=""
               >
-                {place.photo && <img src={place.photo} alt={place.photoAlt} draggable={false} />}
+                {/* Only the cards near the centre load their photo: 175 decoded photos crash iPhone Safari. */}
+                {place.photo && Math.abs(i - selectedIndex) <= PHOTO_WINDOW && (
+                  <img src={place.photo} alt={place.photoAlt} draggable={false} loading="lazy" decoding="async" />
+                )}
               </div>
               <div className={styles.content}>
                 <span className={styles.chip}>

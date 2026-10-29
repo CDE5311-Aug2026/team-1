@@ -159,7 +159,7 @@ function ResultList({ items, local }: { items: ThreadSummary[]; local: boolean }
             exit={{ opacity: 0, scale: 0.98 }}
           >
             <Link to={paths.question(item.id)} className={styles.card}>
-              <img className={item.photo ? styles.photo : `${styles.photo} ${styles.photoMark}`} src={item.photo ?? mascot} alt="" />
+              <img className={item.photo ? styles.photo : `${styles.photo} ${styles.photoMark}`} src={item.photo ?? mascot} alt="" loading="lazy" decoding="async" />
               <span className={styles.copy}>
                 <span className={styles.board2}>
                   {item.topic}

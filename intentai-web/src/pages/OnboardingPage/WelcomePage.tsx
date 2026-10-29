@@ -20,6 +20,7 @@ import {
   type TopicId,
 } from '../../data/profile/profile';
 import { paths } from '../../routes';
+import { onboardingStore } from '../../data/stores';
 import Icon from './v3/icons';
 import Passport from './v3/Passport';
 import { BaseMap, CountryPicker, LanguagePicker, PreviewCard, RolePicker, StayPicker, TopicRanker } from './v3/Pickers';
@@ -165,6 +166,7 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
         <span className={styles.count}>
           {step}/{STEPS}
         </span>
+        <ExitButton />
       </div>
       <Passport profile={profile} initial={initial} active={field} onToggleHidden={toggleHidden} />
       <BlurText key={field} as="h1" text={TITLES[field]} trigger="load" delay={50} className={styles.title} />
@@ -186,6 +188,32 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
         </button>
       </div>
     </div>
+  );
+}
+
+/**
+ * Leave onboarding. Someone who finished it before goes back to My Space with their answers kept as they are now;
+ * a first-time user skips the rest (what they answered so far is kept) and lands on Home.
+ */
+function ExitButton() {
+  const navigate = useNavigate();
+  const [onboarding] = usePersistentStore(onboardingStore);
+  const returning = onboarding.done;
+  return (
+    <button
+      type="button"
+      className={styles.back}
+      aria-label={returning ? 'Leave onboarding' : 'Skip onboarding for now'}
+      onClick={() => {
+        if (returning) navigate(paths.mySpace);
+        else {
+          finishOnboarding();
+          navigate(paths.today);
+        }
+      }}
+    >
+      <Icon name="close" size={20} />
+    </button>
   );
 }
 

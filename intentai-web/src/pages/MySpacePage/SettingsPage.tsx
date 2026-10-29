@@ -232,6 +232,20 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        <h2 className={styles.kicker}>Onboarding</h2>
+        <div className={styles.card}>
+          <Link to={`${paths.welcome}?step=1`} className={styles.row}>
+            <span className={styles.rowIcon}>
+              <Icon name="redo" size={18} />
+            </span>
+            <span className={styles.rowText}>
+              <span className={styles.rowTitle}>Redo onboarding</span>
+              <span className={styles.rowSub}>Your answers are kept; change any of them. Leave any time with ✕.</span>
+            </span>
+            <Icon name="chevron" size={18} className={styles.rowChevron} />
+          </Link>
+        </div>
+
         <h2 className={styles.kicker}>More</h2>
         <nav className={styles.card} aria-label="More">
           <Link to={paths.mySpacePrivacy} className={styles.row}>

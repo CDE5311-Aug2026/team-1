@@ -234,3 +234,9 @@ test('My Space › You as a local opens the same sheet as the Locals map, prefil
   expect(within(sheet).getByLabelText(/Where you grew up/)).toHaveValue('India');
   expect(within(sheet).getByText(/start from your profile/)).toBeInTheDocument();
 });
+
+test('Settings › Redo onboarding opens question 1', async () => {
+  renderAt(paths.mySpaceSettings);
+  await userEvent.click(screen.getByRole('link', { name: /Redo onboarding/ }));
+  expect(screen.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuenow', '1');
+});
