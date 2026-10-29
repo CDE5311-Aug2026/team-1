@@ -75,12 +75,12 @@ async function cardLayout(page: Page) {
   });
 }
 
-test('load: 5 cards, 4 pins, Berlin current, "4 places to explore"', async ({ page }) => {
+test('load: every real place as a card (2 stories + 173), Berlin current, "173 places to explore"', async ({ page }) => {
   await openHome(page);
-  await expect(cards(page)).toHaveCount(5);
+  await expect(cards(page)).toHaveCount(175);
   await expect(current(page)).toHaveCount(1);
   await expect(current(page)).toHaveAttribute('aria-label', 'Berlin Wall Fragments');
-  await expect(page.getByTestId('nearby-map')).toContainText('4 places to explore');
+  await expect(page.getByTestId('nearby-map')).toContainText('173 places to explore');
   await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
 });
 
@@ -346,7 +346,7 @@ test('reduced motion: card photos do not move', async ({ page }) => {
   const transforms = await carousel(page)
     .locator('[data-parallax]')
     .evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
-  expect(transforms).toHaveLength(5);
+  expect(transforms).toHaveLength(175);
   for (const t of transforms) expect(t).toBe('none');
 });
 

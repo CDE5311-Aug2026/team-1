@@ -67,7 +67,7 @@ test('the hero opens the holiday detail, and the back link returns to Home', asy
   await page.goto('/');
   await page.getByRole('button', { name: 'Deepavali long weekend starts today', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Deepavali' })).toBeVisible();
-  await page.getByRole('button', { name: 'Back to Today', exact: true }).click();
+  await page.getByRole('button', { name: 'Back to Home', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeVisible();
 });

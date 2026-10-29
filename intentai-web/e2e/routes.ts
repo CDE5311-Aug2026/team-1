@@ -2,8 +2,14 @@ import type { Page } from '@playwright/test';
 import { ALL_STATIC_PATHS, paths } from '../src/routes';
 
 // Every route in the app, plus one seeded community question and one Nearby place / collection.
+// v3: the old onboarding question routes redirect to /onboarding?step=… on purpose, so they are not pages of their own.
+const REDIRECTS = new Set<string>([paths.onboardingTime, paths.onboardingTopics, paths.onboardingQuiz]);
+
 export const ROUTES = [
-  ...ALL_STATIC_PATHS,
+  ...ALL_STATIC_PATHS.filter((p) => !REDIRECTS.has(p)),
+  paths.place('sg-kampong-glam'),
+  paths.card('sultan-mosque'),
+  paths.card('chingay'),
   paths.question('sabo'),
   paths.nearbyPlace('curated:sg-maxwell-food-centre'),
   paths.nearbyPlace('curated:sg-esplanade-theatres-on-the-bay'),

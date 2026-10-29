@@ -1,13 +1,12 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import App from '../../App';
-import { DEFAULT_PROFILE } from '../../data/domain';
 import { STORAGE_PREFIX } from '../../data/persistentStore';
-import { onboardingStore, profileStore } from '../../data/stores';
+import { DEFAULT_PROFILE_V3, profileV3Store } from '../../data/profile/profile';
+import { culturePrefsStore, explorePersonalStore, onboardingStore, profileStore } from '../../data/stores';
 import { dismissToast } from '../../hooks/useToast';
-import { quizFor } from './quiz';
 
 function Pathname() {
   const { pathname, search } = useLocation();
@@ -25,6 +24,7 @@ function renderAt(path: string) {
 
 const location = () => screen.getByTestId('location').textContent;
 const h1 = () => screen.getByRole('heading', { level: 1 });
+const continueButton = () => screen.getByRole('button', { name: /^Continue/ });
 
 beforeEach(() => {
   // Tests start as a returning user (src/test/setup.ts); onboarding is the first-run flow.
@@ -32,250 +32,170 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  vi.unstubAllGlobals();
   act(() => dismissToast());
 });
 
-test('a first-run user lands on Welcome and Get started opens the time step', async () => {
+test('a first-run user lands on the Treasure Hunt welcome (O1); Start the hunt opens question 1', async () => {
   renderAt('/');
   expect(location()).toBe('/onboarding');
-  expect(h1()).toHaveTextContent(/^Hello, W!\s*Welcome to IntentAI$/);
+  expect(screen.getByRole('heading', { level: 1, name: /^Welcome to the\s*Singapore Treasure Hunt$/ })).toBeInTheDocument();
+  expect(screen.getByText('Six quick questions · everything stays on this phone')).toBeInTheDocument();
   expect(screen.getByText('We record how long you spend on each page, anonymously, to improve the app.')).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Get started' }));
-  expect(location()).toBe('/onboarding/time');
-  expect(h1()).toHaveTextContent('How long have you been in Singapore?');
+  for (const label of ['Food', 'Monuments', 'Festivals']) expect(screen.getByText(label)).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: /Start the hunt/ }));
+  expect(location()).toBe('/onboarding?step=1');
+  expect(h1()).toHaveTextContent('Where are you from?');
+  expect(screen.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuetext', 'Question 1 of 6');
 });
 
-test('Welcome phrase pills read the phrase aloud, or explain when audio is unavailable', async () => {
-  const speak = vi.fn();
-  vi.stubGlobal('speechSynthesis', { speak, cancel: vi.fn() });
-  vi.stubGlobal('SpeechSynthesisUtterance', function Utterance(this: { text: string }, text: string) {
-    this.text = text;
-  });
-  const first = renderAt('/onboarding');
-  await userEvent.click(screen.getByRole('button', { name: 'Hear “Chope”' }));
-  expect(speak).toHaveBeenCalledWith(expect.objectContaining({ text: 'Chope' }));
-  first.unmount();
-
-  vi.unstubAllGlobals();
-  vi.stubGlobal('speechSynthesis', undefined);
-  renderAt('/onboarding');
-  await userEvent.click(screen.getByRole('button', { name: 'Hear “Shiok!”' }));
-  expect(screen.getByRole('status')).toHaveTextContent("Audio isn't available on this device.");
-});
-
-test('time step: nothing is pre-selected, and Continue needs a choice', async () => {
-  renderAt('/onboarding/time');
+test('From: nothing is pre-selected, Continue waits for a choice, and the pick starts hidden on the passport', async () => {
+  renderAt('/onboarding?step=1');
   expect(screen.queryByRole('button', { pressed: true })).not.toBeInTheDocument();
-  expect(onboardingStore.get().duration).toBeNull();
-  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-  expect(screen.getByRole('status')).toHaveTextContent('Pick how long you have been here.');
-  expect(location()).toBe('/onboarding/time');
+  expect(continueButton()).toBeDisabled();
+  expect(screen.getByText('Pick a country to see how cards compare with home.')).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole('button', { name: /China/ }));
+  expect(profileV3Store.get().from).toBe('CN');
+  expect(profileStore.get().from).toBe('China');
+  const passport = screen.getByRole('region', { name: 'Your passport' });
+  // Private by default: the eye is closed and the value masked.
+  const eye = within(passport).getByRole('button', { name: 'Keep From private' });
+  expect(eye).toHaveAttribute('aria-pressed', 'true');
+  expect(within(passport).queryByText('China')).not.toBeInTheDocument();
+  expect(within(passport).getByText('Private')).toBeInTheDocument();
+  expect(screen.getByText('Compared with China')).toBeInTheDocument();
+
+  await userEvent.click(eye);
+  expect(within(passport).getByText('China')).toBeInTheDocument();
+  expect(profileV3Store.get().hidden).not.toContain('from');
+
+  // Countries beyond the six tiles sit in a scroll row.
+  await userEvent.click(within(screen.getByRole('group', { name: 'More countries' })).getByRole('button', { name: /Myanmar/ }));
+  expect(profileV3Store.get().from).toBe('MM');
+
+  await userEvent.click(continueButton());
+  expect(location()).toBe('/onboarding?step=2');
 });
 
-test('time step: one option is selected at a time, saved, and reflected in the hint', async () => {
-  renderAt('/onboarding/time');
-  expect(screen.getByText('Step 1 of 3')).toBeInTheDocument();
-  const middle = screen.getByRole('button', { name: /3 months – 1 year/ });
-  const long = screen.getByRole('button', { name: /1 – 3 years/ });
-  await userEvent.click(middle);
-  expect(middle).toHaveAttribute('aria-pressed', 'true');
-  expect(long).toHaveAttribute('aria-pressed', 'false');
-  expect(screen.getByText(/most people learn fastest with phrases they hear every day/)).toBeInTheDocument();
-
+test('time in Singapore: four tiles, one at a time, and the preview shows less background the longer the stay', async () => {
+  renderAt('/onboarding?step=2');
+  expect(h1()).toHaveTextContent('How long have you been in Singapore?');
+  const short = screen.getByRole('button', { name: /Less than 3 months/ });
+  const long = screen.getByRole('button', { name: /More than 3 years/ });
+  await userEvent.click(short);
+  expect(screen.getByText('Full background: the story and three facts.')).toBeInTheDocument();
   await userEvent.click(long);
   expect(long).toHaveAttribute('aria-pressed', 'true');
-  expect(middle).toHaveAttribute('aria-pressed', 'false');
-  expect(onboardingStore.get().duration).toBe('1 – 3 years');
-  expect(screen.queryByText(/most people learn fastest/)).not.toBeInTheDocument();
-
-  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-  expect(location()).toBe('/onboarding/topics');
+  expect(short).toHaveAttribute('aria-pressed', 'false');
+  expect(screen.getByText('Just the essentials: one line.')).toBeInTheDocument();
+  expect(profileStore.get().time).toBe('More than 3 years');
+  // The passport fills in "IN SINGAPORE".
+  expect(within(screen.getByRole('region', { name: 'Your passport' })).getByText('3+ years')).toBeInTheDocument();
 });
 
-test('time step Back returns to Welcome', async () => {
-  renderAt('/onboarding/time');
+test('role: six tiles and the machine-readable line spells the role', async () => {
+  renderAt('/onboarding?step=3');
+  expect(screen.getAllByRole('button', { pressed: false }).filter((b) => b.closest('[aria-label="Roles"]'))).toHaveLength(6);
+  await userEvent.click(screen.getByRole('button', { name: /Student intern/ }));
+  expect(profileV3Store.get().role).toBe('intern');
+  expect(profileStore.get().role).toBe('Student intern');
+  expect(document.body.textContent).toContain('P<SGPT<<<<STUDENT<INTERN');
+});
+
+test('language: tiles in their own script, and only English cards exist', async () => {
+  renderAt('/onboarding?step=4');
+  const chinese = screen.getByRole('button', { name: '中文, Chinese, simplified' });
+  expect(within(chinese).getByText('中文')).toHaveAttribute('lang', 'zh-Hans');
+  await userEvent.click(chinese);
+  expect(screen.getByText(/Cards in English for now/)).toBeInTheDocument();
+  // A real place name in that script from the Nearby catalogue.
+  expect(screen.getByText('天福宫')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'English, Cards in English' }));
+  expect(screen.getByText('Cards in English.')).toBeInTheDocument();
+});
+
+test('home base: an area pin sets Nearby’s area, and the preview lists the closest places', async () => {
+  renderAt('/onboarding?step=5');
+  expect(continueButton()).toBeDisabled();
+  await userEvent.click(screen.getByRole('button', { name: 'Chinatown & Tanjong Pagar' }));
+  expect(profileV3Store.get().base).toBe('sg-chinatown');
+  expect(explorePersonalStore.get().selectedAreaId).toBe('sg-chinatown');
+  expect(screen.getByText('Nearby from Chinatown')).toBeInTheDocument();
+  expect(screen.getByText('Home base: Chinatown & Tanjong Pagar')).toBeInTheDocument();
+  expect(continueButton()).toBeEnabled();
+});
+
+test('topics: tap in order, tap again to un-rank, Reset order clears', async () => {
+  renderAt('/onboarding?step=6');
+  expect(screen.getByRole('button', { name: /Stamp my passport/ })).toBeDisabled();
+  await userEvent.click(screen.getByRole('button', { name: 'Festivals' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Food' }));
+  expect(screen.getByRole('button', { name: 'Festivals, ranked 1' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Food, ranked 2' })).toBeInTheDocument();
+  expect(screen.getByText('Home leads with Festivals')).toBeInTheDocument();
+  expect(culturePrefsStore.get().categories[0]).toBe('holidays');
+
+  await userEvent.click(screen.getByRole('button', { name: 'Festivals, ranked 1' }));
+  expect(screen.getByRole('button', { name: 'Food, ranked 1' })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: /Reset order/ }));
+  expect(profileV3Store.get().topics).toEqual([]);
+});
+
+test('Back goes to the previous question, and from question 1 to the welcome', async () => {
+  renderAt('/onboarding?step=3');
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(location()).toBe('/onboarding?step=2');
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   expect(location()).toBe('/onboarding');
 });
 
-test('topics step: multi-select with a live count and hint, and at least one topic required', async () => {
-  onboardingStore.set((prev) => ({ ...prev, duration: '3 months – 1 year' }));
-  renderAt('/onboarding/topics');
-  expect(screen.getByText('Step 2 of 3')).toBeInTheDocument();
-  // Nothing is pre-selected.
-  expect(screen.getByRole('button', { name: 'Continue (0 selected)' })).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: /^Work/ }));
-  await userEvent.click(screen.getByRole('button', { name: /^Food/ }));
-  expect(screen.getByRole('button', { name: /^Work/ })).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByRole('button', { name: /^Food/ })).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByRole('button', { name: 'Continue (2 selected)' })).toBeInTheDocument();
-  expect(
-    screen.getByText("Since you've been here under a year, I'll start with Work and Food basics."),
-  ).toBeInTheDocument();
-  // Each tile shows its sample phrase.
-  expect(screen.getByText('“Mee siam, tapau”')).toBeInTheDocument();
-
-  await userEvent.click(screen.getByRole('button', { name: /^Daily life/ }));
-  expect(screen.getByRole('button', { name: 'Continue (3 selected)' })).toBeInTheDocument();
-  expect(onboardingStore.get().topics).toEqual(['Work', 'Food', 'Daily life']);
-  expect(screen.getByText(/I'll start with Work, Food and Daily life basics\./)).toBeInTheDocument();
-
-  for (const name of [/^Work/, /^Food/, /^Daily life/]) {
-    await userEvent.click(screen.getByRole('button', { name }));
-  }
-  await userEvent.click(screen.getByRole('button', { name: 'Continue (0 selected)' }));
-  expect(screen.getByRole('status')).toHaveTextContent('Pick at least one topic.');
-  expect(location()).toBe('/onboarding/topics');
-
-  await userEvent.click(screen.getByRole('button', { name: /^Getting around/ }));
-  await userEvent.click(screen.getByRole('button', { name: 'Continue (1 selected)' }));
-  expect(location()).toBe('/onboarding/quiz');
+test('old onboarding routes open the new questions', () => {
+  renderAt('/onboarding/time');
+  expect(location()).toBe('/onboarding?step=2');
 });
 
-test('topics step Back returns to the time step', async () => {
-  renderAt('/onboarding/topics');
-  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
-  expect(location()).toBe('/onboarding/time');
-});
-
-test('quiz asks three questions from the chosen topics and scores the correct answers', async () => {
-  onboardingStore.set((prev) => ({ ...prev, topics: ['Work', 'Food'] }));
-  const quiz = quizFor(['Work', 'Food']);
-  renderAt('/onboarding/quiz');
-  expect(screen.getByText('Step 3 of 3')).toBeInTheDocument();
-  expect(h1()).toHaveTextContent('Test your Singlish level');
-
-  // Q1 correct, Q2 wrong, Q3 correct → 2 of 3.
-  const picks = [quiz[0].correct, (quiz[1].correct + 1) % 3, quiz[2].correct];
-  for (const [index, question] of quiz.entries()) {
-    expect(screen.getByText(`Question ${index + 1} of 3`)).toBeInTheDocument();
-    expect(screen.getByText(question.phrase)).toBeInTheDocument();
-    expect(screen.getByText(question.context)).toBeInTheDocument();
-    const choice = screen.getByRole('button', { name: new RegExp(`^${'ABC'[picks[index]]} `) });
-    expect(choice).toHaveAccessibleName(`${'ABC'[picks[index]]} ${question.answers[picks[index]]}`);
-    await userEvent.click(choice);
-    expect(choice).toHaveAttribute('aria-pressed', 'true');
-    await userEvent.click(screen.getByRole('button', { name: 'Check answer' }));
-  }
-  expect(location()).toBe('/onboarding/result?score=2');
-  expect(h1()).toHaveTextContent("You're Intermediate");
-});
-
-test('Check answer without a choice asks the user to choose or skip', async () => {
-  renderAt('/onboarding/quiz');
-  await userEvent.click(screen.getByRole('button', { name: 'Check answer' }));
-  expect(screen.getByRole('status')).toHaveTextContent('Choose an answer or skip.');
-  expect(screen.getByText('Question 1 of 3')).toBeInTheDocument();
-});
-
-test('skipping a question moves on without scoring it', async () => {
-  renderAt('/onboarding/quiz');
-  await userEvent.click(screen.getByRole('button', { name: /skip/i }));
-  expect(screen.getByText('Question 2 of 3')).toBeInTheDocument();
-  expect(screen.queryByRole('button', { pressed: true })).not.toBeInTheDocument();
-});
-
-test('quiz context chip follows the chosen topic', async () => {
-  onboardingStore.set((prev) => ({ ...prev, topics: ['Daily life'] }));
-  renderAt('/onboarding/quiz');
-  expect(screen.getByText(quizFor(['Daily life'])[0].context)).toBeInTheDocument();
-});
-
-test('quiz play button reads the phrase aloud, or explains when audio is unavailable', async () => {
-  const speak = vi.fn();
-  vi.stubGlobal('speechSynthesis', { speak, cancel: vi.fn() });
-  vi.stubGlobal('SpeechSynthesisUtterance', function Utterance(this: { text: string }, text: string) {
-    this.text = text;
-  });
-  const first = renderAt('/onboarding/quiz');
-  await userEvent.click(screen.getByRole('button', { name: 'Play question' }));
-  expect(speak).toHaveBeenCalledWith(expect.objectContaining({ text: 'Paiseh ah, can help me check this report?' }));
-  first.unmount();
-
-  vi.unstubAllGlobals();
-  vi.stubGlobal('speechSynthesis', undefined);
-  renderAt('/onboarding/quiz');
-  await userEvent.click(screen.getByRole('button', { name: 'Play question' }));
-  expect(screen.getByRole('status')).toHaveTextContent("Audio isn't available on this device.");
-});
-
-test('quiz Back returns to topics', async () => {
-  renderAt('/onboarding/quiz');
-  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
-  expect(location()).toBe('/onboarding/topics');
-});
-
-test.each([
-  [3, 'Experienced'],
-  [2, 'Intermediate'],
-  [1, 'Beginner'],
-  [0, 'Beginner'],
-])('result for %i of 3 is %s, with the matching level highlighted', (score, level) => {
-  renderAt(`/onboarding/result?score=${score}`);
-  expect(h1()).toHaveTextContent(`You're ${level}`);
-  expect(screen.getByText(`${score}/3`)).toBeInTheDocument();
-  expect(screen.getByText(new RegExp(`^${score} of 3 correct — `))).toBeInTheDocument();
-  const meter = screen.getByRole('list', { name: 'Singlish levels' });
-  expect(within(meter).getByRole('listitem', { current: true })).toHaveTextContent(level);
-});
-
-test('result plan reflects the chosen topics and stay length', () => {
-  onboardingStore.set((prev) => ({ ...prev, duration: '1 – 3 years', topics: ['Food', 'Getting around'] }));
-  renderAt('/onboarding/result?score=1');
-  expect(screen.getByText('Focus: Food & Getting around')).toBeInTheDocument();
-  expect(screen.getByText('Tuned for 1 – 3 years')).toBeInTheDocument();
-});
-
-test('Retake the quiz starts the quiz again from question 1', async () => {
-  renderAt('/onboarding/result?score=2');
-  await userEvent.click(screen.getByRole('button', { name: 'Retake the quiz' }));
-  expect(location()).toBe('/onboarding/quiz');
-  expect(screen.getByText('Question 1 of 3')).toBeInTheDocument();
-});
-
-test('Start learning finishes onboarding, saves the profile, and opens the topic picker', async () => {
-  profileStore.set(DEFAULT_PROFILE);
-  onboardingStore.set((prev) => ({ ...prev, duration: 'Less than 3 months', topics: ['Daily life'] }));
-  renderAt('/onboarding/result?score=3');
-  await userEvent.click(screen.getByRole('button', { name: 'Start learning' }));
-  expect(onboardingStore.get().done).toBe(true);
-  expect(profileStore.get()).toEqual({
-    ...DEFAULT_PROFILE,
-    time: 'Less than 3 months',
-    level: 'Experienced',
-    topics: ['Daily life'],
-  });
-  expect(location()).toBe('/today-setup');
-  expect(screen.getByRole('heading', { level: 1, name: 'Pick 3 topics for Today' })).toBeInTheDocument();
-});
-
-test('cross-page contract: the whole first-run flow by skipping saves the stay length', async () => {
+test('the whole flow stamps the passport, writes every store and shows first finds near the base', async () => {
   const user = userEvent.setup();
   renderAt('/');
-  await user.click(screen.getByRole('button', { name: /get started/i }));
-  await user.click(screen.getByRole('button', { name: /1 – 3 years/i }));
-  await user.click(screen.getByRole('button', { name: /^continue/i }));
-  await user.click(screen.getByRole('button', { name: /^Work/ }));
-  await user.click(screen.getByRole('button', { name: /^continue/i }));
-  for (let i = 0; i < 3; i += 1) {
-    await user.click(screen.getByRole('button', { name: /skip/i }));
-  }
-  expect(h1()).toHaveTextContent("You're Beginner");
-  await user.click(screen.getByRole('button', { name: /start learning/i }));
-  expect(profileStore.get().time).toBe('1 – 3 years');
-  expect(profileStore.get().level).toBe('Beginner');
-  expect(location()).toBe('/today-setup');
+  await user.click(screen.getByRole('button', { name: /Start the hunt/ }));
+  await user.click(screen.getByRole('button', { name: /India/ }));
+  await user.click(continueButton());
+  await user.click(screen.getByRole('button', { name: /1–3 years/ }));
+  await user.click(continueButton());
+  await user.click(screen.getByRole('button', { name: /Working/ }));
+  await user.click(continueButton());
+  await user.click(screen.getByRole('button', { name: /^English/ }));
+  await user.click(continueButton());
+  await user.click(screen.getByRole('button', { name: 'Chinatown & Tanjong Pagar' }));
+  await user.click(continueButton());
+  await user.click(screen.getByRole('button', { name: 'Food' }));
+  await user.click(screen.getByRole('button', { name: 'Monuments' }));
+  await user.click(screen.getByRole('button', { name: /Stamp my passport/ }));
+
+  expect(location()).toBe('/onboarding/result');
+  expect(onboardingStore.get().done).toBe(true);
+  expect(onboardingStore.get().duration).toBe('1 – 3 years');
+  // Unranked topics follow in their order.
+  expect(profileV3Store.get().topics).toEqual(['food', 'monuments', 'festivals', 'history']);
+  expect(culturePrefsStore.get()).toEqual({ categories: ['foods', 'monuments', 'holidays'] });
+  expect(profileStore.get()).toMatchObject({ from: 'India', time: '1–3 years', role: 'Working' });
+  expect(explorePersonalStore.get().selectedAreaId).toBe('sg-chinatown');
+
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Your passport is ready');
+  expect(screen.getByRole('img', { name: /^Stamped WELCOME/ })).toBeInTheDocument();
+  const finds = within(screen.getByRole('list', { name: 'Your first finds' })).getAllByRole('link');
+  expect(finds).toHaveLength(3);
+  expect(finds[0]).toHaveTextContent(/from your base/);
+  expect(finds[1]).toHaveTextContent('You ranked Food #1');
+  expect(finds[2]).toHaveTextContent('You ranked Monuments #2');
+
+  await user.click(screen.getByRole('button', { name: /Start exploring/ }));
+  expect(location()).toBe('/');
 });
 
-test('the Singlish steps no longer promise to build Today', () => {
-  renderAt('/onboarding/topics');
-  expect(screen.getByText('Pick all that apply — we’ll tune your Singlish quiz to them.')).toBeInTheDocument();
-});
-
-test('the result plan describes Singlish practice, then points to Today', () => {
-  renderAt('/onboarding/result?score=2');
-  expect(screen.getByText('Singlish practice')).toBeInTheDocument();
-  expect(screen.queryByText('3 expressions a day')).not.toBeInTheDocument();
-  expect(screen.getByText('Next, pick the culture topics Today shows.')).toBeInTheDocument();
+test('the result page without a home base says how to get finds', () => {
+  profileV3Store.set({ ...DEFAULT_PROFILE_V3 });
+  renderAt('/onboarding/result');
+  expect(screen.getByText('Set a home base in My Space to see what’s closest.')).toBeInTheDocument();
 });

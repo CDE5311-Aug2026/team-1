@@ -1,0 +1,282 @@
+.top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.bigRound {
+  display: block;
+  width: 150px;
+  height: 150px;
+}
+
+.bigCard {
+  display: block;
+  width: 200px;
+  height: 139px;
+}
+
+.bigOutline {
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+  box-sizing: border-box;
+  border: 2px dashed #d9c7b2;
+  border-radius: 50%;
+}
+
+.name {
+  margin: 10px 0 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 0;
+  color: #5e5c54;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.fan {
+  position: relative;
+  height: 150px;
+  margin: 18px 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.fanItem {
+  position: absolute;
+  left: calc(50% - 48px);
+  top: 4px;
+  width: 96px;
+  height: 128px;
+}
+
+.fanCard {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 3px solid #fff;
+  border-radius: 14px;
+  background: #24211c;
+  box-shadow: 0 10px 22px -10px rgba(36, 33, 28, 0.6);
+  color: #fff;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.fanCard:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.fanPhoto,
+.fanPaper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fanPaper {
+  display: grid;
+  place-items: center;
+  background: #f3e6d8;
+}
+
+.locked .fanPhoto,
+.locked .fanPaper {
+  filter: grayscale(1) brightness(0.9);
+  opacity: 0.75;
+}
+
+.fanShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(23, 23, 18, 0.85));
+}
+
+.fanTitle {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 14px;
+}
+
+.fanCheck,
+.fanLock {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.fanCheck {
+  width: 20px;
+  height: 20px;
+  background: #e3661f;
+}
+
+.fanLock {
+  top: calc(50% - 22px);
+  right: calc(50% - 16px);
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.note {
+  margin: 0 0 12px;
+  color: #5e5c54;
+  font-size: 13px;
+  line-height: 19px;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.secondary,
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 52px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border-radius: 16px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.secondary {
+  flex: 0 0 auto;
+  border: 1px solid #ded9d1;
+  background: #fff;
+  color: #24211c;
+}
+
+.primary {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: #24211c;
+  color: #fff;
+}
+
+.secondary:focus-visible,
+.primary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sparkWrap {
+  flex: 1;
+  min-width: 0;
+  width: auto !important;
+  height: auto !important;
+  display: flex;
+}
+
+.addInk {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.addInk strong {
+  font-weight: 800;
+}
+
+.full {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  border-radius: 16px;
+  background: #fff2eb;
+  color: #a3400a;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .secondary,
+  .primary,
+  .fanCard {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+.visits {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.visit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 16px;
+  background: #fff;
+  color: #23211d;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.visit:focus-visible {
+  outline: 2px solid #e3661f;
+  outline-offset: 2px;
+}
+
+.visitName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.visitDate {
+  flex: none;
+  color: #5e5c54;
+  font-size: 12px;
+  font-weight: 500;
+}

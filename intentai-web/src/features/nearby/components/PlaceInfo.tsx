@@ -19,7 +19,9 @@ import { directionsUrl } from '../links';
 import { localToday, shortDate, stateOf } from '../personal';
 import { placeShare } from '../share';
 import { CATEGORIES, articlesFor } from '../../../data/culture';
-import { HOLIDAY_LINKS, articlesNaming } from '../../../data/cultureLinks';
+import { ARTICLE_LINKS, HOLIDAY_LINKS } from '../../../data/cultureLinks';
+import { markCardOpened } from '../../../data/openedCards';
+import { subjectById } from '../../../pages/AskPage/cards';
 import { todaysHoliday } from '../../../data/holiday';
 import ShareButton from './ShareButton';
 import CardDeck, { type DeckCard } from './CardDeck';
@@ -131,6 +133,7 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
                     const handoff: AskHandoff = {
                       prompt: `What does ${tip.headsUp.title.toLowerCase()} mean?`,
                       context: askContextForPlace(place.languageTip!.context),
+                      area: place.areaId,
                     };
                     navigate(paths.ask, { state: handoff });
                   }}
@@ -184,33 +187,47 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
       </>
     ),
   }));
-  // Today's articles (and holiday) that name this place: the same reading, from the place's side
-  const fromToday: DeckCard[] = [
-    ...articlesNaming(place.id).flatMap((id) => {
+  // The Home cards (v3) that name this place, any link kind (a food stall counts too), each opening the same card
+  // page Home opens; then a link to the whole set of the place's area, so the set never differs from Home's.
+  const areaSubject = subjectById(place.areaId);
+  const linkedIds = (tryHere: boolean) =>
+    Object.entries(ARTICLE_LINKS)
+      .filter(([, links]) => links.some((l) => l.kind === 'place' && l.id === place.id && (l.why === 'try') === tryHere))
+      .map(([id]) => id);
+  // Cards about this place lead the deck; cards that only send you here to eat (a stall) go after the phrases.
+  const namingIds = linkedIds(false);
+  const tryIds = linkedIds(true).filter((id) => !namingIds.includes(id));
+  const homeCard = (id: string): DeckCard[] => {
       const a = TODAY_ARTICLES.find((x) => x.id === id);
       return a
         ? [
             {
               id: `today-${a.id}`,
               tone: 'culture' as const,
-              kicker: 'Culture · from Today',
+              kicker: 'Culture · Home card',
               body: (
                 <>
                   <p className={styles.cardName}>{a.title}</p>
                   <p className={styles.body}>{a.summary}</p>
-                  <details className={styles.fold}>
-                    <summary className={styles.foldSummary}>Read more</summary>
-                    <div className={styles.foldBody}>
-                      <p className={styles.body}>{a.deeper}</p>
-                      <p className={styles.sourceLine}>Source: {a.sources.map((x) => x.label).join('; ')}</p>
-                    </div>
-                  </details>
+                  <p className={styles.sourceLine}>Source: {a.sources.map((x) => x.label).join('; ')}</p>
+                  <div className={styles.row}>
+                    <Link className={styles.primary} to={paths.card(a.id)} onClick={() => markCardOpened(a.id)}>
+                      Open card
+                    </Link>
+                    {areaSubject && (
+                      <Link className={styles.secondary} to={paths.place(areaSubject.id)}>
+                        All {areaSubject.cards.length} {areaSubject.short} {areaSubject.cards.length === 1 ? 'card' : 'cards'}
+                      </Link>
+                    )}
+                  </div>
                 </>
               ),
             },
           ]
         : [];
-    }),
+  };
+  const fromToday: DeckCard[] = [
+    ...namingIds.flatMap(homeCard),
     ...(HOLIDAY_LINKS[todaysHoliday.name]?.some((l) => l.kind === 'place' && l.id === place.id)
       ? [
           {
@@ -235,6 +252,32 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
     if (language[i]) deck.push(language[i]);
     if (culture[i]) deck.push(culture[i]);
   }
+  deck.push(...tryIds.flatMap(homeCard));
+  // No card names this place but its area has cards: one card, last, pointing to the area's set on Home.
+  const areaCard: DeckCard[] =
+    namingIds.length === 0 && tryIds.length === 0 && areaSubject
+      ? [
+          {
+            id: `area-${areaSubject.id}`,
+            tone: 'culture' as const,
+            kicker: `Culture · ${areaSubject.short}`,
+            body: (
+              <>
+                <p className={styles.cardName}>
+                  {areaSubject.cards.length} {areaSubject.cards.length === 1 ? 'card' : 'cards'} about {areaSubject.short}
+                </p>
+                <p className={styles.body}>{areaSubject.cards.map((c) => c.article.title).join(' · ')}</p>
+                <div className={styles.row}>
+                  <Link className={styles.primary} to={paths.place(areaSubject.id)}>
+                    Open {areaSubject.short}
+                  </Link>
+                </div>
+              </>
+            ),
+          },
+        ]
+      : [];
+  deck.push(...areaCard);
 
   const correction = `Correction for “${place.name}” (${place.id}): `;
   const copyCorrection = async () => {

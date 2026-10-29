@@ -1,0 +1,427 @@
+/* Place page (Intent v3 Figma 2 / 7): hero, sheet (28px), Album Rail, info card (24px). */
+
+.page {
+  --ink: #23211d;
+  --accent-dark: #a3400a;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: calc(-1 * var(--status-h, 3rem)) calc(-1 * var(--gutter)) 0;
+}
+
+.hero {
+  position: relative;
+  height: 15.5rem;
+  overflow: hidden;
+  background: #3a332b;
+}
+
+.heroPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: heroDrift 14s ease-in-out infinite alternate;
+}
+
+@keyframes heroDrift {
+  from {
+    transform: scale(1.04) translateY(0);
+  }
+  to {
+    transform: scale(1.1) translateY(-2%);
+  }
+}
+
+.heroShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0000004d 0%, #0000 40%);
+}
+
+.back,
+.checkIn {
+  position: absolute;
+  top: calc(var(--status-h, 3rem) + 0.25rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 16px;
+  background: #fffffff0;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 18px -12px #0009;
+}
+
+.back {
+  left: var(--gutter);
+  width: 2.75rem;
+}
+
+.checkIn {
+  right: var(--gutter);
+  padding: 0 0.875rem;
+}
+
+.checkIn svg {
+  color: var(--accent);
+}
+
+.checkedIn {
+  background: #fff2eb;
+}
+
+.checkedIn svg {
+  color: #fff;
+  fill: var(--accent);
+}
+
+.sheet {
+  position: relative;
+  margin-top: -1.75rem;
+  padding: 1.25rem var(--gutter) 2rem;
+  border-radius: 28px 28px 0 0;
+  background: var(--bg-app);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .sheet,
+  .info,
+  .sleeve {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.where {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--text-ink-2);
+}
+
+.where svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.segments {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.segments i {
+  width: 1.375rem;
+  height: 0.25rem;
+  border-radius: 2px;
+  background: #f3d5c0;
+}
+
+.segments .segOn {
+  background: var(--accent);
+}
+
+.progressText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ---------- Album Rail ---------- */
+
+.railBlock {
+  margin: 1.25rem calc(-1 * var(--gutter)) 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rail {
+  position: relative;
+  height: 13.5rem;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  touch-action: pan-y;
+  cursor: grab;
+  outline-offset: -4px;
+}
+
+.rail[data-dragging] {
+  cursor: grabbing;
+}
+
+.sleeve {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  width: 10rem;
+  height: 10rem;
+  margin-left: -5rem;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  border: 3px solid #fff;
+  box-shadow: 0 18px 28px -16px #0008;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rail[data-dragging] .sleeve {
+  transition: none;
+}
+
+.sleeve img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.sleeveBlank {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0d9c8, #e4671f55);
+}
+
+.sleeveGlare {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, #fff0 30%, #ffffff8c 48%, #fff0 62%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.sleeveTick {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gutter);
+}
+
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.ruler {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.tickSlot {
+  display: flex;
+}
+
+.tick {
+  position: relative;
+  /* 24px wide: WCAG 2.2 target size (the visible mark stays a thin line). */
+  width: 1.5rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.tick::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 0.875rem;
+  margin: -0.4375rem 0 0 -1px;
+  border-radius: 1px;
+  background: #b9b2a6;
+  transition: height 0.25s ease, background 0.25s ease, margin 0.25s ease;
+}
+
+.tickOn::after {
+  height: 1.375rem;
+  margin-top: -0.6875rem;
+  background: var(--ink);
+}
+
+.play {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0 0.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 16px -8px #e4671f;
+}
+
+.play:disabled {
+  opacity: 0.4;
+}
+
+/* ---------- info card ---------- */
+
+.info {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+}
+
+.infoTitle {
+  margin: 0;
+  font-size: 1.3125rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.infoBody {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--text-ink-2);
+}
+
+.infoPlace {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0.125rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.infoPlace svg {
+  color: var(--accent);
+}
+
+.infoDone {
+  color: var(--accent-dark);
+}
+
+.infoFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.625rem;
+}
+
+.formats {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 16px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.open svg {
+  color: #f4b389;
+}
+
+.credit {
+  margin: 0.875rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.missing {
+  padding: 2rem 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroPhoto {
+    animation: none;
+  }
+  .sleeve {
+    transition: none;
+  }
+}
+
+:global(html.reduce-motion) .heroPhoto {
+  animation: none;
+}
+
+:global(html.reduce-motion) .sleeve {
+  transition: none;
+}

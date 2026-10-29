@@ -1,258 +1,191 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { expect, test } from 'vitest';
-import { addLookup, type Lookup } from '../../data/domain';
-import { collectedStore, lookupsStore, onboardingStore, profileStore, streakStore } from '../../data/stores';
-import { todayKey } from '../../data/progress';
-import { paths } from '../../routes';
+import { EMPTY_SOCIAL, communitySocialStore } from '../../data/community/social';
+import { recapStore } from '../../data/moments/recapStore';
+import { explorePersonalStore, insightsStore, lookupsStore, openedCardsStore, questionsStore, tipsStore } from '../../data/stores';
+import { markVisited } from '../../features/nearby/actions';
+import { patterns, paths } from '../../routes';
 import MomentsPage from './MomentsPage';
+
+function Probe({ name }: { name: string }) {
+  const { state } = useLocation();
+  const params = useParams();
+  return (
+    <p data-testid="probe">
+      {name} {params.cardId ?? params.placeKey ?? ''} {(state as { prompt?: string; askLocal?: string } | null)?.prompt ?? (state as { askLocal?: string } | null)?.askLocal ?? ''}
+    </p>
+  );
+}
 
 function renderPage() {
   return render(
     <MemoryRouter useTransitions={false} initialEntries={[paths.moments]}>
       <Routes>
         <Route path={paths.moments} element={<MomentsPage />} />
-        <Route path={paths.community} element={<p>community page</p>} />
+        <Route path={patterns.card} element={<Probe name="card" />} />
+        <Route path={patterns.place} element={<Probe name="place" />} />
+        <Route path={paths.ask} element={<Probe name="ask" />} />
+        <Route path={paths.community} element={<Probe name="community" />} />
+        <Route path={paths.nearby} element={<Probe name="nearby" />} />
+        <Route path={patterns.question} element={<Probe name="question" />} />
       </Routes>
     </MemoryRouter>,
   );
 }
 
-function makeLookups(count: number): Lookup[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `l${i + 1}`,
-    word: `phrase ${i + 1}`,
-    meaning: `meaning ${i + 1}`,
-    source: 'AI-generated' as const,
-  }));
-}
+const checkIn = (key: `curated:${string}`, date = '2026-11-02') =>
+  explorePersonalStore.set((d) => ({ ...d, places: [...d.places, { placeKey: key, saved: false, visited: true, visitedOn: date, updatedAt: `${date}T00:00:00.000Z` }] }));
 
-const card = (word: string) => screen.getByRole('article', { name: word });
-
-test('lists every seeded lookup with its source label, count and caption', () => {
+test('new user: no stamps, locked outlines, and the empty states say what to do', () => {
+  lookupsStore.set([]);
   renderPage();
-
   expect(screen.getByRole('heading', { level: 1, name: 'Moments' })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { level: 2, name: 'All lookups' })).toBeInTheDocument();
-  expect(screen.getByText('3', { selector: '[data-node-id="4:944"]' })).toBeInTheDocument();
-  expect(screen.getAllByRole('article')).toHaveLength(3);
-  expect(within(card('wah, finally ah')).getByText('Confirmed by a local')).toBeInTheDocument();
-  expect(within(card('chope')).getByText('To reserve a seat by leaving tissues on it.')).toBeInTheDocument();
-  expect(within(card('sabo')).getByText('AI-generated')).toBeInTheDocument();
-  expect(screen.getByText('Showing 1–3 of 3 lookups')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Snap' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^Rank: Visitor\. 3 more cards to Explorer/ })).toBeInTheDocument();
+  expect(screen.getByText(/No stamps yet\. Check in at a place in/)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Chinatown: no stamp yet. See its cards.' })).toBeInTheDocument();
+  expect(screen.getByText('Nothing collected yet')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Open a card' })).toHaveAttribute('href', '/');
+  expect(screen.getByRole('button', { name: /Recap/ })).toBeDisabled();
 });
 
-const tile = (title: string) => screen.getByRole('button', { name: new RegExp(`^\\d\\d ${title} `) });
-
-test("today's three replace the daily card switch, in a row above All lookups", () => {
+test('a check-in collects the stamp at once; ink counts the opened cards of that place', () => {
+  openedCardsStore.set(['chicken-rice', 'laksa']);
   renderPage();
-  expect(screen.queryByRole('switch')).not.toBeInTheDocument();
-  expect(screen.getByRole('heading', { level: 2, name: "Today's three" })).toBeInTheDocument();
-  for (const title of ['Chope', 'Can or not?', 'Paiseh']) {
-    expect(tile(title.replace('?', '\\?'))).toHaveAttribute('aria-expanded', 'false');
-  }
+  act(() => {
+    markVisited('curated:sg-thian-hock-keng-temple', 'Thian Hock Keng Temple', true);
+  });
+  expect(screen.getByRole('button', { name: 'Chinatown, 1 of 3 cards opened. Open this stamp.' })).toBeInTheDocument();
+  // Katong has an opened card but no check-in: still an outline
+  expect(screen.getByRole('button', { name: 'Katong: no stamp yet. See its cards.' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /1 of 100 places checked in/ })).toBeInTheDocument();
 });
 
-test("today's three follow the onboarding Singlish topics", () => {
-  onboardingStore.set((prev) => ({ ...prev, topics: ['Work', 'Food'] }));
+test('tapping a stamp fans out its cards; opening a locked one marks it opened and opens the card', async () => {
+  checkIn('curated:sg-thian-hock-keng-temple');
+  openedCardsStore.set(['chicken-rice']);
+  const user = userEvent.setup();
   renderPage();
-  expect(screen.getAllByRole('button', { name: /^0[1-3] / })).toHaveLength(3);
-  for (const title of ['Can or not\\?', 'Tapau', 'Steady']) expect(tile(title)).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /^Chinatown, 1 of 3/ }));
+  const sheet = screen.getByRole('dialog', { name: 'Chinatown' });
+  expect(within(sheet).getByText(/Checked in 2 Nov 2026/)).toBeInTheDocument();
+  expect(within(sheet).getByRole('button', { name: /Hainanese chicken rice.*: opened/i })).toBeInTheDocument();
+  expect(within(sheet).getByRole('button', { name: /^Add ink:/ })).toBeInTheDocument();
+  expect(within(sheet).getByRole('link', { name: 'Open place' })).toHaveAttribute('href', '/place/sg-chinatown');
+  await user.click(within(sheet).getByRole('button', { name: /^Thian Hock Keng.*not opened yet/ }));
+  expect(openedCardsStore.get()).toContain('thian-hock-keng');
+  expect(await screen.findByTestId('probe')).toHaveTextContent('card thian-hock-keng');
 });
 
-test('tapping a tile opens its full card under the row; another tile swaps it, the same tile closes it', async () => {
+test('an outline stamp sends you to Nearby to check in', async () => {
+  const user = userEvent.setup();
   renderPage();
-  await userEvent.click(tile('Chope'));
-  expect(tile('Chope')).toHaveAttribute('aria-expanded', 'true');
-  const detail = screen.getByRole('region', { name: 'Chope' });
-  expect(within(detail).getByText('/chohp/')).toBeInTheDocument();
-  expect(within(detail).getByText('“I chope a table first, you go order.”')).toBeInTheDocument();
-  expect(within(detail).getByRole('button', { name: /play audio/i })).toBeInTheDocument();
-
-  await userEvent.click(tile('Paiseh'));
-  expect(tile('Chope')).toHaveAttribute('aria-expanded', 'false');
-  expect(screen.queryByRole('region', { name: 'Chope' })).not.toBeInTheDocument();
-  expect(screen.getByRole('region', { name: 'Paiseh' })).toBeInTheDocument();
-
-  await userEvent.click(tile('Paiseh'));
-  expect(screen.queryByRole('region', { name: 'Paiseh' })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Chinatown: no stamp yet. See its cards.' }));
+  const sheet = screen.getByRole('dialog', { name: 'Chinatown' });
+  expect(within(sheet).getByText(/Not checked in yet/)).toBeInTheDocument();
+  expect(within(sheet).getByRole('link', { name: 'Check in in Nearby' })).toHaveAttribute('href', '/nearby?area=sg-chinatown');
+  expect(within(sheet).queryByRole('button', { name: /Add ink/ })).not.toBeInTheDocument();
 });
 
-test('Got it marks a lookup understood and can be undone by pressing again', async () => {
+test('Collected: filters by topic; a saved insight asks the question again in Ask', async () => {
+  openedCardsStore.set(['chicken-rice', 'thian-hock-keng']);
+  tipsStore.set([{ id: 't1', cardId: 'chicken-rice', questionId: 'q1', text: 'Go early.', by: 'Mei', createdAt: 1, cited: 0, sample: true }]);
+  insightsStore.set([{ id: 'i1', question: 'Why is Thian Hock Keng important?', kind: 'card', title: 'Thian Hock Keng', summary: 'Old temple.', cardId: 'thian-hock-keng', savedAt: 2 }]);
+  const user = userEvent.setup();
   renderPage();
-  const gotIt = within(card('chope')).getByRole('button', { name: 'Got it chope' });
-  expect(gotIt).toHaveAttribute('aria-pressed', 'false');
-
-  await userEvent.click(gotIt);
-  expect(gotIt).toHaveAttribute('aria-pressed', 'true');
-  expect(lookupsStore.get().find((l) => l.id === 'chope')?.got).toBe(true);
-  expect(screen.getByRole('status')).toHaveTextContent('Marked as understood');
-
-  await userEvent.click(gotIt);
-  expect(lookupsStore.get().find((l) => l.id === 'chope')?.got).toBe(false);
+  expect(screen.queryByText('Example')).toBeNull();
+  await user.click(screen.getByRole('button', { name: /^Food, 2/ }));
+  expect(screen.getByRole('button', { name: /^Food, 2/ })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: /^Open Hainanese chicken rice/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Mei’s tip/ })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /^Open Thian Hock Keng/ })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /^Ask, 1/ }));
+  await user.click(screen.getByRole('button', { name: 'Ask again: Why is Thian Hock Keng important?' }));
+  expect(screen.getByTestId('probe')).toHaveTextContent('ask Why is Thian Hock Keng important?');
 });
 
-test('Met it again counts encounters', async () => {
+test('phrases keep their source; an AI-generated one can go to a local', async () => {
+  const user = userEvent.setup();
   renderPage();
-  await userEvent.click(within(card('wah, finally ah')).getByRole('button', { name: 'Met it again wah, finally ah' }));
-  await userEvent.click(within(card('wah, finally ah')).getByRole('button', { name: /Met it again · 1/ }));
-
-  expect(lookupsStore.get()[0].encounters).toBe(2);
-  expect(within(card('wah, finally ah')).getByText('Met it again · 2')).toBeInTheDocument();
-  expect(screen.getByRole('status')).toHaveTextContent('Encounter saved');
+  await user.click(screen.getByRole('button', { name: /^Phrases, 3/ }));
+  expect(within(screen.getByRole('article', { name: 'Phrase: chope' })).getByText('Confirmed by a local')).toBeInTheDocument();
+  expect(within(screen.getByRole('article', { name: 'Phrase: sabo' })).getByText('AI-generated')).toBeInTheDocument();
+  await user.click(screen.getAllByRole('button', { name: /not sure/i })[0]);
+  expect(screen.getByTestId('probe')).toHaveTextContent('community What does “sabo” mean here?');
 });
 
-test('Not sure on an AI-generated lookup sends the user to ask a local', async () => {
+test('a phrase sheet deletes with Undo', async () => {
+  const user = userEvent.setup();
   renderPage();
-  expect(within(card('sabo')).queryByRole('button', { name: /Got it/ })).not.toBeInTheDocument();
-
-  await userEvent.click(within(card('sabo')).getByRole('button', { name: 'Not sure about sabo' }));
-
-  expect(screen.getByText('community page')).toBeInTheDocument();
+  await user.click(within(screen.getByRole('article', { name: 'Phrase: chope' })).getAllByRole('button')[0]);
+  await user.click(within(screen.getByRole('dialog', { name: 'chope' })).getByRole('button', { name: 'Delete phrase' }));
+  expect(lookupsStore.get().map((l) => l.id)).not.toContain('chope');
 });
 
-test('Delete removes a lookup and Undo puts it back in the same place', async () => {
+test('rank sheet: rank from opened cards and badges with progress', async () => {
+  openedCardsStore.set(['chicken-rice', 'thian-hock-keng', 'temasek-singapura']);
+  checkIn('curated:sg-thian-hock-keng-temple');
+  const user = userEvent.setup();
   renderPage();
-  await userEvent.click(screen.getByRole('button', { name: 'Delete chope' }));
-
-  expect(screen.queryByRole('article', { name: 'chope' })).not.toBeInTheDocument();
-  expect(lookupsStore.get().map((l) => l.id)).toEqual(['wah', 'sabo']);
-  expect(screen.getByRole('status')).toHaveTextContent('Lookup deleted');
-
-  await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
-  expect(lookupsStore.get().map((l) => l.id)).toEqual(['wah', 'chope', 'sabo']);
-  expect(card('chope')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /^Rank: Explorer/ }));
+  const sheet = screen.getByRole('dialog', { name: 'Your rank: Explorer' });
+  expect(within(sheet).getByText('5 more cards to Insider')).toBeInTheDocument();
+  expect(within(sheet).getByRole('listitem', { name: 'First stamp: earned' })).toBeInTheDocument();
+  expect(within(sheet).getByRole('listitem', { name: 'Historian: earned' })).toBeInTheDocument();
+  expect(within(sheet).getByRole('listitem', { name: /^Two districts: 1 of 2/ })).toBeInTheDocument();
+  expect(within(sheet).getByRole('listitem', { name: /^Full set: 2 of 3/ })).toBeInTheDocument();
 });
 
-test('pages through three lookups at a time', async () => {
-  lookupsStore.set(makeLookups(7));
+test('recap: sort the facts, then a score; results are stored', async () => {
+  const user = userEvent.setup();
   renderPage();
-
-  expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Page 1' })).toHaveAttribute('aria-current', 'page');
-
-  await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
-  expect(card('phrase 4')).toBeInTheDocument();
-  expect(screen.getByText('Showing 4–6 of 7 lookups')).toBeInTheDocument();
-
-  await userEvent.click(screen.getByRole('button', { name: 'Page 3' }));
-  expect(screen.getAllByRole('article')).toHaveLength(1);
-  expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled();
+  expect(screen.getByText('3 facts · about 1 min')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /Recap/ }));
+  const recap = screen.getByRole('dialog', { name: 'Recap' });
+  await user.click(within(recap).getByRole('button', { name: 'Show the answer' }));
+  await user.click(within(recap).getByRole('button', { name: 'I knew it' }));
+  await user.click(within(recap).getByRole('button', { name: 'See it again' }));
+  await user.click(within(recap).getByRole('button', { name: 'I knew it' }));
+  expect(within(recap).getByRole('heading', { name: 'You knew 2 of 3' })).toBeInTheDocument();
+  expect(Object.values(recapStore.get().results).sort()).toEqual(['again', 'knew', 'knew']);
+  expect(recapStore.get().last).toMatchObject({ knew: 2, total: 3 });
 });
 
-test('the page stays valid when its last lookup is deleted', async () => {
-  lookupsStore.set(makeLookups(7));
+test('snap: picking a card photo opens that card (no match percentage)', async () => {
+  checkIn('curated:sg-thian-hock-keng-temple');
+  const user = userEvent.setup();
   renderPage();
-  await userEvent.click(screen.getByRole('button', { name: 'Page 3' }));
-
-  await userEvent.click(screen.getByRole('button', { name: 'Delete phrase 7' }));
-
-  expect(screen.getAllByRole('article')).toHaveLength(3);
-  expect(screen.getByText('Showing 4–6 of 6 lookups')).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page');
+  await user.click(screen.getByRole('button', { name: 'Snap' }));
+  const sheet = screen.getByRole('dialog', { name: 'Snap a moment' });
+  await user.click(within(sheet).getByRole('button', { name: 'Thian Hock Keng Temple' }));
+  expect(openedCardsStore.get()).toContain('thian-hock-keng');
+  const found = screen.getByRole('dialog', { name: /Thian Hock Keng/ });
+  expect(within(found).getByText('CARD FOUND')).toBeInTheDocument();
+  expect(within(found).getByText('+1 card · ink added to your stamp')).toBeInTheDocument();
+  expect(within(found).queryByText(/%/)).not.toBeInTheDocument();
+  expect(within(found).getByRole('link', { name: /Open card/ })).toHaveAttribute('href', '/card/thian-hock-keng');
 });
 
-test('shows an empty state without pagination when nothing is saved', () => {
-  lookupsStore.set([]);
+test('Community conversations saved to Moments: the live thread while it exists, the snapshot after', async () => {
+  const snap = (threadId: string, title: string) => ({ threadId, title, body: 'Body text.', topic: 'Food', replies: [{ author: 'A local', text: 'Try the stall at the corner.' }], savedAt: 5 });
+  questionsStore.set([]);
+  communitySocialStore.set({ ...EMPTY_SOCIAL, saved: [snap('gone', 'Where is good laksa?')] });
+  const user = userEvent.setup();
   renderPage();
-
-  expect(screen.getByText('No lookups yet. Ask about a phrase to save it here.')).toBeInTheDocument();
-  expect(screen.queryByRole('article')).not.toBeInTheDocument();
-  expect(screen.queryByRole('navigation', { name: 'Lookup pages' })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /^Community, 1/ }));
+  await user.click(screen.getByRole('button', { name: 'Open saved conversation: Where is good laksa?' }));
+  const sheet = screen.getByRole('dialog', { name: 'Where is good laksa?' });
+  expect(within(sheet).getByText('Try the stall at the corner.')).toBeInTheDocument();
+  expect(within(sheet).getByText(/no longer in Community/)).toBeInTheDocument();
 });
 
-test('Practise opens a dialog to hear the phrase and write an example', async () => {
+test('a saved conversation whose question still exists opens the question', async () => {
+  questionsStore.set([{ id: 'q-live', text: 'Is chope rude?', status: 'posted', postedAt: 1 } as never]);
+  communitySocialStore.set({ ...EMPTY_SOCIAL, saved: [{ threadId: 'q-live', title: 'Is chope rude?', body: '', topic: 'Phrases', replies: [], savedAt: 5 }] });
+  const user = userEvent.setup();
   renderPage();
-  await userEvent.click(screen.getByRole('button', { name: 'Practise sabo' }));
-
-  const dialog = screen.getByRole('dialog', { name: 'Practise sabo' });
-  expect(within(dialog).getByText('To sell someone out — joking or serious; tone decides.')).toBeInTheDocument();
-  await userEvent.click(within(dialog).getByRole('button', { name: 'Hear it' }));
-  // jsdom has no speech synthesis, so the user is told instead of nothing happening.
-  expect(screen.getByRole('status')).toHaveTextContent('Audio isn’t available on this device');
-
-  await userEvent.type(within(dialog).getByLabelText('Your example'), 'Eh, don’t sabo me lah.');
-  await userEvent.click(within(dialog).getByRole('button', { name: 'Done' }));
-
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  expect(screen.getByRole('status')).toHaveTextContent('Example saved');
-  expect(lookupsStore.get().find((item) => item.id === 'sabo')?.example).toBe('Eh, don’t sabo me lah.');
-
-  // Reopening shows the saved example so it can be revised.
-  await userEvent.click(screen.getByRole('button', { name: 'Practise sabo' }));
-  expect(screen.getByLabelText('Your example')).toHaveValue('Eh, don’t sabo me lah.');
-});
-
-test('Practise with no example written saves nothing and says so plainly', async () => {
-  renderPage();
-  await userEvent.click(screen.getByRole('button', { name: 'Practise sabo' }));
-  await userEvent.click(screen.getByRole('button', { name: 'Done' }));
-
-  expect(screen.getByRole('status')).toHaveTextContent('Practice complete');
-  expect(lookupsStore.get().find((item) => item.id === 'sabo')?.example).toBeUndefined();
-});
-
-test('a lookup added elsewhere (Ask, lessons) appears first on page 1', () => {
-  lookupsStore.set(makeLookups(5));
-  lookupsStore.set((prev) => addLookup(prev, { word: 'paiseh…', meaning: 'Sorry or embarrassed.' }, () => 'paiseh'));
-  renderPage();
-
-  expect(screen.getAllByRole('article')[0]).toHaveAccessibleName('paiseh…');
-  expect(screen.getByText('Showing 1–3 of 6 lookups')).toBeInTheDocument();
-});
-
-test('after deleting a lookup, focus stays in the list (on its heading)', async () => {
-  renderPage();
-  await userEvent.click(screen.getAllByRole('button', { name: /^delete/i })[0]);
-  expect(screen.getByRole('heading', { name: 'All lookups' })).toHaveFocus();
-});
-
-const passport = () => screen.getByRole('region', { name: 'Singlish passport' });
-
-test('the passport shows collected phrases, topics, days and the quiz level', () => {
-  profileStore.set((prev) => ({ ...prev, level: 'Experienced' }));
-  collectedStore.set(['chope', 'tapau']);
-  streakStore.set({ date: todayKey(), count: 4 });
-  renderPage();
-  expect(within(passport()).getByRole('heading', { name: 'My phrasebook' })).toBeInTheDocument();
-  // 2 collected phrases + "chope" and "wah, finally ah" are not Got it in the seed, so 2.
-  expect(within(passport()).getByText('2', { selector: '[data-stat="phrases"]' })).toBeInTheDocument();
-  expect(within(passport()).getByText('4', { selector: '[data-stat="topics"]' })).toBeInTheDocument();
-  expect(within(passport()).getByText('4', { selector: '[data-stat="days"]' })).toBeInTheDocument();
-  expect(within(passport()).getByText('Experienced')).toBeInTheDocument();
-  expect(within(passport()).queryByText(/collect your first phrase/)).toBeNull();
-});
-
-test('an empty passport says how to collect the first phrase', () => {
-  collectedStore.set([]);
-  lookupsStore.set([]);
-  renderPage();
-  expect(within(passport()).getByText('0', { selector: '[data-stat="phrases"]' })).toBeInTheDocument();
-  expect(within(passport()).getByText('Open a card below to collect your first phrase.')).toBeInTheDocument();
-});
-
-test('no quiz level means no level stamp', () => {
-  profileStore.set((prev) => ({ ...prev, level: undefined }));
-  renderPage();
-  expect(within(passport()).queryByText(/Beginner|Intermediate|Experienced/)).toBeNull();
-});
-
-test("opening a Today's three card collects it, stamps it and counts a learning day", async () => {
-  streakStore.set({ date: '', count: 0 });
-  renderPage();
-  expect(within(tile('Chope')).queryByText('got it')).toBeNull();
-  await userEvent.click(tile('Chope'));
-  expect(collectedStore.get()).toEqual(['chope']);
-  expect(within(tile('Chope')).getByText('got it')).toBeInTheDocument();
-  expect(streakStore.get().date).toBe(todayKey());
-  const topics = within(screen.getByRole('list', { name: 'My topics' })).getAllByRole('listitem');
-  expect(topics.map((t) => t.textContent)).toContain('Daily life1 of 3');
-});
-
-test('My topics lists the onboarding topics, all four when none were picked', () => {
-  onboardingStore.set((prev) => ({ ...prev, topics: [] }));
-  renderPage();
-  const topics = within(screen.getByRole('list', { name: 'My topics' })).getAllByRole('listitem');
-  expect(topics.map((t) => t.textContent)).toEqual(['Work0 of 3', 'Food0 of 3', 'Daily life0 of 3', 'Getting around0 of 3']);
+  await user.click(screen.getByRole('button', { name: 'Open saved conversation: Is chope rude?' }));
+  expect(screen.getByTestId('probe')).toHaveTextContent('question');
 });

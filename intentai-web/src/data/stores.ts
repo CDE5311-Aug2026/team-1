@@ -16,6 +16,9 @@ import {
   isReportList,
   isSavedIds,
   isSettings,
+  isTipList,
+  isInsightList,
+  isAskThreadList,
   makeId,
   type Lookup,
   type Notices,
@@ -25,6 +28,9 @@ import {
   type Question,
   type Report,
   type Settings,
+  type Tip,
+  type Insight,
+  type AskThread,
 } from './domain';
 import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
@@ -32,6 +38,8 @@ import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalDa
 import { stopLocation } from '../features/nearby/location';
 import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeState } from './placeStories';
 import { createPersistentStore } from './persistentStore';
+import { EMPTY_SOCIAL, communitySocialStore } from './community/social';
+import { EMPTY_RECAP, recapStore } from './moments/recapStore';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -151,6 +159,41 @@ export function setCheckedIn(id: string, on: boolean) {
 export function setStamped(id: string, isoDate: string) {
   updatePlace(id, (s) => ({ ...s, stamped: true, stampedOn: isoDate }));
 }
+/** "Reduce motion" (Ask ⋯ settings, My Space settings): stops the app's animations even when the system allows them. */
+export const reduceMotionStore = createPersistentStore<boolean>({
+  key: 'reduce-motion',
+  fallback: false,
+  isValid: (value): value is boolean => typeof value === 'boolean',
+});
+
+/** Ask chat history (ZIP prototype History). Each record keeps what is needed to rebuild the answers. */
+export const askThreadsStore = createPersistentStore<AskThread[]>({
+  key: 'ask-threads',
+  fallback: [],
+  isValid: isAskThreadList,
+});
+
+/** Ask answers saved with "Save insight" (shown in Moments). */
+export const insightsStore = createPersistentStore<Insight[]>({
+  key: 'insights',
+  fallback: [],
+  isValid: isInsightList,
+});
+
+/** Local answers added to culture cards (Community → card → Ask). */
+export const tipsStore = createPersistentStore<Tip[]>({
+  key: 'tips',
+  fallback: [],
+  isValid: isTipList,
+});
+
+/** Culture-card (Today article) ids the user has opened: Read more on Today, or Open on an Ask source card. Ask's
+ * "Recommended for you" says which one a pick comes from. */
+export const openedCardsStore = createPersistentStore<string[]>({
+  key: 'opened-cards',
+  fallback: [],
+  isValid: isSavedIds,
+});
 
 /** Anonymous random id sent with usage timings (time only, never content). Empty until first needed. */
 export const usageIdStore = createPersistentStore<string>({
@@ -230,6 +273,14 @@ export function deleteAllData() {
   } catch {
     /* storage unavailable */
   }
+  openedCardsStore.set([]);
+  tipsStore.set([]);
+  insightsStore.set([]);
+  askThreadsStore.set([]);
+  reduceMotionStore.set(false);
+  // v3 page stores (their own files; Profile / My Space resets itself through onDataDeleted below).
+  communitySocialStore.set(EMPTY_SOCIAL);
+  recapStore.set(EMPTY_RECAP);
   usageIdStore.set('');
   // The user test goes on (the test name is not personal data); its records on this device are deleted.
   clearLocalUsage();

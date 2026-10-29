@@ -32,3 +32,13 @@ a {
   color: inherit;
   text-underline-offset: 2px;
 }
+
+/* App setting "Reduce motion" (src/data/motion.ts): stop CSS animations and transitions everywhere. */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}

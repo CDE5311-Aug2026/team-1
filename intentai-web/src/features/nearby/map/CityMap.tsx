@@ -105,7 +105,12 @@ interface CityMapProps {
   controlsTop?: number;
   /** Pins are shown but not selectable (e.g. the single place on its own detail page). */
   readOnly?: boolean;
+  /** 'hidden': the page shows the map credit itself (e.g. behind an info button); default 'inline'. */
+  attribution?: 'inline' | 'hidden';
 }
+
+/** The map credit (OSM licence): shown on the map, or by a page that hides it behind its own control. */
+export const MAP_ATTRIBUTION = 'EARTH ONLINE map · © OpenStreetMap contributors';
 
 const KEY_PAN_PX = 60;
 /** Pins closer than this merge, so 30–34 px targets never overlap (WCAG 2.5.8). */
@@ -245,6 +250,7 @@ export default function CityMap({
   bleed = false,
   insets,
   controlsTop,
+  attribution = 'inline',
 }: CityMapProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -681,9 +687,11 @@ export default function CityMap({
         recenterLabel={recenterLabel}
       />
       {circle && !bleed && <p className={styles.radiusNote}>{circle.label}</p>}
-      <p className={styles.attribution} style={insetBottom ? { bottom: insetBottom } : undefined}>
-        EARTH ONLINE map · © OpenStreetMap contributors
-      </p>
+      {attribution === 'inline' && (
+        <p className={styles.attribution} style={insetBottom ? { bottom: insetBottom } : undefined}>
+          {MAP_ATTRIBUTION}
+        </p>
+      )}
     </div>
   );
 }

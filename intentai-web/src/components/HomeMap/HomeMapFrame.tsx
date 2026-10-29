@@ -1,5 +1,5 @@
 import { Component, Suspense, lazy, useState, type ComponentType, type CSSProperties, type ReactNode } from 'react';
-import { PINNED_COUNT, type HomePlace } from '../../data/homePlaces';
+import { EXPLORE_COUNT, type HomePlace } from '../../data/homePlaces';
 import type { LatLng } from '../../features/nearby/types';
 import type { MapCommand } from './camera';
 import type { HomeMapProps } from './HomeMap';
@@ -92,7 +92,7 @@ export default function HomeMapFrame({ onLocate, onExplore, onZoom, locating = f
       </div>
 
       <button type="button" className={`press ${styles.count}`} onClick={onExplore} data-map-obstacle="">
-        <strong>{PINNED_COUNT}</strong> places to explore
+        <strong>{EXPLORE_COUNT}</strong> places to explore
       </button>
 
       <div className={styles.zoom} data-map-obstacle="">

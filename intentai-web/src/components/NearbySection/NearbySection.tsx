@@ -1,5 +1,5 @@
 import { useEffect, useId, useReducer, useRef, useState } from 'react';
-import { HOME_BASE, HOME_BASE_LABEL, HOME_PLACES, homePlace, visiblePins, type HomePlace } from '../../data/homePlaces';
+import { ALL_HOME_PLACES, HOME_BASE, HOME_BASE_LABEL, HOME_PLACES, homePlace, visiblePins, type HomePlace } from '../../data/homePlaces';
 import { usePersistentStore } from '../../data/persistentStore';
 import { placeStoriesStore } from '../../data/stores';
 import { distanceM } from '../../features/nearby/geo';
@@ -193,7 +193,7 @@ export function NearbySection({ onOpenPlace, onExplore, focusId, revealMap = fal
         </div>
         <div ref={carouselRef} className={styles.carousel} data-testid="nearby-carousel">
           <PlaceCarousel
-            places={HOME_PLACES}
+            places={ALL_HOME_PLACES}
             selectedId={state.selectedId}
             stories={stories}
             onSelect={select}

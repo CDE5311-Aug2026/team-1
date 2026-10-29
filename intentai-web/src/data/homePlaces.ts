@@ -5,6 +5,8 @@ import chinatownPhoto from '../assets/home/chinatown.webp';
 import { distanceM } from '../features/nearby/geo';
 import { THUMB_CREDIT, thumbUrl } from '../features/nearby/thumbs';
 import type { LatLng } from '../features/nearby/types';
+import { PUBLISHED_PLACES } from '../features/nearby/catalogue';
+import { placePicture } from './home/nearbyCards';
 
 export { FACETS, openedCount } from './placeStories';
 export type { Facet, PlaceStories } from './placeStories';
@@ -98,13 +100,45 @@ export const HOME_PLACES: readonly HomePlace[] = [
   nearbyPlace('curated:sg-holland-village', 'Holland Village', 'Queenstown & Holland', { lat: 1.31194, lng: 103.79611 }, ['Holland V', 'Holland Road']),
 ];
 
+/** Short area names for the card line (areas.json names). */
+const AREA_NAME = new Map(areas.map((a) => [a.id, a.name]));
+
+/**
+ * Every other published Nearby place (merge 2026-10-29: Home's carousel lists all real places, nearest to the home
+ * base first). Picture: culture-card photo → Wikimedia Commons photo → 3D view (none → the card's placeholder).
+ * They have no story cards: the card's button opens the place in Nearby. Pinned on the map only when selected.
+ */
+const CATALOGUE_PLACES: HomePlace[] = PUBLISHED_PLACES.filter((p) => !HOME_PLACES.some((h) => h.id === p.id))
+  .map((p): HomePlace => {
+    const picture = placePicture(p);
+    return {
+      id: p.id,
+      name: p.name,
+      area: AREA_NAME.get(p.areaId) ?? '',
+      point: { lat: p.coordinates.lat, lng: p.coordinates.lng },
+      distance: formatHomeDistance(distanceM(HOME_BASE, p.coordinates)),
+      photo: picture.src,
+      photoAlt: picture.kind === '3d' ? `${p.name} (3D map view)` : p.name,
+      credit: picture.credit,
+      hasCards: false,
+      pinAlways: false,
+      aliases: p.nameZh ? [p.nameZh] : undefined,
+    };
+  })
+  .sort((a, b) => distanceM(HOME_BASE, a.point) - distanceM(HOME_BASE, b.point));
+
+export const ALL_HOME_PLACES: readonly HomePlace[] = [...HOME_PLACES, ...CATALOGUE_PLACES];
+
+/** The "places to explore" chip: every published place in Nearby Explore. */
+export const EXPLORE_COUNT = PUBLISHED_PLACES.length;
+
 export function homePlace(id: string): HomePlace | undefined {
-  return HOME_PLACES.find((p) => p.id === id);
+  return ALL_HOME_PLACES.find((p) => p.id === id);
 }
 
 /** Always-pinned places, plus the selected one when it is not always pinned. */
 export function visiblePins(selectedId: string): HomePlace[] {
-  return HOME_PLACES.filter((p) => p.pinAlways || p.id === selectedId);
+  return ALL_HOME_PLACES.filter((p) => p.pinAlways || p.id === selectedId);
 }
 
 /**
@@ -113,7 +147,8 @@ export function visiblePins(selectedId: string): HomePlace[] {
  */
 export function searchHomePlaces(query: string): { withCards: HomePlace[]; others: HomePlace[] } {
   const q = query.trim().toLowerCase();
-  const hits = HOME_PLACES.filter(
+  // An empty query suggests the five Home places; typing searches every real place.
+  const hits = (q ? ALL_HOME_PLACES : HOME_PLACES).filter(
     (p) => !q || [p.name, p.area, ...(p.aliases ?? [])].some((text) => text.toLowerCase().includes(q)),
   );
   return { withCards: hits.filter((p) => p.hasCards), others: hits.filter((p) => !p.hasCards) };

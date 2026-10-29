@@ -6,8 +6,10 @@ import styles from './BottomSheet.module.css';
 
 export type Detent = 'peek' | 'half' | 'full';
 
-/** Peek height from the bottom of the screen: the handle, the title and the phrases row. */
-export const PEEK_PX = 150;
+/** Room the app's floating tab bar takes at the bottom of the phone screen (bar 64px + its 28px lift). */
+export const NAV_ROOM_PX = 92;
+/** Peek height from the bottom of the screen: the handle, the title and the phrases row, above the tab bar. */
+export const PEEK_PX = 150 + NAV_ROOM_PX;
 /** Space kept above a full sheet for the search bar and the category chips. */
 export const FULL_TOP_PX = 164;
 const TAP_PX = 6;

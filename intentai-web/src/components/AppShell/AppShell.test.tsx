@@ -26,7 +26,7 @@ test('marks the tab matching the current path as current', () => {
   expect(screen.getByRole('button', { name: 'Moments' })).toHaveAttribute('aria-current', 'page');
 });
 
-test('non-tab routes keep Today current', () => {
+test('non-tab routes keep Home current', () => {
   renderAt('/nearby');
   expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });

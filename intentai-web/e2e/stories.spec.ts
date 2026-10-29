@@ -15,7 +15,7 @@ const next = (page: Page, facet: string) => page.getByRole('link', { name: new R
 
 async function openHome(page: Page) {
   await page.goto('/');
-  await expect(carousel(page).getByRole('group')).toHaveCount(5);
+  await expect(carousel(page).getByRole('group')).toHaveCount(175);
 }
 
 /** Home -> search dropdown -> Chinatown card -> its Open button. Lands on the place page. */
@@ -139,7 +139,7 @@ test.describe('place flows', () => {
     await openHome(page);
     await expect(homeCard(page, 'Berlin Wall Fragments')).toContainText('2 of 4 opened');
     await page.reload();
-    await expect(carousel(page).getByRole('group')).toHaveCount(5);
+    await expect(carousel(page).getByRole('group')).toHaveCount(175);
     await expect(homeCard(page, 'Berlin Wall Fragments')).toContainText('2 of 4 opened');
 
     await homeCard(page, 'Berlin Wall Fragments').getByRole('button', { name: /^Open/ }).click();

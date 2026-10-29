@@ -68,7 +68,7 @@ export default function TodayPage() {
         onSelectionChange={(id) => {
           selected.current = id;
         }}
-        onOpenPlace={(id) => leaveFor(id, paths.homePlace(id))}
+        onOpenPlace={(id) => leaveFor(id, id.startsWith('curated:') ? paths.nearbyPlace(id) : paths.homePlace(id))}
         onExplore={() => navigate(paths.nearby)}
       />
     </AppShell>

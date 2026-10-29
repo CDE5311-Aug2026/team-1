@@ -318,7 +318,10 @@ describe('Place detail', () => {
   test('a place that a Today article names shows that article in its culture cards', () => {
     renderAt('/nearby/place/curated:sg-sultan-mosque');
     const cards = screen.getByRole('group', { name: 'Culture and language cards for Sultan Mosque' });
-    expect(within(cards).getByText('Culture · from Today')).toBeInTheDocument();
+    expect(within(cards).getByText('Culture · Home card')).toBeInTheDocument();
+    // the same card Home opens, and the whole set of its area
+    expect(within(cards).getByRole('link', { name: 'Open card' })).toHaveAttribute('href', '/card/sultan-mosque');
+    expect(within(cards).getByRole('link', { name: /All 2 Kampong Glam cards/ })).toHaveAttribute('href', '/place/sg-kampong-glam');
     expect(within(cards).getByText('A landmark mosque first built in the 1820s for Sultan Hussein Shah.')).toBeInTheDocument();
   });
 

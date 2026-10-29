@@ -1,0 +1,46 @@
+.meta {
+  margin: 0;
+  color: #5e5c54;
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.body {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.replies {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replies li {
+  padding: 10px 12px;
+  border-left: 2px solid #b6cfae;
+  border-radius: 0 14px 14px 0;
+  background: #fff;
+}
+
+.replies strong {
+  font-size: 12px;
+  color: #2b5f3a;
+}
+
+.replies p {
+  margin: 3px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.note {
+  margin: 14px 0 4px;
+  color: #5e5c54;
+  font-size: 12px;
+  line-height: 17px;
+}

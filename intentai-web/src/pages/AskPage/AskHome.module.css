@@ -1,0 +1,440 @@
+/* Ask home: ported from the ZIP prototype (ask-entry.css: .ask-entry-body, .discovery-card …). Card radius follows
+   the prototype's shape system (24px). Motion stops for prefers-reduced-motion. */
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.375rem;
+  padding: 0.5rem 0 1.25rem;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(17px, 5.38vw, 21px);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.65px;
+  color: var(--text-primary);
+}
+
+.deck {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  height: 218px;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: #24211c;
+  color: #fff;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 14px 24px -18px #24211cba;
+  transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  outline-offset: 4px;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .card {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+.card:hover,
+.card:focus-visible {
+  box-shadow: 0 18px 28px -16px #24211caa;
+}
+
+.card:active {
+  transform: scale(0.985);
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.culture > .photo {
+  object-position: 50% 38%;
+}
+
+.meaning > .photo {
+  object-position: 50% 40%;
+}
+
+.card:hover > .photo,
+.card:focus-visible > .photo {
+  transform: scale(1.045);
+}
+
+.shade,
+.wash {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(0deg, rgba(23, 23, 18, 0.94), rgba(23, 23, 18, 0.08) 84%);
+}
+
+.wash {
+  background: linear-gradient(0deg, rgba(42, 27, 18, 0.96), rgba(66, 45, 29, 0.48) 65%, rgba(238, 211, 173, 0.36));
+}
+
+.copy {
+  position: absolute;
+  left: 18px;
+  right: 60px;
+  bottom: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.copy strong {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.55px;
+}
+
+.meaning .copy strong {
+  font-size: 21px;
+  letter-spacing: -0.6px;
+}
+
+.copy > span {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #edebe5;
+}
+
+.arrow {
+  position: absolute;
+  right: 17px;
+  bottom: 21px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.25s ease;
+}
+
+.card:hover .arrow,
+.card:focus-visible .arrow {
+  transform: translateX(3px);
+}
+
+/* ---- Culture card: two postcards ---- */
+
+.postcard {
+  position: absolute;
+  z-index: -1;
+  display: block;
+  padding: 5px;
+  border: 1px solid #ffffffbc;
+  border-radius: 10px;
+  background: #fffaf2;
+  box-shadow: 0 6px 16px #1c1b162e;
+  transform-origin: 50% 70%;
+  animation: postcard-drift 7s ease-in-out infinite;
+}
+
+.postcard img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.postcardFood {
+  --card-rotation: -9deg;
+  top: 19px;
+  right: 83px;
+  width: 88px;
+  height: 104px;
+  transform: rotate(-9deg);
+}
+
+.postcardFood img {
+  height: 70px;
+}
+
+.postcardFood span {
+  display: block;
+  font-size: 6.5px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: -0.1px;
+  text-align: center;
+  white-space: nowrap;
+  color: #5e5c54;
+}
+
+.postcardPlace {
+  --card-rotation: 8deg;
+  top: 37px;
+  right: 21px;
+  width: 75px;
+  height: 85px;
+  transform: rotate(8deg);
+  animation-delay: -3s;
+}
+
+/* ---- Meaning card: two speech bubbles ---- */
+
+.bubble {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  border: 1px solid #fff7e8;
+  background: #fffaf4;
+  box-shadow: 0 6px 18px #22180e25;
+  color: #30291f;
+  animation: bubble-drift 6s ease-in-out infinite;
+}
+
+.bubblePhrase {
+  top: 27px;
+  left: 22px;
+  padding: 13px 18px;
+  border-radius: 14px 14px 14px 4px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.bubbleReading {
+  top: 88px;
+  right: 20px;
+  gap: 7px;
+  padding: 10px 12px 10px 8px;
+  border-color: #f7d6bf;
+  border-radius: 14px 14px 4px 14px;
+  background: #fff2eb;
+  font-size: 11px;
+  font-weight: 500;
+  animation-delay: -2s;
+}
+
+.bubbleReading img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+@keyframes postcard-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--card-rotation));
+  }
+  50% {
+    transform: translateY(-4px) rotate(calc(var(--card-rotation) + 1.5deg));
+  }
+}
+
+@keyframes bubble-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transform: none !important;
+    transition: none;
+  }
+  .photo,
+  .arrow {
+    transition: none;
+  }
+  .postcard,
+  .bubble {
+    animation: none;
+  }
+}
+
+/* App setting "Reduce motion" (set on <html> by Ask settings). */
+:global(html.reduce-motion) .card {
+  transform: none !important;
+  transition: none;
+}
+:global(html.reduce-motion) .postcard,
+:global(html.reduce-motion) .bubble {
+  animation: none;
+}
+:global(html.reduce-motion) .photo,
+:global(html.reduce-motion) .arrow {
+  transition: none;
+}
+
+@media (max-width: 370px) {
+  .card {
+    height: 192px;
+  }
+  .meaning .copy strong {
+    font-size: 18px;
+  }
+  .postcardFood {
+    top: 15px;
+    right: 72px;
+    width: 75px;
+    height: 88px;
+  }
+  .postcardFood img {
+    height: 57px;
+  }
+  .postcardFood span {
+    font-size: 6px;
+  }
+  .postcardPlace {
+    top: 31px;
+    right: 16px;
+    width: 65px;
+    height: 73px;
+  }
+  .bubblePhrase {
+    top: 18px;
+    padding: 10px 14px;
+    font-size: 16px;
+  }
+  .bubbleReading {
+    top: 66px;
+    right: 13px;
+    padding: 7px 9px;
+    font-size: 10px;
+  }
+  .bubbleReading img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* ---- Entry sheet ---- */
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheetPhoto {
+  width: 100%;
+  height: 142px;
+  margin: 0 0 17px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.sheetIntro {
+  margin: 0 0 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.options {
+  display: grid;
+  gap: 9px;
+  margin-bottom: 16px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.option > span {
+  flex: 1;
+  min-width: 0;
+}
+
+.option small {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.option strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.own {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 13px;
+  border: 1px solid #d7cdbf;
+  border-radius: 11px;
+  background: #f9f6f0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* ---- "Learning culture" / "Understanding the meaning" marker above the composer ---- */
+
+.entryChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 -0.4375rem 0.375rem;
+  padding: 6px 6px 6px 12px;
+  border: 1px solid var(--accent-tile-border);
+  border-radius: 14px;
+  background: #fff2eb;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a3a0c;
+}
+
+.entryChip span {
+  flex: 1;
+  min-width: 0;
+}
+
+.entryChip button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+}

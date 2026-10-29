@@ -141,6 +141,19 @@ origin — no API call and no position leaves the app. Malaysia and live restaur
   a check-in. The place shows the article back as a "Culture · from Today" card. Links only where the text names the
   place, or "Try it" for a catalogue stall serving the dish; `cultureLinks.test.tsx` checks ids, labels and wording.
 
+### Ask from cards (`src/pages/AskPage/cards.ts`, design `docs/design-boards/ask-board.png`)
+
+- Ask answers about one **area** ("Asking about Chinatown · 3 cards") from that area's culture cards: the Today
+  articles whose places (`cultureLinks.ts`) are in it (`PLACE_AREAS`, checked against the catalogue by `cards.test.ts`).
+- Rule-based and local (no LLM, no server): the answer is the card's own sentences, sentences with a number become
+  big key numbers, then the **source card** (Open shows the whole article with its sources) and, for food, the stall
+  in Nearby. The topic switch (Food / Monument / Festival) follows what is typed; a topic the area has no card for is off.
+- No card fits → it says so, offers the area's topics and **Ask a local** (Community, with "here" rewritten to the area).
+  "Recommended for you" gives the reason: a card you opened (`openedCardsStore`: Today's Read more or Ask's Open), one
+  of your Today topics, or another card in the area.
+- Singlish phrases (chope, can or not, paiseh, sabo) still get the phrase explainer with its context.
+- Not yet: verified local tips on cards (step 2 in `docs/HANDOFF.md`); there are no real ones to show.
+
 ### Maintenance scripts (`scripts/explore/`)
 
 One-time import tools, kept for reproducibility: `extract-earth-online.cjs` (dump the dataset from the City Brush page,

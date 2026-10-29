@@ -1,0 +1,321 @@
+.section {
+  margin: 0 0 22px;
+}
+
+.book {
+  position: relative;
+  height: 330px;
+  overflow: hidden;
+  border: 1px solid #e8dbcc;
+  border-radius: 24px;
+  background: #faf5ed;
+  box-shadow: 0 20px 34px -22px rgba(36, 33, 28, 0.55), 0 1px 0 #e3d6c7;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .book {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+.paper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.spine {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 14px;
+  background: linear-gradient(90deg, rgba(36, 33, 28, 0.12), transparent);
+  pointer-events: none;
+}
+
+.heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+  margin: 12px 17px 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 13px;
+  white-space: nowrap;
+}
+
+.heading h2 {
+  margin: 0;
+  font: inherit;
+  letter-spacing: 0.88px;
+  color: #a3400a;
+}
+
+.heading > img {
+  flex: 1;
+  min-width: 0;
+  height: 1px;
+  object-fit: fill;
+}
+
+.count {
+  color: #5e5c54;
+  text-decoration: none;
+  padding: 4px 0;
+}
+
+.count:focus-visible,
+.link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 136px 136px;
+  gap: 8px 6px;
+  margin: 8px 12px 0;
+  padding: 0;
+  list-style: none;
+  touch-action: pan-y;
+}
+
+.cell {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.place {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 4px 0 0;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.place:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.stampCard,
+.stampRound {
+  position: relative;
+  display: block;
+  height: 104px;
+  flex: none;
+}
+
+.stampCard {
+  width: min(150px, 100%);
+}
+
+.stampRound {
+  width: 104px;
+}
+
+.today {
+  position: absolute;
+  top: -5px;
+  right: -3px;
+  padding: 0 5px;
+  border-radius: 5px;
+  background: #24211c;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.cardDots {
+  display: flex;
+  gap: 4px;
+  height: 18px;
+  margin-top: 6px;
+}
+
+.cardDot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  border: 1px solid #d9c7b2;
+  border-radius: 50%;
+}
+
+.cardDot img {
+  width: 10px;
+  height: 10px;
+  opacity: 0.45;
+}
+
+.dotOpen {
+  background: #e3661f;
+  border-color: #e3661f;
+}
+
+.dotDark {
+  background: #a3400a;
+  border-color: #a3400a;
+}
+
+.dotOpen img,
+.dotDark img {
+  opacity: 1;
+  filter: brightness(0) invert(1);
+}
+
+.outline {
+  gap: 7px;
+  padding-top: 10px;
+}
+
+.emptyStamp {
+  position: relative;
+  display: block;
+  width: 84px;
+  height: 84px;
+  box-sizing: border-box;
+  border: 2px dashed #d9c7b2;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.emptyPhoto {
+  position: absolute;
+  inset: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  border-radius: 50%;
+  object-fit: cover;
+  opacity: 0.3;
+  filter: grayscale(0.6);
+}
+
+.lock {
+  position: absolute;
+  left: calc(50% - 9px);
+  top: calc(50% - 9px);
+}
+
+.outlineName {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #5e5c54;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  margin-top: 10px;
+}
+
+.footer > p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: #5e5c54;
+  font-size: 12px;
+  line-height: 15px;
+}
+
+.footer > p img {
+  flex: none;
+}
+
+.link {
+  color: #a3400a;
+  font-weight: 700;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.pager button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #ded9d1;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pager button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pager button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dots i {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: #cfc9bf;
+}
+
+.dots i.dotOn {
+  width: 18px;
+  background: #e3661f;
+}
+
+@media (max-width: 350px) {
+  .footer > p {
+    font-size: 11px;
+    line-height: 14px;
+  }
+  .stampRound {
+    width: 96px;
+    height: 96px;
+  }
+  .stampCard {
+    height: 96px;
+  }
+}

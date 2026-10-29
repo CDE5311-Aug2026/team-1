@@ -156,7 +156,7 @@ test('focusId selects that card on arrival, with its pin', async () => {
 
 test('the places to explore chip calls onExplore', async () => {
   const { onExplore } = setup();
-  await userEvent.click(screen.getByRole('button', { name: '4 places to explore' }));
+  await userEvent.click(screen.getByRole('button', { name: '173 places to explore' }));
   expect(onExplore).toHaveBeenCalledTimes(1);
 });
 

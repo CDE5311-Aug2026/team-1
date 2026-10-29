@@ -1,109 +1,108 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import aiLogo from '../../assets/onboarding/ai-logo.svg';
-import clock from '../../assets/onboarding/icon-clock.svg';
-import pinSmall from '../../assets/onboarding/icon-pin-small.svg';
-import target from '../../assets/onboarding/icon-target.svg';
-import { LEVELS, levelFor, type Topic } from '../../data/domain';
+// Onboarding v3 O8: the passport is stamped WELCOME and a fan of "Your first finds" says why each was picked (the closest
+// place to the home base, then a card for the #1 and #2 topics). Only repo places and cards.
+import { motion, useReducedMotionConfig } from 'motion/react';
+import { useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import AppShell from '../../components/AppShell/AppShell';
+import BlurText from '../../components/reactbits/BlurText';
 import { usePersistentStore } from '../../data/persistentStore';
-import { onboardingStore, profileStore } from '../../data/stores';
+import { firstFinds } from '../../data/profile/finds';
+import { localDate, profileV3Store, toggleHidden } from '../../data/profile/profile';
+import { onboardingStore } from '../../data/stores';
 import { paths } from '../../routes';
-import AiHint from './AiHint';
-import { focusLabel, parseScore, planHint, resultSummary } from './copy';
-import OnboardingScreen from './OnboardingScreen';
-import screen from './OnboardingScreen.module.css';
-import { QUIZ_LENGTH } from './quiz';
-import styles from './ResultPage.module.css';
-
-const LEVEL_RANGE = ['0–1 correct', '2/3 correct', '3/3 correct'] as const;
-const FALLBACK_TOPICS: Topic[] = ['Work'];
+import Icon from './v3/icons';
+import Passport from './v3/Passport';
+import useInitial from './v3/useInitial';
+import styles from './Onboarding.module.css';
 
 export default function ResultPage() {
   const navigate = useNavigate();
-  const [params] = useSearchParams();
-  const [onboarding, setOnboarding] = usePersistentStore(onboardingStore);
-  const score = parseScore(params.get('score'));
-  const level = levelFor(score);
-  const levelIndex = LEVELS.indexOf(level);
-  // The quiz falls back to Work when no topic is chosen; the plan says the same.
-  const topics = onboarding.topics.length > 0 ? onboarding.topics : FALLBACK_TOPICS;
+  const reduce = useReducedMotionConfig();
+  const [profile] = usePersistentStore(profileV3Store);
+  const initial = useInitial();
+  const finds = firstFinds(profile.base, profile.topics);
+  const fan = useRef<HTMLUListElement>(null);
 
-  const handleStart = () => {
-    profileStore.set((profile) => ({ ...profile, time: onboarding.duration ?? profile.time, level, topics }));
-    // The quiz and My Space follow these topics, so store the fallback too when none were picked.
-    setOnboarding((prev) => ({ ...prev, topics, done: true }));
-    // Onboarding is done here; the culture topic picker next can keep the top 3.
-    navigate(paths.todaySetup);
+  // Open the fan on the middle card (the #1 topic), as in Figma.
+  useEffect(() => {
+    const list = fan.current;
+    const middle = list?.children[1] as HTMLElement | undefined;
+    if (!list || !middle) return;
+    list.scrollLeft = middle.offsetLeft - (list.clientWidth - middle.clientWidth) / 2;
+  }, [finds.length]);
+
+  const leave = (to: string) => {
+    // Reaching O8 means the passport is stamped; make sure "/" opens Home.
+    onboardingStore.set((prev) => (prev.done ? prev : { ...prev, done: true }));
+    navigate(to);
   };
 
-  const plan = [
-    { icon: clock, title: 'Singlish practice', note: 'Phrases for the topics you picked' },
-    { icon: target, title: focusLabel(topics), note: 'Picked from your interests' },
-    { icon: pinSmall, title: onboarding.duration ? `Tuned for ${onboarding.duration}` : 'Tuned to your level', note: 'Everyday phrases first, slang later' },
-  ];
-
   return (
-    <OnboardingScreen
-      footer={
-        <>
-          <button
-            type="button"
-            className={screen.secondary}
-            data-node-id="17:336"
-            onClick={() => navigate(paths.onboardingQuiz)}
-          >
-            Retake the quiz
-          </button>
-          <button type="button" className={screen.primary} data-node-id="17:337" onClick={handleStart}>
-            Start learning
-          </button>
-        </>
-      }
-    >
-      <p className={styles.badge}>
-        <img src={aiLogo} alt="" width={28} height={28} />
-        Your IntentAI results
-      </p>
-      <h1 className={styles.title} data-node-id="17:290">
-        You&apos;re <span className={styles.level}>{level}</span>
-      </h1>
-      <p className={styles.summary}>{resultSummary(score)}</p>
-
-      <section className={styles.levelCard} data-node-id="17:292" aria-labelledby="ob-level-title">
-        <div className={styles.levelHead}>
-          <h2 id="ob-level-title">Your Singlish level</h2>
-          <span className={styles.score}>
-            {score}/{QUIZ_LENGTH}
-          </span>
+    <AppShell chrome="none" background="#edebe5">
+      <div className={styles.screen}>
+        <div className={styles.question}>
+          <div className={styles.progressRow}>
+            <button type="button" className={styles.back} aria-label="Back" onClick={() => navigate(`${paths.welcome}?step=6`)}>
+              <Icon name="back" size={22} />
+            </button>
+            <div className={styles.progress} aria-hidden="true">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <span key={i} className={styles.segment}>
+                  <span className={styles.segmentFill} style={{ width: '100%' }} />
+                </span>
+              ))}
+            </div>
+            <span className={styles.count}>6/6</span>
+          </div>
+          <Passport profile={profile} initial={initial} onToggleHidden={toggleHidden} stamped={profile.stampedOn ?? localDate()} />
+          <h1 className={styles.ready}>
+            <BlurText as="span" text="Your passport is ready" trigger="load" delay={60} className={styles.readyLine} />
+          </h1>
+          <p className={styles.closedNote}>
+            <Icon name="eyeClosed" size={16} style={{ color: '#e4671f' }} /> Closed eyes keep a detail private
+          </p>
+          <h2 className={styles.findsTitle}>YOUR FIRST FINDS</h2>
+          {finds.length === 0 ? (
+            <p className={styles.noFinds}>Set a home base in My Space to see what’s closest.</p>
+          ) : (
+            <ul ref={fan} className={styles.fan} aria-label="Your first finds">
+              {finds.map((find, i) => (
+                <motion.li
+                  key={find.key}
+                  initial={reduce ? false : { y: 40, opacity: 0, rotate: i === 0 ? -8 : i === 2 ? 8 : 0 }}
+                  animate={{ y: 0, opacity: 1, rotate: 0 }}
+                  transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 22, delay: 0.5 + i * 0.12 }}
+                >
+                  <Link to={find.href} className={styles.find}>
+                    {find.photo ? (
+                      <img className={styles.findPhoto} src={find.photo.src} alt={find.photo.alt} />
+                    ) : (
+                      <span className={styles.findMap} aria-hidden="true">
+                        <Icon name="pin" size={72} strokeWidth={1.2} />
+                      </span>
+                    )}
+                    <span className={styles.findShade} aria-hidden="true" />
+                    <span className={styles.why}>
+                      <Icon name={find.why_icon === 'pin' ? 'pin' : 'star'} size={14} />
+                      {find.why}
+                    </span>
+                    <span className={styles.findTitle}>{find.title}</span>
+                    <span className={styles.findSub}>{find.sub}</span>
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+          )}
+          <div className={styles.footer}>
+            <button type="button" className={styles.secondary} onClick={() => leave(paths.moments)}>
+              See passport
+            </button>
+            <button type="button" className={`${styles.primary} ${styles.accent}`} onClick={() => leave(paths.today)}>
+              Start exploring <Icon name="arrow" size={18} />
+            </button>
+          </div>
         </div>
-        <ol className={styles.levels} aria-label="Singlish levels">
-          {LEVELS.map((name, i) => (
-            <li key={name} aria-current={i === levelIndex ? 'true' : undefined}>
-              <span className={i <= levelIndex ? styles.barOn : styles.barOff} />
-              <span className={styles.levelName}>{name}</span>
-              <span className={styles.levelRange}>{LEVEL_RANGE[i]}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <h2 className={styles.planTitle}>Your personalised plan</h2>
-      <ul className={styles.plan} data-node-id="17:306">
-        {plan.map(({ icon, title, note }) => (
-          <li key={note}>
-            <span className={styles.planIcon}>
-              <img src={icon} alt="" width={18} height={18} />
-            </span>
-            <span className={styles.planCopy}>
-              <span className={styles.planName}>{title}</span>
-              <span className={styles.planNote}>{note}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <div className={styles.hint}>
-        <AiHint nodeId="17:328">{planHint()}</AiHint>
       </div>
-    </OnboardingScreen>
+    </AppShell>
   );
 }

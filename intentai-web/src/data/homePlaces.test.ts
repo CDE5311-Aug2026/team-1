@@ -105,21 +105,23 @@ test('search: empty query lists the two card places, then the three Cards-soon p
 
 test('search: the Cards-soon places answer to their short names', () => {
   const nus = 'curated:sg-national-university-of-singapore';
-  expect(ids(searchHomePlaces('UTown'))).toEqual([[], [nus]]);
-  expect(ids(searchHomePlaces('utown'))).toEqual([[], [nus]]);
-  expect(ids(searchHomePlaces('NUS'))[1]).toEqual([nus]);
+  expect(ids(searchHomePlaces('UTown'))[1]).toContain(nus);
+  expect(ids(searchHomePlaces('utown'))[1]).toContain(nus);
+  expect(ids(searchHomePlaces('NUS'))[1]).toContain(nus);
   expect(ids(searchHomePlaces('tiger balm'))).toEqual([[], ['curated:sg-haw-par-villa']]);
+  // typing searches every real place, not only the five on Home
+  expect(ids(searchHomePlaces('marina bay sands'))[1]).toContain('curated:sg-marina-bay-sands');
   expect(ids(searchHomePlaces('holland road'))).toEqual([[], ['curated:sg-holland-village']]);
 });
 
 test('search: case-insensitive on name, area and aliases', () => {
   expect(ids(searchHomePlaces('tembusu'))).toEqual([['berlin-wall-fragments'], []]);
   expect(ids(searchHomePlaces('BERLIN'))).toEqual([['berlin-wall-fragments'], []]);
-  expect(ids(searchHomePlaces('pagoda street'))).toEqual([['chinatown'], []]);
-  expect(ids(searchHomePlaces('tanjong'))).toEqual([['chinatown'], []]);
+  expect(ids(searchHomePlaces('pagoda street'))[0]).toEqual(['chinatown']);
+  expect(ids(searchHomePlaces('tanjong'))[0]).toEqual(['chinatown']);
   expect(ids(searchHomePlaces('haw par'))).toEqual([[], ['curated:sg-haw-par-villa']]);
-  // "Queenstown & Holland" is the area of all three Cards-soon places.
-  expect(ids(searchHomePlaces('queenstown'))[1]).toHaveLength(3);
+  // "Queenstown & Holland" is the area of all three Home places without story cards (and of other places).
+  expect(ids(searchHomePlaces('queenstown'))[1].length).toBeGreaterThanOrEqual(3);
   expect(ids(searchHomePlaces('University Town'))).toEqual([['berlin-wall-fragments'], []]);
   expect(ids(searchHomePlaces('zzz'))).toEqual([[], []]);
 });

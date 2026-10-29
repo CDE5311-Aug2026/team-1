@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { dismissToast } from '../../hooks/useToast';
 import { HOME_PLACES, type PlaceStories } from '../../data/homePlaces';
 import { setCarouselGeometry, scrollCarousel } from '../../test/carouselGeometry';
 import { setReducedMotion } from '../../test/media';
@@ -88,7 +87,7 @@ test('renders a carousel region with one group per place, in order, the first cu
   }
 });
 
-test('only the centred card offers its action: Open for places with cards, a locked Cards soon otherwise', () => {
+test('only the centred card offers its action: Open for places with cards, Nearby otherwise', () => {
   HOME_PLACES.forEach((p, i) => {
     const { groups } = setup({ selectedId: p.id });
     const g = within(groups[i]);
@@ -99,7 +98,7 @@ test('only the centred card offers its action: Open for places with cards, a loc
       expect(g.getByRole('button', { name: 'Open' })).toBeInTheDocument();
       expect(g.queryByRole('button', { name: 'Cards soon' })).toBeNull();
     } else {
-      expect(g.getByRole('button', { name: 'Cards soon' })).toHaveAttribute('aria-disabled', 'true');
+      expect(g.getByRole('button', { name: `Open ${p.name} in Nearby` })).toBeInTheDocument();
       expect(g.queryByRole('button', { name: 'Open' })).toBeNull();
     }
     // The other cards show no action.
@@ -123,14 +122,15 @@ test('the progress thumb follows the centred card along its 72px track', () => {
 test('shows opened progress per place', () => {
   const { groups } = setup({ stories: { chinatown: { opened: ['food', 'history'], checkedIn: false, stamped: false } } });
   expect(groups[1]).toHaveTextContent('2 of 4 opened');
-  for (const i of [0, 2, 3, 4]) expect(groups[i]).toHaveTextContent('0 of 4 opened');
+  expect(groups[0]).toHaveTextContent('0 of 4 opened');
+  for (const i of [2, 3, 4]) expect(groups[i]).toHaveTextContent('Open it in Nearby');
   const filled = groups[1].querySelectorAll('[data-filled="true"]');
   expect(filled).toHaveLength(2);
 });
 
-test('with no progress every card reads 0 of 4 opened', () => {
+test('with no progress every story card reads 0 of 4 opened; the others point to Nearby', () => {
   const { groups } = setup();
-  for (const g of groups) expect(g).toHaveTextContent('0 of 4 opened');
+  HOME_PLACES.forEach((p, i) => expect(groups[i]).toHaveTextContent(p.hasCards ? '0 of 4 opened' : 'Open it in Nearby'));
 });
 
 test('ArrowRight on the region selects the next place, focuses it and updates the live region', () => {
@@ -173,12 +173,11 @@ test('Open calls onOpen with the place id', async () => {
   expect(onActivate).not.toHaveBeenCalled();
 });
 
-test('Cards soon shows a toast and does not open', async () => {
+test('a place without story cards opens in Nearby (merge 2026-10-29: no more Cards soon)', async () => {
   const user = userEvent.setup();
   const { groups, onOpen, onActivate } = setup({ selectedId: ids[2] });
-  await user.click(within(groups[2]).getByRole('button', { name: 'Cards soon' }));
-  expect(await screen.findByText(`Culture cards for ${HOME_PLACES[2].name} are coming soon`)).toBeInTheDocument();
-  expect(onOpen).not.toHaveBeenCalled();
+  await user.click(within(groups[2]).getByRole('button', { name: `Open ${HOME_PLACES[2].name} in Nearby` }));
+  expect(onOpen).toHaveBeenCalledWith(ids[2]);
   expect(onActivate).not.toHaveBeenCalled();
 });
 
@@ -206,22 +205,6 @@ test('Enter and Space on a focused Open button open only', async () => {
   await user.keyboard('{Enter}');
   await user.keyboard(' ');
   expect(onOpen).toHaveBeenCalledTimes(2);
-  expect(onActivate).not.toHaveBeenCalled();
-  expect(onSelect).not.toHaveBeenCalled();
-});
-
-test('Enter and Space on a focused Cards soon button show the toast only', async () => {
-  const user = userEvent.setup();
-  const { groups, onOpen, onActivate, onSelect } = setup({ selectedId: ids[2] });
-  within(groups[2]).getByRole('button', { name: 'Cards soon' }).focus();
-  await user.keyboard('{Enter}');
-  expect(await screen.findByText(/are coming soon/)).toBeInTheDocument();
-  // dismiss so the second press is observable on its own
-  act(() => dismissToast());
-  expect(screen.queryByText(/are coming soon/)).toBeNull();
-  await user.keyboard(' ');
-  expect(await screen.findByText(/are coming soon/)).toBeInTheDocument();
-  expect(onOpen).not.toHaveBeenCalled();
   expect(onActivate).not.toHaveBeenCalled();
   expect(onSelect).not.toHaveBeenCalled();
 });

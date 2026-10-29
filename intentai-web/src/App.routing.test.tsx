@@ -26,7 +26,7 @@ test('clicking the Ask tab navigates to the Ask page', async () => {
   expect(screen.getByRole('heading', { level: 1, name: 'Ask' })).toBeInTheDocument();
 });
 
-test('an unknown route redirects to Today instead of rendering blank', () => {
+test('an unknown route redirects to Home instead of rendering blank', () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/this-path-does-not-exist']}>
       <App />

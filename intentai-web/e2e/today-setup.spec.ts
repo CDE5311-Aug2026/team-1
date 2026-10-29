@@ -18,8 +18,6 @@ test('picking 3 topics saves them, and a reload keeps them', async ({ page }) =>
   await page.reload();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('intentai:v1:culturePrefs') ?? 'null'));
   expect([...saved.categories].sort()).toEqual(['foods', 'history', 'unesco']);
-  await page.goto('/my-space');
-  await expect(page.getByText('Foods, UNESCO, History', { exact: true })).toBeVisible();
 });
 
 test('Default sets the survey default', async ({ page }) => {
@@ -29,20 +27,11 @@ test('Default sets the survey default', async ({ page }) => {
   await expect(page.getByText('You can change these anytime in My Space.')).toBeVisible();
   await page.getByRole('button', { name: 'Default', exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
-  await page.goto('/my-space');
-  await expect(page.getByText('Foods, Monuments, Festivals', { exact: true })).toBeVisible();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('intentai:v1:culturePrefs') ?? 'null'));
+  expect(saved.categories).toEqual(['foods', 'monuments', 'holidays']);
 });
 
-test('My Space retake is pre-filled and Cancel changes nothing', async ({ page }) => {
-  await page.goto('/my-space');
-  await expect(page.getByText('Foods, Monuments, Festivals', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: "Change Today's Topics" }).click();
-  await expect(page.getByRole('button', { name: /^Festivals / })).toHaveAttribute('aria-pressed', 'true');
-  await pick(page, ['Festivals', 'History']);
-  await page.getByRole('button', { name: 'Cancel' }).click();
-  await expect(page).toHaveURL(/\/my-space$/);
-  await expect(page.getByText('Foods, Monuments, Festivals', { exact: true })).toBeVisible();
-});
+// v3: My Space edits the topics in its own ranked-photo editor (Figma S1 tile); covered by MySpacePage.test.tsx.
 
 test('the picker fits a 320px phone without sideways scrolling', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });

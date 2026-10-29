@@ -146,3 +146,95 @@ export function answerText(answer: Answer): string {
   const first = answer.term ? `“${answer.term}”${answer.lead}` : answer.lead;
   return answer.detail ? `${first}\n\n${answer.detail}` : first;
 }
+
+/* ---------- "Behind the words" (ZIP prototype, view=intent), on the phrase guide (guide.ts) ---------- */
+
+import {
+  EMPTY_SITUATION,
+  confidenceOf,
+  findEntry,
+  rankReadings,
+  type Confidence,
+  type GuideEntry,
+  type GuideSource,
+  type Likelihood,
+  type Situation,
+} from './guide';
+
+export { EMPTY_SITUATION, type Situation };
+
+/** "Office · Your colleague · smiling", plus the detail; empty when nothing is known. */
+export function situationText(s: Situation): string {
+  return [s.where, s.who, s.tone && s.tone !== 'Not sure' ? s.tone.toLowerCase() : '', s.topic, s.detail ?? '']
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .join(' · ');
+}
+
+/** Where, who and tone are all known. */
+export function hasSituation(s: Situation): boolean {
+  return Boolean(s.where.trim() && s.who.trim() && s.tone && s.tone !== 'Not sure');
+}
+
+/** The Add context sheet's quick picks (also the Nearby handoff's place contexts). */
+export const SITUATION_PRESETS: readonly { label: string; situation: Situation }[] = [
+  { label: 'Group chat · classmates', situation: { where: 'Group chat', who: 'Your classmate', topic: '' } },
+  { label: 'Office · work', situation: { where: 'Office', who: 'Your colleague', topic: '' } },
+  { label: 'Hawker centre · lunch', situation: { where: 'Hawker centre', who: 'The stall owner', topic: '' } },
+  { label: 'MRT · commute', situation: { where: 'MRT', who: 'A stranger', topic: '' } },
+  { label: 'At home · friends', situation: { where: 'Home', who: 'Your friend', topic: '' } },
+];
+
+export interface Reading {
+  entry: GuideEntry;
+  term: string;
+  literal: string;
+  /** What they most likely mean, for this situation. */
+  meaning: string;
+  /** Every way it can be meant, most likely first. */
+  readings: { text: string; likelihood: Likelihood }[];
+  unclear: string;
+  reply: string;
+  softer: string;
+  confidence: Confidence;
+  source: GuideSource | null;
+}
+
+/** "Behind the words" for a phrase the guide knows, or undefined (the caller then says so honestly). */
+export function readingFor(question: string, situation: Situation): Reading | undefined {
+  const entry = findEntry(question);
+  if (!entry) return undefined;
+  const readings = rankReadings(entry, situation);
+  const who = situation.who.trim();
+  const toneKnown = Boolean(situation.tone && situation.tone !== 'Not sure');
+  // The older Singlish phrases have a sentence written for "who said it" (answer.ts COPY).
+  const phrase = PHRASES.find((p) => p.id === entry.id);
+  const meaning = toneKnown ? readings[0].text : who && phrase ? phrase.inContext(who.charAt(0).toUpperCase() + who.slice(1)) : entry.general;
+  return {
+    entry,
+    term: entry.term,
+    literal: entry.literal,
+    meaning,
+    readings,
+    unclear: entry.unclear,
+    reply: entry.reply,
+    softer: entry.softer,
+    confidence: confidenceOf(entry, situation),
+    source: entry.source,
+  };
+}
+
+export const ALIGN_PHRASE = '跟产品对齐一下，把颗粒度做细一点。';
+
+/** Plain text of a reading, for copying and reports. */
+export function readingText(r: Reading): string {
+  return [
+    r.term,
+    '',
+    `Literal meaning: ${r.literal}`,
+    `What they most likely mean: ${r.meaning}`,
+    `Still unclear: ${r.unclear}`,
+    `Confidence: ${r.confidence.level}`,
+    r.source ? `Source: ${r.source.label} (${r.source.url})` : 'Source: team-written guidance',
+  ].join('\n');
+}

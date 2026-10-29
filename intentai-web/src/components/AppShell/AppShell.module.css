@@ -45,7 +45,7 @@
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 5.5rem;
+  bottom: 6.5rem;
   transform: translateX(-50%);
   background: var(--text-primary);
   color: #fff;

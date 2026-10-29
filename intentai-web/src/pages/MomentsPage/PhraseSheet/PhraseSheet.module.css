@@ -1,0 +1,106 @@
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: #ece8e1;
+  color: #5e5c54;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.local {
+  background: #e5f1e3;
+  color: #2b5f3a;
+}
+
+.meaning {
+  margin: 12px 0 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.example {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.example span {
+  display: block;
+  color: #a3400a;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.primary,
+.secondary {
+  flex: 1;
+  min-height: 50px;
+  border-radius: 16px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: #24211c;
+  color: #fff;
+}
+
+.secondary {
+  border: 1px solid #ded9d1;
+  background: #fff;
+  color: #24211c;
+}
+
+.secondary[aria-pressed='true'] {
+  border-color: #b9d4b1;
+  background: #e5f1e3;
+  color: #2b5f3a;
+}
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.links button {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: #a3400a;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.links .delete {
+  margin-left: auto;
+  color: #5e5c54;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.links button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
