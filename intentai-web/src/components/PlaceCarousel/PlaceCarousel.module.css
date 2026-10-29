@@ -49,7 +49,6 @@
   inset-block: 0;
   left: -25%;
   width: 150%;
-  will-change: transform;
 }
 
 .photo img {

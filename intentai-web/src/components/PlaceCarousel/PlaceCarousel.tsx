@@ -56,10 +56,16 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
     const track = trackRef.current;
     if (!track) return;
     const centre = track.scrollLeft + track.clientWidth / 2;
+    // Only cards near the centre move. A transform on every photo gives each of the ~300 cards its own graphics
+    // layer, which runs iPhone Safari out of memory and reloads the page.
+    const [first, second] = cardRefs.current;
+    const pitch = first && second ? second.offsetLeft - first.offsetLeft : (first?.offsetWidth ?? 0);
+    const near = first && pitch > 0 ? Math.round((centre - cardCentre(first)) / pitch) : 0;
     cardRefs.current.forEach((card, i) => {
       const photo = photoRefs.current[i];
       if (!card || !photo) return;
-      if (latest.current.reduced || track.clientWidth === 0) {
+      if (latest.current.reduced || track.clientWidth === 0 || Math.abs(i - near) > PHOTO_WINDOW + 1) {
+        if (photo.style.transform) photo.style.transform = '';
         photo.style.transform = '';
         return;
       }
