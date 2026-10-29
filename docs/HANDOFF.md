@@ -1,110 +1,114 @@
-# IntentAI handoff (29 Oct 2026)
+# IntentAI handoff (29 Oct 2026, after commit `670fa0d`)
 
-For the next working session on **IntentAI** (the web app in `intentai-web/`) and its **Nearby** map.
-Read this first, then `intentai-web/README.md` (how to run, routes, Nearby details) and `docs/NEARBY-EXPLORER-PRD.md`.
+Paste this into a new Claude Code session opened in `~/Documents/GitHub/CDE-5311-team1`:
+
+> Read docs/HANDOFF.md, then docs/MERGE-TEAM1-V3.md. Continue IntentAI from where it stands. Reply to me in Chinese and
+> English, line by line. No invented data. Commit, push and deploy only when I ask. Don't push to the team repo
+> (CDE5311-Aug2026/team-1) without asking.
 
 ## 1. Where things are
 
 | What | Where |
-|---|---|
-| Team repo (course org) | `CDE5311-Aug2026/team-1`; `main` = merge of PR #3 (`1de6546`), reviewed and merged by teammate sy-hong |
-| Owner's repo (same code) | `Wsamme/CDE-5311` (remote `mine` in older clones); working branch **`integration/v2-nearby`**, head `a39ee70` (= team-1 main content) |
-| Other branches | `feature/intentai-web`, `feature/intentai-web-v2` (teammate's v2 culture content), `feature/nearby-explorer`, `cursor/intentai-storyboard-loop-e5ee` (older `web/` storyboard prototype; has a chat-style Ask) |
-| App | `intentai-web/`: React 18, TypeScript, Vite 7, React Router 7, CSS Modules, Vitest, Playwright + axe |
-| Old app | `web/` (React 19 prototype from Figma); `SinglishDaily/` (SwiftUI prototype) |
-| Live demo | https://cde-5311.vercel.app (see "Deployment" in `intentai-web/README.md` for which folder it builds) |
-| Vercel | team `team_pTkmvMFjBMfu19BmnYdZrIOR`, project `prj_yc2OvrmFeKO5suNg4ecMQkgeaJyB`; earlier deploys used gitSource `Wsamme/CDE-5311`, ref `integration/v2-nearby` |
-| 3D city (EARTH ONLINE / City Brush) | `Wsamme/EARTH_ONLINE` (`main` = v39 release; `wip-greater-bay` = paused Dongguan–Shenzhen–HK work). The app bundles a phone-friendly Singapore 3D page at `intentai-web/public/earth-online/sg/lite.html` (rebuild: `npm run sync:earth-online -- <EARTH_ONLINE checkout>`) |
+| --- | --- |
+| Working folder | `~/Documents/GitHub/CDE-5311-team1` (a git worktree). App in `intentai-web/`. |
+| Branch | `merge/team1-v3`, pushed to `origin` = `Wsamme/CDE-5311` (the owner's repo). Clean at `670fa0d`. |
+| Team repo | `CDE5311-Aug2026/team-1`. Changes for the team go there as a PR, only when the owner asks. |
+| Live site | https://cde-5311.vercel.app = `670fa0d`. |
+| Deploy | From the worktree root: `vercel deploy --prod --yes` (Vercel project `wsammes-projects/cde-5311`, Root Directory `intentai-web`). Git-triggered deploys are **blocked**: the commit email isn't on the Vercel account, so always use the CLI. |
+| Other worktrees | `~/Documents/GitHub/CDE-5311-pr5` (PR #5, for comparing), `~/Documents/GitHub/CDE-5311` (older tree). |
+| 3D city | `Wsamme/EARTH_ONLINE`; the app bundles `intentai-web/public/earth-online/sg/lite.html` (`npm run sync:earth-online -- <checkout>`). |
 
 ## 2. How to work
 
-- `cd intentai-web && npm ci && npm run dev`; `npm test`; `npm run build`; `npm run e2e`
-  (if Playwright has no Chromium: `PW_CHROMIUM_PATH=/path/to/chrome npm run e2e`).
-- Paths only from `src/routes.ts` (`paths`, `patterns`), never string literals. Device-local stores in `src/data/stores.ts`
-  (validated, migrated). One card radius 20 px (`src/styles/tokens.css`). Bottom tabs: Home(Today) · Ask · Community · Moments · My Space.
-- Rules the owner set: **no invented data** (every fact, height, date, position has a source or is left out; estimates are
-  labelled); no real brand logos; replies to the owner in **Chinese and simple English, line by line**.
-- Git: commit messages end with the Co-Authored-By / Claude-Session lines; push to the owner's repo; changes for the team go
-  as a PR to `CDE5311-Aug2026/team-1` (the owner asks a teammate to merge). Don't push to the team repo without asking.
+- Dev server: `cd intentai-web && npx vite --port 5181`.
+- Unit tests: `NODE_OPTIONS=--no-experimental-webstorage npx vitest run`. At `670fa0d`, **989 pass**.
+- e2e: `npm run build && PW_CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npx playwright test --grep-invert nearby3d`. At `670fa0d`, **123 pass**. (`nearby3d` is left out; `Nearby3D.test.tsx` can be order-flaky in a full run.)
+- Catalogue check: `npm run validate:explore`. A fact needs 20+ words and a deep-link source (a home page is refused).
+- iPhone check: Playwright WebKit with `devices['iPhone 14']`, viewport 390×664. Import Playwright from
+  `intentai-web/node_modules/playwright/index.mjs` when the script lives outside the app.
+- Test seed in localStorage: `intentai:v1:tester = {"name":"P01"}` and
+  `intentai:v1:onboarding = {"done":true,"duration":"3 months – 1 year","topics":["Food"]}`. An invalid duration sends you
+  back to onboarding.
+- Stack: React 18, TypeScript, Vite 7, React Router 7, CSS Modules, motion/react, Vitest, Playwright + axe. Paths come only
+  from `src/routes.ts`.
 
-## 3. What the app has today (built and tested)
+### Owner rules
 
-**Today** — three Singlish expressions a day; culture cards from `src/data/culture.ts` + `src/data/articles/*` (categories
-foods, monuments, holidays = festivals, unesco, ich, history; each `Article` has `facts`, `deeper`, `sources`, `checkedOn`);
-videos on cards (`src/data/videos.ts`, official Roots.sg-embedded ones only); the **Nearby map tile** (`components/NearbyMapCard`).
+- **No invented data.** Every fact, date, hour and position needs a source, or it is left out. Estimates are labelled.
+- **Do not use the Singapore Culture Atlas photos.** 170 of 171 are "reference only" with no reuse licence.
+- Reply in **Chinese and simple English, line by line**.
+- Commit messages end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 
-**Nearby Explorer** (`src/features/nearby/`, `pages/NearbyPage/`) — Singapore only:
-- 173 curated places (`src/data/explore/places.sg.json`, keys `curated:sg-…`), areas (`areas.json`), outlines, 5 collections
-  (`sg-100`, `sg-michelin-hawkers`, `sg-chinese-restaurants`, `sg-hawker-centres`, `sg-korean-restaurants`), validated by
-  `npm run validate:explore`.
-- 2D map (`CityMap`, glide animation on every jump, `JUMP_RADIUS_M` 350) and 3D view (`View3D` → `lite.html`; postMessage
-  `show / you / pins / insets / zoom` in, `ready / card / pick / view` out); 2D and 3D keep the same view; `?sel=` opens on a place.
-- Sheet (peek / half / full list), search, categories, area, radius, sort; place detail; Save / Check in (打卡) with Undo
-  (`personal.ts`); backup / restore JSON.
-- **Article ↔ place links** already exist: `src/data/cultureLinks.ts` (`ARTICLE_LINKS`: article id → places / areas / lists
-  the text names, or a stall that serves the dish). This is the backbone for the new designs below.
+## 3. What the app has now
 
-**Ask** (`pages/AskPage/`) — a **Singlish phrase explainer**: pick a setting (group chat, office, hawker centre, MRT, home),
-canned answers in `answer.ts` (no backend, no LLM), voice input, hand-off to Community. Nearby → Ask passes `AskHandoff`.
+The base is Team 1's `main` plus our v3 work. The merge decisions are in `docs/MERGE-TEAM1-V3.md`.
 
-**Community** (`pages/CommunityPage/`) — "My questions / Answer as a local" segment, question page, withdraw with Undo,
-"Ask a local" dialog. `Question` = `{id, text, context, detail, status: 'Pending'|'Answered', answer?}` in `data/domain.ts`.
+- **Home** (Team 1's design):
+  - Holiday card.
+  - Map on **our own Singapore map** (`components/HomeMap/CityHomeMap.tsx` → `features/nearby/map/CityMap`), with clusters and a 3D button.
+  - Carousel of **305 cards**: Team 1's 5 (2 story places and 3 Nearby places), then every published place, nearest to NUS UTown first.
+  - "304 places to explore" chip.
+  - Carousel memory limits: only cards within 4 of the centre load a photo (`PHOTO_WINDOW`), and only cards near the centre get the parallax transform. Both limits stop iPhone Safari crashes; keep them if you change the carousel.
+- **Place stories** (Team 1):
+  - `/place/chinatown/*` and `/place/berlin-wall-fragments/*`, with food, monument, festival and history cards.
+  - Each card has an "X in Nearby" button and a "3D" button (`components/story/StoryNearby.tsx`, `TARGETS`):
+    - Chinatown food → Lim Chee Guan; monument → Thian Hock Keng; festival → Pagoda Street; history → the Chinatown area.
+    - Berlin food → The Spread; the other Berlin cards → Berlin Wall Fragments.
+- **Nearby** (`features/nearby/`, `pages/NearbyPage/`):
+  - **304 published places** in `src/data/explore/places.sg.json`, all with English text.
+  - 2D map and 3D view, sheet, search, filters, Save / Check in.
+  - **Routes**: `/nearby/routes` shows the 5 editor routes from the atlas, plus "make a route from an MRT station", which uses the atlas's route engine ported to `features/nearby/routes/engine.ts`.
+  - Route detail has numbered stops on the map.
+  - Place pages show "On routes: …".
+- **Place pictures**: card photo → Wikimedia Commons photo (`public/nearby/photos`, credits in `src/data/explore/photos.json`) → 3D thumbnail → 2D map crop (`placePicture()` in `src/data/home/nearbyCards.ts`). To fetch photos for new places, run `node scripts/explore/place-photos.mjs`.
+- **Ask**: answers from your cards, attachments, and both cards fully visible on iPhone.
+- **Community**: the card kit has 200 members (photo portraits plus our cartoon avatars), 200 questions, 954 replies and 41 notifications, all marked as demo content in Settings › Terms & licences.
+- **Moments**: passport stamps (including Team 1's story stamps) and Snap & recognise (Figma M3).
+- **My Space**: "You as a local", memory controls and the PR #5 extras.
+- **Settings**: "Redo onboarding". Onboarding itself has an exit (✕).
 
-**Moments** (`pages/MomentsPage/`) — Singlish passport (`data/collection.ts`), Today's three, topics, practise dialog,
-**PlaceStamps** (check-ins from Nearby shown as stamps).
+### Atlas data (done)
 
-**Analytics** — `api/track.ts`, `api/stats.ts`, `/admin` dashboard (kept out of `paths`).
+- Source: the team's "singapore-atlas" release.
+- Files: `src/data/atlas/atlas.zh.json` (source), `atlas.en.json` (English translation), `placeKeys.json` (atlas id → Nearby key), `atlas.ts`, `atlasRoutes.ts`.
+- Import: `python3 intentai-web/scripts/explore/import-atlas.py` (re-runnable; it replaces earlier atlas imports).
+- `docs/atlas-handoff/` keeps the translation batches and the original `route-engine.js`.
 
-Recent commits (newest first): culture-card videos; one card radius; Today map tile; Explore opens on `sel` + glide;
-Korean restaurants list (10, sourced); tap list row → map jumps; 2D/3D same view.
+### Places added by hand on 29 Oct (sourced)
 
-## 4. New design direction (boards from the owner, `docs/design-boards/`)
+| Place | Key | Sources |
+| --- | --- | --- |
+| Berlin Wall Fragments | `curated:sg-berlin-wall-fragments-utown` | the-wall-net.org; Team 1's coordinates. Hidden on Home (`STORY_TWINS` in `src/data/homePlaces.ts`) because Team 1's story card is the same spot. |
+| Lim Chee Guan (New Bridge Road) | `curated:sg-lim-chee-guan-new-bridge-road` | chinatown.sg (history, address, hours); OneMap (059429) |
+| The Spread | `curated:sg-the-spread-nus` | thespread.sg (hours, address, shuttle stop); NUSSU The Ridge (dishes); OneMap (119245) |
 
-Three boards make one loop — **cards → Ask → Ask a local → answers flow back to cards → passport of places**:
+## 4. Recent commits (newest first, all live)
 
-- `ask-board.png` (A1–A5) — Ask answers **from your cards** for one place ("Asking about Berlin Wall Fragments · 3 cards");
-  topic auto-switch Food / Monument / Festival; answer with big key numbers, the **source card** (Open; article + video length),
-  a **verified local tip**, "Recommended for you — because you opened …"; off-topic → pick a topic or "Ask a local"
-  ("near here" rewritten as "near UTown"); footnote "Answers come from your cards. AI can still make mistakes."
-- `community-board.png` (C1–C5) — two doors (Ask a local / Answer as a local); question status Posted → Seen → Answered →
-  Added; a local's answer sticks to the card ("+1 local tip", "Cited in Ask"); posting shows a reach circle on a mini map with
-  auto topic; answering shows "their card already says" and a coverage ring (entry, dress, etiquette, timing); a
-  desaturated status map (Answered / Waiting / Needs a local).
-- `moments-board.png` (M1–M5) — passport of places: one stamp per place, ink fills as its 4 cards are opened; tap a stamp →
-  its cards fan out (opened in colour, rest locked); **Snap** a photo → "match found" → card + ink; ranks Visitor → Explorer →
-  Insider → Local with badges; flip-card recap (swipe right = knew it).
+- `670fa0d` Three new Nearby places; story cards open them.
+- `64da931` Home crash fix on iPhone: parallax only near the centre.
+- `0fd3156` Story cards: "in Nearby" and "3D" buttons.
+- `e4cdf31` Atlas tour routes and 131 new places.
+- `7acf1ac` My Space PR #5 extras.
+- `0c61353` Home on our map with 3D; Ask fits on iPhone; Moments Snap.
+- `33502a7` iPhone crash after onboarding fixed; onboarding exit and redo.
+- `800a068` Community card kit.
 
-**None of this is implemented yet** (searched every branch of both repos on 28 Oct: no "Answers come from your cards",
-"Because you opened", "Verified tip", topic switch, ink, ranks, Snap; the Berlin Wall Fragments / bak kwa / Lim Chee Guan
-content does not exist either). Only "Ask a local", the Community tabs, withdraw and PlaceStamps have a basis.
+## 5. Next (the owner's stated direction)
 
-## 5. How our existing work plugs into the new design (proposed plan)
+1. **More tour-route combinations.** Build them on the atlas engine and our places, and link them to the story places, for example a Chinatown food walk ending at Lim Chee Guan or a UTown loop with the Wall and The Spread. Every stop and time needs a source.
+2. **Card upgrades.** Team 1's story cards are the model. Give more places that kind of card, with sourced text and only licensed photos.
+3. **Real iPhone check.** The Home crash fix was verified in WebKit at iPhone size, not on a device. Ask the owner to confirm on their phone.
+4. **Open items:**
+   - The Google Drive folder the owner shared (`1xTEHbmaHgWhlnE5hbnMtooxxMX_6ejxr`) couldn't be opened: it isn't public, and the Drive connector wasn't authorised.
+   - The Tembusu and NUS alumni pages are JS-rendered and return empty to fetch tools.
+   - OneMap search failed for 138596, 117600 and "Tembusu College".
 
-| Design concept | Build it on | New work |
-|---|---|---|
-| "Card" | `Article` (culture.ts + articles/) with its `sources`, `facts`, video | card ids stable; mark which facts are "key numbers" (only sourced ones) |
-| "Place" a card belongs to | Nearby catalogue `curated:sg-…` + areas, joined by `cultureLinks.ts` | reverse index place → cards; a place header chip ("Asking about …") |
-| Topic switch Food / Monument / Festival | `CategoryId` foods / monuments / holidays | keyword topic detector (local, testable), placeholder text per topic |
-| Ask answers from cards | new `askFromCards(question, place, cards)`: retrieve facts/deeper from that place's cards; answer quotes them and shows the **source card** (Open → article; place → `paths.nearbyPlace` / Explore `?sel=`) | start rule-based (no LLM) like `answer.ts`; if an LLM is added later, ground it on the same card text and keep "AI can make mistakes" |
-| "Recommended for you — because you opened X" | opened articles (`stores.ts` progress / collection) + `cultureLinks` | ranking that states its reason |
-| Ask a local (prefilled) | `QuestionDialog`, `CommunityHandoff` | carry `placeKey`, `topic`, source card id; rewrite "here" → area name from location / area |
-| Status Posted → Seen → Answered → Added | `Question.status` | extend the union + migration in `stores.ts`; "Added" = answer attached to a card |
-| Local tip on the card ("+1 local tip", "Verified") | new `tips` store keyed by article id | only real answers from the Community flow (seed tips must be marked "sample") |
-| Reach circle / status map | `CityMap` (Nearby map) with a circle layer and status pins | desaturated style; pins coloured by status |
-| Passport of places, ink | areas / collections + opened articles per place; PlaceStamps (check-ins) | stamp component with ink % = opened cards / place's cards |
-| Snap a moment | — | needs real image recognition; for the demo use a few fixed photos and say so; never show an invented "94 % match" |
-| Ranks and badges | check-ins, opened cards, tips | rules + progress rings |
-| Flip-card recap | `PractiseDialog` | swipe deck over opened cards |
-| 3D | `View3D` / `lite.html` | place card → 3D view of that landmark (already supported via `sel`) |
+## 6. Dev servers that may still be running
 
-Suggested order: (1) Ask from cards for the places that already have articles + links (Thian Hock Keng, Sri Mariamman, Sultan
-Mosque, chicken rice, laksa …), with source cards and the topic switch; (2) Ask a local carrying place / topic / card, statuses,
-answers attached to cards; (3) Moments passport with ink from opened cards + existing check-in stamps; (4) ranks, recap, Snap demo.
-New content (e.g. Berlin Wall Fragments at NUS, Chinatown bak kwa) needs sourced articles first.
+- :5181 serves this worktree.
+- :5182 serves PR #5.
+- :5179 serves the old tree.
+- :8767 serves the prototype.
+- :5173 is the owner's own.
 
-## 6. Open items carried over
-
-- Videos for the other 13 Today culture cards (lead: Roots.sg-embedded `7xW-GPASieo` for Sultan Mosque; only official, verified ones).
-- Re-check the Korean restaurants list data (`collections.json` → `sg-korean-restaurants`).
-- Production deploy root (`web/` vs `intentai-web/`): see `intentai-web/README.md` → Deployment.
-- The Nearby map tile picture must be regenerated when places change (`scripts/today/map-preview.mjs` + `resize.py`).
+Stop any you don't need.

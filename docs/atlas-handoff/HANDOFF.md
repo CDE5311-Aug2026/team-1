@@ -1,3 +1,5 @@
+> **Done and live (29 Oct 2026).** This file records how the atlas work was done. For the current state, read `docs/HANDOFF.md`.
+
 # Handoff: atlas tour routes (29 Oct 2026, ~11:40)
 
 Paste this into a new Claude Code session opened in `~/Documents/GitHub/CDE-5311-team1`:
