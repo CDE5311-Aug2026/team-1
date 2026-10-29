@@ -28,8 +28,8 @@ describe('demo community', () => {
   test('reply counts come from the replies; likes are the members’ likes plus mine', () => {
     const canOrNot = publicSummaries(EMPTY_SOCIAL).find((s) => s.id === 'singlish-can-or-not')!;
     expect(canOrNot.replies).toBe(SAMPLE_REPLIES.filter((r) => r.threadId === 'singlish-can-or-not').length);
-    expect(canOrNot.author).toBe('Kai T.');
-    expect(canOrNot.repliers).toHaveLength(3);
+    expect(canOrNot.author).toBe('Kai');
+    expect(canOrNot.repliers).toEqual(['Mel', 'Jo', 'You']);
     const seeded = SAMPLE_REPLIES.filter((r) => r.threadId === 'singlish-can-or-not');
     const t = threadFor('singlish-can-or-not', [], [], social({ likes: ['singlish-can-or-not-r2'] }))!;
     expect(t.replies.map((r) => r.likes)).toEqual(seeded.map((r) => r.likes + (r.id === 'singlish-can-or-not-r2' ? 1 : 0)));
@@ -80,14 +80,15 @@ describe('reply tree', () => {
 
   test('nests replies and finds the branch to expand for a reply', () => {
     const tree = replyTree(t.replies, 'top');
-    expect(tree.roots.map((r) => r.id)).toEqual(['singlish-can-or-not-r1', 'singlish-can-or-not-r2', 'singlish-can-or-not-r3']);
-    expect(ancestorsOf(tree, 'singlish-can-or-not-r1-b')).toEqual(['singlish-can-or-not-r1-a', 'singlish-can-or-not-r1']);
+    expect(tree.roots.map((r) => r.id)).toEqual(['singlish-can-or-not-r1', 'singlish-can-or-not-r2', 'singlish-can-or-not-r4', 'singlish-can-or-not-r3']);
+    expect(ancestorsOf(tree, 'singlish-can-or-not-r1-b')).toEqual(['singlish-can-or-not-r1']);
+    expect(ancestorsOf(tree, 'singlish-can-or-not-r3-a')).toEqual(['singlish-can-or-not-r3']);
   });
 
   test('Top puts the most liked reply first; Latest puts my newest reply first', () => {
-    const liked = threadFor('singlish-can-or-not', [], [], social({ likes: ['singlish-can-or-not-r3'] }))!;
-    expect(replyTree(liked.replies, 'top').roots[0].id).toBe('singlish-can-or-not-r1');
-    expect(liked.replies.find((r) => r.id === 'singlish-can-or-not-r3')!.likes).toBe(11);
+    const liked = threadFor('singlish-can-or-not', [], [], social({ likes: ['singlish-can-or-not-r4'] }))!;
+    expect(replyTree(liked.replies, 'top').roots.map((r) => r.id)).toEqual(['singlish-can-or-not-r1', 'singlish-can-or-not-r2', 'singlish-can-or-not-r4', 'singlish-can-or-not-r3']);
+    expect(liked.replies.find((r) => r.id === 'singlish-can-or-not-r4')!.likes).toBe(8);
     const mine = threadFor('singlish-can-or-not', [], [], social({ replies: [{ id: 'new', threadId: 'singlish-can-or-not', text: 'x', createdAt: Date.now() + 1000 }] }))!;
     expect(replyTree(mine.replies, 'latest').roots[0].id).toBe('new');
   });
@@ -95,15 +96,20 @@ describe('reply tree', () => {
 
 describe('notifications', () => {
   test('one per local answer to my questions, then the examples; read state from this device', () => {
-    const list = notificationsFor(SEED_QUESTIONS, social({ readNotifications: ['n-mel-reply'] }));
-    expect(list.map((n) => [n.id, n.unread])).toEqual([
+    const list = notificationsFor(SEED_QUESTIONS, social({ readNotifications: ['n-mei-queue'] }));
+    expect(list).toHaveLength(1 + SAMPLE_NOTIFICATIONS.length);
+    expect(list.slice(0, 6).map((n) => [n.id, n.unread])).toEqual([
       ['answer:paiseh', true],
+      ['notification:exp-daily-037-r5', true],
       ['n-mel-mention', true],
-      ['n-jo-kopi', true],
-      ['n-mel-reply', false],
-      ['n-wei-chope', true],
-      ['n-xiaolin-chi', true],
+      ['notification:exp-mandarin-012-r4', true],
+      ['n-mei-queue', false],
+      ['notification:exp-mandarin-003-r3', true],
     ]);
+    expect(list.filter((n) => !n.unread).map((n) => n.id)).toEqual(['n-mei-queue']);
+    expect(list.find((n) => n.id === 'n-mel-mention')).toMatchObject({ actor: 'Mel', threadId: 'singlish-can-or-not', replyId: 'singlish-can-or-not-r3-a' });
+    // Our own extra threads keep their notifications, woven in by time.
+    expect(list.find((n) => n.id === 'n-jo-kopi')).toMatchObject({ actor: 'Jo G.', threadId: 'food-kopi-order' });
     expect(list[0]).toMatchObject({ threadId: 'paiseh', replyId: 'paiseh:answer', actor: 'Siti A.' });
   });
 });

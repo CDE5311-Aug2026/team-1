@@ -20,16 +20,16 @@ test('pins, filter counts and cards come from the stored questions', async () =>
   questionsStore.set([{ ...newQuestion('Where to eat?', 'near Chinatown', { areaId: 'sg-chinatown', areaName: 'Chinatown' }), id: 'mine' }]);
   renderCommunity(paths.communityMap);
 
-  // mine (needs a local) + 20 community threads with an area (18 answered, 2 open)
-  expect(screen.getByRole('button', { name: 'All 21' })).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByRole('button', { name: 'Answered 18' })).toBeInTheDocument();
+  // mine (needs a local) + 23 community threads with an area (16 answered, 7 open)
+  expect(screen.getByRole('button', { name: 'All 24' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Answered 16' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Waiting 0' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Needs a local 3' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Needs a local 8' })).toBeInTheDocument();
   expect(await screen.findByRole('button', { name: 'Where to eat?. Needs a local, Chinatown' })).toBeInTheDocument();
   const cards = screen.getByLabelText('Questions on the map');
   expect(within(cards).getByRole('heading', { name: 'Where to eat?' })).toBeInTheDocument();
 
-  await userEvent.click(screen.getByRole('button', { name: 'Answered 18' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Answered 16' }));
   expect(within(cards).queryByRole('heading', { name: 'Where to eat?' })).not.toBeInTheDocument();
   expect(screen.getAllByText('Answered').length).toBeGreaterThan(0);
 });
@@ -37,10 +37,10 @@ test('pins, filter counts and cards come from the stored questions', async () =>
 test('tapping a pin selects its card; the card arrow opens the thread', async () => {
   renderCommunity(paths.communityMap);
 
-  const pin = await screen.findByRole('button', { name: /“chope”.*Chinatown/ });
+  const pin = await screen.findByRole('button', { name: /“I chope first”.*Chinatown/ });
   await userEvent.click(pin);
   expect(pin).toHaveAttribute('aria-pressed', 'true');
-  await userEvent.click(screen.getByRole('link', { name: /Open Is “chope”/ }));
+  await userEvent.click(screen.getByRole('link', { name: /Open “I chope first”/ }));
   expect(screen.getByTestId('location')).toHaveTextContent(paths.question('singlish-chope'));
 });
 
@@ -117,7 +117,7 @@ test('the map credit and the privacy line sit behind one info button', async () 
   expect(screen.queryByRole('dialog', { name: 'Map info' })).not.toBeInTheDocument();
   expect(info).toHaveFocus();
   await userEvent.click(info);
-  await userEvent.click(screen.getByRole('button', { name: 'Answered 18' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Answered 16' }));
   expect(screen.queryByRole('dialog', { name: 'Map info' })).not.toBeInTheDocument();
 });
 

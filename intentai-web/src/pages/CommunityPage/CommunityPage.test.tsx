@@ -17,8 +17,8 @@ test('home shows the two doors, the feed, my questions with progress, the map ca
   expect(screen.getByRole('button', { name: /^answer as a local/i })).toBeInTheDocument();
   expect(screen.getByRole('switch', { name: 'Answer as a local' })).toHaveAttribute('aria-checked', 'false');
   expect(screen.getByRole('tab', { name: 'Top Questions' })).toHaveAttribute('aria-selected', 'true');
-  // Reply counts come from the stored example replies (6 in this thread).
-  expect(screen.getByRole('button', { name: /“can or not\?”.*6 replies/i })).toBeInTheDocument();
+  // Reply counts come from the stored example replies (7 in this thread).
+  expect(screen.getByRole('button', { name: /“3 pm, can or not\?”.*7 replies/i })).toBeInTheDocument();
 
   const mine = screen.getByRole('region', { name: 'My Questions' });
   expect(within(mine).getByText(/replied ·/)).toHaveTextContent('1 replied · 1 waiting');
@@ -57,9 +57,9 @@ test('the feed switches to For You, and a card opens its thread', async () => {
 
   await userEvent.click(screen.getByRole('tab', { name: 'For You' }));
   expect(screen.getByRole('tab', { name: 'For You' })).toHaveAttribute('aria-selected', 'true');
-  await userEvent.click(screen.getByRole('button', { name: /first time at a hawker centre/i }));
+  await userEvent.click(screen.getByRole('button', { name: /how can I turn down an invitation/i }));
 
-  expect(screen.getByTestId('location')).toHaveTextContent(paths.question('food-hawker-order'));
+  expect(screen.getByTestId('location')).toHaveTextContent(paths.question('chinese-kind-no'));
 });
 
 test('Ask a local posts an anonymous question at the top of My Questions', async () => {
@@ -167,23 +167,23 @@ test('the switch on the door turns Answer as a local on', async () => {
 test('notifications: unread dot, All / Unread, mark all read, and opening goes to the reply', async () => {
   renderCommunity(paths.community);
 
-  // paiseh's answer + five from threads I follow
-  await userEvent.click(screen.getByRole('button', { name: 'Notifications, 6 unread' }));
+  // paiseh's answer + the kit's 41 + two from our own threads I follow
+  await userEvent.click(screen.getByRole('button', { name: 'Notifications, 44 unread' }));
   const sheet = screen.getByRole('dialog', { name: 'Notifications' });
-  expect(within(sheet).getAllByRole('button', { name: /^Unread\./ })).toHaveLength(6);
+  expect(within(sheet).getAllByRole('button', { name: /^Unread\./ })).toHaveLength(44);
   expect(within(sheet).getByRole('button', { name: /Siti A\. replied to your question\. “paiseh/ })).toBeInTheDocument();
   expect(within(sheet).queryByText('Example')).toBeNull();
 
   await userEvent.click(within(sheet).getByRole('button', { name: 'Mark all read' }));
-  expect(communitySocialStore.get().readNotifications).toHaveLength(6);
+  expect(communitySocialStore.get().readNotifications).toHaveLength(44);
   await userEvent.click(within(sheet).getByRole('button', { name: 'Unread' }));
   expect(within(sheet).getByText('You’re all caught up.')).toBeInTheDocument();
   await userEvent.click(within(sheet).getByRole('button', { name: 'All' }));
 
-  await userEvent.click(within(sheet).getByRole('button', { name: /Mel T\. mentioned you/ }));
+  await userEvent.click(within(sheet).getByRole('button', { name: /\bMel mentioned you/ }));
   expect(screen.getByTestId('location')).toHaveTextContent(paths.question('singlish-can-or-not'));
-  // The mentioned reply is a child of Ash's reply: its branch is expanded.
-  expect(screen.getByText(/a specific time is easier/)).toBeInTheDocument();
+  // The mentioned reply is a child of my own reply: its branch is expanded.
+  expect(screen.getByText(/yep, that sounds natural/)).toBeInTheDocument();
 });
 
 test('with no questions it says so', () => {
@@ -208,23 +208,23 @@ test('the Answer door opens the channel browser in the URL', async () => {
 test('channels, search and All / Open / Answered filter the conversations, with counts', async () => {
   renderCommunity(`${paths.community}?mode=answer`);
 
-  for (const name of ['Daily Usage', '中文交流', 'Chinese Culture in Malaysia', 'Singapore / Singlish']) {
+  for (const name of ['Daily Usage', 'Mandarin & English', 'Chinese Culture in Malaysia', 'Singapore / Singlish']) {
     expect(screen.getByRole('button', { name: new RegExp(`^${name}`) })).toBeInTheDocument();
   }
-  // 22 community threads + my 2 questions
-  expect(screen.getByText('24 conversations')).toBeInTheDocument();
+  // 210 community threads (the kit's 200 + our 10) + my 2 questions
+  expect(screen.getByText('212 conversations')).toBeInTheDocument();
   expect(screen.getByRole('region', { name: 'New questions' })).toBeInTheDocument();
 
   await userEvent.click(screen.getByRole('button', { name: /^Singapore \/ Singlish/ }));
-  expect(screen.getByText('6 conversations')).toBeInTheDocument();
-  expect(screen.getByText('Explore words in context, one everyday conversation at a time.')).toBeInTheDocument();
+  expect(screen.getByText('53 conversations')).toBeInTheDocument();
+  expect(screen.getByText('Something you heard on campus, at lunch, or in a group chat? Ask here.')).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: /^Open/ }));
   expect(screen.getByText('1 conversation')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /paiseh/ })).toBeInTheDocument();
 
   await userEvent.click(screen.getByRole('button', { name: /^All channels/ }));
   await userEvent.click(screen.getByRole('button', { name: /^All \d/ }));
-  await userEvent.type(screen.getByRole('searchbox', { name: 'Search community questions' }), 'bill');
+  await userEvent.type(screen.getByRole('searchbox', { name: 'Search community questions' }), 'Lim Chee Guan');
   expect(screen.getByText('1 conversation found')).toBeInTheDocument();
   await userEvent.clear(screen.getByRole('searchbox'));
   await userEvent.type(screen.getByRole('searchbox'), 'zzzz');

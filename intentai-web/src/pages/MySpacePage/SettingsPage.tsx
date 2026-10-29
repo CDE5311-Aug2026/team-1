@@ -93,6 +93,10 @@ function CreditsSheet({ onClose }: { onClose: () => void }) {
           </a>
         </li>
         <li>
+          <span className={styles.creditSubject}>Community portraits and question photos</span>
+          <span>IntentAI community card kit: AI-generated illustrations of fictional people and everyday scenes</span>
+        </li>
+        <li>
           <span className={styles.creditSubject}>Demo community</span>
           <span>This demo build shows illustrative community members, questions and activity.</span>
         </li>

@@ -15,6 +15,7 @@ import steady from '../../assets/steady-photo.jpg';
 import kiasu from '../../assets/kiasu-photo.jpg';
 import { ARTICLE_IMAGES } from '../articleImages';
 import { MEMBERS, nameOf, type Member } from './people';
+import { KIT, KIT_PLACE_AREAS, kitCover, kitName } from './kit';
 
 const chickenRice = ARTICLE_IMAGES['chicken-rice'].src;
 const thianHockKeng = ARTICLE_IMAGES['thian-hock-keng'].src;
@@ -33,16 +34,11 @@ export interface Channel {
   description: string;
 }
 
-export const CHANNELS: Channel[] = [
-  { id: 'daily-usage', name: 'Daily Usage', description: 'The little phrases and everyday situations worth talking through.' },
-  { id: 'chinese-exchange', name: '中文交流', description: '聊聊表达、语气与言外之意。用你觉得自然的语言分享。' },
-  {
-    id: 'chinese-culture-malaysia',
-    name: 'Chinese Culture in Malaysia',
-    description: 'Family traditions, language choices, and the questions behind them. All perspectives welcome.',
-  },
-  { id: 'singapore-singlish', name: 'Singapore / Singlish', description: 'Explore words in context, one everyday conversation at a time.' },
-];
+/** The four boards, named and described as in the community card kit. */
+export const CHANNELS: Channel[] = CHANNEL_IDS.map((id) => {
+  const b = KIT.boards.find((x) => x.id === id);
+  return { id, name: b?.name ?? id, description: b?.description ?? '' };
+});
 
 export function channelName(id: ChannelId): string {
   return CHANNELS.find((c) => c.id === id)?.name ?? id;
@@ -57,6 +53,8 @@ export interface SampleThread {
   body: string;
   tags: string[];
   photo: string;
+  /** What the photo shows (kit covers carry one). */
+  photoAlt?: string;
   author: string;
   /** Posted this many minutes before the app opens (so the feed always reads as recent activity). */
   ago: number;
@@ -64,6 +62,10 @@ export interface SampleThread {
   views: number;
   /** Threads placed on the Locals map: an area (never a point). */
   areaId?: string;
+  /** Closed in the seed: no new replies. */
+  closed?: boolean;
+  /** Asked by the demo user (the kit's "Jamie", shown as You). */
+  mine?: boolean;
   sample: true;
 }
 
@@ -89,7 +91,7 @@ const t = (thread: Omit<SampleThread, 'sample' | 'author'> & { by: string }): Sa
   return { ...rest, author: nameOf(by), sample: true };
 };
 
-export const SAMPLE_THREADS: SampleThread[] = [
+const OUR_THREADS: SampleThread[] = [
   t({
     id: 'daily-well-see', channel: 'daily-usage', title: 'Does “we’ll see” mean maybe, or a gentle no?',
     body: 'I suggested meeting after class. A friend smiled and said “we’ll see.” I don’t want to push, but I’m not sure whether to follow up.',
@@ -214,7 +216,7 @@ const r = (threadId: string, id: string, by: string, text: string, ago: number, 
   sample: true,
 });
 
-export const SAMPLE_REPLIES: SampleReply[] = [
+const OUR_REPLIES: SampleReply[] = [
   r('daily-well-see', 'r1', 'liv', 'Often it’s a soft “not sure yet”. I’d leave it open: “No worries, let me know if you’re free!” If they want to come, they’ll pick it up.', 2 * H + 40, 18),
   r('daily-well-see', 'r2', 'ari', 'Depends who says it. From a close friend it really can mean maybe. If you ask once more later with a specific time, that’s not pushy.', 2 * H, 9),
   r('daily-split-bill', 'r1', 'jo', 'I’d ask before anyone pays: “Shall we split it, or would everyone prefer to pay for what they ordered?” It gives people an easy choice.', 8 * H, 34),
@@ -264,11 +266,7 @@ export const SAMPLE_REPLIES: SampleReply[] = [
   r('daily-mrt-seat', 'r1', 'daniel', 'Sitting there is fine when it’s empty. People just expect you to get up straight away when someone who needs it comes in.', 2 * H, 8),
 ];
 
-/** The order of the two home carousels (ZIP feedOrder). Fixed lists for the demo (no ranking service). */
-export const FEEDS: Record<Feed, string[]> = {
-  top: ['food-kopi-order', 'singlish-can-or-not', 'singlish-lah-tone', 'lunar-new-year-visit', 'singlish-chope', 'daily-split-bill', 'chinese-chi-le-ma', 'chinese-let-me-know', 'daily-more-detail', 'malaysia-first-family-visit', 'malaysia-family-traditions'],
-  'for-you': ['food-hawker-order', 'temple-visit-etiquette', 'chinese-kind-no', 'deepavali-greeting', 'mosque-visit', 'malaysia-language-choice', 'singlish-paiseh', 'daily-well-see', 'hari-raya-open-house', 'daily-mrt-seat', 'chinese-consider-followup'],
-};
+
 
 export interface SampleNotification {
   id: string;
@@ -284,13 +282,103 @@ const n = (id: string, kind: SampleNotification['kind'], by: string, threadId: s
 });
 
 /** Activity on threads the user follows (ZIP communityNotifications); real ones come from answers to my own questions. */
-export const SAMPLE_NOTIFICATIONS: SampleNotification[] = [
+const OUR_NOTIFICATIONS: SampleNotification[] = [
   n('n-mel-mention', 'mention', 'mel', 'singlish-can-or-not', 'r2-a'),
   n('n-mel-reply', 'reply', 'mel', 'singlish-can-or-not', 'r1-b'),
   n('n-jo-kopi', 'reply', 'jo', 'food-kopi-order', 'r1'),
   n('n-wei-chope', 'reply', 'wei', 'singlish-chope', 'r2'),
   n('n-xiaolin-chi', 'reply', 'xiaolin', 'chinese-chi-le-ma', 'r1'),
 ];
+
+/* ---------- The community card kit, merged ---------- */
+
+const ourIds = new Set(OUR_THREADS.map((x) => x.id));
+/** Map areas we gave the threads the kit shares with us (it has no areas of its own beyond two places). */
+const OUR_AREAS = new Map(OUR_THREADS.map((x) => [x.id, x.areaId]));
+const kitIds = new Set(KIT.questions.map((q) => q.id));
+
+/** A stable, plausible view count for a kit thread (the kit has none): grows with its replies and likes. */
+function viewsFor(id: string, replies: number, likes: number): number {
+  let h = 0;
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return 24 + replies * 31 + likes * 4 + (h % 60);
+}
+
+/** Kit covers that are copies of the prototype's own photos: use ours, so the photo keeps its credit line. */
+const KIT_EXISTING_PHOTOS: Readonly<Record<string, string>> = {
+  'existing:assets/5142c.png': bakKwa,
+  'existing:assets/c15ab.png': street,
+  'existing:assets/f5d56.png': temple,
+  'existing:assets/1a24d.png': cafe,
+};
+
+const kitThreads: SampleThread[] = KIT.questions.map((q) => {
+  const replies = KIT.replies.filter((x) => x.q === q.id);
+  const cover = (q.cover && KIT_EXISTING_PHOTOS[q.cover] ? { src: KIT_EXISTING_PHOTOS[q.cover] } : undefined) ?? kitCover(q.cover);
+  return {
+    id: q.id,
+    channel: q.board as ChannelId,
+    title: q.title,
+    body: q.body,
+    tags: q.tags,
+    photo: cover?.src ?? street,
+    photoAlt: q.coverAlt ?? undefined,
+    author: kitName(q.author),
+    ago: q.ago,
+    views: viewsFor(q.id, replies.length, replies.reduce((n, x) => n + x.likes, 0)),
+    // map-temple asks about Thian Hock Keng, in Chinatown (the kit left its place empty)
+    areaId: OUR_AREAS.get(q.id) ?? (q.place ? KIT_PLACE_AREAS[q.place] : q.id === 'map-temple' ? 'sg-chinatown' : undefined),
+    closed: q.closed,
+    mine: q.mine,
+    sample: true,
+  };
+});
+
+/** All community threads: the kit's 200, then ours that the kit does not have (written by our members). */
+export const SAMPLE_THREADS: SampleThread[] = [...kitThreads, ...OUR_THREADS.filter((x) => !kitIds.has(x.id))];
+
+export const SAMPLE_REPLIES: SampleReply[] = [
+  ...[...KIT.replies]
+    .sort((a, b) => (a.q === b.q ? a.seq - b.seq : 0))
+    .map((x) => ({
+      id: x.id,
+      threadId: x.q,
+      parentId: x.parent ?? undefined,
+      author: kitName(x.author),
+      text: x.text.replace(/@jamie\.chen\b/g, '@You'),
+      ago: x.ago,
+      likes: x.likes,
+      sample: true as const,
+    })),
+  ...OUR_REPLIES.filter((x) => !kitIds.has(x.threadId)),
+];
+
+export const SAMPLE_NOTIFICATIONS: SampleNotification[] = [
+  ...KIT.notifications.map((x) => ({
+    id: x.id,
+    kind: x.kind === 'mention' ? ('mention' as const) : ('reply' as const),
+    actor: kitName(x.actor),
+    threadId: x.q,
+    replyId: x.reply,
+    sample: true as const,
+  })),
+  ...OUR_NOTIFICATIONS.filter((x) => ourIds.has(x.threadId) && !kitIds.has(x.threadId)),
+];
+
+/** Home carousels: the kit's Top / For You order, with our own threads woven in every few cards. */
+function weave(kit: string[], ours: string[]): string[] {
+  const out: string[] = [];
+  kit.forEach((id, i) => {
+    out.push(id);
+    if (i % 4 === 1 && ours.length) out.push(ours.shift()!);
+  });
+  return [...out, ...ours];
+}
+const extra = OUR_THREADS.filter((x) => !kitIds.has(x.id)).map((x) => x.id);
+export const FEEDS: Record<Feed, string[]> = {
+  top: weave(KIT.feeds.top.slice(0, 18), extra.slice(0, Math.ceil(extra.length / 2))),
+  'for-you': weave(KIT.feeds.forYou.slice(0, 18), extra.slice(Math.ceil(extra.length / 2))),
+};
 
 export function sampleThread(id: string): SampleThread | undefined {
   return SAMPLE_THREADS.find((thread) => thread.id === id);

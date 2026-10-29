@@ -62,11 +62,8 @@ export const MEMBERS: readonly Member[] = [
   m({ id: 'ren', name: 'Ren I.', role: 'newcomer', line: 'From Tokyo · intern in Chinatown', areaId: 'sg-chinatown', languages: ['Japanese', 'English'], answers: 2, helpful: 6, since: '2026-09' }),
 ];
 
-/** Short names used before the directory existed (and in old saved conversations) → member. */
-const ALIASES: Record<string, string> = {
-  Mel: 'mel', Jun: 'jun', Liv: 'liv', Jo: 'jo', Nina: 'nina', Ari: 'ari', Ash: 'ash', Mira: 'mira', Eli: 'eli', Sam: 'sam',
-  Rae: 'rae', Alex: 'alex', Leah: 'leah', Dee: 'dee', Kai: 'kai', Theo: 'theo', Ren: 'ren',
-};
+/** Short names map to nobody here: the community card kit has its own members with those names (Mel, Kai, …). */
+const ALIASES: Record<string, string> = {};
 
 export function memberById(id: string): Member | undefined {
   return MEMBERS.find((x) => x.id === id);

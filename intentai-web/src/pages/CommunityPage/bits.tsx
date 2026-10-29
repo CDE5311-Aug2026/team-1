@@ -3,6 +3,7 @@ import { useReducedMotionConfig } from 'motion/react';
 import { useState } from 'react';
 import CountUp from '../../components/reactbits/CountUp';
 import { memberByName } from '../../data/community/people';
+import { kitAvatarStyle, kitPerson } from '../../data/community/kit';
 import styles from './bits.module.css';
 
 /**
@@ -16,6 +17,10 @@ export function ExampleTag(_props: { className?: string }) {
 /** A member's picture (DiceBear Notionists, CC0), or their initial for "You" and anyone without one. */
 export function Avatar({ name, size = 'md', tone = 'warm' }: { name: string; size?: 'sm' | 'md' | 'lg'; tone?: 'warm' | 'accent' | 'dark' }) {
   const member = name === 'You' ? undefined : memberByName(name);
+  const kit = name === 'You' || member ? undefined : kitPerson(name);
+  if (kit) {
+    return <span className={`${styles.avatar} ${styles.photo} ${styles.portrait} ${styles[size]}`} style={kitAvatarStyle(kit)} aria-hidden="true" />;
+  }
   if (member?.avatar) {
     return (
       <span className={`${styles.avatar} ${styles.photo} ${styles[size]}`} aria-hidden="true">

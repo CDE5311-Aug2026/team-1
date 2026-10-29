@@ -11,38 +11,48 @@ test('an example thread shows the question, author, topic, photo credit and its 
   renderCommunity(paths.question('singlish-can-or-not'));
 
   expect(screen.getByRole('heading', { level: 1, name: 'Question' })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { level: 2, name: '“Can or not?” — a question, a nudge, or both?' })).toBeInTheDocument();
-  expect(screen.getByText('Kai T.')).toBeInTheDocument();
-  expect(screen.getByText(/From Osaka · NUS exchange · .* · 728 views/)).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 2, name: '“3 pm, can or not?” Does she need an answer now?' })).toBeInTheDocument();
+  expect(screen.getByText('Kai')).toBeInTheDocument();
+  expect(screen.getByText(/· 511 views$/)).toBeInTheDocument();
   expect(screen.queryByText('Example')).toBeNull();
   expect(screen.getByRole('link', { name: 'Singapore / Singlish' })).toHaveAttribute('href', '/community?mode=answer');
+  // The kit's cover is an AI-made illustration: shown, with no photo credit.
   expect(screen.getByRole('button', { name: 'Open the photo' })).toBeInTheDocument();
-  // Three replies to the question; the nested ones are collapsed.
-  expect(screen.getAllByRole('button', { name: /^Like reply from/ })).toHaveLength(3);
+  expect(screen.queryByText(/^Photo: /)).toBeNull();
+  // Four replies to the question; the nested ones are collapsed.
+  expect(screen.getAllByRole('button', { name: /^Like reply from/ })).toHaveLength(4);
   expect(screen.getByRole('button', { name: 'View 2 replies' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'View 1 reply' })).toBeInTheDocument();
+});
+
+test('a kit thread whose cover is one of our credited photos shows its credit', () => {
+  renderCommunity(paths.question('original-queue'));
+
+  expect(screen.getByRole('heading', { level: 2, name: 'When is the queue shortest at Lim Chee Guan?' })).toBeInTheDocument();
+  expect(screen.getByText('Photo: Alpha · CC BY-SA 2.0')).toBeInTheDocument();
 });
 
 test('replies expand and collapse, and deep replies say who they answer', async () => {
-  renderCommunity(paths.question('singlish-can-or-not'));
+  renderCommunity(paths.question('original-queue'));
 
   await userEvent.click(screen.getByRole('button', { name: 'View 2 replies' }));
-  expect(screen.getByText(/It was said quite quickly/)).toBeInTheDocument();
-  await userEvent.click(screen.getAllByRole('button', { name: 'View 1 reply' })[0]);
-  expect(screen.getByText(/That extra context helps/)).toBeInTheDocument();
-  expect(screen.getByText('Replying to Kai T.')).toBeInTheDocument();
+  expect(screen.getByText(/Would you leave a bit of extra time/)).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'View 1 reply' }));
+  expect(screen.getByText(/Friday should be fine/)).toBeInTheDocument();
+  expect(screen.getByText('Replying to You')).toBeInTheDocument();
   expect(screen.getAllByText('Author').length).toBeGreaterThan(0);
 
   await userEvent.click(screen.getAllByRole('button', { name: 'Hide replies' })[0]);
   expect(screen.getByRole('button', { name: 'View 2 replies' })).toHaveAttribute('aria-expanded', 'false');
-  await waitFor(() => expect(screen.queryByText(/It was said quite quickly/)).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText(/Would you leave a bit of extra time/)).not.toBeInTheDocument());
 });
 
 test('like, follow and save to Moments are kept on this device; likes add to the members’ likes', async () => {
   renderCommunity(paths.question('singlish-can-or-not'));
 
-  await userEvent.click(screen.getByRole('button', { name: 'Like reply from Mel T., 43 likes' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Like reply from Mel, 24 likes' }));
   expect(communitySocialStore.get().likes).toEqual(['singlish-can-or-not-r1']);
-  expect(screen.getByRole('button', { name: 'Unlike reply from Mel T., 44 likes' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Unlike reply from Mel, 25 likes' })).toHaveAttribute('aria-pressed', 'true');
 
   await userEvent.click(screen.getByRole('button', { name: 'Follow' }));
   expect(screen.getByRole('button', { name: 'Following' })).toHaveAttribute('aria-pressed', 'true');
@@ -51,7 +61,16 @@ test('like, follow and save to Moments are kept on this device; likes add to the
   await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   expect(screen.getByRole('status')).toHaveTextContent('Saved to Moments');
   expect(communitySocialStore.get().saved[0]).toMatchObject({ threadId: 'singlish-can-or-not', topic: 'Singapore / Singlish' });
-  expect(communitySocialStore.get().saved[0].replies).toHaveLength(6);
+  expect(communitySocialStore.get().saved[0].replies).toHaveLength(7);
+});
+
+test('a closed kit thread takes no new replies', () => {
+  renderCommunity(paths.question('exp-mandarin-002'));
+
+  expect(screen.getByText('Resolved')).toBeInTheDocument();
+  expect(screen.getByText('This question is closed to new replies.')).toBeInTheDocument();
+  expect(screen.getByLabelText('Replies are closed')).toBeDisabled();
+  for (const b of screen.getAllByRole('button', { name: /^Reply to / })) expect(b).toBeDisabled();
 });
 
 test('Top / Latest: my newest reply comes first under Latest', async () => {
@@ -69,9 +88,9 @@ test('Top / Latest: my newest reply comes first under Latest', async () => {
 test('replying to a reply nests it under that reply', async () => {
   renderCommunity(paths.question('singlish-chope'));
 
-  await userEvent.click(screen.getByRole('button', { name: 'Reply to Liv N.' }));
-  expect(screen.getByText('Replying to', { exact: false })).toHaveTextContent('Replying to Liv N.');
-  await userEvent.type(screen.getByRole('textbox', { name: 'Reply to Liv N.' }), 'Good idea.');
+  await userEvent.click(screen.getByRole('button', { name: 'Reply to Liv' }));
+  expect(screen.getByText('Replying to', { exact: false })).toHaveTextContent('Replying to Liv');
+  await userEvent.type(screen.getByRole('textbox', { name: 'Reply to Liv' }), 'Good idea.');
   await userEvent.click(screen.getByRole('button', { name: 'Submit reply' }));
 
   expect(communitySocialStore.get().replies[0]).toMatchObject({ parentId: 'singlish-chope-r1', text: 'Good idea.' });

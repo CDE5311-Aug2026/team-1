@@ -453,11 +453,11 @@ test('Add context: a Community question becomes the situation, found by search',
   await userEvent.click(within(await openAdd()).getByRole('button', { name: /Pick from Hints, Moments or Community/ }));
   const picker = screen.getByRole('dialog', { name: 'Add context' });
   await userEvent.click(within(picker).getByRole('tab', { name: /^Community/ }));
-  await userEvent.type(within(picker).getByRole('searchbox', { name: 'Search context' }), 'split');
-  await userEvent.click(within(picker).getByRole('button', { name: /Thread: What’s an easy way to suggest splitting the bill\?/ }));
+  await userEvent.type(within(picker).getByRole('searchbox', { name: 'Search context' }), 'own orders');
+  await userEvent.click(within(picker).getByRole('button', { name: /Thread: How do I suggest paying for our own orders without making it awkward\?/ }));
   // Nothing typed: the thread's question is sent.
   await userEvent.click(screen.getByRole('button', { name: 'Send' }));
-  expect(lastBubble()).toHaveTextContent('Thread: What’s an easy way to suggest splitting the bill?');
+  expect(lastBubble()).toHaveTextContent('Thread: How do I suggest paying for our own orders without making it awkward?');
   expect(answers()).toHaveLength(1);
 });
 

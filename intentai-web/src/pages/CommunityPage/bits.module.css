@@ -85,3 +85,7 @@
 .stack > * + * {
   margin-left: -7px;
 }
+
+.portrait {
+  background-repeat: no-repeat;
+}

@@ -228,7 +228,7 @@ function ThreadView({ thread, focusReply, local, lookupsLine, following, saved, 
             {thread.photo && (
               <figure className={styles.media}>
                 <button type="button" className={styles.mediaButton} aria-label="Open the photo" onClick={() => setSheet('photo')}>
-                  <img src={thread.photo} alt="" loading="lazy" />
+                  <img src={thread.photo} alt={thread.photoAlt ?? ''} loading="lazy" />
                   <span className={styles.mediaHint}>
                     <Icon name="expand" size={16} />
                   </span>
@@ -398,7 +398,7 @@ function ThreadView({ thread, focusReply, local, lookupsLine, following, saved, 
       {sheet === 'context' && question && <ContextSheet question={question} onClose={() => setSheet(null)} />}
       {sheet === 'photo' && thread.photo && (
         <Sheet title="Photo" onClose={() => setSheet(null)}>
-          <img className={styles.bigPhoto} src={thread.photo} alt={`Photo shared with “${thread.title}”`} />
+          <img className={styles.bigPhoto} src={thread.photo} alt={thread.photoAlt ?? `Photo shared with “${thread.title}”`} />
           {credit && <p className={styles.credit}>{credit}</p>}
         </Sheet>
       )}

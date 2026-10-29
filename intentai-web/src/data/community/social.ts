@@ -205,6 +205,7 @@ export interface Thread {
   channel?: ChannelId;
   tags: string[];
   photo?: string;
+  photoAlt?: string;
   author: string;
   createdAt?: number;
   /** Members who opened it (demo community threads). */
@@ -326,7 +327,7 @@ export function threadFor(id: string, questions: readonly Question[], lookups: r
       text: reply.text,
       likes: reply.likes,
       liked: false,
-      mine: false,
+      mine: reply.author === 'You',
       byAsker: reply.author === sample.author,
       createdAt: agoToTime(reply.ago),
       sample: true,
@@ -341,10 +342,11 @@ export function threadFor(id: string, questions: readonly Question[], lookups: r
       channel: sample.channel,
       tags: sample.tags,
       photo: sample.photo,
+      photoAlt: sample.photoAlt,
       author: sample.author,
       createdAt: agoToTime(sample.ago),
       views: sample.views,
-      closed: false,
+      closed: Boolean(sample.closed) || social.closed.includes(id),
       archived: false,
       sample: true,
       replies: withLikes(replies, social),
