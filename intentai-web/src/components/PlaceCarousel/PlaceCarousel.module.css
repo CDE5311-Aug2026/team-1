@@ -1,0 +1,242 @@
+.root {
+  --card-w: min(248px, 70vw);
+  --card-h: 168px;
+  --card-gap: 14px;
+  position: relative;
+  width: 100%;
+}
+
+/* The scroll container. Inline padding lets the first and last cards centre too. */
+.track {
+  position: relative;
+  display: flex;
+  gap: var(--card-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding-block: 4px;
+  padding-inline: calc((100% - var(--card-w)) / 2);
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  position: relative;
+  flex: 0 0 var(--card-w);
+  height: var(--card-h);
+  border-radius: 14px;
+  overflow: hidden;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  background: var(--text-primary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 14px 28px -14px rgba(35, 33, 29, 0.75);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+/* 150% wide so a parallax shift of up to a quarter card never shows an edge. */
+.photo {
+  position: absolute;
+  inset-block: 0;
+  left: -25%;
+  width: 150%;
+  will-change: transform;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+.noPhoto {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(228, 103, 31, 0.55), transparent 60%),
+    linear-gradient(135deg, #5f5b54, #23211d);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(24, 22, 19, 0.05) 18%, rgba(24, 22, 19, 0.5) 56%, rgba(24, 22, 19, 0.92) 100%);
+  pointer-events: none;
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.chip {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 7px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bottom {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  color: #fff;
+}
+
+.name {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.area {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--bg-app);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin-top: 8px;
+}
+
+.bar {
+  display: flex;
+  gap: 3px;
+}
+
+.segment {
+  width: 14px;
+  height: 4px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.segment[data-filled='true'] {
+  background: var(--accent);
+}
+
+.count {
+  flex-grow: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--bg-app);
+}
+
+.open {
+  flex-shrink: 0;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Locked chip; pressing it explains with a toast. */
+.soon {
+  flex-shrink: 0;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.open:focus-visible,
+.soon:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Position of the centred card along the strip. */
+.progress {
+  position: relative;
+  width: 72px;
+  height: 4px;
+  margin: 6px auto 0;
+  border-radius: 2px;
+  background: rgba(35, 33, 29, 0.18);
+  overflow: hidden;
+}
+
+.thumb {
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: left 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo {
+    transform: none !important;
+  }
+
+  .thumb {
+    transition: none;
+  }
+}

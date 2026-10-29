@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { paths } from '../src/routes';
 
 // The 3D view for real: the bundled EARTH ONLINE lite page boots in the iframe (WebGL through SwiftShader here), keeps only
@@ -18,7 +18,7 @@ test('place detail → 3D: the area loads, the card opens, cards link back, leav
   const external: string[] = [];
   page.on('request', (r) => {
     const u = new URL(r.url());
-    if (u.hostname !== 'localhost') external.push(u.hostname);
+    if (u.hostname !== '127.0.0.1' && u.hostname !== 'localhost') external.push(u.hostname);
   });
   await page.goto(paths.nearbyPlace('curated:sg-merlion-park'));
   await page.getByRole('button', { name: '3D' }).click();

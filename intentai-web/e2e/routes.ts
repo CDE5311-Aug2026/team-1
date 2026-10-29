@@ -8,6 +8,13 @@ export const ROUTES = [
   paths.nearbyPlace('curated:sg-maxwell-food-centre'),
   paths.nearbyPlace('curated:sg-esplanade-theatres-on-the-bay'),
   paths.collection('sg-100'),
+  paths.homePlace('berlin-wall-fragments'),
+  paths.homePlace('chinatown'),
+  paths.homePlace('unknown-place'),
+  ...['berlin-wall-fragments', 'chinatown'].flatMap((id) =>
+    ['food', 'monument', 'festival', 'history'].map((facet) => paths.placeCard(id, facet)),
+  ),
+  paths.placeCard('chinatown', 'unknown'),
 ];
 
 // Notice screens exist only while the occasion notice is live; seed the state each one needs.

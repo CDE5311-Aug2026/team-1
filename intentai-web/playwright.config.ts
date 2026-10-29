@@ -9,7 +9,7 @@ const PORT = Number(process.env.E2E_PORT ?? 4321);
 export default defineConfig({
   testDir: './e2e',
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: `http://127.0.0.1:${PORT}`,
     viewport: { width: 390, height: 844 },
     // Optional: point at a preinstalled Chromium when the bundled browser revision is unavailable (CI images).
     launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
@@ -18,7 +18,7 @@ export default defineConfig({
       cookies: [],
       origins: [
         {
-          origin: `http://localhost:${PORT}`,
+          origin: `http://127.0.0.1:${PORT}`,
           localStorage: [
             {
               name: 'intentai:v1:onboarding',
@@ -32,8 +32,8 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: `npm run build && npx vite preview --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}`,
+    command: `npm run build && npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
+    url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: false,
     timeout: 120_000,
     // Each port gets its own usage file so Chromium and WebKit runs never share timings.

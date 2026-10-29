@@ -44,3 +44,25 @@ test('the mascot goes back to Today', async () => {
   expect(screen.getByText('Today page')).toBeInTheDocument();
   expect(onHome).toHaveBeenCalledTimes(1);
 });
+
+test('greeting={false} drops the greeting but keeps streak, bell and a spacer', () => {
+  const { container } = renderHeader({ greeting: false });
+  expect(screen.queryByText(/Good Morning/)).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /notifications/i })).toBeInTheDocument();
+  expect(screen.getByLabelText('1 day streak')).toBeInTheDocument();
+  expect(container.querySelector('[class*="spacer"]')).toBeInTheDocument();
+});
+
+test('by default the greeting shows and there is no spacer', () => {
+  const { container } = renderHeader();
+  expect(screen.getByText('Good Morning, W')).toBeInTheDocument();
+  expect(container.querySelector('[class*="spacer"]')).not.toBeInTheDocument();
+});
+
+test('logoSrc replaces the mascot image; default keeps the mascot asset', () => {
+  const { container, unmount } = renderHeader();
+  expect(container.querySelector('img')?.getAttribute('src')).toContain('mascot-logo');
+  unmount();
+  const { container: c2 } = renderHeader({ logoSrc: '/custom-logo.png' });
+  expect(c2.querySelector('img')?.getAttribute('src')).toBe('/custom-logo.png');
+});

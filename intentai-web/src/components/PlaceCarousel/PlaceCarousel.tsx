@@ -1,0 +1,295 @@
+import { useEffect, useRef, type KeyboardEvent, type MouseEvent } from 'react';
+import { FACETS, openedCount, type HomePlace, type PlaceStories } from '../../data/homePlaces';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { showToast } from '../../hooks/useToast';
+import styles from './PlaceCarousel.module.css';
+
+/** A photo moves this fraction of its card's distance from the centre, against the card's motion. */
+export const PARALLAX = 0.25;
+/** Settle fallback for browsers without `scrollend`. */
+const SETTLE_MS = 150;
+
+/** Index of the card whose centre is nearest the centre of the visible strip. */
+export function nearestCardIndex(scrollLeft: number, cardCentres: number[], viewportWidth: number): number {
+  const centre = scrollLeft + viewportWidth / 2;
+  let best = 0;
+  cardCentres.forEach((c, i) => {
+    if (Math.abs(c - centre) < Math.abs(cardCentres[best] - centre)) best = i;
+  });
+  return best;
+}
+
+interface Props {
+  places: readonly HomePlace[];
+  selectedId: string;
+  stories: PlaceStories;
+  onSelect(id: string): void;
+  onActivate(id: string): void;
+  onOpen(id: string): void;
+}
+
+const cardCentre = (card: HTMLElement) => card.offsetLeft + card.offsetWidth / 2;
+
+export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivate, onOpen }: Props) {
+  const reduced = useReducedMotion();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const photoRefs = useRef<(HTMLDivElement | null)[]>([]);
+  /** scrollLeft we are scrolling to for an outside selection; settles are ignored while set. */
+  const programmaticTarget = useRef<number | null>(null);
+  /** A finger or pointer is down on the strip: the fallback settle waits for it to lift. */
+  const pointerActive = useRef(false);
+  const mounted = useRef(false);
+  const latest = useRef({ places, selectedId, onSelect, reduced });
+  latest.current = { places, selectedId, onSelect, reduced };
+
+  const selectedIndex = Math.max(0, places.findIndex((p) => p.id === selectedId));
+  const selected = places[selectedIndex];
+
+  const cards = () => cardRefs.current.slice(0, latest.current.places.length).filter((c): c is HTMLDivElement => c !== null);
+
+  const applyParallax = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const centre = track.scrollLeft + track.clientWidth / 2;
+    cardRefs.current.forEach((card, i) => {
+      const photo = photoRefs.current[i];
+      if (!card || !photo) return;
+      if (latest.current.reduced || track.clientWidth === 0) {
+        photo.style.transform = '';
+        return;
+      }
+      const w = card.offsetWidth;
+      const offset = Math.max(-w, Math.min(w, cardCentre(card) - centre));
+      photo.style.transform = `translateX(${-offset * PARALLAX}px)`;
+    });
+  };
+
+  // Scroll settle → selection, and the rAF-throttled parallax.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let frame = 0;
+
+    const settle = () => {
+      clearTimeout(timer);
+      timer = undefined;
+      if (programmaticTarget.current !== null) {
+        programmaticTarget.current = null;
+        return;
+      }
+      const list = cards();
+      if (list.length === 0 || track.clientWidth === 0) return;
+      const i = nearestCardIndex(track.scrollLeft, list.map(cardCentre), track.clientWidth);
+      const { places: current, selectedId: sel, onSelect: select } = latest.current;
+      const id = current[i]?.id;
+      if (id && id !== sel) select(id);
+    };
+    // Only for browsers without scrollend, which fire it themselves once the gesture ends.
+    const fallback = () => {
+      if (pointerActive.current) {
+        timer = setTimeout(fallback, SETTLE_MS);
+        return;
+      }
+      settle();
+    };
+    const release = () => {
+      pointerActive.current = false;
+    };
+    const onScroll = () => {
+      clearTimeout(timer);
+      timer = 'onscrollend' in window ? undefined : setTimeout(fallback, SETTLE_MS);
+      if (!latest.current.reduced && frame === 0) {
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          applyParallax();
+        });
+      }
+    };
+
+    track.addEventListener('scroll', onScroll, { passive: true });
+    track.addEventListener('scrollend', settle);
+    window.addEventListener('resize', applyParallax);
+    // On window, so a drag released outside the strip still counts.
+    const releaseEvents = ['pointerup', 'pointercancel', 'touchend', 'touchcancel'] as const;
+    for (const type of releaseEvents) window.addEventListener(type, release);
+    return () => {
+      for (const type of releaseEvents) window.removeEventListener(type, release);
+      clearTimeout(timer);
+      if (frame !== 0) cancelAnimationFrame(frame);
+      track.removeEventListener('scroll', onScroll);
+      track.removeEventListener('scrollend', settle);
+      window.removeEventListener('resize', applyParallax);
+    };
+    // Mount-only: props are read through `latest`.
+  }, []);
+
+  // Turning reduced motion on drops the photo offsets; turning it off restores them.
+  useEffect(applyParallax, [reduced]);
+
+  // An outside selection (pin, arrows, Locate) scrolls the carousel itself, never the page.
+  useEffect(() => {
+    const track = trackRef.current;
+    const card = cardRefs.current[selectedIndex];
+    const first = !mounted.current;
+    mounted.current = true;
+    if (!track || !card) return;
+    const left = cardCentre(card) - track.clientWidth / 2;
+    if (Math.abs(left - track.scrollLeft) < 2) return;
+    programmaticTarget.current = left;
+    track.scrollTo({ left, behavior: first || latest.current.reduced ? 'auto' : 'smooth' });
+  }, [selectedIndex, selectedId]);
+
+  /** Any user input on the strip means the user owns the scroll again. */
+  const handBack = () => {
+    programmaticTarget.current = null;
+  };
+  const pressStart = () => {
+    handBack();
+    pointerActive.current = true;
+  };
+
+  const onSectionKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    if ((e.target as HTMLElement).closest('button')) return;
+    e.preventDefault();
+    const next = selectedIndex + (e.key === 'ArrowRight' ? 1 : -1);
+    if (next < 0 || next >= places.length) return;
+    onSelect(places[next].id);
+    cardRefs.current[next]?.focus({ preventScroll: true });
+  };
+
+  const onCardKeyDown = (e: KeyboardEvent<HTMLDivElement>, id: string) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    onActivate(id);
+  };
+
+  const open = (e: MouseEvent, id: string) => {
+    e.stopPropagation();
+    onOpen(id);
+  };
+
+  const soon = (e: MouseEvent, name: string) => {
+    e.stopPropagation();
+    showToast(`Culture cards for ${name} are coming soon`);
+  };
+
+  return (
+    <section
+      className={styles.root}
+      aria-roledescription="carousel"
+      aria-label="Nearby places"
+      onKeyDown={onSectionKeyDown}
+    >
+      <div
+        ref={trackRef}
+        className={styles.track}
+        onPointerDown={pressStart}
+        onWheel={handBack}
+        onTouchStart={pressStart}
+        onKeyDown={handBack}
+      >
+        {places.map((place, i) => {
+          const isSelected = i === selectedIndex;
+          const opened = openedCount(stories, place.id);
+          return (
+            <div
+              key={place.id}
+              ref={(el) => {
+                cardRefs.current[i] = el;
+              }}
+              role="group"
+              aria-label={place.name}
+              aria-current={isSelected ? 'true' : undefined}
+              tabIndex={isSelected ? 0 : -1}
+              className={styles.card}
+              onClick={() => onActivate(place.id)}
+              onKeyDown={(e) => onCardKeyDown(e, place.id)}
+            >
+              <div
+                ref={(el) => {
+                  photoRefs.current[i] = el;
+                }}
+                className={place.photo ? styles.photo : `${styles.photo} ${styles.noPhoto}`}
+                data-parallax=""
+              >
+                {place.photo && <img src={place.photo} alt={place.photoAlt} draggable={false} />}
+              </div>
+              <div className={styles.content}>
+                <span className={styles.chip}>
+                  <PinIcon />
+                  {place.distance}
+                </span>
+                <div className={styles.bottom}>
+                  <h3 className={styles.name}>{place.name}</h3>
+                  <p className={styles.area}>{place.area}</p>
+                  <div className={styles.footer}>
+                    <span className={styles.bar} aria-hidden="true">
+                      {FACETS.map((f, k) => (
+                        <span key={f} className={styles.segment} data-filled={k < opened ? 'true' : 'false'} />
+                      ))}
+                    </span>
+                    <span className={styles.count}>
+                      {opened} of {FACETS.length} opened
+                    </span>
+                    {/* Only the card in the centre offers its action. */}
+                    {isSelected &&
+                      (place.hasCards ? (
+                        <button type="button" className={`press ${styles.open}`} onClick={(e) => open(e, place.id)}>
+                          Open
+                          <ArrowIcon />
+                        </button>
+                      ) : (
+                        <button type="button" className={styles.soon} aria-disabled="true" onClick={(e) => soon(e, place.name)}>
+                          <LockIcon />
+                          Cards soon
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className={styles.progress} aria-hidden="true">
+        <span
+          className={styles.thumb}
+          data-testid="carousel-thumb"
+          style={{ left: `${places.length > 1 ? (selectedIndex / (places.length - 1)) * 54 : 0}px` }}
+        />
+      </div>
+      <p aria-live="polite" className={styles.visuallyHidden}>
+        {selected ? `${selected.name}, ${selectedIndex + 1} of ${places.length}, ${selected.distance}` : ''}
+      </p>
+    </section>
+  );
+}
+
+function PinIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11Z" />
+    </svg>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
+  );
+}

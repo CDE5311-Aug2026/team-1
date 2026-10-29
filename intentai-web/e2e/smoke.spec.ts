@@ -1,7 +1,8 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { ROUTES, seed } from './routes';
 
 test('every route renders without runtime errors or broken images', async ({ page }) => {
+  test.setTimeout(180_000); // one page load per route; WebKit needs longer than Chromium
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
@@ -26,6 +27,7 @@ test('every route renders without runtime errors or broken images', async ({ pag
 });
 
 test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
+  test.setTimeout(240_000); // every route at three widths
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
@@ -61,12 +63,13 @@ test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
   }
 });
 
-test('Learn more opens the holiday detail, and the back link returns to Today', async ({ page }) => {
+test('the hero opens the holiday detail, and the back link returns to Home', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Learn more', exact: true }).click();
+  await page.getByRole('button', { name: 'Deepavali long weekend starts today', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Deepavali' })).toBeVisible();
   await page.getByRole('button', { name: 'Back to Today', exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeVisible();
 });
 
 test.describe('first visit', () => {
@@ -91,7 +94,7 @@ test('only the active tab icon is orange', async ({ page }) => {
       .first()
       .evaluate((el) => getComputedStyle(el).backgroundColor);
   expect(await iconColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await iconColour('Today')).toBe('rgb(43, 41, 36)');
+  expect(await iconColour('Home')).toBe('rgb(43, 41, 36)');
   // The glyph comes from a CSS mask; an invalid url() silently drops it and shows a solid square.
   const masks = await page
     .getByRole('navigation', { name: 'Primary' })
@@ -105,7 +108,7 @@ test('only the active tab icon is orange', async ({ page }) => {
       .getByText(name, { exact: true })
       .evaluate((el) => getComputedStyle(el).color);
   expect(await labelColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await labelColour('Today')).toBe('rgb(43, 41, 36)');
+  expect(await labelColour('Home')).toBe('rgb(43, 41, 36)');
 });
 
 // v2: on a laptop every page uses Today's content column. Any wide block near the top of <main>
@@ -132,7 +135,11 @@ test('every route uses the same content column as Today at 1440', async ({ page 
             return el.parentElement!.tagName === 'MAIN' || parent.display === 'block' || parent.flexDirection === 'column';
           })
           // A full-screen map and what floats over it (Nearby Explore) are marked data-allow-bleed on purpose.
-          .filter((el) => !el.closest('section, article, [role="tabpanel"], ul, form, dialog, [data-allow-bleed]'))
+          // Story pages (place + culture cards) set their own gutters and bleed the hero to the column edge.
+          .filter(
+            (el) =>
+              !el.closest('section, article, [role="tabpanel"], ul, form, dialog, [data-allow-bleed], main[data-variant="story"]'),
+          )
           .map((el) => ({ el, box: el.getBoundingClientRect() }))
           .filter(({ box }) => box.width > width / 2)
           .filter(({ box }) => Math.abs(box.left - left) > 3 || Math.abs(box.width - width) > 3)

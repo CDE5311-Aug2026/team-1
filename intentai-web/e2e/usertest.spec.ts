@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 
 // A whole user test on one device with no server: test name → use the app → the dashboard reads this
 // device's log, shows the analysis, and exports a file.

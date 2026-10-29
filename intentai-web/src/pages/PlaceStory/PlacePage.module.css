@@ -1,0 +1,144 @@
+.hero {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: var(--story-dark-ph);
+}
+
+.heroImg {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.back {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--story-shadow-float);
+}
+
+.back:hover {
+  color: var(--text-primary);
+}
+
+.checkIn {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px 0 10px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--story-shadow-float);
+  transition: background 0.3s ease, transform 0.15s ease;
+}
+
+.checkIn.checked {
+  background: var(--tint-warm-2);
+}
+
+.checkIcon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet {
+  position: relative;
+  margin: -16px 20px 0;
+  padding: 18px 0 0;
+  isolation: isolate;
+}
+
+/* The rounded surface that overlaps the hero is full width; drawn as a layer so the text block keeps its gutters. */
+.sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0 -20px;
+  z-index: -1;
+  border-radius: 16px 16px 0 0;
+  background: var(--bg-app);
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.title:focus {
+  outline: none;
+}
+
+.location {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-ink-2);
+}
+
+.location svg {
+  flex-shrink: 0;
+}
+
+.progress {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bars {
+  display: flex;
+  gap: 4px;
+}
+
+.bar {
+  width: 22px;
+  height: 4px;
+  border-radius: 1px;
+  background: var(--progress-track);
+}
+
+.bar.barDone {
+  background: var(--accent);
+}
+
+.count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkIn {
+    transition: none;
+  }
+}

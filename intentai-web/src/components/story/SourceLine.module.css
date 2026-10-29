@@ -1,0 +1,10 @@
+.source {
+  margin: 14px 20px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.inArticle {
+  margin: 14px 0 0;
+}

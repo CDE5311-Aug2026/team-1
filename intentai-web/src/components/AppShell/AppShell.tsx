@@ -18,6 +18,10 @@ interface AppShellProps {
   /** page (default): content scrolls, the tab bar follows it. fill: one screen that does not scroll (a full-screen
    *  map); the page lays out its own layers and the tab bar floats over them. */
   layout?: 'page' | 'fill';
+  /** story: place and culture-card pages. No tab bar, no inherited side padding (pages set their own gutters). */
+  variant?: 'default' | 'story';
+  /** The active tab pops in on arrival (Home). */
+  tabPop?: boolean;
 }
 
 function activeTab(pathname: string): string {
@@ -34,11 +38,14 @@ export default function AppShell({
   tabBarNodeId,
   homeIndicatorNodeId,
   layout = 'page',
+  variant = 'default',
+  tabPop = false,
 }: AppShellProps) {
   const fill = layout === 'fill';
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const showChrome = chrome === 'full';
+  const story = variant === 'story';
+  const showChrome = chrome === 'full' && !story;
   const toast = useToastState();
   // Each page mounts its own shell. Screen readers ignore text already present when a live region
   // mounts, so the region starts empty and fills a tick later (announces toasts raised just
@@ -50,10 +57,14 @@ export default function AppShell({
   return (
     <div className={fill ? `${styles.shell} ${styles.fill}` : styles.shell} style={{ backgroundColor: background }}>
       {chrome !== 'none' && (fill ? <div className={styles.fillStatus}><StatusBar /></div> : <StatusBar />)}
-      <main className={fill ? styles.fillPage : styles.page} tabIndex={-1}>{children}</main>
+      <main
+        className={fill ? styles.fillPage : story ? `${styles.page} ${styles.story}` : styles.page}
+        data-variant={story ? 'story' : undefined}
+        tabIndex={-1}
+      >{children}</main>
       {showChrome && (
         <div className={fill ? `${styles.tabBarWrap} ${styles.fillTabBar}` : styles.tabBarWrap}>
-          <TabBar active={activeTab(pathname)} onNavigate={navigate} nodeId={tabBarNodeId} />
+          <TabBar active={activeTab(pathname)} onNavigate={navigate} nodeId={tabBarNodeId} pop={tabPop} />
         </div>
       )}
       {homeIndicatorNodeId && <HomeIndicator nodeId={homeIndicatorNodeId} />}

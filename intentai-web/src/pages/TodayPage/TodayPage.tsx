@@ -1,39 +1,76 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import homeLogo from '../../assets/home/logo.png';
 import AppShell from '../../components/AppShell/AppShell';
-import AppHeader from '../../components/AppHeader/AppHeader';
-import CultureTabs from '../../components/CultureTabs/CultureTabs';
-import HolidayCard from '../../components/HolidayCard/HolidayCard';
-import NearbyMapCard from '../../components/NearbyMapCard/NearbyMapCard';
-import { canonicalPrefs } from '../../data/culturePrefs';
-import { staticCopy } from '../../data/expressions';
+import HomeGreeting from '../../components/HomeGreeting/HomeGreeting';
+import HomeHeader from '../../components/HomeHeader/HomeHeader';
+import { NearbySection } from '../../components/NearbySection/NearbySection';
+import { TodayHero } from '../../components/TodayHero/TodayHero';
 import { todaysHoliday } from '../../data/holiday';
 import { usePersistentStore } from '../../data/persistentStore';
-import { culturePrefsStore, placeStore } from '../../data/stores';
+import { testerStore } from '../../data/stores';
 import { paths } from '../../routes';
 
+/** Router state for Home: the Nearby place to select on arrival. */
+export interface HomeRouteState {
+  focusPlace?: string;
+  /** Also bring the Nearby map into view (links that promise the map). */
+  showMap?: boolean;
+}
+
+function showMapOf(state: unknown): boolean {
+  return typeof state === 'object' && state !== null && (state as HomeRouteState).showMap === true;
+}
+
+function focusPlaceOf(state: unknown): string | undefined {
+  if (typeof state !== 'object' || state === null) return undefined;
+  const id = (state as HomeRouteState).focusPlace;
+  return typeof id === 'string' ? id : undefined;
+}
+
+/** Home: greeting, today's holiday hero, then the Nearby map and place carousel. */
 export default function TodayPage() {
-  const [place] = usePersistentStore(placeStore);
-  const [prefs] = usePersistentStore(culturePrefsStore);
-  // Older saves may hold the picks in another order; tabs always follow survey rank.
-  const { categories } = canonicalPrefs(prefs.categories);
+  const [tester] = usePersistentStore(testerStore);
   const navigate = useNavigate();
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const [focusPlace] = useState(() => focusPlaceOf(location.state));
+  const [showMap] = useState(() => showMapOf(location.state));
+  const selected = useRef(focusPlace);
+  const heading = useRef<HTMLHeadingElement>(null);
+
+  // A new visit starts at the top with the h1 focused; Back/Forward keeps the browser's scroll position.
+  useEffect(() => {
+    if (navigationType === 'POP' || showMap) return;
+    window.scrollTo(0, 0);
+    heading.current?.focus({ preventScroll: true });
+    // Mount-only.
+  }, []);
+
+  /** Leaving for a place: this entry remembers it first, so Back selects its card again. */
+  const leaveFor = (placeId: string, to: string) => {
+    navigate(location, { replace: true, state: { focusPlace: placeId } satisfies HomeRouteState });
+    navigate(to);
+  };
 
   return (
-    <AppShell tabBarNodeId="1:317" homeIndicatorNodeId="1:338">
-      <AppHeader onBell={() => navigate(paths.notices)} />
-      {/* v2: today's holiday replaces v1's Singlish progress card and lesson. */}
-      <HolidayCard holiday={todaysHoliday} onLearnMore={() => navigate(paths.holiday)} />
-      {/* The way into Nearby is a map tile (a picture of the Nearby map with its places), like a maps app's. */}
-      <NearbyMapCard
-        nodeId="18:1949"
-        // Figma names the default hawker centre; other picked places show their own name.
-        place={place === 'Hawker centre' ? staticCopy.nearYou.place : place}
-        // Nearby Explore is the Nearby home and opens with location on or off (Nearby PRD §6). Its sheet starts with
-        // "Phrases you might hear at <this place>", so the picked place and its phrases stay one tap away.
-        onOpen={() => navigate(paths.nearby)}
+    <AppShell tabBarNodeId="1:317" homeIndicatorNodeId="1:338" tabPop>
+      <HomeHeader logoSrc={homeLogo} />
+      <HomeGreeting ref={heading} date={todaysHoliday.today} name={tester.name} />
+      <TodayHero
+        holiday={todaysHoliday}
+        onOpenHoliday={() => navigate(paths.holiday)}
+        onOpenAlso={(id) => leaveFor(selected.current ?? id, paths.placeCard(id, 'festival'))}
       />
-      {/* v2: the user's (or the survey top 3) culture picks replace v1's three expression cards. */}
-      <CultureTabs categories={categories} />
+      <NearbySection
+        focusId={focusPlace}
+        revealMap={showMap && navigationType !== 'POP'}
+        onSelectionChange={(id) => {
+          selected.current = id;
+        }}
+        onOpenPlace={(id) => leaveFor(id, paths.homePlace(id))}
+        onExplore={() => navigate(paths.nearby)}
+      />
     </AppShell>
   );
 }

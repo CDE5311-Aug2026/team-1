@@ -17,6 +17,11 @@
   gap: 1rem;
 }
 
+.page.story {
+  padding: 0 0 calc(28px + env(safe-area-inset-bottom, 0px));
+  gap: 0;
+}
+
 .tabBarWrap {
   max-width: var(--content-max);
   margin: 0 auto;
@@ -26,6 +31,8 @@
   position: sticky;
   bottom: 1.75rem;
   padding-top: 0.5rem;
+  /* Above anything a page positions (e.g. Home's carousel cards), below the home indicator and toasts. */
+  z-index: 4;
 }
 
 /* Wider screens have no home indicator to clear; stay pinned so short laptop windows still show the tabs. */
@@ -77,6 +84,10 @@
   .page {
     gap: 0.625rem;
     --card-gap: 0.625rem;
+  }
+
+  .page.story {
+    gap: 0;
   }
 
   .page > header {

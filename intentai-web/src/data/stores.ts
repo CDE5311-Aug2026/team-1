@@ -30,6 +30,7 @@ import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
 import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
 import { stopLocation } from '../features/nearby/location';
+import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeState } from './placeStories';
 import { createPersistentStore } from './persistentStore';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
@@ -125,6 +126,32 @@ export const collectedStore = createPersistentStore<string[]>({
   isValid: isSavedIds,
 });
 
+/** Per Home place: cards opened (each counts once), check-in and story stamp. */
+export const placeStoriesStore = createPersistentStore<PlaceStories>({
+  key: 'placeStories',
+  fallback: {},
+  isValid: isPlaceStories,
+});
+
+function updatePlace(id: string, change: (state: PlaceState) => PlaceState) {
+  const stories = placeStoriesStore.get();
+  placeStoriesStore.set({ ...stories, [id]: change(placeState(stories, id)) });
+}
+
+export function markOpened(id: string, facet: Facet) {
+  if (placeState(placeStoriesStore.get(), id).opened.includes(facet)) return;
+  updatePlace(id, (s) => ({ ...s, opened: [...s.opened, facet] }));
+}
+
+export function setCheckedIn(id: string, on: boolean) {
+  updatePlace(id, (s) => ({ ...s, checkedIn: on }));
+}
+
+/** Collects the story stamp; `isoDate` is the day it was collected (YYYY-MM-DD). */
+export function setStamped(id: string, isoDate: string) {
+  updatePlace(id, (s) => ({ ...s, stamped: true, stampedOn: isoDate }));
+}
+
 /** Anonymous random id sent with usage timings (time only, never content). Empty until first needed. */
 export const usageIdStore = createPersistentStore<string>({
   key: 'usage-id',
@@ -196,6 +223,13 @@ export function deleteAllData() {
   streakStore.set(NO_STREAK);
   culturePrefsStore.set(DEFAULT_PREFS);
   collectedStore.set([]);
+  placeStoriesStore.set({});
+  // Pre-release key from an unmerged branch; harmless to drop.
+  try {
+    localStorage.removeItem('intentai:v1:placeProgress');
+  } catch {
+    /* storage unavailable */
+  }
   usageIdStore.set('');
   // The user test goes on (the test name is not personal data); its records on this device are deleted.
   clearLocalUsage();

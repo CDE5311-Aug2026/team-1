@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './test';
 import { ROUTES, seed } from './routes';
 
 // WCAG 2.2 A/AA automated checks (axe) on every route at phone size. Catches contrast, names,
@@ -11,10 +11,27 @@ const FIGMA_BRAND_ORANGES = ['#e4671f', '#e8622c'];
 
 for (const route of ROUTES) {
   test(`no WCAG A/AA violations on ${route}`, async ({ page }) => {
+    // Scan the settled page: reduced motion stops decorative loops (Ken Burns, spinning text) and shows final
+    // states, so axe reads real colours and WebKit's software renderer is not kept busy painting.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     await seed(page, route);
     await page.goto(route);
     await expect(page.getByRole('main')).toBeVisible();
+    // Entrance animations fade text in; axe would read the half-faded colours. Let every running, finite animation
+    // and transition finish so the real colours are checked (nothing is skipped or relaxed). Paused ones (a stopped
+    // record) never finish and WebKit can keep others pending, so the wait is capped.
+    await page.evaluate(() =>
+      Promise.race([
+        Promise.all(
+          document
+            .getAnimations()
+            .filter((a) => a.playState === 'running' && Number.isFinite(a.effect?.getComputedTiming().endTime ?? Number.POSITIVE_INFINITY))
+            .map((a) => a.finished.catch(() => undefined)),
+        ),
+        new Promise((resolve) => setTimeout(resolve, 4000)),
+      ]),
+    );
     const { violations } = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze();

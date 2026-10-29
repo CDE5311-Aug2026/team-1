@@ -5,6 +5,8 @@ import { onboardingStore } from './data/stores';
 import AskPage from './pages/AskPage/AskPage';
 import CommunityPage from './pages/CommunityPage/CommunityPage';
 import HolidayPage from './pages/HolidayPage/HolidayPage';
+import PlacePage from './pages/PlaceStory/PlacePage';
+import PlaceStoryPage from './pages/PlaceStory/PlaceStoryPage';
 import QuestionPage from './pages/CommunityPage/QuestionPage';
 import MomentsPage from './pages/MomentsPage/MomentsPage';
 import MySpacePage from './pages/MySpacePage/MySpacePage';
@@ -60,6 +62,8 @@ export default function App() {
             }
           />
           <Route path={paths.holiday} element={<HolidayPage />} />
+          <Route path={patterns.homePlace} element={<PlacePage />} />
+          <Route path={patterns.placeCard} element={<PlaceStoryPage />} />
           <Route path={paths.ask} element={<AskPage />} />
           <Route path={paths.community} element={<CommunityPage />} />
           <Route path={patterns.question} element={<QuestionPage />} />

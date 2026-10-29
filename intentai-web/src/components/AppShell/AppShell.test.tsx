@@ -28,7 +28,7 @@ test('marks the tab matching the current path as current', () => {
 
 test('non-tab routes keep Today current', () => {
   renderAt('/nearby');
-  expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });
 
 test('keeps the status live region mounted and shows the global toast with Undo', async () => {
@@ -61,7 +61,7 @@ test('clicking a tab navigates', async () => {
 
 test('only matches a tab on a whole path segment', () => {
   renderAt('/ask-foo');
-  expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });
 
 test('chrome="none" renders content without tab bar', () => {
@@ -82,4 +82,32 @@ test('chrome="status" keeps the status bar but drops the tab bar', () => {
   );
   expect(screen.queryByRole('navigation', { name: 'Primary' })).not.toBeInTheDocument();
   expect(screen.getByRole('main')).toHaveTextContent('edit');
+});
+
+test('variant="story" has no tab bar and marks the page for story styling', () => {
+  render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell variant="story">story</AppShell>
+    </MemoryRouter>,
+  );
+  expect(screen.queryByRole('navigation', { name: 'Primary' })).not.toBeInTheDocument();
+  expect(screen.getByRole('main')).toHaveAttribute('data-variant', 'story');
+  expect(screen.getByRole('main')).toHaveTextContent('story');
+});
+
+test('the default variant has no data-variant attribute', () => {
+  renderAt('/');
+  expect(screen.getByRole('main')).not.toHaveAttribute('data-variant');
+});
+
+test('tabPop pops the active tab in; off by default', () => {
+  const { unmount } = renderAt('/');
+  expect(screen.getByRole('button', { name: 'Home' })).not.toHaveClass('a-pill');
+  unmount();
+  render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell tabPop>x</AppShell>
+    </MemoryRouter>,
+  );
+  expect(screen.getByRole('button', { name: 'Home' })).toHaveClass('a-pill');
 });

@@ -9,8 +9,12 @@ export interface Holiday {
   name: string;
   /** Demo "today", shown on the card. */
   today: string;
+  /** Hero card kicker, shown uppercase by CSS. */
+  kicker: string;
   cardTitle: string;
   cardBody: string;
+  /** Anniversary row under the hero card, linking to a Home place. */
+  also: { when: string; title: string; placeId: string };
   detailHeading: string;
   facts: string[];
   /** Deeper-read paragraphs. */
@@ -23,8 +27,14 @@ export interface Holiday {
 export const todaysHoliday: Holiday = {
   name: 'Deepavali',
   today: 'Sat 7 Nov',
+  kicker: 'Sat 7 Nov · Long weekend',
   cardTitle: 'Deepavali long weekend starts today',
-  cardBody: 'The festival of lights falls on Sun 8 Nov. Mon 9 Nov is a public holiday too.',
+  cardBody: 'The festival of lights is on Sun 8 Nov. Mon 9 Nov is a public holiday too.',
+  also: {
+    when: 'Also Mon 9 Nov · Near you',
+    title: 'The Berlin Wall fell 37 years ago',
+    placeId: 'berlin-wall-fragments',
+  },
   detailHeading: 'Meaning and origins',
   facts: [
     'Deepavali means “row of lights” and celebrates the victory of light over darkness, and good over evil.',

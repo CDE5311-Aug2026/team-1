@@ -1,0 +1,31 @@
+.block {
+  padding-top: 14px;
+}
+
+.date {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.title {
+  margin: 4px 0 0;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* Focused by script on arrival, not a tab stop. */
+.title:focus {
+  outline: none;
+}
+
+.name {
+  color: var(--accent);
+}
