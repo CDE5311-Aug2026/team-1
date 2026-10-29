@@ -5,12 +5,14 @@
 import { Link } from 'react-router-dom';
 import { InfoCard, SampleVideo, SourceLine, StatTiles, StoryArticle, StoryIcon, type StatTile, type StoryIconName } from '../../../components/story';
 import headerStyles from '../../../components/story/StoryHeader.module.css';
+import { ORDER_GUIDES } from '../../../data/explore/orders';
 import { placeCard, type CardTile, type PlaceCard } from '../../../data/explore/placeCards';
 import { placePicture } from '../../../data/home/nearbyCards';
 import { ThenNow } from '../../../pages/PlaceStory/ThenNow';
 import { area as areaById, regionName } from '../catalogue';
 import { CATEGORY_INFO, type CuratedPlace, type SourceReference } from '../domain';
 import type { Category } from '../types';
+import OrderBuilder from './OrderBuilder';
 import styles from './PlaceStoryCard.module.css';
 
 const ICON: Record<Category, StoryIconName> = { food: 'food', landmark: 'monument', culture: 'festival', nature: 'nature' };
@@ -135,6 +137,8 @@ export default function PlaceStoryCard({ place, distance }: { place: CuratedPlac
           </ul>
         </InfoCard>
       )}
+
+      {card?.order && <OrderBuilder guide={ORDER_GUIDES[card.order]} />}
 
       {(sources.length > 0 || photos.length > 0) && (
         <SourceLine delay={0.7}>

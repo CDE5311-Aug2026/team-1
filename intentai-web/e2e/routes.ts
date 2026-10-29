@@ -15,6 +15,7 @@ export const ROUTES = [
   paths.nearbyPlace('curated:sg-esplanade-theatres-on-the-bay'),
   paths.nearbyPlace('curated:sg-sri-mariamman-temple'),
   paths.nearbyPlace('curated:sg-masjid-jamae-chulia'),
+  paths.nearbyPlace('curated:sg-tian-tian-hainanese-chicken-rice'),
   paths.collection('sg-100'),
   paths.route('chinatown-story-walk'),
   paths.route('kent-ridge-wall-walk'),

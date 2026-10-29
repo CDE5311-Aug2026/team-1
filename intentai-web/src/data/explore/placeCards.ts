@@ -10,6 +10,7 @@
 // Culture Atlas photos (reference only, no reuse licence). Pilot (2026-10-29): the stops of the three story walks.
 import { STORY_IMAGES } from '../../assets/stories';
 import type { SourceReference } from '../../features/nearby/domain';
+import type { OrderKind } from './orders';
 import { THIAN_HOCK_KENG } from '../stories/chinatown';
 
 export interface CardPhoto {
@@ -53,6 +54,8 @@ export interface PlaceCard {
   sources: SourceReference[];
   /** Team 1's place-story card for this place. */
   story?: { path: string; label: string };
+  /** "Order like a local" (src/data/explore/orders.ts). */
+  order?: OrderKind;
   reviewedAt: string;
 }
 
@@ -284,6 +287,11 @@ export const PLACE_CARDS: Record<string, PlaceCard> = {
     sources: [LKC_STORY, LKC_HISTORY, LKC_TSCHOPP],
     reviewedAt: checked,
   },
+
+  // Food places: "Order like a local" (the words and their sources are in orders.ts).
+  'curated:sg-tian-tian-hainanese-chicken-rice': { sources: [], order: 'chicken-rice', reviewedAt: checked },
+  'curated:sg-maxwell-food-centre': { sources: [], order: 'kopi', reviewedAt: checked },
+  'curated:sg-chinatown-complex-food-centre': { sources: [], order: 'kopi', reviewedAt: checked },
 
   // Team 1 has full story cards for these places: their pages link to them.
   'curated:sg-lim-chee-guan-new-bridge-road': {
