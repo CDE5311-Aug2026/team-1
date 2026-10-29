@@ -1,0 +1,681 @@
+/* "Understand the meaning" views. Shape system: cards 24px, controls 16px, chips 12px, sheets 28px. */
+
+/* ---------- Situation card ---------- */
+
+.situation {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 0 #ded8ce55, 0 12px 28px -22px #24211c66;
+}
+
+.situationHead {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.situationHead p {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+}
+
+.situationHead strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #24211c;
+}
+
+.situationHead span {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5e5c54;
+}
+
+.mascot {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 3px;
+  border: 1px solid #f4d0b8;
+  border-radius: 12px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rowLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #5e5c54;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e0d8cb;
+  border-radius: 12px;
+  background: #faf8f4;
+  font: inherit;
+  font-size: 13px;
+  color: #3f3a32;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chipOn {
+  border-color: #e4671f;
+  background: #fff2eb;
+  font-weight: 600;
+  color: #a3400a;
+}
+
+.autoTag {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: #e4671f;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #5e5c54;
+}
+
+.detail input {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #d8cfc1;
+  border-radius: 16px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #24211c;
+}
+
+.situationActions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+}
+
+.primary,
+.ghost {
+  min-height: 46px;
+  border-radius: 16px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: #24211c;
+  color: #fff;
+}
+
+.ghost {
+  border: 1px solid #d7cdbf;
+  background: transparent;
+  color: #3f3a32;
+}
+
+/* ---------- Thinking: a moving gradient border around the steps ---------- */
+
+@property --spin {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.thinkingFrame {
+  position: relative;
+  padding: 1.5px;
+  border-radius: 24px;
+  background: conic-gradient(from var(--spin), #f4b389, #e4671f, #f6c3d9, #b9a6f4, #f4b389);
+  animation: spin 2.4s linear infinite;
+}
+
+.thinkingFrame::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+  border-radius: 24px;
+  background: conic-gradient(from var(--spin), #f4b38999, #e4671f88, #f6c3d999, #b9a6f499, #f4b38999);
+  filter: blur(14px);
+  animation: spin 2.4s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    --spin: 360deg;
+  }
+}
+
+.thinking {
+  padding: 14px 16px;
+  border-radius: 22.5px;
+  background: #fffdfb;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.stepMark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: #f1ece2;
+  color: #fff;
+}
+
+.stepDone .stepMark {
+  background: #3b6654;
+}
+
+.stepNow .stepMark {
+  background: #fff2eb;
+  box-shadow: 0 0 0 4px #e4671f22;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c9bfb2;
+}
+
+.stepNow .dot {
+  background: #e4671f;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(1.6);
+    opacity: 0.6;
+  }
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stepLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3f3a32;
+}
+
+.stepTodo .stepLabel {
+  color: #8c857b;
+}
+
+.stepText small {
+  font-size: 12px;
+  color: #5e5c54;
+}
+
+/* ---------- After the answer: how it was read ---------- */
+
+.how {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: #f4f1eb;
+  font-size: 12px;
+  color: #5e5c54;
+}
+
+.how summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #3f3a32;
+}
+
+.how ol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0 2px;
+  padding: 0;
+  list-style: none;
+}
+
+.how li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.how li svg {
+  color: #3b6654;
+}
+
+.how li span {
+  font-weight: 600;
+  color: #3f3a32;
+}
+
+/* ---------- Reading card ---------- */
+
+.glow {
+  border-radius: 24px;
+}
+
+.card {
+  padding: 18px 17px;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.term {
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: #24211c;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.lang {
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: #f1ece2;
+  font-size: 11px;
+  color: #5e5346;
+}
+
+.level {
+  margin-left: auto;
+  padding: 4px 9px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.levelLow {
+  background: #fcf0e2;
+  color: #8a4b12;
+}
+
+.levelMedium {
+  background: #fcf5e5;
+  color: #7a5b22;
+}
+
+.levelGood {
+  background: #e8f2ea;
+  color: #2f5b44;
+}
+
+.heading {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.6px;
+  color: #24211c;
+}
+
+.copy {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #423c32;
+}
+
+.situationLine {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #5e5c54;
+}
+
+.section + .section {
+  margin-top: 16px;
+}
+
+.section h3,
+.source h3 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #5e5c54;
+}
+
+.section p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #423c32;
+}
+
+.main {
+  padding-left: 12px;
+  border-left: 2px solid #e4671f;
+}
+
+.main h3 {
+  color: #a3400a;
+}
+
+.main p {
+  font-size: 15px;
+  color: #24211c;
+}
+
+.readings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.readings li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #423c32;
+}
+
+.likely,
+.possible {
+  flex: none;
+  min-width: 78px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.likely {
+  background: #fff2eb;
+  color: #a3400a;
+}
+
+.possible {
+  background: #f1ece2;
+  color: #5e5346;
+}
+
+.why {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: #faf8f4;
+  font-size: 12px;
+  color: #5e5c54;
+}
+
+.why summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #3f3a32;
+}
+
+.why ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.why li::before {
+  display: inline-block;
+  width: 16px;
+  font-weight: 700;
+}
+
+.reasonOk::before {
+  content: '+';
+  color: #2f5b44;
+}
+
+.reasonMissing::before {
+  content: '–';
+  color: #8a4b12;
+}
+
+.why p {
+  margin: 0;
+}
+
+.source {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #efe9df;
+}
+
+.source a {
+  font-size: 13px;
+  font-weight: 600;
+  color: #a3400a;
+}
+
+.source blockquote {
+  margin: 6px 0;
+  padding-left: 10px;
+  border-left: 2px solid #e6dccd;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5e5c54;
+}
+
+.source small {
+  display: block;
+  font-size: 11px;
+  color: #6f685e;
+}
+
+/* ---------- Confirm with a local ---------- */
+
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 4px 0 12px;
+  padding: 14px;
+  border: 0;
+  border-radius: 24px;
+  background: linear-gradient(120deg, #24211c, #3d2a1d 60%, #6b3412);
+  box-shadow: 0 14px 28px -20px #24211c;
+  font: inherit;
+  text-align: left;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.confirm:active {
+  transform: scale(0.985);
+}
+
+.confirm span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.confirm strong {
+  font-size: 15px;
+}
+
+.confirm small {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #e9ddd2;
+}
+
+.confirmIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: #e4671f;
+}
+
+.confirmStatus {
+  margin: 4px 0 12px;
+  padding: 14px;
+  border: 1px solid #e0d0aa;
+  border-radius: 24px;
+  background: #f8f1e1;
+  color: #5c4720;
+}
+
+.confirmAnswered {
+  border-color: #b9d2b8;
+  background: #edf4e9;
+  color: #2f5b44;
+}
+
+.confirmSteps {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.confirmSteps li {
+  flex: 1;
+  padding-top: 8px;
+  border-top: 3px solid #e3d8c3;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+.confirmSteps .confirmStepDone {
+  border-top-color: currentColor;
+  opacity: 1;
+}
+
+.confirmTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.localReply {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.confirmLink {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .situation,
+  .card,
+  .chip,
+  .detail input,
+  .primary,
+  .ghost,
+  .how,
+  .why,
+  .confirm,
+  .confirmStatus {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thinkingFrame,
+  .thinkingFrame::after,
+  .stepNow .dot {
+    animation: none;
+  }
+}
+:global(html.reduce-motion) .thinkingFrame,
+:global(html.reduce-motion) .thinkingFrame::after,
+:global(html.reduce-motion) .stepNow .dot {
+  animation: none;
+}

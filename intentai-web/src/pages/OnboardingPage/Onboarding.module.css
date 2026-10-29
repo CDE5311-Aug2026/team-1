@@ -1,0 +1,469 @@
+/* Onboarding v3 screens (Figma O1–O8): warm grey paper, one question per screen, a dark primary button at the bottom. */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  min-height: calc(100svh - 0.5rem);
+  margin-bottom: -5.5rem;
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+  color: #23211d;
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  gap: 0.625rem;
+  background: linear-gradient(180deg, rgba(237, 235, 229, 0), #edebe5 35%);
+  z-index: 3;
+}
+
+.primary,
+.secondary {
+  flex: 1;
+  min-height: 3.5rem;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font: inherit;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.primary {
+  border: 1px solid #5a3a22;
+  background: #23211d;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(35, 33, 29, 0.18);
+}
+
+.primary:disabled {
+  background: #d6d0c5;
+  border-color: transparent;
+  color: #7a7369;
+  box-shadow: none;
+  cursor: default;
+}
+
+.accent {
+  background: #e4671f;
+  border-color: #c4520f;
+}
+
+.secondary {
+  border: 1px solid #dedad2;
+  background: #fff;
+  color: #23211d;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.back:focus-visible {
+  outline: 2px solid #23211d;
+  outline-offset: 3px;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .primary,
+  .secondary,
+  .back,
+  .find {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+/* ---------- O1 ---------- */
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
+
+.logo {
+  align-self: flex-start;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.book {
+  margin-top: 1.5rem;
+  width: 12.5rem;
+  aspect-ratio: 200 / 272;
+  border-radius: 18px;
+  background: radial-gradient(120% 90% at 50% 25%, #3a332c, #1e1b18);
+  box-shadow: 0 24px 40px rgba(35, 33, 29, 0.3), inset 0 0 0 10px #241f1b, inset 0 0 0 11px #8a5a36;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.bookFace {
+  width: 7.25rem;
+  height: 7.25rem;
+  border-radius: 50%;
+  background: #fbf3e6;
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.06);
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.bookTitle {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: #e9925a;
+  font-size: 0.9375rem;
+}
+
+.bookSub {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: #c79a78;
+}
+
+.welcomeTitle {
+  margin: 1.5rem 0 0;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.welcomeLine {
+  justify-content: center;
+}
+
+.welcomeLead {
+  margin: 0.75rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: #4d4a44;
+  max-width: 21rem;
+}
+
+.circles {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.circles li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.circle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 10px rgba(35, 33, 29, 0.15);
+}
+
+.circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.local {
+  margin: 1rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #4d4a44;
+}
+
+.notice {
+  margin: 0.5rem 0 0;
+  font-size: 0.6875rem;
+  color: #5f5b54;
+}
+
+/* ---------- O2–O7 ---------- */
+
+.question {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.back {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 14px;
+  border: 1px solid #dedad2;
+  background: #fff;
+  color: #23211d;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.progress {
+  flex: 1;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.segment {
+  flex: 1;
+  height: 0.3125rem;
+  border-radius: 3px;
+  background: #dcd7ce;
+  overflow: hidden;
+}
+
+.segmentFill {
+  display: block;
+  height: 100%;
+  background: #e4671f;
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.title {
+  margin: 0.25rem 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.use {
+  margin: -0.375rem 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: #3a3731;
+}
+
+.useDot {
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  margin-top: 0.25rem;
+  border-radius: 50%;
+  border: 1.5px solid #e4671f;
+}
+
+.useIcon {
+  flex: none;
+  color: #e4671f;
+}
+
+/* ---------- O8 ---------- */
+
+.ready {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.readyLine {
+  justify-content: center;
+}
+
+.closedNote {
+  margin: 0.25rem 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: #3a3731;
+}
+
+.findsTitle {
+  margin: 1rem 0 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #a3400a;
+}
+
+.fan {
+  list-style: none;
+  margin: 0.5rem calc(-1 * var(--gutter)) 0;
+  padding: 0.75rem var(--gutter) 1rem;
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.fan::-webkit-scrollbar {
+  display: none;
+}
+
+.fan > li {
+  flex: none;
+  width: min(56%, 14rem);
+  scroll-snap-align: center;
+}
+
+.fan > li:first-child:not(:only-child) .find {
+  transform: rotate(-5deg) translateY(0.75rem);
+}
+
+.fan > li:last-child:not(:only-child):not(:nth-child(2)) .find {
+  transform: rotate(5deg) translateY(0.75rem);
+}
+
+.find {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  aspect-ratio: 3 / 4;
+  border-radius: 24px;
+  overflow: hidden;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(160deg, #3c6e4f, #1e3a2a);
+  box-shadow: 0 14px 28px rgba(35, 33, 29, 0.22);
+}
+
+.find:focus-visible {
+  outline: 3px solid #23211d;
+  outline-offset: 3px;
+}
+
+.findPhoto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.findMap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.findShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 35%, rgba(0, 0, 0, 0.7));
+}
+
+.why {
+  position: absolute;
+  top: 0.625rem;
+  left: 0.625rem;
+  right: 0.625rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: fit-content;
+  max-width: calc(100% - 1.25rem);
+  padding: 0.3125rem 0.625rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #23211d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.why svg {
+  color: #e4671f;
+  flex: none;
+}
+
+.findTitle,
+.findSub {
+  position: relative;
+  margin: 0 0.875rem;
+}
+
+.findTitle {
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.findSub {
+  margin-bottom: 0.875rem;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  opacity: 0.9;
+}
+
+.noFinds {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #4d4a44;
+}
+
+@media (max-width: 359px) {
+  .welcomeTitle {
+    font-size: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.3125rem;
+  }
+
+  .book {
+    width: 10.5rem;
+  }
+
+  .circles {
+    gap: 0.75rem;
+  }
+}
+
+.welcome .footer {
+  align-self: stretch;
+}

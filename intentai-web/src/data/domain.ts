@@ -341,3 +341,129 @@ function isReport(value: unknown): value is Report {
 export const isReportList = arrayOf(isReport);
 
 export const isSavedIds = isStringArray;
+
+/* ---------- Saved insights (Ask "Save insight" writes, Moments reads) ---------- */
+
+/** An Ask answer the user chose to keep. History keeps every chat; Moments keeps only what is saved. */
+export interface Insight {
+  id: string;
+  question: string;
+  kind: 'card' | 'phrase';
+  /** Card title or phrase, shown on the Moments tile. */
+  title: string;
+  /** One line of the answer. */
+  summary: string;
+  cardId?: string;
+  lookupId?: string;
+  areaName?: string;
+  /** Where / who / topic the user added, as one line. */
+  situation?: string;
+  savedAt: number;
+}
+
+function isInsight(value: unknown): value is Insight {
+  return (
+    isRecord(value) &&
+    ['id', 'question', 'title', 'summary'].every((k) => typeof value[k] === 'string') &&
+    isOneOf(['card', 'phrase'] as const, value.kind) &&
+    optional(value.cardId, 'string') &&
+    optional(value.lookupId, 'string') &&
+    optional(value.areaName, 'string') &&
+    optional(value.situation, 'string') &&
+    typeof value.savedAt === 'number'
+  );
+}
+export const isInsightList = arrayOf(isInsight);
+
+/* ---------- Ask history (History sheet) ---------- */
+
+/** One question in a saved chat: enough to rebuild its answer (answers are recomputed from cards and phrases). */
+export interface AskTurn {
+  kind: 'meaning' | 'card';
+  question: string;
+  /** meaning: where / who / topic. */
+  situation?: { where: string; who: string; topic: string; tone?: 'Smiling' | 'Flat' | 'Rushed' | 'Annoyed' | 'Not sure'; detail?: string };
+  showingReply?: boolean;
+  softer?: boolean;
+  /** card: the area it was answered from, a card the question was bound to (example, recommendation, topic), an attached card. */
+  subjectId?: string;
+  boundCardId?: string;
+  attachedId?: string;
+  /** meaning: the Community question sent to confirm the reading. */
+  questionId?: string;
+  /** Files sent with the question: metadata only (the files themselves are never stored). */
+  attachments?: AskAttachmentMeta[];
+  /** Context the user added from the + menu ("About: Thian Hock Keng Temple"). */
+  context?: AskContextRef[];
+  /** The text Ask matched against when it was more than the question (added context, a document's opening). */
+  lens?: string;
+  /** The line the answer added about attached files. */
+  note?: string;
+  /** What memory kept from this question ("From Lyon"). */
+  remembered?: string;
+}
+
+export type AskAttachmentKind = 'photo' | 'audio' | 'document';
+export interface AskAttachmentMeta {
+  name: string;
+  kind: AskAttachmentKind;
+  size: number;
+  mime: string;
+}
+export type AskContextKind = 'card' | 'phrase' | 'question' | 'thread';
+export interface AskContextRef {
+  kind: AskContextKind;
+  label: string;
+}
+
+function isAttachmentMeta(v: unknown): v is AskAttachmentMeta {
+  return isRecord(v) && typeof v.name === 'string' && isOneOf(['photo', 'audio', 'document'] as const, v.kind) && typeof v.size === 'number' && typeof v.mime === 'string';
+}
+function isContextRef(v: unknown): v is AskContextRef {
+  return isRecord(v) && isOneOf(['card', 'phrase', 'question', 'thread'] as const, v.kind) && typeof v.label === 'string';
+}
+
+export interface AskThread {
+  id: string;
+  /** The first question. */
+  title: string;
+  turns: AskTurn[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+function isAskTurn(value: unknown): value is AskTurn {
+  if (!isRecord(value) || !isOneOf(['meaning', 'card'] as const, value.kind) || typeof value.question !== 'string') return false;
+  const s = value.situation;
+  return (
+    (s === undefined ||
+      (isRecord(s) &&
+        ['where', 'who', 'topic'].every((k) => typeof s[k] === 'string') &&
+        optional(s.tone, 'string') &&
+        optional(s.detail, 'string'))) &&
+    optional(value.questionId, 'string') &&
+    optional(value.showingReply, 'boolean') &&
+    optional(value.softer, 'boolean') &&
+    optional(value.subjectId, 'string') &&
+    optional(value.boundCardId, 'string') &&
+    optional(value.attachedId, 'string') &&
+    (value.attachments === undefined || (Array.isArray(value.attachments) && value.attachments.every(isAttachmentMeta))) &&
+    (value.context === undefined || (Array.isArray(value.context) && value.context.every(isContextRef))) &&
+    optional(value.lens, 'string') &&
+    optional(value.note, 'string') &&
+    optional(value.remembered, 'string')
+  );
+}
+
+function isAskThread(value: unknown): value is AskThread {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.title === 'string' &&
+    Array.isArray(value.turns) &&
+    value.turns.every(isAskTurn) &&
+    typeof value.createdAt === 'number' &&
+    typeof value.updatedAt === 'number'
+  );
+}
+export const isAskThreadList = arrayOf(isAskThread);

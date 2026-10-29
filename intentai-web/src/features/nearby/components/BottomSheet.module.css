@@ -67,7 +67,8 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  padding: 0 var(--gutter) calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  /* clears the app's floating tab bar (NAV_ROOM_PX) */
+  padding: 0 var(--gutter) calc(92px + 1rem + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -83,7 +84,7 @@
   left: 1rem;
   right: auto;
   top: 4rem;
-  bottom: 1rem;
+  bottom: 6rem;
   width: 400px;
   margin: 0;
   border-radius: var(--radius-card);

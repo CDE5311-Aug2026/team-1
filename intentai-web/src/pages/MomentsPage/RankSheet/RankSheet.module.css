@@ -1,0 +1,210 @@
+.head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  flex: none;
+}
+
+.ring > svg {
+  position: absolute;
+  inset: 0;
+}
+
+.starDisc {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #fff2eb;
+}
+
+.kicker {
+  margin: 0;
+  color: #a3400a;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+}
+
+.rank {
+  margin: 2px 0 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 30px;
+}
+
+.line {
+  margin: 4px 0 0;
+  color: #5e5c54;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.stepsWrap {
+  position: relative;
+  margin: 22px 0 18px;
+}
+
+.steps {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #5e5c54;
+  font-size: 13px;
+}
+
+.stepDot {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  border: 2px solid #ded9d1;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.stepOn .stepDot {
+  border-color: #e3661f;
+  background: #e3661f;
+  color: #fff;
+}
+
+.stepOn {
+  color: #24211c !important;
+}
+
+.steps li[aria-current='step'] .stepLabel {
+  font-weight: 800;
+}
+
+.track {
+  position: absolute;
+  left: 12.5%;
+  right: 12.5%;
+  top: 14px;
+  z-index: 0;
+  height: 2px;
+  background: #ded9d1;
+}
+
+.track > span {
+  display: block;
+  height: 100%;
+  background: #e3661f;
+}
+
+.badgesHead {
+  margin: 0 0 12px;
+  color: #3b3830;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+}
+
+.badges {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 8px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.badgeOrb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: #e9e5de;
+}
+
+.badgeOrb > img {
+  filter: brightness(0.3);
+  opacity: 0.6;
+}
+
+.badgeRing {
+  position: absolute;
+  inset: 0;
+}
+
+.earned .badgeOrb {
+  background: linear-gradient(100deg, #e3661f 0%, #e3661f 38%, #f4b389 50%, #e3661f 62%, #c4541a 100%);
+  box-shadow: 0 8px 18px -10px rgba(163, 64, 10, 0.8);
+}
+
+.earned .badgeOrb > img {
+  filter: none;
+  opacity: 1;
+}
+
+.badgeLabel {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 16px;
+}
+
+.badgeMeta {
+  color: #5e5c54;
+  font-size: 12px;
+  line-height: 15px;
+}
+
+.done {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 16px;
+  background: #24211c;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.done:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

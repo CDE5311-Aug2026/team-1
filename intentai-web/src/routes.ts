@@ -6,6 +6,8 @@ export const paths = {
   ask: '/ask',
   community: '/community',
   question: (id: string) => `/community/${encodeURIComponent(id)}`,
+  /** Figma C5 "Locals near your places": questions and locals who share their area, on the Nearby map. */
+  communityMap: '/community/map',
   moments: '/moments',
   /** Nearby Explore (map / list). */
   nearby: '/nearby',
@@ -19,6 +21,13 @@ export const paths = {
   saved: '/nearby/saved',
   nearbyPlace: (key: string) => `/nearby/place/${encodeURIComponent(key)}`,
   mySpace: '/my-space',
+  /** Figma S2 / S3. */
+  mySpaceSettings: '/my-space/settings',
+  mySpacePrivacy: '/my-space/privacy',
+  /** Figma 2 / 7: a place's Album Rail of cards (place key = Nearby catalogue key or area id). */
+  place: (key: string) => `/place/${encodeURIComponent(key)}`,
+  /** Figma 3–6 / 8–11: one culture card (Today article id). */
+  card: (id: string) => `/card/${encodeURIComponent(id)}`,
   notices: '/my-space/notices',
   noticeDetails: '/my-space/notices/details',
   noticeEdit: '/my-space/notices/details/edit',
@@ -40,6 +49,8 @@ export const patterns = {
   question: '/community/:questionId',
   nearbyPlace: '/nearby/place/:placeKey',
   collection: '/nearby/collections/:collectionId',
+  place: '/place/:placeKey',
+  card: '/card/:cardId',
 } as const;
 
 /** Static paths for smoke tests (routes with params are covered with seeded ids in e2e/routes.ts). */

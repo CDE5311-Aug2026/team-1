@@ -1,0 +1,63 @@
+.stamp {
+  position: relative;
+  display: block;
+  color: #c4541a;
+}
+
+.round {
+  aspect-ratio: 1;
+}
+
+.card {
+  aspect-ratio: 150 / 104;
+}
+
+.base,
+.ink {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.base {
+  opacity: 0.3;
+}
+
+.ink {
+  color: #a3400a;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.name,
+.roundName,
+.small,
+.ring {
+  fill: currentColor;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.name {
+  font-size: 12.5px;
+  letter-spacing: 0.2px;
+}
+
+.roundName {
+  font-size: 10px;
+  letter-spacing: 0.2px;
+}
+
+.small {
+  font-size: 7.5px;
+}
+
+.ring {
+  font-size: 6.4px;
+  letter-spacing: 0.6px;
+}

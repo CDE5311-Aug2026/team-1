@@ -9,6 +9,7 @@ import {
   explain,
   findPhrase,
   inSentence,
+  readingFor,
 } from './answer';
 
 test('every Nearby place maps to an Ask context, so the handoff never falls back silently', () => {
@@ -77,4 +78,26 @@ test('contextFor falls back to the default context and every context has an icon
     expect(context.icon).not.toBe('');
     expect(context.who).toMatch(/^[A-Z]/);
   }
+});
+
+describe('readingFor', () => {
+  const none = { where: '', who: '', topic: '' };
+  test('every phrase the explainer knows has a reading, general without who said it', () => {
+    for (const q of ['chope', 'can or not', 'paiseh', 'sabo']) {
+      const r = readingFor(`What does ${q} mean?`, none)!;
+      expect(r.literal && r.meaning && r.unclear && r.reply && r.softer, q).toBeTruthy();
+      expect(r.meaning, q).not.toBe(r.literal);
+    }
+  });
+
+  test('names who said it when the situation has it', () => {
+    expect(readingFor('chope', { where: 'Office', who: 'your colleague', topic: 'Work' })?.meaning).toBe(
+      'Your colleague is asking you to save a seat for them.',
+    );
+  });
+
+  test('reads the workplace phrase in Chinese and knows nothing else', () => {
+    expect(readingFor('跟产品对齐一下，把颗粒度做细一点。', none)?.term).toBe('对齐 · 颗粒度');
+    expect(readingFor('What does gostan mean?', none)).toBeUndefined();
+  });
 });

@@ -26,9 +26,9 @@ test('marks the tab matching the current path as current', () => {
   expect(screen.getByRole('button', { name: 'Moments' })).toHaveAttribute('aria-current', 'page');
 });
 
-test('non-tab routes keep Today current', () => {
+test('non-tab routes keep Home current', () => {
   renderAt('/nearby');
-  expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });
 
 test('keeps the status live region mounted and shows the global toast with Undo', async () => {
@@ -61,7 +61,7 @@ test('clicking a tab navigates', async () => {
 
 test('only matches a tab on a whole path segment', () => {
   renderAt('/ask-foo');
-  expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });
 
 test('chrome="none" renders content without tab bar', () => {

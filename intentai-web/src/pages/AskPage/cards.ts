@@ -181,6 +181,8 @@ export type CardAnswer =
       numbers: KeyNumber[];
       /** Places in Nearby the card names, shown for "where" questions. */
       places: readonly NearbyLink[];
+      /** How well the card matched (for picking the best area). */
+      score: number;
     }
   | {
       kind: 'none';
@@ -192,7 +194,11 @@ export type CardAnswer =
  * Answer a question about a subject from its cards. `cardId` binds the question to one card (a suggested question).
  * Returns 'none' when no card of the subject says anything about it.
  */
-export function askFromCards(question: string, subject: Subject, options: { cardId?: string; topic?: Topic } = {}): CardAnswer {
+export function askFromCards(
+  question: string,
+  subject: Subject,
+  options: { cardId?: string; topic?: Topic; strict?: boolean } = {},
+): CardAnswer {
   const topic = options.topic ?? detectTopic(question);
   const q = new Set(tokens(question));
   const intent = intentOf(question);
@@ -217,8 +223,9 @@ export function askFromCards(question: string, subject: Subject, options: { card
   });
 
   // A card answers if the question names it, shares words with it, or asks about its topic; otherwise nothing does.
-  const usable = scored.filter((s) => options.cardId || s.titleHits > 0 || s.best > 0 || s.sameTopic);
-  if (topic && !options.cardId && !usable.some((s) => s.sameTopic || s.titleHits > 0)) return { kind: 'none', topic };
+  // strict (an attached card): the card must actually say something about the question.
+  const usable = scored.filter((s) => (options.cardId && !options.strict) || s.titleHits > 0 || s.best > 0 || s.sameTopic);
+  if (topic && (!options.cardId || options.strict) && !usable.some((s) => s.sameTopic || s.titleHits > 0)) return { kind: 'none', topic };
   usable.sort((a, b) => b.score - a.score);
   const top = usable[0];
   if (!top) return { kind: 'none', topic };
@@ -236,7 +243,7 @@ export function askFromCards(question: string, subject: Subject, options: { card
   }).slice(0, 2);
   const lines = texts.filter((t) => !numbers.some((n) => n.caption === t));
   const places = intent === 'where' || top.card.topic === 'food' ? top.card.links.filter((l) => l.kind !== 'list' || intent === 'where') : [];
-  return { kind: 'card', card: top.card, topic: top.card.topic, lines, numbers, places };
+  return { kind: 'card', card: top.card, topic: top.card.topic, lines, numbers, places, score: top.score };
 }
 
 /** Plain text of a card answer, for copying and reports. */
@@ -311,4 +318,19 @@ export function rewriteHere(question: string, place: string): string {
   return question
     .replace(/\b(near|around) (here|this place)\b/gi, (_m, prep: string) => `${prep} ${place}`)
     .replace(/\bhere\b/gi, `in ${place}`);
+}
+
+/** The area whose cards answer best, or `fallback` with a 'none' answer when no area's cards do. */
+export function askAcross(question: string, fallback: Subject = DEFAULT_SUBJECT): { subject: Subject; answer: CardAnswer } {
+  let best: { subject: Subject; answer: Extract<CardAnswer, { kind: 'card' }> } | undefined;
+  for (const subject of SUBJECTS) {
+    const answer = askFromCards(question, subject);
+    if (answer.kind === 'card' && (!best || answer.score > best.answer.score)) best = { subject, answer };
+  }
+  return best ?? { subject: fallback, answer: askFromCards(question, fallback) };
+}
+
+/** The area a card belongs to (its first one). */
+export function subjectOfCard(cardId: string): Subject | undefined {
+  return SUBJECTS.find((s) => s.cards.some((c) => c.article.id === cardId));
 }

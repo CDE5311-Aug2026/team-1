@@ -25,7 +25,7 @@ export default function HolidayPage() {
       <div className={styles.body}>
         <button type="button" className={styles.back} onClick={() => navigate(paths.today)}>
           <img src={back} alt="" width={16} height={16} />
-          Back to Today
+          Back to Home
         </button>
         <article className={styles.card}>
           <img

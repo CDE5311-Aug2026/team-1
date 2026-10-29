@@ -18,7 +18,7 @@ const NEARBY: Record<string, Box> = {
   '11:1853': [199.5, 491.5, 153, 36], // Ask IntentAI
   '11:1858': [20, 591, 350, 58], // Also heard: Tapau
   '11:1867': [20, 657, 350, 58], // Also heard: Kosong
-  '11:1550': [20, 758, 350, 58], // Tab bar
+  '11:1550': [20, 752, 350, 64], // Tab bar
 };
 const PLACES: Record<string, Box> = {
   '11:1876': [20, 62, 32, 32], // Back
@@ -27,7 +27,7 @@ const PLACES: Record<string, Box> = {
   '11:1895': [20, 242, 110, 106], // Hawker centre tile
   '11:1938': [260, 474, 110, 106], // Mall tile
   '11:1943': [20, 600, 350, 48], // Show phrases
-  '11:1707': [20, 758, 350, 58], // Tab bar
+  '11:1707': [20, 752, 350, 64], // Tab bar
 };
 
 async function expectFrames(page: Page, frames: Record<string, Box>) {

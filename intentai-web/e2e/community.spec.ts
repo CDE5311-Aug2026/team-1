@@ -1,84 +1,43 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { paths } from '../src/routes';
 
-const TOL = 3; // px, decision D2
-type Box = [x: number, y: number, width: number, height: number];
+// v3 Community (ZIP prototype, sixth round): two doors, Top Questions / For You, My Questions with four steps, the
+// thread, and the locals map. Rules are unit-tested in src/pages/CommunityPage and src/data/community.
 
-// Figma frames 3:728 (list) and 7:1119 (question detail), 390×844, from get_metadata.
-const LIST: Record<string, Box> = {
-  '3:879': [20, 114, 350, 44], // Segment / mode
-  '3:891': [20, 208, 350, 100], // Card / Pending
-  '3:901': [20, 322, 350, 100], // Card / Answered
-  '3:912': [21, 649, 348, 26], // Privacy note: Figma C1's sentence, two lines (was one line at y 662)
-  '3:915': [20, 692, 350, 48], // Button / Ask a local
-  '3:787': [20, 758, 350, 58], // Tab bar
-};
-const DETAIL: Record<string, Box> = {
-  '7:1157': [20, 114, 350, 44], // Segment / mode
-  '7:1196': [20, 172, 150, 18], // Back row
-  // The card itself (7:1200), its buttons (7:1246, 7:1248) and the pager (7:1250) moved down: the card now has the
-  // four steps Posted → Seen → Answered → Added and a line saying what the answer is linked to (PRD v3 §6, Figma C2).
-  '7:1135': [20, 758, 350, 58], // Tab bar
-};
-
-async function expectFrames(page: Page, frames: Record<string, Box>) {
-  await page.evaluate(() => document.fonts.ready.then(() => true));
-  for (const [nodeId, [x, y, width, height]] of Object.entries(frames)) {
-    const box = await page.locator(`[data-node-id="${nodeId}"]`).boundingBox();
-    expect(box, `${nodeId} not rendered`).not.toBeNull();
-    const actual = { x: box!.x, y: box!.y, width: box!.width, height: box!.height };
-    const want = { x, y, width, height };
-    for (const key of ['x', 'y', 'width', 'height'] as const) {
-      expect(Math.abs(actual[key] - want[key]), `${nodeId}.${key}: got ${actual[key]}, want ${want[key]}`).toBeLessThanOrEqual(TOL);
-    }
-  }
-}
-
-test('Community list matches Figma frame geometry at 390x844', async ({ page }) => {
+test('Ask a local posts a question to My Questions; the thread can be closed and withdrawn with Undo', async ({ page }) => {
   await page.goto(paths.community);
-  await expectFrames(page, LIST);
-  await page.screenshot({ path: 'test-results/community-list.png' });
-});
-
-test('Question detail matches Figma frame geometry at 390x844', async ({ page }) => {
-  await page.goto(paths.question('sabo'));
-  await expectFrames(page, DETAIL);
-  await page.screenshot({ path: 'test-results/community-question.png' });
-});
-
-test('an unknown question redirects to the list', async ({ page }) => {
-  await page.goto(paths.question('nope'));
-  await expect(page).toHaveURL(/\/community$/);
-});
-
-// Port of v0 "Community anonymous question, context, answer and withdrawal work".
-test('Community anonymous question, context, answer and withdrawal work', async ({ page }) => {
-  await page.goto(paths.community);
-  await page.getByRole('button', { name: 'Ask a local', exact: true }).click();
-  await page.getByRole('dialog').getByLabel('Your message').fill('Is chope polite?');
+  await page.getByRole('button', { name: /^Ask a local/ }).first().click();
+  await page.getByRole('dialog').getByLabel('Your message').fill('Is chope rude?');
   await page.getByRole('button', { name: 'Post to locals', exact: true }).click();
-
-  await page.getByRole('link', { name: 'Open question Is chope polite?', exact: true }).click();
-  await page.getByRole('button', { name: 'Add more context', exact: true }).click();
-  await page.getByRole('dialog').getByLabel('Your message').fill('At a hawker centre');
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(page.getByText(/At a hawker centre/)).toBeVisible();
-
-  await page.getByRole('switch', { name: 'Answer as a local', exact: true }).click();
-  await page.getByRole('button', { name: 'Answer question', exact: true }).click();
-  await page.getByRole('dialog').getByLabel('Your message').fill('It is common at hawker centres.');
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(page.getByText('It is common at hawker centres.', { exact: true })).toBeVisible();
-
-  // Survives a reload (persisted on this device).
-  await page.reload();
-  await expect(page.getByText('It is common at hawker centres.', { exact: true })).toBeVisible();
-
-  await page.getByRole('button', { name: 'Withdraw', exact: true }).click();
+  const link = page.getByRole('link', { name: 'Open question Is chope rude?', exact: true });
+  await expect(link).toBeVisible();
+  await link.click();
+  await expect(page).toHaveURL(/\/community\/.+/);
+  await page.getByRole('button', { name: /Withdraw/ }).first().click();
   await expect(page).toHaveURL(/\/community$/);
-  await expect(page.getByText('Is chope polite?', { exact: true })).toHaveCount(0);
-  await expect(page.getByRole('status')).toHaveText('Question withdrawn');
-
+  await expect(page.getByRole('link', { name: 'Open question Is chope rude?', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
-  await expect(page.getByRole('link', { name: 'Open question Is chope polite?', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Open question Is chope rude?', exact: true })).toBeVisible();
+});
+
+test('a question sent from Ask to confirm a reading gets a one-tap local answer that comes back to Ask', async ({ page }) => {
+  await page.goto(paths.ask);
+  await page.getByRole('textbox', { name: /ask intentai/i }).fill('What does sabo mean? My colleague said it laughing');
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
+  await page.getByRole('button', { name: /Ask a local to confirm/ }).click({ timeout: 8000 });
+  await page.goto(paths.community);
+  await page.getByRole('switch', { name: 'Answer as a local' }).first().click();
+  await page.getByRole('link', { name: /Open question Is this right\?/ }).click();
+  await page.getByRole('button', { name: 'Yes, that’s right.', exact: true }).click();
+  await page.getByRole('button', { name: 'Send answer' }).click();
+  await page.goto(paths.ask);
+  await page.getByRole('button', { name: 'Chat history' }).click();
+  await page.getByRole('dialog', { name: 'History' }).getByRole('button', { name: /What does sabo mean/ }).click();
+  await expect(page.getByText('Confirmed by a local')).toBeVisible();
+});
+
+test('the locals map shows question pins and the carousel, edge to edge without sideways scroll', async ({ page }) => {
+  await page.goto(paths.communityMap);
+  await expect(page.getByRole('main')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
 });

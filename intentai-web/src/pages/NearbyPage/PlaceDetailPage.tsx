@@ -31,7 +31,7 @@ export default function PlaceDetailPage() {
 
 function NotFound() {
   return (
-    <AppShell background="var(--bg-screen-b)" chrome="status">
+    <AppShell background="var(--bg-screen-b)">
       <div className={styles.screen}>
         <BackHeader title="Place not found" fallback={paths.nearby} />
         <p className={styles.empty}>
@@ -69,7 +69,7 @@ function Detail({ place }: { place: CuratedPlace }) {
       : null;
 
   return (
-    <AppShell background="var(--bg-screen-b)" chrome="status">
+    <AppShell background="var(--bg-screen-b)">
       <div className={styles.screen}>
         <BackHeader title={place.name} fallback={paths.nearby} />
         <div className={styles.detailIntro}>

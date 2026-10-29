@@ -1,13 +1,20 @@
 import { lazy, Suspense, type ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { MotionConfig } from 'motion/react';
+import { useReduceMotionSetting } from './data/motion';
 import { usePersistentStore } from './data/persistentStore';
 import { onboardingStore } from './data/stores';
 import AskPage from './pages/AskPage/AskPage';
 import CommunityPage from './pages/CommunityPage/CommunityPage';
 import HolidayPage from './pages/HolidayPage/HolidayPage';
 import QuestionPage from './pages/CommunityPage/QuestionPage';
+import CommunityMapPage from './pages/CommunityPage/CommunityMapPage';
 import MomentsPage from './pages/MomentsPage/MomentsPage';
 import MySpacePage from './pages/MySpacePage/MySpacePage';
+import MySpaceSettingsPage from './pages/MySpacePage/SettingsPage';
+import MySpacePrivacyPage from './pages/MySpacePage/PrivacyPage';
+import PlacePage from './pages/PlacePage/PlacePage';
+import CardPage from './pages/CardPage/CardPage';
 import NoticeDetailsPage from './pages/MySpacePage/NoticeDetailsPage';
 import NoticeEditPage from './pages/MySpacePage/NoticeEditPage';
 import NoticeResultPage from './pages/MySpacePage/NoticeResultPage';
@@ -42,9 +49,11 @@ function Lazy({ children }: { children: ReactNode }) {
 
 export default function App() {
   const [onboarding] = usePersistentStore(onboardingStore);
+  const reduceMotion = useReduceMotionSetting();
 
   return (
-    <>
+    // "user" follows the system setting; the app's own Reduce motion switch forces it off everywhere.
+    <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
       <PageTracker />
       <UserGate>
         <Routes>
@@ -62,6 +71,7 @@ export default function App() {
           <Route path={paths.holiday} element={<HolidayPage />} />
           <Route path={paths.ask} element={<AskPage />} />
           <Route path={paths.community} element={<CommunityPage />} />
+          <Route path={paths.communityMap} element={<CommunityMapPage />} />
           <Route path={patterns.question} element={<QuestionPage />} />
           <Route path={paths.moments} element={<MomentsPage />} />
           <Route path={paths.nearby} element={<Lazy><ExplorePage /></Lazy>} />
@@ -73,6 +83,10 @@ export default function App() {
           <Route path={patterns.collection} element={<Lazy><CollectionDetailPage /></Lazy>} />
           <Route path={paths.saved} element={<Lazy><SavedPage /></Lazy>} />
           <Route path={paths.mySpace} element={<MySpacePage />} />
+          <Route path={paths.mySpaceSettings} element={<MySpaceSettingsPage />} />
+          <Route path={paths.mySpacePrivacy} element={<MySpacePrivacyPage />} />
+          <Route path={patterns.place} element={<PlacePage />} />
+          <Route path={patterns.card} element={<CardPage />} />
           <Route path={paths.notices} element={<NoticesPage />} />
           <Route path={paths.noticeDetails} element={<NoticeDetailsPage />} />
           <Route path={paths.noticeEdit} element={<NoticeEditPage />} />
@@ -88,6 +102,6 @@ export default function App() {
           <Route path="*" element={<Navigate to={paths.today} replace />} />
         </Routes>
       </UserGate>
-    </>
+    </MotionConfig>
   );
 }

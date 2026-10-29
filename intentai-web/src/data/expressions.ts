@@ -182,7 +182,7 @@ export const staticCopy = {
     subtitle: '3 phrases you might hear here',
   },
   tabs: [
-    { path: paths.today, label: 'Today', icon: 'tab-today' as const },
+    { path: paths.today, label: 'Home', icon: 'tab-today' as const },
     { path: paths.ask, label: 'Ask', icon: 'tab-ask' as const },
     { path: paths.community, label: 'Community', icon: 'tab-community' as const },
     { path: paths.moments, label: 'Moments', icon: 'tab-moments' as const },

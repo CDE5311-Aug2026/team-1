@@ -1,99 +1,222 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+// Ask (v3): the ZIP prototype's interaction on the app's real content.
+// Home → two image cards or a free question. A question is answered as
+//   · "Understand the meaning" (a phrase reading: literal / what they might mean / still unclear), or
+//   · "Learn culture" (from the cards of the area that answers best, or an attached card), or
+//   · honestly not at all, with topics and Ask a local.
+// Nothing here calls a model: readings are team-written (answer.ts) and card answers quote the cards (cards.ts).
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HomeLink from '../../components/HomeLink/HomeLink';
-import checkIcon from '../../assets/ask/check.svg';
-import copyIcon from '../../assets/ask/copy.svg';
-import dotsIcon from '../../assets/ask/dots.svg';
-import editIcon from '../../assets/ask/edit.svg';
 import infoIcon from '../../assets/ask/info.svg';
 import micIcon from '../../assets/ask/mic.svg';
 import plusIcon from '../../assets/ask/plus.svg';
-import regenerateIcon from '../../assets/ask/regenerate.svg';
 import sendIcon from '../../assets/ask/send.svg';
-import sparkleIcon from '../../assets/ask/sparkle.svg';
-import thumbsDownIcon from '../../assets/ask/thumbs-down.svg';
-import thumbsUpIcon from '../../assets/ask/thumbs-up.svg';
 import AppShell from '../../components/AppShell/AppShell';
 import Dialog from '../../components/Dialog/Dialog';
-import { addLookup } from '../../data/domain';
-import { culturePrefsStore, lookupsStore, openedCardsStore, reportsStore, tipsStore } from '../../data/stores';
-import type { Tip } from '../../data/domain';
+import { addLookup, makeId, newQuestion, type AskAttachmentKind, type AskContextRef, type AskThread, type AskTurn, type Insight, type Question, type Tip } from '../../data/domain';
+import { activeMemories, learnFrom, memoryStore, remember } from '../../data/memory';
+import { profileV3Store } from '../../data/profile/profile';
+import { localProfileStore, withPrefill } from '../../data/profile/localProfile';
+import { communitySocialStore } from '../../data/community/social';
+import {
+  ACCEPT,
+  AddSheet,
+  ComposerTray,
+  ContextPicker,
+  FilesNote,
+  MAX_CONTEXT,
+  MemoryPill,
+  RememberedNote,
+  SentExtras,
+  addFiles,
+  contextRef,
+  filesNote,
+  isTextDoc,
+  metaOf,
+  releaseUrl,
+  textOpening,
+  type AttachedFile,
+  type ContextItem,
+} from './Attachments';
+import { contextLists } from './contextSources';
+import {
+  askThreadsStore,
+  culturePrefsStore,
+  insightsStore,
+  lookupsStore,
+  openedCardsStore,
+  questionsStore,
+  reduceMotionStore,
+  reportsStore,
+  tipsStore,
+} from '../../data/stores';
 import { markCardOpened } from '../../data/openedCards';
 import { usePersistentStore } from '../../data/persistentStore';
 import { dismissToast, showToast } from '../../hooks/useToast';
+import { requireText } from '../../hooks/requireText';
+import { useReducedMotionConfig } from 'motion/react';
+import { detectSituation, findEntry, situationIsThin } from './guide';
+import { ConfirmPanel, HowIRead, ReadingCard, SituationCard, Thinking, stepsFor } from './MeaningViews';
 import { paths, type AskHandoff, type CommunityHandoff } from '../../routes';
+import { useSpan } from '../../usage/useSpan';
+import Toggle from '../../components/Toggle/Toggle';
+import historyIcon from '../../assets/v3/history.svg';
+import moreIcon from '../../assets/v3/more.svg';
+import { HistorySheet } from './HistorySheet';
+import { V3_PHOTO_CREDITS } from '../../assets/v3/credits';
+import Magnet from '../../components/reactbits/Magnet';
+import { AskHome, EntrySheet, type EntryKind } from './AskHome';
+import homeStyles from './AskHome.module.css';
+import { Recommendations, SourceCardDialog } from './CardViews';
 import {
   DEFAULT_SUBJECT,
   SUBJECTS,
+  askAcross,
   askFromCards,
   cardAnswerText,
   cardById,
-  detectTopic,
   recommend,
   rewriteHere,
   subjectById,
+  subjectOfCard,
   suggestionFor,
-  topicInfo,
-  topicsIn,
   type Card,
   type CardAnswer,
   type Recommendation,
   type Subject,
   type Topic,
 } from './cards';
-import { AskLocalRow, CardAnswerBody, NoCardBody, Recommendations, SourceCardDialog, StartPanel, TopicSwitch } from './CardViews';
 import {
-  ASK_CONTEXTS,
-  DEFAULT_CONTEXT,
-  PHRASES,
-  answerText,
-  contextFor,
-  explain,
+  EMPTY_SITUATION,
+  SITUATION_PRESETS,
   findPhrase,
-  inSentence,
-  type Answer,
+  readingFor,
+  readingText,
+  situationText,
+  type Reading,
+  type Situation,
 } from './answer';
-import { useSpan } from '../../usage/useSpan';
+import {
+  AnswerActions,
+  AssistantLabel,
+  AttachCardOptions,
+  AttachedChip,
+  CardPaper,
+  Chip,
+  Chips,
+  NoCardPaper,
+  ReplyCard,
+  SituationSheet,
+  Reveal,
+  ThreadDate,
+  TopicChips,
+  UserMessage,
+} from './Conversation';
 import styles from './AskPage.module.css';
 import { startVoiceInput } from './voice';
-import { requireText } from '../../hooks/requireText';
 
-type Feedback = 'up' | 'down';
+interface Common {
+  id: number;
+  question: string;
+  helpful?: boolean;
+  /** Id of the Moments insight saved from this answer. */
+  savedId?: string;
+  /** Files sent with the question (previews only while this tab is open). */
+  attachments?: AttachedFile[];
+  /** Context added from the + menu. */
+  context?: AskContextRef[];
+  /** What Ask matched against when it was more than the question (context, a document's opening). */
+  lens?: string;
+  /** The answer's line about the files. */
+  note?: string;
+  /** What memory kept from the question. */
+  remembered?: string;
+}
+type Extras = Pick<Common, 'attachments' | 'context' | 'lens' | 'note' | 'remembered'>;
 
-type Exchange = { id: number; feedback?: Feedback } & (
-  | {
-      kind: 'phrase';
-      /** The user's question; a follow-up answer ("Use it in a sentence") has none of its own. */
-      question?: string;
-      context: string;
-      mode: 'explain' | 'sentence';
-      /** The phrase a sentence answer is about. */
-      phraseId?: string;
-      answer: Answer;
-    }
-  | {
-      kind: 'card';
-      question: string;
-      subjectId: string;
-      answer: CardAnswer;
-      recs: Recommendation[];
-      /** The local tip on the source card when this answer was given, if any. */
-      tip?: Tip;
-    }
-);
-type PhraseExchange = Extract<Exchange, { kind: 'phrase' }>;
-type NewExchange = Omit<PhraseExchange, 'id'> | Omit<Extract<Exchange, { kind: 'card' }>, 'id'>;
+type Exchange = Common &
+  (
+    | {
+        kind: 'meaning';
+        situation: Situation;
+        /** What the sentence itself said about the situation (pre-selected chips). */
+        auto: Partial<Situation>;
+        /** context: the situation card is open · thinking: the steps run · done: the reading shows. */
+        stage: 'context' | 'thinking' | 'done';
+        /** Undefined when the phrase isn't one the guide knows. */
+        reading?: Reading;
+        phraseId?: string;
+        showingReply: boolean;
+        softer: boolean;
+        /** The Community question that asks a local to confirm this reading. */
+        questionId?: string;
+      }
+    | {
+        kind: 'card';
+        subjectId: string;
+        answer: CardAnswer;
+        recs: Recommendation[];
+        tip?: Tip;
+        /** The card the user attached; the answer used only it. */
+        attachedId?: string;
+        /** The card a suggested / recommended / topic question was bound to (for History). */
+        boundCardId?: string;
+      }
+  );
+type MeaningExchange = Extract<Exchange, { kind: 'meaning' }>;
+type CardExchange = Extract<Exchange, { kind: 'card' }>;
+type NewExchange = Omit<MeaningExchange, 'id'> | Omit<CardExchange, 'id'>;
 
-type Modal = { type: 'context'; exchangeId?: number } | { type: 'report'; exchangeId: number } | { type: 'options' } | { type: 'card'; cardId: string };
+type Modal =
+  | { type: 'entry'; kind: EntryKind }
+  | { type: 'situation'; exchangeId?: number }
+  | { type: 'attach' }
+  | { type: 'context' }
+  | { type: 'report'; exchangeId: number }
+  | { type: 'settings' }
+  | { type: 'history' }
+  | { type: 'card'; cardId: string };
 
-function phraseAnswerFor(exchange: PhraseExchange): Answer {
-  const phrase = PHRASES.find((p) => p.id === exchange.phraseId);
-  if (exchange.mode === 'sentence' && phrase) return inSentence(phrase);
-  return explain(exchange.question ?? '', exchange.context);
+/** A question that asks what a word means goes to the phrase guide even when it names no known phrase. */
+const MEANING = /\b(mean|meaning|means|singlish|slang)\b|什么意思|意思/i;
+
+/** What History keeps of an exchange: enough to rebuild its answer. Files keep only their name, kind, size and type. */
+function turnOf(e: Exchange): AskTurn {
+  const extras: Partial<AskTurn> = {};
+  if (e.attachments?.length) extras.attachments = e.attachments.map(metaOf);
+  if (e.context?.length) extras.context = e.context;
+  if (e.lens) extras.lens = e.lens;
+  if (e.note) extras.note = e.note;
+  if (e.remembered) extras.remembered = e.remembered;
+  if (e.kind === 'meaning') {
+    return { kind: 'meaning', question: e.question, situation: e.situation, showingReply: e.showingReply, softer: e.softer, questionId: e.questionId, ...extras };
+  }
+  return { kind: 'card', question: e.question, subjectId: e.subjectId, boundCardId: e.boundCardId, attachedId: e.attachedId, ...extras };
 }
 
-/** A question that asks what a word means goes to the phrase explainer even when it names no known phrase. */
-const MEANING = /\b(mean|meaning|means|singlish|slang)\b/i;
+/** The extras of a History turn, back on screen (files without their previews). */
+function extrasOf(turn: AskTurn, index: number): Extras {
+  return {
+    attachments: turn.attachments?.map((a, i) => ({ ...a, id: `h${index}-${i}` })),
+    context: turn.context,
+    lens: turn.lens,
+    note: turn.note,
+    remembered: turn.remembered,
+  };
+}
+
+/** What to send when the input is empty but files or context were added. */
+function defaultQuestion(files: readonly AttachedFile[], context: readonly ContextItem[]): string {
+  const first = context.find((c) => c.ask);
+  if (first?.ask) return first.ask;
+  return files.length === 1 ? 'Can you help me with this file?' : 'Can you help me with these files?';
+}
+
+/** Ask context label (Nearby handoff) → a situation. */
+function situationForLabel(label: string | undefined): Situation {
+  const preset = SITUATION_PRESETS.find((p) => p.label.toLowerCase() === label?.toLowerCase());
+  return preset ? preset.situation : EMPTY_SITUATION;
+}
 
 export default function AskPage() {
   const navigate = useNavigate();
@@ -101,73 +224,299 @@ export default function AskPage() {
   // "New chat" Undo restores state that lives only on this page, so close that toast if we leave.
   const newChatToast = useRef<number>();
   useEffect(() => () => dismissToast(newChatToast.current ?? -1), []);
-  const [context, setContext] = useState(DEFAULT_CONTEXT);
+  /** Where / who / topic for the next phrase question. */
+  const [situation, setSituation] = useState<Situation>(EMPTY_SITUATION);
+  /** The area the last card answer came from (for topics and follow-ups). */
   const [subject, setSubject] = useState<Subject>(DEFAULT_SUBJECT);
-  /** The topic picked on the switch or a tile; while none is picked the switch follows what is typed. */
-  const [pickedTopic, setPickedTopic] = useState<Topic | undefined>();
+  /** Set by "ask my own" on a home card. Cleared by Clear or New chat. */
+  const [entryKind, setEntryKind] = useState<EntryKind | undefined>();
+  const [attachedId, setAttachedId] = useState<string | undefined>();
   const [draft, setDraft] = useState('');
   const [modal, setModal] = useState<Modal | null>(null);
+  /** Files and context waiting in the composer. */
+  const [files, setFiles] = useState<AttachedFile[]>([]);
+  const [contextItems, setContextItems] = useState<ContextItem[]>([]);
+  const [fileError, setFileError] = useState<string | undefined>();
+  const fileInputs = useRef<Partial<Record<AskAttachmentKind, HTMLInputElement | null>>>({});
+  /** Every preview URL made here, released when the page goes. */
+  const previews = useRef<string[]>([]);
+  useEffect(() => () => previews.current.forEach(releaseUrl), []);
+  /** Files, context and memory for the exchange being added (set around ask()). */
+  const extras = useRef<Extras | undefined>();
+  const [memory] = usePersistentStore(memoryStore);
+  const [profile] = usePersistentStore(profileV3Store);
+  const [localProfile] = usePersistentStore(localProfileStore);
+  const [social] = usePersistentStore(communitySocialStore);
+  const [lookups] = usePersistentStore(lookupsStore);
+  const [tips] = usePersistentStore(tipsStore);
+  const memories = useMemo(() => activeMemories(memory, profile, withPrefill(localProfile, profile)), [memory, profile, localProfile]);
   const [opened] = usePersistentStore(openedCardsStore);
   const [prefs] = usePersistentStore(culturePrefsStore);
+  const [insights] = usePersistentStore(insightsStore);
+  const [threads] = usePersistentStore(askThreadsStore);
+  const [questions] = usePersistentStore(questionsStore);
+  /** Motion is off (system or the app setting): skip the thinking steps. */
+  const motionOff = Boolean(useReducedMotionConfig());
+  const [reduceMotion, setReduceMotion] = usePersistentStore(reduceMotionStore);
+  /** The History record this chat is saved under (a new one per New chat). */
+  const threadId = useRef(makeId());
   useSpan('activity', 'Ask › typing', draft.trim() !== '');
-  useSpan('activity', 'Ask › context', modal?.type === 'context');
+  useSpan('activity', 'Ask › context', modal?.type === 'situation');
   useSpan('activity', 'Ask › report', modal?.type === 'report');
   useSpan('activity', 'Ask › source card', modal?.type === 'card');
   const nextId = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const chatRef = useRef<HTMLDivElement>(null);
   const latestRef = useRef<HTMLDivElement>(null);
-
-  const typedTopic = detectTopic(draft);
-  const activeTopic = draft.trim() ? (typedTopic ?? pickedTopic) : pickedTopic;
+  const attached = attachedId ? cardById(attachedId) : undefined;
 
   // Bring the newest question to the top of the chat, so its answer reads from the start.
   useEffect(() => {
     if (exchanges.length > 0) latestRef.current?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
   }, [exchanges.length]);
 
+  // Every chat goes to History as it happens (ZIP: History keeps chats; Moments only what you save).
+  useEffect(() => {
+    if (exchanges.length === 0) return;
+    const id = threadId.current;
+    const now = Date.now();
+    askThreadsStore.set((list) => {
+      const previous = list.find((t) => t.id === id);
+      const thread: AskThread = {
+        id,
+        title: exchanges[0].question,
+        turns: exchanges.map(turnOf),
+        createdAt: previous?.createdAt ?? now,
+        updatedAt: now,
+      };
+      return [thread, ...list.filter((t) => t.id !== id)].slice(0, 50);
+    });
+  }, [exchanges]);
+
+  /** Reopen a chat from History: answers are rebuilt from the cards and phrase guide (as in the ZIP prototype). */
+  const openThread = (thread: AskThread) => {
+    const rebuilt: Exchange[] = thread.turns.map((turn, index) => {
+      if (turn.kind === 'meaning') {
+        const where = turn.situation ?? EMPTY_SITUATION;
+        const text = turn.lens ?? turn.question;
+        return {
+          ...extrasOf(turn, index),
+          id: index,
+          kind: 'meaning',
+          question: turn.question,
+          situation: where,
+          auto: {},
+          stage: 'done',
+          reading: readingFor(text, where),
+          phraseId: findEntry(text)?.id,
+          showingReply: Boolean(turn.showingReply),
+          softer: Boolean(turn.softer),
+          questionId: turn.questionId,
+        };
+      }
+      const about = subjectById(turn.subjectId) ?? subject;
+      let answer = turn.attachedId
+        ? askFromCards(turn.question, about, { cardId: turn.attachedId, strict: true })
+        : turn.boundCardId
+          ? askFromCards(turn.question, about, { cardId: turn.boundCardId })
+          : askFromCards(turn.question, about);
+      if (answer.kind === 'none' && turn.lens && !turn.attachedId && !turn.boundCardId) answer = askFromCards(turn.lens, about);
+      const tip = answer.kind === 'card' ? tipsStore.get().find((t) => t.cardId === answer.card.article.id) : undefined;
+      return {
+        ...extrasOf(turn, index),
+        id: index,
+        kind: 'card',
+        question: turn.question,
+        subjectId: about.id,
+        answer,
+        recs: turn.attachedId ? [] : recommend(about, { opened, interests: prefs.categories, exclude: answer.kind === 'card' ? [answer.card.article.id] : [] }),
+        tip,
+        attachedId: turn.attachedId,
+        boundCardId: turn.boundCardId,
+      };
+    });
+    nextId.current = rebuilt.length;
+    threadId.current = thread.id;
+    setExchanges(rebuilt);
+    setEntryKind(undefined);
+    setAttachedId(undefined);
+    setModal(null);
+  };
+
   const append = (exchange: NewExchange) => {
     const id = nextId.current;
     nextId.current += 1;
-    setExchanges((prev) => [...prev, { ...exchange, id } as Exchange]);
+    const more = extras.current;
+    setExchanges((prev) => [...prev, { ...exchange, ...more, id } as Exchange]);
   };
 
-  const askPhrase = (question: string, where: string) => {
-    append({ kind: 'phrase', question, context: where, mode: 'explain', answer: explain(question, where) });
-    const phrase = findPhrase(question);
+  const update = (id: number, change: (exchange: Exchange) => Exchange) =>
+    setExchanges((prev) => prev.map((exchange) => (exchange.id === id ? change(exchange) : exchange)));
+
+  /**
+   * A phrase question. What the sentence says about the situation is pre-selected; if who / where / how are still
+   * mostly unknown, the situation card opens first. Then the steps run, then the reading.
+   */
+  const askMeaning = (question: string, base: Situation = situation, baseIsKnown = false, lens?: string) => {
+    const text = lens ?? question;
+    const auto = detectSituation(text);
+    const where: Situation = { ...base, ...auto };
+    const entry = findEntry(text);
+    // Skip the card only when the sentence itself says enough: a new sentence may come from someone else, somewhere
+    // else, so an earlier situation is offered pre-selected rather than assumed.
+    const stage = situationIsThin(baseIsKnown ? where : { ...EMPTY_SITUATION, ...auto }) ? 'context' : motionOff ? 'done' : 'thinking';
+    append({ kind: 'meaning', question, situation: where, auto, stage, reading: readingFor(text, where), phraseId: entry?.id, showingReply: false, softer: false });
     // A recognised phrase is kept in Moments (lookups store).
-    if (phrase) lookupsStore.set((list) => addLookup(list, { id: phrase.id, word: phrase.title, meaning: phrase.meaning }));
+    if (entry) lookupsStore.set((list) => addLookup(list, { id: entry.id, word: entry.term, meaning: entry.general }));
   };
 
-  const askCards = (question: string, options: { cardId?: string; topic?: Topic } = {}, about: Subject = subject) => {
-    const answer = askFromCards(question, about, options);
+  /** The situation card was answered (or skipped): read the phrase with it. */
+  const readWith = (id: number, next?: Situation) => {
+    if (next) setSituation(next);
+    update(id, (e) =>
+      e.kind === 'meaning'
+        ? { ...e, situation: next ?? e.situation, reading: readingFor(e.lens ?? e.question, next ?? e.situation), stage: motionOff ? 'done' : 'thinking' }
+        : e,
+    );
+  };
+
+  /** One tap: a Community question with the sentence, the situation and this reading, for a local to confirm. */
+  const sendToLocal = (exchange: MeaningExchange) => {
+    const { reading } = exchange;
+    const text = reading ? `Is this right? “${exchange.question}”` : exchange.question;
+    const detail = [
+      exchange.question,
+      situationText(exchange.situation) ? `Situation: ${situationText(exchange.situation)}` : '',
+      reading ? `IntentAI’s reading: ${reading.meaning} (${reading.confidence.level.toLowerCase()} confidence)` : 'Not in the phrase guide yet.',
+    ]
+      .filter(Boolean)
+      .join('\n');
+    const q = { ...newQuestion(text, situationText(exchange.situation), { lookupId: reading ? reading.entry.id : undefined, topic: 'other', from: 'ask' }), detail };
+    questionsStore.set((prev) => [q, ...prev]);
+    update(exchange.id, (e) => (e.kind === 'meaning' ? { ...e, questionId: q.id } : e));
+    showToast('Sent to locals. Their answer will show here.');
+  };
+
+  const askCards = (question: string, about: Subject, answer: CardAnswer, attachedCard?: string, boundCardId?: string) => {
     const asked = exchanges.flatMap((e) => (e.kind === 'card' && e.answer.kind === 'card' ? [e.answer.card.article.id] : []));
     const exclude = answer.kind === 'card' ? [answer.card.article.id, ...asked] : asked;
-    const recs = recommend(about, { opened, interests: prefs.categories, exclude });
+    const recs = attachedCard ? [] : recommend(about, { opened, interests: prefs.categories, exclude });
     const tip = answer.kind === 'card' ? tipsStore.get().find((t) => t.cardId === answer.card.article.id) : undefined;
     if (tip) tipsStore.set((prev) => prev.map((t) => (t.id === tip.id ? { ...t, cited: t.cited + 1 } : t)));
-    append({ kind: 'card', question, subjectId: about.id, answer, recs, tip });
+    setSubject(about);
+    append({ kind: 'card', question, subjectId: about.id, answer, recs, tip, attachedId: attachedCard, boundCardId });
   };
 
-  const ask = (question: string) => {
-    if (findPhrase(question)) return askPhrase(question, context);
-    const answer = askFromCards(question, subject, { topic: pickedTopic && !detectTopic(question) ? pickedTopic : undefined });
-    if (answer.kind === 'none' && MEANING.test(question)) return askPhrase(question, context);
-    askCards(question, { topic: pickedTopic && !detectTopic(question) ? pickedTopic : undefined });
+  /** A card-bound question (an example, a recommendation, a topic). */
+  const askCard = (question: string, cardId: string, about: Subject = subjectOfCard(cardId) ?? subject) =>
+    askCards(question, about, askFromCards(question, about, { cardId }), undefined, cardId);
+
+  /**
+   * Answer a question. `with` is what the + menu added: a card to answer about, a phrase to read, a question or thread
+   * to use as the situation, and `lens` (the question plus that context and a document's opening) to match against
+   * when the question alone finds nothing.
+   */
+  const ask = (question: string, withContext: { lens?: string; cardId?: string; phrase?: boolean; detail?: string } = {}) => {
+    const { lens, cardId, phrase, detail } = withContext;
+    const base: Situation = detail ? { ...situation, detail } : situation;
+    if (cardId) return askCard(question, cardId);
+    if (entryKind === 'meaning' || phrase) return askMeaning(question, base, false, lens);
+    if (attached) {
+      const about = subjectOfCard(attached.article.id) ?? subject;
+      return askCards(question, about, askFromCards(question, about, { cardId: attached.article.id, strict: true }), attached.article.id);
+    }
+    if (entryKind !== 'culture' && findEntry(question)) return askMeaning(question, base, false, lens);
+    const { subject: about, answer } = askAcross(question, subject);
+    if (answer.kind === 'card') return askCards(question, about, answer);
+    if (lens) {
+      if (entryKind !== 'culture' && findEntry(lens)) return askMeaning(question, base, false, lens);
+      const viaLens = askAcross(lens, subject);
+      if (viaLens.answer.kind === 'card') return askCards(question, viaLens.subject, viaLens.answer);
+    }
+    // A sentence the cards don't cover that asks what words mean, quotes someone, or is in Chinese is about meaning.
+    if (entryKind !== 'culture' && (MEANING.test(question) || /[“"「『].+[”"」』]/.test(question) || /\p{Script=Han}/u.test(question))) {
+      return askMeaning(question, base, false, lens);
+    }
+    askCards(question, about, answer);
   };
+
+  const canSend = draft.trim() !== '' || files.length > 0 || contextItems.length > 0;
 
   const submit = (event?: FormEvent) => {
     event?.preventDefault();
-    const question = draft.trim();
-    if (!question) {
+    const typed = draft.trim();
+    if (!canSend) {
       inputRef.current?.focus();
       return;
     }
-    ask(question);
+    const question = typed || defaultQuestion(files, contextItems);
+    const sentFiles = files;
+    const sentContext = contextItems;
     setDraft('');
+    setFiles([]);
+    setContextItems([]);
+    setFileError(undefined);
+
+    // Memory: a clear first-person fact ("I'm from Lyon") is kept, unless memory is off.
+    const fact = typed ? learnFrom(typed) : undefined;
+    if (fact) remember(fact, 'ask');
+    const kept = memoryStore.get();
+    const remembered = fact && kept.enabled && kept.items.some((m) => m.text.toLocaleLowerCase() === fact.toLocaleLowerCase()) ? fact : undefined;
+
+    const finish = (opening?: { name: string; text: string }) => {
+      const card = sentContext.find((c) => c.kind === 'card' && c.cardId);
+      const situationFrom = sentContext.find((c) => c.title);
+      const texts = [question, ...sentContext.map((c) => (c.phrase ? c.phrase : c.title ? [c.title, c.body].filter(Boolean).join('\n') : '')), opening?.text ?? ''].filter(Boolean);
+      const lens = texts.length > 1 ? texts.join('\n') : undefined;
+      let note: string | undefined;
+      if (sentFiles.length > 0) {
+        const entry = opening ? findEntry(opening.text) : undefined;
+        const place = opening && !entry ? askAcross(opening.text).answer : undefined;
+        const found = entry ? `“${entry.term}”` : place?.kind === 'card' ? `the ${place.card.article.title}` : undefined;
+        note = filesNote(sentFiles.map(metaOf), opening ? { name: opening.name, found } : undefined);
+      }
+      extras.current = { attachments: sentFiles.length ? sentFiles : undefined, context: sentContext.length ? sentContext.map(contextRef) : undefined, lens, note, remembered };
+      try {
+        ask(question, {
+          lens,
+          cardId: card?.cardId,
+          phrase: sentContext.some((c) => c.kind === 'phrase'),
+          detail: situationFrom?.title ? situationFrom.title.slice(0, 140) : undefined,
+        });
+      } finally {
+        extras.current = undefined;
+      }
+    };
+    // Only a .txt document is read (its opening); everything else answers at once.
+    if (sentFiles.some(isTextDoc)) void textOpening(sentFiles).then(finish, () => finish());
+    else finish();
   };
 
-  // Arriving with a question (Nearby → "Ask IntentAI") asks it once, then clears the router state
+  const onFiles = (kind: AskAttachmentKind) => (event: ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(event.target.files ?? []);
+    event.target.value = '';
+    if (picked.length === 0) return;
+    const { added, error } = addFiles(files, picked, kind);
+    added.forEach((f) => f.url && previews.current.push(f.url));
+    setFiles((prev) => [...prev, ...added]);
+    setFileError(error);
+    if (added.length > 0) setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const removeFile = (id: string) => {
+    const gone = files.find((f) => f.id === id);
+    releaseUrl(gone?.url);
+    setFiles((prev) => prev.filter((f) => f.id !== id));
+    setFileError(undefined);
+    inputRef.current?.focus();
+  };
+
+  const pickContext = (item: ContextItem) => {
+    setContextItems((prev) => (prev.some((c) => c.key === item.key) || prev.length >= MAX_CONTEXT ? prev : [...prev, item]));
+    setModal(null);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  // Arriving with a question (Nearby → "Ask about this phrase") asks it once, then clears the router state
   // so a reload or Back doesn't ask again.
   const location = useLocation();
   const handoff = useRef(location.state as AskHandoff | null);
@@ -177,66 +526,96 @@ export default function AskPage() {
     if (!pending?.prompt) return;
     const area = subjectById(pending.area);
     if (area) setSubject(area);
-    if (pending.context) setContext(pending.context);
-    if (findPhrase(pending.prompt) || !area) askPhrase(pending.prompt, pending.context ?? context);
-    else askCards(pending.prompt, {}, area);
+    const where = situationForLabel(pending.context);
+    setSituation(where);
+    // The place's context (from Nearby) is a known situation.
+    if (findPhrase(pending.prompt) || !area) askMeaning(pending.prompt, where, true);
+    else askCards(pending.prompt, area, askFromCards(pending.prompt, area));
     navigate(paths.ask, { replace: true, state: null });
     // Runs once on arrival.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateExchange = (id: number, change: (exchange: Exchange) => Exchange) =>
-    setExchanges((prev) => prev.map((exchange) => (exchange.id === id ? change(exchange) : exchange)));
-
-  const saveContext = (label: string, exchangeId?: number) => {
-    setContext(label);
+  const saveSituation = (next: Situation, exchangeId?: number) => {
+    setSituation(next);
     if (exchangeId !== undefined) {
-      updateExchange(exchangeId, (exchange) => {
-        if (exchange.kind !== 'phrase') return exchange;
-        const moved = { ...exchange, context: label };
-        return { ...moved, answer: phraseAnswerFor(moved), feedback: undefined };
-      });
+      update(exchangeId, (e) => (e.kind === 'meaning' ? { ...e, situation: next, reading: readingFor(e.lens ?? e.question, next) } : e));
     }
     setModal(null);
-    showToast(`Context set: ${label}`);
+    showToast(situationText(next) ? 'Context added' : 'Context cleared');
   };
 
-  const useInSentence = (exchange: PhraseExchange) => {
-    const phrase = PHRASES.find((p) => p.id === exchange.answer.phraseId);
-    if (!phrase) return;
-    append({ kind: 'phrase', context: exchange.context, mode: 'sentence', phraseId: phrase.id, answer: inSentence(phrase) });
+  const textOf = (exchange: Exchange) => {
+    if (exchange.kind === 'card') return cardAnswerText(exchange.answer, subjectById(exchange.subjectId) ?? subject);
+    return exchange.reading ? readingText(exchange.reading) : 'Not sure yet. Ask a local who knows the situation.';
   };
 
-  const textOf = (exchange: Exchange) =>
-    exchange.kind === 'phrase' ? answerText(exchange.answer) : cardAnswerText(exchange.answer, subjectById(exchange.subjectId) ?? subject);
-
-  const copy = async (exchange: Exchange) => {
+  const copyText = async (text: string, done: string) => {
     try {
-      await navigator.clipboard.writeText(textOf(exchange));
-      showToast('Answer copied');
+      await navigator.clipboard.writeText(text);
+      showToast(done);
     } catch {
-      showToast('Select the answer text to copy it.');
+      showToast('Select the text to copy it.');
     }
   };
 
-  const setFeedback = (id: number, feedback: Feedback) => {
-    updateExchange(id, (exchange) => ({ ...exchange, feedback: exchange.feedback === feedback ? undefined : feedback }));
+  const toggleHelpful = (id: number) => {
+    update(id, (e) => ({ ...e, helpful: !e.helpful }));
     showToast('Thanks for the feedback');
   };
 
-  const regenerate = (id: number) => {
-    updateExchange(id, (exchange) =>
-      exchange.kind === 'phrase' ? { ...exchange, answer: phraseAnswerFor(exchange), feedback: undefined } : exchange,
-    );
-    showToast('Answer regenerated');
+  /** Save insight: keep this answer in Moments (History keeps every chat; Moments only what you save). */
+  const toggleSaved = (exchange: Exchange) => {
+    if (isSaved(exchange)) {
+      const id = exchange.savedId!;
+      insightsStore.set((list) => list.filter((i) => i.id !== id));
+      update(exchange.id, (e) => ({ ...e, savedId: undefined }));
+      showToast('Removed from Moments');
+      return;
+    }
+    const insight: Insight =
+      exchange.kind === 'meaning'
+        ? {
+            id: makeId(),
+            question: exchange.question,
+            kind: 'phrase',
+            title: exchange.reading?.term ?? exchange.question,
+            summary: exchange.reading?.meaning ?? 'Not sure yet: ask a local.',
+            lookupId: exchange.phraseId,
+            situation: situationText(exchange.situation) || undefined,
+            savedAt: Date.now(),
+          }
+        : {
+            id: makeId(),
+            question: exchange.question,
+            kind: 'card',
+            title: exchange.answer.kind === 'card' ? exchange.answer.card.article.title : exchange.question,
+            summary: exchange.answer.kind === 'card' ? (exchange.answer.lines[0] ?? exchange.answer.numbers[0]?.caption ?? '') : 'Your cards don’t cover this yet.',
+            cardId: exchange.answer.kind === 'card' ? exchange.answer.card.article.id : undefined,
+            areaName: (subjectById(exchange.subjectId) ?? subject).short,
+            savedAt: Date.now(),
+          };
+    insightsStore.set((list) => [insight, ...list]);
+    update(exchange.id, (e) => ({ ...e, savedId: insight.id }));
+    showToast('Saved to Moments');
   };
 
+  /** New chat: the current one stays in History; Undo brings it back on screen. */
   const clearChat = () => {
     const previous = exchanges;
+    const previousThread = threadId.current;
+    threadId.current = makeId();
     setExchanges([]);
     setDraft('');
+    setEntryKind(undefined);
+    setAttachedId(undefined);
     setModal(null);
-    newChatToast.current = showToast('New chat started', { undo: () => setExchanges(previous) });
+    newChatToast.current = showToast('New chat started', {
+      undo: () => {
+        threadId.current = previousThread;
+        setExchanges(previous);
+      },
+    });
   };
 
   const voice = () => {
@@ -252,22 +631,13 @@ export default function AskPage() {
     showToast('Report saved on this device');
   };
 
-  const askLocal = (question: string, about: Subject, answer?: CardAnswer) => {
-    const card = answer?.kind === 'card' ? answer.card : undefined;
+  const askLocalAboutCards = (exchange: CardExchange) => {
+    const about = subjectById(exchange.subjectId) ?? subject;
+    const { answer } = exchange;
+    const card = answer.kind === 'card' ? answer.card : exchange.attachedId ? cardById(exchange.attachedId) : undefined;
     const handoffToCommunity: CommunityHandoff = {
-      askLocal: rewriteHere(question, about.short),
-      link: { areaId: about.id, areaName: about.short, topic: card?.topic ?? answer?.topic, cardId: card?.article.id, from: 'ask' },
-    };
-    navigate(paths.community, { state: handoffToCommunity });
-  };
-
-  const askLocalAboutPhrase = (exchange: PhraseExchange) => {
-    const phrase = PHRASES.find((p) => p.id === exchange.answer.phraseId);
-    const saved = phrase && lookupsStore.get().find((l) => l.word.toLowerCase() === phrase.title.toLowerCase());
-    const handoffToCommunity: CommunityHandoff = {
-      askLocal: exchange.question ?? (phrase ? `What does “${phrase.title}” mean here?` : ''),
-      context: exchange.context,
-      link: { lookupId: saved?.id, from: 'ask' },
+      askLocal: rewriteHere(exchange.question, about.short),
+      link: { areaId: about.id, areaName: about.short, topic: card?.topic ?? answer.topic, cardId: card?.article.id, from: 'ask' },
     };
     navigate(paths.community, { state: handoffToCommunity });
   };
@@ -277,28 +647,43 @@ export default function AskPage() {
     setModal({ type: 'card', cardId });
   };
 
-  const pickTopic = (topic: Topic) => {
-    setPickedTopic((current) => (current === topic && !draft.trim() ? undefined : topic));
-    inputRef.current?.focus();
-  };
-
-  /** A topic picked on an off-topic answer: answer from that topic's first card. */
+  /** A topic picked under an answer: answer from that topic's first card in the area. */
   const answerTopic = (topic: Topic, about: Subject) => {
     const card = about.cards.find((c) => c.topic === topic);
-    if (!card) return;
-    setPickedTopic(topic);
-    askCards(suggestionFor(card, about).question, { cardId: card.article.id }, about);
+    if (card) askCard(suggestionFor(card, about).question, card.article.id, about);
   };
 
-  const changeSubject = (id: string) => {
-    const next = subjectById(id);
-    if (!next) return;
-    setSubject(next);
-    if (pickedTopic && !topicsIn(next).includes(pickedTopic)) setPickedTopic(undefined);
-  };
+  /** Cards to attach: the ones you opened first, then every card that belongs to a place. */
+  const attachable = (() => {
+    const seen = new Set<string>();
+    const list: { card: Card; area: string }[] = [];
+    const add = (id: string) => {
+      const card = cardById(id);
+      const area = subjectOfCard(id);
+      if (card && area && !seen.has(id)) {
+        seen.add(id);
+        list.push({ card, area: area.short });
+      }
+    };
+    [...opened].reverse().forEach(add);
+    SUBJECTS.forEach((s) => s.cards.forEach((c) => add(c.article.id)));
+    return list.slice(0, 4);
+  })();
+
+  /** Saved in Moments (and not removed there since). */
+  const isSaved = (exchange: Exchange) => Boolean(exchange.savedId && insights.some((i) => i.id === exchange.savedId));
 
   const modalCard = modal?.type === 'card' ? cardById(modal.cardId) : undefined;
-  const placeholder = activeTopic ? `Ask about ${topicInfo(activeTopic).article}` : 'Ask about a food, monument, festival or phrase';
+  const placeholder =
+    entryKind === 'meaning'
+      ? 'Paste a phrase…'
+      : entryKind === 'culture'
+        ? 'Ask about culture…'
+        : attached
+          ? 'Ask anything about this…'
+          : exchanges.length > 0
+            ? 'Ask a follow-up…'
+            : 'Ask anything…';
 
   return (
     <AppShell background="var(--bg-screen-b)" tabBarNodeId="2:545">
@@ -306,89 +691,66 @@ export default function AskPage() {
         <header className={styles.header}>
           {/* Figma 71:8: the 58px mascot sits at x=9, in the gutter, like Home's header. */}
           <HomeLink className={styles.logo} nodeId="71:8" />
-          <h1 className={styles.title}>Ask</h1>
-          <button type="button" className={styles.iconButton} onClick={clearChat} aria-label="New chat" data-node-id="2:722">
-            <img src={editIcon} alt="" width={18} height={18} />
+          <h1 className={styles.srTitle}>Ask</h1>
+          <button
+            type="button"
+            className={styles.iconButton}
+            onClick={() => setModal({ type: 'history' })}
+            aria-label="Chat history"
+            data-node-id="2:722"
+          >
+            <img src={historyIcon} alt="" width={18} height={18} />
           </button>
           <button
             type="button"
             className={styles.iconButton}
-            onClick={() => setModal({ type: 'options' })}
-            aria-label="Chat options"
+            onClick={() => setModal({ type: 'settings' })}
+            aria-label="Ask settings"
             data-node-id="2:716"
           >
-            <img src={dotsIcon} alt="" width={18} height={18} />
+            <img src={moreIcon} alt="" width={18} height={18} />
           </button>
         </header>
 
-        <div className={styles.subjectBar}>
-          <label className={styles.subjectLabel} htmlFor="ask-subject">
-            Asking about
-          </label>
-          <select id="ask-subject" className={styles.subjectSelect} value={subject.id} onChange={(event) => changeSubject(event.target.value)}>
-            {SUBJECTS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.short}
-              </option>
-            ))}
-          </select>
-          <span className={styles.cardCount}>
-            {subject.cards.length} {subject.cards.length === 1 ? 'card' : 'cards'}
-          </span>
-        </div>
-
-        <div className={styles.chat} ref={chatRef} role="log" aria-label="Conversation" aria-live="polite">
-          <div className={styles.aiRow}>
-            <AiAvatar />
-            <div className={styles.aiMessage}>
-              <div className={styles.aiBubble}>
-                <p>
-                  Hi {USER_INITIAL}. What would you like to know about the food, monuments or festivals of {subject.short}?
-                </p>
-                <p className={styles.aside}>Heard a Singlish phrase? Ask me what it means, too.</p>
-              </div>
-            </div>
-          </div>
-
-          {exchanges.length === 0 && (
-            <StartPanel subject={subject} topic={pickedTopic} onTopic={pickTopic} onAsk={(q, cardId) => askCards(q, { cardId })} />
-          )}
+        <div className={styles.chat} role="log" aria-label="Conversation" aria-live="polite">
+          {exchanges.length === 0 ? <AskHome onOpen={(kind) => setModal({ type: 'entry', kind })} /> : <ThreadDate />}
 
           {exchanges.map((exchange, index) => (
             <div key={exchange.id} ref={index === exchanges.length - 1 ? latestRef : undefined} className={styles.exchange}>
-              {exchange.kind === 'phrase' ? (
-                <PhraseExchangeView
+              {exchange.kind === 'meaning' ? (
+                <MeaningView
                   exchange={exchange}
-                  onContext={() => setModal({ type: 'context', exchangeId: exchange.id })}
-                  onSentence={() => useInSentence(exchange)}
-                  onAskLocal={() => askLocalAboutPhrase(exchange)}
-                  actions={
-                    <Actions
-                      exchange={exchange}
-                      onCopy={() => copy(exchange)}
-                      onFeedback={(f) => setFeedback(exchange.id, f)}
-                      onRegenerate={() => regenerate(exchange.id)}
-                      onReport={() => setModal({ type: 'report', exchangeId: exchange.id })}
-                    />
-                  }
+                  fresh={index === exchanges.length - 1}
+                  localQuestion={exchange.questionId ? questions.find((q) => q.id === exchange.questionId) : undefined}
+                  onRead={(next) => readWith(exchange.id, next)}
+                  onSkip={() => readWith(exchange.id)}
+                  onThought={() => update(exchange.id, (e) => (e.kind === 'meaning' ? { ...e, stage: 'done' } : e))}
+                  onSend={() => sendToLocal(exchange)}
+                  saved={isSaved(exchange)}
+                  onCopy={() => copyText(textOf(exchange), 'Answer copied')}
+                  onHelpful={() => toggleHelpful(exchange.id)}
+                  onReport={() => setModal({ type: 'report', exchangeId: exchange.id })}
+                  onSave={() => toggleSaved(exchange)}
+                  onContext={() => update(exchange.id, (e) => (e.kind === 'meaning' ? { ...e, stage: 'context' } : e))}
+                  onReply={() => update(exchange.id, (e) => (e.kind === 'meaning' ? { ...e, showingReply: !e.showingReply } : e))}
+                  onSofter={() => update(exchange.id, (e) => (e.kind === 'meaning' ? { ...e, softer: !e.softer } : e))}
+                  onCopyReply={(text) => copyText(text, 'Reply copied')}
                 />
               ) : (
-                <CardExchangeView
+                <CardView
                   exchange={exchange}
-                  fallback={subject}
+                  saved={isSaved(exchange)}
+                  about={subjectById(exchange.subjectId) ?? subject}
                   opened={opened}
+                  onCopy={() => copyText(textOf(exchange), 'Answer copied')}
+                  onHelpful={() => toggleHelpful(exchange.id)}
+                  onReport={() => setModal({ type: 'report', exchangeId: exchange.id })}
+                  onSave={() => toggleSaved(exchange)}
                   onOpen={(card) => openCard(card.article.id)}
-                  onAsk={(q, cardId) => askCards(q, { cardId }, subjectById(exchange.subjectId) ?? subject)}
+                  onAsk={(q, cardId) => askCard(q, cardId, subjectById(exchange.subjectId) ?? subject)}
                   onTopic={(t) => answerTopic(t, subjectById(exchange.subjectId) ?? subject)}
-                  onAskLocal={() => askLocal(exchange.question, subjectById(exchange.subjectId) ?? subject, exchange.answer)}
-                  actions={
-                    <Actions
-                      exchange={exchange}
-                      onCopy={() => copy(exchange)}
-                      onFeedback={(f) => setFeedback(exchange.id, f)}
-                      onReport={() => setModal({ type: 'report', exchangeId: exchange.id })}
-                    />
-                  }
+                  onAskLocal={() => askLocalAboutCards(exchange)}
+                  onRemoveCard={() => setAttachedId(undefined)}
                 />
               )}
             </div>
@@ -396,11 +758,46 @@ export default function AskPage() {
         </div>
 
         <div className={styles.composer} data-node-id="2:339" data-allow-bleed>
-          <TopicSwitch subject={subject} active={activeTopic} onPick={pickTopic} />
+          {entryKind && (
+            <div className={homeStyles.entryChip}>
+              <span>{entryKind === 'meaning' ? 'Understanding the meaning' : 'Learning culture'}</span>
+              <button type="button" onClick={() => setEntryKind(undefined)} aria-label="Return to asking anything">
+                Clear
+              </button>
+            </div>
+          )}
+          {attached && <AttachedChip card={attached} onRemove={() => setAttachedId(undefined)} />}
+          <ComposerTray
+            files={files}
+            context={contextItems}
+            error={fileError}
+            onRemoveFile={removeFile}
+            onRemoveContext={(key) => {
+              setContextItems((prev) => prev.filter((c) => c.key !== key));
+              inputRef.current?.focus();
+            }}
+          />
+          {memory.enabled && <MemoryPill items={memories} />}
         </div>
 
+        {/* One hidden picker per kind; the + sheet opens them. */}
+        {(['photo', 'audio', 'document'] as const).map((kind) => (
+          <input
+            key={kind}
+            ref={(el) => {
+              fileInputs.current[kind] = el;
+            }}
+            type="file"
+            hidden
+            multiple
+            accept={ACCEPT[kind]}
+            aria-label={kind === 'photo' ? 'Attach a photo' : kind === 'audio' ? 'Attach an audio recording' : 'Attach a document'}
+            onChange={onFiles(kind)}
+          />
+        ))}
+
         <form className={styles.inputBar} onSubmit={submit} data-node-id="2:347" data-allow-bleed>
-          <button type="button" className={styles.addButton} onClick={() => setModal({ type: 'context' })} aria-label="Choose context">
+          <button type="button" className={styles.addButton} onClick={() => setModal({ type: 'attach' })} aria-label="Add files or context">
             <img src={plusIcon} alt="" width={18} height={18} />
           </button>
           <input
@@ -415,37 +812,131 @@ export default function AskPage() {
           <button type="button" className={styles.micButton} onClick={voice} aria-label="Voice input">
             <img src={micIcon} alt="" width={20} height={20} />
           </button>
-          <button type="submit" className={styles.sendButton} aria-label="Send">
-            <img src={sendIcon} alt="" width={18} height={18} />
-          </button>
+          {/* The send button leans toward the pointer once there is something to send (React Bits Magnet). */}
+          <Magnet padding={36} magnetStrength={4} maxOffset={6} disabled={!canSend}>
+            <button type="submit" className={styles.sendButton} aria-label="Send" disabled={!canSend}>
+              <img src={sendIcon} alt="" width={18} height={18} />
+            </button>
+          </Magnet>
         </form>
         <p className={styles.disclaimer}>
           <img src={infoIcon} alt="" width={12} height={12} />
-          Answers come from your cards and can still be wrong.
+          Answers come from your cards. They can still be wrong.
         </p>
       </div>
 
-      {modal?.type === 'context' && (
-        <ContextDialog
+      {modal?.type === 'entry' && (
+        <EntrySheet
+          kind={modal.kind}
+          onClose={() => setModal(null)}
+          onCulture={(example) => {
+            setModal(null);
+            askCard(example.question, example.cardId, example.subject);
+          }}
+          onMeaning={(example) => {
+            setModal(null);
+            askMeaning(example.question);
+          }}
+          onOwn={() => {
+            setEntryKind(modal.kind);
+            setModal(null);
+            // The closing dialog hands focus back to the card that opened it; move it to the input after that.
+            setTimeout(() => inputRef.current?.focus(), 0);
+          }}
+        />
+      )}
+      {modal?.type === 'situation' && (
+        <SituationSheet
           initial={(() => {
             const e = modal.exchangeId === undefined ? undefined : exchanges.find((x) => x.id === modal.exchangeId);
-            return e?.kind === 'phrase' ? e.context : context;
+            return e?.kind === 'meaning' ? e.situation : situation;
           })()}
-          onSave={(label) => saveContext(label, modal.exchangeId)}
+          onSave={(next) => saveSituation(next, modal.exchangeId)}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.type === 'attach' && (
+        <AddSheet
+          onFile={(kind) => {
+            // Open the system picker inside the tap, then close the sheet.
+            fileInputs.current[kind]?.click();
+            setModal(null);
+          }}
+          onContext={() => setModal({ type: 'context' })}
+          onClose={() => setModal(null)}
+        >
+          <AttachCardOptions
+            cards={attachable}
+            onAttach={(cardId) => {
+              setAttachedId(cardId);
+              setEntryKind(undefined);
+              setModal(null);
+              setTimeout(() => inputRef.current?.focus(), 0);
+            }}
+            onDescribe={() => setModal({ type: 'situation' })}
+          />
+        </AddSheet>
+      )}
+      {modal?.type === 'context' && (
+        <ContextPicker
+          lists={contextLists({ opened, tips, insights, lookups, questions, social })}
+          chosen={contextItems.map((c) => c.key)}
+          onPick={pickContext}
           onClose={() => setModal(null)}
         />
       )}
       {modal?.type === 'report' && <ReportDialog onSave={(reason) => report(modal.exchangeId, reason)} onClose={() => setModal(null)} />}
       {modalCard && <SourceCardDialog card={modalCard} onClose={() => setModal(null)} />}
-      {modal?.type === 'options' && (
-        <Dialog title="Chat options" onClose={() => setModal(null)}>
-          <div className="dialog-row">
-            <button type="button" className="dialog-secondary" onClick={clearChat}>
-              Clear chat
+      {modal?.type === 'history' && (
+        <HistorySheet
+          threads={threads}
+          currentId={exchanges.length > 0 ? threadId.current : undefined}
+          onOpen={openThread}
+          onNew={clearChat}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.type === 'settings' && (
+        <Dialog title="Ask settings" onClose={() => setModal(null)}>
+          <div className={styles.settings}>
+            <div className={styles.settingsRow}>
+              <span>
+                <strong>Reduce motion</strong>
+                <small>Keep images and cards still, here and across the app.</small>
+              </span>
+              <Toggle label="Reduce motion" checked={reduceMotion} onChange={setReduceMotion} />
+            </div>
+            <button
+              type="button"
+              className={styles.settingsLink}
+              disabled={threads.length === 0}
+              onClick={() => {
+                const previous = threads;
+                askThreadsStore.set([]);
+                setModal(null);
+                showToast('History cleared', { undo: () => askThreadsStore.set(previous) });
+              }}
+            >
+              Clear chat history
             </button>
-            <button type="button" className="dialog-secondary" onClick={() => navigate(paths.welcome)}>
-              Personalise setup
-            </button>
+            <section className={styles.about} aria-label="About these answers">
+              <h3>About these answers</h3>
+              <p>
+                Ask answers from your culture cards and a phrase guide written by the team. It doesn’t use an AI model, so it can
+                only answer what the cards and the guide cover; for anything else, ask a local in Community. Chats stay on this
+                device, in History. Answers you save go to Moments.
+              </p>
+            </section>
+            <section className={styles.about} aria-label="Photo credits">
+              <h3>Photo credits</h3>
+              <ul className={styles.credits}>
+                {V3_PHOTO_CREDITS.map((c) => (
+                  <li key={c.file}>
+                    {c.subject}: {c.credit}
+                  </li>
+                ))}
+              </ul>
+            </section>
           </div>
         </Dialog>
       )}
@@ -453,215 +944,128 @@ export default function AskPage() {
   );
 }
 
-/** The demo user's initial, shared by the greeting and the user's avatar. */
-const USER_INITIAL = 'W';
-
-function AiAvatar() {
-  return (
-    <span className={styles.aiAvatar} aria-hidden="true">
-      <img src={sparkleIcon} alt="" width={16.24} height={16.24} />
-    </span>
-  );
-}
-
-function Actions({
-  exchange,
-  onCopy,
-  onFeedback,
-  onRegenerate,
-  onReport,
-}: {
-  exchange: Exchange;
+interface ActionsProps {
+  saved: boolean;
   onCopy: () => void;
-  onFeedback: (feedback: Feedback) => void;
-  onRegenerate?: () => void;
+  onHelpful: () => void;
   onReport: () => void;
-}) {
-  return (
-    <div className={styles.actions}>
-      <button type="button" className={styles.action} onClick={onCopy} aria-label="Copy answer">
-        <img src={copyIcon} alt="" width={16} height={16} />
-      </button>
-      <button type="button" className={styles.action} onClick={() => onFeedback('up')} aria-label="Helpful" aria-pressed={exchange.feedback === 'up'}>
-        <img src={thumbsUpIcon} alt="" width={16} height={16} />
-      </button>
-      <button
-        type="button"
-        className={styles.action}
-        onClick={() => onFeedback('down')}
-        aria-label="Not helpful"
-        aria-pressed={exchange.feedback === 'down'}
-      >
-        <img src={thumbsDownIcon} alt="" width={16} height={16} />
-      </button>
-      {onRegenerate && (
-        <button type="button" className={styles.action} onClick={onRegenerate} aria-label="Regenerate">
-          <img src={regenerateIcon} alt="" width={16} height={16} />
-        </button>
-      )}
-      <button type="button" className={styles.action} onClick={onReport} aria-label="Report this answer">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
-        </svg>
-      </button>
-    </div>
-  );
+  onSave: () => void;
 }
 
-function UserQuestion({ text, children }: { text: string; children?: ReactNode }) {
-  return (
-    <div className={styles.userRow}>
-      <div className={styles.userMessage}>
-        <p className={styles.userBubble}>{text}</p>
-        {children}
-      </div>
-      <span className={styles.userAvatar} aria-hidden="true">
-        {USER_INITIAL}
-      </span>
-    </div>
-  );
-}
-
-function PhraseExchangeView({
+function MeaningView({
   exchange,
+  fresh,
+  localQuestion,
+  onRead,
+  onSkip,
+  onThought,
+  onSend,
   onContext,
-  onSentence,
-  onAskLocal,
-  actions,
-}: {
-  exchange: PhraseExchange;
+  onReply,
+  onSofter,
+  onCopyReply,
+  ...actions
+}: ActionsProps & {
+  exchange: MeaningExchange;
+  fresh: boolean;
+  localQuestion?: Question;
+  onRead: (s: Situation) => void;
+  onSkip: () => void;
+  onThought: () => void;
+  onSend: () => void;
   onContext: () => void;
-  onSentence: () => void;
-  onAskLocal: () => void;
-  actions: ReactNode;
+  onReply: () => void;
+  onSofter: () => void;
+  onCopyReply: (text: string) => void;
 }) {
-  const { answer } = exchange;
-  const context = contextFor(exchange.context);
+  const { reading, stage } = exchange;
+  const replyText = reading ? (exchange.softer ? reading.softer : reading.reply) : '';
+  const steps = stepsFor(exchange.question, reading, exchange.situation);
   return (
     <>
-      {exchange.question !== undefined && (
-        <UserQuestion text={exchange.question}>
-          <button type="button" className={styles.contextCard} onClick={onContext}>
-            <span className={styles.contextBadge} aria-hidden="true">
-              {context.icon}
-            </span>
-            <span className={styles.contextLabel}>context: {exchange.context}</span>
-            <img className={styles.contextCheck} src={checkIcon} alt="" width={16} height={16} />
-          </button>
-        </UserQuestion>
-      )}
-      <article className={styles.aiRow} aria-label={exchange.question ? `IntentAI answer: ${exchange.question}` : 'IntentAI answer'}>
-        <AiAvatar />
-        <div className={styles.aiMessage}>
-          <div className={styles.aiBubble}>
-            <p>
-              {answer.term ? (
-                <>
-                  “<strong>{answer.term}</strong>”{answer.lead}
-                </>
-              ) : (
-                answer.lead
+      <UserMessage
+        text={exchange.question}
+        under={stage === 'done' ? situationText(exchange.situation) || undefined : undefined}
+        extras={<SentExtras files={exchange.attachments} context={exchange.context} />}
+        after={exchange.remembered && <RememberedNote text={exchange.remembered} />}
+      />
+      <Reveal>
+        <article aria-label={`IntentAI answer: ${exchange.question}`}>
+          <AssistantLabel tag="Phrase guide" />
+          {exchange.note && <FilesNote text={exchange.note} />}
+          {stage === 'context' && <SituationCard initial={exchange.situation} auto={exchange.auto} onRead={onRead} onSkip={onSkip} />}
+          {stage === 'thinking' && <Thinking steps={steps} onDone={onThought} />}
+          {stage === 'done' && (
+            <>
+              <HowIRead steps={steps} />
+              <ReadingCard reading={reading} situation={exchange.situation} fresh={fresh} />
+              <AnswerActions helpful={Boolean(exchange.helpful)} {...actions} />
+              <Chips>
+                {reading && <Chip onClick={onReply}>{exchange.showingReply ? 'Hide reply' : 'Help me reply'}</Chip>}
+                <Chip onClick={onContext}>{situationText(exchange.situation) ? 'Edit situation' : '+ Add situation'}</Chip>
+              </Chips>
+              {reading && exchange.showingReply && (
+                <ReplyCard text={replyText} softer={exchange.softer} onCopy={() => onCopyReply(replyText)} onSofter={onSofter} />
               )}
-            </p>
-            {answer.detail && <p>{answer.detail}</p>}
-          </div>
-          {actions}
-          {exchange.mode === 'explain' && answer.phraseId && (
-            <div className={styles.phraseChips}>
-              <button type="button" className={styles.chip} onClick={onSentence}>
-                Use it in a sentence
-              </button>
-              <button type="button" className={styles.chip} onClick={onAskLocal}>
-                Ask a local
-              </button>
-            </div>
+              <ConfirmPanel question={localQuestion} onSend={onSend} />
+            </>
           )}
-        </div>
-      </article>
+        </article>
+      </Reveal>
     </>
   );
 }
 
-function CardExchangeView({
+function CardView({
   exchange,
-  fallback,
+  about,
   opened,
   onOpen,
   onAsk,
   onTopic,
   onAskLocal,
-  actions,
-}: {
-  exchange: Extract<Exchange, { kind: 'card' }>;
-  fallback: Subject;
+  onRemoveCard,
+  ...actions
+}: ActionsProps & {
+  exchange: CardExchange;
+  about: Subject;
   opened: readonly string[];
   onOpen: (card: Card) => void;
   onAsk: (question: string, cardId: string) => void;
   onTopic: (topic: Topic) => void;
   onAskLocal: () => void;
-  actions: ReactNode;
+  onRemoveCard: () => void;
 }) {
-  const about = subjectById(exchange.subjectId) ?? fallback;
   const { answer } = exchange;
-  const topic = answer.kind === 'card' ? answer.topic : undefined;
+  const attachedCard = exchange.attachedId ? cardById(exchange.attachedId) : undefined;
   return (
     <>
-      <UserQuestion text={exchange.question}>
-        <span className={styles.questionTag}>
-          {about.short} · {topic ? topicInfo(topic).label : 'No topic'}
-        </span>
-      </UserQuestion>
-      <article className={styles.aiRow} aria-label={`IntentAI answer: ${exchange.question}`}>
-        <AiAvatar />
-        <div className={styles.aiMessageWide}>
-          {answer.kind === 'card' ? (
-            <>
-              <CardAnswerBody answer={answer} subject={about} tip={exchange.tip} onOpen={onOpen} />
-              {actions}
-              <AskLocalRow onAskLocal={onAskLocal} />
-              <Recommendations items={exchange.recs} basedOnOpened={opened.length > 0} onAsk={onAsk} />
-            </>
-          ) : (
-            <>
-              <NoCardBody subject={about} topic={answer.topic} onTopic={onTopic} onAskLocal={onAskLocal} />
-              {actions}
-            </>
-          )}
-        </div>
+      <UserMessage
+        text={exchange.question}
+        extras={<SentExtras files={exchange.attachments} context={exchange.context} />}
+        after={exchange.remembered && <RememberedNote text={exchange.remembered} />}
+      />
+      <Reveal>
+      <article aria-label={`IntentAI answer: ${exchange.question}`}>
+        <AssistantLabel tag={attachedCard ? 'From your attached card' : 'From your cards'} />
+        {exchange.note && <FilesNote text={exchange.note} />}
+        {answer.kind === 'card' ? (
+          <CardPaper answer={answer} subject={about} attached={Boolean(attachedCard)} tip={exchange.tip} onOpen={onOpen} />
+        ) : (
+          <NoCardPaper subject={about} topic={answer.topic} attached={attachedCard} />
+        )}
+        <AnswerActions helpful={Boolean(exchange.helpful)} {...actions} />
+        <Chips>
+          {answer.kind === 'none' && !attachedCard && <TopicChips subject={about} onTopic={onTopic} />}
+          {answer.kind === 'none' && attachedCard && <Chip onClick={onRemoveCard}>Remove card</Chip>}
+          <Chip accent onClick={onAskLocal}>
+            {answer.kind === 'card' ? 'Need a first-hand tip? Ask a local' : 'Ask a local'}
+          </Chip>
+        </Chips>
+        <Recommendations items={exchange.recs} basedOnOpened={opened.length > 0} onAsk={onAsk} />
       </article>
+      </Reveal>
     </>
-  );
-}
-
-function ContextDialog({ initial, onSave, onClose }: { initial: string; onSave: (label: string) => void; onClose: () => void }) {
-  const [value, setValue] = useState(initial);
-  return (
-    <Dialog title="Choose context" onClose={onClose}>
-      <form
-        className={styles.dialogForm}
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSave(value);
-        }}
-      >
-        <label>
-          Where did you hear it?
-          <select value={value} onChange={(event) => setValue(event.target.value)}>
-            {ASK_CONTEXTS.map((option) => (
-              <option key={option.label}>{option.label}</option>
-            ))}
-          </select>
-        </label>
-        <div className="dialog-row">
-          <button type="button" className="dialog-secondary" onClick={onClose}>
-            Cancel
-          </button>
-          <button type="submit" className="dialog-primary">
-            Save
-          </button>
-        </div>
-      </form>
-    </Dialog>
   );
 }
 

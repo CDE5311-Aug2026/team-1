@@ -48,5 +48,5 @@ test('static copy matches the Figma content verbatim', () => {
   expect(staticCopy.progressLabel(3)).toBe('3 of 3 learned today');
   expect(staticCopy.nearYou.place).toBe('Old Airport Rd Food Centre');
   expect(staticCopy.nearYou.subtitle).toBe('3 phrases you might hear here');
-  expect(staticCopy.tabs.map((t) => t.label)).toEqual(['Today', 'Ask', 'Community', 'Moments', 'My Space']);
+  expect(staticCopy.tabs.map((t) => t.label)).toEqual(['Home', 'Ask', 'Community', 'Moments', 'My Space']);
 });

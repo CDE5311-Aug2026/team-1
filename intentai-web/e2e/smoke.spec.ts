@@ -61,12 +61,13 @@ test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
   }
 });
 
-test('Learn more opens the holiday detail, and the back link returns to Today', async ({ page }) => {
+test('Learn more opens the holiday detail, and the back link returns to Home', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Learn more', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Deepavali' })).toBeVisible();
-  await page.getByRole('button', { name: 'Back to Today', exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeVisible();
+  await page.getByRole('button', { name: 'Back to Home', exact: true }).click();
+  // v3 Home: the greeting is the page title; the holiday is a banner (h2).
+  await expect(page.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeVisible();
 });
 
 test.describe('first visit', () => {
@@ -91,7 +92,7 @@ test('only the active tab icon is orange', async ({ page }) => {
       .first()
       .evaluate((el) => getComputedStyle(el).backgroundColor);
   expect(await iconColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await iconColour('Today')).toBe('rgb(43, 41, 36)');
+  expect(await iconColour('Home')).toBe('rgb(95, 91, 84)');
   // The glyph comes from a CSS mask; an invalid url() silently drops it and shows a solid square.
   const masks = await page
     .getByRole('navigation', { name: 'Primary' })
@@ -104,8 +105,9 @@ test('only the active tab icon is orange', async ({ page }) => {
       .getByRole('navigation', { name: 'Primary' })
       .getByText(name, { exact: true })
       .evaluate((el) => getComputedStyle(el).color);
-  expect(await labelColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await labelColour('Today')).toBe('rgb(43, 41, 36)');
+  // v3: the active label is the darker accent (#a3400a), which passes contrast on the soft orange.
+  expect(await labelColour('Moments')).toBe('rgb(163, 64, 10)');
+  expect(await labelColour('Home')).toBe('rgb(95, 91, 84)');
 });
 
 // v2: on a laptop every page uses Today's content column. Any wide block near the top of <main>

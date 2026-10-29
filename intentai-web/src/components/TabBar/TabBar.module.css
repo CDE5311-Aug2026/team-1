@@ -1,37 +1,54 @@
+/* Bottom navigation, Intent v3 / ZIP prototype (app.css .bottom-nav, shape-system.css): a white bar with 24px corners,
+   items 17px (24 - 7 inset), outline icons, the active tab on a soft orange. */
 .bar {
   display: flex;
-  gap: 0.25rem;
-  border-radius: var(--radius-tabbar);
-  background: var(--surface-muted);
+  align-items: stretch;
+  gap: 2px;
+  height: 64px;
+  padding: 6px;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-tabbar);
-  padding: 0.25rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 30px rgba(36, 33, 28, 0.18);
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .bar,
+  .tab {
+    corner-shape: superellipse(1.5);
+  }
 }
 
 .tab {
+  position: relative;
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  height: 3rem;
+  gap: 5px;
+  padding: 0;
   border: none;
-  border-radius: var(--radius-tab-active);
+  border-radius: 17px;
   background: transparent;
   cursor: pointer;
-  padding: 0.375rem 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.tab:active {
+  transform: scale(0.97);
 }
 
 .active {
-  background: var(--surface-tab-active);
+  background: #fff2eb;
 }
 
 .icon {
-  width: 1.375rem;
-  height: 1.375rem;
+  width: 22px;
+  height: 22px;
   flex: none;
-  background-color: var(--text-tab);
+  background-color: #5f5b54;
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: center;
@@ -45,13 +62,22 @@
 }
 
 .label {
-  font-size: var(--fs-tab);
-  color: var(--text-tab);
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5f5b54;
   white-space: nowrap;
 }
 
 .active .label {
-  color: var(--accent);
-  font-weight: 600;
+  color: #a3400a;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+  .tab:active {
+    transform: none;
+  }
 }

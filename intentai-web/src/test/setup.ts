@@ -14,6 +14,23 @@ if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.sho
   };
 }
 
+// jsdom has no IntersectionObserver (motion's useInView, React Bits CountUp / BlurText). Report everything as in view,
+// so animations finish and their final text is what the tests read.
+if (typeof window !== 'undefined' && typeof window.IntersectionObserver === 'undefined') {
+  class IntersectionObserverShim {
+    constructor(private callback: IntersectionObserverCallback) {}
+    observe(target: Element) {
+      this.callback([{ isIntersecting: true, target, intersectionRatio: 1 } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+    }
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+  (window as unknown as { IntersectionObserver: typeof IntersectionObserverShim }).IntersectionObserver = IntersectionObserverShim;
+}
+
 // jsdom has no PointerEvent; without it fireEvent.pointer* drops clientX / clientY (drag tests need them).
 if (typeof window !== 'undefined' && typeof window.PointerEvent === 'undefined') {
   class PointerEventShim extends MouseEvent {

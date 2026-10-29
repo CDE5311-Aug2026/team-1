@@ -437,8 +437,16 @@
 }
 
 .addButton {
+  position: relative;
   border: 1px solid var(--ask-line);
   background: var(--surface);
+}
+
+/* 44px touch target around the 34px button. */
+.addButton::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
 }
 
 .sendButton {
@@ -522,4 +530,95 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+/* The page title is for screen readers; the ZIP header shows only the logo and two buttons. */
+.srTitle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.header .iconButton:first-of-type {
+  margin-left: auto;
+}
+
+/* ---------- Ask settings sheet ---------- */
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settingsRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e4dfd5;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.settingsRow span {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.settingsRow strong {
+  font-size: 14px;
+  color: #24211c;
+}
+
+.settingsRow small {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5e5c54;
+}
+
+.settingsLink {
+  min-height: 44px;
+  border: 1px solid #d7cdbf;
+  border-radius: 16px;
+  background: #f9f6f0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #a3400a;
+  cursor: pointer;
+}
+
+.settingsLink:disabled {
+  color: #8c857b;
+  cursor: not-allowed;
+}
+
+.about h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #5e5c54;
+}
+
+.about p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #423c32;
+}
+
+.credits {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #423c32;
 }

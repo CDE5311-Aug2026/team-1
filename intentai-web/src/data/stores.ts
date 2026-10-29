@@ -17,6 +17,8 @@ import {
   isSavedIds,
   isSettings,
   isTipList,
+  isInsightList,
+  isAskThreadList,
   makeId,
   type Lookup,
   type Notices,
@@ -27,12 +29,16 @@ import {
   type Report,
   type Settings,
   type Tip,
+  type Insight,
+  type AskThread,
 } from './domain';
 import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
 import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
 import { stopLocation } from '../features/nearby/location';
 import { createPersistentStore } from './persistentStore';
+import { EMPTY_SOCIAL, communitySocialStore } from './community/social';
+import { EMPTY_RECAP, recapStore } from './moments/recapStore';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -127,6 +133,27 @@ export const collectedStore = createPersistentStore<string[]>({
   isValid: isSavedIds,
 });
 
+/** "Reduce motion" (Ask ⋯ settings, My Space settings): stops the app's animations even when the system allows them. */
+export const reduceMotionStore = createPersistentStore<boolean>({
+  key: 'reduce-motion',
+  fallback: false,
+  isValid: (value): value is boolean => typeof value === 'boolean',
+});
+
+/** Ask chat history (ZIP prototype History). Each record keeps what is needed to rebuild the answers. */
+export const askThreadsStore = createPersistentStore<AskThread[]>({
+  key: 'ask-threads',
+  fallback: [],
+  isValid: isAskThreadList,
+});
+
+/** Ask answers saved with "Save insight" (shown in Moments). */
+export const insightsStore = createPersistentStore<Insight[]>({
+  key: 'insights',
+  fallback: [],
+  isValid: isInsightList,
+});
+
 /** Local answers added to culture cards (Community → card → Ask). */
 export const tipsStore = createPersistentStore<Tip[]>({
   key: 'tips',
@@ -215,6 +242,12 @@ export function deleteAllData() {
   collectedStore.set([]);
   openedCardsStore.set([]);
   tipsStore.set([]);
+  insightsStore.set([]);
+  askThreadsStore.set([]);
+  reduceMotionStore.set(false);
+  // v3 page stores (their own files; Profile / My Space resets itself through onDataDeleted below).
+  communitySocialStore.set(EMPTY_SOCIAL);
+  recapStore.set(EMPTY_RECAP);
   usageIdStore.set('');
   // The user test goes on (the test name is not personal data); its records on this device are deleted.
   clearLocalUsage();

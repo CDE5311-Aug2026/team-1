@@ -20,6 +20,7 @@
     "@fontsource/ibm-plex-mono": "5.2.7",
     "@fontsource/inter": "^5.1.0",
     "@upstash/redis": "1.39.0",
+    "motion": "^12.43.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.18.4",

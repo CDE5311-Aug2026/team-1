@@ -4,13 +4,13 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, test } from 'vitest';
 import App from './App';
 
-test('default route shows Today with the greeting title', () => {
+test('default route shows Home with the greeting title', () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
       <App />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening), W$/ })).toBeInTheDocument();
 });
 
 test('clicking the Ask tab navigates to the Ask page', async () => {
@@ -23,11 +23,11 @@ test('clicking the Ask tab navigates to the Ask page', async () => {
   expect(screen.getByRole('heading', { level: 1, name: 'Ask' })).toBeInTheDocument();
 });
 
-test('an unknown route redirects to Today instead of rendering blank', () => {
+test('an unknown route redirects to Home instead of rendering blank', () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/this-path-does-not-exist']}>
       <App />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening), W$/ })).toBeInTheDocument();
 });

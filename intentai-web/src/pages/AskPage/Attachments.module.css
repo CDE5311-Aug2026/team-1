@@ -1,0 +1,573 @@
+/* Files and quick context in the Ask composer: same paper, 16px cards and 999px pills as the rest of Ask. */
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- The + sheet ---------- */
+
+.sheetSection + .sheetSection {
+  margin-top: 18px;
+}
+
+.sectionTitle {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5e5c54;
+}
+
+.fileGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.fileOption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  padding: 12px 10px;
+  border: 1px solid #d7cdbb;
+  border-radius: 16px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  color: #24211c;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.fileOption:hover,
+.contextOption:hover,
+.pickItem:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.fileOption:active {
+  transform: scale(0.98);
+}
+
+.fileOption strong {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.fileOption > span:last-child {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #5e5c54;
+}
+
+.fileMark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fff2eb;
+  color: #a3400a;
+}
+
+.limitNote {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #5e5c54;
+}
+
+.contextOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: 10px;
+  padding: 12px;
+  border: 1px solid #d7cdbb;
+  border-radius: 16px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.contextOption strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #24211c;
+}
+
+.contextOption span span {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #5e5c54;
+}
+
+/* ---------- Context picker ---------- */
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.search {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #d7cdbb;
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  color: #24211c;
+}
+
+.search::placeholder {
+  color: #6b6b72;
+}
+
+.search:focus-visible,
+.tab:focus-visible,
+.pickItem:focus-visible,
+.remove:focus-visible,
+.play:focus-visible,
+.memoryPill:focus-visible,
+.manage:focus-visible,
+.fileOption:focus-visible,
+.contextOption:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.tab {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #d6cfc3;
+  border-radius: 999px;
+  background: #f8f5ef;
+  font: inherit;
+  font-size: 12px;
+  color: #4d4538;
+  cursor: pointer;
+}
+
+.tab[aria-selected='true'] {
+  border-color: #23211d;
+  background: #23211d;
+  color: #fff;
+}
+
+.tabCount {
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+.panel {
+  max-height: min(52vh, 380px);
+  overflow-y: auto;
+}
+
+.pickList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pickItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 13px;
+  border: 1px solid #d7cdbb;
+  border-radius: 16px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  color: #24211c;
+  cursor: pointer;
+}
+
+.pickItem:disabled {
+  cursor: default;
+  background: #f4f1ea;
+  color: #5e5c54;
+}
+
+.pickItem strong {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.pickKind {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #a3400a;
+}
+
+.pickHint {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #5e5c54;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.empty {
+  margin: 8px 0;
+  padding: 18px 14px;
+  border: 1px dashed #d7cdbb;
+  border-radius: 16px;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  color: #5e5c54;
+}
+
+/* ---------- Composer tray ---------- */
+
+.tray {
+  margin: 0 -0.4375rem 2px;
+}
+
+.trayList {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0 0 2px;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.contextChip,
+.fileChip,
+.photoChip {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  border: 1px solid #d8cabb;
+  background: #f6f0e5;
+  color: #24211c;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.contextChip {
+  min-height: 44px;
+  padding: 0 2px 0 12px;
+  border-radius: 999px;
+  border-color: #f0c7ad;
+  background: #fff2eb;
+}
+
+.fileChip {
+  min-height: 44px;
+  padding: 4px 2px 4px 6px;
+  border-radius: 16px;
+}
+
+.photoChip {
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.thumb {
+  display: block;
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+}
+
+.photoChip .remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  border-radius: 0 0 0 10px;
+  background: rgba(35, 33, 29, 0.78);
+  color: #fff;
+}
+
+.chipText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chipText strong,
+.contextChip > .chipText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.chipText span {
+  font-size: 10px;
+  color: #5e5346;
+}
+
+.fileMarkSmall {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: #fff;
+  color: #a3400a;
+}
+
+.remove {
+  display: grid;
+  flex: none;
+  place-items: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  color: #5e5346;
+  cursor: pointer;
+}
+
+.play {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #23211d;
+  color: #fff;
+  cursor: pointer;
+}
+
+.error {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #fdecea;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #8a1f12;
+}
+
+/* ---------- Sent bubble ---------- */
+
+.sent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.sentRow,
+.sentPhotos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sentContext {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff7f1;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #6b3412;
+}
+
+.sentPhoto {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.sentFile,
+.sentAudio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px 7px 7px;
+  border-radius: 12px;
+  background: #f6f2ea;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.sentAudio {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 8px;
+}
+
+.sentAudio audio {
+  width: 100%;
+  height: 36px;
+}
+
+.sentFileName {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.remembered {
+  margin: 5px 2px 0 auto;
+  max-width: 91%;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: right;
+  color: #5e5346;
+}
+
+.manage {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: #8a3a0c;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ---------- In the answer ---------- */
+
+.filesNote {
+  margin: 0 0 10px;
+  padding: 9px 12px;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px 12px 12px 4px;
+  background: #fbf7f0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #4d4538;
+}
+
+/* ---------- Using memory ---------- */
+
+.memory {
+  position: relative;
+  align-self: flex-start;
+}
+
+.memoryPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #d6cfc3;
+  border-radius: 999px;
+  background: #f8f5ef;
+  font: inherit;
+  font-size: 11px;
+  color: #4d4538;
+  cursor: pointer;
+}
+
+/* 44px touch target around the 32px pill. */
+.memoryPill::before {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+}
+
+.memoryDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.memoryPop {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 5;
+  width: min(280px, calc(100vw - 48px));
+  padding: 12px 14px;
+  border: 1px solid #d7cdbb;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(35, 33, 29, 0.14);
+  font-size: 12px;
+  color: #24211c;
+}
+
+.memoryPop ul {
+  margin: 0 0 8px;
+  padding-left: 18px;
+  line-height: 1.6;
+}
+
+.memoryTitle {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5e5c54;
+}
+
+.memoryMore {
+  margin: 0 0 6px;
+  font-size: 11px;
+  color: #5e5c54;
+}
+
+@media (max-width: 374px) {
+  .fileGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tray {
+    margin-inline: 0;
+  }
+}

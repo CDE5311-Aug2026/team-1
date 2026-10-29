@@ -1,0 +1,279 @@
+{
+  "photos": {
+    "curated:sg-armenian-church-of-saint-gregory-the-illuminator": {
+      "file": "sg-armenian-church-of-saint-gregory-the-illuminator.jpg",
+      "credit": "Chainwit. · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Armenian_Church_of_Saint_Gregory_the_Illuminator_%D5%8D%D5%B8%D6%82%D6%80%D5%A2_%D4%B3%D6%80%D5%AB%D5%A3%D5%B8%D6%80_%D4%BC%D5%B8%D6%82%D5%BD%D5%A1%D5%BE%D5%B8%D6%80%D5%AB%D5%B9_%D5%A5%D5%AF%D5%A5%D5%B2%D5%A5%D6%81%D5%AB_(%D5%8D%D5%AB%D5%B6%D5%A3%D5%A1%D5%BA%D5%B8%D6%82%D6%80)_01.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Armenian_Church%2C_Singapore"
+    },
+    "curated:sg-artscience-museum": {
+      "file": "sg-artscience-museum.jpg",
+      "credit": "Basile Morin · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:ArtScience_Museum,_Marina_Bay_Sands,_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/ArtScience_Museum"
+    },
+    "curated:sg-gardens-by-the-bay": {
+      "file": "sg-gardens-by-the-bay.jpg",
+      "credit": "Shiny Things. · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Supertree_Grove,_Gardens_by_the_Bay,_Singapore_-_20120712-02.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "article": "https://en.wikipedia.org/wiki/Gardens_by_the_Bay"
+    },
+    "curated:sg-helix-bridge": {
+      "file": "sg-helix-bridge.jpg",
+      "credit": "William Cho · CC BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Double-Helix-Bridge.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "article": "https://en.wikipedia.org/wiki/Helix_Bridge"
+    },
+    "curated:sg-lau-pa-sat": {
+      "file": "sg-lau-pa-sat.jpg",
+      "credit": "kallerna · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Lau_Pa_Sat_Singapore_2.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Lau_Pa_Sat"
+    },
+    "curated:sg-marina-barrage": {
+      "file": "sg-marina-barrage.jpg",
+      "credit": "Bob Tan · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Marina_Barrage_Closeup_300522.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Marina_Barrage"
+    },
+    "curated:sg-republic-plaza": {
+      "file": "sg-republic-plaza.jpg",
+      "credit": "DvTor8303 · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Republic_Plaza_20250903.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "article": "https://en.wikipedia.org/wiki/Republic_Plaza_(Singapore)"
+    },
+    "curated:sg-singapore-cricket-club": {
+      "file": "sg-singapore-cricket-club.jpg",
+      "credit": "RajMorgan29 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:(Gold)SCCLionSCCEst1852.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Singapore_Cricket_Club"
+    },
+    "curated:sg-singapore-flyer": {
+      "file": "sg-singapore-flyer.jpg",
+      "credit": "DvTor8303 · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_Flyer_20250903.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "article": "https://en.wikipedia.org/wiki/Singapore_Flyer"
+    },
+    "curated:sg-uob-plaza": {
+      "file": "sg-uob-plaza.jpg",
+      "credit": "Photograph by Mike Peel (www.mikepeel.net). · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:At_Singapore_2023_106.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/UOB_Plaza"
+    },
+    "curated:sg-victoria-theatre-and-concert-hall": {
+      "file": "sg-victoria-theatre-and-concert-hall.jpg",
+      "credit": "TTangMonuments · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Victoria_Theatre_and_Victoria_Concert_Hall,_with_54m_high_Clock_Tower.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Victoria_Theatre_and_Concert_Hall"
+    },
+    "curated:sg-fort-canning-park-fort-gate-fort-canning-centre": {
+      "file": "sg-fort-canning-park-fort-gate-fort-canning-centre.jpg",
+      "credit": "LN9267 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Fort_Canning_Park_09-11-2023(1).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Fort_Canning_Hill"
+    },
+    "curated:sg-guoco-tower": {
+      "file": "sg-guoco-tower.jpg",
+      "credit": "Ranto Lojbane · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Guocotowerlogo.png",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "article": "https://en.wikipedia.org/wiki/Guoco_Tower"
+    },
+    "curated:sg-jinrikisha-station": {
+      "file": "sg-jinrikisha-station.jpg",
+      "credit": "Elisa.rolle · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Jinrikisha_Station_2012_0141.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Jinrikisha_Station"
+    },
+    "curated:sg-peranakan-museum": {
+      "file": "sg-peranakan-museum.jpg",
+      "credit": "GoAheadFan95 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Peranakan_Museum_(Old_Tao_Nan_School),_August_2024.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Peranakan_Museum"
+    },
+    "curated:sg-pinnacle-duxton": {
+      "file": "sg-pinnacle-duxton.jpg",
+      "credit": "Someformofhuman. · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Pinnacle@Duxton,_Singapore_-_20100101.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "article": "https://en.wikipedia.org/wiki/The_Pinnacle%40Duxton"
+    },
+    "curated:sg-singapore-conference-hall": {
+      "file": "sg-singapore-conference-hall.jpg",
+      "credit": "ZKang123 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_Conference_Hall_exterior_20240727_171001.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Singapore_Conference_Hall"
+    },
+    "curated:sg-former-kallang-airport-terminal": {
+      "file": "sg-former-kallang-airport-terminal.jpg",
+      "credit": "William Cho · CC BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Tanjong_Rhu_Suspension_Bridge.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "article": "https://en.wikipedia.org/wiki/Kallang"
+    },
+    "curated:sg-golden-mile-complex": {
+      "file": "sg-golden-mile-complex.jpg",
+      "credit": "Sengkang · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Golden_Mile_Complex_4,_Aug_07.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "article": "https://en.wikipedia.org/wiki/The_Golden_Mile%2C_Singapore"
+    },
+    "curated:sg-sultan-mosque": {
+      "file": "sg-sultan-mosque.jpg",
+      "credit": "Chainwit. · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Masjid_Sultan,_Singapore_(2023_June)_-_img_07.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Sultan_Mosque"
+    },
+    "curated:sg-suntec-city": {
+      "file": "sg-suntec-city.jpg",
+      "credit": "Majush · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Suntec_city.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "article": "https://en.wikipedia.org/wiki/Suntec_City"
+    },
+    "curated:sg-the-concourse": {
+      "file": "sg-the-concourse.jpg",
+      "credit": "Chainwit. · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2023_Singapore_-_The_Concourse_-_img_01_(cropped).jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/The_Concourse"
+    },
+    "curated:sg-sri-srinivasa-perumal-temple": {
+      "file": "sg-sri-srinivasa-perumal-temple.jpg",
+      "credit": "Chainwit. · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Little_India_SG_-_Sri_Nivasa_Perumal_Temple_Singapore_%E0%AE%B8%E0%AF%8D%E0%AE%B0%E0%AF%80_%E0%AE%B8%E0%AF%8D%E0%AE%B0%E0%AF%80%E0%AE%A8%E0%AE%BF%E0%AE%B5%E0%AE%BE%E0%AE%9A%E0%AE%AA%E0%AF%8D%E0%AE%AA%E0%AF%86%E0%AE%B0%E0%AF%81%E0%AE%AE%E0%AE%BE%E0%AE%B3%E0%AF%8D_%E0%AE%95%E0%AF%8B%E0%AE%B5%E0%AE%BF%E0%AE%B2_(2025)_-_img_20.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Sri_Srinivasa_Perumal_Temple"
+    },
+    "curated:sg-henderson-waves": {
+      "file": "sg-henderson-waves.jpg",
+      "credit": "Kok Leng Yeo from Singapore. · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:HendersonWaves-Singapore-externalview-20090220.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "article": "https://en.wikipedia.org/wiki/Henderson_Waves"
+    },
+    "curated:sg-lian-shan-shuang-lin-monastery": {
+      "file": "sg-lian-shan-shuang-lin-monastery.jpg",
+      "credit": "Chainwit. · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Lian_Shan_Shuang_Lin_Monastery_%E8%93%AE%E5%B1%B1%E9%9B%99%E6%9E%97%E7%A6%AA%E5%AF%BA_(2025)_-_img_09.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Siong_Lim_Temple"
+    },
+    "curated:sg-macritchie-reservoir-park": {
+      "file": "sg-macritchie-reservoir-park.jpg",
+      "credit": "This Photo was taken by Timothy A. Gonsalves. Feel free to use my photos, but please mention me as the author. I would much appreciate if you send me an email tagooty@yahoo.com or write on my talk page, for my information. Please contact me before commercial use. Please do not upload an edited image here without consulting me. I would like to make corrections only at my own source to ensure that the changes improve the image and are preserved.Otherwise you may upload an edited image with a new name. Please use one of the templates derivative or extract. · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Info_Board_MacRitchie_Reservoir_Singapore_Feb23_D72_25337.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/MacRitchie_Reservoir"
+    },
+    "curated:sg-old-airport-road-food-centre": {
+      "file": "sg-old-airport-road-food-centre.jpg",
+      "credit": "T201911 · Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:CC8Dakota.jpg",
+      "license": "Public domain",
+      "licenseUrl": "",
+      "article": "https://en.wikipedia.org/wiki/Old_Airport_Road%2C_Singapore"
+    },
+    "curated:sg-kranji-war-memorial": {
+      "file": "sg-kranji-war-memorial.jpg",
+      "credit": "Banej · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kranji_War_Memorial_Singapore_Panorama.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "article": "https://en.wikipedia.org/wiki/Kranji_War_Memorial"
+    },
+    "curated:sg-sungei-buloh-wetland-reserve": {
+      "file": "sg-sungei-buloh-wetland-reserve.jpg",
+      "credit": "Thaejas · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sungei_Buloh_Wetland_Reserve_Banner.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "article": "https://en.wikipedia.org/wiki/Sungei_Buloh_Wetland_Reserve"
+    },
+    "curated:sg-chinese-garden-jurong-lake-gardens": {
+      "file": "sg-chinese-garden-jurong-lake-gardens.jpg",
+      "credit": "Brhb25 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Chinese_Garden.JPG",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Jurong_Lake_Gardens"
+    },
+    "curated:sg-selamat-datang-warong-pak-sapari": {
+      "file": "sg-selamat-datang-warong-pak-sapari.jpg",
+      "credit": "Actuall7 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Adam_Food_Centre,_2026.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Adam_Road_Food_Centre"
+    },
+    "curated:sg-chinatown-complex-food-centre": {
+      "file": "sg-chinatown-complex-food-centre.jpg",
+      "credit": "S5A-0043 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:(SGP-Singapore)_People%27s_Park_Complex_2026-02-17_-_2.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/People's_Park_Complex"
+    }
+  },
+  "missing": [
+    "curated:sg-alliance-seafood",
+    "curated:sg-anderson-bridge",
+    "curated:sg-duo",
+    "curated:sg-jurong-hill-lookout-tower",
+    "curated:sg-koon-seng-road-shophouses",
+    "curated:sg-lei-garden",
+    "curated:sg-meta",
+    "curated:sg-na-oh",
+    "curated:sg-nae-um",
+    "curated:sg-newton-food-centre",
+    "curated:sg-rajarani-thosai",
+    "curated:sg-reflections-at-keppel-bay",
+    "curated:sg-sri-veeramakaliamman-temple",
+    "curated:sg-tekka-centre",
+    "curated:sg-tiong-bahru-estate",
+    "curated:sg-tiong-bahru-market"
+  ],
+  "checkedAt": "2026-10-29"
+}

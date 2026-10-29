@@ -41,17 +41,7 @@ test('Default sets the survey default', async ({ page }) => {
   await expect(page.getByRole('tab')).toHaveText(['Foods', 'Monuments', 'Festivals']);
 });
 
-test('My Space retake is pre-filled and Cancel changes nothing', async ({ page }) => {
-  await page.goto('/my-space');
-  await expect(page.getByText('Foods, Monuments, Festivals', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: "Change Today's Topics" }).click();
-  await expect(page.getByRole('button', { name: /^Festivals / })).toHaveAttribute('aria-pressed', 'true');
-  await pick(page, ['Festivals', 'History']);
-  await page.getByRole('button', { name: 'Cancel' }).click();
-  await expect(page).toHaveURL(/\/my-space$/);
-  await expect(page.getByText('Foods, Monuments, Festivals', { exact: true })).toBeVisible();
-});
-
+// v3: My Space edits the topics in its own ranked-photo editor (Figma S1 tile); covered by MySpacePage.test.tsx.
 test('videos load nothing from YouTube until play is tapped', async ({ page }) => {
   const requests: string[] = [];
   page.on('request', (r) => {

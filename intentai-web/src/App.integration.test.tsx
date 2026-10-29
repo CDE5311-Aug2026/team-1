@@ -6,7 +6,7 @@ import App from './App';
 import { STORAGE_PREFIX } from './data/persistentStore';
 import { DEFAULT_SETTINGS } from './data/domain';
 import { todayKey } from './data/progress';
-import { lookupsStore, placeStore, settingsStore, streakStore } from './data/stores';
+import { lookupsStore, placeStore, settingsStore, streakStore, reduceMotionStore } from './data/stores';
 
 // Cross-page contracts: flows that hand data from one page to another. Fix the pages, not these tests.
 
@@ -68,24 +68,28 @@ test('[Ask + Moments] a phrase asked about in Ask appears in Moments', async () 
   expect(screen.getAllByText(/paiseh/i).length).toBeGreaterThan(0);
 });
 
-test('[Onboarding + Today + My Space] finishing onboarding with the top 3 opens Today; the time shows in My Space', async () => {
+test('[Onboarding + Home + My Space] the Treasure Hunt onboarding opens Home; the answers show in My Space', async () => {
   localStorage.removeItem(`${STORAGE_PREFIX}onboarding`);
   const user = userEvent.setup();
   const first = renderApp('/');
-  await user.click(screen.getByRole('button', { name: /get started/i }));
-  await user.click(screen.getByRole('button', { name: /1 – 3 years/i }));
-  await user.click(screen.getByRole('button', { name: /^continue/i }));
-  await user.click(screen.getByRole('button', { name: /^Food/ }));
-  await user.click(screen.getByRole('button', { name: /^continue/i }));
-  for (let i = 0; i < 3; i += 1) {
-    await user.click(screen.getByRole('button', { name: /skip/i }));
-  }
-  await user.click(screen.getByRole('button', { name: /start learning/i }));
-  await user.click(screen.getByRole('button', { name: 'Default' }));
-  expect(screen.getByRole('heading', { level: 1, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /Start the hunt/ }));
+  await user.click(screen.getByRole('button', { name: /India/ }));
+  await user.click(screen.getByRole('button', { name: /^Continue/ }));
+  await user.click(screen.getByRole('button', { name: /1–3 years/ }));
+  await user.click(screen.getByRole('button', { name: /^Continue/ }));
+  await user.click(screen.getByRole('button', { name: /Working/ }));
+  await user.click(screen.getByRole('button', { name: /^Continue/ }));
+  await user.click(screen.getByRole('button', { name: /^English/ }));
+  await user.click(screen.getByRole('button', { name: /^Continue/ }));
+  await user.click(screen.getByRole('button', { name: 'Chinatown & Tanjong Pagar' }));
+  await user.click(screen.getByRole('button', { name: /^Continue/ }));
+  await user.click(screen.getByRole('button', { name: 'Food' }));
+  await user.click(screen.getByRole('button', { name: /Stamp my passport/ }));
+  await user.click(screen.getByRole('button', { name: /Start exploring/ }));
+  expect(screen.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening), W$/ })).toBeInTheDocument();
   first.unmount();
   renderApp('/my-space');
-  expect(screen.getByText(/1 – 3 years/)).toBeInTheDocument();
+  expect(screen.getAllByText(/1–3 years/).length).toBeGreaterThan(0);
 });
 
 test('Nearby "Ask IntentAI" asks about the shown phrase on arrival, once', async () => {
@@ -98,9 +102,13 @@ test('Nearby "Ask IntentAI" asks about the shown phrase on arrival, once', async
 
 test('Nearby "Ask IntentAI" carries the place as an Ask context the answer understands', async () => {
   placeStore.set('Office');
+  reduceMotionStore.set(true); // the reading shows at once (no thinking steps)
   renderApp('/nearby/phrases');
   await userEvent.click(screen.getByRole('button', { name: 'Ask IntentAI' }));
-  expect(screen.getAllByText(/Office · work/).length).toBeGreaterThan(0);
+  // The place's Ask context becomes the situation (where · who · topic), and the reading names who said it.
+  // The place's context is a known situation: no situation card, and the reading names who said it.
+  expect(screen.getAllByText('Office · Your colleague').length).toBeGreaterThan(0);
+  expect(screen.getByRole('article', { name: /IntentAI answer/ })).toHaveTextContent('Your colleague');
 });
 
 test('Moments "Not sure" opens Ask a local with the phrase drafted', async () => {

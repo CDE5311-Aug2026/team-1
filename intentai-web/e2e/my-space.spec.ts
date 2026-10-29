@@ -5,21 +5,14 @@ const TOL = 3; // px, decision D2
 type Box = [x: number, y: number, width: number, height: number];
 
 // Figma boxes relative to each 390×844 frame (get_metadata, frame x/y subtracted).
-const ABOUT_YOU: Record<string, Box> = {
-  '21:1338': [20, 104, 350, 42], // Segment
-  '21:1345': [20, 158, 350, 25], // Section / About you
-  '21:1347': [20, 195, 350, 168], // Card / Profile
-  '21:1380': [20, 375, 350, 25], // Section / Switches
-  '21:1384': [20, 412, 350, 227], // Card / Switches (v2: four rows, Figma's 284 had five)
-  '12:155': [20, 758, 350, 58], // Tab bar
-};
+// v3: My Space itself follows Figma S1 (no frame check here; see MySpacePage.test.tsx). The notice screens keep theirs.
 const NOTICES: Record<string, Box> = {
   '21:1419': [20, 104, 350, 42],
   '21:1426': [20, 158, 350, 128], // Local fix
   '21:1440': [20, 298, 350, 137], // AI notice
   '21:1458': [20, 447, 350, 25], // Your data
   '21:1462': [20, 484, 350, 42], // Delete all my data
-  '12:297': [20, 758, 350, 58],
+  '12:297': [20, 752, 350, 64],
 };
 const DETAILS: Record<string, Box> = {
   '21:1550': [20, 104, 71, 20], // Back row
@@ -27,15 +20,15 @@ const DETAILS: Record<string, Box> = {
   '21:1568': [37, 358, 316, 53], // Field / Occasion
   '21:1575': [37, 419, 316, 53], // Field / With
   '21:1583': [37, 509, 316, 44], // Actions
-  '21:1588': [20, 584, 350, 15], // Ask a local
-  '14:627': [20, 758, 350, 58],
+  '21:1588': [20, 580, 350, 15], // Ask a local
+  '14:627': [20, 752, 350, 64],
 };
 const EDIT: Record<string, Box> = {
   '21:1591': [20, 104, 53, 20],
   '21:1595': [20, 138, 350, 244], // Card / Edit
   '21:1598': [37, 191, 316, 53],
   '21:1605': [37, 252, 316, 55], // focused With field
-  '21:1611': [37, 321, 316, 44],
+  '21:1611': [37, 317, 316, 44],
 };
 const CONFIRMED: Record<string, Box> = {
   '21:1466': [20, 104, 350, 42],
@@ -44,7 +37,7 @@ const CONFIRMED: Record<string, Box> = {
   '21:1496': [20, 388, 350, 25],
   '21:1500': [20, 425, 350, 42],
   '21:1504': [20, 700, 350, 44], // Toast
-  '14:811': [20, 758, 350, 58],
+  '14:811': [20, 752, 350, 64],
 };
 const REJECTED: Record<string, Box> = {
   '21:1507': [20, 104, 350, 42],
@@ -53,7 +46,7 @@ const REJECTED: Record<string, Box> = {
   '21:1539': [20, 417, 350, 25],
   '21:1543': [20, 454, 350, 42],
   '21:1547': [20, 700, 350, 44],
-  '14:931': [20, 758, 350, 58],
+  '14:931': [20, 752, 350, 64],
 };
 
 async function expectFrames(page: Page, frames: Record<string, Box>) {
@@ -87,12 +80,6 @@ const OCCASIONS_ON = {
 const notice = (status: string) => ({ status, dismissed: false, occasion: 'Team dinner', with: 'Colleagues and manager' });
 
 test.describe('geometry at 390x844', () => {
-  test('About you (12:40)', async ({ page }) => {
-    await open(page, paths.mySpace);
-    await expectFrames(page, ABOUT_YOU);
-    await page.screenshot({ path: 'test-results/my-space-12-40.png' });
-  });
-
   test('Notices (12:182)', async ({ page }) => {
     await open(page, paths.notices, OCCASIONS_ON);
     await expectFrames(page, NOTICES);
@@ -126,30 +113,23 @@ test.describe('geometry at 390x844', () => {
   });
 });
 
-// v0: "profile editing and all five switches persist, with switches initially off" (v2 drops "Daily card")
-test('profile editing and all four switches persist, with switches initially off', async ({ page }) => {
+// v3 My Space (Figma S1/S2): the switches start off and persist; Reduce motion in Settings applies to the whole app.
+test('My Space switches persist, and Settings › Reduced motion stops the app’s animations', async ({ page }) => {
   await open(page, paths.mySpace);
-  for (const name of ['Flag occasions', 'Answer as a local', 'Rehearse with AI', 'No-judgement mode']) {
+  for (const name of ['Flag occasions', 'Answer as a local']) {
     await expect(page.getByRole('switch', { name, exact: true })).toHaveAttribute('aria-checked', 'false');
   }
-  await page.getByRole('button', { name: 'Edit From', exact: true }).click();
-  await page.getByRole('dialog').getByRole('textbox', { name: 'From' }).fill('Malaysia');
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page.getByRole('switch', { name: 'Answer as a local', exact: true }).click();
   await page.reload();
-  await expect(page.getByText('Malaysia', { exact: true })).toBeVisible();
   await expect(page.getByRole('switch', { name: 'Answer as a local', exact: true })).toHaveAttribute('aria-checked', 'true');
-  await page.getByRole('button', { name: 'Delete From', exact: true }).click();
-  await expect(page.getByText('Not set')).toBeVisible();
-  await page.getByRole('button', { name: 'Undo', exact: true }).click();
-  await expect(page.getByText('Malaysia', { exact: true })).toBeVisible();
+  await page.goto(paths.mySpaceSettings);
+  await page.getByRole('radio', { name: 'Reduced', exact: true }).click();
+  await expect(page.locator('html')).toHaveClass(/reduce-motion/);
 });
 
 // v0: "AI notice edit, confirm, reject and undo work"
 test('AI notice edit, confirm, reject and undo work', async ({ page }) => {
-  await open(page, paths.mySpace);
-  await page.getByRole('switch', { name: 'Flag occasions', exact: true }).click();
-  await page.getByRole('button', { name: /^notices/i }).click();
+  await open(page, paths.notices, OCCASIONS_ON);
   await expect(page.getByText('AI · Medium confidence')).toBeVisible();
   await page.getByRole('button', { name: 'Details', exact: true }).click();
   await page.getByRole('button', { name: /edit occasion/i }).click();
