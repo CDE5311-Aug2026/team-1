@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import { StoryTopBar } from '../../components/story';
+import { StoryPlaceContext } from '../../components/story/StoryNearby';
 import { FACETS, type Facet } from '../../data/placeStories';
 import { markOpened } from '../../data/stores';
 import { isFacet, storyPlace, type StoryPlace } from '../../data/stories/places';
@@ -33,19 +34,33 @@ function CardRoute({ place, facet }: { place: StoryPlace; facet: Facet }) {
   }, [place.id, facet]);
 
   return (
-    <AppShell variant="story">
-      <StoryTopBar placeId={place.id} facet={facet} backLabel={place.name} />
-      {facet === 'food' ? (
-        place.id === 'chinatown' ? <FoodBakKwa placeId={place.id} /> : <FoodSpread placeId={place.id} />
-      ) : facet === 'monument' ? (
-        place.id === 'chinatown' ? <MonumentThianHockKeng placeId={place.id} /> : <MonumentWall placeId={place.id} />
-      ) : facet === 'festival' ? (
-        place.id === 'chinatown' ? <FestivalLunarNewYear placeId={place.id} /> : <FestivalWall placeId={place.id} />
-      ) : place.id === 'chinatown' ? (
-        <HistoryChinatown placeId={place.id} />
-      ) : (
-        <HistoryWall placeId={place.id} />
-      )}
-    </AppShell>
+    <StoryPlaceContext.Provider value={{ placeId: place.id, facet }}>
+      <AppShell variant="story">
+        <StoryTopBar placeId={place.id} facet={facet} backLabel={place.name} />
+        {facet === 'food' ? (
+          place.id === 'chinatown' ? (
+            <FoodBakKwa placeId={place.id} />
+          ) : (
+            <FoodSpread placeId={place.id} />
+          )
+        ) : facet === 'monument' ? (
+          place.id === 'chinatown' ? (
+            <MonumentThianHockKeng placeId={place.id} />
+          ) : (
+            <MonumentWall placeId={place.id} />
+          )
+        ) : facet === 'festival' ? (
+          place.id === 'chinatown' ? (
+            <FestivalLunarNewYear placeId={place.id} />
+          ) : (
+            <FestivalWall placeId={place.id} />
+          )
+        ) : place.id === 'chinatown' ? (
+          <HistoryChinatown placeId={place.id} />
+        ) : (
+          <HistoryWall placeId={place.id} />
+        )}
+      </AppShell>
+    </StoryPlaceContext.Provider>
   );
 }

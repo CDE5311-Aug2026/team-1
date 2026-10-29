@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef } from 'react';
 import type { Facet } from '../../data/placeStories';
 import { StoryIcon } from './StoryIcon';
+import { StoryNearby } from './StoryNearby';
 import styles from './StoryHeader.module.css';
 
 interface StoryHeaderProps {
@@ -40,6 +41,7 @@ export function StoryHeader({ kicker, icon, title, subtitle }: StoryHeaderProps)
           {subtitle}
         </p>
       )}
+      <StoryNearby />
     </header>
   );
 }
