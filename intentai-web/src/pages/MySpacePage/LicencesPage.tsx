@@ -5,6 +5,7 @@ import { STORY_IMAGES } from '../../assets/stories';
 import { V3_PHOTO_CREDITS } from '../../assets/v3/credits';
 import AppShell from '../../components/AppShell/AppShell';
 import { ARTICLE_IMAGES } from '../../data/articleImages';
+import { PLACE_CARDS } from '../../data/explore/placeCards';
 import placePhotos from '../../data/explore/photos.json';
 import { HOME_PLACES } from '../../data/homePlaces';
 import { curatedPlace } from '../../features/nearby/catalogue';
@@ -32,7 +33,14 @@ export function creditGroups(): { title: string; items: Credit[] }[] {
     href: p.source,
   }));
   return [
-    { title: 'Maps', items: [{ subject: 'Map picture', credit: OSM_CREDIT }, { subject: '3D map views', credit: THUMB_CREDIT }] },
+    {
+      title: 'Maps',
+      items: [
+        { subject: 'Map picture', credit: OSM_CREDIT },
+        { subject: 'Street-level map', credit: 'OneMap © contributors | Singapore Land Authority', href: 'https://www.onemap.gov.sg/' },
+        { subject: '3D map views', credit: THUMB_CREDIT },
+      ],
+    },
     {
       title: 'Culture cards',
       items: unique([
@@ -46,6 +54,16 @@ export function creditGroups(): { title: string; items: Credit[] }[] {
       items: unique(HOME_PLACES.filter((p) => p.credit !== THUMB_CREDIT).map((p) => ({ subject: p.name, credit: p.credit }))),
     },
     { title: 'Nearby places', items: unique(nearby) },
+    {
+      title: 'Nearby place cards',
+      items: unique(
+        Object.values(PLACE_CARDS).flatMap((c) =>
+          [c.clip?.poster, c.thenNow?.then, c.thenNow?.now]
+            .filter((p) => !!p?.url)
+            .map((p) => ({ subject: p!.alt, credit: p!.credit, href: p!.url })),
+        ),
+      ),
+    },
     {
       title: 'Community',
       items: [

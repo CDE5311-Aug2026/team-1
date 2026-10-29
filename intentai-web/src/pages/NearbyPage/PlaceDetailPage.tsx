@@ -1,18 +1,19 @@
-// One place: practical info, the dataset's intro, sourced fun facts, a language tip, collection
-// membership, Save / Visited (self-reported), Directions and the 3D view (NBR 18–21, 24).
+// One place: its story card (header, photo or sample clip, key numbers, then and now, text, "Look for"), then
+// practical info, the dataset's intro, sourced fun facts, a language tip, collection membership, Save / Visited
+// (self-reported), Directions and the 3D view (NBR 18–21, 24).
 import { lazy, Suspense, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import { useExplorePersonal } from '../../features/nearby/actions';
-import { area as areaById, curatedPlace, placeByEarthKey, regionName } from '../../features/nearby/catalogue';
+import { area as areaById, curatedPlace, placeByEarthKey } from '../../features/nearby/catalogue';
 import { BackHeader, StorageWarning } from '../../features/nearby/components/NearbyChrome';
 import View3D from '../../features/nearby/components/View3D';
-import { PlaceThumb } from '../../features/nearby/components/PlaceCard';
+import PlaceStoryCard from '../../features/nearby/card/PlaceStoryCard';
 import PlaceInfo from '../../features/nearby/components/PlaceInfo';
 import { view3dTarget } from '../../features/nearby/links';
 import { fixInSingapore } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
-import { CATEGORY_INFO, type CuratedPlace } from '../../features/nearby/domain';
+import type { CuratedPlace } from '../../features/nearby/domain';
 import { distanceM, formatDistance } from '../../features/nearby/geo';
 import { parsePlaceKey } from '../../features/nearby/identity';
 import { isPrecise, useLocationState } from '../../features/nearby/location';
@@ -59,8 +60,6 @@ function Detail({ place }: { place: CuratedPlace }) {
   const [cardKey, setCardKey] = useState<string | null>(null);
   const otherCard = view === '3d' ? placeByEarthKey(cardKey) : undefined;
   const state = stateOf(personal, place.id);
-  const info = CATEGORY_INFO[place.category];
-  const area = areaById(place.areaId);
   const selectedArea = areaById(personal.selectedAreaId);
 
   const fix = location.status === 'active' && fixInSingapore(location) && isPrecise(location.fix) ? location.fix : undefined;
@@ -74,20 +73,7 @@ function Detail({ place }: { place: CuratedPlace }) {
     <AppShell background="var(--bg-screen-b)">
       <div className={styles.screen}>
         <BackHeader title={place.name} fallback={paths.nearby} />
-        <div className={styles.detailIntro}>
-          <PlaceThumb id={place.id} category={place.category} size="card" />
-          <div>
-            {place.nameZh && (
-              <p className={styles.nameZh} lang="zh-Hans">
-                {place.nameZh}
-              </p>
-            )}
-            <p className={styles.meta}>
-              {info.label} · {place.kind} · {area?.name ?? regionName(place.regionId)}
-              {distance && <> · {distance}</>}
-            </p>
-          </div>
-        </div>
+        <PlaceStoryCard place={place} distance={distance} />
         <StorageWarning />
         <Suspense fallback={null}>
           <OnRoutes placeKey={place.id} />

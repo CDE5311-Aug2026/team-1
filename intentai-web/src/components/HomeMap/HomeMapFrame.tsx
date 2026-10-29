@@ -4,7 +4,7 @@ import type { LatLng } from '../../features/nearby/types';
 import type { MapCommand } from './camera';
 import type { HomeMapProps } from './HomeMap';
 import { Link, useInRouterContext } from 'react-router-dom';
-import { MAP_ATTRIBUTION } from '../../features/nearby/map/CityMap';
+import { MapCredits } from '../../features/nearby/map/CityMap';
 import { paths } from '../../routes';
 import styles from './HomeMapFrame.module.css';
 
@@ -138,7 +138,7 @@ export default function HomeMapFrame({ onLocate, onExplore, onZoom, locating = f
 
       <p className={styles.attribution} data-map-obstacle="">
         {loadMap === defaultLoadMap ? (
-          MAP_ATTRIBUTION
+          <MapCredits />
         ) : (
           <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
             © OpenStreetMap contributors

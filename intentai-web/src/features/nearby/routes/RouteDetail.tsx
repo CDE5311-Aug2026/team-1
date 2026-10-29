@@ -1,9 +1,11 @@
-// One route (an editor's route or one generated from a station): map with numbered stops joined in order, stats,
-// the route note, Google Maps directions, then the stops in order with check-in for those in the Nearby catalogue.
+// One route (a team route, an editor's route or one generated from a station): map with numbered stops joined in
+// order, stats, the route note, Google Maps directions, then the stops in order with check-in for those in the Nearby
+// catalogue. A team route also lists the pages behind its note and links back to its place story.
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AppShell from '../../../components/AppShell/AppShell';
-import { ATLAS_CATEGORY_LABEL, atlasTextLang } from '../../../data/atlas/atlas';
+import { ATLAS_CATEGORY_LABEL, type AtlasPlace } from '../../../data/atlas/atlas';
+import { storyPlace } from '../../../data/stories/places';
 import { paths } from '../../../routes';
 import { markVisited, useExplorePersonal } from '../actions';
 import { BackHeader, StorageWarning } from '../components/NearbyChrome';
@@ -99,7 +101,7 @@ export default function RouteDetail({ view }: { view: RouteView }) {
                   label={`Map of the route: ${stops.length} stops in order`}
                   height={280}
                   pins={located.map(({ s, i }) => ({
-                    key: s.atlasId,
+                    key: s.id,
                     name: `Stop ${i + 1}: ${s.name}`,
                     location: s.location,
                     category: s.pinCategory,
@@ -109,7 +111,7 @@ export default function RouteDetail({ view }: { view: RouteView }) {
                   path={located.map(({ s }) => s.location)}
                   clusterPins={false}
                   onSelect={(key) => {
-                    const i = stops.findIndex((s) => s.atlasId === key);
+                    const i = stops.findIndex((s) => s.id === key);
                     document.getElementById(`stop-${i + 1}`)?.focus();
                   }}
                   focus={routeFocus(located.map(({ s }) => s.location))}
@@ -123,6 +125,7 @@ export default function RouteDetail({ view }: { view: RouteView }) {
                 <strong>{stops.length}</strong> {stops.length === 1 ? 'stop' : 'stops'}
               </p>
               <p className={styles.stat}>
+                {stops.some((s) => s.visitEstimate) && '≈ '}
                 <strong>{stats.visitMinutes}</strong> min of visits
               </p>
               {stats.knownLegs > 0 && (
@@ -186,7 +189,7 @@ export default function RouteDetail({ view }: { view: RouteView }) {
             <h2 className={styles.sectionTitle}>Stops in order</h2>
             <ol className={styles.stops}>
               {stops.map((s, i) => (
-                <StopRow key={s.atlasId} stop={s} number={i + 1} visited={visited(s)} onOpen={() => setOpen(i)} />
+                <StopRow key={s.id} stop={s} number={i + 1} visited={visited(s)} onOpen={() => setOpen(i)} />
               ))}
             </ol>
           </>
@@ -211,19 +214,54 @@ export default function RouteDetail({ view }: { view: RouteView }) {
             Change options
           </Link>
         )}
-        <p className={styles.note}>
-          From the Singapore Culture Atlas research snapshot (29 Oct 2026). Opening hours, bookings, works and ferries change: check on the day.
-        </p>
+        {view.kind === 'team' ? <TeamFooter view={view} /> : (
+          <p className={styles.note}>
+            From the Singapore Culture Atlas research snapshot (29 Oct 2026). Opening hours, bookings, works and ferries change: check on the day.
+          </p>
+        )}
       </div>
-      {open !== null && stops[open] && <StopSheet stop={stops[open]} number={open + 1} onClose={() => setOpen(null)} />}
+      {open !== null && hasAtlas(stops[open]) && <StopSheet stop={stops[open]} number={open + 1} onClose={() => setOpen(null)} />}
     </AppShell>
   );
 }
 
+const hasAtlas = (s: RouteStop | undefined): s is RouteStop & { atlas: AtlasPlace } => !!s?.atlas;
+
+/** A team route's sources, the link back to its place story, and the visit-time estimate note. */
+function TeamFooter({ view }: { view: RouteView }) {
+  const story = view.story ? storyPlace(view.story) : undefined;
+  return (
+    <>
+      {story && (
+        <Link className={styles.secondaryLink} to={paths.place(story.id)}>
+          Read the {story.name} story
+        </Link>
+      )}
+      {view.sources && view.sources.length > 0 && (
+        <details className={styles.fold}>
+          <summary className={styles.foldSummary}>Sources for the times and days</summary>
+          <ul className={styles.excluded}>
+            {view.sources.map((s) => (
+              <li key={s.url}>
+                <a className={nearby.textLink} href={s.url} target="_blank" rel="noopener noreferrer">
+                  {s.title}
+                  <span className={styles.srOnly}> (opens in a new tab)</span>
+                </a>
+                , {s.publisher} (checked {s.checkedAt})
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      <p className={styles.note}>
+        An IntentAI route. Each stop’s facts and hours come with their sources on its place page. Times marked ≈ are our estimate. Opening hours change: check on the day.
+      </p>
+    </>
+  );
+}
+
 function StopRow({ stop, number, visited, onOpen }: { stop: RouteStop; number: number; visited: boolean; onOpen: () => void }) {
-  const id = stop.atlasId;
-  const summary = atlasTextLang(id, 'summary');
-  const hours = atlasTextLang(id, 'hours');
+  const { summary, hours } = stop;
   const nameId = `stop-${number}`;
   return (
     <li className={styles.stop}>
@@ -254,7 +292,21 @@ function StopRow({ stop, number, visited, onOpen }: { stop: RouteStop; number: n
               )}
             </h3>
             <p className={styles.meta}>
-              {ATLAS_CATEGORY_LABEL[stop.category]} · <Txt t={atlasTextLang(id, 'area')} /> · {stop.visitMinutes} min
+              {ATLAS_CATEGORY_LABEL[stop.category]}
+              {stop.area?.text && (
+                <>
+                  {' · '}
+                  <Txt t={stop.area} />
+                </>
+              )}
+              {' · '}
+              {stop.visitEstimate ? (
+                <>
+                  ≈ {stop.visitMinutes} min<span className={styles.srOnly}> (estimate)</span>
+                </>
+              ) : (
+                <>{stop.visitMinutes} min</>
+              )}
               {visited && <span className={styles.srOnly}>, checked in</span>}
             </p>
           </div>
@@ -290,9 +342,11 @@ function StopRow({ stop, number, visited, onOpen }: { stop: RouteStop; number: n
                 <Icon name="check" size={18} />
                 {visited ? 'Checked in' : 'Check in'}
               </button>
-              <button type="button" className={styles.textButton} onClick={onOpen} aria-haspopup="dialog">
-                Atlas notes
-              </button>
+              {stop.atlas && (
+                <button type="button" className={styles.textButton} onClick={onOpen} aria-haspopup="dialog">
+                  Atlas notes
+                </button>
+              )}
             </>
           ) : (
             <button type="button" className={styles.textButton} onClick={onOpen} aria-haspopup="dialog">

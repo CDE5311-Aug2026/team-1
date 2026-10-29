@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, expect, test } from 'vitest';
 import { atlasPlace, atlasRoute, atlasRoutes, placeKeyOf } from '../../data/atlas/atlas';
+import { teamRoute, teamRoutes } from '../../data/routes/teamRoutes';
 import { explorePersonalStore } from '../../data/stores';
 import { curatedPlace } from '../../features/nearby/catalogue';
 import { stateOf } from '../../features/nearby/personal';
@@ -40,9 +41,12 @@ const stopItems = () => {
 };
 
 describe('Routes list', () => {
-  test('shows the five editor routes with station, mode and stop count', () => {
+  test('shows the story walks, then the five editor routes with station, mode and stop count', () => {
     renderAt(paths.routes);
-    const cards = screen.getAllByRole('article');
+    const walks = within(screen.getByRole('region', { name: 'Story walks' })).getAllByRole('article');
+    expect(walks.map((c) => within(c).getByRole('link').getAttribute('href'))).toEqual(teamRoutes.map((r) => paths.route(r.id)));
+    expect(within(walks[0]).getByText(/Telok Ayer MRT/)).toHaveTextContent(/5 stops/);
+    const cards = within(screen.getByRole('region', { name: 'Editor’s routes' })).getAllByRole('article');
     expect(cards).toHaveLength(5);
     const hrefs = cards.map((c) => within(c).getByRole('link').getAttribute('href'));
     expect(hrefs).toEqual(atlasRoutes.map((r) => paths.route(r.id)));
@@ -133,6 +137,39 @@ describe('Route detail', () => {
     expect(screen.getByText('Route complete. Every stop checked in!')).toHaveAttribute('role', 'status');
   });
 
+  test('a story walk: catalogue stops, estimates marked, its sources and its place story', async () => {
+    const user = userEvent.setup();
+    const route = teamRoute('chinatown-story-walk')!;
+    renderAt(paths.route(route.id));
+    const items = stopItems();
+    expect(items).toHaveLength(route.stops.length);
+    route.stops.forEach((s, i) => {
+      const name = curatedPlace(s.key)!.name;
+      expect(within(items[i]).getByRole('link', { name })).toHaveAttribute('href', paths.nearbyPlace(s.key));
+    });
+    // Lim Chee Guan is not an atlas place: the team's estimate, the catalogue's sourced hours, no atlas notes
+    const last = items[items.length - 1];
+    expect(last).toHaveTextContent('≈ 15 min (estimate)');
+    expect(last).toHaveTextContent('Mon–Sun 9:00 am – 9:00 pm');
+    expect(within(last).queryByRole('button', { name: 'Atlas notes' })).not.toBeInTheDocument();
+    // Thian Hock Keng is: the atlas's visit time, the catalogue's checked hours
+    expect(items[0]).toHaveTextContent('35 min');
+    expect(items[0]).toHaveTextContent('Daily 07:30–17:00');
+    expect(screen.getByText(/min of visits/)).toHaveTextContent(/^≈/);
+    await user.click(screen.getByText('Sources for the times and days'));
+    for (const s of route.sources) expect(screen.getAllByRole('link', { name: new RegExp(s.title.replace(/[()|]/g, '.')) }).some((a) => a.getAttribute('href') === s.url)).toBe(true);
+    expect(screen.getByRole('link', { name: 'Read the Chinatown story' })).toHaveAttribute('href', paths.place('chinatown'));
+  });
+
+  test('a story walk warns of its stops’ closing days on the chosen date', () => {
+    // 1 Nov 2026 is a Sunday: The Spread (its own site) and NUS Museum (atlas) are closed
+    renderAt(`${paths.route('kent-ridge-wall-walk')}?date=2026-11-01`);
+    const items = stopItems();
+    expect(within(items[0]).getByRole('list', { name: 'Before you go to The Spread' })).toHaveTextContent('Sun 1 Nov: regular closing day');
+    expect(within(items[1]).getByRole('list', { name: /Before you go to NUS Museum/ })).toHaveTextContent(/Sun 1 Nov/);
+    expect(within(items[2]).queryByRole('list', { name: /Before you go/ })).not.toBeInTheDocument();
+  });
+
   test('an unknown route', () => {
     renderAt(paths.route('nope'));
     expect(screen.getByRole('heading', { name: 'Route not found' })).toBeInTheDocument();
@@ -147,7 +184,7 @@ describe('entry points', () => {
 
   test('a Nearby place page says which routes stop there', async () => {
     renderAt(paths.nearbyPlace('curated:sg-thian-hock-keng-temple'));
-    const line = (await screen.findByText(/On a route/)).closest('p') as HTMLElement;
-    expect(within(line).getByRole('link')).toHaveAttribute('href', paths.route('telok-ayer'));
+    const line = (await screen.findByText(/On routes/)).closest('p') as HTMLElement;
+    expect(within(line).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual([paths.route('chinatown-story-walk'), paths.route('telok-ayer')]);
   });
 });

@@ -25,6 +25,47 @@
   outline-offset: -3px;
 }
 
+/* OneMap tiles: between the ground picture (canvas) and the path / pins. */
+.tiles {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.tile {
+  position: absolute;
+  max-width: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  user-select: none;
+}
+
+.tile[data-loaded] {
+  opacity: 1;
+}
+
+.tile[data-failed] {
+  display: none;
+}
+
+.oneMap {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.oneMap img {
+  flex: none;
+}
+
+.oneMap a {
+  color: inherit;
+}
+
 .canvas,
 .overlay {
   position: absolute;

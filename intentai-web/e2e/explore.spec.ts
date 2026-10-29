@@ -2,8 +2,9 @@ import { expect, test } from './test';
 import type { Page } from './test';
 import { paths } from '../src/routes';
 
-// Nearby Explorer journeys (PRD §17). The map is drawn from the bundled EARTH ONLINE ground image: no
-// third-party map or place service may be contacted from these screens.
+// Nearby Explorer journeys (PRD §17). The map is drawn from the bundled EARTH ONLINE ground image, with OneMap's
+// basemap tiles (Singapore Land Authority) on top at street level. Those plain tile images are the only outside
+// requests allowed: no other map or place service, and nothing about the user, may leave these screens.
 
 async function open(page: Page, path: string) {
   await page.goto(path);
@@ -14,7 +15,10 @@ function watchRequests(page: Page) {
   const external: string[] = [];
   page.on('request', (r) => {
     const u = new URL(r.url());
-    if (u.hostname !== '127.0.0.1' && u.hostname !== 'localhost') external.push(u.hostname);
+    if (u.hostname === '127.0.0.1' || u.hostname === 'localhost') return;
+    // a OneMap tile carries only its zoom / x / y in the path
+    if (u.hostname === 'www.onemap.gov.sg' && /^\/maps\/tiles\/Default\/\d+\/\d+\/\d+\.png$/.test(u.pathname) && !u.search) return;
+    external.push(r.url());
   });
   return external;
 }

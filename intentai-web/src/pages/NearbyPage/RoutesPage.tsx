@@ -1,4 +1,4 @@
-// Nearby → Routes: the Singapore Culture Atlas's editor routes, then "Make a route from an MRT station" (station,
+// Nearby → Routes: IntentAI's story walks, the Singapore Culture Atlas's editor routes, then "Make a route from an MRT station" (station,
 // time, walking / transit, theme, date). Generate opens the route at a shareable address (/nearby/routes/plan?…).
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { ATLAS_CATEGORIES, ATLAS_CATEGORY_LABEL, LINE_ORDER, atlasRoutes, atlasS
 import { BackHeader } from '../../features/nearby/components/NearbyChrome';
 import nearby from '../../features/nearby/components/Nearby.module.css';
 import { localToday } from '../../features/nearby/personal';
+import { teamRoutes } from '../../data/routes/teamRoutes';
 import { DEFAULT_HOURS, HOURS, editorRoute, parsePlan, planSearch, type PlanOptions } from '../../features/nearby/routes/model';
 import { modeLabel, StopPicture, Txt } from '../../features/nearby/routes/parts';
 import styles from '../../features/nearby/routes/Routes.module.css';
@@ -48,7 +49,20 @@ export default function RoutesPage() {
     <AppShell background="var(--bg-screen-b)">
       <div className={nearby.screen}>
         <BackHeader title="Routes" fallback={paths.nearby} />
-        <p className={styles.subtitle}>Walks and half days from the team’s Singapore Culture Atlas, starting at an MRT station.</p>
+        <p className={styles.subtitle}>Walks and half days from IntentAI’s place stories and the team’s Singapore Culture Atlas, starting at an MRT station.</p>
+
+        <section aria-labelledby="story-walks" className={styles.section}>
+          <h2 id="story-walks" className={styles.sectionTitle}>
+            Story walks
+          </h2>
+          <ul className={styles.routeList}>
+            {teamRoutes.map((r) => (
+              <li key={r.id}>
+                <RouteCard id={r.id} />
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <section aria-labelledby="editor-routes" className={styles.section}>
           <h2 id="editor-routes" className={styles.sectionTitle}>
@@ -95,7 +109,7 @@ function RouteCard({ id }: { id: string }) {
         </p>
         <span className={styles.pics} aria-hidden="true">
           {view.stops.slice(0, 4).map((s) => (
-            <StopPicture key={s.atlasId} stop={s} size="small" />
+            <StopPicture key={s.id} stop={s} size="small" />
           ))}
         </span>
       </div>

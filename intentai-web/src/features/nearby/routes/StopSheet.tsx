@@ -4,6 +4,7 @@
 import { useEffect, useId, useRef } from 'react';
 import { ATLAS_CATEGORY_LABEL, atlasCollections, atlasTextLang } from '../../../data/atlas/atlas';
 import { Icon } from '../components/icons';
+import type { AtlasPlace } from '../../../data/atlas/atlas';
 import type { RouteStop } from './model';
 import { StopPicture, Txt } from './parts';
 import styles from './Routes.module.css';
@@ -16,7 +17,7 @@ function hostOf(url: string): string {
   }
 }
 
-export default function StopSheet({ stop, number, onClose }: { stop: RouteStop; number: number; onClose: () => void }) {
+export default function StopSheet({ stop, number, onClose }: { stop: RouteStop & { atlas: AtlasPlace }; number: number; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const onCloseRef = useRef(onClose);

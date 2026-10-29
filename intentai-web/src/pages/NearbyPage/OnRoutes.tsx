@@ -1,17 +1,21 @@
-// A Nearby place page's "On routes: …" line: the atlas's editor routes that stop at this place (loaded on demand).
+// A Nearby place page's "On routes: …" line: the team's and the atlas's routes that stop at this place (loaded on demand).
 import { Link } from 'react-router-dom';
-import { routesWithPlace, routeTextLang } from '../../data/atlas/atlasRoutes';
+import { routesWithPlace, routeTextLang, type LocalText } from '../../data/atlas/atlasRoutes';
+import { teamRoutesWithPlace } from '../../data/routes/teamRoutes';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import { paths } from '../../routes';
 
 export default function OnRoutes({ placeKey }: { placeKey: string }) {
-  const routes = routesWithPlace(placeKey);
+  const routes: { id: string; title: LocalText }[] = [
+    ...teamRoutesWithPlace(placeKey).map((r) => ({ id: r.id, title: { text: r.title, lang: 'en' as const } })),
+    ...routesWithPlace(placeKey).map((r) => ({ id: r.id, title: routeTextLang(r.id, 'title') })),
+  ];
   if (!routes.length) return null;
   return (
     <p className={styles.body}>
       <strong>On {routes.length === 1 ? 'a route' : 'routes'}:</strong>{' '}
       {routes.map((r, i) => {
-        const t = routeTextLang(r.id, 'title');
+        const t = r.title;
         return (
           <span key={r.id}>
             {i > 0 && ', '}

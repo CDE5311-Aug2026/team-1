@@ -1,9 +1,12 @@
 // 2D Singapore map drawn from the EARTH ONLINE dataset's ground image (OpenStreetMap land cover), in the
-// same metric frame as the 3D model. Pan (drag / arrow keys), zoom (wheel, pinch, + / −), recenter,
-// selectable pins with clustering, a radius overlay and an optional precise "you" dot.
-// No third-party map service is contacted. Every place shown here is also in the list beside it.
+// same metric frame as the 3D model. Zoomed in to street level, OneMap's basemap (Singapore Land Authority) fades
+// in on top: buildings, house numbers, MRT exits and street names, loaded as image tiles from onemap.gov.sg (no
+// location or other data is sent; without a connection the ground picture stays). Pan (drag / arrow keys), zoom
+// (wheel, pinch, + / −), recenter, selectable pins with clustering, a radius overlay and an optional precise
+// "you" dot. Every place shown here is also in the list beside it.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
 import groundUrl from '../../../assets/nearby/sg-ground.webp';
+import oneMapLogo from '../../../assets/nearby/onemap-logo.png';
 import { CATEGORY_INFO } from '../domain';
 import { Icon } from '../components/icons';
 import type { Category, LatLng } from '../types';
@@ -15,9 +18,14 @@ import {
   fitView,
   fromScreen,
   scaleForRadius,
+  spread,
+  tileZoom,
+  TILES_FROM,
+  TILES_FULL,
   toLatLng,
   toScreen,
   toXY,
+  viewTiles,
   type View,
   type XY,
 } from './projection';
@@ -120,6 +128,46 @@ interface CityMapProps {
 
 /** The map credit (OSM licence): shown on the map, or by a page that hides it behind its own control. */
 export const MAP_ATTRIBUTION = 'EARTH ONLINE map · © OpenStreetMap contributors';
+
+/** OneMap's required logo and attribution (its basemap terms), with links as OneMap's own sample gives them. */
+export function OneMapCredit({ className }: { className?: string }) {
+  return (
+    <span className={`${styles.oneMap} ${className ?? ''}`}>
+      <img src={oneMapLogo} alt="" width={14} height={14} />
+      <a href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">
+        OneMap
+      </a>{' '}
+      © contributors |{' '}
+      <a href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">
+        Singapore Land Authority
+      </a>
+    </span>
+  );
+}
+
+/** Both credits, for pages that show the map's credit themselves (Home's chip, the Community map's info). */
+export function MapCredits({ className }: { className?: string }) {
+  return (
+    <span className={className}>
+      {MAP_ATTRIBUTION}
+      <br />
+      <OneMapCredit />
+    </span>
+  );
+}
+
+/** How opaque OneMap's tiles are at this scale: 0 below TILES_FROM, 1 from TILES_FULL. */
+export function tileOpacity(scale: number): number {
+  return Math.min(1, Math.max(0, (scale - TILES_FROM) / (TILES_FULL - TILES_FROM)));
+}
+
+/** Fade a tile in once it has loaded; hide one that failed (offline, or outside OneMap's coverage). */
+const tileLoaded = (e: { currentTarget: HTMLImageElement }) => {
+  e.currentTarget.dataset.loaded = '';
+};
+const tileFailed = (e: { currentTarget: HTMLImageElement }) => {
+  e.currentTarget.dataset.failed = '';
+};
 
 const KEY_PAN_PX = 60;
 /** Pins closer than this merge, so 30–34 px targets never overlap (WCAG 2.5.8). */
@@ -595,7 +643,8 @@ export default function CityMap({
     // button keeps its place in the DOM (focus is not lost when it becomes selected).
     const selectedPin = visible.find((p) => p.key === selectedKey);
     const others = visible.filter((p) => p !== selectedPin);
-    const rest = clusterPins ? cluster(others, (p) => p.s, CLUSTER_PX) : others.map((p) => ({ id: p.key, x: p.s.x, y: p.s.y, items: [p] }));
+    // Unclustered pins (numbered route stops) are nudged apart instead, so stops a few metres apart stay tappable.
+    const rest = clusterPins ? cluster(others, (p) => p.s, CLUSTER_PX) : spread(others, (p) => p.s, CLUSTER_PX);
     // A pin or cluster under the zoom buttons is hidden (it could not be tapped, and its target would be covered:
     // WCAG 2.5.8); panning brings it out. The selected pin always shows.
     const clear = rest.filter((c) =>
@@ -615,6 +664,14 @@ export default function CityMap({
     ? { c: toScreen(toXY(circle.center), fullView), r: circle.radiusM * view.scale }
     : null;
   const youPt = you ? toScreen(toXY(you), fullView) : null;
+  // OneMap tiles at the zoom that matches the screen, over the parent zoom's tiles (shown while the sharper ones load).
+  const tilesAlpha = tileOpacity(view.scale);
+  const tileLayers = useMemo(() => {
+    if (tilesAlpha <= 0) return [];
+    const dpr = typeof window === 'undefined' ? 1 : Math.min(2, window.devicePixelRatio || 1);
+    const z = tileZoom(view.scale, dpr);
+    return [z - 1, z].map((zz) => ({ z: zz, tiles: viewTiles(fullView, zz) }));
+  }, [tilesAlpha > 0, view, width, height]); // eslint-disable-line react-hooks/exhaustive-deps
   const pathPoints =
     path && path.length > 1
       ? path
@@ -664,6 +721,25 @@ export default function CityMap({
         data-center={`${view.center.x.toFixed(1)},${view.center.y.toFixed(1)}`}
       >
         <canvas ref={canvasRef} className={styles.canvas} style={{ width, height }} aria-hidden="true" />
+        {tileLayers.length > 0 && (
+          <div className={styles.tiles} style={{ width, height, opacity: tilesAlpha }} aria-hidden="true" data-testid="map-tiles">
+            {tileLayers.map((layer) =>
+              layer.tiles.map((t) => (
+                <img
+                  key={t.key}
+                  src={t.url}
+                  alt=""
+                  draggable={false}
+                  decoding="async"
+                  className={styles.tile}
+                  style={{ left: t.left, top: t.top, width: t.width, height: t.height }}
+                  onLoad={tileLoaded}
+                  onError={tileFailed}
+                />
+              )),
+            )}
+          </div>
+        )}
         <svg className={styles.overlay} width={width} height={height} aria-hidden="true">
           {pathPoints && <polyline points={pathPoints} className={styles.path} data-testid="map-path" />}
           {circleGeom && (
@@ -738,7 +814,9 @@ export default function CityMap({
       {circle && !bleed && <p className={styles.radiusNote}>{circle.label}</p>}
       {attribution === 'inline' && (
         <p className={styles.attribution} style={insetBottom ? { bottom: insetBottom } : undefined}>
-          {MAP_ATTRIBUTION}
+          {tilesAlpha < 1 && MAP_ATTRIBUTION}
+          {tilesAlpha > 0 && tilesAlpha < 1 && <br />}
+          {tilesAlpha > 0 && <OneMapCredit />}
         </p>
       )}
     </div>

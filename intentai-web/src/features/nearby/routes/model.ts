@@ -1,12 +1,15 @@
-// Routes for Nearby: the atlas's five editor routes and routes generated from an MRT / LRT station, as one view
-// model the detail page draws. A stop is an atlas place; when it is in the Nearby catalogue (via placeKeys.json)
-// it links to its place page and can be checked in, otherwise the page shows the atlas record.
+// Routes for Nearby: IntentAI's own routes, the atlas's five editor routes and routes generated from an MRT / LRT
+// station, as one view model the detail page draws. An atlas stop that is in the Nearby catalogue (via
+// placeKeys.json) links to its place page and can be checked in, otherwise the page shows the atlas record. A team
+// route's stops are all catalogue places; those not in the atlas take their text and hours from the catalogue.
 import {
   ATLAS_CATEGORIES,
   ATLAS_CATEGORY_LABEL,
   ATLAS_PLACES,
+  atlasIdOfPlaceKey,
   atlasPlace,
   atlasRoute,
+  atlasTextLang,
   atlasStation,
   atlasStations,
   placeKeyOf,
@@ -18,11 +21,23 @@ import {
   type AtlasStation,
   type LocalText,
 } from '../../../data/atlas/atlas';
-import { curatedPlace } from '../catalogue';
+import { teamRoute, type TeamRoute, type TeamRouteSource, type TeamRouteStop } from '../../../data/routes/teamRoutes';
+import { area as areaOf, curatedPlace } from '../catalogue';
 import type { CuratedPlace, PlaceKey } from '../domain';
 import { isLocalDate } from '../domain';
 import type { Category, LatLng } from '../types';
-import { closure, generate, mapsLinks, stats, visitMinutes, type EngineStation, type MapsLink, type RouteMode, type RouteStats } from './engine';
+import {
+  closure,
+  generate,
+  mapsLinks,
+  stats,
+  visitMinutes,
+  type EnginePlace,
+  type EngineStation,
+  type MapsLink,
+  type RouteMode,
+  type RouteStats,
+} from './engine';
 
 /** The map pin / tile category of an atlas category (Nearby has no history or urban category). */
 export const PIN_CATEGORY: Record<AtlasCategory, Category> = {
@@ -37,9 +52,19 @@ export const MAX_STOPS = 6;
 export const HOURS = [1, 2, 3, 4, 5, 6] as const;
 export const DEFAULT_HOURS = 3;
 
+/** Nearby's category in the atlas's categories (for a team stop that is not an atlas place). */
+const ATLAS_CATEGORY_OF: Record<Category, AtlasCategory> = {
+  food: 'food',
+  nature: 'nature',
+  culture: 'culture',
+  landmark: 'history',
+};
+
 export interface RouteStop {
-  atlasId: string;
-  atlas: AtlasPlace;
+  /** Unique in its route: the atlas id, or the catalogue key for a stop that is not an atlas place. */
+  id: string;
+  /** The atlas record, when the stop is an atlas place. */
+  atlas?: AtlasPlace;
   key: PlaceKey;
   /** The Nearby catalogue place, once the catalogue has it. */
   curated?: CuratedPlace;
@@ -49,6 +74,11 @@ export interface RouteStop {
   location?: LatLng;
   approximate: boolean;
   visitMinutes: number;
+  /** The visit time is the team's estimate (no source gives one). */
+  visitEstimate: boolean;
+  area?: LocalText;
+  hours?: LocalText;
+  summary?: LocalText;
   /** Booking, closure on the date, check-before-you-go. */
   warnings: string[];
 }
@@ -65,7 +95,7 @@ export interface PlanOptions {
 }
 
 export interface RouteView {
-  kind: 'editor' | 'generated';
+  kind: 'team' | 'editor' | 'generated';
   id: string;
   title: LocalText;
   subtitle?: LocalText;
@@ -81,6 +111,10 @@ export interface RouteView {
   excluded: { id: string; name: string; reason: string }[];
   options?: PlanOptions;
   estimatedMinutes?: number;
+  /** Team routes: the pages behind the note's times and days. */
+  sources?: TeamRouteSource[];
+  /** Team routes: the place story (`/place/:placeId`) the route belongs to. */
+  story?: string;
 }
 
 const en = (text: string): LocalText => ({ text, lang: 'en' });
@@ -103,7 +137,7 @@ function stopOf(p: AtlasPlace, date: string, mode: RouteMode): RouteStop {
   else if (p.transport_required && mode === 'walking') warnings.push('Needs a bus or other transport');
   const atlasPoint = Number.isFinite(p.lat) && Number.isFinite(p.lng) ? { lat: p.lat as number, lng: p.lng as number } : undefined;
   return {
-    atlasId: p.id,
+    id: p.id,
     atlas: p,
     key,
     curated,
@@ -113,7 +147,84 @@ function stopOf(p: AtlasPlace, date: string, mode: RouteMode): RouteStop {
     location: curated ? { lat: curated.coordinates.lat, lng: curated.coordinates.lng } : atlasPoint,
     approximate: !curated && p.coordinates_quality !== 'verified',
     visitMinutes: visitMinutes(p),
+    visitEstimate: false,
+    area: atlasTextLang(p.id, 'area'),
+    hours: atlasTextLang(p.id, 'hours'),
+    summary: atlasTextLang(p.id, 'summary'),
     warnings,
+  };
+}
+
+/** A team route's stop: the atlas stop when the place is in the atlas, else from the catalogue. The atlas text
+ *  gives way to the catalogue's sourced hours and summary, which were checked for the route. */
+function teamStopOf(s: TeamRouteStop, date: string, mode: RouteMode): RouteStop | undefined {
+  const curated = curatedPlace(s.key);
+  if (!curated) return undefined;
+  const atlasId = atlasIdOfPlaceKey(s.key);
+  const p = atlasId ? atlasPlace(atlasId) : undefined;
+  const hours = curated.details?.hours?.text;
+  const area = areaOf(curated.areaId);
+  const own = {
+    hours: hours ? en(hours) : undefined,
+    summary: en(curated.summary),
+    area: area ? en(area.name) : undefined,
+  };
+  const base: RouteStop = p
+    ? { ...stopOf(p, date, mode), ...own }
+    : {
+        id: curated.id,
+        key: curated.id,
+        curated,
+        name: curated.name,
+        category: ATLAS_CATEGORY_OF[curated.category],
+        pinCategory: curated.category,
+        location: { lat: curated.coordinates.lat, lng: curated.coordinates.lng },
+        approximate: false,
+        visitMinutes: s.estimateMinutes ?? visitMinutes({}),
+        visitEstimate: true,
+        ...own,
+        warnings: [],
+      };
+  if (s.closedWeekdays?.includes(new Date(`${date}T12:00:00Z`).getUTCDay()) && !base.warnings.some((w) => w.startsWith(shortDate(date))))
+    base.warnings = [`${shortDate(date)}: regular closing day (check public-holiday exceptions)`, ...base.warnings];
+  return base;
+}
+
+/** What the engine needs of a stop, for distances, totals and Google Maps links. */
+function enginePlaceOf(s: RouteStop): EnginePlace {
+  return {
+    id: s.id,
+    name_en: s.name,
+    category: s.category,
+    lat: s.location?.lat ?? null,
+    lng: s.location?.lng ?? null,
+    visit_minutes: s.visitMinutes,
+    coordinates_quality: s.approximate ? 'approximate' : 'verified',
+    address: s.curated?.details?.address?.text ?? s.atlas?.address,
+    maps_url: s.atlas?.maps_url,
+  };
+}
+
+function teamRouteView(r: TeamRoute, date: string): RouteView {
+  const station = atlasStation(r.station);
+  const stops = r.stops.map((s) => teamStopOf(s, date, r.mode)).filter((s): s is RouteStop => !!s);
+  const places = stops.map(enginePlaceOf);
+  return {
+    kind: 'team',
+    id: r.id,
+    title: en(r.title),
+    subtitle: en(r.subtitle),
+    duration: en(r.duration),
+    note: en(r.note),
+    station,
+    mode: r.mode,
+    date,
+    stops,
+    stats: stats(places),
+    links: mapsLinks(places, station ? engineStation(station) : null, r.mode),
+    excluded: [],
+    sources: r.sources,
+    story: r.story,
   };
 }
 
@@ -122,7 +233,10 @@ export function engineStation(s: AtlasStation): EngineStation {
   return { name_en: s.name_en, kind: s.kind, place_ids: s.place_ids, lat: pt?.lat ?? null, lng: pt?.lng ?? null };
 }
 
+/** A team route or an atlas editor's route by id. */
 export function editorRoute(id: string, date: string): RouteView | undefined {
+  const team = teamRoute(id);
+  if (team) return teamRouteView(team, date);
   const r = atlasRoute(id);
   if (!r) return undefined;
   const station = stationByName(r.station);

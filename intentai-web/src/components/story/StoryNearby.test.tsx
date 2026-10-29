@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, test } from 'vitest';
 import { curatedPlace } from '../../features/nearby/catalogue';
 import { FACETS } from '../../data/placeStories';
-import { StoryNearby, StoryPlaceContext, storyNearbyTarget } from './StoryNearby';
+import { StoryNearby, StoryPlaceContext, storyNearbyTarget, storyRoute } from './StoryNearby';
 
 test('every story card links to a published Nearby place or a real area', () => {
   for (const placeId of ['chinatown', 'berlin-wall-fragments'])
@@ -31,4 +31,18 @@ test('food cards open their own places: Lim Chee Guan and The Spread; the Wall c
   expect(storyNearbyTarget('berlin-wall-fragments', 'food')).toEqual({ sel: 'curated:sg-the-spread-nus', label: 'The Spread' });
   for (const facet of ['monument', 'history', 'festival'] as const)
     expect(storyNearbyTarget('berlin-wall-fragments', facet)).toEqual({ sel: 'curated:sg-berlin-wall-fragments-utown', label: 'Berlin Wall' });
+});
+
+test('story cards open their walk: Chinatown food → the food walk, the other Chinatown cards → the story walk', () => {
+  expect(storyRoute('chinatown', 'food')?.id).toBe('chinatown-food-walk');
+  expect(storyRoute('chinatown', 'monument')?.id).toBe('chinatown-story-walk');
+  for (const facet of FACETS) expect(storyRoute('berlin-wall-fragments', facet)?.id).toBe('kent-ridge-wall-walk');
+  render(
+    <MemoryRouter>
+      <StoryPlaceContext.Provider value={{ placeId: 'chinatown', facet: 'food' }}>
+        <StoryNearby />
+      </StoryPlaceContext.Provider>
+    </MemoryRouter>,
+  );
+  expect(screen.getByRole('link', { name: /^Route: Chinatown · A food walk/ })).toHaveAttribute('href', '/nearby/routes/chinatown-food-walk');
 });

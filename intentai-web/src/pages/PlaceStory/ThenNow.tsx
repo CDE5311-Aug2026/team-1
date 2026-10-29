@@ -6,11 +6,25 @@ import styles from './ThenNow.module.css';
 
 type View = 'then' | 'compare' | 'now';
 
-const VIEWS = [
-  { value: 'then', label: 'c.1890' },
-  { value: 'compare', label: 'Compare' },
-  { value: 'now', label: '2006' },
-] as const;
+interface ThenNowPhoto {
+  src: string;
+  alt: string;
+}
+
+/** One then/now pair: the two photos, their date labels and the three captions (then, between, now). */
+export interface ThenNowData {
+  then: ThenNowPhoto;
+  now: ThenNowPhoto;
+  /** Date labels on the photos and the presets, e.g. "c.1890" and "2006". */
+  thenLabel: string;
+  nowLabel: string;
+  sliderLabel: string;
+  captions: Record<'then' | 'mid' | 'now', { lead: string; text: string }>;
+  /** Portrait photos (a tower seen head-on): a taller box. */
+  tall?: boolean;
+}
+
+const THIAN_HOCK_KENG_PAIR: ThenNowData = { ...THIAN_HOCK_KENG.thenNow, thenLabel: 'c.1890', nowLabel: '2006' };
 const VIEW_PCT: Record<View, number> = { then: 100, compare: 50, now: 0 };
 
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
@@ -20,8 +34,12 @@ const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
  * `target` is where it should be; `pct` eases towards it (snaps under reduced motion).
  * Its state is its own; the video above keeps a separate clock.
  */
-export function ThenNow() {
-  const { thenNow } = THIAN_HOCK_KENG;
+export function ThenNow({ data: thenNow = THIAN_HOCK_KENG_PAIR, delay = 0.46 }: { data?: ThenNowData; delay?: number }) {
+  const views = [
+    { value: 'then', label: thenNow.thenLabel },
+    { value: 'compare', label: 'Compare' },
+    { value: 'now', label: thenNow.nowLabel },
+  ] as const;
   const reduced = useReducedMotion();
   const [target, setTarget] = useState(50);
   const [pct, setPct] = useState(50);
@@ -127,7 +145,7 @@ export function ThenNow() {
   const caption = thenNow.captions[captionKey];
 
   return (
-    <section aria-label="Then and now" className={`a-up ${styles.section}`} style={{ animationDelay: '.46s' }}>
+    <section aria-label="Then and now" className={`a-up ${styles.section}`} style={{ animationDelay: `${delay}s` }}>
       <div className={styles.head}>
         <p className={styles.kicker}>THEN AND NOW</p>
         <span className={styles.hint}>
@@ -142,6 +160,7 @@ export function ThenNow() {
         ref={boxRef}
         data-testid="then-now-box"
         className={styles.box}
+        style={thenNow.tall ? { height: 'min(440px, 118vw)' } : undefined}
         onPointerDown={onDown}
         onPointerMove={onMove}
         onPointerUp={onUp}
@@ -154,10 +173,10 @@ export function ThenNow() {
           <span aria-hidden="true" className={styles.vignette} />
         </div>
         <span data-testid="label-then" className={`${styles.label} ${styles.labelThen}`} style={{ opacity: clamp((pct - 8) / 12, 0, 1) }}>
-          c.1890
+          {thenNow.thenLabel}
         </span>
         <span data-testid="label-now" className={`${styles.label} ${styles.labelNow}`} style={{ opacity: clamp((92 - pct) / 12, 0, 1) }}>
-          2006
+          {thenNow.nowLabel}
         </span>
         <span aria-hidden="true" className={styles.divider} style={{ left: `${pct.toFixed(2)}%` }} />
         <div
@@ -167,7 +186,7 @@ export function ThenNow() {
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={rounded}
-          aria-valuetext={`${rounded}% of the 1890 photo shown`}
+          aria-valuetext={`${rounded}% of the ${thenNow.thenLabel.replace(/^c\.\s*/, '')} photo shown`}
           className={styles.knob}
           style={{ left: `${pct.toFixed(2)}%`, transform: `scale(${dragging ? 1.12 : 1})` }}
           onKeyDown={onKey}
@@ -180,7 +199,7 @@ export function ThenNow() {
 
       <Segmented
         label="Show"
-        options={VIEWS}
+        options={views}
         value={view}
         className={styles.segmented}
         onChange={(v) => {

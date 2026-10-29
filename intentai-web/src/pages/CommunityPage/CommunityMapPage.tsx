@@ -7,7 +7,7 @@ import { motion, useReducedMotionConfig } from 'motion/react';
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
-import CityMap, { MAP_ATTRIBUTION, type MapFocus } from '../../features/nearby/map/CityMap';
+import CityMap, { MapCredits, type MapFocus } from '../../features/nearby/map/CityMap';
 import { toScreen, toXY, type View } from '../../features/nearby/map/projection';
 import type { LatLng } from '../../features/nearby/types';
 import {
@@ -547,7 +547,9 @@ function MapInfo() {
             <Icon name="lock" size={14} />
             {PRIVACY_LINE}
           </p>
-          <p className={styles.popoverCredit}>{MAP_ATTRIBUTION}</p>
+          <p className={styles.popoverCredit}>
+            <MapCredits />
+          </p>
         </motion.div>
       )}
     </div>

@@ -1,4 +1,4 @@
-# IntentAI handoff (29 Oct 2026, after commit `670fa0d`)
+# IntentAI handoff (29 Oct 2026: story walks, OneMap, place cards)
 
 Paste this into a new Claude Code session opened in `~/Documents/GitHub/CDE-5311-team1`:
 
@@ -11,9 +11,9 @@ Paste this into a new Claude Code session opened in `~/Documents/GitHub/CDE-5311
 | What | Where |
 | --- | --- |
 | Working folder | `~/Documents/GitHub/CDE-5311-team1` (a git worktree). App in `intentai-web/`. |
-| Branch | `merge/team1-v3`, pushed to `origin` = `Wsamme/CDE-5311` (the owner's repo). Clean at `670fa0d`. |
+| Branch | `merge/team1-v3`, pushed to `origin` = `Wsamme/CDE-5311` (the owner's repo). The latest commit adds story walks, OneMap and place cards. |
 | Team repo | `CDE5311-Aug2026/team-1`. Changes for the team go there as a PR, only when the owner asks. |
-| Live site | https://cde-5311.vercel.app = `670fa0d`. |
+| Live site | https://cde-5311.vercel.app = `670fa0d`. **The latest commit is not deployed yet** (deploy only when the owner asks). |
 | Deploy | From the worktree root: `vercel deploy --prod --yes` (Vercel project `wsammes-projects/cde-5311`, Root Directory `intentai-web`). Git-triggered deploys are **blocked**: the commit email isn't on the Vercel account, so always use the CLI. |
 | Other worktrees | `~/Documents/GitHub/CDE-5311-pr5` (PR #5, for comparing), `~/Documents/GitHub/CDE-5311` (older tree). |
 | 3D city | `Wsamme/EARTH_ONLINE`; the app bundles `intentai-web/public/earth-online/sg/lite.html` (`npm run sync:earth-online -- <checkout>`). |
@@ -21,8 +21,8 @@ Paste this into a new Claude Code session opened in `~/Documents/GitHub/CDE-5311
 ## 2. How to work
 
 - Dev server: `cd intentai-web && npx vite --port 5181`.
-- Unit tests: `NODE_OPTIONS=--no-experimental-webstorage npx vitest run`. At `670fa0d`, **989 pass**.
-- e2e: `npm run build && PW_CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npx playwright test --grep-invert nearby3d`. At `670fa0d`, **123 pass**. (`nearby3d` is left out; `Nearby3D.test.tsx` can be order-flaky in a full run.)
+- Unit tests: `NODE_OPTIONS=--no-experimental-webstorage npx vitest run`. Now **1013 pass**. (`Explorer.test.tsx` › “a submitted search…” can time out at 5 s in a busy full run; it passes alone.)
+- e2e: `npm run build && PW_CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npx playwright test --grep-invert nearby3d`. Now **127 pass**; `e2e/nearby3d.spec.ts` alone also passes. (`nearby3d` is left out of the usual run; `Nearby3D.test.tsx` can be order-flaky in a full run.)
 - Catalogue check: `npm run validate:explore`. A fact needs 20+ words and a deep-link source (a home page is refused).
 - iPhone check: Playwright WebKit with `devices['iPhone 14']`, viewport 390×664. Import Playwright from
   `intentai-web/node_modules/playwright/index.mjs` when the script lives outside the app.
@@ -57,9 +57,14 @@ The base is Team 1's `main` plus our v3 work. The merge decisions are in `docs/M
 - **Nearby** (`features/nearby/`, `pages/NearbyPage/`):
   - **304 published places** in `src/data/explore/places.sg.json`, all with English text.
   - 2D map and 3D view, sheet, search, filters, Save / Check in.
-  - **Routes**: `/nearby/routes` shows the 5 editor routes from the atlas, plus "make a route from an MRT station", which uses the atlas's route engine ported to `features/nearby/routes/engine.ts`.
-  - Route detail has numbered stops on the map.
-  - Place pages show "On routes: …".
+  - **Routes**: `/nearby/routes` shows **3 story walks** (ours), the 5 editor routes from the atlas, and "make a route from an MRT station" (the atlas's engine, ported to `features/nearby/routes/engine.ts`).
+    - Story walks live in `src/data/routes/teamRoutes.ts`: Chinatown story walk (Telok Ayer → Lim Chee Guan), Chinatown food walk (Maxwell → Lim Chee Guan), Kent Ridge (The Spread → NUS Museum → Lee Kong Chian museum → Berlin Wall).
+    - Stops are Nearby places. Atlas places take the atlas's visit time; other visit times are our estimates, shown as "≈ … (estimate)". Hours and closing days come from each place's sourced details; each walk lists the pages behind its note.
+    - Story cards have a "Route" button to their walk (`storyRoute()` in `StoryNearby.tsx`); a walk links back to its story.
+  - Route detail has numbered stops on the map; stops a few metres apart are nudged apart (`spread()` in `map/projection.ts`) so each pin stays tappable.
+  - Place pages show "On routes: …" (story walks and atlas routes).
+  - **2D map detail**: zoomed in (from `TILES_FROM`), OneMap's basemap (Singapore Land Authority) fades in over our ground picture: street names, house numbers, MRT exits. Tiles load from `onemap.gov.sg` (plain images, no user data); offline, the ground picture stays. OneMap's terms require its logo and "OneMap © contributors | Singapore Land Authority" on the map (`OneMapCredit` / `MapCredits` in `CityMap.tsx`). The e2e "no outside requests" checks allow only these tile images.
+  - **Place cards**: every place page opens as a story card (`features/nearby/card/PlaceStoryCard.tsx`): kicker, heading, Chinese name, photo. Each further part (clip, three sourced numbers, then and now, text, "Look for", sources) shows only when `src/data/explore/placeCards.ts` has it for the place. Pilot cards: Thian Hock Keng (Team 1's), Sri Mariamman and Masjid Jamae (both with then and now), NUS Museum, Lee Kong Chian museum, Pagoda Street; Lim Chee Guan, The Spread and the Wall link to Team 1's cards. Card photos are in `public/nearby/cards/`, credited in Settings › Terms & licences.
 - **Place pictures**: card photo → Wikimedia Commons photo (`public/nearby/photos`, credits in `src/data/explore/photos.json`) → 3D thumbnail → 2D map crop (`placePicture()` in `src/data/home/nearbyCards.ts`). To fetch photos for new places, run `node scripts/explore/place-photos.mjs`.
 - **Ask**: answers from your cards, attachments, and both cards fully visible on iPhone.
 - **Community**: the card kit has 200 members (photo portraits plus our cartoon avatars), 200 questions, 954 replies and 41 notifications, all marked as demo content in Settings › Terms & licences.
@@ -82,8 +87,10 @@ The base is Team 1's `main` plus our v3 work. The merge decisions are in `docs/M
 | Lim Chee Guan (New Bridge Road) | `curated:sg-lim-chee-guan-new-bridge-road` | chinatown.sg (history, address, hours); OneMap (059429) |
 | The Spread | `curated:sg-the-spread-nus` | thespread.sg (hours, address, shuttle stop); NUSSU The Ridge (dishes); OneMap (119245) |
 
-## 4. Recent commits (newest first, all live)
+## 4. Recent commits (newest first)
 
+- Latest (not deployed): story walks, OneMap street-level map, place cards template and pilot.
+- Everything below is live.
 - `670fa0d` Three new Nearby places; story cards open them.
 - `64da931` Home crash fix on iPhone: parallax only near the centre.
 - `0fd3156` Story cards: "in Nearby" and "3D" buttons.
@@ -95,10 +102,11 @@ The base is Team 1's `main` plus our v3 work. The merge decisions are in `docs/M
 
 ## 5. Next (the owner's stated direction)
 
-1. **More tour-route combinations.** Build them on the atlas engine and our places, and link them to the story places, for example a Chinatown food walk ending at Lim Chee Guan or a UTown loop with the Wall and The Spread. Every stop and time needs a source.
-2. **Card upgrades.** Team 1's story cards are the model. Give more places that kind of card, with sourced text and only licensed photos.
-3. **Real iPhone check.** The Home crash fix was verified in WebKit at iPhone size, not on a device. Ask the owner to confirm on their phone.
-4. **Open items:**
+1. **A main line for the demo.** The owner said the app lacks one clear demo story. Proposed: make the "scene" (a shared Singapore moment, e.g. queueing for bak kwa before Lunar New Year) the unit: understand (story card) → go (map, route) → do (a check-in with a small spoken task) → talk (Community questions attached to the scene). Fewer, deeper scenes; the 304 places become the toolbox behind them. Next step agreed in principle: a one-page demo storyboard before changing Home and Community. Missing parts: the "do" task and Community-to-scene links.
+2. **Place cards in batches, scene first.** The template is in; each place needs research (≈10–15 min). Tian Tian and Ann Chin have only the template: the MICHELIN Guide site is blank to fetch tools, and other pages disagree on Tian Tian's founding year (1986 or 1987). 120 places have no sourced facts at all.
+3. **Real iPhone check.** The Home crash fix and the OneMap map were checked in WebKit at iPhone size, not on a device. Ask the owner to confirm on their phone.
+4. **Deploy** the latest commit when the owner asks.
+5. **Open items:**
    - The Google Drive folder the owner shared (`1xTEHbmaHgWhlnE5hbnMtooxxMX_6ejxr`) couldn't be opened: it isn't public, and the Drive connector wasn't authorised.
    - The Tembusu and NUS alumni pages are JS-rendered and return empty to fetch tools.
    - OneMap search failed for 138596, 117600 and "Tembusu College".
