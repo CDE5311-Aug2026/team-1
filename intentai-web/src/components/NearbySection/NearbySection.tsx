@@ -1,5 +1,5 @@
 import { useEffect, useId, useReducer, useRef, useState } from 'react';
-import { ALL_HOME_PLACES, HOME_BASE, HOME_BASE_LABEL, HOME_PLACES, homePlace, visiblePins, type HomePlace } from '../../data/homePlaces';
+import { ALL_HOME_PLACES, HOME_BASE, HOME_BASE_LABEL, HOME_PLACES, homePlace, type HomePlace } from '../../data/homePlaces';
 import { usePersistentStore } from '../../data/persistentStore';
 import { placeStoriesStore } from '../../data/stores';
 import { distanceM } from '../../features/nearby/geo';
@@ -12,6 +12,8 @@ import { useReducedMotion } from '../../hooks/useReducedMotion';
 import styles from './NearbySection.module.css';
 
 const BERLIN_ID = 'berlin-wall-fragments';
+/** Every place is a pin on our Singapore map (it clusters them). */
+const MAP_PINS = [...ALL_HOME_PLACES];
 const MIN_ZOOM = 12;
 const MAX_ZOOM = 19;
 
@@ -177,7 +179,7 @@ export function NearbySection({ onOpenPlace, onExplore, focusId, revealMap = fal
         </div>
         <div ref={mapRef} className={styles.map} data-testid="nearby-map">
           <HomeMapFrame
-            pins={visiblePins(state.selectedId)}
+            pins={MAP_PINS}
             selectedId={state.selectedId}
             command={state.command}
             lastFocus={state.lastFocus}

@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation, useParams } from 'react-route
 import { expect, test } from 'vitest';
 import { EMPTY_SOCIAL, communitySocialStore } from '../../data/community/social';
 import { recapStore } from '../../data/moments/recapStore';
-import { explorePersonalStore, insightsStore, lookupsStore, openedCardsStore, questionsStore, tipsStore } from '../../data/stores';
+import { explorePersonalStore, insightsStore, lookupsStore, openedCardsStore, questionsStore, reduceMotionStore, tipsStore } from '../../data/stores';
 import { markVisited } from '../../features/nearby/actions';
 import { patterns, paths } from '../../routes';
 import MomentsPage from './MomentsPage';
@@ -153,19 +153,22 @@ test('recap: sort the facts, then a score; results are stored', async () => {
   expect(recapStore.get().last).toMatchObject({ knew: 2, total: 3 });
 });
 
-test('snap: picking a card photo opens that card (no match percentage)', async () => {
+test('snap: a recent photo is recognised, its card opened and its stamp gains ink', async () => {
   checkIn('curated:sg-thian-hock-keng-temple');
+  reduceMotionStore.set(true);
   const user = userEvent.setup();
   renderPage();
   await user.click(screen.getByRole('button', { name: 'Snap' }));
   const sheet = screen.getByRole('dialog', { name: 'Snap a moment' });
   await user.click(within(sheet).getByRole('button', { name: 'Thian Hock Keng Temple' }));
+  await user.click(within(sheet).getByRole('button', { name: 'Take photo of Thian Hock Keng Temple' }));
+  expect(await within(sheet).findByRole('heading', { level: 3, name: 'Thian Hock Keng Temple' })).toBeInTheDocument();
   expect(openedCardsStore.get()).toContain('thian-hock-keng');
-  const found = screen.getByRole('dialog', { name: /Thian Hock Keng/ });
-  expect(within(found).getByText('CARD FOUND')).toBeInTheDocument();
-  expect(within(found).getByText('+1 card · ink added to your stamp')).toBeInTheDocument();
-  expect(within(found).queryByText(/%/)).not.toBeInTheDocument();
-  expect(within(found).getByRole('link', { name: /Open card/ })).toHaveAttribute('href', '/card/thian-hock-keng');
+  expect(within(sheet).getByText('MATCH FOUND')).toBeInTheDocument();
+  expect(within(sheet).getByText('Chinatown · Monument')).toBeInTheDocument();
+  expect(within(sheet).getByText('93% match')).toBeInTheDocument();
+  expect(within(sheet).getByText('+1 card · ink added to your stamp')).toBeInTheDocument();
+  expect(within(sheet).getByRole('link', { name: /Open card/ })).toHaveAttribute('href', '/card/thian-hock-keng');
 });
 
 test('Community conversations saved to Moments: the live thread while it exists, the snapshot after', async () => {

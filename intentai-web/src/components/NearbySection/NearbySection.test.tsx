@@ -20,6 +20,18 @@ vi.mock('../HomeMap/HomeMap', () => ({
     );
   },
 }));
+// Home now loads our Singapore map (CityHomeMap) by default: the same stub stands in for it.
+vi.mock('../HomeMap/CityHomeMap', () => ({
+  default: function HomeMapStub({ pins, onPinActivate, bottomInset }: HomeMapProps) {
+    return (
+      <div data-testid="map" data-inset={bottomInset}>
+        {pins.map((p) => (
+          <button key={p.id} type="button" aria-label={p.name} onClick={() => onPinActivate(p.id)} />
+        ))}
+      </div>
+    );
+  },
+}));
 
 const BERLIN = 'berlin-wall-fragments';
 const CHINATOWN = 'chinatown';
@@ -103,12 +115,12 @@ function setup(focusId?: string) {
 
 const pinCount = () => within(screen.getByTestId('map')).getAllByRole('button').length;
 
-test('renders the heading and hint, 4 pins and the Berlin card current', async () => {
+test('renders the heading and hint, every place as a pin and the Berlin card current', async () => {
   const { card } = setup();
   expect(screen.getByRole('heading', { level: 2, name: 'Nearby' })).toBeInTheDocument();
   expect(screen.getByText('Swipe a card or tap a pin')).toBeInTheDocument();
   await screen.findByTestId('map');
-  expect(pinCount()).toBe(4);
+  expect(pinCount()).toBe(175); // every place is a pin on our map (it clusters them)
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
 });
 
@@ -119,11 +131,11 @@ test('cards, pins and Locate stay in sync; Open calls onOpenPlace', async () => 
 
   fireEvent.keyDown(card('Berlin Wall Fragments'), { key: 'ArrowRight' });
   expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
-  expect(pinCount()).toBe(5);
+  expect(pinCount()).toBe(175);
   expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'Show my location' }));
-  expect(pinCount()).toBe(4);
+  expect(pinCount()).toBe(175); // every place is a pin on our map (it clusters them)
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
 
   await user.click(within(map).getByRole('button', { name: 'Haw Par Villa' }));
@@ -168,7 +180,8 @@ test('search: picking a place selects its card and shows its area in the pill', 
   const map = await screen.findByTestId('map');
   await user.click(screen.getByRole('button', { name: 'Search' }));
   await user.type(screen.getByRole('textbox', { name: 'Search a place or area' }), 'pagoda');
-  await user.click(screen.getByRole('button', { name: /^Chinatown/ }));
+  // typing searches every real place, so other Chinatown places follow; the story place is first
+  await user.click(screen.getAllByRole('button', { name: /^Chinatown/ })[0]);
   expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
   expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
   expect(screen.queryByRole('textbox')).toBeNull();

@@ -728,6 +728,8 @@ describe('HomeMapFrame', () => {
       onLocate: vi.fn(),
       onExplore: vi.fn(),
       onZoom: vi.fn(),
+      // These tests cover the frame around the Leaflet map (Home itself now loads our Singapore map by default).
+      loadMap: () => import('./HomeMap'),
       ...over,
     } as FrameProps;
   }

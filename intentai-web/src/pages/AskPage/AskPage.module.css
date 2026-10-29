@@ -15,8 +15,9 @@
   flex-direction: column;
   /* Figma content runs 16px from the screen edge, inside AppShell's 20px gutter. */
   margin-inline: calc(1rem - var(--gutter));
-  /* Status bar (48px) above; input ends 105px above the screen bottom (Figma y=739 of 844). */
-  height: max(26rem, calc(100dvh - 9.5625rem));
+  /* Status bar above (48px drawn in the preview, the safe area on a real phone); input ends 105px above the screen
+     bottom (Figma y=739 of 844). */
+  height: max(26rem, calc(100dvh - var(--status-h) - 6.5625rem));
   /* Trim AppShell's bottom padding so the shell ends at the screen bottom (no page scroll); the sticky
      tab bar then rests at Figma y=758. */
   margin-bottom: -5.1875rem;

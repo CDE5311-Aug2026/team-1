@@ -3,6 +3,9 @@ import { EXPLORE_COUNT, type HomePlace } from '../../data/homePlaces';
 import type { LatLng } from '../../features/nearby/types';
 import type { MapCommand } from './camera';
 import type { HomeMapProps } from './HomeMap';
+import { Link, useInRouterContext } from 'react-router-dom';
+import { MAP_ATTRIBUTION } from '../../features/nearby/map/CityMap';
+import { paths } from '../../routes';
 import styles from './HomeMapFrame.module.css';
 
 type MapModule = { default: ComponentType<HomeMapProps> };
@@ -27,7 +30,8 @@ export interface HomeMapFrameProps {
   loadMap?: () => Promise<MapModule>;
 }
 
-const defaultLoadMap = () => import('./HomeMap');
+// Our own Singapore map (CityHomeMap); Team 1's Leaflet HomeMap stays in the repo and can be passed in via loadMap.
+const defaultLoadMap = () => import('./CityHomeMap');
 
 class MapErrorBoundary extends Component<{ onError(): void; children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -56,6 +60,22 @@ function ZoomIcon({ plus }: { plus: boolean }) {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true" focusable="false">
       <path d={plus ? 'M12 5v14M5 12h14' : 'M5 12h14'} />
     </svg>
+  );
+}
+
+/** The 3D view of the selected place in Nearby (a plain link outside a router, e.g. in isolated tests). */
+function ThreeDLink({ selectedId }: { selectedId: string }) {
+  const routed = useInRouterContext();
+  const to = selectedId.startsWith('curated:') ? `${paths.nearby}?view=3d&sel=${encodeURIComponent(selectedId)}` : `${paths.nearby}?view=3d`;
+  const props = { className: `press ${styles.threeD}`, 'aria-label': 'Open this place in 3D', 'data-map-obstacle': '' };
+  return routed ? (
+    <Link to={to} {...props}>
+      3D
+    </Link>
+  ) : (
+    <a href={to} {...props}>
+      3D
+    </a>
   );
 }
 
@@ -95,15 +115,21 @@ export default function HomeMapFrame({ onLocate, onExplore, onZoom, locating = f
         <strong>{EXPLORE_COUNT}</strong> places to explore
       </button>
 
-      <div className={styles.zoom} data-map-obstacle="">
-        <button type="button" className={`press ${styles.zoomButton}`} aria-label="Zoom in" onClick={() => onZoom(1)}>
-          <ZoomIcon plus />
-        </button>
-        <span className={styles.zoomDivider} aria-hidden="true" />
-        <button type="button" className={`press ${styles.zoomButton}`} aria-label="Zoom out" onClick={() => onZoom(-1)}>
-          <ZoomIcon plus={false} />
-        </button>
-      </div>
+      {/* Zoom buttons: the Singapore map draws its own; Team 1's appear only with the Leaflet map. */}
+      {loadMap !== defaultLoadMap && (
+        <div className={styles.zoom} data-map-obstacle="">
+          <button type="button" className={`press ${styles.zoomButton}`} aria-label="Zoom in" onClick={() => onZoom(1)}>
+            <ZoomIcon plus />
+          </button>
+          <span className={styles.zoomDivider} aria-hidden="true" />
+          <button type="button" className={`press ${styles.zoomButton}`} aria-label="Zoom out" onClick={() => onZoom(-1)}>
+            <ZoomIcon plus={false} />
+          </button>
+        </div>
+      )}
+
+      {/* The 3D view of the selected place (Nearby's EARTH ONLINE model). */}
+      <ThreeDLink selectedId={mapProps.selectedId} />
 
       <button type="button" className={`press ${styles.locate}`} aria-label="Show my location" onClick={onLocate} data-map-obstacle="">
         {locating && <span className={`radar ${styles.radar}`} aria-hidden="true" data-testid="locating" />}
@@ -111,9 +137,13 @@ export default function HomeMapFrame({ onLocate, onExplore, onZoom, locating = f
       </button>
 
       <p className={styles.attribution} data-map-obstacle="">
-        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-          © OpenStreetMap contributors
-        </a>
+        {loadMap === defaultLoadMap ? (
+          MAP_ATTRIBUTION
+        ) : (
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+            © OpenStreetMap contributors
+          </a>
+        )}
       </p>
     </div>
   );

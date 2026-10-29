@@ -62,7 +62,7 @@ export function AskHome({ onOpen }: { onOpen: (kind: EntryKind) => void }) {
     <section className={styles.body} aria-label="What do you want to ask today?">
       <BlurText as="h2" text="What do you want to ask today?" className={styles.title} trigger="load" delay={90} stepDuration={0.36} blur={10} distance={18} />
       <div className={styles.deck}>
-        <motion.div {...rise(0.25)}>
+        <motion.div className={styles.slot} {...rise(0.25)}>
         <button
           type="button"
           className={`${styles.card} ${styles.culture}`}
@@ -90,7 +90,7 @@ export function AskHome({ onOpen }: { onOpen: (kind: EntryKind) => void }) {
         </button>
         </motion.div>
 
-        <motion.div {...rise(0.4)}>
+        <motion.div className={styles.slot} {...rise(0.4)}>
         <button
           type="button"
           className={`${styles.card} ${styles.meaning}`}
