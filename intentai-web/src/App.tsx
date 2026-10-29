@@ -42,6 +42,9 @@ const PlaceDetailPage = lazy(() => import('./pages/NearbyPage/PlaceDetailPage'))
 const CollectionsPage = lazy(() => import('./pages/NearbyPage/CollectionsPage'));
 const CollectionDetailPage = lazy(() => import('./pages/NearbyPage/CollectionDetailPage'));
 const SavedPage = lazy(() => import('./pages/NearbyPage/SavedPage'));
+const RoutesPage = lazy(() => import('./pages/NearbyPage/RoutesPage'));
+const RouteDetailPage = lazy(() => import('./pages/NearbyPage/RouteDetailPage'));
+const RoutePlanPage = lazy(() => import('./pages/NearbyPage/RoutePlanPage'));
 
 function Lazy({ children }: { children: ReactNode }) {
   return (
@@ -87,6 +90,9 @@ export default function App() {
           <Route path={paths.collections} element={<Lazy><CollectionsPage /></Lazy>} />
           <Route path={patterns.collection} element={<Lazy><CollectionDetailPage /></Lazy>} />
           <Route path={paths.saved} element={<Lazy><SavedPage /></Lazy>} />
+          <Route path={paths.routes} element={<Lazy><RoutesPage /></Lazy>} />
+          <Route path={patterns.routePlan} element={<Lazy><RoutePlanPage /></Lazy>} />
+          <Route path={patterns.route} element={<Lazy><RouteDetailPage /></Lazy>} />
           <Route path={paths.mySpace} element={<MySpacePage />} />
           <Route path={paths.mySpaceSettings} element={<MySpaceSettingsPage />} />
           <Route path={paths.mySpacePrivacy} element={<MySpacePrivacyPage />} />

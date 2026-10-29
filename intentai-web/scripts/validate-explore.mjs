@@ -14,7 +14,10 @@ const CONTEXTS = ['Hawker centre', 'MRT · bus', 'Kopitiam', 'School', 'Office',
 const PLACEHOLDER = /\b(todo|tbd|lorem|ipsum|placeholder|xxx+|fixme)\b|\?\?\?/i;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 // Real Singapore places the simplified 1:10m outline leaves out (reviewed one by one).
-const OFFSHORE = new Map([['curated:sg-raffles-lighthouse', 'Pulau Satumu, Singapore’s southernmost island']]);
+const OFFSHORE = new Map([
+  ['curated:sg-raffles-lighthouse', 'Pulau Satumu, Singapore’s southernmost island'],
+  ['curated:sg-sisters-islands-marine-park', 'Sisters’ Islands, south of Sentosa'],
+]);
 const words = (s) => (s.trim() ? s.trim().split(/\s+/).length : 0);
 
 function inRing([lng, lat], ring) {
@@ -138,7 +141,8 @@ export function validateCatalogue({ places, areas, regions, collections, outline
     if (!Array.isArray(p.facts) || p.facts.length > 3) errors.push(`${at}: 0–3 facts`);
     for (const f of p.facts ?? []) {
       const n = words(f.text ?? '');
-      if (n < 40 || n > 80) errors.push(`${at} ${f.id}: fact must be 40–80 words (has ${n})`);
+      // 20 words minimum: the Singapore Culture Atlas facts are short, sourced one-liners (no padding).
+      if (n < 20 || n > 80) errors.push(`${at} ${f.id}: fact must be 20–80 words (has ${n})`);
       if (PLACEHOLDER.test(f.text ?? '')) errors.push(`${at} ${f.id}: placeholder text`);
       if (!Array.isArray(f.sources) || f.sources.length === 0) errors.push(`${at} ${f.id}: a fact needs at least one source`);
       for (const s of f.sources ?? []) {

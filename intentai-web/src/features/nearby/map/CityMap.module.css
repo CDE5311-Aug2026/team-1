@@ -40,6 +40,23 @@
   stroke-dasharray: 6 5;
 }
 
+/* a route's suggested order: dashed, under the pins (not road routing) */
+.path {
+  fill: none;
+  stroke: #a3410b;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 7;
+  opacity: 0.9;
+}
+
+/* a route stop's number in place of the category icon */
+.pinLabel {
+  font: 700 0.8125rem/1 var(--font-family);
+  color: var(--text-primary);
+}
+
 .areaLabel {
   font: 600 11px var(--font-family);
   fill: #2c2c2e;

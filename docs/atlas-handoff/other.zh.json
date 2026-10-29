@@ -1,0 +1,1149 @@
+{
+ "routes": [
+  {
+   "id": "clementi-community",
+   "title": "金文泰 · 一餐看懂邻里",
+   "subtitle": "巴刹、潮州庙宇与多族群餐桌",
+   "duration": "约 2–3 小时",
+   "note": "两处熟食中心适合各选一小份，不必吃两顿正餐。清真寺只按接待规则参观；路程需经过真实过街设施。顺序为编辑建议，非地图实时计算。"
+  },
+  {
+   "id": "sunset-way",
+   "title": "斜阳大道 · 老味道与河岸",
+   "subtitle": "旧式西饼、乌鲁班丹水道、社区冰淇淋",
+   "duration": "约 2–3 小时",
+   "note": "先确认水道段开放情况；旧铁路桥另外收藏，禁止按桥面过河。若连道临时关闭，可保留西饼与冰淇淋两站。"
+  },
+  {
+   "id": "nus-rainy-day",
+   "title": "国大 · 两座博物馆的半天",
+   "subtitle": "亚洲艺术与东南亚自然史",
+   "duration": "约 3.5–4.5 小时",
+   "note": "从金文泰搭公交到大学文化中心一带，馆间步行。两馆共同适合到访日通常是周二至周六，公假及局部展区更新须核对。"
+  },
+  {
+   "id": "telok-ayer",
+   "title": "直落亚逸 · 一条街的信仰",
+   "subtitle": "把移民登陆史放进同一段步行",
+   "duration": "约 2–3 小时",
+   "note": "同街的文化机构有不同接待规则；以下只显示已完成卡片的地点。请逐一查看预约及宗教礼仪。"
+  },
+  {
+   "id": "katong",
+   "title": "加东 · 走进土生华人日常",
+   "subtitle": "街屋、家藏与特色餐桌",
+   "duration": "约半天",
+   "note": "私人家藏与历史住宅须先预约。照片中的街屋仍有人居住，保持在公共道路活动。"
+  }
+ ],
+ "stations": [
+  {
+   "id": "pasir-ris",
+   "name_en": "Pasir Ris",
+   "theme": "红树林与海岸日常"
+  },
+  {
+   "id": "tampines",
+   "name_en": "Tampines",
+   "theme": "把社区中心当城市客厅"
+  },
+  {
+   "id": "simei",
+   "name_en": "Simei",
+   "theme": "社区花园与东部日常"
+  },
+  {
+   "id": "tanah-merah",
+   "name_en": "Tanah Merah",
+   "theme": "低密住区与绿道慢走"
+  },
+  {
+   "id": "bedok",
+   "name_en": "Bedok",
+   "theme": "从早餐认识成熟市镇"
+  },
+  {
+   "id": "kembangan",
+   "name_en": "Kembangan",
+   "theme": "沿实乞纳连道看社区"
+  },
+  {
+   "id": "eunos",
+   "name_en": "Eunos",
+   "theme": "马来社区与市镇记忆"
+  },
+  {
+   "id": "paya-lebar",
+   "name_en": "Paya Lebar",
+   "theme": "芽笼士乃的马来文化"
+  },
+  {
+   "id": "aljunied",
+   "name_en": "Aljunied",
+   "theme": "芽笼街屋与民间信仰"
+  },
+  {
+   "id": "kallang",
+   "name_en": "Kallang",
+   "theme": "河流、劳工与城市转型"
+  },
+  {
+   "id": "lavender",
+   "name_en": "Lavender",
+   "theme": "惹兰勿刹的手艺与食物"
+  },
+  {
+   "id": "bugis",
+   "name_en": "Bugis",
+   "theme": "甘榜格南的信仰与街巷"
+  },
+  {
+   "id": "city-hall",
+   "name_en": "City Hall",
+   "theme": "市政建筑里的国家叙事"
+  },
+  {
+   "id": "raffles-place",
+   "name_en": "Raffles Place",
+   "theme": "河口贸易与城市金融"
+  },
+  {
+   "id": "tanjong-pagar",
+   "name_en": "Tanjong Pagar",
+   "theme": "码头城市的多族群街区"
+  },
+  {
+   "id": "outram-park",
+   "name_en": "Outram Park",
+   "theme": "老家宅与土生华人记忆"
+  },
+  {
+   "id": "tiong-bahru",
+   "name_en": "Tiong Bahru",
+   "theme": "战前组屋与菜市场"
+  },
+  {
+   "id": "redhill",
+   "name_en": "Redhill",
+   "theme": "组屋市镇的早餐与步道"
+  },
+  {
+   "id": "queenstown",
+   "name_en": "Queenstown",
+   "theme": "新加坡卫星市镇的起点"
+  },
+  {
+   "id": "commonwealth",
+   "name_en": "Commonwealth",
+   "theme": "组屋山丘与社区信仰"
+  },
+  {
+   "id": "buona-vista",
+   "name_en": "Buona Vista",
+   "theme": "铁路绿廊与创新街区"
+  },
+  {
+   "id": "dover",
+   "name_en": "Dover",
+   "theme": "水道、校园与城市自然"
+  },
+  {
+   "id": "clementi",
+   "name_en": "Clementi",
+   "theme": "从巴刹到旧铁路的邻里漫游"
+  },
+  {
+   "id": "jurong-east",
+   "name_en": "Jurong East",
+   "theme": "从工业新镇到区域中心"
+  },
+  {
+   "id": "chinese-garden",
+   "name_en": "Chinese Garden",
+   "theme": "园林语言与湖区生态"
+  },
+  {
+   "id": "lakeside",
+   "name_en": "Lakeside",
+   "theme": "湖边湿地与新加坡园艺"
+  },
+  {
+   "id": "boon-lay",
+   "name_en": "Boon Lay",
+   "theme": "西部熟食与工业市镇生活"
+  },
+  {
+   "id": "pioneer",
+   "name_en": "Pioneer",
+   "theme": "基层体育与大学城接驳"
+  },
+  {
+   "id": "joo-koon",
+   "name_en": "Joo Koon",
+   "theme": "工业区里的制造与发现"
+  },
+  {
+   "id": "gul-circle",
+   "name_en": "Gul Circle",
+   "theme": "制造业街区观察"
+  },
+  {
+   "id": "tuas-crescent",
+   "name_en": "Tuas Crescent",
+   "theme": "物流城市的公共街道"
+  },
+  {
+   "id": "tuas-west-road",
+   "name_en": "Tuas West Road",
+   "theme": "西端工业天际线"
+  },
+  {
+   "id": "tuas-link",
+   "name_en": "Tuas Link",
+   "theme": "海港边界与灯塔"
+  },
+  {
+   "id": "expo",
+   "name_en": "Expo",
+   "theme": "大型会展与城市水景"
+  },
+  {
+   "id": "changi-airport",
+   "name_en": "Changi Airport",
+   "theme": "机场作为公共花园"
+  },
+  {
+   "id": "bukit-batok",
+   "name_en": "Bukit Batok",
+   "theme": "采石场留下的城市公园"
+  },
+  {
+   "id": "bukit-gombak",
+   "name_en": "Bukit Gombak",
+   "theme": "小桂林的岩壁与倒影"
+  },
+  {
+   "id": "choa-chu-kang",
+   "name_en": "Choa Chu Kang",
+   "theme": "新镇公园与园艺"
+  },
+  {
+   "id": "yew-tee",
+   "name_en": "Yew Tee",
+   "theme": "北部住区与林地连接"
+  },
+  {
+   "id": "kranji",
+   "name_en": "Kranji",
+   "theme": "战争记忆与湿地接驳"
+  },
+  {
+   "id": "marsiling",
+   "name_en": "Marsiling",
+   "theme": "老组屋、山丘与海峡"
+  },
+  {
+   "id": "woodlands",
+   "name_en": "Woodlands",
+   "theme": "边境市镇的公共空间"
+  },
+  {
+   "id": "admiralty",
+   "name_en": "Admiralty",
+   "theme": "垂直甘榜的生活实验"
+  },
+  {
+   "id": "sembawang",
+   "name_en": "Sembawang",
+   "theme": "海军基地留下的街区"
+  },
+  {
+   "id": "canberra",
+   "name_en": "Canberra",
+   "theme": "殖民旧宅与新社区"
+  },
+  {
+   "id": "yishun",
+   "name_en": "Yishun",
+   "theme": "橡胶种植区到城市生活"
+  },
+  {
+   "id": "khatib",
+   "name_en": "Khatib",
+   "theme": "水库岸线与城市休闲"
+  },
+  {
+   "id": "yio-chu-kang",
+   "name_en": "Yio Chu Kang",
+   "theme": "运动、绿道与邻里"
+  },
+  {
+   "id": "ang-mo-kio",
+   "name_en": "Ang Mo Kio",
+   "theme": "组屋新镇与山丘公园"
+  },
+  {
+   "id": "bishan",
+   "name_en": "Bishan",
+   "theme": "新镇建筑与河流复自然"
+  },
+  {
+   "id": "braddell",
+   "name_en": "Braddell",
+   "theme": "成熟组屋区的咖啡与巴刹"
+  },
+  {
+   "id": "toa-payoh",
+   "name_en": "Toa Payoh",
+   "theme": "公共住房史与龙形游乐场"
+  },
+  {
+   "id": "novena",
+   "name_en": "Novena",
+   "theme": "宗教建筑与医疗街区"
+  },
+  {
+   "id": "newton",
+   "name_en": "Newton",
+   "theme": "熟食文化与城市交通节点"
+  },
+  {
+   "id": "orchard",
+   "name_en": "Orchard",
+   "theme": "购物街背后的历史山坡"
+  },
+  {
+   "id": "somerset",
+   "name_en": "Somerset",
+   "theme": "翡翠山街屋与青年空间"
+  },
+  {
+   "id": "dhoby-ghaut",
+   "name_en": "Dhoby Ghaut",
+   "theme": "洗衣业地名与艺术公园"
+  },
+  {
+   "id": "marina-bay",
+   "name_en": "Marina Bay",
+   "theme": "填海造出的城市地景"
+  },
+  {
+   "id": "marina-south-pier",
+   "name_en": "Marina South Pier",
+   "theme": "从城市走向南部岛屿"
+  },
+  {
+   "id": "harbourfront",
+   "name_en": "HarbourFront",
+   "theme": "港口、山丘与离岛入口"
+  },
+  {
+   "id": "chinatown",
+   "name_en": "Chinatown",
+   "theme": "华人移民与多宗教共处"
+  },
+  {
+   "id": "clarke-quay",
+   "name_en": "Clarke Quay",
+   "theme": "河岸仓库与移民贸易"
+  },
+  {
+   "id": "little-india",
+   "name_en": "Little India",
+   "theme": "印度族群的市集与信仰"
+  },
+  {
+   "id": "farrer-park",
+   "name_en": "Farrer Park",
+   "theme": "南亚信仰与邻里餐桌"
+  },
+  {
+   "id": "boon-keng",
+   "name_en": "Boon Keng",
+   "theme": "河道旁的组屋与小贩"
+  },
+  {
+   "id": "potong-pasir",
+   "name_en": "Potong Pasir",
+   "theme": "小市镇的宗教与河岸"
+  },
+  {
+   "id": "woodleigh",
+   "name_en": "Woodleigh",
+   "theme": "比达达利的历史与生态"
+  },
+  {
+   "id": "serangoon",
+   "name_en": "Serangoon",
+   "theme": "东北走廊的日常与社区"
+  },
+  {
+   "id": "kovan",
+   "name_en": "Kovan",
+   "theme": "潮州移民区的味道"
+  },
+  {
+   "id": "hougang",
+   "name_en": "Hougang",
+   "theme": "潮州社区、教堂与河流"
+  },
+  {
+   "id": "buangkok",
+   "name_en": "Buangkok",
+   "theme": "从新社区延伸到甘榜记忆"
+  },
+  {
+   "id": "sengkang",
+   "name_en": "Sengkang",
+   "theme": "新镇公共空间与湿地接驳"
+  },
+  {
+   "id": "punggol",
+   "name_en": "Punggol",
+   "theme": "水道、桥梁与新镇生活"
+  },
+  {
+   "id": "punggol-coast",
+   "name_en": "Punggol Coast",
+   "theme": "数字园区与海岸历史"
+  },
+  {
+   "id": "bras-basah",
+   "name_en": "Bras Basah",
+   "theme": "博物馆与多信仰街区"
+  },
+  {
+   "id": "esplanade",
+   "name_en": "Esplanade",
+   "theme": "表演艺术与海湾公共空间"
+  },
+  {
+   "id": "promenade",
+   "name_en": "Promenade",
+   "theme": "现代建筑与滨海城市"
+  },
+  {
+   "id": "nicoll-highway",
+   "name_en": "Nicoll Highway",
+   "theme": "黄金坊与甘榜格南边缘"
+  },
+  {
+   "id": "stadium",
+   "name_en": "Stadium",
+   "theme": "体育如何组织一座城市"
+  },
+  {
+   "id": "mountbatten",
+   "name_en": "Mountbatten",
+   "theme": "旧机场与河岸记忆"
+  },
+  {
+   "id": "dakota",
+   "name_en": "Dakota",
+   "theme": "大牌老味道与旧组屋故事"
+  },
+  {
+   "id": "macpherson",
+   "name_en": "MacPherson",
+   "theme": "工业边缘的社区美食"
+  },
+  {
+   "id": "tai-seng",
+   "name_en": "Tai Seng",
+   "theme": "制造业转型与工厂餐饮"
+  },
+  {
+   "id": "bartley",
+   "name_en": "Bartley",
+   "theme": "社区信仰与低密街区"
+  },
+  {
+   "id": "lorong-chuan",
+   "name_en": "Lorong Chuan",
+   "theme": "住宅区里的博物馆线索"
+  },
+  {
+   "id": "marymount",
+   "name_en": "Marymount",
+   "theme": "水库入口与社区生活"
+  },
+  {
+   "id": "caldecott",
+   "name_en": "Caldecott",
+   "theme": "广播山丘与水库接驳"
+  },
+  {
+   "id": "botanic-gardens",
+   "name_en": "Botanic Gardens",
+   "theme": "植物学、园艺与世界遗产"
+  },
+  {
+   "id": "farrer-road",
+   "name_en": "Farrer Road",
+   "theme": "熟食与旧墓地记忆"
+  },
+  {
+   "id": "holland-village",
+   "name_en": "Holland Village",
+   "theme": "本土街区与跨文化餐桌"
+  },
+  {
+   "id": "one-north",
+   "name_en": "one-north",
+   "theme": "科研园区与殖民旧营房"
+  },
+  {
+   "id": "kent-ridge",
+   "name_en": "Kent Ridge",
+   "theme": "大学、自然与战时记忆"
+  },
+  {
+   "id": "haw-par-villa",
+   "name_en": "Haw Par Villa",
+   "theme": "华人神话的立体图像"
+  },
+  {
+   "id": "pasir-panjang",
+   "name_en": "Pasir Panjang",
+   "theme": "港口记忆与山岗战史"
+  },
+  {
+   "id": "labrador-park",
+   "name_en": "Labrador Park",
+   "theme": "炮台、红树林与海岸"
+  },
+  {
+   "id": "telok-blangah",
+   "name_en": "Telok Blangah",
+   "theme": "高架绿道与山丘组屋"
+  },
+  {
+   "id": "keppel",
+   "name_en": "Keppel",
+   "theme": "港口土地的城市转型"
+  },
+  {
+   "id": "cantonment",
+   "name_en": "Cantonment",
+   "theme": "铁路遗产与当代艺术"
+  },
+  {
+   "id": "prince-edward-road",
+   "name_en": "Prince Edward Road",
+   "theme": "华人会馆与海港信仰"
+  },
+  {
+   "id": "bayfront",
+   "name_en": "Bayfront",
+   "theme": "超级树、植物与当代展览"
+  },
+  {
+   "id": "bukit-panjang",
+   "name_en": "Bukit Panjang",
+   "theme": "蓄水塘与组屋绿道"
+  },
+  {
+   "id": "cashew",
+   "name_en": "Cashew",
+   "theme": "走向自然保护区边缘"
+  },
+  {
+   "id": "hillview",
+   "name_en": "Hillview",
+   "theme": "铁路与旧工厂改造"
+  },
+  {
+   "id": "hume",
+   "name_en": "Hume",
+   "theme": "战时投降现场与旧采石场"
+  },
+  {
+   "id": "beauty-world",
+   "name_en": "Beauty World",
+   "theme": "武吉知马旧商圈与山林"
+  },
+  {
+   "id": "king-albert-park",
+   "name_en": "King Albert Park",
+   "theme": "铁路建筑与生态连通"
+  },
+  {
+   "id": "sixth-avenue",
+   "name_en": "Sixth Avenue",
+   "theme": "绿道、咖啡与低密街区"
+  },
+  {
+   "id": "tan-kah-kee",
+   "name_en": "Tan Kah Kee",
+   "theme": "教育慈善与热带校园边界"
+  },
+  {
+   "id": "stevens",
+   "name_en": "Stevens",
+   "theme": "校园、使馆与植物园延伸"
+  },
+  {
+   "id": "rochor",
+   "name_en": "Rochor",
+   "theme": "旧商圈与街屋设计"
+  },
+  {
+   "id": "downtown",
+   "name_en": "Downtown",
+   "theme": "金融区的公共艺术与绿地"
+  },
+  {
+   "id": "telok-ayer",
+   "name_en": "Telok Ayer",
+   "theme": "早期登陆海岸的多宗教街"
+  },
+  {
+   "id": "fort-canning",
+   "name_en": "Fort Canning",
+   "theme": "山丘上的王朝与殖民史"
+  },
+  {
+   "id": "bencoolen",
+   "name_en": "Bencoolen",
+   "theme": "艺术院校与公共博物馆"
+  },
+  {
+   "id": "jalan-besar",
+   "name_en": "Jalan Besar",
+   "theme": "手工业街巷与信仰"
+  },
+  {
+   "id": "bendemeer",
+   "name_en": "Bendemeer",
+   "theme": "工业街巷与邻里食堂"
+  },
+  {
+   "id": "geylang-bahru",
+   "name_en": "Geylang Bahru",
+   "theme": "河畔组屋与市场"
+  },
+  {
+   "id": "mattar",
+   "name_en": "Mattar",
+   "theme": "社区宗教与平民味道"
+  },
+  {
+   "id": "ubi",
+   "name_en": "Ubi",
+   "theme": "把工业区读作城市文化"
+  },
+  {
+   "id": "kaki-bukit",
+   "name_en": "Kaki Bukit",
+   "theme": "工业街区与住区的边缘"
+  },
+  {
+   "id": "bedok-north",
+   "name_en": "Bedok North",
+   "theme": "河道绿廊与邻里早餐"
+  },
+  {
+   "id": "bedok-reservoir",
+   "name_en": "Bedok Reservoir",
+   "theme": "水库、蓄水与城市运动"
+  },
+  {
+   "id": "tampines-west",
+   "name_en": "Tampines West",
+   "theme": "新镇公共空间与庙宇"
+  },
+  {
+   "id": "tampines-east",
+   "name_en": "Tampines East",
+   "theme": "生态公园与老街生活"
+  },
+  {
+   "id": "upper-changi",
+   "name_en": "Upper Changi",
+   "theme": "大学建筑与城市边缘"
+  },
+  {
+   "id": "woodlands-north",
+   "name_en": "Woodlands North",
+   "theme": "海峡边的城市边界"
+  },
+  {
+   "id": "woodlands-south",
+   "name_en": "Woodlands South",
+   "theme": "现代清真寺与新镇绿地"
+  },
+  {
+   "id": "springleaf",
+   "name_en": "Springleaf",
+   "theme": "河岸森林与村落记忆"
+  },
+  {
+   "id": "lentor",
+   "name_en": "Lentor",
+   "theme": "森林边缘与新市镇"
+  },
+  {
+   "id": "mayflower",
+   "name_en": "Mayflower",
+   "theme": "宏茂桥旧社区与早餐"
+  },
+  {
+   "id": "bright-hill",
+   "name_en": "Bright Hill",
+   "theme": "寺院建筑与山林步道"
+  },
+  {
+   "id": "upper-thomson",
+   "name_en": "Upper Thomson",
+   "theme": "咖啡街与淡水生态"
+  },
+  {
+   "id": "napier",
+   "name_en": "Napier",
+   "theme": "植物园南门与殖民建筑"
+  },
+  {
+   "id": "orchard-boulevard",
+   "name_en": "Orchard Boulevard",
+   "theme": "老街边缘的艺术与使馆"
+  },
+  {
+   "id": "great-world",
+   "name_en": "Great World",
+   "theme": "河谷娱乐史与河岸生活"
+  },
+  {
+   "id": "havelock",
+   "name_en": "Havelock",
+   "theme": "河谷老社区与街边小吃"
+  },
+  {
+   "id": "maxwell",
+   "name_en": "Maxwell",
+   "theme": "熟食、城市规划与古刹"
+  },
+  {
+   "id": "shenton-way",
+   "name_en": "Shenton Way",
+   "theme": "商务区里的华人文化"
+  },
+  {
+   "id": "gardens-by-the-bay",
+   "name_en": "Gardens by the Bay",
+   "theme": "蓄水坝与城市园艺"
+  },
+  {
+   "id": "tanjong-rhu",
+   "name_en": "Tanjong Rhu",
+   "theme": "水上运动与造船地名"
+  },
+  {
+   "id": "katong-park",
+   "name_en": "Katong Park",
+   "theme": "海岸线移动留下的公园"
+  },
+  {
+   "id": "tanjong-katong",
+   "name_en": "Tanjong Katong",
+   "theme": "欧亚家族与东部街巷"
+  },
+  {
+   "id": "marine-parade",
+   "name_en": "Marine Parade",
+   "theme": "土生华人街屋与加东餐桌"
+  },
+  {
+   "id": "marine-terrace",
+   "name_en": "Marine Terrace",
+   "theme": "东部邻里与宗教建筑"
+  },
+  {
+   "id": "siglap",
+   "name_en": "Siglap",
+   "theme": "老村落与东海岸生活"
+  },
+  {
+   "id": "bayshore",
+   "name_en": "Bayshore",
+   "theme": "从住区走向海岸"
+  },
+  {
+   "id": "south-view",
+   "name_en": "South View",
+   "theme": "日常菜市场与学校街区"
+  },
+  {
+   "id": "keat-hong",
+   "name_en": "Keat Hong",
+   "theme": "组屋社区与口袋公园"
+  },
+  {
+   "id": "teck-whye",
+   "name_en": "Teck Whye",
+   "theme": "宗教与邻里共处"
+  },
+  {
+   "id": "phoenix",
+   "name_en": "Phoenix",
+   "theme": "低密街区与绿道"
+  },
+  {
+   "id": "petir",
+   "name_en": "Petir",
+   "theme": "蓄水塘与邻里步道"
+  },
+  {
+   "id": "pending",
+   "name_en": "Pending",
+   "theme": "武吉班让的社区日常"
+  },
+  {
+   "id": "bangkit",
+   "name_en": "Bangkit",
+   "theme": "社区巴刹与早餐"
+  },
+  {
+   "id": "fajar",
+   "name_en": "Fajar",
+   "theme": "市镇绿意与邻里餐桌"
+  },
+  {
+   "id": "segar",
+   "name_en": "Segar",
+   "theme": "自然公园边缘"
+  },
+  {
+   "id": "jelapang",
+   "name_en": "Jelapang",
+   "theme": "山麓新镇步行"
+  },
+  {
+   "id": "senja",
+   "name_en": "Senja",
+   "theme": "新一代熟食中心"
+  },
+  {
+   "id": "compassvale",
+   "name_en": "Compassvale",
+   "theme": "河道旁的年轻新镇"
+  },
+  {
+   "id": "rumbia",
+   "name_en": "Rumbia",
+   "theme": "从组屋走向绿地"
+  },
+  {
+   "id": "bakau",
+   "name_en": "Bakau",
+   "theme": "东北社区步行"
+  },
+  {
+   "id": "kangkar",
+   "name_en": "Kangkar",
+   "theme": "河岸与港脚地名"
+  },
+  {
+   "id": "ranggung",
+   "name_en": "Ranggung",
+   "theme": "组屋公共艺术与花园"
+  },
+  {
+   "id": "cheng-lim",
+   "name_en": "Cheng Lim",
+   "theme": "医疗园区与社区花园"
+  },
+  {
+   "id": "farmway",
+   "name_en": "Farmway",
+   "theme": "河畔湿地与体育"
+  },
+  {
+   "id": "kupang",
+   "name_en": "Kupang",
+   "theme": "水边住区的步行生活"
+  },
+  {
+   "id": "thanggam",
+   "name_en": "Thanggam",
+   "theme": "食街与甘榜记忆"
+  },
+  {
+   "id": "fernvale",
+   "name_en": "Fernvale",
+   "theme": "社区熟食与邻里花园"
+  },
+  {
+   "id": "layar",
+   "name_en": "Layar",
+   "theme": "组屋中的共享绿地"
+  },
+  {
+   "id": "tongkang",
+   "name_en": "Tongkang",
+   "theme": "从居民区走向水道"
+  },
+  {
+   "id": "renjong",
+   "name_en": "Renjong",
+   "theme": "东北新镇的日常空间"
+  },
+  {
+   "id": "cove",
+   "name_en": "Cove",
+   "theme": "水道与住区慢行"
+  },
+  {
+   "id": "meridian",
+   "name_en": "Meridian",
+   "theme": "榜鹅组屋步行观察"
+  },
+  {
+   "id": "coral-edge",
+   "name_en": "Coral Edge",
+   "theme": "河畔熟食与社区"
+  },
+  {
+   "id": "riviera",
+   "name_en": "Riviera",
+   "theme": "河岸步道与餐饮"
+  },
+  {
+   "id": "kadaloor",
+   "name_en": "Kadaloor",
+   "theme": "沿河的新社区"
+  },
+  {
+   "id": "oasis",
+   "name_en": "Oasis",
+   "theme": "水道花园与邻里生活"
+  },
+  {
+   "id": "damai",
+   "name_en": "Damai",
+   "theme": "水道边的休闲空间"
+  },
+  {
+   "id": "sam-kee",
+   "name_en": "Sam Kee",
+   "theme": "运动与水道公园"
+  },
+  {
+   "id": "teck-lee",
+   "name_en": "Teck Lee",
+   "theme": "数字园区与海岸接驳"
+  },
+  {
+   "id": "punggol-point",
+   "name_en": "Punggol Point",
+   "theme": "海边码头与历史记忆"
+  },
+  {
+   "id": "samudera",
+   "name_en": "Samudera",
+   "theme": "海岸步道与餐桌"
+  },
+  {
+   "id": "nibong",
+   "name_en": "Nibong",
+   "theme": "河口与远离市中心的风景"
+  },
+  {
+   "id": "sumang",
+   "name_en": "Sumang",
+   "theme": "水道住宅与桥梁"
+  },
+  {
+   "id": "soo-teck",
+   "name_en": "Soo Teck",
+   "theme": "住宅区的绿道连接"
+  }
+ ],
+ "collections": [
+  "米其林",
+  "本土历史",
+  "华人饮食",
+  "宗教建筑",
+  "熟食中心",
+  "米其林必比登",
+  "精致餐饮",
+  "小众博物馆",
+  "黑珍珠",
+  "华人文化",
+  "社区公园",
+  "金文泰慢游",
+  "印度文化",
+  "米其林星级",
+  "伊斯兰文化",
+  "工业遗产",
+  "湿地生态",
+  "雨天备选",
+  "米其林入选",
+  "马来文化",
+  "亲子探索",
+  "兴都教文化",
+  "历史店屋",
+  "组屋生活",
+  "观鸟",
+  "马来饮食",
+  "印度饮食",
+  "土生华人饮食",
+  "海岸散步",
+  "二战记忆",
+  "佛教文化",
+  "土生华人",
+  "城市建筑",
+  "城市水系统",
+  "城市生态",
+  "城市观景",
+  "建筑细节",
+  "社区生活",
+  "组屋区文化",
+  "自然保护区",
+  "自然公园",
+  "传统糕点",
+  "公园连道",
+  "森林步道",
+  "水库景观",
+  "海鲜",
+  "潮州文化",
+  "离岛探索",
+  "预约体验",
+  "NUS 周边",
+  "公共艺术",
+  "军事历史",
+  "南部山脊",
+  "城市再生",
+  "基督宗教文化",
+  "新加坡本土饮食",
+  "欧亚文化",
+  "河岸散步",
+  "海岸与红树林",
+  "海岸生态",
+  "煮炒",
+  "甘榜生活",
+  "生态保育",
+  "粤菜",
+  "采石场景观",
+  "饮食文化",
+  "骑行",
+  "公共建筑",
+  "农场体验",
+  "历史建筑",
+  "历史街区",
+  "城市规划",
+  "家居收藏",
+  "小众地点",
+  "少数社群",
+  "无障碍散步",
+  "日本饮食",
+  "本土生活",
+  "本土融合饮食",
+  "机场城市",
+  "森林徒步",
+  "水务工程",
+  "法式饮食",
+  "海南文化",
+  "港口城市",
+  "登布西",
+  "社区历史",
+  "社区老店",
+  "福建移民",
+  "移民历史",
+  "空中花园",
+  "自然教育",
+  "蓄水池与水文化",
+  "道教文化",
+  "邻里夜食",
+  "食物与土地",
+  "中华园林",
+  "主题园林",
+  "乡村探索",
+  "亚洲艺术",
+  "亚美尼亚文化",
+  "亲子散步",
+  "农业历史",
+  "冰淇淋",
+  "北欧饮食",
+  "南亚饮食",
+  "印度煎饼",
+  "可持续城市",
+  "咖啡店",
+  "咖喱鱼头",
+  "喀拉拉文化",
+  "园艺文化",
+  "土生社群文化",
+  "圣淘沙",
+  "城市变迁",
+  "城市景观",
+  "城市步行",
+  "城市生活",
+  "多信仰空间",
+  "女性历史",
+  "宗族会馆",
+  "室内文化",
+  "室内花园",
+  "小众自然",
+  "工艺收藏",
+  "希腊饮食",
+  "建筑摄影",
+  "当代艺术",
+  "影视取景与故事",
+  "慢步行",
+  "文化体验",
+  "文化建筑",
+  "斯里兰卡饮食",
+  "新加坡华族文化",
+  "日本园林",
+  "日落",
+  "景观设计",
+  "本土甜品",
+  "村落遗迹",
+  "椰浆饭",
+  "民间信仰",
+  "沙爹",
+  "泰国文化",
+  "泰式饮食",
+  "海军基地历史",
+  "海军基地记忆",
+  "海洋保育",
+  "潮州饮食",
+  "澳洲饮食",
+  "热带雨林",
+  "犹太文化",
+  "独特体验",
+  "生物多样性",
+  "疗愈花园",
+  "社区小店",
+  "社区散步",
+  "社区文化",
+  "社区记忆",
+  "神话故事",
+  "素食",
+  "群岛文化",
+  "肉骨茶",
+  "自然保育史",
+  "自然博物馆",
+  "航空历史",
+  "航空社区",
+  "航空观察",
+  "节庆文化",
+  "花园餐饮",
+  "英式饮食",
+  "葡萄牙文化",
+  "语言文化",
+  "跨国革命史",
+  "车地亚文化",
+  "边境城市",
+  "邻里餐饮",
+  "野餐草地",
+  "铁路遗产",
+  "锡克文化",
+  "锡兰泰米尔文化",
+  "阅读空间",
+  "陶艺文化",
+  "韩国饮食",
+  "音乐文化",
+  "马来群岛饮食",
+  "黑白洋房"
+ ]
+}

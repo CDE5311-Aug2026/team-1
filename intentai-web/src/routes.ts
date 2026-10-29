@@ -19,6 +19,11 @@ export const paths = {
   collections: '/nearby/collections',
   collection: (id: string) => `/nearby/collections/${encodeURIComponent(id)}`,
   saved: '/nearby/saved',
+  /** Tour routes from the Singapore Culture Atlas: the editor's routes and "make a route from a station". */
+  routes: '/nearby/routes',
+  route: (id: string) => `/nearby/routes/${encodeURIComponent(id)}`,
+  /** A route generated from a station; the query (station, budget, mode, theme, date) makes it shareable. */
+  routePlan: (search: string) => `/nearby/routes/plan${search ? `?${search}` : ''}`,
   nearbyPlace: (key: string) => `/nearby/place/${encodeURIComponent(key)}`,
   /** Home place page (carousel "Open", Deepavali Berlin Wall row). */
   homePlace: (id: string) => `/place/${encodeURIComponent(id)}`,
@@ -57,6 +62,8 @@ export const patterns = {
   placeCard: '/place/:placeId/:facet',
   nearbyPlace: '/nearby/place/:placeKey',
   collection: '/nearby/collections/:collectionId',
+  routePlan: '/nearby/routes/plan',
+  route: '/nearby/routes/:routeId',
   place: '/place/:placeId',
   card: '/card/:cardId',
 } as const;

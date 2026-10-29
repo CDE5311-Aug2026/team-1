@@ -429,6 +429,9 @@ export default function ExplorePage() {
           <h1 className={x.title}>Nearby</h1>
         </div>
         <nav className={x.sections} aria-label="Nearby sections">
+          <Link className={x.sectionLink} to={paths.routes}>
+            Routes
+          </Link>
           <Link className={x.sectionLink} to={paths.collections}>
             Collections
           </Link>

@@ -29,6 +29,8 @@ export interface MapPin {
   location: LatLng;
   category: Category;
   visited?: boolean;
+  /** Short text drawn instead of the category icon (a route stop's number). */
+  label?: string;
 }
 
 /** Zoom in, zoom out and recenter: the 2D map's buttons, also used over the 3D view so both look and work the same. */
@@ -110,6 +112,10 @@ interface CityMapProps {
   readOnly?: boolean;
   /** 'hidden': the page shows the map credit itself (e.g. behind an info button); default 'inline'. */
   attribution?: 'inline' | 'hidden';
+  /** A dashed line through these points, in order (a route's suggested order; not road routing). */
+  path?: LatLng[];
+  /** false: every pin is drawn on its own (numbered route stops); default true. */
+  clusterPins?: boolean;
 }
 
 /** The map credit (OSM licence): shown on the map, or by a page that hides it behind its own control. */
@@ -256,12 +262,17 @@ export default function CityMap({
   insets,
   controlsTop,
   attribution = 'inline',
+  path,
+  clusterPins = true,
 }: CityMapProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controlsRef = useRef<HTMLDivElement>(null);
   /** The zoom / recenter buttons' box in map px; a pin under it could be neither seen nor tapped. */
-  const [controlsBox, setControlsBox] = useState<{ l: number; r: number; t: number; b: number } | null>(null);
+  type Box = { l: number; r: number; t: number; b: number };
+  /** Plus any other floating control over the map that marks itself `data-map-obstacle` (Home's 3D, locate and
+   *  count buttons, the search pill) inside the map's frame (`data-map-bounds` / `data-map-frame`). */
+  const [controlsBoxes, setControlsBoxes] = useState<Box[]>([]);
   const [width, setWidth] = useState(350);
   const [boxHeight, setBoxHeight] = useState(fixedHeight ?? 300);
   const height = fixedHeight ?? boxHeight;
@@ -295,9 +306,17 @@ export default function CityMap({
 
   // Where the zoom / recenter buttons sit over the map (they move only with the map's size and the insets).
   useLayoutEffect(() => {
-    const box = boxRef.current?.getBoundingClientRect();
-    const c = controlsRef.current?.getBoundingClientRect();
-    setControlsBox(box && c && c.width > 0 ? { l: c.left - box.left, r: c.right - box.left, t: c.top - box.top, b: c.bottom - box.top } : null);
+    const el = boxRef.current;
+    const box = el?.getBoundingClientRect();
+    if (!el || !box) return setControlsBoxes([]);
+    const frame = el.closest('[data-map-bounds]') ?? el.closest('[data-map-frame]');
+    const obstacles = [controlsRef.current, ...Array.from(frame?.querySelectorAll<HTMLElement>('[data-map-obstacle]') ?? [])];
+    setControlsBoxes(
+      obstacles.flatMap((o) => {
+        const c = o?.getBoundingClientRect();
+        return c && c.width > 0 ? [{ l: c.left - box.left, r: c.right - box.left, t: c.top - box.top, b: c.bottom - box.top }] : [];
+      }),
+    );
   }, [width, height, controlsTop, insetTop]);
 
   // Apply focus (initial view, recenter, new search area) within the uncovered part of the map: the focus point
@@ -575,15 +594,16 @@ export default function CityMap({
     // The selected pin is never hidden inside a cluster. Output stays in key order so a focused pin's
     // button keeps its place in the DOM (focus is not lost when it becomes selected).
     const selectedPin = visible.find((p) => p.key === selectedKey);
-    const rest = cluster(visible.filter((p) => p !== selectedPin), (p) => p.s, CLUSTER_PX);
+    const others = visible.filter((p) => p !== selectedPin);
+    const rest = clusterPins ? cluster(others, (p) => p.s, CLUSTER_PX) : others.map((p) => ({ id: p.key, x: p.s.x, y: p.s.y, items: [p] }));
     // A pin or cluster under the zoom buttons is hidden (it could not be tapped, and its target would be covered:
     // WCAG 2.5.8); panning brings it out. The selected pin always shows.
-    const clear = controlsBox
-      ? rest.filter((c) => c.x + TARGET_HALF_PX <= controlsBox.l || c.x - TARGET_HALF_PX >= controlsBox.r || c.y + TARGET_HALF_PX <= controlsBox.t || c.y - TARGET_HALF_PX >= controlsBox.b)
-      : rest;
+    const clear = rest.filter((c) =>
+      controlsBoxes.every((k) => c.x + TARGET_HALF_PX <= k.l || c.x - TARGET_HALF_PX >= k.r || c.y + TARGET_HALF_PX <= k.t || c.y - TARGET_HALF_PX >= k.b),
+    );
     const all = selectedPin ? [...clear, { id: selectedPin.key, x: selectedPin.s.x, y: selectedPin.s.y, items: [selectedPin] }] : clear;
     return all.sort((a, b) => (a.items[0].key < b.items[0].key ? -1 : a.items[0].key > b.items[0].key ? 1 : 0));
-  }, [pins, view, width, height, selectedKey, controlsBox]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pins, view, width, height, selectedKey, controlsBoxes, clusterPins]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openCluster = (items: { pin: MapPin }[]) => {
     const pts = items.map((i) => toXY(i.pin.location));
@@ -595,6 +615,13 @@ export default function CityMap({
     ? { c: toScreen(toXY(circle.center), fullView), r: circle.radiusM * view.scale }
     : null;
   const youPt = you ? toScreen(toXY(you), fullView) : null;
+  const pathPoints =
+    path && path.length > 1
+      ? path
+          .map((p) => toScreen(toXY(p), fullView))
+          .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+          .join(' ')
+      : null;
   const showLabels = view.scale < 0.03;
   // Area names never sit under a pin or on another name (a clean overview, like a maps app).
   const placedLabels = useMemo(() => {
@@ -638,6 +665,7 @@ export default function CityMap({
       >
         <canvas ref={canvasRef} className={styles.canvas} style={{ width, height }} aria-hidden="true" />
         <svg className={styles.overlay} width={width} height={height} aria-hidden="true">
+          {pathPoints && <polyline points={pathPoints} className={styles.path} data-testid="map-path" />}
           {circleGeom && (
             <circle cx={circleGeom.c.x} cy={circleGeom.c.y} r={circleGeom.r} className={styles.radius} />
           )}
@@ -679,7 +707,7 @@ export default function CityMap({
                 role="img"
                 aria-label={`${pin.name}, ${CATEGORY_INFO[pin.category].label}`}
               >
-                <Icon name={pin.category} size={selected ? 20 : 16} />
+                {pin.label ? <span className={styles.pinLabel}>{pin.label}</span> : <Icon name={pin.category} size={selected ? 20 : 16} />}
               </span>
             );
           }
@@ -694,7 +722,7 @@ export default function CityMap({
               onClick={() => !dragged.current && onSelect(pin.key)}
               data-pin={pin.key}
             >
-              <Icon name={pin.category} size={selected ? 20 : 16} />
+              {pin.label ? <span className={styles.pinLabel}>{pin.label}</span> : <Icon name={pin.category} size={selected ? 20 : 16} />}
               {pin.visited && <span className={styles.visitedTick} aria-hidden="true">✓</span>}
             </button>
           );

@@ -745,7 +745,7 @@ describe('HomeMapFrame', () => {
   it('renders the count chip, controls and attribution, and wires them', async () => {
     const p = frameProps();
     const { rerender } = render(<HomeMapFrame {...p} />);
-    fireEvent.click(screen.getByRole('button', { name: '173 places to explore' }));
+    fireEvent.click(screen.getByRole('button', { name: '301 places to explore' }));
     expect(p.onExplore).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }));
     expect(p.onZoom).toHaveBeenLastCalledWith(1);

@@ -238,6 +238,18 @@
   min-width: 0;
 }
 
+/* Narrow phones: the three section links (Routes, Collections, Saved) go on their own line under the title; the
+   sheet's peek grows by that line (NARROW_EXTRA_PX in BottomSheet) so the phrases row stays above the tab bar. */
+@media (max-width: 374px) {
+  .titleRow {
+    flex-wrap: wrap;
+  }
+
+  .titleText {
+    flex-basis: 100%;
+  }
+}
+
 .title {
   margin: 0;
   font-size: 1.375rem;

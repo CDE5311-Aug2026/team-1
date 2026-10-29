@@ -1,6 +1,6 @@
 // One place: practical info, the dataset's intro, sourced fun facts, a language tip, collection
 // membership, Save / Visited (self-reported), Directions and the 3D view (NBR 18–21, 24).
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import { useExplorePersonal } from '../../features/nearby/actions';
@@ -20,6 +20,8 @@ import CityMap from '../../features/nearby/map/CityMap';
 import { stateOf } from '../../features/nearby/personal';
 import { paths } from '../../routes';
 
+// The atlas (routes and their texts) is large: its "On routes" line loads after the page.
+const OnRoutes = lazy(() => import('./OnRoutes'));
 
 export default function PlaceDetailPage() {
   const { placeKey } = useParams();
@@ -87,6 +89,9 @@ function Detail({ place }: { place: CuratedPlace }) {
           </div>
         </div>
         <StorageWarning />
+        <Suspense fallback={null}>
+          <OnRoutes placeKey={place.id} />
+        </Suspense>
 
         <div className={styles.row}>
           <div className={styles.segmented} role="group" aria-label="View">

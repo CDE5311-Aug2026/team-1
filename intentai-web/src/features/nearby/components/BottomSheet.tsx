@@ -31,8 +31,12 @@ export function useWideLayout(): boolean {
   return wide;
 }
 
+/** Extra peek on phones narrower than 375px, where Explore's section links wrap under the title. */
+export const NARROW_EXTRA_PX = 44;
+const narrowExtra = () => (typeof window !== 'undefined' && window.innerWidth > 0 && window.innerWidth < 375 ? NARROW_EXTRA_PX : 0);
+
 export function detentHeight(d: Detent, vh = viewportHeight()): number {
-  if (d === 'peek') return PEEK_PX;
+  if (d === 'peek') return PEEK_PX + narrowExtra();
   if (d === 'half') return Math.round(Math.max(PEEK_PX + 80, vh * 0.52));
   return Math.max(PEEK_PX + 120, vh - FULL_TOP_PX);
 }
