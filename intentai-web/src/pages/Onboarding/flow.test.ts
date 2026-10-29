@@ -1,0 +1,99 @@
+import { expect, test } from 'vitest';
+import { DEFAULT_ONBOARDING, isOnboarding, type Onboarding } from '../../data/domain';
+import { STORAGE_PREFIX } from '../../data/persistentStore';
+import { onboardingStore, profileStore } from '../../data/stores';
+import { COMPLETED_ONBOARDING } from '../../test/onboardingFixture';
+import { applyPatch, finishOnboarding, resumeStep, syncProfile } from './flow';
+import { STEPS } from './steps';
+
+const draft = (patch: Partial<Onboarding>): Onboarding => ({ ...DEFAULT_ONBOARDING, ...patch });
+const ids = STEPS.map((s) => s.id);
+const ALL_ANSWERS = { ...COMPLETED_ONBOARDING, done: false, completedAt: null };
+
+test('the step list is the canvas order and every step module is registered', () => {
+  expect(ids).toEqual(['welcome', 'from', 'time', 'role', 'language', 'base', 'topics', 'done']);
+  expect(STEPS.map((s) => s.shell)).toEqual(['none', 'question', 'question', 'question', 'question', 'question', 'question', 'done']);
+});
+
+test('answered follows the canvas rule: welcome/done always, topics needs all 4, others need a value', () => {
+  const empty = DEFAULT_ONBOARDING;
+  expect(STEPS.map((s) => s.answered(empty))).toEqual([true, false, false, false, false, false, false, true]);
+  expect(STEPS.map((s) => s.answered(ALL_ANSWERS))).toEqual(STEPS.map(() => true));
+  const topics = STEPS[ids.indexOf('topics')];
+  expect(topics.answered(draft({ topics: ['food', 'festival', 'monument'] }))).toBe(false);
+});
+
+test('resume: welcome before any answer, then the first unanswered question, topics when all are set', () => {
+  expect(resumeStep(STEPS, DEFAULT_ONBOARDING)).toBe(0);
+  expect(resumeStep(STEPS, draft({ from: 'India' }))).toBe(ids.indexOf('time'));
+  expect(resumeStep(STEPS, draft({ from: 'India', time: 'lt3m', role: 'student' }))).toBe(ids.indexOf('language'));
+  // A gap earlier in the list wins over later answers.
+  expect(resumeStep(STEPS, draft({ time: 'lt3m' }))).toBe(ids.indexOf('from'));
+  expect(resumeStep(STEPS, ALL_ANSWERS)).toBe(ids.indexOf('topics'));
+});
+
+test('applyPatch merges a draft answer and leaves an unfinished record unfinished', () => {
+  expect(applyPatch(DEFAULT_ONBOARDING, { from: 'China' })).toEqual({ ...DEFAULT_ONBOARDING, from: 'China' });
+});
+
+test('applyPatch on a finished record keeps it finished while it stays complete', () => {
+  const next = applyPatch(COMPLETED_ONBOARDING, { topics: ['history', 'food', 'festival', 'monument'], hidden: [] });
+  expect(next.done).toBe(true);
+  expect(next.completedAt).toBe(COMPLETED_ONBOARDING.completedAt);
+  expect(isOnboarding(next)).toBe(true);
+});
+
+test('applyPatch that makes a finished record incomplete clears done and completedAt in the same write', () => {
+  const next = applyPatch(COMPLETED_ONBOARDING, { topics: ['food', 'festival', 'monument'] });
+  expect(next).toMatchObject({ done: false, completedAt: null, topics: ['food', 'festival', 'monument'] });
+  expect(isOnboarding(next)).toBe(true);
+});
+
+test('applyPatch always returns a record the store accepts', () => {
+  expect(isOnboarding(applyPatch(COMPLETED_ONBOARDING, { completedAt: null }))).toBe(true);
+  expect(applyPatch(COMPLETED_ONBOARDING, { completedAt: null })).toMatchObject({ done: false, completedAt: null });
+  const undated = applyPatch(ALL_ANSWERS, { done: true });
+  expect(undated).toMatchObject({ done: false, completedAt: null });
+  expect(isOnboarding(undated)).toBe(true);
+  const stale = applyPatch(ALL_ANSWERS, { completedAt: '2026-10-29T08:30:00.000Z' });
+  expect(stale.completedAt).toBeNull();
+  expect(isOnboarding(stale)).toBe(true);
+});
+
+test('syncProfile writes the labels and ignores an incomplete record', () => {
+  const before = profileStore.get();
+  syncProfile(draft({ from: 'India' }));
+  expect(profileStore.get()).toEqual(before);
+  syncProfile({ ...ALL_ANSWERS, time: '1to3y' });
+  expect(profileStore.get()).toMatchObject({ from: 'China', time: '1–3 years' });
+});
+
+test('finishOnboarding stamps the record and writes the profile labels', () => {
+  onboardingStore.set(ALL_ANSWERS);
+  expect(finishOnboarding(new Date('2026-10-29T08:30:00.000Z'))).toBe(true);
+  expect(onboardingStore.get()).toEqual({ ...ALL_ANSWERS, done: true, completedAt: '2026-10-29T08:30:00.000Z' });
+  expect(isOnboarding(JSON.parse(window.localStorage.getItem(`${STORAGE_PREFIX}onboarding`)!))).toBe(true);
+  expect(profileStore.get()).toMatchObject({ from: 'China', time: 'Less than 3 months', role: 'Student intern' });
+});
+
+test('finishOnboarding does nothing while an answer is missing', () => {
+  const partial = { ...ALL_ANSWERS, base: null };
+  onboardingStore.set(partial);
+  const before = profileStore.get();
+  expect(finishOnboarding()).toBe(false);
+  expect(onboardingStore.get()).toEqual(partial);
+  expect(profileStore.get()).toEqual(before);
+});
+
+test('applyPatch drops a patch the store would reject on load', () => {
+  expect(applyPatch(COMPLETED_ONBOARDING, { completedAt: 'not-a-date' })).toBe(COMPLETED_ONBOARDING);
+  expect(applyPatch(COMPLETED_ONBOARDING, { topics: ['food', 'food', 'monument', 'festival'] as Onboarding['topics'] })).toBe(COMPLETED_ONBOARDING);
+});
+
+test('applyPatch merges onto the latest stored record, not a stale copy', () => {
+  onboardingStore.set({ ...DEFAULT_ONBOARDING, from: 'China' });
+  const stale = onboardingStore.get();
+  window.localStorage.setItem(`${STORAGE_PREFIX}onboarding`, JSON.stringify({ ...stale, from: 'India' }));
+  onboardingStore.set((current) => applyPatch(current, { time: 'lt3m' }));
+  expect(onboardingStore.get().from).toBe('India');
+});

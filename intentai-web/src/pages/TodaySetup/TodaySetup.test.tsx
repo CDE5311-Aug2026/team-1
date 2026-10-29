@@ -88,13 +88,13 @@ test('finishing saves the picks in survey rank order and opens Today', async () 
   expect(location()).toBe('/');
 });
 
-test('Back during onboarding returns to the result without saving', async () => {
+test('Back returns to the previous page without saving', async () => {
   culturePrefsStore.set(CUSTOM);
-  renderAt('/onboarding/result?score=2', '/today-setup');
+  renderAt('/ask', '/today-setup');
   await userEvent.click(tile('Foods'));
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
-  expect(location()).toBe('/onboarding/result?score=2');
+  expect(location()).toBe('/ask');
   expect(culturePrefsStore.get()).toEqual(CUSTOM);
 });
 
@@ -110,7 +110,7 @@ test('retake from My Space pre-fills the saved picks, and Cancel returns without
   await userEvent.click(tile('Foods'));
   await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-  expect(location()).toBe('/my-space');
+  expect(location()).toBe('/my-space/settings');
   expect(culturePrefsStore.get()).toEqual(CUSTOM);
 });
 

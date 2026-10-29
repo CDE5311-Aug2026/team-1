@@ -15,6 +15,8 @@ interface StoreOptions<T> {
   key: string;
   fallback: T;
   isValid: (value: unknown) => value is T;
+  /** Salvages a stored value that fails `isValid`; null falls back. */
+  repair?: (value: unknown) => T | null;
 }
 
 interface Invalidatable {
@@ -24,7 +26,7 @@ interface Invalidatable {
 // One store per key, defined once in src/data/stores.ts. Re-registering a key (Vite HMR) replaces it.
 const registry = new Map<string, Invalidatable>();
 
-export function createPersistentStore<T>({ key, fallback, isValid }: StoreOptions<T>): PersistentStore<T> {
+export function createPersistentStore<T>({ key, fallback, isValid, repair }: StoreOptions<T>): PersistentStore<T> {
   const storageKey = STORAGE_PREFIX + key;
   const listeners = new Set<() => void>();
   let cached: { value: T } | null = null;
@@ -36,6 +38,8 @@ export function createPersistentStore<T>({ key, fallback, isValid }: StoreOption
       if (raw !== null) {
         const parsed: unknown = JSON.parse(raw);
         if (isValid(parsed)) return parsed;
+        const repaired = repair?.(parsed);
+        if (repaired) return repaired;
       }
     } catch {
       // Corrupt JSON or storage unavailable: use the fallback, leave storage untouched.

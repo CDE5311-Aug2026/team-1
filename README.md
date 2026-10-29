@@ -15,21 +15,30 @@ The current app is the React + TypeScript web app in [`intentai-web/`](intentai-
     <td align="center"><b>Home</b><br>A live map of places near you, synced to a swipeable photo carousel.</td>
     <td align="center"><b>Place stories</b><br>Four culture cards per place: Food, Monument, Festival, History.</td>
   </tr>
+  <tr>
+    <td align="center"><img src="docs/readme/onboarding.webp" width="260" alt="Onboarding: six questions fill a passport card (where you're from, time in Singapore, role, language, home base on a map, ranked topics), then the passport is stamped"></td>
+    <td align="center"><img src="docs/readme/myspace.webp" width="260" alt="My Space: profile tiles with eye toggles, editing the role in a sheet, then Settings with text size and motion"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Onboarding</b><br>Six quick questions fill your passport, then it gets its first stamp.</td>
+    <td align="center"><b>My Space</b><br>See and edit what the app knows, hide any of it, and control your data.</td>
+  </tr>
 </table>
 
 ## What's in the app
 
 | Tab | What you can do |
 |---|---|
+| **Onboarding** | Six questions (where you're from, time in Singapore, role, language, home base on a real map, ranked topics) fill a passport card as you answer; the last step stamps it. |
 | **Home** | Today's holiday or festival, then **Nearby**: an OpenStreetMap map with pins that follow the photo cards, a place search, and **Explore** for the full Nearby map (2D, list and the 3D city model). |
 | **Place stories** | Berlin Wall Fragments (NUS University Town) and Chinatown each have a place page and four cards with articles, stats, a then-and-now slider and timelines. Finish all four to collect the place's **passport stamp**. |
 | **Ask** | Ask about a phrase, a dish or a custom and get an answer with examples. |
 | **Community** | Ask locals and read answered questions. |
 | **Moments** | Your passport: stamps, places and the phrases you have collected. |
-| **My Space** | Your profile, settings and data. |
+| **My Space** | "What the app knows" tiles you can edit or hide; **Settings** (text size and motion apply app-wide); **Privacy & data** (storage per group, export, delete everything, page-timing opt-out); **Terms & licences** with every photo credit. |
 
 Everything is stored on the phone (`localStorage`); there is no account. The only network traffic is map tiles and
-anonymous page timing for the user test.
+anonymous page timing for the user test, which you can turn off in My Space › Privacy & data.
 
 ## Run it
 

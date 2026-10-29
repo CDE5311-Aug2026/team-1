@@ -21,6 +21,8 @@
   background: transparent;
   cursor: pointer;
   padding: 0.375rem 0.25rem;
+  /* Large text (My Space settings) on a narrow phone: tabs shrink and long labels end in an ellipsis. */
+  min-width: 0;
 }
 
 .active {
@@ -49,6 +51,9 @@
   color: var(--text-tab);
   font-weight: 500;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .active .label {

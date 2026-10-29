@@ -1,12 +1,15 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import App from './App';
-import { STORAGE_PREFIX } from './data/persistentStore';
-import { DEFAULT_SETTINGS } from './data/domain';
+import { DEFAULT_SETTINGS, isOnboarding } from './data/domain';
+import { STORAGE_PREFIX, resetPersistentStores } from './data/persistentStore';
 import { todayKey } from './data/progress';
-import { lookupsStore, placeStore, settingsStore, streakStore } from './data/stores';
+import { lookupsStore, onboardingStore, placeStore, settingsStore, streakStore } from './data/stores';
+
+// jsdom cannot run Leaflet; the home base step's Locate button (static frame chrome) drops the pin instead.
+vi.mock('./components/OnboardingMap/OnboardingMapView', () => ({ default: () => null }));
 
 // Cross-page contracts: flows that hand data from one page to another. Fix the pages, not these tests.
 
@@ -68,27 +71,6 @@ test('[Ask + Moments] a phrase asked about in Ask appears in Moments', async () 
   expect(screen.getAllByText(/paiseh/i).length).toBeGreaterThan(0);
 });
 
-test('[Onboarding + Today + My Space] finishing onboarding with the top 3 opens Today; the time shows in My Space', async () => {
-  localStorage.removeItem(`${STORAGE_PREFIX}onboarding`);
-  const user = userEvent.setup();
-  const first = renderApp('/');
-  await user.click(screen.getByRole('button', { name: /get started/i }));
-  await user.click(screen.getByRole('button', { name: /1 – 3 years/i }));
-  await user.click(screen.getByRole('button', { name: /^continue/i }));
-  await user.click(screen.getByRole('button', { name: /^Food/ }));
-  await user.click(screen.getByRole('button', { name: /^continue/i }));
-  for (let i = 0; i < 3; i += 1) {
-    await user.click(screen.getByRole('button', { name: /skip/i }));
-  }
-  await user.click(screen.getByRole('button', { name: /start learning/i }));
-  await user.click(screen.getByRole('button', { name: 'Default' }));
-  expect(screen.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
-  first.unmount();
-  renderApp('/my-space');
-  expect(screen.getByText(/1 – 3 years/)).toBeInTheDocument();
-});
-
 test('Nearby "Ask IntentAI" asks about the shown phrase on arrival, once', async () => {
   const plain = renderApp('/ask');
   const seeded = screen.getAllByRole('article').length;
@@ -125,3 +107,69 @@ test('[Today + streak] opening the app does not add a day; reading the holiday d
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/holidays\/deepavali$/);
   expect(streakStore.get()).toEqual({ date: todayKey(), count: 3 });
 });
+
+/* ---------- onboarding: O1 → O8 ---------- */
+
+const h1 = () => screen.getByRole('heading', { level: 1 });
+const pickFirst = async (group: string) => {
+  await userEvent.click(within(screen.getByRole('radiogroup', { name: group })).getAllByRole('radio')[0]);
+  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+};
+const topic = (label: string) => screen.getByRole('button', { name: new RegExp(`^${label},`) });
+const rank = async (...labels: string[]) => {
+  for (const label of labels) await userEvent.click(topic(label));
+};
+
+/** First launch through every step to the stamp. */
+async function onboardFresh() {
+  window.localStorage.removeItem(`${STORAGE_PREFIX}onboarding`);
+  resetPersistentStores();
+  const view = renderApp('/');
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/onboarding$/);
+  await userEvent.click(screen.getByRole('button', { name: 'Start the hunt' }));
+  expect(await screen.findByRole('heading', { level: 1, name: 'Where are you from?' }, { timeout: 3000 })).toBeInTheDocument();
+  await pickFirst('Where you are from');
+  await pickFirst('Time in Singapore');
+  await pickFirst('What brings you here');
+  await pickFirst('Language');
+  expect(h1()).toHaveTextContent('Where do you spend most of your time?');
+  await userEvent.click(screen.getByRole('button', { name: 'Use my location' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+  expect(h1()).toHaveTextContent('Rank the topics you enjoy most');
+  await rank('Festivals', 'Food', 'History', 'Monuments');
+  await userEvent.click(screen.getByRole('button', { name: /stamp my passport/i }));
+  expect(h1()).toHaveTextContent('Your passport is ready');
+  return view;
+}
+
+test('[Onboarding] a fresh user goes O1 → O8, the stamp lands in the passport, Start exploring opens Home', async () => {
+  await onboardFresh();
+  const saved = onboardingStore.get();
+  expect(saved).toMatchObject({ done: true, topics: ['festival', 'food', 'history', 'monument'], base: { label: 'Berlin Wall Fragments' } });
+  expect(isOnboarding(saved)).toBe(true);
+  expect(within(screen.getByRole('region', { name: 'Your passport' })).getByText('WELCOME')).toBeInTheDocument();
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/onboarding$/);
+  await userEvent.click(screen.getByRole('link', { name: /start exploring/i }));
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/$/);
+  expect(screen.queryByRole('heading', { level: 1, name: 'Your passport is ready' })).not.toBeInTheDocument();
+}, 20000);
+
+test('[Onboarding] O8 Back → unrank a topic clears done; rerank + finish stamps again; a reload lands on Home', async () => {
+  const first = await onboardFresh();
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(h1()).toHaveTextContent('Rank the topics you enjoy most');
+  await userEvent.click(topic('Food'));
+  expect(onboardingStore.get()).toMatchObject({ done: false, completedAt: null, topics: ['festival', 'history', 'monument'] });
+  await rank('Food');
+  await userEvent.click(screen.getByRole('button', { name: /stamp my passport/i }));
+  expect(h1()).toHaveTextContent('Your passport is ready');
+  expect(onboardingStore.get()).toMatchObject({ done: true, topics: ['festival', 'history', 'monument', 'food'] });
+  expect(onboardingStore.get().completedAt).not.toBeNull();
+
+  // Reload: stores re-read localStorage, the app mounts again.
+  first.unmount();
+  resetPersistentStores();
+  renderApp('/onboarding');
+  expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/$/);
+  expect(onboardingStore.get().done).toBe(true);
+}, 20000);

@@ -49,3 +49,8 @@
     transition: none;
   }
 }
+
+.track[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

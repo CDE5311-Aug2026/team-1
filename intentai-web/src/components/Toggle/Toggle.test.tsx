@@ -11,3 +11,16 @@ test('is a named switch that reports the flipped value', async () => {
   await userEvent.click(toggle);
   expect(onChange).toHaveBeenCalledWith(true);
 });
+
+test('a disabled switch is announced as disabled and calls onBlocked instead of onChange', async () => {
+  const onChange = vi.fn();
+  const onBlocked = vi.fn();
+  render(<Toggle label="Occasions" checked={false} onChange={onChange} disabled onBlocked={onBlocked} />);
+  const toggle = screen.getByRole('switch', { name: 'Occasions' });
+  expect(toggle).toHaveAttribute('aria-disabled', 'true');
+  await userEvent.click(toggle);
+  toggle.focus();
+  await userEvent.keyboard(' ');
+  expect(onBlocked).toHaveBeenCalledTimes(2);
+  expect(onChange).not.toHaveBeenCalled();
+});

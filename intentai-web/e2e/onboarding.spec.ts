@@ -1,123 +1,251 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './test';
 import type { Page } from './test';
-import { quizFor } from '../src/pages/OnboardingPage/quiz';
-import { paths } from '../src/routes';
+import { COMPLETED_ONBOARDING } from '../src/test/onboardingFixture';
 
-const TOL = 3; // px, decision D2
-type Box = [x: number, y: number, width: number, height: number];
+// Onboarding O1-O8 as a first-time user. The global seed (a finished onboarding) is cleared per
+// test; the test name is kept so the tester start screen does not intervene. Map tiles come from
+// the shared fixture's stub (e2e/test.ts).
 
-// Figma frames 17:45, 17:77, 17:136, 17:216, 17:271 (390×844), boxes relative to the frame.
-const WELCOME: Record<string, Box> = {
-  '17:58': [50, 148, 290, 290], // glow
-  '71:31': [90, 188, 210, 210], // mascot
-  '17:71': [20, 458, 350, 76], // title
-  '17:72': [40, 546, 310, 66], // lead
-  '17:73': [20, 741, 350, 52], // Get started
-};
-const TIME: Record<string, Box> = {
-  '17:90': [20, 58, 36, 36], // Back
-  '17:97': [20, 140, 330, 64], // title
-  '17:99': [20, 257, 350, 76],
-  '17:106': [20, 345, 350, 76],
-  '17:116': [20, 433, 350, 76],
-  '17:125': [20, 533, 350, 75], // AI hint
-  '17:133': [20, 740, 350, 52], // Continue
-};
-const TOPICS: Record<string, Box> = {
-  '17:149': [20, 58, 36, 36],
-  '17:156': [20, 140, 330, 64],
-  '17:158': [20, 278, 169, 172], // Work
-  '17:171': [201, 278, 169, 172], // Food
-  '17:183': [20, 462, 169, 172], // Daily life
-  '17:193': [201, 462, 169, 172], // Getting around
-  '17:205': [20, 654, 350, 75],
-  '17:213': [20, 740, 350, 52],
-};
-const QUIZ: Record<string, Box> = {
-  '17:229': [20, 58, 36, 36],
-  '17:242': [20, 270, 350, 147], // scenario card
-  '17:249': [320.5, 280.5, 32, 32], // play
-  '17:255': [20, 437, 350, 56], // answer A
-  '17:259': [20, 505, 350, 56],
-  '17:263': [20, 573, 350, 56],
-  '17:268': [20, 740, 350, 52], // Check answer
-};
-const RESULT: Record<string, Box> = {
-  '17:290': [20, 116, 350, 36], // title
-  '17:292': [20, 224, 350, 116], // level card
-  '17:306': [20, 396, 350, 192], // plan card
-  '17:328': [20, 608, 350, 75], // AI hint
-  '17:337': [20, 740, 350, 52], // Start learning
-};
+const BRAND_ORANGES = ['#e4671f', '#e8622c']; // accepted contrast exception, as in a11y.spec.ts
+const KEY = 'intentai:v1:onboarding';
 
-async function expectFrames(page: Page, frames: Record<string, Box>) {
-  for (const [nodeId, [x, y, width, height]] of Object.entries(frames)) {
-    const box = await page.locator(`[data-node-id="${nodeId}"]`).boundingBox();
-    expect(box, `${nodeId} not rendered`).not.toBeNull();
-    const actual = { x: box!.x, y: box!.y, width: box!.width, height: box!.height };
-    const want = { x, y, width, height };
-    for (const key of ['x', 'y', 'width', 'height'] as const) {
-      expect(Math.abs(actual[key] - want[key]), `${nodeId}.${key}: got ${actual[key]}, want ${want[key]}`).toBeLessThanOrEqual(TOL);
-    }
+// The global seed is a finished onboarding: drop it so each test starts as a first-time user.
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate((k) => localStorage.removeItem(k), KEY);
+});
+
+const step = (page: Page, id: string) => page.locator(`[data-step="${id}"]`);
+const cta = (page: Page, name: string) => page.getByRole('button', { name });
+const stored = (page: Page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? 'null'), KEY);
+
+async function startHunt(page: Page) {
+  await page.goto('/');
+  await expect(page).toHaveURL(/\/onboarding$/);
+  await cta(page, 'Start the hunt').click();
+  await expect(step(page, 'from')).toBeVisible();
+}
+
+async function answerFrom(page: Page) {
+  await page.getByRole('radio', { name: /China/ }).first().click();
+  await cta(page, 'Continue').click();
+}
+async function answerTime(page: Page) {
+  await expect(step(page, 'time')).toBeVisible();
+  await page.getByRole('radio', { name: /Less than 3 months/ }).click();
+  await cta(page, 'Continue').click();
+}
+async function answerRole(page: Page) {
+  await expect(step(page, 'role')).toBeVisible();
+  await page.getByRole('radio', { name: /Student intern/ }).click();
+  await cta(page, 'Continue').click();
+}
+async function answerLanguage(page: Page) {
+  await expect(step(page, 'language')).toBeVisible();
+  await page.getByRole('radio', { name: /English/ }).click();
+  await cta(page, 'Continue').click();
+}
+async function dropPinWithKeyboard(page: Page) {
+  await expect(step(page, 'base')).toBeVisible();
+  const map = page.getByRole('application');
+  await expect(map).toBeVisible();
+  await map.focus();
+  await page.keyboard.press('Enter');
+  await expect(map).toHaveAttribute('aria-label', /Home base set to/);
+  await cta(page, 'Continue').click();
+}
+async function rankTopics(page: Page) {
+  await expect(step(page, 'topics')).toBeVisible();
+  for (const name of ['Food', 'Monuments', 'Festivals', 'History']) {
+    await page.getByRole('button', { name: new RegExp(`^${name}, not ranked`) }).click();
   }
 }
-
-async function open(page: Page, path: string) {
-  await page.goto(path);
-  await page.evaluate(() => document.fonts.ready.then(() => true));
+async function finishFlow(page: Page) {
+  await startHunt(page);
+  await answerFrom(page);
+  await answerTime(page);
+  await answerRole(page);
+  await answerLanguage(page);
+  await dropPinWithKeyboard(page);
+  await rankTopics(page);
+  await cta(page, 'Stamp my passport').click();
+  await expect(step(page, 'done')).toBeVisible();
 }
 
-test.describe('first run', () => {
-  test.use({ storageState: { cookies: [], origins: [] } });
+test('a first-time user completes O1 to O8 with a keyboard-dropped pin and lands on Home', async ({ page }) => {
+  await finishFlow(page);
+  await expect(page.getByRole('heading', { name: 'Your passport is ready' })).toBeVisible();
+  await expect(page.getByText('WELCOME', { exact: true })).toBeVisible();
+  const saved = await stored(page);
+  expect(saved).toMatchObject({ done: true, from: 'China', time: 'lt3m', role: 'intern', language: 'en' });
+  expect(saved.base).not.toBeNull();
+  expect(saved.topics).toEqual(['food', 'monument', 'festival', 'history']);
 
-  test('onboarding completes three questions and persists the resulting level', async ({ page }) => {
-    await page.goto('/');
-    // the user test start screen comes first on a new device
-    await page.getByLabel('Test name').fill('P01');
-    await page.getByRole('button', { name: 'Start' }).click();
-    await page.getByRole('button', { name: 'Get started' }).click();
-    await page.getByRole('button', { name: /^Less than 3 months/ }).click();
-    await page.getByRole('button', { name: 'Continue', exact: true }).click();
-    for (const topic of [/^Work/, /^Food/, /^Daily life/]) await page.getByRole('button', { name: topic }).click();
-    await page.getByRole('button', { name: 'Continue (3 selected)' }).click();
-    for (const question of quizFor(['Work', 'Food', 'Daily life'])) {
-      await expect(page.getByText(question.phrase)).toBeVisible();
-      await page.getByRole('button', { name: question.answers[question.correct] }).click();
-      await page.getByRole('button', { name: 'Check answer', exact: true }).click();
-    }
-    await expect(page.getByRole('heading', { level: 1, name: "You're Experienced" })).toBeVisible();
-    await page.getByRole('button', { name: 'Start learning', exact: true }).click();
-    await expect(page).toHaveURL(/\/today-setup$/);
-    await page.getByRole('button', { name: 'Default', exact: true }).click();
-    await expect(page).toHaveURL(/\/$/);
-    await page.reload();
-    await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeVisible();
-    const profile = await page.evaluate(() => JSON.parse(localStorage.getItem('intentai:v1:profile') ?? '{}'));
-    expect(profile).toMatchObject({ time: 'Less than 3 months', level: 'Experienced', topics: ['Work', 'Food', 'Daily life'] });
-  });
+  await page.getByRole('link', { name: 'Start exploring' }).click();
+  await expect(page).toHaveURL(/:\d+\/$/);
+  await expect(page.getByRole('main')).toBeVisible();
+});
 
-  test('screens match Figma frame geometry at 390x844', async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem('intentai:v1:tester', JSON.stringify({ name: 'E2E' })));
-    const screens: [string, string, Record<string, Box>][] = [
-      ['welcome', paths.welcome, WELCOME],
-      ['time', paths.onboardingTime, TIME],
-      ['topics', paths.onboardingTopics, TOPICS],
-      ['quiz', paths.onboardingQuiz, QUIZ],
-      ['result', `${paths.onboardingResult}?score=2`, RESULT],
-    ];
-    for (const [name, path, frames] of screens) {
-      await open(page, path);
-      if (name === 'quiz') await page.getByRole('button', { name: /^A / }).click(); // Figma shows A chosen
-      await expectFrames(page, frames);
-      await page.screenshot({ path: `test-results/onboarding-${name}.png` });
-    }
-  });
+test('reloading mid-flow resumes at the first unanswered step with answers kept', async ({ page }) => {
+  await startHunt(page);
+  await answerFrom(page);
+  await answerTime(page);
+  await answerRole(page);
+  await answerLanguage(page);
+  await expect(step(page, 'base')).toBeVisible();
+  await expect(page.getByRole('application')).toHaveAttribute('aria-label', /Home base set to Berlin Wall Fragments/);
 
-  test('a short screen fits the viewport without scrolling', async ({ page }) => {
-    await open(page, paths.onboardingTime);
-    // +1: AppShell's idle 1px toast live region sits below <main> (shared fix requested).
-    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(844 + 1);
+  // O6 pre-pins the wall, so a reload there counts the base as answered and resumes at O7.
+  await page.reload();
+  await expect(step(page, 'topics')).toBeVisible();
+  const saved = await stored(page);
+  expect(saved).toMatchObject({ done: false, from: 'China', time: 'lt3m', role: 'intern', language: 'en', base: { label: 'Berlin Wall Fragments' } });
+});
+
+test('a user who has finished onboarding is sent from /onboarding to Home', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(([k, v]) => localStorage.setItem(k, v), [KEY, JSON.stringify(COMPLETED_ONBOARDING)]);
+  await page.goto('/onboarding');
+  await expect(page).toHaveURL(/:\d+\/$/);
+});
+
+test('an O8 find card opens its place page', async ({ page }) => {
+  await finishFlow(page);
+  const find = page.getByRole('link', { name: /^Open / });
+  const href = await find.getAttribute('href');
+  expect(href).toMatch(/^\/place\//);
+  await find.click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe(href);
+});
+
+test('See passport on O8 goes to Moments', async ({ page }) => {
+  await finishFlow(page);
+  await page.getByRole('link', { name: 'See passport' }).click();
+  await expect(page).toHaveURL(/\/moments$/);
+});
+
+test('no WCAG A/AA violations on any onboarding step', async ({ page }) => {
+  test.setTimeout(120_000); // one test walks the whole flow, with animation settling between steps
+  const check = async (label: string) => {
+    const { violations } = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+    const summary = violations.flatMap((v) =>
+      v.nodes.flatMap((n) => {
+        const data = n.any[0]?.data as { fgColor?: string; bgColor?: string; contrastRatio?: number } | undefined;
+        if (data && [data.fgColor, data.bgColor].some((c) => BRAND_ORANGES.includes(c ?? ''))) return [];
+        const colours = data?.fgColor ? ` ${data.fgColor} on ${data.bgColor} = ${data.contrastRatio}:1` : '';
+        return [`${label}: ${v.id}${colours} @ ${n.target.join(' ')}`];
+      }),
+    );
+    expect(summary).toEqual([]);
+  };
+  // Entrance animations settle first so contrast is measured on final colours.
+  const settle = (ms: number) => page.waitForTimeout(ms);
+
+  await page.goto('/');
+  await expect(cta(page, 'Start the hunt')).toBeVisible();
+  await settle(1500);
+  await check('welcome');
+  await cta(page, 'Start the hunt').click();
+  await expect(step(page, 'from')).toBeVisible();
+  await settle(1200);
+  await check('from');
+  await answerFrom(page);
+  await expect(step(page, 'time')).toBeVisible();
+  await settle(1200);
+  await check('time');
+  await answerTime(page);
+  await expect(step(page, 'role')).toBeVisible();
+  await settle(1200);
+  await check('role');
+  await answerRole(page);
+  await expect(step(page, 'language')).toBeVisible();
+  await settle(1200);
+  await check('language');
+  await answerLanguage(page);
+  await expect(step(page, 'base')).toBeVisible();
+  await settle(1200);
+  await check('base');
+  await dropPinWithKeyboard(page);
+  await expect(step(page, 'topics')).toBeVisible();
+  await settle(1200);
+  await check('topics');
+  await rankTopics(page);
+  await cta(page, 'Stamp my passport').click();
+  await expect(step(page, 'done')).toBeVisible();
+  await settle(2200);
+  await check('done');
+});
+
+// /onboarding is filtered out of e2e/routes.ts (a finished user is redirected), so the page-level
+// checks smoke.spec.ts runs on every route run here, on every step of a first-time user's walk.
+async function walkSteps(page: Page, onStep: (id: string) => Promise<void>) {
+  const at = async (id: string) => {
+    await expect(step(page, id)).toBeVisible();
+    await onStep(id);
+  };
+  await page.goto('/');
+  await expect(cta(page, 'Start the hunt')).toBeVisible();
+  await onStep('welcome');
+  await cta(page, 'Start the hunt').click();
+  await at('from');
+  await answerFrom(page);
+  await at('time');
+  await answerTime(page);
+  await at('role');
+  await answerRole(page);
+  await at('language');
+  await answerLanguage(page);
+  await at('base');
+  await dropPinWithKeyboard(page);
+  await at('topics');
+  await rankTopics(page);
+  await cta(page, 'Stamp my passport').click();
+  await at('done');
+}
+
+test('no runtime errors or broken images on any onboarding step', async ({ page }) => {
+  test.setTimeout(120_000);
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await walkSteps(page, async (id) => {
+    await expect(page.getByRole('main')).toBeVisible();
+    await page.locator('img[loading="lazy"]').evaluateAll((imgs) => imgs.forEach((img) => ((img as HTMLImageElement).loading = 'eager')));
+    await expect
+      .poll(() => page.locator('img').evaluateAll((imgs) => imgs.every((img) => (img as HTMLImageElement).complete)))
+      .toBe(true);
+    const broken = await page.locator('img').evaluateAll((imgs) =>
+      imgs.filter((img) => (img as HTMLImageElement).naturalWidth === 0).map((img) => (img as HTMLImageElement).src),
+    );
+    expect(broken, `broken image on ${id}`).toEqual([]);
   });
+  expect(errors).toEqual([]);
+});
+
+for (const width of [320, 390, 1440]) {
+  test(`no horizontal overflow on any onboarding step at ${width}px`, async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width, height: 900 });
+    await walkSteps(page, async (id) => {
+      const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+      expect(overflows, `${id} overflows at ${width}px`).toBe(false);
+    });
+  });
+}
+
+test('every onboarding step uses the shared centred content column at 1440', async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const widths = new Set<number>();
+  await page.goto('/');
+  const contentMax = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--content-max')));
+  await walkSteps(page, async (id) => {
+    if (id === 'welcome') return; // the cover draws no step column
+    const box = (await page.locator('main > * > *').first().boundingBox())!; // the flow's column
+    expect(Math.abs(box.x + box.width / 2 - 720), `${id} is off-centre`).toBeLessThanOrEqual(3);
+    widths.add(Math.round(box.width));
+  });
+  expect([...widths], "one column width, the shared --content-max").toEqual([contentMax]);
 });

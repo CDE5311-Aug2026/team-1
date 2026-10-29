@@ -3,6 +3,7 @@
 // and keeps only the time bar (time of day, weather, sound) and the landmark cards. The iframe is created when this
 // component mounts (the user asked for 3D) and removed when it unmounts, which frees its memory.
 import { useEffect, useRef, useState } from 'react';
+import { isReducedMotion } from '../../../hooks/useReducedMotion';
 import { earthOnline3dOrigin, view3dUrl, type View3DTarget } from '../links';
 import type { Category } from '../types';
 import { MapControls } from '../map/CityMap';
@@ -75,14 +76,6 @@ function isLiteMessage(d: unknown): d is LiteMessage {
 
 const keyOf = (t: View3DTarget) => `${t.card ?? ''}@${t.at.lat.toFixed(5)},${t.at.lng.toFixed(5)}:${t.pin ?? ''}~${t.span ? Math.round(t.span) : ''}`;
 
-function reducedMotion(): boolean {
-  try {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  } catch {
-    return false;
-  }
-}
-
 export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick, onView, controlsTop, onRecenter, insets }: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
@@ -90,7 +83,7 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
   // The address is fixed when the view opens; later targets go to the page as messages (no reload nearby).
   // The 3D page speaks the app's language (English unless the page is marked Chinese).
   const [src] = useState(() =>
-    view3dUrl(target, { still: reducedMotion(), hideCards, lang: /^zh/i.test(document.documentElement.lang) ? 'zh' : 'en' }),
+    view3dUrl(target, { still: isReducedMotion(), hideCards, lang: /^zh/i.test(document.documentElement.lang) ? 'zh' : 'en' }),
   );
   // The landmark whose card the 3D page has open: a target with that card needs no message (no second flight).
   const openCard = useRef<string | null>(null);

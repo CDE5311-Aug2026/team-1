@@ -95,3 +95,11 @@
   .tw { opacity: 1; }
   .shiny { background-position: 0 0; }
 }
+
+/* The app's own Reduced motion setting (My Space › Settings) stops animations globally; hide or settle the
+   same decorative pieces as the OS setting above, so loops never freeze as solid shapes. */
+:root[data-motion='reduced'] .spark { display: none; }
+:root[data-motion='reduced'] :is(.ring, .mark, .pulse, .ping, .halo, .radar, .smoke) { opacity: 0 !important; visibility: hidden; }
+:root[data-motion='reduced'] .tw { opacity: 1; }
+:root[data-motion='reduced'] .shiny { background-position: 0 0; }
+:root[data-motion='reduced'] .press:active { transform: none; }

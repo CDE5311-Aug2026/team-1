@@ -7,6 +7,8 @@ export interface Tracker {
   /** One press on a button or link, named "Page › label" (no duration). */
   tap(name: string): void;
   flush(): void;
+  /** Drops queued events and restarts open spans from now under the current uid and a new session (after deleting all data). */
+  discard(): void;
   sessionId(): string;
 }
 
@@ -121,6 +123,18 @@ export function createTracker(deps: TrackerDeps): Tracker {
       if (queue.length >= LIMITS.maxBatch) flush();
     },
     flush,
+    discard() {
+      queue.length = 0;
+      // A new session too, so nothing sent after the reset can be joined to the old id.
+      sid = deps.newId();
+      lastSeen = null;
+      const now = deps.now();
+      for (const span of open) {
+        span.uid = deps.uid();
+        span.since = visible ? now : null;
+        span.resumed = false;
+      }
+    },
     sessionId: () => sid,
   };
 }

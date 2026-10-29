@@ -28,7 +28,7 @@
  *   next launch retries.
  */
 import {
-  DURATIONS,
+  DEFAULT_ONBOARDING,
   LEVELS,
   LOOKUP_SOURCES,
   NOTICE_STATUSES,
@@ -44,7 +44,6 @@ import {
   isSavedIds,
   isSettings,
   type Lookup,
-  type Onboarding,
   type Profile,
   type Question,
   type Report,
@@ -226,16 +225,11 @@ function planFromV2(v: Record<string, unknown>, rec: Collector): Omit<Plan, 'ver
   const writes: Record<string, unknown> = {};
   const converted: Record<string, number> = {};
 
-  // Onboarding: done + the answers, where they match the new enums.
-  if (typeof v.done === 'boolean') {
-    const duration = isOneOf(DURATIONS, v.duration) ? v.duration : null;
-    if (v.duration !== undefined && duration === null) rec.add('duration', v.duration, 'unknown duration');
-    const topics = Array.isArray(v.topics) ? v.topics.filter((t): t is (typeof TOPICS)[number] => isOneOf(TOPICS, t)) : [];
-    if (Array.isArray(v.topics)) v.topics.filter((t) => !isOneOf(TOPICS, t)).forEach((t) => rec.add('topics', t, 'unknown topic'));
-    const onboarding: Onboarding = { done: v.done, duration, topics: [...new Set(topics)] };
-    writes.onboarding = onboarding;
-    converted.onboarding = 1;
-  }
+  // Onboarding: the legacy answers (duration, Singlish topics) have no equivalent in the new passport
+  // flow, so nothing is converted: the user onboards again (an absent-only default).
+  writes.onboarding = DEFAULT_ONBOARDING;
+  if (v.duration !== undefined) rec.add('duration', v.duration, 'onboarding answers are asked again in the new flow');
+  if (v.topics !== undefined) rec.add('topics', v.topics, 'onboarding answers are asked again in the new flow');
 
   // Profile.
   const p = v.profile as Record<string, unknown>;

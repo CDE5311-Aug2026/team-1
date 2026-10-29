@@ -54,8 +54,8 @@ test("today's three replace the daily card switch, in a row above All lookups", 
   }
 });
 
-test("today's three follow the onboarding Singlish topics", () => {
-  onboardingStore.set((prev) => ({ ...prev, topics: ['Work', 'Food'] }));
+test("today's three follow the profile's Singlish topics", () => {
+  profileStore.set((prev) => ({ ...prev, topics: ['Work', 'Food'] }));
   renderPage();
   expect(screen.getAllByRole('button', { name: /^0[1-3] / })).toHaveLength(3);
   for (const title of ['Can or not\\?', 'Tapau', 'Steady']) expect(tile(title)).toBeInTheDocument();
@@ -250,8 +250,9 @@ test("opening a Today's three card collects it, stamps it and counts a learning 
   expect(topics.map((t) => t.textContent)).toContain('Daily life1 of 3');
 });
 
-test('My topics lists the onboarding topics, all four when none were picked', () => {
-  onboardingStore.set((prev) => ({ ...prev, topics: [] }));
+test('My topics lists all four Singlish topics when the profile has none; the culture ranking is ignored', () => {
+  onboardingStore.set((prev) => ({ ...prev, topics: ['history', 'food', 'festival', 'monument'] }));
+  profileStore.set((prev) => ({ ...prev, topics: undefined }));
   renderPage();
   const topics = within(screen.getByRole('list', { name: 'My topics' })).getAllByRole('listitem');
   expect(topics.map((t) => t.textContent)).toEqual(['Work0 of 3', 'Food0 of 3', 'Daily life0 of 3', 'Getting around0 of 3']);

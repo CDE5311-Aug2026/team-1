@@ -4,6 +4,7 @@
 // No third-party map service is contacted. Every place shown here is also in the list beside it.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import groundUrl from '../../../assets/nearby/sg-ground.webp';
+import { isReducedMotion } from '../../../hooks/useReducedMotion';
 import { CATEGORY_INFO } from '../domain';
 import { Icon } from '../components/icons';
 import type { Category, LatLng } from '../types';
@@ -112,13 +113,6 @@ const KEY_PAN_PX = 60;
 const CLUSTER_PX = 38;
 const SETTLE_MS = 400;
 const GLIDE_MS = 480;
-function prefersReducedMotion(): boolean {
-  try {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  } catch {
-    return false;
-  }
-}
 const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
 
 /* ---------- road layers (EARTH ONLINE sg_roads, simplified; loaded on demand) ---------- */
@@ -302,7 +296,7 @@ export default function CityMap({
     const from = viewRef.current;
     const first = !focused.current;
     focused.current = true;
-    if (first || instant || IS_JSDOM || prefersReducedMotion() || typeof requestAnimationFrame === 'undefined') {
+    if (first || instant || IS_JSDOM || isReducedMotion() || typeof requestAnimationFrame === 'undefined') {
       viewRef.current = to; // effects later in this commit start from here
       setView(to);
       return;

@@ -1,0 +1,55 @@
+/* Shared look of the single-select tiles of O2-O5 (INVENTORY 2.4). Each step adds its own layout. */
+.group {
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.tile {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  border-radius: 16px;
+  border: 2px solid #fff;
+  background: #fff;
+  font-family: inherit;
+  color: #23211d;
+  cursor: pointer;
+  /* `scale` (not `transform`) so the entrance animation, which ends on transform: none, cannot cancel it. */
+  scale: 1;
+  transition: scale 0.3s cubic-bezier(0.3, 1.4, 0.5, 1), border-color 0.2s ease, background 0.2s ease;
+}
+
+.tile[aria-checked='true'] {
+  border-color: #e4671f;
+  background: #fff3ea;
+  scale: 1.03;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #f6f5f2;
+  color: #5f5b54;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tile[aria-checked='true'] .chip {
+  background: #e4671f;
+  color: #23211d;
+}
+
+/* Country chips keep their flag colour, selected or not. */
+.chipFlag,
+.tile[aria-checked='true'] .chipFlag {
+  background: var(--flag);
+  color: #fff;
+}
+
+.badge {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}

@@ -3,7 +3,8 @@ import { ALL_STATIC_PATHS, paths } from '../src/routes';
 
 // Every route in the app, plus one seeded community question and one Nearby place / collection.
 export const ROUTES = [
-  ...ALL_STATIC_PATHS,
+  // /onboarding redirects Home for a finished user; e2e/onboarding.spec.ts covers it as a first-time user.
+  ...ALL_STATIC_PATHS.filter((path) => path !== paths.onboarding),
   paths.question('sabo'),
   paths.nearbyPlace('curated:sg-maxwell-food-centre'),
   paths.nearbyPlace('curated:sg-esplanade-theatres-on-the-bay'),

@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import iconReview from '../../assets/moments/icon-review.svg';
 import HomeLink from '../../components/HomeLink/HomeLink';
 import AppShell from '../../components/AppShell/AppShell';
-import type { Lookup } from '../../data/domain';
+import { TOPICS, type Lookup } from '../../data/domain';
 import { dailyExpressions } from '../../data/expressions';
 import { usePersistentStore } from '../../data/persistentStore';
 import { collect, passportStats, topicProgress } from '../../data/collection';
 import { currentStreak, recordLearningDay } from '../../data/progress';
-import { collectedStore, lookupsStore, onboardingStore, profileStore, streakStore } from '../../data/stores';
+import { collectedStore, lookupsStore, profileStore, streakStore } from '../../data/stores';
 import useToday from '../../hooks/useToday';
 import { showToast } from '../../hooks/useToast';
 import { paths, type CommunityHandoff } from '../../routes';
@@ -30,9 +30,10 @@ const CARD_NODE_IDS = ['4:961', '4:977', '4:991'];
 export default function MomentsPage() {
   const [lookups, setLookups] = usePersistentStore(lookupsStore);
   const listHeading = useRef<HTMLHeadingElement>(null);
-  const [{ topics }] = usePersistentStore(onboardingStore);
   const [collected, setCollected] = usePersistentStore(collectedStore);
   const [profile] = usePersistentStore(profileStore);
+  // Singlish topics live on the profile; the culture ranking from onboarding never feeds Moments.
+  const topics = profile.topics ?? [...TOPICS];
   const [streak, setStreak] = usePersistentStore(streakStore);
   const today = useToday();
   const [requestedPage, setRequestedPage] = useState(1);

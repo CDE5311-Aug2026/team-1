@@ -1,52 +1,65 @@
-import calendar from '../../assets/my-space/detail-calendar.svg';
-import sliders from '../../assets/my-space/section-sliders.svg';
-import user from '../../assets/my-space/section-user.svg';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { categoryLabel } from '../../data/culture';
-import { canonicalPrefs } from '../../data/culturePrefs';
-import { usePersistentStore } from '../../data/persistentStore';
-import { culturePrefsStore, noticesStore, settingsStore } from '../../data/stores';
+import type { OnbField } from '../../data/domain';
+import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
+import EditSheet from './EditSheet/EditSheet';
+import KnowsGrid from './KnowsGrid/KnowsGrid';
+import LinkList from './LinkList/LinkList';
 import MySpaceLayout from './MySpaceLayout/MySpaceLayout';
-import ProfileCard from './ProfileCard/ProfileCard';
-import SectionHeading from './SectionHeading/SectionHeading';
-import SegmentNav from './SegmentNav/SegmentNav';
-import SwitchesCard from './SwitchesCard/SwitchesCard';
-import { noticeCount } from './notices';
+import MySwitches from './MySwitches/MySwitches';
+import PassportSummary from './PassportSummary/PassportSummary';
+import PrivacyCard from './PrivacyCard/PrivacyCard';
+import { EyeClosed, Gear, Help, Redo } from './icons';
+import { redoOnboarding } from './redo';
 import styles from './MySpacePage.module.css';
 
-/** Figma 12:40 "1 My Space — About you". */
+export const FEEDBACK_TOAST = 'Feedback is collected in the user test';
+
+/** My Space (canvas S1): passport, what the app knows, switches, privacy summary and links. */
 export default function MySpacePage() {
-  const [notices] = usePersistentStore(noticesStore);
-  const [settings] = usePersistentStore(settingsStore);
-  const count = noticeCount(notices.dismissed, settings.occasions ? notices.status : 'hidden');
-  const [prefs] = usePersistentStore(culturePrefsStore);
-  const { categories } = canonicalPrefs(prefs.categories);
   const navigate = useNavigate();
+  const [editing, setEditing] = useState<OnbField | null>(null);
 
   return (
-    <MySpaceLayout tabBarNodeId="12:155">
+    <MySpaceLayout
+      tabBarNodeId="12:155"
+      headerAction={
+        <button type="button" className={styles.gear} aria-label="Settings" onClick={() => navigate(paths.mySpaceSettings)}>
+          <Gear />
+        </button>
+      }
+    >
       <div className={styles.body}>
-        <SegmentNav active="about" count={count} nodeIds={{ root: '21:1338', about: '21:1339', notices: '21:1341' }} />
-        <SectionHeading icon={user} title="What the app knows" nodeId="21:1345" />
-        <ProfileCard nodeId="21:1347" />
-        <SectionHeading icon={sliders} title="Switches" aside="All off by default" nodeId="21:1380" />
-        <SwitchesCard nodeId="21:1384" />
-        {/* v2, no Figma frame: appended last so the Figma-measured sections above keep their place. */}
-        <SectionHeading icon={calendar} title="Today" />
-        <div className={styles.todayCard}>
-          <p className={styles.todayPicks}>
-            {categories.map(categoryLabel).join(', ')}
-          </p>
-          <button
-            type="button"
-            className={styles.todayButton}
-            onClick={() => navigate(`${paths.todaySetup}?from=my-space`)}
-          >
-            Change Today&apos;s Topics
-          </button>
+        <PassportSummary />
+        <div className={styles.headingRow}>
+          <h2 className={styles.heading}>What the app knows</h2>
+          <span className={styles.legend}>
+            <EyeClosed /> Closed eye = private
+          </span>
         </div>
+        <KnowsGrid onEdit={setEditing} />
+        <h2 className={`${styles.heading} ${styles.section}`}>Switches</h2>
+        <MySwitches />
+        <PrivacyCard />
+        <LinkList
+          rows={[
+            { label: 'Settings', icon: <Gear />, tone: ['#f6f5f2', '#23211d'], onSelect: () => navigate(paths.mySpaceSettings) },
+            {
+              label: 'Redo onboarding',
+              value: '6 questions',
+              icon: <Redo />,
+              tone: ['#fff3ea', '#a3410b'],
+              onSelect: () => {
+                redoOnboarding();
+                navigate(paths.onboarding);
+              },
+            },
+            { label: 'Help & feedback', icon: <Help />, tone: ['#dce7ff', '#1e3a8a'], onSelect: () => showToast(FEEDBACK_TOAST) },
+          ]}
+        />
       </div>
+      {editing && <EditSheet field={editing} onClose={() => setEditing(null)} />}
     </MySpaceLayout>
   );
 }

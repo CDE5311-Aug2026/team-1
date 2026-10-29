@@ -4,6 +4,7 @@ import { STORAGE_PREFIX, resetPersistentStores } from '../data/persistentStore';
 import { dismissToast } from '../hooks/useToast';
 import { resetLocationForTests } from '../features/nearby/location';
 import { matchMediaShim, resetMedia } from './media';
+import { COMPLETED_ONBOARDING } from './onboardingFixture';
 import { ResizeObserverMock, resetResizeObservers } from './resizeObserver';
 
 // jsdom has <dialog> but not its modal methods.
@@ -48,8 +49,8 @@ if (typeof window !== 'undefined') {
   }
 }
 
-/** Marks onboarding as finished, so a test that renders "/" lands on Today, not Welcome. */
-export const ONBOARDED = JSON.stringify({ done: true, duration: '3 months – 1 year', topics: ['Work', 'Food', 'Daily life', 'Getting around'] });
+/** Marks onboarding as finished, so a test that renders "/" lands on Today, not the onboarding flow. */
+export const ONBOARDED = JSON.stringify(COMPLETED_ONBOARDING);
 
 beforeEach(() => {
   // Server tests run in the node environment (no window, no stores).

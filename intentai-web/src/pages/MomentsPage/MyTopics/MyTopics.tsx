@@ -1,5 +1,5 @@
 import type { TopicProgress } from '../../../data/collection';
-import { TOPIC_ICON } from '../../OnboardingPage/topicArt';
+import { TOPIC_ICON } from './topicArt';
 import styles from './MyTopics.module.css';
 
 /** BellyBook's "My Cuisines" for Singlish: each onboarding topic and how much of it is collected. */

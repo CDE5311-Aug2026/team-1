@@ -22,16 +22,15 @@ export const paths = {
   /** Culture card of a Home place (food, monument, festival, history). */
   placeCard: (id: string, facet: string) => `/place/${encodeURIComponent(id)}/${encodeURIComponent(facet)}`,
   mySpace: '/my-space',
+  mySpaceSettings: '/my-space/settings',
+  mySpacePrivacy: '/my-space/privacy',
+  licences: '/my-space/licences',
   notices: '/my-space/notices',
   noticeDetails: '/my-space/notices/details',
   noticeEdit: '/my-space/notices/details/edit',
   noticeConfirmed: '/my-space/notices/confirmed',
   noticeRejected: '/my-space/notices/rejected',
-  welcome: '/onboarding',
-  onboardingTime: '/onboarding/time',
-  onboardingTopics: '/onboarding/topics',
-  onboardingQuiz: '/onboarding/quiz',
-  onboardingResult: '/onboarding/result',
+  onboarding: '/onboarding',
   todaySetup: '/today-setup',
 } as const;
 

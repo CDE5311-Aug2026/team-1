@@ -301,8 +301,8 @@ export default function AskPage() {
             <button type="button" className="dialog-secondary" onClick={clearChat}>
               Clear chat
             </button>
-            <button type="button" className="dialog-secondary" onClick={() => navigate(paths.welcome)}>
-              Personalise setup
+            <button type="button" className="dialog-secondary" onClick={() => navigate(paths.mySpace)}>
+              Edit my profile
             </button>
           </div>
         </Dialog>
