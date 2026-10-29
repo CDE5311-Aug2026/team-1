@@ -11,9 +11,9 @@ Paste this into a new Claude Code session opened in `~/Documents/GitHub/CDE-5311
 | What | Where |
 | --- | --- |
 | Working folder | `~/Documents/GitHub/CDE-5311-team1` (a git worktree). App in `intentai-web/`. |
-| Branch | `merge/team1-v3`, pushed to `origin` = `Wsamme/CDE-5311` (the owner's repo). The latest commit adds story walks, OneMap and place cards. |
+| Branch | `merge/team1-v3`, pushed to `origin` = `Wsamme/CDE-5311` (the owner's repo). `3a687d8` adds story walks, OneMap and place cards. |
 | Team repo | `CDE5311-Aug2026/team-1`. Changes for the team go there as a PR, only when the owner asks. |
-| Live site | https://cde-5311.vercel.app = `670fa0d`. **The latest commit is not deployed yet** (deploy only when the owner asks). |
+| Live site | https://cde-5311.vercel.app = `3a687d8` (deployed 29 Oct; story walks, OneMap tiles, place cards and story Route buttons checked live in WebKit at iPhone size). |
 | Deploy | From the worktree root: `vercel deploy --prod --yes` (Vercel project `wsammes-projects/cde-5311`, Root Directory `intentai-web`). Git-triggered deploys are **blocked**: the commit email isn't on the Vercel account, so always use the CLI. |
 | Other worktrees | `~/Documents/GitHub/CDE-5311-pr5` (PR #5, for comparing), `~/Documents/GitHub/CDE-5311` (older tree). |
 | 3D city | `Wsamme/EARTH_ONLINE`; the app bundles `intentai-web/public/earth-online/sg/lite.html` (`npm run sync:earth-online -- <checkout>`). |
@@ -87,10 +87,9 @@ The base is Team 1's `main` plus our v3 work. The merge decisions are in `docs/M
 | Lim Chee Guan (New Bridge Road) | `curated:sg-lim-chee-guan-new-bridge-road` | chinatown.sg (history, address, hours); OneMap (059429) |
 | The Spread | `curated:sg-the-spread-nus` | thespread.sg (hours, address, shuttle stop); NUSSU The Ridge (dishes); OneMap (119245) |
 
-## 4. Recent commits (newest first)
+## 4. Recent commits (newest first, all live)
 
-- Latest (not deployed): story walks, OneMap street-level map, place cards template and pilot.
-- Everything below is live.
+- `3a687d8` Story walks, OneMap street-level map, place cards template and pilot.
 - `670fa0d` Three new Nearby places; story cards open them.
 - `64da931` Home crash fix on iPhone: parallax only near the centre.
 - `0fd3156` Story cards: "in Nearby" and "3D" buttons.
@@ -105,8 +104,7 @@ The base is Team 1's `main` plus our v3 work. The merge decisions are in `docs/M
 1. **A main line for the demo.** The owner said the app lacks one clear demo story. Proposed: make the "scene" (a shared Singapore moment, e.g. queueing for bak kwa before Lunar New Year) the unit: understand (story card) → go (map, route) → do (a check-in with a small spoken task) → talk (Community questions attached to the scene). Fewer, deeper scenes; the 304 places become the toolbox behind them. Next step agreed in principle: a one-page demo storyboard before changing Home and Community. Missing parts: the "do" task and Community-to-scene links.
 2. **Place cards in batches, scene first.** The template is in; each place needs research (≈10–15 min). Tian Tian and Ann Chin have only the template: the MICHELIN Guide site is blank to fetch tools, and other pages disagree on Tian Tian's founding year (1986 or 1987). 120 places have no sourced facts at all.
 3. **Real iPhone check.** The Home crash fix and the OneMap map were checked in WebKit at iPhone size, not on a device. Ask the owner to confirm on their phone.
-4. **Deploy** the latest commit when the owner asks.
-5. **Open items:**
+4. **Open items:**
    - The Google Drive folder the owner shared (`1xTEHbmaHgWhlnE5hbnMtooxxMX_6ejxr`) couldn't be opened: it isn't public, and the Drive connector wasn't authorised.
    - The Tembusu and NUS alumni pages are JS-rendered and return empty to fetch tools.
    - OneMap search failed for 138596, 117600 and "Tembusu College".
