@@ -13,7 +13,7 @@ Paste this into a new Claude Code session opened in `~/Documents/GitHub/CDE-5311
 | Working folder | `~/Documents/GitHub/CDE-5311-team1` (a git worktree). App in `intentai-web/`. |
 | Branch | `merge/team1-v3`, pushed to `origin` = `Wsamme/CDE-5311` (the owner's repo). `3a687d8` adds story walks, OneMap and place cards. |
 | Team repo | `CDE5311-Aug2026/team-1`. Changes for the team go there as a PR, only when the owner asks. |
-| Live site | https://cde-5311.vercel.app = `3a687d8` (deployed 29 Oct; story walks, OneMap tiles, place cards and story Route buttons checked live in WebKit at iPhone size). |
+| Live site | https://cde-5311.vercel.app = `62cda0f` (deployed 29 Oct; story walks, OneMap tiles, place cards, story Route buttons and Order like a local checked live in WebKit at iPhone size). |
 | Deploy | From the worktree root: `vercel deploy --prod --yes` (Vercel project `wsammes-projects/cde-5311`, Root Directory `intentai-web`). Git-triggered deploys are **blocked**: the commit email isn't on the Vercel account, so always use the CLI. |
 | Other worktrees | `~/Documents/GitHub/CDE-5311-pr5` (PR #5, for comparing), `~/Documents/GitHub/CDE-5311` (older tree). |
 | 3D city | `Wsamme/EARTH_ONLINE`; the app bundles `intentai-web/public/earth-online/sg/lite.html` (`npm run sync:earth-online -- <checkout>`). |
@@ -91,6 +91,7 @@ The base is Team 1's `main` plus our v3 work. The merge decisions are in `docs/M
 
 ## 4. Recent commits (newest first, all live)
 
+- `62cda0f` Order like a local (kopi, chicken rice).
 - `3a687d8` Story walks, OneMap street-level map, place cards template and pilot.
 - `670fa0d` Three new Nearby places; story cards open them.
 - `64da931` Home crash fix on iPhone: parallax only near the centre.
