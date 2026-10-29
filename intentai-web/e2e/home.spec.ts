@@ -31,7 +31,7 @@ async function box(page: Page, locator: ReturnType<Page['locator']>): Promise<Re
 /** Opens Home and waits for the lazily loaded map to draw its pins, with Berlin selected. */
 async function openHome(page: Page) {
   await page.goto('/');
-  await expect(cards(page)).toHaveCount(303);
+  await expect(cards(page)).toHaveCount(305);
   await expect(selectedPin(page)).toHaveAttribute('data-pin', 'berlin-wall-fragments');
 }
 
@@ -115,16 +115,16 @@ async function tappablePins(page: Page): Promise<string[]> {
     });
 }
 
-test('load: every real place as a card (2 stories + 301), Berlin current, "301 places to explore"', async ({ page }) => {
+test('load: every real place as a card (2 stories + 303), Berlin current, "304 places to explore"', async ({ page }) => {
   const tiles: string[] = [];
   page.on('request', (r) => {
     if (/tile\.openstreetmap\.org/.test(new URL(r.url()).hostname)) tiles.push(r.url());
   });
   await openHome(page);
-  await expect(cards(page)).toHaveCount(303);
+  await expect(cards(page)).toHaveCount(305);
   await expect(current(page)).toHaveCount(1);
   await expect(current(page)).toHaveAttribute('aria-label', 'Berlin Wall Fragments');
-  await expect(map(page)).toContainText('301 places to explore');
+  await expect(map(page)).toContainText('304 places to explore');
   await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
   // The map draws pins (and clusters) for the places around the selected one, and asks no tile server.
   expect(await pins(page).count()).toBeGreaterThan(1);
@@ -362,7 +362,7 @@ test('reduced motion: card photos do not move', async ({ page }) => {
   const transforms = await carousel(page)
     .locator('[data-parallax]')
     .evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
-  expect(transforms).toHaveLength(303);
+  expect(transforms).toHaveLength(305);
   for (const t of transforms) expect(t).toBe('none');
 });
 

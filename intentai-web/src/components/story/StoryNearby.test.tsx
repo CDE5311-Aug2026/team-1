@@ -25,3 +25,10 @@ test('the monument card opens Thian Hock Keng in Nearby and in 3D', () => {
   expect(screen.getByRole('link', { name: /Thian Hock Keng in Nearby/ })).toHaveAttribute('href', '/nearby?sel=curated%3Asg-thian-hock-keng-temple&info=1');
   expect(screen.getByRole('link', { name: 'Thian Hock Keng in 3D' })).toHaveAttribute('href', '/nearby?sel=curated%3Asg-thian-hock-keng-temple&view=3d');
 });
+
+test('food cards open their own places: Lim Chee Guan and The Spread; the Wall cards open the Wall', () => {
+  expect(storyNearbyTarget('chinatown', 'food')).toEqual({ sel: 'curated:sg-lim-chee-guan-new-bridge-road', label: 'Lim Chee Guan' });
+  expect(storyNearbyTarget('berlin-wall-fragments', 'food')).toEqual({ sel: 'curated:sg-the-spread-nus', label: 'The Spread' });
+  for (const facet of ['monument', 'history', 'festival'] as const)
+    expect(storyNearbyTarget('berlin-wall-fragments', facet)).toEqual({ sel: 'curated:sg-berlin-wall-fragments-utown', label: 'Berlin Wall' });
+});

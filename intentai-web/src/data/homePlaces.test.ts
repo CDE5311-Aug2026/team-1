@@ -1,5 +1,6 @@
 import { beforeEach, expect, test } from 'vitest';
 import {
+  ALL_HOME_PLACES,
   BERLIN_THUMB,
   FACETS,
   HOME_PLACES,
@@ -124,4 +125,9 @@ test('search: case-insensitive on name, area and aliases', () => {
   expect(ids(searchHomePlaces('queenstown'))[1].length).toBeGreaterThanOrEqual(3);
   expect(ids(searchHomePlaces('University Town'))).toEqual([['berlin-wall-fragments'], []]);
   expect(ids(searchHomePlaces('zzz'))).toEqual([[], []]);
+});
+
+test('the Berlin Wall shows once on Home: as the story card, not also as its Nearby entry', () => {
+  const berlin = ALL_HOME_PLACES.filter((p) => /Berlin Wall/.test(p.name));
+  expect(berlin.map((p) => p.id)).toEqual(['berlin-wall-fragments']);
 });

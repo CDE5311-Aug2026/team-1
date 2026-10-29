@@ -1,7 +1,6 @@
 // "In Nearby" and "3D" under a place-story card's title (owner request 2026-10-29): every story card opens its
-// place on the Nearby map, or in the EARTH ONLINE 3D view. Where the story's exact place is not in the Nearby
-// catalogue yet (a shop, a campus café, the Berlin Wall panels), the link goes to the closest thing that is, and
-// its label says which, so it never pretends to be the exact spot.
+// place on the Nearby map, or in the EARTH ONLINE 3D view. Each link names the Nearby place it opens; Chinatown's
+// history card opens the Chinatown area, as its story covers the whole district.
 import { createContext, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { paths } from '../../routes';
@@ -15,11 +14,13 @@ type Target = { sel: string; label: string } | { area: string; label: string };
 const TARGETS: Record<string, Partial<Record<Facet, Target>> & { default: Target }> = {
   chinatown: {
     default: { area: 'sg-chinatown', label: 'Chinatown' },
+    food: { sel: 'curated:sg-lim-chee-guan-new-bridge-road', label: 'Lim Chee Guan' },
     monument: { sel: 'curated:sg-thian-hock-keng-temple', label: 'Thian Hock Keng' },
     festival: { sel: 'curated:sg-pagoda-street-trengganu-street', label: 'Pagoda Street' },
   },
   'berlin-wall-fragments': {
-    default: { sel: 'curated:sg-national-university-of-singapore', label: 'NUS' },
+    default: { sel: 'curated:sg-berlin-wall-fragments-utown', label: 'Berlin Wall' },
+    food: { sel: 'curated:sg-the-spread-nus', label: 'The Spread' },
   },
 };
 

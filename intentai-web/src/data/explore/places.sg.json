@@ -26143,5 +26143,201 @@
         }
       ]
     }
+  },
+  {
+    "id": "curated:sg-berlin-wall-fragments-utown",
+    "name": "Berlin Wall Fragments",
+    "country": "SG",
+    "regionId": "west",
+    "areaId": "sg-clementi",
+    "coordinates": {
+      "lat": 1.30583,
+      "lng": 103.77472,
+      "source": {
+        "title": "Singapore – NUS University Town",
+        "url": "https://en.the-wall-net.org/singapur-sgp-utown/",
+        "publisher": "The Berlin Wall Online (the-wall-net.org)",
+        "checkedAt": "2026-10-29"
+      }
+    },
+    "category": "landmark",
+    "kind": "Monument",
+    "summary": "Two segments of the Berlin Wall on display at NUS University Town, the only Berlin Wall segments in Singapore. They were donated in 2015 to mark 50 years of diplomatic relations between Singapore and Germany.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "These two segments were donated in 2015 by Elmar Prost of Lagerhaus KW GmbH to the Singapore Government, to mark 50 years of diplomatic relations between Singapore and Germany. They are on loan to NUS through the Ministry of Foreign Affairs and are the only Berlin Wall segments in Singapore.",
+        "sources": [
+          {
+            "title": "Singapore – NUS University Town",
+            "url": "https://en.the-wall-net.org/singapur-sgp-utown/",
+            "publisher": "The Berlin Wall Online (the-wall-net.org)",
+            "checkedAt": "2026-10-29"
+          }
+        ]
+      },
+      {
+        "id": "f2",
+        "text": "The segments were unveiled on 18 October 2016 by Foreign Minister Vivian Balakrishnan, German Ambassador Michael Witter and Tembusu College Rector Tommy Koh. A Tembusu Forum on the Cold War was held at Tembusu College the same day.",
+        "sources": [
+          {
+            "title": "Singapore – NUS University Town",
+            "url": "https://en.the-wall-net.org/singapur-sgp-utown/",
+            "publisher": "The Berlin Wall Online (the-wall-net.org)",
+            "checkedAt": "2026-10-29"
+          }
+        ]
+      }
+    ],
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-29",
+    "reviewedBy": "IntentAI team source check (story-card places, 2026-10-29)"
+  },
+  {
+    "id": "curated:sg-lim-chee-guan-new-bridge-road",
+    "name": "Lim Chee Guan (New Bridge Road)",
+    "nameZh": "林志源",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.28402940122042,
+      "lng": 103.8436346778695,
+      "source": {
+        "title": "OneMap search: 059429",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=059429&returnGeom=Y&getAddrDetails=Y",
+        "publisher": "OneMap (Singapore Land Authority)",
+        "checkedAt": "2026-10-29"
+      }
+    },
+    "category": "food",
+    "kind": "Bak kwa shop",
+    "summary": "A family-run bak kwa (sweet dried pork) shop on New Bridge Road in Chinatown, near Chinatown MRT. The business began as a pushcart stall in 1938.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Lim Chee Guan started in 1938 as a pushcart stall at the foot of a staircase on Chin Chiew Street. It is still a family-run business, and its bak kwa is cooked as it is sold, so what you buy is fresh.",
+        "sources": [
+          {
+            "title": "Lim Chee Guan 林志源 (New Bridge Road)",
+            "url": "https://chinatown.sg/shop/lim-chee-guan-newbridge/",
+            "publisher": "chinatown.sg",
+            "checkedAt": "2026-10-29"
+          }
+        ]
+      }
+    ],
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-29",
+    "reviewedBy": "IntentAI team source check (story-card places, 2026-10-29)",
+    "details": {
+      "address": {
+        "text": "203 New Bridge Road, Singapore 059429",
+        "postcode": "059429",
+        "source": {
+          "title": "Lim Chee Guan 林志源 (New Bridge Road)",
+          "url": "https://chinatown.sg/shop/lim-chee-guan-newbridge/",
+          "publisher": "chinatown.sg",
+          "checkedAt": "2026-10-29"
+        }
+      },
+      "hours": {
+        "text": "Mon–Sun 9:00 am – 9:00 pm",
+        "source": {
+          "title": "Lim Chee Guan 林志源 (New Bridge Road)",
+          "url": "https://chinatown.sg/shop/lim-chee-guan-newbridge/",
+          "publisher": "chinatown.sg",
+          "checkedAt": "2026-10-29"
+        }
+      },
+      "website": {
+        "url": "https://limcheeguan.com.sg/",
+        "source": {
+          "title": "Lim Chee Guan 林志源 (New Bridge Road)",
+          "url": "https://chinatown.sg/shop/lim-chee-guan-newbridge/",
+          "publisher": "chinatown.sg",
+          "checkedAt": "2026-10-29"
+        }
+      }
+    }
+  },
+  {
+    "id": "curated:sg-the-spread-nus",
+    "name": "The Spread",
+    "country": "SG",
+    "regionId": "west",
+    "areaId": "sg-queenstown",
+    "coordinates": {
+      "lat": 1.292522229130478,
+      "lng": 103.7741334182768,
+      "source": {
+        "title": "OneMap search: 119245",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=119245&returnGeom=Y&getAddrDetails=Y",
+        "publisher": "OneMap (Singapore Land Authority)",
+        "checkedAt": "2026-10-29"
+      }
+    },
+    "category": "food",
+    "kind": "Café",
+    "summary": "A café bistro in the Mochtar Riady Building at NUS Business School, serving pasta, salads, rice bowls, cakes and coffee.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The NUS Students’ Union magazine The Ridge listed its pasta and salads, Thai basil pork rice, Thai milk tea, karaage rice, coffee and cakes among the reasons to visit, in a 2021 round-up of cafés around NUS.",
+        "sources": [
+          {
+            "title": "Cafés around NUS to get your coffee fix",
+            "url": "https://theridge.sg/2021/11/26/cafes-around-nus-to-get-your-coffee-fix/",
+            "publisher": "The Ridge (NUSSU)",
+            "checkedAt": "2026-10-29"
+          }
+        ]
+      }
+    ],
+    "accessNotes": {
+      "text": "Nearest NUS shuttle bus stop: Biz 2 (A1, D1, BTC). Nearest car parks: NUS car parks 12, 12B and 15.",
+      "source": {
+        "title": "The Spread | Café at NUS",
+        "url": "https://thespread.sg/",
+        "publisher": "The Spread",
+        "checkedAt": "2026-10-29"
+      }
+    },
+    "provenance": "researched",
+    "editorialStatus": "published",
+    "reviewedAt": "2026-10-29",
+    "reviewedBy": "IntentAI team source check (story-card places, 2026-10-29)",
+    "details": {
+      "address": {
+        "text": "15 Kent Ridge Drive, #01-03, Mochtar Riady Building, Singapore 119245",
+        "postcode": "119245",
+        "source": {
+          "title": "The Spread | Café at NUS",
+          "url": "https://thespread.sg/",
+          "publisher": "The Spread",
+          "checkedAt": "2026-10-29"
+        }
+      },
+      "hours": {
+        "text": "Mon–Fri 8:00 am – 6:30 pm; Sat 8:00 am – 2:30 pm; closed Sun and public holidays",
+        "source": {
+          "title": "The Spread | Café at NUS",
+          "url": "https://thespread.sg/",
+          "publisher": "The Spread",
+          "checkedAt": "2026-10-29"
+        }
+      },
+      "website": {
+        "url": "https://thespread.sg/",
+        "source": {
+          "title": "The Spread | Café at NUS",
+          "url": "https://thespread.sg/",
+          "publisher": "The Spread",
+          "checkedAt": "2026-10-29"
+        }
+      }
+    }
   }
 ]

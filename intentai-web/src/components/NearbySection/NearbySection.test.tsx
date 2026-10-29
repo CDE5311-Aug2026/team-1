@@ -120,7 +120,7 @@ test('renders the heading and hint, every place as a pin and the Berlin card cur
   expect(screen.getByRole('heading', { level: 2, name: 'Nearby' })).toBeInTheDocument();
   expect(screen.getByText('Swipe a card or tap a pin')).toBeInTheDocument();
   await screen.findByTestId('map');
-  expect(pinCount()).toBe(303); // every place is a pin on our map (it clusters them)
+  expect(pinCount()).toBe(305); // every place is a pin on our map (it clusters them)
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
 });
 
@@ -131,11 +131,11 @@ test('cards, pins and Locate stay in sync; Open calls onOpenPlace', async () => 
 
   fireEvent.keyDown(card('Berlin Wall Fragments'), { key: 'ArrowRight' });
   expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
-  expect(pinCount()).toBe(303);
+  expect(pinCount()).toBe(305);
   expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'Show my location' }));
-  expect(pinCount()).toBe(303); // every place is a pin on our map (it clusters them)
+  expect(pinCount()).toBe(305); // every place is a pin on our map (it clusters them)
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
 
   await user.click(within(map).getByRole('button', { name: 'Haw Par Villa' }));
@@ -168,7 +168,7 @@ test('focusId selects that card on arrival, with its pin', async () => {
 
 test('the places to explore chip calls onExplore', async () => {
   const { onExplore } = setup();
-  await userEvent.click(screen.getByRole('button', { name: '301 places to explore' }));
+  await userEvent.click(screen.getByRole('button', { name: '304 places to explore' }));
   expect(onExplore).toHaveBeenCalledTimes(1);
 });
 

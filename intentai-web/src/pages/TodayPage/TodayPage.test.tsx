@@ -165,7 +165,7 @@ test('arriving without showMap does not scroll to the map', async () => {
 
 test('the places to explore chip opens Nearby Explore', async () => {
   renderWithRoutes();
-  await userEvent.click(screen.getByRole('button', { name: '301 places to explore' }));
+  await userEvent.click(screen.getByRole('button', { name: '304 places to explore' }));
   expect(screen.getByText('nearby page')).toBeInTheDocument();
 });
 

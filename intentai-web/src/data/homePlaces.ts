@@ -108,7 +108,10 @@ const AREA_NAME = new Map(areas.map((a) => [a.id, a.name]));
  * base first). Picture: culture-card photo → Wikimedia Commons photo → 3D view (none → the card's placeholder).
  * They have no story cards: the card's button opens the place in Nearby. Pinned on the map only when selected.
  */
-const CATALOGUE_PLACES: HomePlace[] = PUBLISHED_PLACES.filter((p) => !HOME_PLACES.some((h) => h.id === p.id))
+/** Catalogue entries for the same spot as a story place above: Home shows the story card, not a second pin. */
+const STORY_TWINS: ReadonlySet<string> = new Set(['curated:sg-berlin-wall-fragments-utown']);
+
+const CATALOGUE_PLACES: HomePlace[] = PUBLISHED_PLACES.filter((p) => !HOME_PLACES.some((h) => h.id === p.id) && !STORY_TWINS.has(p.id))
   .map((p): HomePlace => {
     const picture = placePicture(p);
     return {
