@@ -184,7 +184,7 @@ describe('Place detail in 3D', () => {
   });
 
   test('a place without a model pins its point', async () => {
-    renderAt('/nearby/place/curated:sg-maxwell-food-centre');
+    renderAt('/nearby/place/curated:sg-the-spread-nus');
     await userEvent.click(screen.getByRole('button', { name: '3D' }));
     const src = frame()!.getAttribute('src')!;
     expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&cards=0$/);

@@ -28,7 +28,7 @@ test.describe('first run', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Your passport is ready' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
     await page.getByRole('button', { name: /Start exploring/ }).click();
-    await expect(page.getByRole('heading', { level: 1, name: /^Good (morning|afternoon|evening)/ })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
     await page.reload();
     await expect(page).toHaveURL(/\/$/);
   });

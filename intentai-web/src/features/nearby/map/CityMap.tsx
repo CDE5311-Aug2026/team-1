@@ -85,6 +85,19 @@ export interface MapFocus {
   radiusM?: number;
 }
 
+/** RGBA, alpha 0–1. */
+export type Rgba = readonly [number, number, number, number];
+
+/** A filled outline on the map (Home's URA planning areas). Colour changes fade over AREA_FADE_MS. */
+export interface MapArea {
+  id: string;
+  /** Outer rings in map metres (projection.ts frame). */
+  rings: readonly (readonly (readonly [number, number])[])[];
+  fill: Rgba;
+  stroke: Rgba;
+  lineWidth: number;
+}
+
 export interface MapLabel {
   id: string;
   name: string;
@@ -124,6 +137,8 @@ interface CityMapProps {
   path?: LatLng[];
   /** false: every pin is drawn on its own (numbered route stops); default true. */
   clusterPins?: boolean;
+  /** Filled outlines drawn on the ground (fills under the roads, outlines over them). */
+  areas?: readonly MapArea[];
 }
 
 /** The map credit (OSM licence): shown on the map, or by a page that hides it behind its own control. */
@@ -168,6 +183,11 @@ const tileLoaded = (e: { currentTarget: HTMLImageElement }) => {
 const tileFailed = (e: { currentTarget: HTMLImageElement }) => {
   e.currentTarget.dataset.failed = '';
 };
+
+/** How long an area's colour takes to change. */
+export const AREA_FADE_MS = 420;
+const mix = (a: Rgba, b: Rgba, k: number): Rgba => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k, a[3] + (b[3] - a[3]) * k];
+const rgba = (c: Rgba) => `rgba(${Math.round(c[0])}, ${Math.round(c[1])}, ${Math.round(c[2])}, ${c[3].toFixed(3)})`;
 
 const KEY_PAN_PX = 60;
 /** Pins closer than this merge, so 30–34 px targets never overlap (WCAG 2.5.8). */
@@ -312,6 +332,7 @@ export default function CityMap({
   attribution = 'inline',
   path,
   clusterPins = true,
+  areas,
 }: CityMapProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -482,13 +503,50 @@ export default function CityMap({
     canvas.height = Math.round(height * dpr);
   }, [width, height]);
 
+  // Area colours ease from what is drawn now to the new targets (instant under reduced motion).
+  const areaShown = useRef(new Map<string, { fill: Rgba; stroke: Rgba; lineWidth: number }>());
+  const [areaTick, setAreaTick] = useState(0);
+  useEffect(() => {
+    if (!areas || IS_JSDOM) return undefined;
+    const from = new Map(areaShown.current);
+    const instant = prefersReducedMotion() || from.size === 0;
+    const start = performance.now();
+    let frame = 0;
+    const step = (now: number) => {
+      const t = instant ? 1 : Math.min(1, (now - start) / AREA_FADE_MS);
+      const k = 1 - (1 - t) ** 3; // ease-out
+      const next = new Map<string, { fill: Rgba; stroke: Rgba; lineWidth: number }>();
+      for (const a of areas) {
+        const f = from.get(a.id) ?? { fill: [a.fill[0], a.fill[1], a.fill[2], 0] as Rgba, stroke: [a.stroke[0], a.stroke[1], a.stroke[2], 0] as Rgba, lineWidth: a.lineWidth };
+        next.set(a.id, { fill: mix(f.fill, a.fill, k), stroke: mix(f.stroke, a.stroke, k), lineWidth: f.lineWidth + (a.lineWidth - f.lineWidth) * k });
+      }
+      areaShown.current = next;
+      setAreaTick((n) => n + 1);
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [areas]);
+
   // Draw the ground image and roads for the current view, at most once per animation frame.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || IS_JSDOM) return undefined;
     const frame = requestAnimationFrame(() => draw(canvas));
     return () => cancelAnimationFrame(frame);
-  }, [view, width, height, groundReady, roads]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [view, width, height, groundReady, roads, areaTick]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const traceArea = (ctx: CanvasRenderingContext2D, a: MapArea) => {
+    ctx.beginPath();
+    for (const ring of a.rings) {
+      ring.forEach(([x, y], i) => {
+        const p = toScreen({ x, y }, fullView);
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+    }
+  };
 
   const draw = (canvas: HTMLCanvasElement) => {
     const ctx = canvas.getContext('2d');
@@ -505,8 +563,27 @@ export default function CityMap({
     ctx.drawImage(img, topLeft.x, topLeft.y, size, size);
     // Level of detail: expressways and main roads first; smaller roads as you zoom in.
     const s = view.scale;
+    const shownAreas = (areas ?? []).flatMap((a) => {
+      const c = areaShown.current.get(a.id);
+      return c ? [{ a, c }] : [];
+    });
+    for (const { a, c } of shownAreas) {
+      if (c.fill[3] <= 0.005) continue;
+      traceArea(ctx, a);
+      ctx.fillStyle = rgba(c.fill);
+      ctx.fill('evenodd');
+    }
     if (roads.minor && s >= MINOR_SCALE) drawRoads(ctx, roads.minor, fullView, () => true);
     if (roads.major) drawRoads(ctx, roads.major, fullView, (c) => c <= 3 || (c <= 5 && s >= 0.012) || s >= 0.025);
+    // Outlines over the roads; the thickest (the selected area) last, so it is never covered by a neighbour's.
+    ctx.lineJoin = 'round';
+    for (const { a, c } of [...shownAreas].sort((x, y) => x.c.lineWidth - y.c.lineWidth)) {
+      if (c.stroke[3] <= 0.005 || c.lineWidth <= 0) continue;
+      traceArea(ctx, a);
+      ctx.strokeStyle = rgba(c.stroke);
+      ctx.lineWidth = c.lineWidth;
+      ctx.stroke();
+    }
   };
 
   const settle = useCallback(

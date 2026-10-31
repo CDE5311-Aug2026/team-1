@@ -65,11 +65,11 @@ test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
 
 test('the hero opens the holiday detail, and the back link returns to Home', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Deepavali long weekend starts today', exact: true }).click();
+  await page.getByRole('button', { name: /Deepavali long weekend starts today/ }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Deepavali' })).toBeVisible();
   await page.getByRole('button', { name: 'Back to Home', exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeVisible();
-  await expect(page.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
+  await expect(page.getByRole('button', { name: /Deepavali long weekend starts today/ })).toBeVisible();
 });
 
 test.describe('first visit', () => {
@@ -113,9 +113,10 @@ test('only the active tab icon is orange', async ({ page }) => {
 
 // v2: on a laptop every page uses Today's content column. Any wide block near the top of <main>
 // (a page wrapper, header or body, outside cards) must start and end where Today's header does.
-test('every route uses the same content column as Today at 1440', async ({ page }) => {
+test('every route uses the same content column at 1440', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
+  // Home is a full-screen map since the Discovery redesign (31 Oct); Moments sets the column now.
+  await page.goto('/moments');
   const column = await page.locator('main > *').first().evaluate((el) => {
     const box = el.getBoundingClientRect();
     return { left: box.left, width: box.width };
@@ -146,6 +147,6 @@ test('every route uses the same content column as Today at 1440', async ({ page 
           .map(({ el, box }) => `${el.className} at ${Math.round(box.left)}/${Math.round(box.width)}`),
       column,
     );
-    expect(off, `${route} vs Today's ${column.left}/${column.width}`).toEqual([]);
+    expect(off, `${route} vs the column ${column.left}/${column.width}`).toEqual([]);
   }
 });

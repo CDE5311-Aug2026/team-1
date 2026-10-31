@@ -4,14 +4,15 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, test, vi } from 'vitest';
 import App from './App';
 
-test('default route shows Home with the greeting and the holiday title', () => {
+test('default route shows Home: the regions deck and the holiday event', () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
       <App />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeInTheDocument();
+  expect(screen.getByRole('region', { name: 'Regions' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Deepavali long weekend starts today/ })).toBeInTheDocument();
 });
 
 test('the tab bar is Home, Moments, Hunt, Mine; Hunt opens its page', async () => {
@@ -32,7 +33,7 @@ test('an unknown route redirects to Home instead of rendering blank', () => {
       <App />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('heading', { level: 2, name: 'Deepavali long weekend starts today' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeInTheDocument();
 });
 
 test.each(['/ask', '/community', '/community/sabo', '/place/chinatown', '/place/chinatown/food', '/card/laksa', '/nearby/phrases'])(
@@ -44,7 +45,7 @@ test.each(['/ask', '/community', '/community/sabo', '/place/chinatown', '/place/
         <App />
       </MemoryRouter>,
     );
-    expect(screen.getByRole('heading', { level: 1, name: /^Good morning/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeInTheDocument();
     vi.restoreAllMocks();
   },
 );

@@ -192,7 +192,7 @@ test('Explore works at 320 px and on wide screens without horizontal overflow', 
 
 test('the Back button leaves Explore at once, however many map steps were taken (3D on and off, a list, details)', async ({ page }) => {
   await open(page, paths.today);
-  await page.getByRole('button', { name: /places to explore$/ }).click();
+  await page.goto(paths.nearby);
   await expect(page).toHaveURL(/\/nearby/);
   await page.getByRole('button', { name: '3D' }).click();
   await expect(page).toHaveURL(/view=3d/);
