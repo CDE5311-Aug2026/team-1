@@ -84,10 +84,25 @@ test('an area opens its places; Open shows its story card above the deck, closin
   // the status card: checked in or not, and the area's progress
   expect(within(sheet).getByRole('img', { name: 'Not checked in yet' })).toBeInTheDocument();
   expect(within(sheet).getByRole('progressbar', { name: /^Clementi: 0 of \d+ places checked in$/ })).toBeInTheDocument();
+  // the notebook's pages turn: the field note first, Next page goes on, Previous comes back
+  const pagesNav = within(sheet).getByRole('navigation', { name: 'Pages' });
+  expect(pagesNav).toHaveTextContent(/^1\/\d+Field note$/);
+  expect(within(pagesNav).getByRole('button', { name: 'Previous page' })).toBeDisabled();
+  await user.click(within(pagesNav).getByRole('button', { name: 'Next page' }));
+  await waitFor(() => expect(pagesNav).toHaveTextContent(/^2\//));
+  await user.click(within(pagesNav).getByRole('button', { name: 'Previous page' }));
+  await waitFor(() => expect(pagesNav).toHaveTextContent(/^1\/\d+Field note$/));
   // the map stays as the place's 3D view; its tools fold away; the deck stays
   expect(screen.queryByRole('toolbar', { name: 'Map tools' })).toBeNull();
   expect(screen.getByRole('region', { name: 'Nearby places' })).toBeInTheDocument();
   expect(screen.getByTestId('where')).toHaveTextContent('open=');
+  // the place's sky: time of day and weather
+  await user.click(screen.getByRole('button', { name: 'Time of day: Now' }));
+  await user.click(screen.getByRole('radio', { name: 'Night' }));
+  expect(screen.getByRole('button', { name: 'Time of day: Night' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Weather: Clear' }));
+  await user.click(screen.getByRole('radio', { name: 'Rain' }));
+  expect(screen.getByRole('button', { name: 'Weather: Rain' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: `Close ${name}` }));
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   expect(screen.getByLabelText('Where you are')).toHaveTextContent('Singapore › West › Clementi');
@@ -137,7 +152,12 @@ test('the map credits name URA and the open data licence', async () => {
 test('map tools: Custom finds a place and opens it; Undo goes back', async () => {
   const user = userEvent.setup();
   renderHome();
-  await user.click(screen.getByRole('button', { name: 'Custom' }));
+  // the map stretches: its tab folds the picture card away, and back
+  await user.click(screen.getByRole('button', { name: 'Bigger map' }));
+  expect(screen.getByRole('button', { name: 'Smaller map' })).toHaveAttribute('aria-expanded', 'true');
+  await user.click(screen.getByRole('button', { name: 'Smaller map' }));
+  expect(screen.getByRole('button', { name: 'Bigger map' })).toHaveAttribute('aria-expanded', 'false');
+  await user.click(screen.getByRole('button', { name: 'Search' }));
   await user.type(screen.getByRole('searchbox', { name: 'Search a place or planning area' }), 'Maxwell');
   await user.click(screen.getByRole('button', { name: /^Maxwell Food Centre/ }));
   expect(screen.getByRole('dialog', { name: 'Maxwell Food Centre' })).toBeInTheDocument();
@@ -163,6 +183,10 @@ test("map tools: Editor's Pick switches the deck to the picks; a walk's stops; i
   await user.click(screen.getByRole('button', { name: '2D route' }));
   expect(screen.getByTestId('where')).toHaveTextContent('route=1');
   expect(screen.getByRole('link', { name: /^Go with Google Maps/ }).getAttribute('href')).toMatch(/^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&/);
+  // the 2D map is Google Maps' own directions through the stops, in order
+  expect(screen.getByTitle(/^Google Maps: Chinatown · The story walk, stops 1 to \d+ in order$/).getAttribute('src')).toMatch(
+    /^https:\/\/maps\.google\.com\/maps\?saddr=1\.\d+%2C103\.\d+&daddr=.+dirflg=w.*output=embed$/,
+  );
   await user.click(screen.getByRole('button', { name: '3D map' }));
   expect(screen.getByTestId('where')).not.toHaveTextContent('route=1');
   await user.click(screen.getByRole('button', { name: "Back to Editor's Pick" }));

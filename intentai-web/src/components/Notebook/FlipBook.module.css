@@ -1,0 +1,205 @@
+/* The stack of pages and the strip under it with the page number. A turning page shades as it rises (light catches its
+   middle), and the page underneath sits in its shadow until it is uncovered. */
+.wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.book {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  perspective: 1500px;
+  perspective-origin: 0% 50%;
+  touch-action: pan-y;
+}
+
+.leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 50%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: #f6eedb;
+  /* the page's gutter, darker by the spine */
+  box-shadow: inset 14px 0 18px -14px rgba(120, 85, 45, 0.35);
+  will-change: transform;
+}
+
+.leaf[data-state='past'] {
+  transform: rotateY(-178deg);
+  pointer-events: none;
+}
+
+.leaf[data-state='next'] {
+  pointer-events: none;
+}
+
+.sheet {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 38px 22px 22px;
+  background:
+    radial-gradient(circle, rgba(110, 80, 45, 0.2) 1px, transparent 1.3px) 0 0 / 18px 18px local,
+    linear-gradient(90deg, rgba(120, 85, 45, 0.12), transparent 14px) local;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* light and shadow on a page in motion */
+.shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(60, 35, 12, calc(var(--lift, 0) * 0.28)),
+      rgba(255, 245, 225, calc(var(--lift, 0) * 0.3)) 45%,
+      rgba(60, 35, 12, calc(var(--lift, 0) * 0.18))
+    ),
+    linear-gradient(270deg, rgba(40, 22, 6, calc(var(--under, 0) * 0.32)), transparent 70%);
+}
+
+.entryNo {
+  margin: 0 0 4px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8481f;
+}
+
+.entryNo span {
+  color: rgba(90, 60, 30, 0.55);
+}
+
+.folio {
+  margin: 22px 0 0;
+  text-align: center;
+  font-family: var(--serif, Georgia, serif);
+  font-style: italic;
+  font-size: 0.75rem;
+  color: rgba(90, 60, 30, 0.5);
+}
+
+/* the bottom corner, turned up a little: tap to turn */
+.corner {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 0 0 16px 0;
+  cursor: pointer;
+  background: linear-gradient(315deg, transparent 50%, #e6d7b6 50%, #f3e7cd 62%, #d9c59c 100%);
+  box-shadow: -3px -3px 6px -3px rgba(60, 35, 12, 0.35);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  transform-origin: 100% 100%;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.corner:hover {
+  transform: scale(1.25);
+}
+
+/* --- the strip under the pages ---------------------------------------------------------------------------------- */
+.nav {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 30px 7px 8px;
+  border-top: 1px dashed rgba(90, 60, 30, 0.3);
+  background: #efe3c8;
+}
+
+.arrow {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(90, 60, 30, 0.3);
+  border-radius: 50%;
+  background: #f8f0dd;
+  color: #4a2f1c;
+  cursor: pointer;
+}
+
+.arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.arrow:focus-visible {
+  outline: 2px solid #b9502a;
+  outline-offset: 2px;
+}
+
+.where {
+  margin: 0;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #a8481f;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--serif, Georgia, serif);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: #3a2a1a;
+}
+
+.dots {
+  flex: none;
+  display: flex;
+  gap: 4px;
+}
+
+.dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(90, 60, 30, 0.28);
+  transition:
+    width 0.3s,
+    background 0.3s;
+}
+
+.dots i[data-on] {
+  width: 14px;
+  border-radius: 3px;
+  background: #b9502a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaf {
+    will-change: auto;
+  }
+}

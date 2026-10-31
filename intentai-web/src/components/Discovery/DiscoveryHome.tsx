@@ -47,8 +47,8 @@ import { LevelDeck, progressLine, type LevelCard } from './LevelDeck';
 // (fast, no 18 MB download, the camera flies to each card); a planning area's places in the full EARTH ONLINE 3D city.
 const MapOverview = lazy(() => import('./MapCard3D').then((m) => ({ default: m.MapCard3D })));
 const MapDetail = lazy(() => import('./MapCardEarth').then((m) => ({ default: m.MapCardEarth })));
-function MapCard3D(props: Parameters<typeof MapOverview>[0]) {
-  return props.level === 'places' ? <MapDetail {...props} /> : <MapOverview {...props} />;
+function MapCard3D({ sky, ...props }: Parameters<typeof MapOverview>[0] & { sky?: View3DSky }) {
+  return props.level === 'places' ? <MapDetail {...props} sky={sky} /> : <MapOverview {...props} />;
 }
 const CoverFlow3DLazy = lazy(() => import('./CoverFlow3D').then((m) => ({ default: m.CoverFlow3D })));
 const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
@@ -80,6 +80,8 @@ const SHAPE_COLOR = {
 import { MapToolbar } from './MapToolbar';
 import { PickRoute } from './PickRoute';
 import { PlaceIntro } from './PlaceIntro';
+import { SkyControls } from './SkyControls';
+import type { View3DSky } from '../../features/nearby/components/View3D';
 import styles from './DiscoveryHome.module.css';
 
 type Level = 'regions' | 'areas' | 'places' | 'picks' | 'pick';
@@ -196,6 +198,61 @@ export default function DiscoveryHome() {
     if (a) go({ lvl: 'places', r: a.region, a: a.id, p: id, open: id });
   };
   const [locating, setLocating] = useState(false);
+  // a place's sky (time of day, weather) stays as chosen while the deck moves to other places
+  const [sky, setSky] = useState<View3DSky>({ time: 'now', wx: 'clear' });
+
+  // The map stretches (owner, 31 Oct 2026: "the screen can stretch"): drag the tab at its top up and the picture card
+  // above folds away to give the map its room; drag it down (or tap the tab) to bring the card back.
+  const eventRef = useRef<HTMLButtonElement>(null);
+  const eventH = useRef(112);
+  const [grow, setGrow] = useState(() => {
+    try {
+      return sessionStorage.getItem('home.mapTall') === '1' ? 1 : 0;
+    } catch {
+      return 0;
+    }
+  }); // 0 (card shown) … 1 (card folded)
+  const [gripping, setGripping] = useState(false);
+  const grip = useRef<{ y: number; g: number; moved: boolean } | null>(null);
+  const gripDragged = useRef(false);
+  const setTall = (on: boolean) => {
+    setGrow(on ? 1 : 0);
+    try {
+      sessionStorage.setItem('home.mapTall', on ? '1' : '0');
+    } catch {
+      /* private mode: just not remembered */
+    }
+  };
+  const gripProps = {
+    onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
+      if (grow === 0 && eventRef.current) eventH.current = eventRef.current.offsetHeight || 112;
+      grip.current = { y: e.clientY, g: grow, moved: false };
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+      setGripping(true);
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLButtonElement>) => {
+      const g = grip.current;
+      if (!g) return;
+      const dy = e.clientY - g.y;
+      if (Math.abs(dy) > 4) g.moved = true;
+      if (g.moved) setGrow(Math.max(0, Math.min(1, g.g - dy / (eventH.current + 10))));
+    },
+    onPointerUp: () => {
+      const g = grip.current;
+      grip.current = null;
+      setGripping(false);
+      if (!g) return;
+      if (!g.moved) return; // a tap: the click toggles
+      gripDragged.current = true;
+      setTimeout(() => (gripDragged.current = false), 0);
+      setTall(grow > 0.5);
+    },
+    onPointerCancel: () => {
+      grip.current = null;
+      setGripping(false);
+      setTall(grow > 0.5);
+    },
+  };
   const locate = () => {
     const fallback = (why: string) => {
       setLocating(false);
@@ -402,11 +459,29 @@ export default function DiscoveryHome() {
   return (
     // One screen with a deck that reaches the screen edges: bleeds past the column on purpose.
     <div className={styles.home} data-allow-bleed>
+      <div className={styles.backdrop} style={{ backgroundImage: `url(${import.meta.env.BASE_URL}home/paper.webp)` }} aria-hidden="true" />
       <h1 className={styles.srOnly}>Explore Singapore</h1>
       {!openId && (
         <div className={styles.head}>
           <HomeHeader logoSrc={homeLogo} />
-          <button type="button" className={styles.event} onClick={() => navigate(paths.holiday)}>
+          <button
+            ref={eventRef}
+            type="button"
+            className={gripping ? styles.event : `${styles.event} ${styles.eventFold}`}
+            onClick={() => navigate(paths.holiday)}
+            aria-hidden={grow === 1 ? true : undefined}
+            tabIndex={grow === 1 ? -1 : undefined}
+            style={
+              grow > 0
+                ? {
+                    height: (1 - grow) * eventH.current,
+                    marginTop: -10 * grow,
+                    opacity: Math.max(0, 1 - grow * 1.6),
+                    visibility: grow === 1 ? 'hidden' : undefined,
+                  }
+                : undefined
+            }
+          >
             <img className={styles.eventImg} src={todaysHoliday.image.src} alt="" />
             <span className={styles.eventCredit}>{todaysHoliday.image.credit.replace(/ · cropped$/, '')}</span>
             <span className={styles.eventKicker}>Festival · {todaysHoliday.today}</span>
@@ -418,113 +493,130 @@ export default function DiscoveryHome() {
         </div>
       )}
 
-      {/* The map card stays mounted when a place opens: it becomes the live 3D view on top of the intro (no reload). */}
+      {/* The map card stays mounted when a place opens: it becomes the live 3D view on top of the intro (no reload).
+          With the keys it is one piece, like a phone: the map as its screen, the keys in its rounded bottom. */}
       <>
-        <div className={openId ? `${styles.mapCard} ${styles.mapHero}` : styles.mapCard}>
-          {routeMode && pick && !openId ? (
-            <PickRoute pick={pick} selectedId={stop?.place.id} visited={visited} onSelect={(id) => go({ p: id })} onClose={() => go({ route: false })} />
-          ) : (
-            <Suspense fallback={<div className={styles.mapLoading} role="application" aria-label={`Map of Singapore's planning areas. ${title}.`} />}>
-              <MapCard3D
-                level={openId ? 'places' : level}
-                region={openId ? (openArea?.region ?? region) : region}
-                areaId={openId ? (openArea?.id ?? area.id) : area.id}
-                areaOrder={areaList.map((a) => a.id)}
-                places={mapPlaces}
-                selectedPlaceId={openId ?? (level === 'places' ? place?.id : level === 'pick' ? stop?.place.id : undefined)}
-                numbered={isPickLevel(level) && pick?.kind === 'walk'}
-                path={pick?.kind === 'walk'}
-                visited={visited}
-                label={`Map of Singapore's planning areas. ${title}.`}
-                onPickRegion={(id) => (level === 'regions' ? go({ r: id }) : enterRegion(id))}
-                onPickArea={(id) => (level === 'areas' ? go({ a: id }) : enterArea(id))}
-                onPickPlace={(id) => (isPickLevel(level) ? go({ lvl: 'pick', p: id }) : go({ lvl: 'places', p: id }))}
-              />
-            </Suspense>
+        <div className={openId ? `${styles.device} ${styles.deviceOpen}` : styles.device}>
+          {!openId && (
+            <button
+              type="button"
+              className={styles.grip}
+              aria-label={grow === 1 ? 'Smaller map' : 'Bigger map'}
+              aria-expanded={grow === 1}
+              onClick={() => {
+                if (!gripDragged.current) setTall(grow < 0.5);
+              }}
+              {...gripProps}
+            />
           )}
-          {openId && (
-            <div className={styles.mapTop}>
-              <button type="button" className={styles.back} onClick={closePlace} aria-label={`Close ${curatedPlace(openId)?.name ?? 'place'}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6 6 18" />
-                </svg>
-              </button>
-            </div>
-          )}
-          {!routeMode && !openId && (
-            <div className={styles.mapTop}>
-              {level !== 'regions' && (
-                <button type="button" className={styles.back} onClick={up} aria-label={upLabel}>
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M15 5l-7 7 7 7" />
+          <div className={openId ? `${styles.mapCard} ${styles.mapHero}` : styles.mapCard}>
+            {routeMode && pick && !openId ? (
+              <PickRoute pick={pick} visited={visited} onClose={() => go({ route: false })} />
+            ) : (
+              <Suspense fallback={<div className={styles.mapLoading} role="application" aria-label={`Map of Singapore's planning areas. ${title}.`} />}>
+                <MapCard3D
+                  level={openId ? 'places' : level}
+                  region={openId ? (openArea?.region ?? region) : region}
+                  areaId={openId ? (openArea?.id ?? area.id) : area.id}
+                  areaOrder={areaList.map((a) => a.id)}
+                  places={mapPlaces}
+                  selectedPlaceId={openId ?? (level === 'places' ? place?.id : level === 'pick' ? stop?.place.id : undefined)}
+                  numbered={isPickLevel(level) && pick?.kind === 'walk'}
+                  path={pick?.kind === 'walk'}
+                  visited={visited}
+                  label={`Map of Singapore's planning areas. ${title}.`}
+                  onPickRegion={(id) => (level === 'regions' ? go({ r: id }) : enterRegion(id))}
+                  onPickArea={(id) => (level === 'areas' ? go({ a: id }) : enterArea(id))}
+                  onPickPlace={(id) => (isPickLevel(level) ? go({ lvl: 'pick', p: id }) : go({ lvl: 'places', p: id }))}
+                  sky={openId ? sky : undefined}
+                />
+              </Suspense>
+            )}
+            {openId && (
+              <div className={styles.mapTop}>
+                <button type="button" className={styles.back} onClick={closePlace} aria-label={`Close ${curatedPlace(openId)?.name ?? 'place'}`}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6 6 18" />
                   </svg>
                 </button>
-              )}
-              <div className={styles.crumbBox}>
-                <span className={styles.dots} aria-hidden="true">
-                  {[0, 1, 2].map((d) => (
-                    <span key={d} className={d <= DEPTH[level] ? styles.dotOn : styles.dot} />
-                  ))}
-                </span>
-                <p className={styles.crumbs} aria-label="Where you are">
-                  {crumbs.join(' › ')}
-                </p>
+                <SkyControls sky={sky} onChange={setSky} />
               </div>
-              {level === 'pick' && pick?.kind === 'walk' && !!pick.links?.length && (
-                <button type="button" className={styles.routeKey} onClick={() => go({ route: true })}>
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM6 15V9a4 4 0 0 1 4-4h4M18 9v6a4 4 0 0 1-4 4h-4" />
-                  </svg>
-                  2D route
-                </button>
-              )}
-            </div>
-          )}
-          {!routeMode && !openId && (
-            <details className={styles.credits}>
-              <summary>Map data</summary>
-              <p>
-                Planning areas: {URA_SOURCE.title}, {URA_SOURCE.publisher} ({URA_SOURCE.licence}). {URA_SOURCE.note}
-              </p>
-            </details>
+            )}
+            {!routeMode && !openId && (
+              <div className={styles.mapTop}>
+                {level !== 'regions' && (
+                  <button type="button" className={styles.back} onClick={up} aria-label={upLabel}>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M15 5l-7 7 7 7" />
+                    </svg>
+                  </button>
+                )}
+                <div className={styles.crumbBox}>
+                  <span className={styles.dots} aria-hidden="true">
+                    {[0, 1, 2].map((d) => (
+                      <span key={d} className={d <= DEPTH[level] ? styles.dotOn : styles.dot} />
+                    ))}
+                  </span>
+                  <p className={styles.crumbs} aria-label="Where you are">
+                    {crumbs.join(' › ')}
+                  </p>
+                </div>
+                {level === 'pick' && pick?.kind === 'walk' && !!pick.links?.length && (
+                  <button type="button" className={styles.routeKey} onClick={() => go({ route: true })}>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM6 15V9a4 4 0 0 1 4-4h4M18 9v6a4 4 0 0 1-4 4h-4" />
+                    </svg>
+                    2D route
+                  </button>
+                )}
+              </div>
+            )}
+            {!routeMode && !openId && (
+              <details className={styles.credits}>
+                <summary>Map data</summary>
+                <p>
+                  Planning areas: {URA_SOURCE.title}, {URA_SOURCE.publisher} ({URA_SOURCE.licence}). {URA_SOURCE.note}
+                </p>
+              </details>
+            )}
+          </div>
+          {!openId && (
+            <MapToolbar
+              canUndo={undoStack.current.length > 0}
+              locating={locating}
+              onLocate={locate}
+              onUndo={undo}
+              onPickArea={pickArea}
+              onPickPlace={pickPlace}
+              picksOn={isPickLevel(level)}
+              onPicks={() => (isPickLevel(level) ? go({ lvl: 'regions' }) : go({ lvl: 'picks' }))}
+            />
           )}
         </div>
         {openId && (
           <AnimatePresence mode="popLayout">
             <PlaceIntro key="intro" placeId={openId} distance={homeOf(openId)?.distance} onClose={closePlace} />
           </AnimatePresence>
-        )}
-        {!openId && (
-          <MapToolbar
-            canUndo={undoStack.current.length > 0}
-            locating={locating}
-            onLocate={locate}
-            onUndo={undo}
-            onPickArea={pickArea}
-            onPickPlace={pickPlace}
-            picksOn={isPickLevel(level)}
-            onPicks={() => (isPickLevel(level) ? go({ lvl: 'regions' }) : go({ lvl: 'picks' }))}
-          />
         )}
       </>
 
@@ -592,6 +684,7 @@ export default function DiscoveryHome() {
                 <CoverFlow3D
                   label="Nearby places"
                   items={placeItems}
+                  hideAction={!!openId}
                   selectedId={place.id}
                   onSelect={(id) => go({ p: id, open: openId ? id : undefined })}
                   onEnter={openPlace}
@@ -630,6 +723,7 @@ export default function DiscoveryHome() {
                 <CoverFlow3D
                   label={`${pick.title}: ${pick.kind === 'walk' ? 'stops' : 'places'}`}
                   items={stopItems}
+                  hideAction={!!openId}
                   selectedId={stop.place.id}
                   onSelect={(id) => go({ p: id, open: openId ? id : undefined })}
                   onEnter={openPlace}

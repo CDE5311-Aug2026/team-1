@@ -7,7 +7,7 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { URA_AREAS, URA_REGIONS, areaProgress, areasOf, regionBox, type RegionId, type UnlockStatus } from '../../data/ura/ura';
 import { curatedPlace } from '../../features/nearby/catalogue';
-import type { View3DZone } from '../../features/nearby/components/View3D';
+import type { View3DSky, View3DZone } from '../../features/nearby/components/View3D';
 import { toLatLng } from '../../features/nearby/map/projection';
 import type { MapLevel, MapPlacePin } from './MapCard3D';
 import styles from './MapCard3D.module.css';
@@ -26,7 +26,11 @@ interface Props {
   onPickRegion(id: RegionId): void;
   onPickArea(id: string): void;
   onPickPlace(id: string): void;
+  /** A place's own sky (time of day, weather); the planning-area map stays a clear late morning. */
+  sky?: View3DSky;
 }
+
+const MAP_SKY: View3DSky = { time: 10.5, wx: 'clear' };
 
 const TINT: Record<UnlockStatus, string> = { none: '#b8b2a6', exploring: '#8fb5f0', done: '#2f6fe4' };
 const DARK = '#1b2330';
@@ -46,7 +50,7 @@ function regionPoint(region: RegionId): [number, number] {
   return [as.reduce((s, a) => s + a.centre[0], 0) / as.length, as.reduce((s, a) => s + a.centre[1], 0) / as.length];
 }
 
-export function MapCardEarth({ level, region, areaId, areaOrder, places, selectedPlaceId, visited, label, onPickRegion, onPickArea, onPickPlace }: Props) {
+export function MapCardEarth({ level, region, areaId, areaOrder, places, selectedPlaceId, visited, label, onPickRegion, onPickArea, onPickPlace, sky }: Props) {
   const target = useMemo(() => {
     if (level === 'regions') return { at: middle(ISLAND), span: (ISLAND[2] - ISLAND[0]) * 1.05, pin: false };
     if (level === 'areas') {
@@ -72,9 +76,7 @@ export function MapCardEarth({ level, region, areaId, areaOrder, places, selecte
       const sel = level !== 'regions' && a.id === areaId;
       const base = { id: a.id, rings: a.rings, at: a.centre as [number, number] };
       if (level === 'regions')
-        return inRegion
-          ? { ...base, fill: TINT[status], fa: 0.42, line: WHITE, la: 0.85 }
-          : { ...base, fill: DARK, fa: 0.5, line: WHITE, la: 0.2 };
+        return inRegion ? { ...base, fill: TINT[status], fa: 0.42, line: WHITE, la: 0.85 } : { ...base, fill: DARK, fa: 0.5, line: WHITE, la: 0.2 };
       if (level === 'areas')
         return sel
           ? { ...base, fill: WARM, fa: 0.55, line: ORANGE, la: 1, sel: true, num: order.get(a.id), name: a.name, label: a.name }
@@ -86,7 +88,20 @@ export function MapCardEarth({ level, region, areaId, areaOrder, places, selecte
     });
     if (level === 'regions')
       URA_REGIONS.forEach((r, i) =>
-        list.push({ id: `r:${r.id}`, rings: [], fill: DARK, fa: 0, line: WHITE, la: 0, at: regionPoint(r.id), num: i + 1, name: r.name, label: r.name, kind: 'Region', sel: r.id === region }),
+        list.push({
+          id: `r:${r.id}`,
+          rings: [],
+          fill: DARK,
+          fa: 0,
+          line: WHITE,
+          la: 0,
+          at: regionPoint(r.id),
+          num: i + 1,
+          name: r.name,
+          label: r.name,
+          kind: 'Region',
+          sel: r.id === region,
+        }),
       );
     return list;
   }, [level, region, areaId, areaOrder, visited]);
@@ -122,6 +137,7 @@ export function MapCardEarth({ level, region, areaId, areaOrder, places, selecte
           selectedKey={level === 'places' ? (selectedPlaceId ?? null) : null}
           onPick={onPickPlace}
           insets={{ top: 48 }}
+          sky={sky ?? MAP_SKY}
         />
       </Suspense>
     </div>

@@ -2,7 +2,6 @@
 // subtitle, then (each only when the place has it) the sample clip or its photo, three key numbers, then and now,
 // the card's text, "Look for" and its sources. Every place gets the header and its photo; the rest comes from
 // src/data/explore/placeCards.ts, written place by place from sources.
-import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { InfoCard, SampleVideo, SourceLine, StatTiles, StoryArticle, StoryIcon, type StatTile, type StoryIconName } from '../../../components/story';
 import headerStyles from '../../../components/story/StoryHeader.module.css';
@@ -18,7 +17,7 @@ import styles from './PlaceStoryCard.module.css';
 
 const ICON: Record<Category, StoryIconName> = { food: 'food', landmark: 'monument', culture: 'festival', nature: 'nature' };
 
-const statTile = (t: CardTile): StatTile => ({
+export const statTile = (t: CardTile): StatTile => ({
   // years count up from the start of their century, other numbers from zero
   from: t.grouped || t.value < 1000 ? 0 : Math.floor(t.value / 100) * 100,
   to: t.value,
@@ -27,7 +26,7 @@ const statTile = (t: CardTile): StatTile => ({
 });
 
 /** The pages and photos behind the card, once each. */
-function credits(card: PlaceCard | undefined, photoCredit: string | undefined) {
+export function credits(card: PlaceCard | undefined, photoCredit: string | undefined) {
   const sources = [...(card?.sources ?? []), ...(card?.tiles?.map((t) => t.source) ?? [])].filter((s, i, all) => all.findIndex((o) => o.url === s.url) === i);
   const photos = [card?.clip?.poster?.credit ?? photoCredit?.replace(/^Photo:\s*/, ''), card?.thenNow?.then.credit, card?.thenNow?.now.credit].filter(
     (c, i, all): c is string => !!c && all.indexOf(c) === i,
@@ -51,28 +50,56 @@ function SourceLink({ s, children }: { s: SourceReference; children: string }) {
   );
 }
 
-/** A story block: its own card when framed, else as it was. */
-function Block({ framed, label, children }: { framed: boolean; label?: string; children: ReactNode }) {
-  return framed ? (
-    <section className={styles.block} aria-label={label}>
-      {children}
-    </section>
-  ) : (
-    <>{children}</>
+/** The pages and photo credits behind a card, in one line. */
+function Sources({ sources, photos }: { sources: SourceReference[]; photos: string[] }) {
+  if (sources.length === 0 && photos.length === 0) return null;
+  return (
+    <SourceLine delay={0.7}>
+      {sources.length > 0 && (
+        <>
+          Sources:{' '}
+          {bySource(sources).map(([publisher, pages], i) => (
+            <span key={publisher}>
+              {i > 0 && '; '}
+              {pages.length === 1 ? (
+                <SourceLink s={pages[0]}>{publisher}</SourceLink>
+              ) : (
+                <>
+                  {publisher}:{' '}
+                  {pages.map((page, j) => (
+                    <span key={page.url}>
+                      {j > 0 && ', '}
+                      <SourceLink s={page}>{page.title}</SourceLink>
+                    </span>
+                  ))}
+                </>
+              )}
+            </span>
+          ))}
+          {photos.length > 0 && ' · '}
+        </>
+      )}
+      {photos.length > 0 && `Photos: ${photos.join('; ')}`}
+    </SourceLine>
   );
+}
+
+/** A place's sources line on its own (Home's notebook puts it on the last page). */
+export function PlaceSources({ place }: { place: CuratedPlace }) {
+  const card = placeCard(place.id);
+  const picture = placePicture(place);
+  const photo = picture.kind === 'card' || picture.kind === 'photo' ? picture.credit : undefined;
+  return <Sources {...credits(card, card?.clip || !photo ? undefined : photo)} />;
 }
 
 export default function PlaceStoryCard({
   place,
   distance,
-  framed = false,
   hideHeader = false,
 }: {
   place: CuratedPlace;
   distance?: string | null;
-  /** Each block in its own card (Home's place intro, owner 31 Oct: "card-style, not flat"). */
-  framed?: boolean;
-  /** The heading is shown elsewhere (Home's intro has it in its status card). */
+  /** The heading is shown elsewhere. */
   hideHeader?: boolean;
 }) {
   const card = placeCard(place.id);
@@ -86,7 +113,7 @@ export default function PlaceStoryCard({
 
   return (
     // The story blocks keep Team 1's own 20px margins inside a box that reaches the screen edge (as a story page).
-    <div className={framed ? `${styles.card} ${styles.framed}` : styles.card} data-testid="place-story-card" data-allow-bleed>
+    <div className={styles.card} data-testid="place-story-card" data-allow-bleed>
       {!hideHeader && (
         <header className={headerStyles.header}>
           <p className={`a-up ${headerStyles.kicker}`}>
@@ -123,42 +150,29 @@ export default function PlaceStoryCard({
           )}
         </header>
       )}
-
-      <Block framed={framed}>
-        {card?.clip && poster ? (
-          <SampleVideo poster={poster} title={card.clip.title} duration={card.clip.seconds} captions={card.clip.captions} top={16} />
-        ) : (
-          photo && (
-            <figure className={`a-up ${styles.photo}`}>
-              <img src={photo.src} alt={place.name} loading="eager" decoding="async" />
-            </figure>
-          )
-        )}
-      </Block>
-
-      {card?.tiles && (
-        <Block framed={framed} label="Key numbers">
-          <StatTiles tiles={card.tiles.map(statTile) as [StatTile, StatTile, StatTile]} highlightThird label="Key numbers" />
-        </Block>
+      {card?.clip && poster ? (
+        <SampleVideo poster={poster} title={card.clip.title} duration={card.clip.seconds} captions={card.clip.captions} top={16} />
+      ) : (
+        photo && (
+          <figure className={`a-up ${styles.photo}`}>
+            <img src={photo.src} alt={place.name} loading="eager" decoding="async" />
+          </figure>
+        )
       )}
+
+      {card?.tiles && <StatTiles tiles={card.tiles.map(statTile) as [StatTile, StatTile, StatTile]} highlightThird label="Key numbers" />}
 
       {card?.thenNow && (
-        <Block framed={framed} label="Then and now">
-          <ThenNow
-            delay={0.4}
-            data={{
-              ...card.thenNow,
-              sliderLabel: `Compare ${place.name} in ${card.thenNow.thenLabel} and ${card.thenNow.nowLabel}`,
-            }}
-          />
-        </Block>
+        <ThenNow
+          delay={0.4}
+          data={{
+            ...card.thenNow,
+            sliderLabel: `Compare ${place.name} in ${card.thenNow.thenLabel} and ${card.thenNow.nowLabel}`,
+          }}
+        />
       )}
 
-      {card?.lead && (
-        <Block framed={framed} label="Story">
-          <StoryArticle top={framed ? 12 : 16} leadDelay={0.45} lead={card.lead} more={card.more ?? []} />
-        </Block>
-      )}
+      {card?.lead && <StoryArticle top={16} leadDelay={0.45} lead={card.lead} more={card.more ?? []} />}
 
       {card?.lookFor && card.lookFor.length > 0 && (
         <InfoCard label="Look for" kicker="LOOK FOR" kickerDelay={0.6}>
@@ -173,41 +187,9 @@ export default function PlaceStoryCard({
         </InfoCard>
       )}
 
-      {card?.order && (
-        <Block framed={framed} label="How to order">
-          <OrderBuilder guide={ORDER_GUIDES[card.order]} />
-        </Block>
-      )}
+      {card?.order && <OrderBuilder guide={ORDER_GUIDES[card.order]} />}
 
-      {(sources.length > 0 || photos.length > 0) && (
-        <SourceLine delay={0.7}>
-          {sources.length > 0 && (
-            <>
-              Sources:{' '}
-              {bySource(sources).map(([publisher, pages], i) => (
-                <span key={publisher}>
-                  {i > 0 && '; '}
-                  {pages.length === 1 ? (
-                    <SourceLink s={pages[0]}>{publisher}</SourceLink>
-                  ) : (
-                    <>
-                      {publisher}:{' '}
-                      {pages.map((page, j) => (
-                        <span key={page.url}>
-                          {j > 0 && ', '}
-                          <SourceLink s={page}>{page.title}</SourceLink>
-                        </span>
-                      ))}
-                    </>
-                  )}
-                </span>
-              ))}
-              {photos.length > 0 && ' · '}
-            </>
-          )}
-          {photos.length > 0 && `Photos: ${photos.join('; ')}`}
-        </SourceLine>
-      )}
+      <Sources sources={sources} photos={photos} />
     </div>
   );
 }

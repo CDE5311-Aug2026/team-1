@@ -44,6 +44,14 @@ export interface View3DProps {
   onZone?: (id: string) => void;
   /** Home's map card: daytime, no city labels, room for the whole island. */
   overview?: boolean;
+  /** The sky: time of day ('now', 'cycle' for day and night playing on, or an hour 0..24) and weather. Unset: the page's own. */
+  sky?: View3DSky;
+}
+
+export type View3DWeather = 'auto' | 'clear' | 'cloudy' | 'haze' | 'rain' | 'storm';
+export interface View3DSky {
+  time: 'now' | 'cycle' | number;
+  wx: View3DWeather;
 }
 
 export interface View3DZone {
@@ -92,9 +100,16 @@ function isLiteMessage(d: unknown): d is LiteMessage {
   const m = d as Record<string, unknown>;
   return (
     m.source === 'earth-online-lite' &&
-    (m.type === 'ready' || (m.type === 'card' && (m.key === null || typeof m.key === 'string')) || (m.type === 'pick' && typeof m.key === 'string') || (m.type === 'zone' && typeof m.id === 'string') ||
-      (m.type === 'view' && Array.isArray(m.at) && m.at.length === 2 && m.at.every((v) => typeof v === 'number' && Number.isFinite(v)) &&
-        typeof m.span === 'number' && Number.isFinite(m.span)))
+    (m.type === 'ready' ||
+      (m.type === 'card' && (m.key === null || typeof m.key === 'string')) ||
+      (m.type === 'pick' && typeof m.key === 'string') ||
+      (m.type === 'zone' && typeof m.id === 'string') ||
+      (m.type === 'view' &&
+        Array.isArray(m.at) &&
+        m.at.length === 2 &&
+        m.at.every((v) => typeof v === 'number' && Number.isFinite(v)) &&
+        typeof m.span === 'number' &&
+        Number.isFinite(m.span)))
   );
 }
 
@@ -108,7 +123,27 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick, onView, controlsTop, onRecenter, insets, zones, onZone, overview = false }: View3DProps) {
+export default function View3D({
+  target,
+  title,
+  height = 360,
+  onCard,
+  bleed = false,
+  hideCards = false,
+  you = null,
+  flyId = 0,
+  pins,
+  selectedKey = null,
+  onPick,
+  onView,
+  controlsTop,
+  onRecenter,
+  insets,
+  zones,
+  onZone,
+  overview = false,
+  sky,
+}: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
@@ -171,7 +206,21 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     const k = i ? `${i.top ?? 0},${i.bottom ?? 0},${i.left ?? 0},${i.right ?? 0}` : null;
     if (k === insetsSent.current) return;
     insetsSent.current = k;
-    if (i) frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'insets', top: i.top ?? 0, bottom: i.bottom ?? 0, left: i.left ?? 0, right: i.right ?? 0 }, earthOnline3dOrigin());
+    if (i)
+      frame.current?.contentWindow?.postMessage(
+        { source: 'intentai', type: 'insets', top: i.top ?? 0, bottom: i.bottom ?? 0, left: i.left ?? 0, right: i.right ?? 0 },
+        earthOnline3dOrigin(),
+      );
+  };
+  // the sky last sent (a reloaded page starts from its own again)
+  const skyRef = useRef(sky);
+  skyRef.current = sky;
+  const skySent = useRef<string | null>(null);
+  const postSky = () => {
+    const k = skyRef.current ? `${skyRef.current.time}|${skyRef.current.wx}` : null;
+    if (!k || k === skySent.current) return;
+    skySent.current = k;
+    frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'sky', time: skyRef.current!.time, wx: skyRef.current!.wx }, earthOnline3dOrigin());
   };
   // a dot was sent to this page (so "no position" has something to remove)
   const youSent = useRef<string | null>(null);
@@ -180,10 +229,7 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     const k = y ? `${y.lat},${y.lng},${y.accuracyM ?? ''}` : null;
     if (k === youSent.current) return; // nothing new (and no dot to remove)
     youSent.current = k;
-    frame.current?.contentWindow?.postMessage(
-      { source: 'intentai', type: 'you', at: y ? [y.lat, y.lng] : null, acc: y?.accuracyM },
-      earthOnline3dOrigin(),
-    );
+    frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'you', at: y ? [y.lat, y.lng] : null, acc: y?.accuracyM }, earthOnline3dOrigin());
   };
 
   useEffect(() => {
@@ -200,6 +246,8 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
         postPins(pinsKeyRef.current);
         zonesSent.current = null;
         postZones(zonesKeyRef.current);
+        skySent.current = null;
+        postSky();
       } else if (e.data.type === 'zone') {
         onZoneRef.current?.(e.data.id);
       } else if (e.data.type === 'pick') {
@@ -243,6 +291,12 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     if (ready) postInsets();
     // insets are read through insetsKey
   }, [ready, insetsKey]);
+
+  const skyKey = sky ? `${sky.time}|${sky.wx}` : '';
+  useEffect(() => {
+    if (ready) postSky();
+    // sky is read through skyKey
+  }, [ready, skyKey]);
 
   // Your dot moves (or goes) with the position.
   const youKey = you ? `${you.lat.toFixed(5)},${you.lng.toFixed(5)}:${Math.round(you.accuracyM ?? 0)}` : '';

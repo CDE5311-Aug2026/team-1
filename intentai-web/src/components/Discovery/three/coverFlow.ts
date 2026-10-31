@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 
 export const CARD_W = 1;
-export const CARD_H = 1.18;
+export const CARD_H = 1;
 const POOL = 9;
 const TEX_W = 512;
 const TEX_H = Math.round((TEX_W * CARD_H) / CARD_W);
@@ -71,8 +71,9 @@ export class CoverFlowScene {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
     this.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     const geom = new THREE.PlaneGeometry(CARD_W, CARD_H);
-    const ringGeom = roundedRect(CARD_W + 0.05, CARD_H + 0.05, 0.1);
-    const fadeMap = this.fadeTexture();
+    const ringGeom = roundedRect(CARD_W + 0.05, CARD_H + 0.05, 0.075);
+    // on paper a cover casts a soft shadow (a mirrored reflection only reads on glass)
+    const shadowMap = this.shadowTexture();
     for (let i = 0; i < POOL; i++) {
       const canvas2 = document.createElement('canvas');
       canvas2.width = TEX_W;
@@ -81,10 +82,10 @@ export class CoverFlowScene {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.anisotropy = 4;
       const card = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ map: texture, transparent: true }));
-      const mirror = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ map: texture, alphaMap: fadeMap, transparent: true, opacity: 0.16, depthWrite: false }));
-      mirror.scale.y = -1;
-      mirror.position.y = -CARD_H - 0.02;
-      const ring = new THREE.Mesh(ringGeom, new THREE.MeshBasicMaterial({ color: 0xe4671f, transparent: true, opacity: 0 }));
+      const mirror = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ map: shadowMap, color: 0x2a1a0c, transparent: true, opacity: 0.5, depthWrite: false }));
+      mirror.scale.set(1.18, 0.2, 1);
+      mirror.position.set(0.03, -CARD_H / 2 - 0.02, -0.01);
+      const ring = new THREE.Mesh(ringGeom, new THREE.MeshBasicMaterial({ color: 0xb9502a, transparent: true, opacity: 0 }));
       ring.position.z = -0.002;
       const group = new THREE.Group();
       group.add(ring, card, mirror);
@@ -94,21 +95,21 @@ export class CoverFlowScene {
     }
   }
 
-  private fadeTexture() {
+  private shadowTexture() {
     const c = document.createElement('canvas');
-    c.width = 4;
-    c.height = 128;
+    c.width = 128;
+    c.height = 32;
     const g = c.getContext('2d')!;
-    // uv.y = 0 is the card's bottom edge, which touches the reflection: opaque there, gone by mid-height
-    const grad = g.createLinearGradient(0, 128, 0, 0);
-    grad.addColorStop(0, '#fff');
-    grad.addColorStop(0.22, '#000');
-    grad.addColorStop(1, '#000');
+    const grad = g.createRadialGradient(64, 16, 2, 64, 16, 64);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.55, 'rgba(255,255,255,0.35)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.setTransform(1, 0, 0, 0.25, 0, 12);
     g.fillStyle = grad;
-    g.fillRect(0, 0, 4, 128);
-    const t = new THREE.CanvasTexture(c);
-    return t;
+    g.fillRect(0, -64, 128, 256);
+    return new THREE.CanvasTexture(c);
   }
+
 
   setSize(width: number, height: number) {
     this.width = Math.max(1, width);
@@ -118,10 +119,10 @@ export class CoverFlowScene {
     // the middle card takes about 36% of the width, and card + a sliver of its reflection fit the height
     const v = Math.tan(((FOV / 2) * Math.PI) / 180);
     const byW = CARD_W / 0.36 / (2 * v * this.camera.aspect);
-    const byH = (CARD_H * 1.2) / (2 * v);
+    const byH = (CARD_H * 1.14) / (2 * v);
     const d = Math.max(byW, byH);
-    this.camera.position.set(0, -CARD_H * 0.09, d);
-    this.camera.lookAt(0, -CARD_H * 0.09, 0);
+    this.camera.position.set(0, -CARD_H * 0.04, d);
+    this.camera.lookAt(0, -CARD_H * 0.04, 0);
     this.camera.updateProjectionMatrix();
     this.kick();
   }
@@ -261,7 +262,7 @@ export class CoverFlowScene {
       s.card.renderOrder = order;
       s.mirror.renderOrder = order - 50;
       (s.card.material as THREE.MeshBasicMaterial).opacity = p.fade;
-      (s.mirror.material as THREE.MeshBasicMaterial).opacity = 0.16 * p.fade;
+      (s.mirror.material as THREE.MeshBasicMaterial).opacity = 0.5 * p.fade;
       (s.ring.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 1 - Math.abs(o) * 3);
     }
   }

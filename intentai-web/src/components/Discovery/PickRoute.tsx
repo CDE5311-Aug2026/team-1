@@ -1,73 +1,70 @@
-// A walk from Editor's Pick as a 2D route (owner, 31 Oct 2026: "like a delivery or Amap route"): the flat map with the
-// stops numbered in order and the dashed line between them, the time and distance, and a button that starts the
-// directions in Google Maps. The line is the suggested order, not road routing; Google Maps finds the way.
-import { useEffect, useRef, useState } from 'react';
+// A walk from Editor's Pick as a 2D route (owner, 31 Oct 2026: "like a delivery or Amap route"; then "the built-in 2D
+// map should be Google Maps"): Google Maps' own directions between the stops, in order, embedded in the card, the
+// time and distance, and buttons that open the same directions in Google Maps. Long walks go in parts of up to 10 stops
+// (each part starts where the last ended).
+import { useState } from 'react';
 import type { EditorPick } from '../../data/picks';
 import { formatMinutes } from '../../data/picks';
-import { distanceM } from '../../features/nearby/geo';
-import CityMap from '../../features/nearby/map/CityMap';
-import type { LatLng } from '../../features/nearby/domain';
 import styles from './PickRoute.module.css';
 
 interface Props {
   pick: EditorPick;
-  selectedId?: string;
   visited: Set<string>;
-  onSelect(placeId: string): void;
   onClose(): void;
 }
 
-function fitAll(points: LatLng[]) {
-  const lat = (Math.min(...points.map((p) => p.lat)) + Math.max(...points.map((p) => p.lat))) / 2;
-  const lng = (Math.min(...points.map((p) => p.lng)) + Math.max(...points.map((p) => p.lng))) / 2;
-  const center = { lat, lng };
-  const far = Math.max(0, ...points.map((p) => distanceM(center, p)));
-  return { center, radiusM: Math.max(250, far + 150) };
-}
-
+const PART = 10;
 const km = (v: number) => (v < 1 ? `${Math.round(v * 10) * 100} m` : `${v.toFixed(1)} km`);
 
-export function PickRoute({ pick, selectedId, visited, onSelect, onClose }: Props) {
-  const box = useRef<HTMLDivElement>(null);
-  const [h, setH] = useState(240);
-  useEffect(() => {
-    const el = box.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setH(Math.max(160, Math.round(el.clientHeight))));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  const points = pick.stops.map((s) => ({ lat: s.place.coordinates.lat, lng: s.place.coordinates.lng }));
-  const [focusId] = useState(() => Date.now());
-  const fit = fitAll(points);
+/** Stops in parts of up to PART, each starting at the previous part's last stop. */
+export function routeParts<T>(stops: readonly T[]): T[][] {
+  if (stops.length <= PART) return [stops.slice()];
+  const parts: T[][] = [];
+  for (let i = 0; i < stops.length - 1; i += PART - 1) parts.push(stops.slice(i, i + PART));
+  return parts;
+}
+
+/** Google Maps directions through these points, as an embeddable page (no key needed). */
+export function embedUrl(points: readonly { lat: number; lng: number }[], transit: boolean): string {
+  const ll = (p: { lat: number; lng: number }) => `${p.lat.toFixed(6)},${p.lng.toFixed(6)}`;
+  const q = new URLSearchParams({ saddr: ll(points[0]), daddr: points.slice(1).map(ll).join(' to:'), dirflg: transit ? 'r' : 'w', hl: 'en', output: 'embed' });
+  return `https://maps.google.com/maps?${q}`;
+}
+
+export function PickRoute({ pick, visited, onClose }: Props) {
+  const parts = routeParts(pick.stops.map((s) => s.place));
+  const [part, setPart] = useState(0);
+  const cur = parts[Math.min(part, parts.length - 1)];
   const links = pick.links ?? [];
   const done = pick.stops.filter((s) => visited.has(s.place.id)).length;
+  const first = pick.stops.findIndex((s) => s.place.id === cur[0].id) + 1;
 
   return (
     <div className={styles.route}>
-      <div ref={box} className={styles.map}>
-        <CityMap
-          label={`2D route of ${pick.title}: ${pick.stops.length} stops in order`}
-          height={h}
-          pins={pick.stops.map((s, i) => ({
-            key: s.place.id,
-            name: `Stop ${i + 1}: ${s.place.name}`,
-            location: points[i],
-            category: s.place.category,
-            visited: visited.has(s.place.id),
-            label: String(i + 1),
-          }))}
-          selectedKey={selectedId}
-          path={points}
-          clusterPins={false}
-          onSelect={onSelect}
-          focus={{ id: focusId, center: fit.center, radiusM: fit.radiusM }}
-          attribution="hidden"
-          controlsTop={52}
+      <div className={styles.map}>
+        <iframe
+          key={part}
+          className={styles.frame}
+          src={embedUrl(
+            cur.map((p) => p.coordinates),
+            pick.mode === 'transit',
+          )}
+          title={`Google Maps: ${pick.title}, stops ${first} to ${first + cur.length - 1} in order`}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
         />
         <button type="button" className={styles.close} onClick={onClose}>
           3D map
         </button>
+        {parts.length > 1 && (
+          <div className={styles.parts} role="radiogroup" aria-label="Part of the walk">
+            {parts.map((_, i) => (
+              <button key={i} type="button" role="radio" aria-checked={i === part} className={styles.part} onClick={() => setPart(i)}>
+                Part {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div className={styles.sheet}>
         <p className={styles.stats}>
@@ -86,7 +83,6 @@ export function PickRoute({ pick, selectedId, visited, onSelect, onClose }: Prop
             </>
           ) : null}
           {done > 0 && ` · ${done} checked in`}
-          <span className={styles.note}> · Dashed line: suggested order, not road routing.</span>
         </p>
         <div className={styles.go}>
           {links.map((l, i) => (

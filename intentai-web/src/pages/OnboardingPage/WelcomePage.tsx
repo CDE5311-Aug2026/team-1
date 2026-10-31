@@ -21,6 +21,7 @@ import {
 } from '../../data/profile/profile';
 import { paths } from '../../routes';
 import { onboardingStore } from '../../data/stores';
+import FilmWall, { FILM_FRAMES } from './v3/FilmWall';
 import Icon from './v3/icons';
 import Passport from './v3/Passport';
 import { BaseMap, CountryPicker, LanguagePicker, PreviewCard, RolePicker, StayPicker, TopicRanker } from './v3/Pickers';
@@ -57,16 +58,24 @@ function Welcome({ onStart }: { onStart: () => void }) {
   const topics: TopicId[] = ['food', 'monuments', 'festivals'];
   return (
     <div className={styles.welcome}>
+      {/* strips of film drifting behind the passport: Singapore's buildings, old and today */}
+      <div className={styles.wallWrap} data-allow-bleed>
+        <FilmWall />
+      </div>
       <img className={styles.logo} src={logo} alt="IntentAI" width={44} height={44} />
       <motion.div
         className={styles.book}
         aria-hidden="true"
         initial={reduce ? false : { y: 24, rotate: -4, opacity: 0 }}
         animate={reduce ? { opacity: 1 } : { y: [0, -6, 0], rotate: 0, opacity: 1 }}
-        transition={reduce ? { duration: 0 } : { y: { duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }, rotate: { duration: 0.6 }, opacity: { duration: 0.4 } }}
+        transition={
+          reduce
+            ? { duration: 0 }
+            : { y: { duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }, rotate: { duration: 0.6 }, opacity: { duration: 0.4 } }
+        }
       >
         <span className={styles.bookFace}>
-          <img src={lion} alt="" width={88} height={88} />
+          <img src={lion} alt="" width={62} height={62} />
         </span>
         <span className={styles.bookTitle}>PASSPORT</span>
         <span className={styles.bookSub}>INTENTAI · SINGAPORE</span>
@@ -97,6 +106,16 @@ function Welcome({ onStart }: { onStart: () => void }) {
       </p>
       {/* User test: usage timings (time only) go to the team's dashboard. */}
       <p className={styles.notice}>We record how long you spend on each page, anonymously, to improve the app.</p>
+      <details className={styles.credits}>
+        <summary>Photo credits</summary>
+        <ul>
+          {FILM_FRAMES.map((f) => (
+            <li key={f.file}>
+              {f.name} ({f.year === 'Today' ? 'today' : f.year}): {f.credit}
+            </li>
+          ))}
+        </ul>
+      </details>
       <div className={styles.footer}>
         <button type="button" className={styles.primary} onClick={onStart}>
           Start the hunt <Icon name="arrow" size={18} />
@@ -113,8 +132,7 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
   const initial = useInitial();
   const field = FIELDS[step - 1];
   const last = step === STEPS;
-  const answered =
-    field === 'topics' ? profile.topics.length > 0 : field === 'base' ? Boolean(profile.base) : profile[field] !== null;
+  const answered = field === 'topics' ? profile.topics.length > 0 : field === 'base' ? Boolean(profile.base) : profile[field] !== null;
 
   const next = () => {
     if (!answered) return;

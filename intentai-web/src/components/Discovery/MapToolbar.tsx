@@ -1,7 +1,10 @@
-// The row under the map card (owner, 31 Oct 2026: "like the bottom row of a phone keyboard"): go to where you are,
-// pick a place or area yourself, switch the deck to the editor's picks (walks and themed lists), and undo the last move.
+// The keys at the bottom of the map card (owner, 31 Oct 2026: "like the bottom row of a phone keyboard", then "one
+// piece with the map, keys in Three.js you can press, tucked into the phone's big rounded bottom"): go to where you
+// are, search a place or area, switch the deck to the editor's picks (walks and themed lists), and undo the last move.
+// With WebGL the keys are drawn in 3D (three/keyTray.ts) under the real buttons, which stay for taps and the keyboard.
 import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { KeyTrayScene } from './three/keyTray';
 import { URA_AREAS, uraRegion } from '../../data/ura/ura';
 import { PUBLISHED_PLACES } from '../../features/nearby/catalogue';
 import styles from './MapToolbar.module.css';
@@ -38,7 +41,7 @@ function Icon({ d }: { d: string }) {
 
 const ICONS = {
   locate: 'M12 2v3M12 19v3M2 12h3M19 12h3M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z',
-  custom: 'M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11ZM12 7.5v5M9.5 10h5',
+  search: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM20 20l-4-4',
   picks: 'M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9L12 3Z',
   undo: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
 };
@@ -66,8 +69,101 @@ function Panel({ title, onClose, children }: { title: string; onClose(): void; c
   );
 }
 
+/** The card's corner radius: the outer keys' bottom corners are concentric with it. */
+const OUTER_R = 32;
+/** The card's frame around the keys, px (DiscoveryHome.module.css .device). */
+const DEVICE_PAD = 5;
+const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
+function webgl(): boolean {
+  if (IS_JSDOM || typeof document === 'undefined') return false;
+  try {
+    const c = document.createElement('canvas');
+    return !!(c.getContext('webgl2') || c.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+
 export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, onPickPlace, picksOn, onPicks }: Props) {
-  const [open, setOpen] = useState<'custom' | null>(null);
+  const [open, setOpen] = useState<'search' | null>(null);
+  const reduce = useReducedMotionConfig();
+  const bar = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const scene = useRef<KeyTrayScene | null>(null);
+  const [three, setThree] = useState(false);
+  const specs = [
+    { label: locating ? '…' : 'Locate', icon: ICONS.locate, on: false, disabled: false },
+    { label: 'Search', icon: ICONS.search, on: open === 'search', disabled: false },
+    { label: 'Picks', icon: ICONS.picks, on: picksOn, disabled: false },
+    { label: '', icon: ICONS.undo, on: false, disabled: !canUndo },
+  ];
+  const specsRef = useRef(specs);
+  specsRef.current = specs;
+  const layout = () => {
+    const s = scene.current;
+    const b = bar.current;
+    if (!s || !b) return;
+    const box = b.getBoundingClientRect();
+    const all = [...b.querySelectorAll('button')];
+    const keys = all.map((el, i) => {
+      const r = el.getBoundingClientRect();
+      // the outer keys' bottom corners follow the card's rounded bottom (concentric with it)
+      const inset = DEVICE_PAD + (i === 0 ? r.left - box.left : box.right - r.right);
+      const outer = Math.max(12, OUTER_R - inset);
+      const corners: [number, number, number, number] = [12, 12, i === all.length - 1 ? outer : 12, i === 0 ? outer : 12];
+      return { x: r.left - box.left, w: r.width, corners, ...specsRef.current[i] };
+    });
+    s.setKeys(keys);
+  };
+
+  useEffect(() => {
+    if (!webgl()) return;
+    let gone = false;
+    let ro: ResizeObserver | null = null;
+    void import('./three/keyTray').then(({ KeyTrayScene }) => {
+      if (gone || !canvas.current || !bar.current) return;
+      const s = new KeyTrayScene(canvas.current);
+      scene.current = s;
+      const fit = () => {
+        const b = bar.current!;
+        s.resize(b.clientWidth, b.clientHeight);
+        layout();
+      };
+      ro = new ResizeObserver(fit);
+      ro.observe(bar.current);
+      fit();
+      void document.fonts?.ready.then(() => {
+        if (!gone) layout();
+      });
+      setThree(true);
+    });
+    return () => {
+      gone = true;
+      ro?.disconnect();
+      scene.current?.destroy();
+      scene.current = null;
+    };
+    // layout reads the latest keys through specsRef
+  }, []);
+  const specKey = specs.map((k) => `${k.label}${k.on}${k.disabled}`).join('|');
+  useEffect(() => {
+    if (scene.current) scene.current.reduced = !!reduce;
+    layout();
+  }, [specKey, three, reduce]);
+
+  // the 3D key under a button goes down while it is held
+  const keyProps = (i: number) => ({
+    onPointerDown: () => scene.current?.press(i, true),
+    onPointerUp: () => scene.current?.press(i, false),
+    onPointerLeave: () => {
+      scene.current?.press(i, false);
+      scene.current?.hover(i, false);
+    },
+    onPointerCancel: () => scene.current?.press(i, false),
+    onPointerEnter: (e: React.PointerEvent) => e.pointerType === 'mouse' && scene.current?.hover(i, true),
+    onKeyDown: (e: React.KeyboardEvent) => (e.key === ' ' || e.key === 'Enter') && scene.current?.press(i, true),
+    onKeyUp: (e: React.KeyboardEvent) => (e.key === ' ' || e.key === 'Enter') && scene.current?.press(i, false),
+  });
   const [q, setQ] = useState('');
   const hits = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -85,14 +181,21 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.bar} role="toolbar" aria-label="Map tools">
-        <button type="button" className={styles.key} onClick={onLocate} aria-busy={locating} aria-label="My location">
+      <canvas ref={canvas} className={styles.canvas} aria-hidden="true" />
+      <div ref={bar} className={three ? `${styles.bar} ${styles.three}` : styles.bar} role="toolbar" aria-label="Map tools">
+        <button type="button" className={styles.key} onClick={onLocate} aria-busy={locating} aria-label="My location" {...keyProps(0)}>
           <Icon d={ICONS.locate} />
           <span>{locating ? '…' : 'Locate'}</span>
         </button>
-        <button type="button" className={styles.key} onClick={() => setOpen(open === 'custom' ? null : 'custom')} aria-expanded={open === 'custom'}>
-          <Icon d={ICONS.custom} />
-          <span>Custom</span>
+        <button
+          type="button"
+          className={styles.key}
+          onClick={() => setOpen(open === 'search' ? null : 'search')}
+          aria-expanded={open === 'search'}
+          {...keyProps(1)}
+        >
+          <Icon d={ICONS.search} />
+          <span>Search</span>
         </button>
         <button
           type="button"
@@ -103,17 +206,18 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
           }}
           aria-pressed={picksOn}
           aria-label="Editor's Pick"
+          {...keyProps(2)}
         >
           <Icon d={ICONS.picks} />
           <span>Picks</span>
         </button>
-        <button type="button" className={`${styles.key} ${styles.small}`} onClick={onUndo} disabled={!canUndo} aria-label="Undo">
+        <button type="button" className={`${styles.key} ${styles.small}`} onClick={onUndo} disabled={!canUndo} aria-label="Undo" {...keyProps(3)}>
           <Icon d={ICONS.undo} />
         </button>
       </div>
       <AnimatePresence>
-        {open === 'custom' && (
-          <Panel title="Go to a place or area" onClose={close}>
+        {open === 'search' && (
+          <Panel title="Search a place or area" onClose={close}>
             <input
               className={styles.search}
               type="search"

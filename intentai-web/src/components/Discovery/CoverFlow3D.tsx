@@ -34,12 +34,12 @@ interface Props {
   onEnter(id: string): void;
   /** Shown instead when WebGL is not available (and in unit tests). */
   fallback: ReactNode;
+  /** The middle card is already open above the deck: no button to open it again. */
+  hideAction?: boolean;
 }
 
 export const STATUS_LABEL = { done: 'all checked in', exploring: 'exploring', none: 'not visited yet' } as const;
 const STATUS_COLOR = { done: '#1f9d55', exploring: '#e0a800', none: '#d64545' } as const;
-/** Where the drawn action button sits on the card (fractions of the card). */
-const ACTION = { left: 0.07, top: 0.835, width: 0.62, height: 0.105 };
 
 const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
 function webglOk(): boolean {
@@ -86,243 +86,137 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number, maxLine
   return lines;
 }
 
-/** A card with a photo (owner, 31 Oct: "like the festival cards"): the photo fills the card, a dark fade at the
- *  bottom, the words in white on it, laid out from the button up. */
-function drawPhotoCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: number) {
-  const pad = 34;
-  const r = 40;
+/** Album art (owner, 31 Oct 2026: "more like album covers; the words are sometimes cut off and too small"): a square
+ *  cover with the picture (a photo, or the area's outline on its colour) and only the name, large. Everything else
+ *  (the line, the numbers, the button) is real text under the deck, at a size that reads. */
+function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: number) {
+  const pad = 30;
+  const r = 26;
   ctx.save();
-  roundRect(ctx, 2, 2, w - 4, h - 4, r);
-  ctx.fillStyle = '#2a2730';
-  ctx.fill();
+  roundRect(ctx, 1, 1, w - 2, h - 2, r);
   ctx.clip();
   const img = item.image ? images.get(item.image) : undefined;
+  // vintage inks: bottle green when all checked in, sea blue to ochre while exploring, sepia before
+  const tone = item.status === 'done' ? ['#2f6b4f', '#1d4634'] : item.status === 'exploring' ? ['#3f5f80', '#b8873a'] : ['#8a7358', '#4d3d2c'];
+  const bg = ctx.createLinearGradient(0, 0, w, h);
+  bg.addColorStop(0, tone[0]);
+  bg.addColorStop(1, tone[1]);
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, w, h);
   if (img && img.complete && img.naturalWidth) {
     const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
     const iw = img.naturalWidth * s;
     const ih = img.naturalHeight * s;
     ctx.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
-  }
-  const fade = ctx.createLinearGradient(0, h * 0.28, 0, h);
-  fade.addColorStop(0, 'rgba(10,8,20,0)');
-  fade.addColorStop(0.35, 'rgba(10,8,20,0.42)');
-  fade.addColorStop(1, 'rgba(10,8,20,0.9)');
-  ctx.fillStyle = fade;
-  ctx.fillRect(0, 0, w, h);
-  ctx.shadowColor = 'rgba(0,0,0,0.45)';
-  ctx.shadowBlur = 6;
-  // from the action pill up: numbers, bar, line, title, kicker
-  let y = h * ACTION.top - 26;
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.font = '600 24px Inter, system-ui, sans-serif';
-  for (const st of [...(item.stats ?? [])].reverse().slice(0, 2)) {
-    ctx.fillText(wrap(ctx, st, w - pad * 2, 1)[0] ?? '', pad, y);
-    y -= 34;
-  }
-  if (item.progress !== null) {
-    y -= 4;
-    ctx.shadowBlur = 0;
-    roundRect(ctx, pad, y - 10, w - pad * 2, 12, 6);
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.fill();
-    if (item.progress > 0) {
-      roundRect(ctx, pad, y - 10, Math.max(12, (w - pad * 2) * item.progress), 12, 6);
-      ctx.fillStyle = item.status === 'done' ? '#3ccf7a' : '#7fb0ff';
-      ctx.fill();
-    }
-    ctx.shadowBlur = 6;
-    y -= 34;
-  }
-  ctx.fillStyle = 'rgba(255,255,255,0.86)';
-  ctx.font = '400 30px Inter, system-ui, sans-serif';
-  if (item.line) {
-    ctx.fillText(wrap(ctx, item.line, w - pad * 2, 1)[0] ?? '', pad, y);
-    y -= 50;
-  }
-  ctx.fillStyle = '#fff';
-  ctx.font = '700 54px Inter, system-ui, sans-serif';
-  const lines = wrap(ctx, item.title, w - pad * 2, 2);
-  for (let i = lines.length - 1; i >= 0; i--) {
-    ctx.fillText(lines[i], pad, y);
-    y -= 58;
-  }
-  y -= 4;
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = STATUS_COLOR[item.status];
-  ctx.beginPath();
-  ctx.arc(pad + 9, y - 9, 9, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 3;
-  ctx.stroke();
-  ctx.shadowBlur = 6;
-  ctx.fillStyle = 'rgba(255,255,255,0.92)';
-  ctx.font = '600 24px "IBM Plex Mono", ui-monospace, monospace';
-  ctx.fillText(item.kicker.toUpperCase().slice(0, 30), pad + 28, y);
-  ctx.shadowBlur = 0;
-  // action pill: white on the photo
-  const ax = w * ACTION.left;
-  const ay = h * ACTION.top;
-  ctx.font = '600 30px Inter, system-ui, sans-serif';
-  const label = `${item.action}  →`;
-  const aw = Math.min(w * 0.86, ctx.measureText(label).width + 52);
-  roundRect(ctx, ax, ay, aw, h * ACTION.height, (h * ACTION.height) / 2);
-  ctx.fillStyle = '#fff';
-  ctx.fill();
-  ctx.fillStyle = '#23211d';
-  ctx.fillText(label, ax + 26, ay + (h * ACTION.height) / 2 + 10);
-  // checked in: a tick in the top corner
-  if (item.status === 'done') {
-    ctx.fillStyle = '#1f9d55';
-    ctx.beginPath();
-    ctx.arc(w - pad - 18, pad + 18, 22, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(w - pad - 28, pad + 18);
-    ctx.lineTo(w - pad - 20, pad + 26);
-    ctx.lineTo(w - pad - 7, pad + 10);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: number) {
-  if (item.image) return drawPhotoCard(ctx, item, w, h);
-  const pad = 34;
-  const r = 40;
-  ctx.save();
-  roundRect(ctx, 2, 2, w - 4, h - 4, r);
-  ctx.fillStyle = '#fbfaf7';
-  ctx.fill();
-  ctx.clip();
-  // picture or a coloured band
-  const bandH = item.shape?.length ? Math.round(h * 0.34) : Math.round(h * 0.18);
-  const img = item.image ? images.get(item.image) : undefined;
-  if (img && img.complete && img.naturalWidth) {
-    const s = Math.max(w / img.naturalWidth, bandH / img.naturalHeight);
-    const iw = img.naturalWidth * s;
-    const ih = img.naturalHeight * s;
-    ctx.drawImage(img, (w - iw) / 2, (bandH - ih) / 2, iw, ih);
   } else if (item.shape?.length) {
-    ctx.fillStyle = '#dfe9f4';
-    ctx.fillRect(0, 0, w, bandH);
-    const pts = item.shape.flatMap((s) => s.rings.flat());
+    // the outline fills the upper cover, like a print on a record sleeve
+    const pts = item.shape.flatMap((sh) => sh.rings.flat());
     const xs = pts.map((p) => p[0]);
     const ys = pts.map((p) => p[1]);
     const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-    const m = 26;
-    const k = Math.min((w - 2 * m) / Math.max(1, x1 - x0), (bandH - 2 * m) / Math.max(1, y1 - y0));
+    const bw = w - 2 * pad;
+    const bh = h * 0.6;
+    const k = Math.min(bw / Math.max(1, x1 - x0), bh / Math.max(1, y1 - y0));
     const ox = (w - (x1 - x0) * k) / 2;
-    const oy = (bandH - (y1 - y0) * k) / 2;
+    const oy = pad + (bh - (y1 - y0) * k) / 2;
     ctx.lineJoin = 'round';
-    for (const s of item.shape) {
+    for (const sh of item.shape) {
       ctx.beginPath();
-      for (const ring of s.rings)
+      for (const ring of sh.rings)
         ring.forEach(([x, y], i) => {
           const px = ox + (x - x0) * k;
           const py = oy + (y1 - y) * k;
           if (i === 0) ctx.moveTo(px, py);
           else ctx.lineTo(px, py);
         });
-      ctx.fillStyle = s.color;
+      ctx.fillStyle = sh.color;
       ctx.fill('evenodd');
-      ctx.strokeStyle = 'rgba(255,255,255,0.95)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+      ctx.lineWidth = 2.5;
       ctx.stroke();
     }
-  } else {
-    const g = ctx.createLinearGradient(0, 0, w, bandH);
-    const tone = item.status === 'done' ? ['#2f6fe4', '#1f9d55'] : item.status === 'exploring' ? ['#8fb5f0', '#f3d27a'] : ['#d9d3c7', '#bdb6a8'];
-    g.addColorStop(0, tone[0]);
-    g.addColorStop(1, tone[1]);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, bandH);
   }
-  let y = bandH + 46;
-  // status dot + kicker
-  ctx.fillStyle = STATUS_COLOR[item.status];
-  ctx.beginPath();
-  ctx.arc(pad + 9, y - 9, 9, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#5f5b54';
-  ctx.font = '600 24px "IBM Plex Mono", ui-monospace, monospace';
-  ctx.fillText(item.kicker.toUpperCase().slice(0, 30), pad + 28, y);
-  if (item.status === 'done') {
-    ctx.fillStyle = '#1f9d55';
-    ctx.beginPath();
-    ctx.arc(w - pad - 18, y - 9, 18, 0, Math.PI * 2);
+  // the name sits on a dark fade at the bottom
+  const fade = ctx.createLinearGradient(0, h * 0.42, 0, h);
+  fade.addColorStop(0, 'rgba(8,8,12,0)');
+  fade.addColorStop(0.55, 'rgba(8,8,12,0.5)');
+  fade.addColorStop(1, 'rgba(8,8,12,0.88)');
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 8;
+  let size = 76;
+  ctx.font = `800 ${size}px Inter, system-ui, sans-serif`;
+  let lines = wrap(ctx, item.title, w - pad * 2, 2);
+  // long names step down a little rather than lose words
+  while (size > 56 && (lines.length > 2 || lines.some((l) => l.endsWith('…')))) {
+    size -= 6;
+    ctx.font = `800 ${size}px Inter, system-ui, sans-serif`;
+    lines = wrap(ctx, item.title, w - pad * 2, 2);
+  }
+  const bar = item.progress !== null;
+  let y = h - pad - (bar ? 22 : 0);
+  for (let i = lines.length - 1; i >= 0; i--) {
+    ctx.fillText(lines[i], pad, y);
+    y -= size * 1.06;
+  }
+  ctx.shadowBlur = 0;
+  // progress as a thin bar along the bottom
+  if (bar) {
+    roundRect(ctx, pad, h - pad - 4, w - pad * 2, 9, 4.5);
+    ctx.fillStyle = 'rgba(255,255,255,0.28)';
     ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(w - pad - 27, y - 9);
-    ctx.lineTo(w - pad - 20, y - 2);
-    ctx.lineTo(w - pad - 8, y - 17);
-    ctx.stroke();
-  }
-  // title
-  y += 18;
-  ctx.fillStyle = '#23211d';
-  ctx.font = '700 54px Inter, system-ui, sans-serif';
-  for (const l of wrap(ctx, item.title, w - pad * 2, item.stats?.length ? 1 : 2)) {
-    y += 58;
-    ctx.fillText(l, pad, y);
-  }
-  // line
-  y += 40;
-  ctx.fillStyle = '#5f5b54';
-  ctx.font = '400 30px Inter, system-ui, sans-serif';
-  ctx.fillText(wrap(ctx, item.line, w - pad * 2, 1)[0] ?? '', pad, y);
-  // progress
-  if (item.progress !== null) {
-    y += 22;
-    roundRect(ctx, pad, y, w - pad * 2, 12, 6);
-    ctx.fillStyle = '#e3e8f2';
-    ctx.fill();
-    if (item.progress > 0) {
-      roundRect(ctx, pad, y, Math.max(12, (w - pad * 2) * item.progress), 12, 6);
-      ctx.fillStyle = item.status === 'done' ? '#1f9d55' : '#2f6fe4';
+    if (item.progress! > 0) {
+      roundRect(ctx, pad, h - pad - 4, Math.max(9, (w - pad * 2) * item.progress!), 9, 4.5);
+      ctx.fillStyle = item.status === 'done' ? '#3ccf7a' : '#ffffff';
       ctx.fill();
     }
-    y += 12;
   }
-  // full numbers
-  ctx.fillStyle = '#3a3731';
-  ctx.font = '600 24px Inter, system-ui, sans-serif';
-  for (const st of item.stats ?? []) {
-    y += 34;
-    if (y > h * ACTION.top - 8) break;
-    ctx.fillText(wrap(ctx, st, w - pad * 2, 1)[0] ?? '', pad, y);
-  }
-  // action pill
-  const ax = w * ACTION.left;
-  const ay = h * ACTION.top;
-  ctx.font = '600 30px Inter, system-ui, sans-serif';
-  const label = `${item.action}  →`;
-  const aw = Math.min(w * 0.86, ctx.measureText(label).width + 52);
-  roundRect(ctx, ax, ay, aw, h * ACTION.height, (h * ACTION.height) / 2);
-  ctx.fillStyle = '#23211d';
+  // status: a dot in the corner, a tick when all checked in
+  const cx = w - pad - 14;
+  const cy = pad + 14;
+  ctx.fillStyle = item.status === 'done' ? '#1f9d55' : STATUS_COLOR[item.status];
+  ctx.beginPath();
+  ctx.arc(cx, cy, item.status === 'done' ? 22 : 12, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.fillText(label, ax + 26, ay + (h * ACTION.height) / 2 + 10);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = item.status === 'done' ? 5 : 4;
+  if (item.status === 'done') {
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, cy);
+    ctx.lineTo(cx - 2, cy + 8);
+    ctx.lineTo(cx + 11, cy - 8);
+    ctx.stroke();
+  } else ctx.stroke();
+  // a soft gloss across the top, as on a glossy sleeve
+  const gloss = ctx.createLinearGradient(0, 0, w * 0.7, h * 0.7);
+  gloss.addColorStop(0, 'rgba(255,255,255,0.22)');
+  gloss.addColorStop(0.45, 'rgba(255,255,255,0.04)');
+  gloss.addColorStop(0.46, 'rgba(255,255,255,0)');
+  ctx.fillStyle = gloss;
+  ctx.fillRect(0, 0, w, h);
   ctx.restore();
-  // edge
-  roundRect(ctx, 2, 2, w - 4, h - 4, r);
-  ctx.strokeStyle = 'rgba(35,33,29,0.12)';
+  roundRect(ctx, 1.5, 1.5, w - 3, h - 3, r);
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
   ctx.lineWidth = 3;
   ctx.stroke();
 }
 
-export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallback }: Props) {
+export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallback, hideAction = false }: Props) {
   const reduced = useReducedMotion();
   const [gl] = useState(webglOk);
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<CoverFlowScene | null>(null);
   const cardRefs = useRef(new Map<number, HTMLDivElement>());
-  const selectedIndex = Math.max(0, items.findIndex((i) => i.id === selectedId));
+  // the middle card's button lies over the caption's button under the deck
+  const actionRef = useRef<HTMLButtonElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const selectedIndex = Math.max(
+    0,
+    items.findIndex((i) => i.id === selectedId),
+  );
   const [centre, setCentre] = useState(selectedIndex);
   const latest = useRef({ items, selectedId, onSelect });
   latest.current = { items, selectedId, onSelect };
@@ -394,6 +288,15 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
         el.style.width = `${r.width}px`;
         el.style.height = `${r.height}px`;
         el.style.zIndex = String(100 - Math.abs(i - s.scroll) * 10);
+        const btn = actionRef.current;
+        if (btn && el.contains(btn) && pillRef.current) {
+          const p = pillRef.current.getBoundingClientRect();
+          const h = el.getBoundingClientRect();
+          btn.style.left = `${p.left - h.left}px`;
+          btn.style.top = `${p.top - h.top}px`;
+          btn.style.width = `${p.width}px`;
+          btn.style.height = `${p.height}px`;
+        }
       }
     };
     s.onFrame = follow;
@@ -450,7 +353,7 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
   const hi = Math.min(items.length - 1, centre + 4);
   const sel = items[selectedIndex];
   return (
-    <section className={styles.deck} aria-label={label}>
+    <section className={hideAction ? `${styles.deck} ${styles.bare}` : styles.deck} aria-label={label}>
       <div
         ref={boxRef}
         className={styles.stage}
@@ -494,13 +397,19 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
               <span role="img" className={styles.dot} aria-label={STATUS_LABEL[item.status]} />
               <span className={styles.text}>{[item.line, ...(item.stats ?? [])].join('. ')}</span>
               {isSel && item.progress !== null && (
-                <span role="progressbar" aria-label={`${item.title} unlocked`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(item.progress * 100)} />
+                <span
+                  role="progressbar"
+                  aria-label={`${item.title} unlocked`}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(item.progress * 100)}
+                />
               )}
-              {isSel && (
+              {isSel && !hideAction && (
                 <button
+                  ref={actionRef}
                   type="button"
                   className={styles.action}
-                  style={{ left: `${ACTION.left * 100}%`, top: `${ACTION.top * 100}%`, width: `${ACTION.width * 100}%`, height: `${ACTION.height * 100}%` }}
                   aria-label={item.actionLabel ?? item.action}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -514,6 +423,22 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
           );
         })}
       </div>
+      {items[centre] && !hideAction && (
+        <div className={styles.caption} aria-hidden="true">
+          <div className={styles.capText}>
+            <p className={styles.capKicker}>{items[centre].kicker}</p>
+            <p className={styles.capLine}>{items[centre].line}</p>
+            {!!items[centre].stats?.length && <p className={styles.capStats}>{items[centre].stats!.join(' · ')}</p>}
+          </div>
+          {!hideAction && (
+            <span ref={pillRef} className={styles.capGo} title={items[centre].action}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </span>
+          )}
+        </div>
+      )}
       <p className={styles.live} aria-live="polite">
         {sel ? `${sel.title}, ${selectedIndex + 1} of ${items.length}, ${sel.line}` : ''}
       </p>

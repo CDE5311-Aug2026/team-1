@@ -84,6 +84,7 @@
 /* ---------- O1 ---------- */
 
 .welcome {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -91,15 +92,61 @@
   text-align: center;
 }
 
+/* the film wall reaches both screen edges and the top, and fades out behind the passport */
+.wallWrap {
+  position: absolute;
+  z-index: 0;
+  top: calc(-0.75rem - env(safe-area-inset-top, 0px));
+  left: 50%;
+  width: 100vw;
+  max-width: 34rem;
+  height: 27rem;
+  transform: translateX(-50%);
+}
+
+.welcome > :not(.wallWrap) {
+  position: relative;
+  z-index: 1;
+}
+
+.welcome > .footer {
+  position: sticky;
+  z-index: 3;
+}
+
+.credits {
+  margin: 0.5rem 0 0;
+  max-width: 21rem;
+  font-size: 0.6875rem;
+  color: #6f6a60;
+}
+
+.credits summary {
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.credits ul {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  line-height: 1.4;
+  max-height: 9rem;
+  overflow: auto;
+}
+
 .logo {
   align-self: flex-start;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
   width: 2.75rem;
   height: 2.75rem;
 }
 
 .book {
-  margin-top: 1.5rem;
-  width: 12.5rem;
+  margin-top: 10.5rem;
+  width: 8.75rem;
   aspect-ratio: 200 / 272;
   border-radius: 18px;
   background: radial-gradient(120% 90% at 50% 25%, #3a332c, #1e1b18);
@@ -112,8 +159,8 @@
 }
 
 .bookFace {
-  width: 7.25rem;
-  height: 7.25rem;
+  width: 5rem;
+  height: 5rem;
   border-radius: 50%;
   background: #fbf3e6;
   box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.06);
@@ -131,8 +178,9 @@
 }
 
 .bookSub {
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
   color: #c79a78;
 }
 
@@ -456,7 +504,7 @@
   }
 
   .book {
-    width: 10.5rem;
+    width: 7.5rem;
   }
 
   .circles {

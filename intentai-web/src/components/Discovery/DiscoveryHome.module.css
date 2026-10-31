@@ -10,6 +10,18 @@
   padding: calc(var(--status-h) + 4px) var(--gutter) calc(1.75rem + 58px + 6px);
   box-sizing: border-box;
   overflow: hidden;
+  /* its backdrop (below) paints over the app's paper, under Home's content */
+  isolation: isolate;
+}
+
+/* Behind Home (owner, 31 Oct 2026: "kraft paper like a book, with a faint trace of Singapore's roads; exploring and
+   vintage, not tech"): one sheet of paper (scripts/home/build-paper.py) over the whole screen. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #c8a87a center / cover no-repeat;
 }
 
 @media (min-width: 481px) {
@@ -110,14 +122,91 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
+/* The map and its keys are one piece, made like a travel notebook: a brown leather body with stitching, the map as
+   its page, ivory keys in the big rounded bottom. The tab at the top stretches the map (drag it up, or tap it). */
+.device {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 5px 0;
+  border-radius: 32px;
+  background: radial-gradient(120% 80% at 30% 0%, rgba(255, 225, 180, 0.16), transparent 60%), linear-gradient(180deg, #634530 0%, #47301f 55%, #3a2717 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 228, 190, 0.22),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.25),
+    0 16px 28px -16px rgba(60, 34, 14, 0.75);
+}
+
+/* stitching just inside the edge */
+.device::after {
+  content: '';
+  position: absolute;
+  inset: 2.5px;
+  border: 1.3px dashed rgba(240, 214, 170, 0.5);
+  border-radius: 29.5px;
+  pointer-events: none;
+}
+
+.deviceOpen {
+  flex: 0 0 auto;
+  padding: 5px;
+}
+
+.grip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 3;
+  width: 72px;
+  height: 26px;
+  margin-left: -36px;
+  padding: 5px 0 0;
+  border: 0;
+  background: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  cursor: ns-resize;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.grip::before {
+  content: '';
+  width: 38px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(240, 214, 170, 0.75);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.grip:focus-visible {
+  outline: 2px solid #f0d6aa;
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
 .mapCard {
   position: relative;
   flex: 1 1 auto;
   min-height: 200px;
-  border-radius: var(--radius-card);
+  border-radius: 26px 26px 14px 14px;
   overflow: hidden;
-  box-shadow: 0 14px 30px -18px rgba(20, 30, 50, 0.55);
   isolation: isolate;
+}
+
+.deviceOpen .mapCard {
+  border-radius: 27px;
+}
+
+/* the picture card folds away while the map is stretched */
+.eventFold {
+  transition:
+    height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
+    margin 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.3s ease;
 }
 
 .mapTop {
@@ -232,6 +321,7 @@
 
 .title {
   margin: 0;
+  color: #2f2014;
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -248,14 +338,14 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: rgba(59, 38, 20, 0.62);
 }
 
 /* The deck reaches past the side gutters, as cover art does. */
 .deckBox {
   position: relative;
   flex: 0 0 auto;
-  height: clamp(150px, 22vh, 190px);
+  height: clamp(176px, 26vh, 222px);
   margin: 0 calc(-1 * var(--gutter));
 }
 
@@ -335,5 +425,10 @@
 
 /* a place is open: the deck sits a little lower and smaller, so the intro's cards get the room */
 .recommendOpen .deckBox {
-  height: clamp(130px, 18vh, 160px);
+  height: clamp(104px, 15vh, 132px);
+}
+
+/* the overview map takes a little of the paper's warmth (an open place's 3D view keeps its true colours) */
+.device:not(.deviceOpen) .mapCard [role='application'] {
+  filter: sepia(0.3) saturate(0.88) brightness(1.02);
 }

@@ -27,6 +27,7 @@ What the lite page does differently from the full page:
     {source:'intentai', type:'pins', pins, styles, selected} shows the page's places as pins (a tap posts {type:'pick', key});
     {source:'intentai', type:'you', at:[lat, lng] | null, acc?} shows (or removes) the viewer's own position as a blue dot;
     it is never in the address, and the embedding page sends it again after each 'ready'.
+    {source:'intentai', type:'sky', time?: 'now' | 'cycle' | hour, wx?: auto|clear|cloudy|haze|rain|storm} sets a place's sky.
 """
 import sys
 
@@ -425,6 +426,26 @@ function liteLook(x, y, span){
   if (LITE.still || typeof flyTo !== 'function'){ controls.target.copy(tt); camera.position.copy(to); } else flyTo(to, tt, 1200);
 }
 // talking to the embedding page (only the landmark key and readiness go out; nothing about the viewer)
+// A place's own sky (Home, 31 Oct 2026: day and night, weather): {source:'intentai', type:'sky', time?, wx?}.
+// time: 'now' (Singapore's time now), 'cycle' (day and night play on: a day in about 36 s) or an hour 0..24, reached by
+// running the clock the shorter way round (dusk falls, the sky does not jump); wx: auto | clear | cloudy | haze | rain | storm, eased in.
+const LSKY = {raf:0, WX:['auto', 'clear', 'cloudy', 'haze', 'rain', 'storm']};
+function liteSky(time, wx){
+  if (typeof wx === 'string' && LSKY.WX.includes(wx)){ try { if (window.SGWx) SGWx.set(wx, !!LITE.still); } catch (e){ console.error('[lite] sky wx', e); } }
+  if (time === undefined) return;
+  cancelAnimationFrame(LSKY.raf);
+  try { if (window.SGClock){ SGClock.setLocal(false); SGClock.setRate(2400); } } catch (e){ }
+  if (time === 'cycle'){ todPlay = !LITE.still; if (LITE.still){ tod = 19; applyTime(); } return; }
+  const h = time === 'now' ? (window.SGClock ? SGClock.localNow()[0] : 12) : typeof time === 'number' ? time : NaN;
+  if (!(h >= 0 && h <= 24)) return;
+  todPlay = false;
+  const from = tod, fw = (((h - from) % 24) + 24) % 24, dh = fw > 12 ? fw - 24 : fw;
+  if (LITE.still || Math.abs(dh) < 0.01){ tod = h % 24; applyTime(); return; }
+  const t0 = performance.now(), ms = Math.min(1800, 500 + Math.abs(dh)*110);
+  const step = now => { const u = Math.min(1, (now - t0)/ms), e = u < 0.5 ? 2*u*u : 1 - Math.pow(-2*u + 2, 2)/2;
+    tod = (((from + dh*e) % 24) + 24) % 24; applyTime(); if (u < 1) LSKY.raf = requestAnimationFrame(step); };
+  LSKY.raf = requestAnimationFrame(step);
+}
 function litePost(m){ try { if (parent !== window) parent.postMessage(Object.assign({source:'earth-online-lite'}, m), '*'); } catch (e){ } }
 // the embedding page can move the view to another place: {source:'intentai', type:'show', at:[lat, lng], card?:key}.
 // Within reach of the loaded area the camera moves there; farther away the page reloads around the new point.
@@ -467,6 +488,7 @@ addEventListener('message', e => {
       liteYou(d0.at, typeof d0.acc === 'number' ? d0.acc : NaN);
     return;
   }
+  if (d0.type === 'sky') return liteSky(d0.time, d0.wx);
   const d = d0; if (d.type !== 'show' || !LITE.ready) return;
   if (!Array.isArray(d.at) || d.at.length !== 2 || !d.at.every(v => typeof v === 'number' && isFinite(v))) return;
   const card = typeof d.card === 'string' && /^[A-Za-z0-9_:()\- ]{1,80}$/.test(d.card) ? d.card : null, p = LITE.xy(d.at[0], d.at[1]);

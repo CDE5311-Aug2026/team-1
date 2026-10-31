@@ -1,168 +1,273 @@
-/* The intro under the live 3D view: a column of cards that scrolls inside its own frame. */
-.intro {
+/* A place's intro as one page of an explorer's notebook (owner, 31 Oct 2026): cream dot-grid paper with the pages
+   underneath showing at the edge, a leather strap down the side, ink in brown and rust, a serif hand for names and
+   stories, a typewriter for labels. Nothing in it is a card in a card: entries follow one another on the page. */
+.notebook {
+  /* the app's colours, in ink */
+  --accent: #b9502a;
+  --surface: transparent;
+  --chip-bg: rgba(120, 85, 45, 0.1);
+  --border: rgba(90, 60, 30, 0.22);
+  --border-strong: rgba(70, 45, 20, 0.45);
+  --divider: rgba(90, 60, 30, 0.18);
+  --text-primary: #2f2014;
+  --text-secondary: #6b5640;
+  --text-ink-2: #3a2a1a;
+  --tint-warm-2: transparent;
+  --story-orange-text: #a8481f;
+  --serif: 'Iowan Old Style', 'Charter', 'Palatino Linotype', Palatino, Georgia, serif;
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 24px;
-  background: var(--surface-sunk);
+  border-radius: 6px 18px 18px 6px;
+  background: #f6eedb;
+  color: var(--text-primary);
   overflow: hidden;
+  /* the pages below this one, then the shadow on the desk */
+  box-shadow:
+    1px 2px 0 -1px #eadfc6,
+    2px 4px 0 -2px #e2d4b6,
+    3px 6px 0 -3px #d8c8a6,
+    0 16px 26px -14px rgba(60, 34, 14, 0.6);
 }
 
-.scroll {
-  /* the story card reaches out by the page gutter; here it fills this frame instead */
-  --gutter: 0px;
-  flex: 1;
+/* the elastic strap that keeps the notebook shut */
+.strap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 16px;
+  z-index: 200;
+  width: 7px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #4a2f1c, #7a5236 45%, #4a2f1c);
+  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.25);
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+.bookWrap {
+  flex: 1 1 auto;
   min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 10px 10px 18px;
-  -webkit-overflow-scrolling: touch;
 }
 
-.status {
-  padding: 16px 16px 14px;
-  border-radius: 22px;
-  background: var(--surface);
-  box-shadow: 0 10px 26px -18px rgba(20, 22, 28, 0.55), 0 0 0 1px rgba(35, 33, 29, 0.05);
+/* --- the field note's heading ------------------------------------------------------------------------------------ */
+.head {
+  display: flow-root;
 }
 
 .kicker {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: #a8481f;
 }
 
 .name {
   margin: 6px 0 0;
-  font-size: 1.375rem;
-  line-height: 1.18;
-  letter-spacing: -0.01em;
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+  color: #2a1a0e;
 }
 
 .sub {
-  margin: 4px 0 0;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
+  margin: 5px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: #6b5640;
 }
 
-/* you: a big dot, green with a tick when checked in */
 .me {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 14px;
-  padding: 10px 12px;
-  border-radius: 16px;
-  background: #f6f1ea;
-}
-
-.me[data-in='true'] {
-  background: #e6f5ec;
-}
-
-.bigDot {
-  flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #c9c2b4;
-  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.6);
-}
-
-.me[data-in='true'] .bigDot {
-  background: #1f9d55;
-  box-shadow: 0 0 0 5px rgba(31, 157, 85, 0.18);
-}
-
-.meLine {
-  margin: 0;
-  font-size: 0.9375rem;
-  font-weight: 700;
-}
-
-.meSub {
-  margin: 1px 0 0;
+  margin: 8px 0 0;
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: #6b5640;
 }
 
-/* the planning area's unlock progress */
+/* the stamp: a rubber stamp in green ink, a little crooked, the ink uneven */
+.stamp {
+  float: right;
+  shape-outside: circle(50%);
+  width: 82px;
+  height: 82px;
+  margin: -2px -8px 6px 8px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  position: relative;
+  transform: rotate(-11deg);
+  color: #2f6b4f;
+  border: 3px solid currentColor;
+  font-family: var(--font-mono);
+  text-align: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 2.1'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 2.1'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  -webkit-mask-size: 120px;
+  mask-size: 120px;
+}
+
+.stamp::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1.5px dashed currentColor;
+  border-radius: 50%;
+}
+
+.stamp small {
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stamp b {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+/* not yet: an empty ring in pencil, waiting */
+.stamp[data-in='false'] {
+  color: rgba(90, 65, 40, 0.42);
+  border-width: 1.5px;
+  border-style: dashed;
+  transform: rotate(-6deg);
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.stamp[data-in='false']::after {
+  border-style: dotted;
+}
+
+/* the planning area's tally */
 .area {
-  margin-top: 12px;
+  margin-top: 14px;
+  clear: both;
 }
 
 .areaHead {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
   font-size: 0.8125rem;
 }
 
-.areaDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #d64545;
-}
-
-.areaDot[data-status='exploring'] {
-  background: #e0a800;
-}
-
-.areaDot[data-status='done'] {
-  background: #1f9d55;
-}
-
 .areaName {
+  font-family: var(--serif);
   font-weight: 700;
+  font-size: 0.9375rem;
 }
 
 .areaNum {
   margin-left: auto;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: #6b5640;
 }
 
 .areaNum strong {
-  color: var(--text-primary);
+  color: #2f2014;
 }
 
+/* a pencil track with the ink filled in */
 .bar {
+  position: relative;
   margin-top: 6px;
-  height: 8px;
+  height: 7px;
   border-radius: 4px;
-  background: #e3e8f2;
+  background: repeating-linear-gradient(90deg, rgba(90, 60, 30, 0.22) 0 6px, transparent 6px 9px);
   overflow: hidden;
 }
 
 .bar span {
   display: block;
   height: 100%;
-  min-width: 6px;
+  min-width: 7px;
   border-radius: 4px;
-  background: #2f6fe4;
+  background: #b9502a;
 }
 
 .bar span[data-status='done'] {
-  background: #1f9d55;
+  background: #2f6b4f;
 }
 
 .actions {
   margin-top: 14px;
 }
 
-.details {
+/* --- the visit notes ---------------------------------------------------------------------------------------------- */
+.notes {
+  margin-top: 6px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+}
+
+.notes section {
+  padding: 16px 0 4px;
+  border: 0;
+  border-top: 1px dashed rgba(90, 60, 30, 0.35);
+  border-radius: 0;
+  background: none;
+}
+
+.notes h2 {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8481f;
+}
+
+.notes p {
+  font-family: var(--serif);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.sources {
+  margin-top: 14px;
+  font-size: 0.75rem;
+  color: #6b5640;
+}
+
+.sources > :global(*) {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.end {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: rgba(90, 60, 30, 0.45);
+  letter-spacing: 0.6em;
+}
+
+/* check in: rust ink; checked in: green ink, as the stamp */
+.actions button[aria-pressed] {
+  background: #b9502a;
+  color: #fff8ec;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 190, 0.3),
+    0 6px 12px -8px rgba(90, 40, 15, 0.8);
+}
+
+.actions button[aria-pressed='true'] {
+  background: transparent;
+  color: #2f6b4f;
+  box-shadow: inset 0 0 0 1.5px rgba(47, 107, 79, 0.65);
 }
