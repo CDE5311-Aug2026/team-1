@@ -8,13 +8,12 @@ interface PhraseSheetProps {
   item: PhraseItem;
   onClose: () => void;
   onPractise: () => void;
-  onNotSure: () => void;
   onToggleGot: () => void;
   onDelete: () => void;
 }
 
 /** A saved phrase: meaning, source, your example; practise it, ask a local, mark it understood, or delete it. */
-export default function PhraseSheet({ item, onClose, onPractise, onNotSure, onToggleGot, onDelete }: PhraseSheetProps) {
+export default function PhraseSheet({ item, onClose, onPractise, onToggleGot, onDelete }: PhraseSheetProps) {
   const { lookup } = item;
   const local = item.source === 'Confirmed by a local';
   return (
@@ -39,11 +38,6 @@ export default function PhraseSheet({ item, onClose, onPractise, onNotSure, onTo
       </div>
       {lookup && (
         <div className={styles.links}>
-          {!local && (
-            <button type="button" onClick={onNotSure}>
-              Not sure? Ask a local
-            </button>
-          )}
           <button type="button" className={styles.delete} onClick={onDelete}>
             Delete phrase
           </button>

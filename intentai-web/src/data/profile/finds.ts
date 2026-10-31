@@ -1,12 +1,12 @@
 // Home base and "Your first finds" (Figma O6 / O8): Nearby areas and places, and the culture cards for the ranked
 // topics. Only repo data: areas.json, the Nearby catalogue, Today's articles and their photos.
 import { ARTICLE_IMAGES, type ArticleImage } from '../articleImages';
-import { categoryLabel, type CategoryId } from '../culture';
+import { type CategoryId } from '../culture';
 import { AREAS, PUBLISHED_PLACES } from '../../features/nearby/catalogue';
 import type { Area, CuratedPlace } from '../../features/nearby/domain';
 import { HALF, toXY } from '../../features/nearby/map/projection';
 import type { LatLng } from '../../features/nearby/types';
-import { SUBJECTS, cardById, type Card } from '../../pages/AskPage/cards';
+import { SUBJECTS, cardById, type Card } from '../cards';
 import { paths } from '../../routes';
 import { topicOf, type TopicId } from './profile';
 
@@ -163,8 +163,8 @@ export interface Find {
   photo?: ArticleImage;
 }
 
-/** O8 "Your first finds": the closest place to the base, then a card for the #1 and #2 topics. */
-export function firstFinds(baseId: string | null, topics: readonly TopicId[]): Find[] {
+/** O8 "Your first finds": the closest place to the base (the old culture cards for the ranked topics were removed in the Discovery redesign). */
+export function firstFinds(baseId: string | null, _topics: readonly TopicId[] = []): Find[] {
   const finds: Find[] = [];
   const base = areaById(baseId);
   const [near] = baseId ? placesNear(baseId, 1) : [];
@@ -175,25 +175,9 @@ export function firstFinds(baseId: string | null, topics: readonly TopicId[]): F
       sub: `${shortArea(base)} · ${near.place.kind.toLowerCase()}`,
       why: `${formatDistance(near.distance)} from your base`,
       why_icon: 'pin',
-      href: paths.place(near.place.id),
+      href: paths.nearbyPlace(near.place.id),
     });
   }
-  const used: string[] = [];
-  topics.slice(0, 2).forEach((topic, i) => {
-    const card = cardForTopic(topic, baseId, used);
-    if (!card) return;
-    used.push(card.article.id);
-    const area = cardArea(card.article.id);
-    finds.push({
-      key: card.article.id,
-      title: card.article.title,
-      sub: `${area ? area.short : categoryLabel(card.category)} · ${topicOf(topic).label.toLowerCase()}`,
-      why: `You ranked ${topicOf(topic).label} #${i + 1}`,
-      why_icon: 'rank',
-      href: paths.card(card.article.id),
-      photo: ARTICLE_IMAGES[card.article.id],
-    });
-  });
   // Lead with the #1 topic's card, as in Figma (place on the left, #1 in the middle).
   return finds;
 }

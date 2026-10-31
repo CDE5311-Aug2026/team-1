@@ -33,7 +33,7 @@ export const todaysHoliday: Holiday = {
   also: {
     when: 'Also Mon 9 Nov · Near you',
     title: 'The Berlin Wall fell 37 years ago',
-    placeId: 'berlin-wall-fragments',
+    placeId: 'curated:sg-berlin-wall-fragments-utown',
   },
   detailHeading: 'Meaning and origins',
   facts: [

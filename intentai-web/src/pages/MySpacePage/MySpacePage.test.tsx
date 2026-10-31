@@ -103,12 +103,9 @@ test('editors: role tiles save, and Clear empties a field with Undo', async () =
   expect(profileV3Store.get().role).toBe('researcher');
 });
 
-test('switches: Flag occasions and Answer as a local are the shared settings', async () => {
+test('switches: Flag occasions is the shared setting; Answer as a local is gone with Community', async () => {
   renderAt(paths.mySpace);
-  const local = screen.getByRole('switch', { name: 'Answer as a local' });
-  expect(local).toHaveAttribute('aria-checked', 'false');
-  await userEvent.click(local);
-  expect(settingsStore.get().local).toBe(true);
+  expect(screen.queryByRole('switch', { name: 'Answer as a local' })).toBeNull();
   await userEvent.click(screen.getByRole('switch', { name: 'Flag occasions' }));
   expect(settingsStore.get().occasions).toBe(true);
 });
@@ -229,14 +226,6 @@ test('Memory: My Space switch and count; Settings lists, adds, forgets, clears w
   expect(screen.queryByRole('list', { name: 'What Ask remembers' })).not.toBeInTheDocument();
 });
 
-test('My Space › You as a local opens the same sheet as the Locals map, prefilled from the profile', async () => {
-  profileV3Store.set({ ...ANSWERED, from: 'IN', language: 'ta' });
-  renderAt(paths.mySpace);
-  await userEvent.click(screen.getByRole('button', { name: /You as a local/ }));
-  const sheet = screen.getByRole('dialog', { name: 'You as a local' });
-  expect(within(sheet).getByLabelText(/Where you grew up/)).toHaveValue('India');
-  expect(within(sheet).getByText(/start from your profile/)).toBeInTheDocument();
-});
 
 test('Settings › Redo onboarding opens question 1', async () => {
   renderAt(paths.mySpaceSettings);

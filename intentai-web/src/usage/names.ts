@@ -5,19 +5,11 @@ import { paths, patterns } from '../routes';
 // question ids never leave the phone.
 const PAGE_NAMES: [path: string, name: string][] = [
   [paths.today, 'Today'],
-  // Place stories: names only, never the place or card id in the path
-  [patterns.placeCard, 'Place card'],
-  [patterns.homePlace, 'Place'],
   [paths.holiday, 'Holiday'],
-  [paths.ask, 'Ask'],
-  [paths.community, 'Community'],
-  [paths.communityMap, 'Community map'],
-  [patterns.question, 'Community question'],
   [paths.moments, 'Moments'],
+  [paths.hunt, 'Hunt'],
   [paths.nearby, 'Nearby'],
-  [paths.places, 'Places'],
   // Nearby Explorer: names only, never the place or collection id in the path
-  [paths.phrases, 'Nearby phrases'],
   [paths.nearbyLocation, 'Nearby location'],
   [patterns.nearbyPlace, 'Nearby place'],
   [paths.collections, 'Nearby collections'],
@@ -30,8 +22,6 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.mySpaceSettings, 'My Space settings'],
   [paths.mySpacePrivacy, 'My Space privacy'],
   [paths.licences, 'My Space licences'],
-  [patterns.place, 'Place'],
-  [patterns.card, 'Card'],
   [paths.notices, 'Notices'],
   [paths.noticeDetails, 'Notice details'],
   [paths.noticeEdit, 'Notice edit'],

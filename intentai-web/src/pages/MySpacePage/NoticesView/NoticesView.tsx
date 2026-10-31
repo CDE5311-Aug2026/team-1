@@ -9,7 +9,6 @@ import { usePersistentStore } from '../../../data/persistentStore';
 import { deleteAllData, noticesStore } from '../../../data/stores';
 import { showToast } from '../../../hooks/useToast';
 import { paths } from '../../../routes';
-import AskLocalDialog from '../AskLocalDialog/AskLocalDialog';
 import NoticeCard from '../NoticeCard/NoticeCard';
 import cardStyles from '../NoticeCard/NoticeCard.module.css';
 import OccasionNotice from '../OccasionNotice/OccasionNotice';
@@ -32,7 +31,7 @@ interface NoticesViewProps {
   nodeIds: NoticesNodeIds;
 }
 
-type OpenDialog = 'change' | 'delete' | 'ask' | null;
+type OpenDialog = 'change' | 'delete' | null;
 
 /** Body of the Notices frames (12:182, 14:730, 14:850): local fix, AI occasion notice, data controls. */
 export default function NoticesView({ occasion, nodeIds }: NoticesViewProps) {
@@ -83,7 +82,6 @@ export default function NoticesView({ occasion, nodeIds }: NoticesViewProps) {
           onDetails={() => navigate(paths.noticeDetails)}
           onConfirm={() => resolve('confirmed')}
           onReject={() => resolve('rejected')}
-          onAskLocal={() => setDialog('ask')}
         />
       )}
 
@@ -123,7 +121,6 @@ export default function NoticesView({ occasion, nodeIds }: NoticesViewProps) {
         </Dialog>
       )}
 
-      {dialog === 'ask' && <AskLocalDialog onClose={() => setDialog(null)} />}
     </div>
   );
 }

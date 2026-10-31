@@ -3,20 +3,20 @@ import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import TabBar from './TabBar';
 
-test('renders all five tab labels and highlights the active one', () => {
+test('renders all four tab labels and highlights the active one', () => {
   render(<TabBar active="/" onNavigate={vi.fn()} />);
-  ['Home', 'Ask', 'Community', 'Moments', 'My Space'].forEach((label) => {
+  ['Home', 'Moments', 'Hunt', 'Mine'].forEach((label) => {
     expect(screen.getByText(label)).toBeInTheDocument();
   });
   expect(screen.getByRole('button', { name: /home/i })).toHaveAttribute('aria-current', 'page');
-  expect(screen.getByRole('button', { name: /^ask$/i })).not.toHaveAttribute('aria-current');
+  expect(screen.getByRole('button', { name: /^hunt$/i })).not.toHaveAttribute('aria-current');
 });
 
 test('clicking a tab fires onNavigate with its path', async () => {
   const onNavigate = vi.fn();
   render(<TabBar active="/" onNavigate={onNavigate} />);
-  await userEvent.click(screen.getByRole('button', { name: /^ask$/i }));
-  expect(onNavigate).toHaveBeenCalledWith('/ask');
+  await userEvent.click(screen.getByRole('button', { name: /^hunt$/i }));
+  expect(onNavigate).toHaveBeenCalledWith('/hunt');
 });
 
 test('pop animates the active tab only; off by default', () => {
@@ -24,5 +24,5 @@ test('pop animates the active tab only; off by default', () => {
   expect(screen.getByRole('button', { name: /home/i })).not.toHaveClass('a-pill');
   rerender(<TabBar active="/" onNavigate={vi.fn()} pop />);
   expect(screen.getByRole('button', { name: /home/i })).toHaveClass('a-pill');
-  expect(screen.getByRole('button', { name: /^ask$/i })).not.toHaveClass('a-pill');
+  expect(screen.getByRole('button', { name: /^hunt$/i })).not.toHaveClass('a-pill');
 });

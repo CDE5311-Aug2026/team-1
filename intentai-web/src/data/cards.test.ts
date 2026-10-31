@@ -1,4 +1,4 @@
-import places from '../../data/explore/places.sg.json';
+import places from './explore/places.sg.json';
 import {
   PLACE_AREAS,
   SUBJECTS,

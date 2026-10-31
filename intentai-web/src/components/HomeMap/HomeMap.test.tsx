@@ -171,8 +171,9 @@ vi.mock('leaflet', () => {
   return { map, tileLayer, divIcon, marker };
 });
 
-const BERLIN = homePlace('berlin-wall-fragments')!;
-const CHINATOWN = homePlace('chinatown')!;
+const BERLIN = homePlace('curated:sg-berlin-wall-fragments-utown')!;
+/** A Home place that is pinned only when selected (Chinatown's story card until 31 Oct). */
+const CHINATOWN = homePlace('curated:sg-pagoda-street-trengganu-street')!;
 const HAW_PAR = homePlace('curated:sg-haw-par-villa')!;
 const HOLLAND = homePlace('curated:sg-holland-village')!;
 const pinName = (p: { name: string }) => `Show ${p.name} on the map`;
@@ -181,8 +182,8 @@ type MapProps = ComponentProps<typeof HomeMap>;
 
 function baseProps(over: Partial<MapProps> = {}): MapProps {
   return {
-    pins: visiblePins('berlin-wall-fragments'),
-    selectedId: 'berlin-wall-fragments',
+    pins: visiblePins('curated:sg-berlin-wall-fragments-utown'),
+    selectedId: 'curated:sg-berlin-wall-fragments-utown',
     command: { seq: 0, kind: 'focus', target: BERLIN.point, fly: false },
     lastFocus: BERLIN.point,
     zoom: 16,
@@ -297,7 +298,7 @@ describe('HomeMap', () => {
     fake.calls.length = 0;
     rerender(
       <HomeMap
-        {...baseProps({ pins: visiblePins('chinatown'), selectedId: 'chinatown', command: focus(1, CHINATOWN.point, true), lastFocus: CHINATOWN.point })}
+        {...baseProps({ pins: visiblePins('curated:sg-pagoda-street-trengganu-street'), selectedId: 'curated:sg-pagoda-street-trengganu-street', command: focus(1, CHINATOWN.point, true), lastFocus: CHINATOWN.point })}
       />,
     );
     expect(within(container).getAllByRole('button')).toHaveLength(5);
@@ -319,7 +320,7 @@ describe('HomeMap', () => {
   it('mounts at the current focus, not at Berlin, when it loads late', () => {
     render(
       <HomeMap
-        {...baseProps({ pins: visiblePins('chinatown'), selectedId: 'chinatown', command: focus(5, CHINATOWN.point, true), lastFocus: CHINATOWN.point })}
+        {...baseProps({ pins: visiblePins('curated:sg-pagoda-street-trengganu-street'), selectedId: 'curated:sg-pagoda-street-trengganu-street', command: focus(5, CHINATOWN.point, true), lastFocus: CHINATOWN.point })}
       />,
     );
     const first = moves()[0];
@@ -522,7 +523,7 @@ describe('HomeMap', () => {
       expect(m).not.toHaveAttribute('role');
     }
     for (const mk of fake.markers) expect(mk.options).toMatchObject({ keyboard: false, interactive: false });
-    for (const p of visiblePins('berlin-wall-fragments')) expect(screen.getByRole('button', { name: pinName(p) })).toHaveAttribute('type', 'button');
+    for (const p of visiblePins('curated:sg-berlin-wall-fragments-utown')) expect(screen.getByRole('button', { name: pinName(p) })).toHaveAttribute('type', 'button');
     fireEvent.click(screen.getByRole('button', { name: pinName(HAW_PAR) }));
     expect(onPinActivate).toHaveBeenCalledTimes(1);
     expect(onPinActivate).toHaveBeenCalledWith(HAW_PAR.id);
@@ -793,7 +794,7 @@ describe('HomeMapFrame', () => {
     await screen.findByRole('button', { name: pinName(BERLIN) });
     rerender(<HomeMapFrame {...frameProps({ command: zoomCmd(1, 1), zoom: 17 })} />);
     rerender(<HomeMapFrame {...frameProps({ command: zoomCmd(2, 1), zoom: 18 })} />);
-    const chin = { pins: visiblePins('chinatown'), selectedId: 'chinatown', lastFocus: CHINATOWN.point, zoom: 18 };
+    const chin = { pins: visiblePins('curated:sg-pagoda-street-trengganu-street'), selectedId: 'curated:sg-pagoda-street-trengganu-street', lastFocus: CHINATOWN.point, zoom: 18 };
     fake.calls.length = 0;
     rerender(<HomeMapFrame {...frameProps({ ...chin, command: focus(3, CHINATOWN.point, true) })} />);
     expect(moves()).toHaveLength(1);

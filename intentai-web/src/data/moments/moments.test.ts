@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import type { ExplorePersonalData } from '../../features/nearby/domain';
 import { DEFAULT_EXPLORE_PERSONAL } from '../../features/nearby/domain';
-import { SUBJECTS } from '../../pages/AskPage/cards';
+import { SUBJECTS } from '../cards';
 import type { Insight, Lookup, Tip } from '../domain';
 import {
   badgesOf,

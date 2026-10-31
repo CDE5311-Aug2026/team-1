@@ -60,7 +60,7 @@ export default function TodayPage() {
       <TodayHero
         holiday={todaysHoliday}
         onOpenHoliday={() => navigate(paths.holiday)}
-        onOpenAlso={(id) => leaveFor(selected.current ?? id, paths.placeCard(id, 'festival'))}
+        onOpenAlso={(id) => leaveFor(selected.current ?? id, paths.nearbyPlace(id))}
       />
       <NearbySection
         focusId={focusPlace}
@@ -68,7 +68,7 @@ export default function TodayPage() {
         onSelectionChange={(id) => {
           selected.current = id;
         }}
-        onOpenPlace={(id) => leaveFor(id, id.startsWith('curated:') ? paths.nearbyPlace(id) : paths.homePlace(id))}
+        onOpenPlace={(id) => leaveFor(id, paths.nearbyPlace(id))}
         onExplore={() => navigate(paths.nearby)}
       />
     </AppShell>

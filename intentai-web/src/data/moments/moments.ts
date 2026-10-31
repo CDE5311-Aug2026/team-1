@@ -8,7 +8,7 @@ import type { ExplorePersonalData } from '../../features/nearby/domain';
 import { AREAS, curatedPlace } from '../../features/nearby/catalogue';
 import type { PlaceStories } from '../placeStories';
 import { storyPlace } from '../stories/places';
-import { PLACE_AREAS, SUBJECTS, cardById, keyNumberOf, type Card, type Subject } from '../../pages/AskPage/cards';
+import { PLACE_AREAS, SUBJECTS, cardById, keyNumberOf, type Card, type Subject } from '../cards';
 
 // ---- Topics -------------------------------------------------------------------------------------------------------
 

@@ -11,7 +11,7 @@ import { PlaceCarousel } from '../PlaceCarousel/PlaceCarousel';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import styles from './NearbySection.module.css';
 
-const BERLIN_ID = 'berlin-wall-fragments';
+const BERLIN_ID = 'curated:sg-berlin-wall-fragments-utown';
 /** Every place is a pin on our Singapore map (it clusters them). */
 const MAP_PINS = [...ALL_HOME_PLACES];
 const MIN_ZOOM = 12;

@@ -48,33 +48,13 @@ test('the pill shows "Near you" and the search point; pill and search icon both 
   expect(input()).toBeNull();
 });
 
-test('empty query: PLACES WITH CARDS lists Berlin and Chinatown, then the three Cards-soon places', async () => {
-  const user = userEvent.setup();
-  const { pill, rows } = setup();
-  await user.click(pill());
-  const withCards = screen.getByRole('list', { name: 'PLACES WITH CARDS' });
-  expect(within(withCards).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
-    expect.stringContaining('Berlin Wall Fragments'),
-    expect.stringContaining('Chinatown'),
-  ]);
-  expect(rows()).toEqual([
-    'Berlin Wall Fragments',
-    'Chinatown',
-    'National University of Singapore',
-    'Haw Par Villa',
-    'Holland Village',
-  ]);
-  expect(screen.getByRole('button', { name: /Berlin Wall Fragments.*NUS University Town · 200 m/ })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /Use my location/ })).toHaveTextContent('NUS University Town');
-});
 
 test('typing filters on name, area and aliases; no match shows the query', async () => {
   const user = userEvent.setup();
   const { pill, input, rows } = setup();
   await user.click(pill());
   await user.type(input()!, 'Pagoda');
-  expect(rows()[0]).toBe('Chinatown');
-  expect(screen.getByText('PLACES WITH CARDS')).toBeInTheDocument();
+  expect(rows()[0]).toBe('Pagoda Street and Trengganu Street');
 
   await user.clear(input()!);
   await user.type(input()!, 'tembusu college');

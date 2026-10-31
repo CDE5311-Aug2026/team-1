@@ -5,13 +5,8 @@ import { useReduceMotionSetting } from './data/motion';
 import { useTextSizeSetting } from './data/textSize';
 import { usePersistentStore } from './data/persistentStore';
 import { onboardingStore } from './data/stores';
-import AskPage from './pages/AskPage/AskPage';
-import CommunityPage from './pages/CommunityPage/CommunityPage';
 import HolidayPage from './pages/HolidayPage/HolidayPage';
-import { CardRoute, PlaceRoute } from './pages/PlaceStory/PlaceRoute';
-import PlaceStoryPage from './pages/PlaceStory/PlaceStoryPage';
-import QuestionPage from './pages/CommunityPage/QuestionPage';
-import CommunityMapPage from './pages/CommunityPage/CommunityMapPage';
+import PlaceholderPage from './pages/PlaceholderPage/PlaceholderPage';
 import MomentsPage from './pages/MomentsPage/MomentsPage';
 import MySpacePage from './pages/MySpacePage/MySpacePage';
 import MySpaceSettingsPage from './pages/MySpacePage/SettingsPage';
@@ -21,8 +16,6 @@ import NoticeDetailsPage from './pages/MySpacePage/NoticeDetailsPage';
 import NoticeEditPage from './pages/MySpacePage/NoticeEditPage';
 import NoticeResultPage from './pages/MySpacePage/NoticeResultPage';
 import NoticesPage from './pages/MySpacePage/NoticesPage';
-import NearbyPage from './pages/NearbyPage/NearbyPage';
-import PlacesPage from './pages/NearbyPage/PlacesPage';
 import QuizPage from './pages/OnboardingPage/QuizPage';
 import ResultPage from './pages/OnboardingPage/ResultPage';
 import TimePage from './pages/OnboardingPage/TimePage';
@@ -75,16 +68,9 @@ export default function App() {
             }
           />
           <Route path={paths.holiday} element={<HolidayPage />} />
-          <Route path={patterns.homePlace} element={<PlaceRoute />} />
-          <Route path={patterns.placeCard} element={<PlaceStoryPage />} />
-          <Route path={paths.ask} element={<AskPage />} />
-          <Route path={paths.community} element={<CommunityPage />} />
-          <Route path={paths.communityMap} element={<CommunityMapPage />} />
-          <Route path={patterns.question} element={<QuestionPage />} />
           <Route path={paths.moments} element={<MomentsPage />} />
+          <Route path={paths.hunt} element={<PlaceholderPage name="Hunt" icon="tab-hunt" />} />
           <Route path={paths.nearby} element={<Lazy><ExplorePage /></Lazy>} />
-          <Route path={paths.phrases} element={<NearbyPage />} />
-          <Route path={paths.places} element={<PlacesPage />} />
           <Route path={paths.nearbyLocation} element={<Lazy><LocationPage /></Lazy>} />
           <Route path={patterns.nearbyPlace} element={<Lazy><PlaceDetailPage /></Lazy>} />
           <Route path={paths.collections} element={<Lazy><CollectionsPage /></Lazy>} />
@@ -97,7 +83,6 @@ export default function App() {
           <Route path={paths.mySpaceSettings} element={<MySpaceSettingsPage />} />
           <Route path={paths.mySpacePrivacy} element={<MySpacePrivacyPage />} />
           <Route path={paths.licences} element={<MySpaceLicencesPage />} />
-          <Route path={patterns.card} element={<CardRoute />} />
           <Route path={paths.notices} element={<NoticesPage />} />
           <Route path={paths.noticeDetails} element={<NoticeDetailsPage />} />
           <Route path={paths.noticeEdit} element={<NoticeEditPage />} />

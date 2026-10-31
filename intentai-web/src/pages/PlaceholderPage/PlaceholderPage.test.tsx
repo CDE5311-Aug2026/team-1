@@ -5,16 +5,16 @@ import { expect, test } from 'vitest';
 import PlaceholderPage from './PlaceholderPage';
 
 test('renders the page name and a coming-soon message', () => {
-  render(<MemoryRouter useTransitions={false}><PlaceholderPage name="Ask" icon="tab-ask" /></MemoryRouter>);
-  expect(screen.getByRole('heading', { name: 'Ask' })).toBeInTheDocument();
+  render(<MemoryRouter useTransitions={false}><PlaceholderPage name="Hunt" icon="tab-hunt" /></MemoryRouter>);
+  expect(screen.getByRole('heading', { name: 'Hunt' })).toBeInTheDocument();
   expect(screen.getByText(/coming soon/i)).toBeInTheDocument();
 });
 
 test('clicking the bell opens notices', async () => {
   render(
-    <MemoryRouter useTransitions={false} initialEntries={['/ask']}>
+    <MemoryRouter useTransitions={false} initialEntries={['/hunt']}>
       <Routes>
-        <Route path="/ask" element={<PlaceholderPage name="Ask" icon="tab-ask" />} />
+        <Route path="/hunt" element={<PlaceholderPage name="Hunt" icon="tab-hunt" />} />
         <Route path="/my-space/notices" element={<p>notices page</p>} />
       </Routes>
     </MemoryRouter>,

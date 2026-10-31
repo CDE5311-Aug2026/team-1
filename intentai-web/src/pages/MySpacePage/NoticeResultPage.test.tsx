@@ -1,8 +1,8 @@
-import { act, screen, within } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { DEFAULT_NOTICES, DEFAULT_SETTINGS } from '../../data/domain';
-import { noticesStore, questionsStore, settingsStore } from '../../data/stores';
+import { noticesStore, settingsStore } from '../../data/stores';
 import { UNDO_TOAST_MS } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import { currentPath, renderAt } from './testUtils';
@@ -34,17 +34,12 @@ test('Undo on the confirmed screen restores the pending notice', async () => {
   expect(currentPath()).toBe(paths.notices);
 });
 
-test('rejected: shows the outcome, Undo restores, and "Ask a local instead" opens the question form', async () => {
+test('rejected: shows the outcome and Undo restores', async () => {
   noticesStore.set({ ...DEFAULT_NOTICES, status: 'rejected' });
-  questionsStore.set([]);
   const first = renderAt(paths.noticeRejected);
   expect(screen.getByText('We won’t flag events like this')).toBeInTheDocument();
   expect(screen.getByText('Marked not right')).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Ask a local instead' }));
-  const dialog = screen.getByRole('dialog', { name: 'Ask a local' });
-  await userEvent.type(within(dialog).getByRole('textbox', { name: 'Your question' }), 'Is it formal?');
-  await userEvent.click(within(dialog).getByRole('button', { name: 'Send' }));
-  expect(questionsStore.get()[0].text).toBe('Is it formal?');
+  expect(screen.queryByRole('button', { name: 'Ask a local instead' })).toBeNull();
   first.unmount();
 
   renderAt(paths.noticeRejected);

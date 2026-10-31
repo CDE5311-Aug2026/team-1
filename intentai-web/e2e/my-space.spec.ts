@@ -21,7 +21,6 @@ const DETAILS: Record<string, Box> = {
   '21:1568': [37, 358, 316, 53], // Field / Occasion
   '21:1575': [37, 419, 316, 53], // Field / With
   '21:1583': [37, 509, 316, 44], // Actions
-  '21:1588': [20, 580, 350, 15], // Ask a local
   '14:627': [20, 758, 350, 58],
 };
 const EDIT: Record<string, Box> = {
@@ -43,9 +42,10 @@ const CONFIRMED: Record<string, Box> = {
 const REJECTED: Record<string, Box> = {
   '21:1507': [20, 104, 350, 42],
   '21:1514': [20, 158, 350, 128],
-  '21:1528': [20, 298, 350, 107],
-  '21:1539': [20, 417, 350, 25],
-  '21:1543': [20, 454, 350, 42],
+  '21:1528': [20, 298, 350, 78], // Figma 107: the "Ask a local instead" link went with Community (31 Oct)
+  // Figma y 417 / 454: 29 px higher since the card lost its "Ask a local instead" link.
+  '21:1539': [20, 388, 350, 25],
+  '21:1543': [20, 425, 350, 42],
   '21:1547': [20, 700, 350, 44],
   '14:931': [20, 758, 350, 58],
 };
@@ -117,12 +117,10 @@ test.describe('geometry at 390x844', () => {
 // v3 My Space (Figma S1/S2): the switches start off and persist; Reduce motion in Settings applies to the whole app.
 test('My Space switches persist, and Settings › Reduced motion stops the app’s animations', async ({ page }) => {
   await open(page, paths.mySpace);
-  for (const name of ['Flag occasions', 'Answer as a local']) {
-    await expect(page.getByRole('switch', { name, exact: true })).toHaveAttribute('aria-checked', 'false');
-  }
-  await page.getByRole('switch', { name: 'Answer as a local', exact: true }).click();
+  await expect(page.getByRole('switch', { name: 'Flag occasions', exact: true })).toHaveAttribute('aria-checked', 'false');
+  await page.getByRole('switch', { name: 'Flag occasions', exact: true }).click();
   await page.reload();
-  await expect(page.getByRole('switch', { name: 'Answer as a local', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('switch', { name: 'Flag occasions', exact: true })).toHaveAttribute('aria-checked', 'true');
   await page.goto(paths.mySpaceSettings);
   await page.getByRole('radio', { name: 'Reduced', exact: true }).click();
   await expect(page.locator('html')).toHaveClass(/reduce-motion/);

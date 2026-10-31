@@ -12,7 +12,7 @@ function renderHeader() {
       <Routes>
         <Route path="/" element={<HomeHeader logoSrc="/logo.png" />} />
         <Route path="/moments" element={<p>moments page</p>} />
-        <Route path="/community" element={<p>community page</p>} />
+        <Route path="/my-space/notices" element={<p>notices page</p>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -23,7 +23,7 @@ test('logo, then the streak chip and the bell', () => {
   expect(screen.getByRole('img', { name: 'IntentAI' })).toHaveAttribute('src', '/logo.png');
   const streak = screen.getByRole('link', { name: '1 day streak. See your rank and badges' });
   expect(streak).toHaveTextContent('day');
-  expect(screen.getByRole('link', { name: 'Notifications: Mei answered your question' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Notifications' })).toBeInTheDocument();
 });
 
 test('the streak digits roll from the day before to today; the flame flickers', () => {
@@ -48,9 +48,9 @@ test('the streak chip opens Moments', async () => {
   expect(screen.getByText('moments page')).toBeInTheDocument();
 });
 
-test('the bell carries a pinging dot and opens Community', async () => {
+test('the bell carries a pinging dot and opens notices', async () => {
   renderHeader();
   expect(screen.getByTestId('bell-dot').querySelector('.ping')).not.toBeNull();
   await userEvent.click(screen.getByRole('link', { name: /^Notifications/ }));
-  expect(screen.getByText('community page')).toBeInTheDocument();
+  expect(screen.getByText('notices page')).toBeInTheDocument();
 });

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { cardById } from '../../pages/AskPage/cards';
+import { cardById } from '../cards';
 import { isCulturePrefs } from '../culturePrefs';
 import { culturePrefsStore, deleteAllData, explorePersonalStore, openedCardsStore, profileStore } from '../stores';
 import { BASE_AREAS, TOPIC_CARD, firstFinds, formatDistance, fromWindow, nearestArea, placesNear, toWindow } from './finds';
@@ -68,11 +68,10 @@ test('every topic photo card exists in the repo', () => {
   for (const id of Object.values(TOPIC_CARD)) expect(cardById(id), id).toBeDefined();
 });
 
-test('first finds: the closest place, then a card for #1 and #2, each saying why', () => {
+test('first finds: the closest place to the base, opening in Nearby (culture cards removed 31 Oct)', () => {
   const finds = firstFinds('sg-chinatown', ['monuments', 'food']);
-  expect(finds.map((f) => f.why)).toEqual([expect.stringMatching(/from your base$/), 'You ranked Monuments #1', 'You ranked Food #2']);
-  // The monument card nearest Chinatown is one tied to Chinatown.
-  expect(['sri-mariamman', 'thian-hock-keng']).toContain(finds[1].key);
+  expect(finds.map((f) => f.why)).toEqual([expect.stringMatching(/from your base$/)]);
+  expect(finds[0].href).toMatch(/^\/nearby\/place\//);
   expect(firstFinds(null, [])).toEqual([]);
 });
 

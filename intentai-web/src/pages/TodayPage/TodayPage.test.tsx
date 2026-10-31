@@ -50,13 +50,12 @@ function renderWithRoutes(initialEntries: Parameters<typeof MemoryRouter>[0]['in
       <Routes>
         <Route path="/" element={<TodayPage />} />
         <Route path="/holidays/deepavali" element={<p>holiday page</p>} />
-        <Route path="/place/:placeId" element={<Away label="place page" />} />
-        <Route path="/place/:placeId/:facet" element={<Away label="card page" />} />
+        <Route path="/nearby/place/:placeKey" element={<Away label="place page" />} />
         <Route path="/moments" element={<p>moments page</p>} />
         <Route path="/nearby" element={<p>nearby page</p>} />
-        <Route path="/community" element={<p>community page</p>} />
-        <Route path="/mapward" element={<GoHome state={{ focusPlace: 'chinatown', showMap: true }} />} />
-        <Route path="/elsewhere" element={<GoHome state={{ focusPlace: 'chinatown' }} />} />
+        <Route path="/my-space/notices" element={<p>notices page</p>} />
+        <Route path="/mapward" element={<GoHome state={{ focusPlace: 'curated:sg-haw-par-villa', showMap: true }} />} />
+        <Route path="/elsewhere" element={<GoHome state={{ focusPlace: 'curated:sg-haw-par-villa' }} />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -83,10 +82,10 @@ test('the streak chip opens Moments', async () => {
   expect(screen.getByText('moments page')).toBeInTheDocument();
 });
 
-test('the bell opens Community', async () => {
+test('the bell opens notices', async () => {
   renderWithRoutes();
-  await userEvent.click(screen.getByRole('link', { name: 'Notifications: Mei answered your question' }));
-  expect(screen.getByText('community page')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('link', { name: 'Notifications' }));
+  expect(screen.getByText('notices page')).toBeInTheDocument();
 });
 
 test('the Home tab pops in', () => {
@@ -103,10 +102,10 @@ test('the hero title button opens the holiday page', async () => {
   expect(screen.getByText('holiday page')).toBeInTheDocument();
 });
 
-test('the anniversary row opens the Fall of the Wall festival card', async () => {
+test('the anniversary row opens the Berlin Wall in Nearby', async () => {
   renderWithRoutes();
   await userEvent.click(screen.getByRole('button', { name: /The Berlin Wall fell 37 years ago/ }));
-  expect(screen.getByText('card page /place/berlin-wall-fragments/festival')).toBeInTheDocument();
+  expect(screen.getByText('place page /nearby/place/curated%3Asg-berlin-wall-fragments-utown')).toBeInTheDocument();
 });
 
 test('the culture tabs are gone', () => {
@@ -118,28 +117,19 @@ test('shows the Nearby section; Open on Berlin opens its place page', async () =
   renderWithRoutes();
   expect(screen.getByRole('heading', { level: 2, name: 'Nearby' })).toBeInTheDocument();
   await userEvent.click(within(card('Berlin Wall Fragments')).getByRole('button', { name: /^Open/ }));
-  expect(screen.getByText('place page /place/berlin-wall-fragments')).toBeInTheDocument();
+  expect(screen.getByText('place page /nearby/place/curated%3Asg-berlin-wall-fragments-utown')).toBeInTheDocument();
 });
 
-test('Open on Chinatown, then browser Back: Home shows the Chinatown card again', async () => {
+test('Open on Haw Par Villa, then browser Back: Home shows that card again', async () => {
   const user = userEvent.setup();
   renderWithRoutes();
-  await user.click(card('Chinatown'));
-  await user.click(within(card('Chinatown')).getByRole('button', { name: /^Open/ }));
-  expect(screen.getByText('place page /place/chinatown')).toBeInTheDocument();
+  await user.click(card('Haw Par Villa'));
+  await user.click(within(card('Haw Par Villa')).getByRole('button', { name: /^Open/ }));
+  expect(screen.getByText('place page /nearby/place/curated%3Asg-haw-par-villa')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'browser back' }));
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+  expect(card('Haw Par Villa')).toHaveAttribute('aria-current', 'true');
 });
 
-test('the anniversary row remembers the selected card, not always Berlin', async () => {
-  const user = userEvent.setup();
-  renderWithRoutes();
-  await user.click(card('Chinatown'));
-  await user.click(screen.getByRole('button', { name: /The Berlin Wall fell 37 years ago/ }));
-  expect(screen.getByText('card page /place/berlin-wall-fragments/festival')).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'browser back' }));
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
-});
 
 test('arriving with showMap selects the card, scrolls the Nearby section into view and focuses its heading', async () => {
   const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
@@ -147,7 +137,7 @@ test('arriving with showMap selects the card, scrolls the Nearby section into vi
   Element.prototype.scrollIntoView = into;
   renderWithRoutes(['/mapward']);
   await userEvent.click(screen.getByRole('button', { name: 'go home' }));
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+  expect(card('Haw Par Villa')).toHaveAttribute('aria-current', 'true');
   expect(into).toHaveBeenCalledTimes(1);
   expect(into.mock.contexts[0]).toBe(screen.getByRole('heading', { level: 2, name: 'Nearby' }).closest('section'));
   expect(screen.getByRole('heading', { level: 2, name: 'Nearby' })).toHaveFocus();
@@ -170,8 +160,8 @@ test('the places to explore chip opens Nearby Explore', async () => {
 });
 
 test('router state focusPlace selects that card on arrival', () => {
-  renderWithRoutes([{ pathname: '/', state: { focusPlace: 'chinatown' } }]);
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+  renderWithRoutes([{ pathname: '/', state: { focusPlace: 'curated:sg-haw-par-villa' } }]);
+  expect(card('Haw Par Villa')).toHaveAttribute('aria-current', 'true');
 });
 
 test('unknown or malformed focusPlace keeps the default Berlin card', () => {
@@ -185,13 +175,13 @@ test('a new visit to Home scrolls to the top and focuses the h1; the first load 
   await userEvent.click(screen.getByRole('button', { name: 'go home' }));
   expect(scroll).toHaveBeenCalledWith(0, 0);
   expect(screen.getByRole('heading', { level: 1 })).toHaveFocus();
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+  expect(card('Haw Par Villa')).toHaveAttribute('aria-current', 'true');
   scroll.mockClear();
 
   // Back from a place page (POP) keeps the scroll position.
-  await userEvent.click(within(card('Chinatown')).getByRole('button', { name: /^Open/ }));
+  await userEvent.click(within(card('Haw Par Villa')).getByRole('button', { name: /^Open/ }));
   await userEvent.click(screen.getByRole('button', { name: 'browser back' }));
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
+  expect(card('Haw Par Villa')).toHaveAttribute('aria-current', 'true');
   expect(scroll).not.toHaveBeenCalled();
   scroll.mockRestore();
 });

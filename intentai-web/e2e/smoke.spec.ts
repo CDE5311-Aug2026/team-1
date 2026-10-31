@@ -100,7 +100,7 @@ test('only the active tab icon is orange', async ({ page }) => {
     .getByRole('navigation', { name: 'Primary' })
     .locator('button > span:first-child')
     .evaluateAll((els) => els.map((el) => getComputedStyle(el).maskImage || getComputedStyle(el).webkitMaskImage));
-  expect(masks).toHaveLength(5);
+  expect(masks).toHaveLength(4);
   for (const mask of masks) expect(mask).toMatch(/^url\(/);
   const labelColour = (name: string) =>
     page

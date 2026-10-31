@@ -56,7 +56,7 @@ describe('Explore', () => {
     expect(getCurrentPosition).not.toHaveBeenCalled();
     expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
     expect(screen.getByText(new RegExp(`^${placesIn('SG').length} places$`))).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Local phrases/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Local phrases/ })).toBeNull();
     // Without an origin there are no distances.
     expect(screen.queryByText(/~[\d.]+ k?m/)).not.toBeInTheDocument();
   });
@@ -116,8 +116,6 @@ describe('Explore', () => {
     const sheet = screen.getByRole('region', { name: 'Places' });
     expect(sheet).toHaveAttribute('data-detent', 'peek');
     expect(within(sheet).getByRole('heading', { level: 1, name: 'Nearby' })).toBeInTheDocument();
-    // the phrases for the place picked on the phrase settings (Today's "Near you") are the first row
-    expect(within(sheet).getByRole('link', { name: /Local phrases Old Airport Rd Food Centre/ })).toHaveAttribute('href', '/nearby/phrases');
     const handle = screen.getByRole('button', { name: 'Show the list' });
     expect(handle).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(handle);
@@ -326,15 +324,6 @@ describe('Place detail', () => {
     expect(within(details).getAllByText((_, el) => el?.tagName === 'P' && /^Hours, Address, Phone, Website, What people say: Summer Pavilion/.test(el.textContent ?? ''))).toHaveLength(1);
   });
 
-  test('a place that a Today article names shows that article in its culture cards', () => {
-    renderAt('/nearby/place/curated:sg-sultan-mosque');
-    const cards = screen.getByRole('group', { name: 'Culture and language cards for Sultan Mosque' });
-    expect(within(cards).getByText('Culture · Home card')).toBeInTheDocument();
-    // the same card Home opens, and the whole set of its area
-    expect(within(cards).getByRole('link', { name: 'Open card' })).toHaveAttribute('href', '/card/sultan-mosque');
-    expect(within(cards).getByRole('link', { name: /All 2 Kampong Glam cards/ })).toHaveAttribute('href', '/place/sg-kampong-glam');
-    expect(within(cards).getByText('A landmark mosque first built in the 1820s for Sultan Hussein Shah.')).toBeInTheDocument();
-  });
 
   test('a place with nothing confirmed still gets Apple Maps, and no empty rows', () => {
     renderAt('/nearby/place/curated:sg-coleman-bridge');

@@ -54,7 +54,7 @@ test('setCheckedIn and setStamped update one place and keep the rest', () => {
   });
   setCheckedIn('chinatown', false);
   expect(placeState(placeStoriesStore.get(), 'chinatown').checkedIn).toBe(false);
-  expect(placeState(placeStoriesStore.get(), 'berlin-wall-fragments').stamped).toBe(false);
+  expect(placeState(placeStoriesStore.get(), 'curated:sg-berlin-wall-fragments-utown').stamped).toBe(false);
 });
 
 test('the old placeProgress key is ignored', () => {

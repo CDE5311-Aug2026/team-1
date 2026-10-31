@@ -1,7 +1,7 @@
 // The body of a place: check in, about, sourced fun facts, the phrase tip, collections and the correction line.
 // Shown on the place page and expanded in place under the selected place in Explore's sheet.
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ContextChip from '../../../components/ContextChip/ContextChip';
 import Icon from '../../../components/Icon/Icon';
 import PlayAudioButton from '../../../components/PlayAudioButton/PlayAudioButton';
@@ -9,8 +9,7 @@ import { addLookup } from '../../../data/domain';
 import { usePersistentStore } from '../../../data/persistentStore';
 import { dataGeneration, lookupsStore } from '../../../data/stores';
 import { showToast } from '../../../hooks/useToast';
-import { paths, type AskHandoff } from '../../../routes';
-import { askContextForPlace } from '../../../pages/AskPage/answer';
+import { paths } from '../../../routes';
 import { nearbyContent } from '../../../pages/NearbyPage/nearbyContent';
 import { markVisited, stillReached, toggleSave, useExplorePersonal, type Milestone } from '../actions';
 import { collectionProgress, collectionsContaining, collectionTitle } from '../catalogue';
@@ -18,10 +17,7 @@ import type { CuratedPlace, SourceReference } from '../domain';
 import { directionsUrl } from '../links';
 import { localToday, shortDate, stateOf } from '../personal';
 import { placeShare } from '../share';
-import { CATEGORIES, articlesFor } from '../../../data/culture';
-import { ARTICLE_LINKS, HOLIDAY_LINKS } from '../../../data/cultureLinks';
-import { markCardOpened } from '../../../data/openedCards';
-import { subjectById } from '../../../pages/AskPage/cards';
+import { HOLIDAY_LINKS } from '../../../data/cultureLinks';
 import { todaysHoliday } from '../../../data/holiday';
 import ShareButton from './ShareButton';
 import CardDeck, { type DeckCard } from './CardDeck';
@@ -50,12 +46,10 @@ function SourceLinks({ sources }: { sources: SourceReference[] }) {
   );
 }
 
-const TODAY_ARTICLES = CATEGORIES.flatMap((c) => articlesFor(c.id));
 
 /** flat: inside another card (Explore's selected place, which has its own Save star): sections are divided by lines. */
 export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: { place: CuratedPlace; idPrefix?: string; flat?: boolean }) {
   const panel = flat ? `${styles.panel} ${styles.flatPanel}` : styles.panel;
-  const navigate = useNavigate();
   const personal = useExplorePersonal();
   const [, setLookups] = usePersistentStore(lookupsStore);
   const [dateDraft, setDateDraft] = useState<string | null>(null);
@@ -126,20 +120,6 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
                 <button type="button" className={styles.primary} onClick={() => saveWord(tip.headsUp.title, tip.headsUp.meaning)}>
                   Save to Moments
                 </button>
-                <button
-                  type="button"
-                  className={styles.secondary}
-                  onClick={() => {
-                    const handoff: AskHandoff = {
-                      prompt: `What does ${tip.headsUp.title.toLowerCase()} mean?`,
-                      context: askContextForPlace(place.languageTip!.context),
-                      area: place.areaId,
-                    };
-                    navigate(paths.ask, { state: handoff });
-                  }}
-                >
-                  Ask about this phrase
-                </button>
               </div>
             </>
           ),
@@ -187,47 +167,7 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
       </>
     ),
   }));
-  // The Home cards (v3) that name this place, any link kind (a food stall counts too), each opening the same card
-  // page Home opens; then a link to the whole set of the place's area, so the set never differs from Home's.
-  const areaSubject = subjectById(place.areaId);
-  const linkedIds = (tryHere: boolean) =>
-    Object.entries(ARTICLE_LINKS)
-      .filter(([, links]) => links.some((l) => l.kind === 'place' && l.id === place.id && (l.why === 'try') === tryHere))
-      .map(([id]) => id);
-  // Cards about this place lead the deck; cards that only send you here to eat (a stall) go after the phrases.
-  const namingIds = linkedIds(false);
-  const tryIds = linkedIds(true).filter((id) => !namingIds.includes(id));
-  const homeCard = (id: string): DeckCard[] => {
-      const a = TODAY_ARTICLES.find((x) => x.id === id);
-      return a
-        ? [
-            {
-              id: `today-${a.id}`,
-              tone: 'culture' as const,
-              kicker: 'Culture · Home card',
-              body: (
-                <>
-                  <p className={styles.cardName}>{a.title}</p>
-                  <p className={styles.body}>{a.summary}</p>
-                  <p className={styles.sourceLine}>Source: {a.sources.map((x) => x.label).join('; ')}</p>
-                  <div className={styles.row}>
-                    <Link className={styles.primary} to={paths.card(a.id)} onClick={() => markCardOpened(a.id)}>
-                      Open card
-                    </Link>
-                    {areaSubject && (
-                      <Link className={styles.secondary} to={paths.place(areaSubject.id)}>
-                        All {areaSubject.cards.length} {areaSubject.short} {areaSubject.cards.length === 1 ? 'card' : 'cards'}
-                      </Link>
-                    )}
-                  </div>
-                </>
-              ),
-            },
-          ]
-        : [];
-  };
   const fromToday: DeckCard[] = [
-    ...namingIds.flatMap(homeCard),
     ...(HOLIDAY_LINKS[todaysHoliday.name]?.some((l) => l.kind === 'place' && l.id === place.id)
       ? [
           {
@@ -252,32 +192,6 @@ export default function PlaceInfo({ place, idPrefix = 'place', flat = false }: {
     if (language[i]) deck.push(language[i]);
     if (culture[i]) deck.push(culture[i]);
   }
-  deck.push(...tryIds.flatMap(homeCard));
-  // No card names this place but its area has cards: one card, last, pointing to the area's set on Home.
-  const areaCard: DeckCard[] =
-    namingIds.length === 0 && tryIds.length === 0 && areaSubject
-      ? [
-          {
-            id: `area-${areaSubject.id}`,
-            tone: 'culture' as const,
-            kicker: `Culture · ${areaSubject.short}`,
-            body: (
-              <>
-                <p className={styles.cardName}>
-                  {areaSubject.cards.length} {areaSubject.cards.length === 1 ? 'card' : 'cards'} about {areaSubject.short}
-                </p>
-                <p className={styles.body}>{areaSubject.cards.map((c) => c.article.title).join(' · ')}</p>
-                <div className={styles.row}>
-                  <Link className={styles.primary} to={paths.place(areaSubject.id)}>
-                    Open {areaSubject.short}
-                  </Link>
-                </div>
-              </>
-            ),
-          },
-        ]
-      : [];
-  deck.push(...areaCard);
 
   const correction = `Correction for “${place.name}” (${place.id}): `;
   const copyCorrection = async () => {

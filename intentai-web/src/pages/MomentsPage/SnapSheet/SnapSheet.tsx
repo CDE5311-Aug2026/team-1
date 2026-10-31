@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react';
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import cameraIcon from '../../../assets/v3/moments/camera.svg';
 import checkWhite from '../../../assets/v3/moments/check-white.svg';
 import closeIcon from '../../../assets/v3/moments/close.svg';
@@ -13,7 +13,6 @@ import { usePersistentStore } from '../../../data/persistentStore';
 import { FACETS, openedCount, placeState } from '../../../data/placeStories';
 import { markOpened, openedCardsStore, placeStoriesStore, reduceMotionStore } from '../../../data/stores';
 import { storyPlace } from '../../../data/stories/places';
-import { paths, type CommunityHandoff } from '../../../routes';
 import { CardDots } from '../Passport/Passport';
 import { stampDate, TOPIC_ICONS } from '../parts';
 import Sheet from '../Sheet/Sheet';
@@ -48,7 +47,6 @@ export default function SnapSheet({ stamps, onClose }: { stamps: readonly StampD
   const [stories] = usePersistentStore(placeStoriesStore);
   const [reduceSetting] = usePersistentStore(reduceMotionStore);
   const reduce = !!useReducedMotionConfig() || reduceSetting;
-  const navigate = useNavigate();
   const [photos] = useState(snapPhotos);
   const [selected, setSelected] = useState<SnapPhoto>(photos[0]);
   const [source, setSource] = useState<'photo' | 'camera'>('photo');
@@ -448,17 +446,10 @@ export default function SnapSheet({ stamps, onClose }: { stamps: readonly StampD
                   <h3 id="snap-result-title" className={styles.title} ref={resultRef} tabIndex={-1}>
                     No match yet
                   </h3>
-                  <p className={styles.noMatchText}>We couldn’t place this one. Try a photo from Recent photos, or ask a local about it.</p>
+                  <p className={styles.noMatchText}>We couldn’t place this one. Try a photo from Recent photos.</p>
                   <div className={styles.actions}>
                     <button type="button" className={styles.secondary} onClick={snapAgain}>
                       Snap again
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.primary}
-                      onClick={() => navigate(paths.community, { state: { askLocal: '' } satisfies CommunityHandoff })}
-                    >
-                      Ask a local
                     </button>
                   </div>
                 </>
@@ -546,7 +537,7 @@ function MatchResult({
           Save to Moments
         </button>
         <Link to={photo.href} className={styles.primary}>
-          Open card
+          Open in Nearby
           <span aria-hidden="true">→</span>
         </Link>
       </div>

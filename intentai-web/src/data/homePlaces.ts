@@ -1,7 +1,6 @@
 import areasJson from './explore/areas.json';
 import berlinPhoto from '../assets/home/berlin-wall-fragments.webp';
 import berlinThumb from '../assets/home/berlin-wall-thumb.webp';
-import chinatownPhoto from '../assets/home/chinatown.webp';
 import { distanceM } from '../features/nearby/geo';
 import { THUMB_CREDIT, thumbUrl } from '../features/nearby/thumbs';
 import type { LatLng } from '../features/nearby/types';
@@ -65,35 +64,13 @@ function nearbyPlace(id: string, name: string, area: string, point: LatLng, alia
   };
 }
 
-const chinatownArea = areas.find((a) => a.id === 'sg-chinatown');
-if (!chinatownArea?.center) throw new Error('sg-chinatown centre missing from areas.json');
-
 export const HOME_PLACES: readonly HomePlace[] = [
   {
-    id: 'berlin-wall-fragments',
-    name: 'Berlin Wall Fragments',
-    area: 'NUS University Town',
-    point: { lat: 1.30583, lng: 103.77472 },
-    distance: '200 m',
+    // Team 1's photo of the panels; the place itself is the Nearby catalogue entry (story cards removed 31 Oct).
+    ...nearbyPlace('curated:sg-berlin-wall-fragments-utown', 'Berlin Wall Fragments', 'Clementi & Kent Ridge', { lat: 1.30583, lng: 103.77472 }, ['Tembusu College', 'Berlin']),
     photo: berlinPhoto,
     photoAlt: 'Two painted Berlin Wall panels in a garden at NUS University Town',
     credit: 'Photo supplied by the IntentAI team',
-    hasCards: true,
-    pinAlways: true,
-    aliases: ['Tembusu College', 'Berlin'],
-  },
-  {
-    id: 'chinatown',
-    name: 'Chinatown',
-    area: 'Chinatown & Tanjong Pagar',
-    point: { lat: chinatownArea.center.lat, lng: chinatownArea.center.lng },
-    distance: '8.4 km',
-    photo: chinatownPhoto,
-    photoAlt: 'Pagoda Street shophouses in Chinatown, Singapore, with lanterns and shoppers',
-    credit: 'Marcin Konsek, CC BY-SA 4.0, via Wikimedia Commons',
-    hasCards: true,
-    pinAlways: false,
-    aliases: ['Pagoda Street'],
   },
   nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }, ['NUS', 'UTown']),
   nearbyPlace('curated:sg-haw-par-villa', 'Haw Par Villa', 'Queenstown & Holland', { lat: 1.28405, lng: 103.78142 }, ['Haw Par', 'Tiger Balm Garden']),
@@ -108,10 +85,7 @@ const AREA_NAME = new Map(areas.map((a) => [a.id, a.name]));
  * base first). Picture: culture-card photo → Wikimedia Commons photo → 3D view (none → the card's placeholder).
  * They have no story cards: the card's button opens the place in Nearby. Pinned on the map only when selected.
  */
-/** Catalogue entries for the same spot as a story place above: Home shows the story card, not a second pin. */
-const STORY_TWINS: ReadonlySet<string> = new Set(['curated:sg-berlin-wall-fragments-utown']);
-
-const CATALOGUE_PLACES: HomePlace[] = PUBLISHED_PLACES.filter((p) => !HOME_PLACES.some((h) => h.id === p.id) && !STORY_TWINS.has(p.id))
+const CATALOGUE_PLACES: HomePlace[] = PUBLISHED_PLACES.filter((p) => !HOME_PLACES.some((h) => h.id === p.id))
   .map((p): HomePlace => {
     const picture = placePicture(p);
     return {

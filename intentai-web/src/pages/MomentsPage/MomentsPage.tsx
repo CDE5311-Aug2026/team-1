@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import camera from '../../assets/v3/moments/camera.svg';
 import play from '../../assets/v3/moments/play.svg';
 import star from '../../assets/v3/moments/star.svg';
@@ -7,7 +6,6 @@ import AppShell from '../../components/AppShell/AppShell';
 import HomeLink from '../../components/HomeLink/HomeLink';
 import type { Lookup } from '../../data/domain';
 import { communitySocialStore } from '../../data/community/social';
-import { sampleThread } from '../../data/community/channels';
 import { usePersistentStore } from '../../data/persistentStore';
 import {
   badgesOf,
@@ -21,17 +19,14 @@ import {
   type CollectedFilter,
   type CollectedItem,
 } from '../../data/moments/moments';
-import { markCardOpened } from '../../data/openedCards';
-import { collectedStore, insightsStore, lookupsStore, openedCardsStore, placeStoriesStore, questionsStore, tipsStore } from '../../data/stores';
+import { collectedStore, insightsStore, lookupsStore, openedCardsStore, placeStoriesStore, tipsStore } from '../../data/stores';
 import { useExplorePersonal } from '../../features/nearby/actions';
 import { MAIN_COLLECTION, collectionProgress } from '../../features/nearby/catalogue';
 import { localToday } from '../../features/nearby/personal';
 import { showToast } from '../../hooks/useToast';
-import { paths, type AskHandoff, type CommunityHandoff } from '../../routes';
 import { useSpan } from '../../usage/useSpan';
 import Collected from './Collected/Collected';
 import ConversationSheet from './ConversationSheet/ConversationSheet';
-import StoryStamps from './PlaceStamps/StoryStamps';
 import Passport from './Passport/Passport';
 import PhraseSheet from './PhraseSheet/PhraseSheet';
 import PlaceSheet from './PlaceSheet/PlaceSheet';
@@ -51,7 +46,6 @@ type Modal =
 
 /** Moments (ZIP `moments()`, Figma M1–M5): a passport of the places you checked in, inked by the cards you opened. */
 export default function MomentsPage() {
-  const navigate = useNavigate();
   const personal = useExplorePersonal();
   const [opened] = usePersistentStore(openedCardsStore);
   const [tips] = usePersistentStore(tipsStore);
@@ -59,7 +53,6 @@ export default function MomentsPage() {
   const [lookups, setLookups] = usePersistentStore(lookupsStore);
   const [todaysThree] = usePersistentStore(collectedStore);
   const [social] = usePersistentStore(communitySocialStore);
-  const [questions] = usePersistentStore(questionsStore);
   const [filter, setFilter] = useState<CollectedFilter>('all');
   const [modal, setModal] = useState<Modal | null>(null);
   const [practising, setPractising] = useState<Lookup | null>(null);
@@ -73,30 +66,14 @@ export default function MomentsPage() {
   const rank = rankOf(openedCards(opened).length, realTips);
   const badges = badgesOf(stamps, opened, realTips);
   const items = useMemo(
-    () => collectedItems({ opened, tips, insights, lookups, todaysThree, conversations: social.saved }),
+    () => collectedItems({ opened, tips, insights, lookups, todaysThree, conversations: social.saved }).filter((i) => i.kind === 'phrase'),
     [opened, tips, insights, lookups, todaysThree, social.saved],
   );
   const facts = useMemo(() => recapFacts(opened, lookups), [opened, lookups]);
 
+  // Discovery redesign (31 Oct): culture cards, Ask and Community are gone, so only saved phrases open from here.
   const openItem = (item: CollectedItem) => {
-    if (item.kind === 'card') {
-      markCardOpened(item.card.article.id);
-      navigate(paths.card(item.card.article.id));
-    } else if (item.kind === 'tip') navigate(paths.card(item.tip.cardId));
-    else if (item.kind === 'insight') {
-      const handoff: AskHandoff = { prompt: item.insight.question };
-      navigate(paths.ask, { state: handoff });
-    } else if (item.kind === 'conversation') {
-      // The live thread while the question still exists; the saved snapshot after it was withdrawn.
-      const id = item.saved.threadId;
-      if (questions.some((q) => q.id === id) || sampleThread(id)) navigate(paths.question(id));
-      else setModal({ type: 'conversation', threadId: id });
-    } else setModal({ type: 'phrase', key: item.key });
-  };
-
-  const notSure = (lookup: Lookup) => {
-    const handoff: CommunityHandoff = { askLocal: `What does “${lookup.word}” mean here?`, link: { lookupId: lookup.id, from: 'moments' } };
-    navigate(paths.community, { state: handoff });
+    if (item.kind === 'phrase') setModal({ type: 'phrase', key: item.key });
   };
 
   const removeLookup = (lookup: Lookup) => {
@@ -142,9 +119,8 @@ export default function MomentsPage() {
 
         <Passport stamps={stamps} progress={progress} today={today} onOpen={(stamp) => setModal({ type: 'place', areaId: stamp.subject.id })} />
 
-        <StoryStamps />
 
-        <Collected items={items} filter={filter} onFilter={setFilter} onOpen={openItem} onNotSure={notSure} />
+        <Collected items={items} filter={filter} onFilter={setFilter} onOpen={openItem} />
 
         <button type="button" className={styles.recap} onClick={() => setModal({ type: 'recap' })} disabled={facts.length === 0}>
           <span className={styles.recapStack} aria-hidden="true">
@@ -176,7 +152,6 @@ export default function MomentsPage() {
               phraseItem.lookup ?? { id: phraseItem.key, word: phraseItem.word, meaning: phraseItem.meaning, source: 'IntentAI editorial', example: phraseItem.example },
             )
           }
-          onNotSure={() => phraseItem.lookup && notSure(phraseItem.lookup)}
           onToggleGot={() => {
             const lookup = phraseItem.lookup;
             if (!lookup) return;

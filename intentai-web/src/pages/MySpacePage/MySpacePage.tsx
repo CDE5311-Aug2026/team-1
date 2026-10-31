@@ -33,9 +33,6 @@ import useInitial from '../OnboardingPage/v3/useInitial';
 import FieldEditor from './v3/FieldEditor';
 import { useMemories } from './v3/MemorySection';
 import { setMemoryEnabled } from '../../data/memory';
-import { communitySocialStore } from '../../data/community/social';
-import { localProfileStore, publicTags, withPrefill } from '../../data/profile/localProfile';
-import LocalProfileSheet from '../CommunityPage/LocalProfileSheet';
 import { HelpDialog, Switch } from './v3/Parts';
 import StorageBar from './v3/StorageBar';
 import styles from './v3/MySpace.module.css';
@@ -263,10 +260,6 @@ export default function MySpacePage() {
   const [profile] = usePersistentStore(profileV3Store);
   const [settings, setSettings] = usePersistentStore(settingsStore);
   const memory = useMemories();
-  const [localSheet, setLocalSheet] = useState(false);
-  const [social] = usePersistentStore(communitySocialStore);
-  const [localStored] = usePersistentStore(localProfileStore);
-  const localTags = publicTags(withPrefill(localStored, profile));
   const [editing, setEditing] = useState<FieldKey | null>(null);
   const [help, setHelp] = useState(false);
   const privateCount = profile.hidden.filter((f) => fieldValue(profile, f, areaShortName) !== null).length;
@@ -316,28 +309,6 @@ export default function MySpacePage() {
           </div>
           <div className={styles.switchRow}>
             <span className={styles.rowIcon}>
-              <Icon name="people" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Answer as a local</span>
-              <span className={styles.rowSub} id="hint-local">
-                Same switch as in Community
-              </span>
-            </span>
-            <Switch label="Answer as a local" describedBy="hint-local" checked={settings.local} onChange={(on) => setSettings((s) => ({ ...s, local: on }))} />
-          </div>
-          <button type="button" className={styles.row} onClick={() => setLocalSheet(true)}>
-            <span className={styles.rowIcon}>
-              <Icon name="user" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>You as a local</span>
-              <span className={styles.rowSub}>{localTags.length ? localTags.slice(0, 3).join(' · ') : 'Culture, languages, where you grew up'}</span>
-            </span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </button>
-          <div className={styles.switchRow}>
-            <span className={styles.rowIcon}>
               <Icon name="book" size={18} />
             </span>
             <span className={styles.rowText}>
@@ -378,16 +349,6 @@ export default function MySpacePage() {
       </div>
       {editing && <FieldEditor field={editing} profile={profile} onClose={() => setEditing(null)} />}
       {help && <HelpDialog onClose={() => setHelp(false)} />}
-      {localSheet && (
-        <LocalProfileSheet
-          local={settings.local}
-          shown={social.profile.shown}
-          areaId={social.profile.areaId ?? profile.base ?? undefined}
-          onChange={(shown, areaId) => communitySocialStore.set((prev) => ({ ...prev, profile: { shown, areaId } }))}
-          onLocal={() => setSettings((s) => ({ ...s, local: true }))}
-          onClose={() => setLocalSheet(false)}
-        />
-      )}
     </AppShell>
   );
 }

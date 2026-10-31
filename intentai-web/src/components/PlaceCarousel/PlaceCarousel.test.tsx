@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { HOME_PLACES, type PlaceStories } from '../../data/homePlaces';
+import { HOME_PLACES as REAL_HOME_PLACES, type HomePlace, type PlaceStories } from '../../data/homePlaces';
 import { setCarouselGeometry, scrollCarousel } from '../../test/carouselGeometry';
 import { setReducedMotion } from '../../test/media';
 import AppShell from '../AppShell/AppShell';
@@ -12,6 +12,23 @@ import { PARALLAX, PlaceCarousel, nearestCardIndex } from './PlaceCarousel';
 const GEOMETRY = { width: 320, cardWidth: 250, gap: 10 };
 /** scrollLeft that centres card i under GEOMETRY. */
 const leftOf = (i: number) => i * (GEOMETRY.cardWidth + GEOMETRY.gap);
+/** Five places, two with story cards: Home has none since 31 Oct, but the carousel still supports them. */
+const HOME_PLACES: readonly HomePlace[] = [
+  { ...REAL_HOME_PLACES[0], id: 'berlin', hasCards: true },
+  {
+    id: 'chinatown',
+    name: 'Chinatown',
+    area: 'Chinatown & Tanjong Pagar',
+    point: { lat: 1.28361, lng: 103.84417 },
+    distance: '8.4 km',
+    photo: '/chinatown.webp',
+    photoAlt: 'Chinatown',
+    credit: 'test',
+    hasCards: true,
+    pinAlways: false,
+  },
+  ...REAL_HOME_PLACES.slice(1),
+];
 const ids = HOME_PLACES.map((p) => p.id);
 
 let scrollTo: ReturnType<typeof vi.spyOn>;
@@ -169,7 +186,7 @@ test('Open calls onOpen with the place id', async () => {
   const user = userEvent.setup();
   const { groups, onOpen, onActivate } = setup();
   await user.click(within(groups[0]).getByRole('button', { name: 'Open' }));
-  expect(onOpen).toHaveBeenCalledWith('berlin-wall-fragments');
+  expect(onOpen).toHaveBeenCalledWith('berlin');
   expect(onActivate).not.toHaveBeenCalled();
 });
 

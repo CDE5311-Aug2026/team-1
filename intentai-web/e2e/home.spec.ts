@@ -31,8 +31,8 @@ async function box(page: Page, locator: ReturnType<Page['locator']>): Promise<Re
 /** Opens Home and waits for the lazily loaded map to draw its pins, with Berlin selected. */
 async function openHome(page: Page) {
   await page.goto('/');
-  await expect(cards(page)).toHaveCount(305);
-  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'berlin-wall-fragments');
+  await expect(cards(page)).toHaveCount(304);
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'curated:sg-berlin-wall-fragments-utown');
 }
 
 /** Bottom of the selected pin minus the carousel's top edge (negative: the pin is above the cards). */
@@ -115,13 +115,13 @@ async function tappablePins(page: Page): Promise<string[]> {
     });
 }
 
-test('load: every real place as a card (2 stories + 303), Berlin current, "304 places to explore"', async ({ page }) => {
+test('load: every real place as a card (304), Berlin current, "304 places to explore"', async ({ page }) => {
   const tiles: string[] = [];
   page.on('request', (r) => {
     if (/tile\.openstreetmap\.org/.test(new URL(r.url()).hostname)) tiles.push(r.url());
   });
   await openHome(page);
-  await expect(cards(page)).toHaveCount(305);
+  await expect(cards(page)).toHaveCount(304);
   await expect(current(page)).toHaveCount(1);
   await expect(current(page)).toHaveAttribute('aria-label', 'Berlin Wall Fragments');
   await expect(map(page)).toContainText('304 places to explore');
@@ -136,20 +136,20 @@ test('load: every real place as a card (2 stories + 303), Berlin current, "304 p
 // Removed: "every tile request is answered by the stub" and "when tiles fail: Map unavailable + Retry" — they tested
 // Leaflet's OpenStreetMap tiles; our map draws a bundled ground image and makes no tile requests.
 
-test('swiping to card 2 selects Chinatown; Locate goes back to the home base', async ({ page }) => {
+test('swiping to card 2 selects NUS; Locate goes back to the home base', async ({ page }) => {
   await openHome(page);
   await track(page).evaluate((t) => {
     const c = t.children[1] as HTMLElement;
     t.scrollTo({ left: c.offsetLeft + c.offsetWidth / 2 - t.clientWidth / 2, behavior: 'smooth' });
   });
-  await expect(card(page, 'Chinatown')).toHaveAttribute('aria-current', 'true');
-  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'chinatown');
-  await expect(pin(page, 'chinatown')).toBeVisible();
+  await expect(card(page, 'National University of Singapore')).toHaveAttribute('aria-current', 'true');
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'curated:sg-national-university-of-singapore');
+  await expect(pin(page, 'curated:sg-national-university-of-singapore')).toBeVisible();
   await expect.poll(() => selectedPinInView(page)).toBe(true);
 
   await page.getByRole('button', { name: 'Show my location' }).click();
   await expect(card(page, 'Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
-  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'berlin-wall-fragments');
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'curated:sg-berlin-wall-fragments-utown');
   // Home base is back in the map area the cards leave visible.
   await expect.poll(() => selectedPinInView(page)).toBe(true);
 });
@@ -263,8 +263,8 @@ test('tapping a pin selects its card; pins work from the keyboard; a cluster zoo
 test('the 3D link opens the selected place in Nearby 3D', async ({ page }) => {
   await openHome(page);
   const link = map(page).getByRole('link', { name: 'Open this place in 3D' });
-  // Berlin is a story place, not in the 3D model's catalogue: the 3D view opens without a selection.
-  await expect(link).toHaveAttribute('href', '/nearby?view=3d');
+  // Berlin is a Nearby place since 31 Oct: the 3D view opens on it.
+  await expect(link).toHaveAttribute('href', `/nearby?view=3d&sel=${encodeURIComponent('curated:sg-berlin-wall-fragments-utown')}`);
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await page.getByRole('textbox', { name: 'Search a place or area' }).fill('Holland Village');
   await page.getByRole('button', { name: /^Holland Village/ }).first().click();
@@ -285,7 +285,7 @@ test('the tab bar stays above the carousel when the cards scroll under it', asyn
   const b = await box(page, tabs);
   const c = await box(page, carousel(page));
   expect(c.y < b.y + b.height && c.y + c.height > b.y, 'cards are under the tab bar').toBe(true);
-  for (const name of ['Home', 'Ask', 'Community', 'Moments', 'My Space']) {
+  for (const name of ['Home', 'Moments', 'Hunt', 'Mine']) {
     expect(await onTop(tabs.getByRole('button', { name, exact: true })), `${name} tab on top`).toBe(true);
   }
 });
@@ -295,8 +295,8 @@ for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await openHome(page);
-    for (const id of ['berlin-wall-fragments', 'chinatown']) {
-      if (id === 'chinatown') await selectCard(page, 1);
+    for (const id of ['curated:sg-berlin-wall-fragments-utown', 'curated:sg-national-university-of-singapore']) {
+      if (id === 'curated:sg-national-university-of-singapore') await selectCard(page, 1);
       await map(page).evaluate((el) => el.scrollIntoView({ block: 'center' }));
       await expect(selectedPin(page)).toHaveAttribute('data-pin', id);
       await expect.poll(async () => (await selectedPinInView(page)) && (await onTop(selectedPin(page)))).toBe(true);
@@ -310,7 +310,6 @@ test('search: the pill and the search button open one dropdown; picking a place 
   await pill.click();
   const field = page.getByRole('textbox', { name: 'Search a place or area' });
   await expect(field).toBeVisible();
-  await expect(page.getByRole('list', { name: 'PLACES WITH CARDS' }).getByRole('listitem')).toHaveCount(2);
   // The dropdown is drawn over the map and the cards.
   for (const name of [/^Berlin Wall Fragments/, /^National University of Singapore/]) {
     // (map pins share the place names; the rows are the other buttons)
@@ -324,11 +323,11 @@ test('search: the pill and the search button open one dropdown; picking a place 
 
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await field.fill('pagoda');
-  await page.getByRole('button', { name: /^Chinatown/ }).click();
+  await page.getByRole('button', { name: /^Pagoda Street/ }).and(page.locator(':not([data-pin])')).first().click();
   await expect(field).toBeHidden();
-  await expect(card(page, 'Chinatown')).toHaveAttribute('aria-current', 'true');
+  await expect(card(page, 'Pagoda Street and Trengganu Street')).toHaveAttribute('aria-current', 'true');
   await expect(page.getByTestId('search-point')).toHaveText('Chinatown & Tanjong Pagar');
-  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'chinatown');
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'curated:sg-pagoda-street-trengganu-street');
   await expect.poll(() => pinOverCarousel(page)).toBeLessThan(0);
 });
 
@@ -338,21 +337,21 @@ test('Open goes to the place page; browser Back brings Home back on that card, a
   await carousel(page).scrollIntoViewIfNeeded();
   const y = await page.evaluate(() => window.scrollY);
   expect(y).toBeGreaterThan(0);
-  await card(page, 'Chinatown').getByRole('button', { name: /^Open/ }).click();
-  await expect(page).toHaveURL(/\/place\/chinatown$/);
+  await card(page, 'National University of Singapore').getByRole('button', { name: /^Open/ }).click();
+  await expect(page).toHaveURL(/\/nearby\/place\//);
   await page.goBack();
-  await expect(card(page, 'Chinatown')).toHaveAttribute('aria-current', 'true');
-  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'chinatown');
+  await expect(card(page, 'National University of Singapore')).toHaveAttribute('aria-current', 'true');
+  await expect(selectedPin(page)).toHaveAttribute('data-pin', 'curated:sg-national-university-of-singapore');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(y - 40);
 });
 
-test('streak chip opens Moments, bell opens Community', async ({ page }) => {
+test('streak chip opens Moments, bell opens notices', async ({ page }) => {
   await openHome(page);
   await page.getByRole('link', { name: /day streak\. See your rank and badges$/ }).click();
   await expect(page).toHaveURL(/\/moments$/);
   await page.goBack();
-  await page.getByRole('link', { name: 'Notifications: Mei answered your question' }).click();
-  await expect(page).toHaveURL(/\/community$/);
+  await page.getByRole('link', { name: 'Notifications' }).click();
+  await expect(page).toHaveURL(/\/my-space\/notices$/);
 });
 
 test('reduced motion: card photos do not move', async ({ page }) => {
@@ -362,7 +361,7 @@ test('reduced motion: card photos do not move', async ({ page }) => {
   const transforms = await carousel(page)
     .locator('[data-parallax]')
     .evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
-  expect(transforms).toHaveLength(305);
+  expect(transforms).toHaveLength(304);
   for (const t of transforms) expect(t).toBe('none');
 });
 

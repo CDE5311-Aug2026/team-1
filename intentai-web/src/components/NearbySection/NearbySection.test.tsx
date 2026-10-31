@@ -33,8 +33,9 @@ vi.mock('../HomeMap/CityHomeMap', () => ({
   },
 }));
 
-const BERLIN = 'berlin-wall-fragments';
-const CHINATOWN = 'chinatown';
+const BERLIN = 'curated:sg-berlin-wall-fragments-utown';
+/** A place pinned only when selected (Chinatown's story card until 31 Oct). */
+const CHINATOWN = 'curated:sg-pagoda-street-trengganu-street';
 const HAW_PAR = 'curated:sg-haw-par-villa';
 const berlin = homePlace(BERLIN)!;
 const chinatown = homePlace(CHINATOWN)!;
@@ -120,7 +121,7 @@ test('renders the heading and hint, every place as a pin and the Berlin card cur
   expect(screen.getByRole('heading', { level: 2, name: 'Nearby' })).toBeInTheDocument();
   expect(screen.getByText('Swipe a card or tap a pin')).toBeInTheDocument();
   await screen.findByTestId('map');
-  expect(pinCount()).toBe(305); // every place is a pin on our map (it clusters them)
+  expect(pinCount()).toBe(304); // every place is a pin on our map (it clusters them)
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
 });
 
@@ -130,21 +131,21 @@ test('cards, pins and Locate stay in sync; Open calls onOpenPlace', async () => 
   const map = await screen.findByTestId('map');
 
   fireEvent.keyDown(card('Berlin Wall Fragments'), { key: 'ArrowRight' });
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
-  expect(pinCount()).toBe(305);
-  expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
+  expect(card('National University of Singapore')).toHaveAttribute('aria-current', 'true');
+  expect(pinCount()).toBe(304);
+  expect(within(map).getByRole('button', { name: 'National University of Singapore' })).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'Show my location' }));
-  expect(pinCount()).toBe(305); // every place is a pin on our map (it clusters them)
+  expect(pinCount()).toBe(304); // every place is a pin on our map (it clusters them)
   expect(card('Berlin Wall Fragments')).toHaveAttribute('aria-current', 'true');
 
   await user.click(within(map).getByRole('button', { name: 'Haw Par Villa' }));
   expect(card('Haw Par Villa')).toHaveAttribute('aria-current', 'true');
 
   // Only the centred card offers its action.
-  expect(within(card('Chinatown')).queryByRole('button', { name: /Open/ })).toBeNull();
-  await user.click(card('Chinatown'));
-  await user.click(within(card('Chinatown')).getByRole('button', { name: /Open/ }));
+  expect(within(card('Pagoda Street and Trengganu Street')).queryByRole('button', { name: /Open/ })).toBeNull();
+  await user.click(card('Pagoda Street and Trengganu Street'));
+  await user.click(within(card('Pagoda Street and Trengganu Street')).getByRole('button', { name: /Open/ }));
   expect(onOpenPlace).toHaveBeenCalledWith(CHINATOWN);
 });
 
@@ -162,8 +163,8 @@ test('initNearbyState selects and centres the focus place; unknown ids fall back
 test('focusId selects that card on arrival, with its pin', async () => {
   const { card } = setup(CHINATOWN);
   const map = await screen.findByTestId('map');
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
-  expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
+  expect(card('Pagoda Street and Trengganu Street')).toHaveAttribute('aria-current', 'true');
+  expect(within(map).getByRole('button', { name: 'Pagoda Street and Trengganu Street' })).toBeInTheDocument();
 });
 
 test('the places to explore chip calls onExplore', async () => {
@@ -180,10 +181,9 @@ test('search: picking a place selects its card and shows its area in the pill', 
   const map = await screen.findByTestId('map');
   await user.click(screen.getByRole('button', { name: 'Search' }));
   await user.type(screen.getByRole('textbox', { name: 'Search a place or area' }), 'pagoda');
-  // typing searches every real place, so other Chinatown places follow; the story place is first
-  await user.click(screen.getAllByRole('button', { name: /^Chinatown/ })[0]);
-  expect(card('Chinatown')).toHaveAttribute('aria-current', 'true');
-  expect(within(map).getByRole('button', { name: 'Chinatown' })).toBeInTheDocument();
+  await user.click(screen.getAllByRole('button', { name: /^Pagoda Street/ })[0]);
+  expect(card('Pagoda Street and Trengganu Street')).toHaveAttribute('aria-current', 'true');
+  expect(within(map).getByRole('button', { name: 'Pagoda Street and Trengganu Street' })).toBeInTheDocument();
   expect(screen.queryByRole('textbox')).toBeNull();
   expect(screen.getByTestId('search-point')).toHaveTextContent('Chinatown & Tanjong Pagar');
 });
@@ -223,7 +223,7 @@ test('measures the carousel overlap with the map and passes it as the inset', as
 test('lists photo credits under the map, deduplicated', () => {
   setup();
   const credits = screen.getByText('Photo credits').closest('details')!;
-  expect(within(credits).getByText(/Marcin Konsek, CC BY-SA 4.0, via Wikimedia Commons/)).toBeInTheDocument();
+  expect(within(credits).getByText(/Photo supplied by the IntentAI team/)).toBeInTheDocument();
   const items = within(credits).getAllByRole('listitem');
   const texts = items.map((li) => li.textContent);
   expect(new Set(texts).size).toBe(texts.length);

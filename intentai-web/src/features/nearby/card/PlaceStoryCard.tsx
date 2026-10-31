@@ -8,7 +8,7 @@ import headerStyles from '../../../components/story/StoryHeader.module.css';
 import { ORDER_GUIDES } from '../../../data/explore/orders';
 import { placeCard, type CardTile, type PlaceCard } from '../../../data/explore/placeCards';
 import { placePicture } from '../../../data/home/nearbyCards';
-import { ThenNow } from '../../../pages/PlaceStory/ThenNow';
+import { ThenNow } from './ThenNow';
 import { area as areaById, regionName } from '../catalogue';
 import { CATEGORY_INFO, type CuratedPlace, type SourceReference } from '../domain';
 import type { Category } from '../types';

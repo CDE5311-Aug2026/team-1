@@ -16,7 +16,7 @@ import {
   type RoleId,
   type StayId,
 } from '../../../data/profile/profile';
-import { cardById } from '../../AskPage/cards';
+import { cardById } from '../../../data/cards';
 
 export interface Preview {
   kicker: string;

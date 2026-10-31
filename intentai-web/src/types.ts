@@ -17,8 +17,7 @@ export type IconName =
   | 'grim'
   | 'metro'
   | 'tab-today'
-  | 'tab-ask'
-  | 'tab-community'
+  | 'tab-hunt'
   | 'tab-moments'
   | 'tab-my-space';
 

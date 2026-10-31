@@ -10,7 +10,7 @@ interface Props {
   logoSrc: string;
 }
 
-/** Home's header: logo, the streak chip (to Moments) and the bell (to Community). */
+/** Home's header: logo, the streak chip (to Moments) and the bell (to notices). */
 export default function HomeHeader({ logoSrc }: Props) {
   const [streak] = usePersistentStore(streakStore);
   const count = currentStreak(streak, useToday());
@@ -35,7 +35,7 @@ export default function HomeHeader({ logoSrc }: Props) {
           day
         </span>
       </Link>
-      <Link to={paths.community} className={`press ${styles.bell}`} aria-label="Notifications: Mei answered your question">
+      <Link to={paths.notices} className={`press ${styles.bell}`} aria-label="Notifications">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
           <path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15Z" />
           <path d="M10 20.5a2 2 0 0 0 4 0" />

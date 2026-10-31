@@ -6,7 +6,6 @@ import iconAll from '../../../assets/v3/moments/filter-all.svg';
 import iconPhrase from '../../../assets/v3/moments/phrase.svg';
 import iconCommunity from '../../../assets/v3/moments/community.svg';
 import mascot from '../../../assets/v3/mascot.png';
-import type { Lookup } from '../../../data/domain';
 import { imageOf, matchesFilter, TOPIC_LABELS, type CollectedFilter, type CollectedItem } from '../../../data/moments/moments';
 import { paths } from '../../../routes';
 import { FILTERS, TOPIC_ICONS } from '../parts';
@@ -17,7 +16,6 @@ interface CollectedProps {
   filter: CollectedFilter;
   onFilter: (filter: CollectedFilter) => void;
   onOpen: (item: CollectedItem) => void;
-  onNotSure: (lookup: Lookup) => void;
 }
 
 const PHOTO_HEIGHTS = [214, 178, 196, 166];
@@ -43,7 +41,7 @@ function columns(items: readonly CollectedItem[]) {
 }
 
 /** M1 "Collected": masonry of opened cards, local tips, saved Ask insights and phrases, with topic filters. */
-export default function Collected({ items, filter, onFilter, onOpen, onNotSure }: CollectedProps) {
+export default function Collected({ items, filter, onFilter, onOpen }: CollectedProps) {
   const reduce = useReducedMotionConfig();
   const count = (f: CollectedFilter) => items.filter((i) => matchesFilter(i, f)).length;
   const visible = items.filter((i) => matchesFilter(i, filter));
@@ -83,10 +81,9 @@ export default function Collected({ items, filter, onFilter, onOpen, onNotSure }
         <div className={styles.empty}>
           <img src={iconAll} alt="" width={24} height={24} className={styles.emptyIcon} />
           <p className={styles.emptyTitle}>Nothing collected yet</p>
-          <p>Open a card on Home or in Ask and it lands here. Save an answer in Ask to keep it too.</p>
+          <p>Save a phrase from a place in Nearby and it lands here.</p>
           <div className={styles.emptyActions}>
-            <Link to={paths.today}>Open a card</Link>
-            <Link to={paths.ask}>Ask about a place</Link>
+            <Link to={paths.nearby}>Explore places</Link>
           </div>
         </div>
       ) : visible.length === 0 ? (
@@ -106,7 +103,7 @@ export default function Collected({ items, filter, onFilter, onOpen, onNotSure }
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.28, delay: reduce ? 0 : Math.min(index, 8) * 0.04 }}
                   >
-                    <Tile item={item} index={index} onOpen={() => onOpen(item)} onNotSure={onNotSure} />
+                    <Tile item={item} index={index} onOpen={() => onOpen(item)} />
                   </motion.li>
                 ))}
             </ul>
@@ -139,7 +136,7 @@ function emptyLine(filter: CollectedFilter): string {
   return `No ${filter === 'all' ? '' : TOPIC_LABELS[filter as keyof typeof TOPIC_LABELS].toLowerCase() + ' '}cards opened yet. Open one on Home or in Ask.`;
 }
 
-function Tile({ item, index, onOpen, onNotSure }: { item: CollectedItem; index: number; onOpen: () => void; onNotSure: (lookup: Lookup) => void }) {
+function Tile({ item, index, onOpen }: { item: CollectedItem; index: number; onOpen: () => void }) {
   if (item.kind === 'card') {
     const { card, topic, area } = item;
     const image = imageOf(card.article.id);
@@ -237,11 +234,6 @@ function Tile({ item, index, onOpen, onNotSure }: { item: CollectedItem; index: 
         <strong className={styles.word}>{item.word}</strong>
         <span className={styles.meaning}>{item.meaning}</span>
       </button>
-      {item.lookup && item.source === 'AI-generated' && (
-        <button type="button" className={styles.notSure} onClick={() => onNotSure(item.lookup!)}>
-          Not sure? Ask a local
-        </button>
-      )}
     </article>
   );
 }

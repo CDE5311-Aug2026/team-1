@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AppShell from '../../../components/AppShell/AppShell';
 import { ATLAS_CATEGORY_LABEL, type AtlasPlace } from '../../../data/atlas/atlas';
-import { storyPlace } from '../../../data/stories/places';
 import { paths } from '../../../routes';
 import { markVisited, useExplorePersonal } from '../actions';
 import { BackHeader, StorageWarning } from '../components/NearbyChrome';
@@ -227,16 +226,10 @@ export default function RouteDetail({ view }: { view: RouteView }) {
 
 const hasAtlas = (s: RouteStop | undefined): s is RouteStop & { atlas: AtlasPlace } => !!s?.atlas;
 
-/** A team route's sources, the link back to its place story, and the visit-time estimate note. */
+/** A team route's sources and the visit-time estimate note. */
 function TeamFooter({ view }: { view: RouteView }) {
-  const story = view.story ? storyPlace(view.story) : undefined;
   return (
     <>
-      {story && (
-        <Link className={styles.secondaryLink} to={paths.place(story.id)}>
-          Read the {story.name} story
-        </Link>
-      )}
       {view.sources && view.sources.length > 0 && (
         <details className={styles.fold}>
           <summary className={styles.foldSummary}>Sources for the times and days</summary>

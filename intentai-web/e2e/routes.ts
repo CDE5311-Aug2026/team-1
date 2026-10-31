@@ -1,16 +1,12 @@
 import type { Page } from '@playwright/test';
 import { ALL_STATIC_PATHS, paths } from '../src/routes';
 
-// Every route in the app, plus one seeded community question and one Nearby place / collection.
+// Every route in the app, plus seeded Nearby places, a collection and routes.
 // v3: the old onboarding question routes redirect to /onboarding?step=… on purpose, so they are not pages of their own.
 const REDIRECTS = new Set<string>([paths.onboardingTime, paths.onboardingTopics, paths.onboardingQuiz]);
 
 export const ROUTES = [
   ...ALL_STATIC_PATHS.filter((p) => !REDIRECTS.has(p)),
-  paths.place('sg-kampong-glam'),
-  paths.card('sultan-mosque'),
-  paths.card('chingay'),
-  paths.question('sabo'),
   paths.nearbyPlace('curated:sg-maxwell-food-centre'),
   paths.nearbyPlace('curated:sg-esplanade-theatres-on-the-bay'),
   paths.nearbyPlace('curated:sg-sri-mariamman-temple'),
@@ -19,13 +15,6 @@ export const ROUTES = [
   paths.collection('sg-100'),
   paths.route('chinatown-story-walk'),
   paths.route('kent-ridge-wall-walk'),
-  paths.homePlace('berlin-wall-fragments'),
-  paths.homePlace('chinatown'),
-  paths.homePlace('unknown-place'),
-  ...['berlin-wall-fragments', 'chinatown'].flatMap((id) =>
-    ['food', 'monument', 'festival', 'history'].map((facet) => paths.placeCard(id, facet)),
-  ),
-  paths.placeCard('chinatown', 'unknown'),
 ];
 
 // Notice screens exist only while the occasion notice is live; seed the state each one needs.

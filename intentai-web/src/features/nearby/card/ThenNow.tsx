@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { Segmented } from '../../components/story';
-import { THIAN_HOCK_KENG } from '../../data/stories/chinatown';
-import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { Segmented } from '../../../components/story';
+import { THIAN_HOCK_KENG } from '../../../data/stories/chinatown';
+import { useReducedMotion } from '../../../hooks/useReducedMotion';
 import styles from './ThenNow.module.css';
 
 type View = 'then' | 'compare' | 'now';

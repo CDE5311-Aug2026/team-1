@@ -158,7 +158,6 @@ describe('Route detail', () => {
     expect(screen.getByText(/min of visits/)).toHaveTextContent(/^≈/);
     await user.click(screen.getByText('Sources for the times and days'));
     for (const s of route.sources) expect(screen.getAllByRole('link', { name: new RegExp(s.title.replace(/[()|]/g, '.')) }).some((a) => a.getAttribute('href') === s.url)).toBe(true);
-    expect(screen.getByRole('link', { name: 'Read the Chinatown story' })).toHaveAttribute('href', paths.place('chinatown'));
   });
 
   test('a story walk warns of its stops’ closing days on the chosen date', () => {

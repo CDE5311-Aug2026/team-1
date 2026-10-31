@@ -2,7 +2,7 @@
 // sourced content: places = Nearby areas that have culture cards (SUBJECTS in AskPage/cards.ts), cards = Today
 // articles, photos = ARTICLE_IMAGES (or, when an article has none, the Nearby picture of the place it names),
 // progress = openedCardsStore, check-ins = Nearby's `visited`. Nothing here invents a fact, date or number.
-import { PLACE_AREAS, SUBJECTS, cardById, keyNumberOf, subjectOfCard, topicInfo, type Card, type KeyNumber, type Subject } from '../../pages/AskPage/cards';
+import { PLACE_AREAS, SUBJECTS, cardById, keyNumberOf, subjectOfCard, topicInfo, type Card, type KeyNumber, type Subject } from '../cards';
 import { area, curatedPlace } from '../../features/nearby/catalogue';
 import type { ExplorePersonalData, PlaceKey } from '../../features/nearby/domain';
 import type { LatLng } from '../../features/nearby/types';

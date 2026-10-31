@@ -38,7 +38,7 @@ test('Enter on the row opens the place only', async () => {
   const { onOpenHoliday, onOpenAlso } = setup();
   screen.getByRole('button', { name: new RegExp(holiday.also.title) }).focus();
   await user.keyboard('{Enter}');
-  expect(onOpenAlso).toHaveBeenCalledExactlyOnceWith('berlin-wall-fragments');
+  expect(onOpenAlso).toHaveBeenCalledExactlyOnceWith('curated:sg-berlin-wall-fragments-utown');
   expect(onOpenHoliday).not.toHaveBeenCalled();
 });
 

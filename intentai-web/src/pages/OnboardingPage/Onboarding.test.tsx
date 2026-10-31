@@ -185,10 +185,8 @@ test('the whole flow stamps the passport, writes every store and shows first fin
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Your passport is ready');
   expect(screen.getByRole('img', { name: /^Stamped WELCOME/ })).toBeInTheDocument();
   const finds = within(screen.getByRole('list', { name: 'Your first finds' })).getAllByRole('link');
-  expect(finds).toHaveLength(3);
+  expect(finds).toHaveLength(1);
   expect(finds[0]).toHaveTextContent(/from your base/);
-  expect(finds[1]).toHaveTextContent('You ranked Food #1');
-  expect(finds[2]).toHaveTextContent('You ranked Monuments #2');
 
   await user.click(screen.getByRole('button', { name: /Start exploring/ }));
   expect(location()).toBe('/');

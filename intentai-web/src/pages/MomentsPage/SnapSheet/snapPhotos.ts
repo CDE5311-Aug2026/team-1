@@ -5,6 +5,17 @@ import { snapTray, subjectOfCardId, topicOfCard, TOPIC_LABELS, imageOf, type Car
 import type { Facet } from '../../../data/placeStories';
 import { storyPlace } from '../../../data/stories/places';
 import { paths } from '../../../routes';
+import { ARTICLE_LINKS, nearbyHref } from '../../../data/cultureLinks';
+
+/** Where a match opens in Nearby (story and culture-card pages were removed in the Discovery redesign). */
+const STORY_HREF: Readonly<Record<string, string>> = {
+  'berlin-wall-fragments': paths.nearbyPlace('curated:sg-berlin-wall-fragments-utown'),
+  chinatown: nearbyHref({ kind: 'area', id: 'sg-chinatown', label: 'Chinatown' }),
+};
+const cardHref = (id: string) => {
+  const link = ARTICLE_LINKS[id]?.[0];
+  return link ? nearbyHref(link) : paths.nearby;
+};
 
 export type SnapTarget = { kind: 'card'; cardId: string } | { kind: 'story'; placeId: string; facet: Facet };
 
@@ -19,7 +30,7 @@ export interface SnapPhoto {
   /** Demo match score (a fixed value per photo). */
   score: number;
   target: SnapTarget;
-  /** Where "Open card" goes. */
+  /** Where "Open in Nearby" goes. */
   href: string;
 }
 
@@ -68,7 +79,7 @@ function storyPhotos(): SnapPhoto[] {
         tags,
         score,
         target: { kind: 'story', placeId, facet },
-        href: paths.placeCard(placeId, facet),
+        href: STORY_HREF[placeId] ?? paths.nearby,
       },
     ];
   });
@@ -82,7 +93,7 @@ function cardPhotos(): SnapPhoto[] {
     if (!shot || !image) return [];
     const topic = topicOfCard(card);
     const meta = [subjectOfCardId(id)?.short, topic ? TOPIC_LABELS[topic] : undefined].filter(Boolean).join(' · ');
-    return [{ key: `card:${id}`, title: card.article.title, meta, topic, image, tags: shot.tags, score: shot.score, target: { kind: 'card', cardId: id }, href: paths.card(id) }];
+    return [{ key: `card:${id}`, title: card.article.title, meta, topic, image, tags: shot.tags, score: shot.score, target: { kind: 'card', cardId: id }, href: cardHref(id) }];
   });
 }
 

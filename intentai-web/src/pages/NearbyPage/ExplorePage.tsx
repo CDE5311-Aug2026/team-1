@@ -35,9 +35,7 @@ import { view3dTarget, type View3DTarget } from '../../features/nearby/links';
 import { fixInSingapore, locationStatusText, useLocationFlow } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import x from './Explore.module.css';
-import { staticCopy } from '../../data/expressions';
 import { usePersistentStore } from '../../data/persistentStore';
-import { placeStore } from '../../data/stores';
 import { mySpacePrefsStore } from '../../data/profile/profile';
 import { CATEGORY_INFO } from '../../features/nearby/domain';
 import { distanceM, formatDistance } from '../../features/nearby/geo';
@@ -154,7 +152,6 @@ export default function ExplorePage() {
   const [cardTitle, setCardTitle] = useState<string | null>(null);
   useEffect(() => setCardTitle(null), [view]);
   const wide = useWideLayout();
-  const [place] = usePersistentStore(placeStore);
   // My Space › Settings › Nearby radius: the radius used when the URL names none.
   const [{ radiusM: defaultRadius }] = usePersistentStore(mySpacePrefsStore);
   // The sheet: the List view is the full sheet; otherwise peek or half (a selected place opens it to half).
@@ -268,7 +265,6 @@ export default function ExplorePage() {
     }
   };
   // Picked on the phrase settings (Today's "Near you" card names it); its phrases stay one tap away.
-  const phrasePlace = place === 'Hawker centre' ? staticCopy.nearYou.place : place;
   // 3D: the selected place (its landmark card when the dataset has a model), else the area / location / map centre.
   // Your position shows as a blue dot in the 3D page (sent by message); an approximate one gets a pin instead.
   const selectedPlace = selected ? curatedPlace(selected.key) : undefined;
@@ -628,18 +624,6 @@ export default function ExplorePage() {
               )}
             </PlaceCard>
           </section>
-        )}
-        {!selected && !activeList && (
-          <Link className={x.phraseRow} to={paths.phrases}>
-            <span className={x.phraseIcon}>
-              <Icon name="chat" />
-            </span>
-            <span className={x.phraseText}>
-              <span className={x.phraseTitle}>Local phrases</span>
-              <span className={x.phraseSub}>{phrasePlace}</span>
-            </span>
-            <Icon name="chevron" size={16} />
-          </Link>
         )}
 
         {!activeList && (origin || query || category !== 'all') && (

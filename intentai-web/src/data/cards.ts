@@ -2,9 +2,9 @@
 // them. No backend, no LLM: a local, rule-based search over the cards' own sentences, so every answer quotes a card
 // that has its sources. Cards belong to an area through src/data/cultureLinks.ts (the places each article names, or a
 // stall that serves its dish). cards.test.ts checks PLACE_AREAS against the Nearby catalogue.
-import { CATEGORIES, articlesFor, type Article, type CategoryId } from '../../data/culture';
-import { ARTICLE_LINKS, type NearbyLink } from '../../data/cultureLinks';
-import areasData from '../../data/explore/areas.json';
+import { CATEGORIES, articlesFor, type Article, type CategoryId } from './culture';
+import { ARTICLE_LINKS, type NearbyLink } from './cultureLinks';
+import areasData from './explore/areas.json';
 
 export type Topic = 'food' | 'monument' | 'festival';
 

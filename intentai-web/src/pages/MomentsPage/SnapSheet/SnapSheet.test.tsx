@@ -20,8 +20,8 @@ function renderSnap(onClose = vi.fn()) {
     <MemoryRouter initialEntries={[paths.moments]}>
       <Routes>
         <Route path={paths.moments} element={<SnapSheet stamps={[]} onClose={onClose} />} />
-        <Route path={paths.community} element={<Probe name="community" />} />
-        <Route path={patterns.card} element={<Probe name="card" />} />
+        <Route path={paths.nearby} element={<Probe name="nearby" />} />
+        <Route path={patterns.nearbyPlace} element={<Probe name="place" />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -65,7 +65,7 @@ test('reduced motion: a recent photo is matched at once, its story card opened a
   expect(placeStoriesStore.get()['berlin-wall-fragments'].opened).toEqual(['monument']);
   expect(screen.getByText('1 of 4 cards')).toBeInTheDocument();
   expect(screen.getByText('+1 card · ink added to your stamp')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /Open card/ })).toHaveAttribute('href', '/place/berlin-wall-fragments/monument');
+  expect(screen.getByRole('link', { name: /Open in Nearby/ })).toHaveAttribute('href', '/nearby/place/curated%3Asg-berlin-wall-fragments-utown');
   expect(screen.getByRole('status')).toHaveTextContent('Match found: The Wall panels, 94% match.');
 });
 
@@ -111,18 +111,6 @@ test('a card opened before: "Already in your stamp"; Snap again returns to the v
   expect(screen.getByRole('button', { name: /^Take photo/ })).toBeInTheDocument();
 });
 
-test('the 1822 town plan completes Chinatown', async () => {
-  reduceMotionStore.set(true);
-  placeStoriesStore.set({ chinatown: { opened: ['food', 'monument', 'festival'], checkedIn: true, stamped: true, stampedOn: '2026-11-02' } });
-  const user = userEvent.setup();
-  renderSnap();
-  await user.click(screen.getByRole('button', { name: /^From 1822 to today/ }));
-  await user.click(screen.getByRole('button', { name: /^Take photo/ }));
-  await screen.findByRole('heading', { level: 3, name: 'From 1822 to today' });
-  expect(screen.getByText('4 of 4 cards')).toBeInTheDocument();
-  expect(screen.getByText('All 4 cards: Chinatown is complete')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /Open card/ })).toHaveAttribute('href', '/place/chinatown/history');
-});
 
 test('Save to Moments closes the sheet', async () => {
   reduceMotionStore.set(true);
@@ -146,13 +134,11 @@ test('camera: only after "Use camera"; a camera photo is never matched; Ask a lo
   await user.click(screen.getByRole('button', { name: 'Take photo' }));
   expect(stop).toHaveBeenCalled();
   expect(await screen.findByRole('heading', { level: 3, name: 'No match yet' })).toHaveFocus();
-  expect(screen.getByText(/We couldn’t place this one\. Try a photo from Recent photos, or ask a local about it\./)).toBeInTheDocument();
+  expect(screen.getByText(/We couldn’t place this one\. Try a photo from Recent photos\./)).toBeInTheDocument();
   expect(screen.queryByText('MATCH FOUND')).not.toBeInTheDocument();
   expect(screen.queryByText(/% match/)).not.toBeInTheDocument();
   expect(openedCardsStore.get()).toEqual([]);
-
-  await user.click(screen.getByRole('button', { name: 'Ask a local' }));
-  expect(screen.getByTestId('probe')).toHaveTextContent('community /community {"askLocal":""}');
+  expect(screen.queryByRole('button', { name: 'Ask a local' })).toBeNull();
 });
 
 test('the camera is stopped when the sheet closes', async () => {
