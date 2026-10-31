@@ -13,6 +13,8 @@ export interface CoverItem {
   kicker: string;
   /** "3 of 11 places checked in", "Clementi & Kent Ridge". */
   line: string;
+  /** Full numbers under the bar: "3 of 22 areas unlocked", "Landmark 2/9 · Food 1/12". */
+  stats?: string[];
   status: UnlockStatus;
   /** 0–1, or null when the card has no progress bar. */
   progress: number | null;
@@ -84,7 +86,110 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number, maxLine
   return lines;
 }
 
+/** A card with a photo (owner, 31 Oct: "like the festival cards"): the photo fills the card, a dark fade at the
+ *  bottom, the words in white on it, laid out from the button up. */
+function drawPhotoCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: number) {
+  const pad = 34;
+  const r = 40;
+  ctx.save();
+  roundRect(ctx, 2, 2, w - 4, h - 4, r);
+  ctx.fillStyle = '#2a2730';
+  ctx.fill();
+  ctx.clip();
+  const img = item.image ? images.get(item.image) : undefined;
+  if (img && img.complete && img.naturalWidth) {
+    const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const iw = img.naturalWidth * s;
+    const ih = img.naturalHeight * s;
+    ctx.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
+  }
+  const fade = ctx.createLinearGradient(0, h * 0.28, 0, h);
+  fade.addColorStop(0, 'rgba(10,8,20,0)');
+  fade.addColorStop(0.35, 'rgba(10,8,20,0.42)');
+  fade.addColorStop(1, 'rgba(10,8,20,0.9)');
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, 0, w, h);
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur = 6;
+  // from the action pill up: numbers, bar, line, title, kicker
+  let y = h * ACTION.top - 26;
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.font = '600 24px Inter, system-ui, sans-serif';
+  for (const st of [...(item.stats ?? [])].reverse().slice(0, 2)) {
+    ctx.fillText(wrap(ctx, st, w - pad * 2, 1)[0] ?? '', pad, y);
+    y -= 34;
+  }
+  if (item.progress !== null) {
+    y -= 4;
+    ctx.shadowBlur = 0;
+    roundRect(ctx, pad, y - 10, w - pad * 2, 12, 6);
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.fill();
+    if (item.progress > 0) {
+      roundRect(ctx, pad, y - 10, Math.max(12, (w - pad * 2) * item.progress), 12, 6);
+      ctx.fillStyle = item.status === 'done' ? '#3ccf7a' : '#7fb0ff';
+      ctx.fill();
+    }
+    ctx.shadowBlur = 6;
+    y -= 34;
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.86)';
+  ctx.font = '400 30px Inter, system-ui, sans-serif';
+  if (item.line) {
+    ctx.fillText(wrap(ctx, item.line, w - pad * 2, 1)[0] ?? '', pad, y);
+    y -= 50;
+  }
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 54px Inter, system-ui, sans-serif';
+  const lines = wrap(ctx, item.title, w - pad * 2, 2);
+  for (let i = lines.length - 1; i >= 0; i--) {
+    ctx.fillText(lines[i], pad, y);
+    y -= 58;
+  }
+  y -= 4;
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = STATUS_COLOR[item.status];
+  ctx.beginPath();
+  ctx.arc(pad + 9, y - 9, 9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.shadowBlur = 6;
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.font = '600 24px "IBM Plex Mono", ui-monospace, monospace';
+  ctx.fillText(item.kicker.toUpperCase().slice(0, 30), pad + 28, y);
+  ctx.shadowBlur = 0;
+  // action pill: white on the photo
+  const ax = w * ACTION.left;
+  const ay = h * ACTION.top;
+  ctx.font = '600 30px Inter, system-ui, sans-serif';
+  const label = `${item.action}  →`;
+  const aw = Math.min(w * 0.86, ctx.measureText(label).width + 52);
+  roundRect(ctx, ax, ay, aw, h * ACTION.height, (h * ACTION.height) / 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.fillStyle = '#23211d';
+  ctx.fillText(label, ax + 26, ay + (h * ACTION.height) / 2 + 10);
+  // checked in: a tick in the top corner
+  if (item.status === 'done') {
+    ctx.fillStyle = '#1f9d55';
+    ctx.beginPath();
+    ctx.arc(w - pad - 18, pad + 18, 22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(w - pad - 28, pad + 18);
+    ctx.lineTo(w - pad - 20, pad + 26);
+    ctx.lineTo(w - pad - 7, pad + 10);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: number) {
+  if (item.image) return drawPhotoCard(ctx, item, w, h);
   const pad = 34;
   const r = 40;
   ctx.save();
@@ -93,7 +198,7 @@ function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: 
   ctx.fill();
   ctx.clip();
   // picture or a coloured band
-  const bandH = item.image || item.shape?.length ? Math.round(h * 0.42) : Math.round(h * 0.2);
+  const bandH = item.shape?.length ? Math.round(h * 0.34) : Math.round(h * 0.18);
   const img = item.image ? images.get(item.image) : undefined;
   if (img && img.complete && img.naturalWidth) {
     const s = Math.max(w / img.naturalWidth, bandH / img.naturalHeight);
@@ -161,7 +266,7 @@ function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: 
   y += 18;
   ctx.fillStyle = '#23211d';
   ctx.font = '700 54px Inter, system-ui, sans-serif';
-  for (const l of wrap(ctx, item.title, w - pad * 2, item.image ? 2 : 2)) {
+  for (const l of wrap(ctx, item.title, w - pad * 2, item.stats?.length ? 1 : 2)) {
     y += 58;
     ctx.fillText(l, pad, y);
   }
@@ -172,7 +277,7 @@ function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: 
   ctx.fillText(wrap(ctx, item.line, w - pad * 2, 1)[0] ?? '', pad, y);
   // progress
   if (item.progress !== null) {
-    y += 26;
+    y += 22;
     roundRect(ctx, pad, y, w - pad * 2, 12, 6);
     ctx.fillStyle = '#e3e8f2';
     ctx.fill();
@@ -181,6 +286,15 @@ function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: 
       ctx.fillStyle = item.status === 'done' ? '#1f9d55' : '#2f6fe4';
       ctx.fill();
     }
+    y += 12;
+  }
+  // full numbers
+  ctx.fillStyle = '#3a3731';
+  ctx.font = '600 24px Inter, system-ui, sans-serif';
+  for (const st of item.stats ?? []) {
+    y += 34;
+    if (y > h * ACTION.top - 8) break;
+    ctx.fillText(wrap(ctx, st, w - pad * 2, 1)[0] ?? '', pad, y);
   }
   // action pill
   const ax = w * ACTION.left;
@@ -378,7 +492,7 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
               }}
             >
               <span role="img" className={styles.dot} aria-label={STATUS_LABEL[item.status]} />
-              <span className={styles.text}>{item.line}</span>
+              <span className={styles.text}>{[item.line, ...(item.stats ?? [])].join('. ')}</span>
               {isSel && item.progress !== null && (
                 <span role="progressbar" aria-label={`${item.title} unlocked`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(item.progress * 100)} />
               )}

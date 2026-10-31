@@ -83,7 +83,7 @@ export default function Collected({ items, filter, onFilter, onOpen }: Collected
           <p className={styles.emptyTitle}>Nothing collected yet</p>
           <p>Save a phrase from a place in Nearby and it lands here.</p>
           <div className={styles.emptyActions}>
-            <Link to={paths.nearby}>Explore places</Link>
+            <Link to={paths.today}>Explore places</Link>
           </div>
         </div>
       ) : visible.length === 0 ? (

@@ -3,6 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, test } from 'vitest';
 import NearbyLinks from '../components/NearbyLinks/NearbyLinks';
 import { area, collection, curatedPlace } from '../features/nearby/catalogue';
+import { homePlaceHref } from './homeLinks';
 import { CATEGORIES, articlesFor } from './culture';
 import { ARTICLE_LINKS, HOLIDAY_LINKS, articlesNaming, nearbyHref, type NearbyLink } from './cultureLinks';
 import { todaysHoliday } from './holiday';
@@ -38,16 +39,16 @@ test('an article links only to places its own text names (a stall to try is mark
 });
 
 test('the chips open Nearby on the place (details open), the area or the list, and show a check-in', () => {
-  expect(nearbyHref({ kind: 'place', id: 'curated:sg-sultan-mosque', label: 'Sultan Mosque' })).toBe('/nearby?sel=curated%3Asg-sultan-mosque&info=1');
-  expect(nearbyHref({ kind: 'list', id: 'sg-hawker-centres', label: 'x' })).toBe('/nearby?list=sg-hawker-centres');
+  expect(nearbyHref({ kind: 'place', id: 'curated:sg-sultan-mosque', label: 'Sultan Mosque' })).toBe('/?lvl=places&r=central&a=rc&p=curated%3Asg-sultan-mosque');
+  expect(nearbyHref({ kind: 'list', id: 'sg-hawker-centres', label: 'x' })).toBe('/?lvl=pick&k=list%3Asg-hawker-centres');
   render(
     <MemoryRouter>
       <NearbyLinks links={ARTICLE_LINKS['chicken-rice']} />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('link', { name: 'Try it: Tian Tian Hainanese Chicken Rice (opens Nearby)' })).toHaveAttribute(
+  expect(screen.getByRole('link', { name: 'Try it: Tian Tian Hainanese Chicken Rice (shows it on the Home map)' })).toHaveAttribute(
     'href',
-    '/nearby?sel=curated%3Asg-tian-tian-hainanese-chicken-rice&info=1',
+    homePlaceHref('curated:sg-tian-tian-hainanese-chicken-rice'),
   );
-  expect(screen.getByRole('link', { name: 'Hawker centres to know (opens Nearby)' })).toHaveAttribute('href', '/nearby?list=sg-hawker-centres');
+  expect(screen.getByRole('link', { name: 'Hawker centres to know (shows it on the Home map)' })).toHaveAttribute('href', '/?lvl=pick&k=list%3Asg-hawker-centres');
 });

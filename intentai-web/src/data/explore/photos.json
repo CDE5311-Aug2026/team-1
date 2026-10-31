@@ -1015,19 +1015,601 @@
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
       "article": "https://en.wikipedia.org/wiki/Gillman_Barracks"
+    },
+    "curated:sg-central-fire-station": {
+      "file": "sg-central-fire-station.jpg",
+      "credit": "Mike Peel 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:At_Singapore_2023_045_-_Central_Fire_Station.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-old-hill-street-police-station": {
+      "file": "sg-old-hill-street-police-station.jpg",
+      "credit": "GoAheadFan95 2025 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Old_Hill_Street_Police_Station,_October_2025.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-tai-wah-pork-noodle": {
+      "file": "sg-tai-wah-pork-noodle.jpg",
+      "credit": "Kbseah 2025 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hong_Lim_Market_and_Food_Centre,_interior.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-hoo-kee-bak-chang": {
+      "file": "sg-hoo-kee-bak-chang.jpg",
+      "credit": "Terence Ong 2006 · CC BY 2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Amoy_Street_Food_Centre.JPG",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
+    },
+    "curated:sg-ann-chin-handmade-popiah": {
+      "file": "sg-ann-chin-handmade-popiah.jpg",
+      "credit": "Mimasiki 2020 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_stuffed_pancake.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-outram-park-fried-kway-teow": {
+      "file": "sg-outram-park-fried-kway-teow.jpg",
+      "credit": "Kbseah 2025 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hong_Lim_Market_and_Food_Centre,_entrance.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-kok-sen": {
+      "file": "sg-kok-sen.jpg",
+      "credit": "Vavavis 2017 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Keong_Saik_Road_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-song-fa-bak-kut-teh-new-bridge-road": {
+      "file": "sg-song-fa-bak-kut-teh-new-bridge-road.jpg",
+      "credit": "Chainwit. 2023 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Song_Fa_Bak_Kut_Teh,_New_Bridge_Rd,_Singapore_(2023)_01.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-lim-chee-guan-new-bridge-road": {
+      "file": "sg-lim-chee-guan-new-bridge-road.jpg",
+      "credit": "Ypsilon from Finland 2013 · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Lim_Chee_Guan_sign.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+    },
+    "curated:sg-meta": {
+      "file": "sg-meta.jpg",
+      "credit": "Terence Ong 2007 · CC BY 2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Old_shophouse_at_Mohamed_Sultan_Road.jpg",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
+    },
+    "curated:sg-nae-um": {
+      "file": "sg-nae-um.jpg",
+      "credit": "Elisa.rolle 2010 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Telok_Ayer_Street,_2010.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-um-yong-baek": {
+      "file": "sg-um-yong-baek.jpg",
+      "credit": "alex.ch 2007 · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Satay_stalls_along_Boon_Tat_Street_next_to_Telok_Ayer_Market,_Singapore_-_20070127-01.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+    },
+    "curated:sg-anju": {
+      "file": "sg-anju.jpg",
+      "credit": "Bjoertvedt 2018 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_-_Outram_-_Tras_Street_IMG_9205.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-obba-bbq": {
+      "file": "sg-obba-bbq.jpg",
+      "credit": "Deoma12 2024 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Korean_BBQ_restaurants_along_Tanjong_Pagar_Road.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-born": {
+      "file": "sg-born.jpg",
+      "credit": "Elisa.rolle 2012 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Jinrikisha_Station_2012_0141.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-cloudstreet": {
+      "file": "sg-cloudstreet.jpg",
+      "credit": "Dudva 2013 · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Amoy_Street,_Singapore_-_20130103.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "curated:sg-sushi-zen-1247221": {
+      "file": "sg-sushi-zen-1247221.jpg",
+      "credit": "Terence Ong 2006 · CC BY 2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Teck_Lim_Road.JPG",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
+    },
+    "curated:sg-the-blue-ginger-tanjong-pagar": {
+      "file": "sg-the-blue-ginger-tanjong-pagar.jpg",
+      "credit": "Deoma12 2024 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Shophouses_along_Tanjong_Pagar_Road.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-alkaff-bridge": {
+      "file": "sg-alkaff-bridge.jpg",
+      "credit": "Walmaul 2025 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Alkaff_Bridge.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-elgin-bridge": {
+      "file": "sg-elgin-bridge.jpg",
+      "credit": "Frank Schulenburg 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Elgin_Bridge,_Singapore_(2023)-L1003671.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-nagore-dargah": {
+      "file": "sg-nagore-dargah.jpg",
+      "credit": "Chainwit. 2025 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Chinatown_SG_-_Nagore_Durgha_(Nagore_Dargah)_Sufi_Shrine_(2025)_-_img_01.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-parkroyal-collection-pickering": {
+      "file": "sg-parkroyal-collection-pickering.jpg",
+      "credit": "Basile Morin 2018 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hotel_Park_Royal_on_Pickering_from_Hong_Lim_Park_in_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-tan-si-chong-su": {
+      "file": "sg-tan-si-chong-su.jpg",
+      "credit": "Terence Ong 2006 · CC BY 2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Tan_Si_Chong_Su.JPG",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
+    },
+    "curated:sg-masjid-omar-kampong-melaka": {
+      "file": "sg-masjid-omar-kampong-melaka.jpg",
+      "credit": "M. Adrian Jurhami 2026 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:General_view,_Masjid_Omar_Kampong_Melaka_01.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-fairfield-methodist-church": {
+      "file": "sg-fairfield-methodist-church.jpg",
+      "credit": "Aaaatu 2024 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Fairfield_Methodist_Church_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-buddha-tooth-relic-temple-and-museum": {
+      "file": "sg-buddha-tooth-relic-temple-and-museum.jpg",
+      "credit": "Jakub Hałun 2024 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Buddha_Tooth_Relic_Temple,_Singapore,_20240122_0810_2924_01.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-gu-um": {
+      "file": "sg-gu-um.jpg",
+      "credit": "Torbenbrinker 2015 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:KeongSaikRdSingapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-zen": {
+      "file": "sg-zen.jpg",
+      "credit": "Jacklee 2013 · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Shophouses_along_Bukit_Pasoh_Road,_Singapore_-_20131130-01.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "curated:sg-anderson-bridge": {
+      "file": "sg-anderson-bridge.jpg",
+      "credit": "Zairon 2015 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_Anderson_Bridge_viewed_from_The_Stamford_2.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-clifford-pier-customs-house": {
+      "file": "sg-clifford-pier-customs-house.jpg",
+      "credit": "Smuconlaw 2016 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Clifford_Pier,_The_Fullerton_Bay_Hotel,_Singapore_-_20160514.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-marina-bay-financial-centre": {
+      "file": "sg-marina-bay-financial-centre.jpg",
+      "credit": "Diego Delso 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Skyline,_Marina_Bay_Financial_Centre,_Singapore,_2023-08-17,_DD_28.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-raffles-city": {
+      "file": "sg-raffles-city.jpg",
+      "credit": "Diego Delso 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Raffles_City,_Singapur,_2023-08-17,_DD_18.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-singapore-recreation-club": {
+      "file": "sg-singapore-recreation-club.jpg",
+      "credit": "Actuall7 2026 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_Recreation_Club,_2026.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-telok-ayer-chinese-methodist-church": {
+      "file": "sg-telok-ayer-chinese-methodist-church.jpg",
+      "credit": "Marcin Konsek 2016 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2016_Singapur,_Chinatown,_Ulica_Telok_Ayer,_Chiński_Kościół_Metodystyczny_(01).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-duo": {
+      "file": "sg-duo.jpg",
+      "credit": "Basile Morin 2018 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunlight_on_the_curved_honeycomb_glass_façade_of_the_hotel_Andaz_mixed_with_interior_lighting_at_sunset_in_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-national-library-building": {
+      "file": "sg-national-library-building.jpg",
+      "credit": "Diego Delso 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Librería_nacional,_Singapur,_2023-08-17,_DD_15.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-lei-garden": {
+      "file": "sg-lei-garden.jpg",
+      "credit": "Mike Peel 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:At_Singapore_2023_059.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-cherry-garden-by-chef-fei": {
+      "file": "sg-cherry-garden-by-chef-fei.jpg",
+      "credit": "Bjoertvedt 2018 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_-_Marina_Bay_-_Mandarin_Oriental_IMG_9186.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-yueh-hai-ching": {
+      "file": "sg-yueh-hai-ching.jpg",
+      "credit": "Zairon 2015 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_Tempel_Yueh_Hai_Ching_1.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-masjid-al-burhani": {
+      "file": "sg-masjid-al-burhani.jpg",
+      "credit": "M. Adrian Jurhami 2025 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Al-Burhani_Mosque,_along_Hill_Street.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-singapore-chinese-cultural-centre": {
+      "file": "sg-singapore-chinese-cultural-centre.jpg",
+      "credit": "Bjoertvedt 2018 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_-_Straits_Bvd_Singapore_Chinese_Cultural_Centre_IMG_9654.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-red-dot-design-museum": {
+      "file": "sg-red-dot-design-museum.jpg",
+      "credit": "JudiciousGoat 2024 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Red_dot_design_museum_singapore_exterior.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-odette": {
+      "file": "sg-odette.jpg",
+      "credit": "Philip Nalangan 2006 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Former_Supreme_Court_Singapore.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-jaan-by-kirk-westaway": {
+      "file": "sg-jaan-by-kirk-westaway.jpg",
+      "credit": "Diego Delso 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Swiss%C3%B4tel_The_Stamford,_Singapur,_2023-08-18,_DD_18.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-jin-ting-wan": {
+      "file": "sg-jin-ting-wan.jpg",
+      "credit": "Dietmar Rabich 2019 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_(SG),_Marina_Bay_Sands_Hotel_--_2019_--_4535.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-labyrinth": {
+      "file": "sg-labyrinth.jpg",
+      "credit": "CEphoto, Uwe Aranas 2015 · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Singapore_Esplanade-Theatres-on-the-Bay-01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "curated:sg-seroja": {
+      "file": "sg-seroja.jpg",
+      "credit": "Xixian Wang 2017 · CC BY 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Night_view_of_DUO_Singapore_from_junction_of_North_Bridge_Road_and_Arab_Street_20170831.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+    },
+    "curated:sg-peach-blossoms": {
+      "file": "sg-peach-blossoms.jpg",
+      "credit": "Diego Delso 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hotel_Marina_Mandarin,_Nicoll_Highway,_Singapur,_2023-08-18,_DD_13.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-estiatorio-milos": {
+      "file": "sg-estiatorio-milos.jpg",
+      "credit": "Basile Morin 2018 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Interior_of_The_Shoppes_at_Marina_Bay_Sands,_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-cathedral-of-the-good-shepherd": {
+      "file": "sg-cathedral-of-the-good-shepherd.jpg",
+      "credit": "Chainwit. 2023 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Cathedral_of_the_Good_Shepherd,_Singapore_(2023)_-_img_01.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-st-joseph-s-church": {
+      "file": "sg-st-joseph-s-church.jpg",
+      "credit": "Gnoeee 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:St_Joseph%27s_Church_Victoria_street_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-lasalle-college-of-the-arts": {
+      "file": "sg-lasalle-college-of-the-arts.jpg",
+      "credit": "LN9267 2024 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Lasalle_College_Of_The_Arts_01-12-2024.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-little-india": {
+      "file": "sg-little-india.jpg",
+      "credit": "KimonBerlin 2009 · CC BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Little_India_(4048444495).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+    },
+    "curated:sg-macdonald-house": {
+      "file": "sg-macdonald-house.jpg",
+      "credit": "ProjectManhattan 2013 · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:MacDonald_House,_Singapore_-_20131120.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "curated:sg-sri-veeramakaliamman-temple": {
+      "file": "sg-sri-veeramakaliamman-temple.jpg",
+      "credit": "Bahnfrend 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sri_Veeramakaliamman_Temple,_2023_(02).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-tekka-centre": {
+      "file": "sg-tekka-centre.jpg",
+      "credit": "Mat Honan 2003 · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Wet_market_in_Tekka_Centre,_Singapore_-_20030228.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+    },
+    "curated:sg-sri-thendayuthapani": {
+      "file": "sg-sri-thendayuthapani.jpg",
+      "credit": "Shiny Things 2009 · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:SriThendayuthapaniTemple-Singapore-gopuram-20091220.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+    },
+    "curated:sg-maghain-aboth": {
+      "file": "sg-maghain-aboth.jpg",
+      "credit": "Chainwit. 2023 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Maghain_Aboth_Synagogue_-_Singapore_(2023)_img_01.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-bismillah-biryani": {
+      "file": "sg-bismillah-biryani.jpg",
+      "credit": "Orderinchaos 2016 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Little_India_-_Dunlop_W_from_Madras.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-allauddin-s-briyani": {
+      "file": "sg-allauddin-s-briyani.jpg",
+      "credit": "Kbseah 2025 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Tekka_Centre_entrance,_evening.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-the-coconut-club-1195654": {
+      "file": "sg-the-coconut-club-1195654.jpg",
+      "credit": "Angelo Fernandes05 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Beach_Road_in_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-true-blue-cuisine": {
+      "file": "sg-true-blue-cuisine.jpg",
+      "credit": "Jacklee 2012 · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Shophouses_along_Armenian_Street,_Singapore_-_20120103-01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "curated:sg-wesley-methodist-church": {
+      "file": "sg-wesley-methodist-church.jpg",
+      "credit": "Sgconlaw 2024 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Wesley_Methodist_Church_at_the_Singapore_Night_Festival_2024.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-church-of-saints-peter-and-paul": {
+      "file": "sg-church-of-saints-peter-and-paul.jpg",
+      "credit": "Chainwit. 2023 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Church_of_Saints_Peter_and_Paul,_Singapore_(2023)_-_img_01.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-kum-yan-methodist-church": {
+      "file": "sg-kum-yan-methodist-church.jpg",
+      "credit": "Terence Ong 2006 · CC BY 2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Kum_Yan_Methodist_Church.JPG",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
+    },
+    "curated:sg-masjid-bencoolen": {
+      "file": "sg-masjid-bencoolen.jpg",
+      "credit": "M. Adrian Jurhami 2026 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Bencoolen_Mosque.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-church-of-the-sacred-heart": {
+      "file": "sg-church-of-the-sacred-heart.jpg",
+      "credit": "Bahnfrend 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Church_of_the_Sacred_Heart,_Singapore,_2023_(01).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-china-cultural-centre": {
+      "file": "sg-china-cultural-centre.jpg",
+      "credit": "Chongkian 2015 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:China_Cultural_Centre_(Singapore)_20151109.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-childrens-museum-singapore": {
+      "file": "sg-childrens-museum-singapore.jpg",
+      "credit": "Diego Delso 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Museo_de_los_Niños,_Singapur,_2023-08-18,_DD_09.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-church-of-the-true-light": {
+      "file": "sg-church-of-the-true-light.jpg",
+      "credit": "Orderinchaos 2016 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Little_India_-_Church_of_the_True_Light_(Perak-Dickson).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-national-university-of-singapore": {
+      "file": "sg-national-university-of-singapore.jpg",
+      "credit": "RFNirmala 2026 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:National_University_of_Singapore_Entrance_C_17Jul2026.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-west-coast-park": {
+      "file": "sg-west-coast-park.jpg",
+      "credit": "Leongyy02 2022 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Coastal_view_of_West_Coast_Park,_Singapore,_2_May_2022.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-hortpark": {
+      "file": "sg-hortpark.jpg",
+      "credit": "kallerna 2026 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Silver_Garden_HortPark_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-masjid-mujahidin": {
+      "file": "sg-masjid-mujahidin.jpg",
+      "credit": "GoAheadFan95 2026 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Masjid_Mujahidin,_March_2026.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-true-way-presbyterian-church": {
+      "file": "sg-true-way-presbyterian-church.jpg",
+      "credit": "Kbseah 2026 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:True_Way_Presbyterian_Church,_exterior.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-the-star-vista": {
+      "file": "sg-the-star-vista.jpg",
+      "credit": "Whywhy99 2014 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Star_Vista,_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-the-metropolis": {
+      "file": "sg-the-metropolis.jpg",
+      "credit": "Erwin Soo 2013 · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Metropolis_and_the_MOE_Building,_Singapore,_on_a_rainy_evening_-_20130303.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+    },
+    "curated:sg-biopolis": {
+      "file": "sg-biopolis.jpg",
+      "credit": "Henry Leong Him Woh 2008 · CC BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Biopolis-Singapore-20080712.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+    },
+    "curated:sg-fusionopolis-one": {
+      "file": "sg-fusionopolis-one.jpg",
+      "credit": "Kok Leng Yeo 2009 · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Fusionopolis-onenorth-BuonaVista-Singapore-20090219.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+    },
+    "curated:sg-solaris": {
+      "file": "sg-solaris.jpg",
+      "credit": "UbiSing 2012 · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Solaris_@_One-North.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "curated:sg-mediacorp-campus": {
+      "file": "sg-mediacorp-campus.jpg",
+      "credit": "Froming1132 2015 · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:224_Mediacorp_Campus_Building.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+    },
+    "curated:sg-the-rochester": {
+      "file": "sg-the-rochester.jpg",
+      "credit": "B.B.25 2018 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Star_Vista_and_The_Rochester_Condo.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-buona-vista-mrt-station": {
+      "file": "sg-buona-vista-mrt-station.jpg",
+      "credit": "Wzhkevin 2022 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Buona_Vista_MRT_Station_from_Commonwealth_Avenue_West.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-yong-fu": {
+      "file": "sg-yong-fu.jpg",
+      "credit": "Moheen Reeyad 2023 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Fountain_of_Wealth,_Suntec_City_(111152).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
     }
   },
   "missing": [
-    "curated:sg-allauddin-s-briyani",
     "curated:sg-alliance-seafood",
-    "curated:sg-anderson-bridge",
-    "curated:sg-anju",
-    "curated:sg-ann-chin-handmade-popiah",
     "curated:sg-ayer-rajah-food-centre",
     "curated:sg-balmoral-bakery",
     "curated:sg-bedok-chwee-kueh",
-    "curated:sg-bismillah-biryani",
-    "curated:sg-buddha-tooth-relic-temple-and-museum",
     "curated:sg-bukit-batok-nature-park",
     "curated:sg-burnt-ends-1200777",
     "curated:sg-candlenut",
@@ -1038,53 +1620,35 @@
     "curated:sg-changi-airport-terminal-4",
     "curated:sg-changi-beach-park",
     "curated:sg-changi-jurassic-mile",
-    "curated:sg-cherry-garden-by-chef-fei",
     "curated:sg-chey-sua-carrot-cake",
     "curated:sg-chong-pang-nasi-lemak",
     "curated:sg-clementi-library",
     "curated:sg-clementi-woods",
-    "curated:sg-clifford-pier-customs-house",
-    "curated:sg-cloudstreet",
     "curated:sg-cote",
     "curated:sg-daily-scoop-sunset",
     "curated:sg-duke-nus-medical-school",
-    "curated:sg-duo",
-    "curated:sg-elgin-bridge",
     "curated:sg-eurasian-heritage-gallery",
     "curated:sg-feng-zhen-lor-mee",
     "curated:sg-fort-siloso-skywalk",
-    "curated:sg-gu-um",
     "curated:sg-haig-road-putu-piring",
     "curated:sg-hampstead-wetlands-park",
-    "curated:sg-hoo-kee-bak-chang",
     "curated:sg-imperial-treasure-fine-teochew-cuisine-orchard",
     "curated:sg-jalan-sultan-prawn-mee",
-    "curated:sg-jin-ting-wan",
     "curated:sg-jurong-hill-lookout-tower",
     "curated:sg-kim-choo-kueh-chang",
     "curated:sg-king-of-laksa",
     "curated:sg-koon-seng-road-shophouses",
-    "curated:sg-labyrinth",
     "curated:sg-lao-fu-zi-fried-kway-teow",
-    "curated:sg-lei-garden",
     "curated:sg-les-amis",
     "curated:sg-lorong-halus-wetland",
-    "curated:sg-macdonald-house",
-    "curated:sg-meta",
     "curated:sg-mount-faber-park",
     "curated:sg-muthu-s-curry-little-india",
     "curated:sg-na-oh",
-    "curated:sg-nae-um",
-    "curated:sg-nagore-dargah",
     "curated:sg-nam-sing-hokkien-fried-mee",
     "curated:sg-nanyang-technological-university",
-    "curated:sg-national-university-of-singapore",
     "curated:sg-newton-food-centre",
     "curated:sg-nus-bukit-timah-campus-faculty-of-law-former-raffles-college",
-    "curated:sg-obba-bbq",
-    "curated:sg-odette",
     "curated:sg-pasir-ris-park",
-    "curated:sg-peach-blossoms",
     "curated:sg-potters-garden",
     "curated:sg-putien-kitchener-road",
     "curated:sg-rajarani-thosai",
@@ -1092,38 +1656,22 @@
     "curated:sg-seletar-the-oval",
     "curated:sg-sembawang-park",
     "curated:sg-seoul-restaurant",
-    "curated:sg-seroja",
     "curated:sg-shisen-hanten",
-    "curated:sg-song-fa-bak-kut-teh-new-bridge-road",
     "curated:sg-springleaf-prata-place",
-    "curated:sg-sri-veeramakaliamman-temple",
-    "curated:sg-st-joseph-s-church",
     "curated:sg-summer-palace",
-    "curated:sg-sushi-zen-1247221",
-    "curated:sg-tai-wah-pork-noodle",
     "curated:sg-tampines-eco-green",
-    "curated:sg-tekka-centre",
-    "curated:sg-telok-ayer-chinese-methodist-church",
-    "curated:sg-the-blue-ginger-tanjong-pagar",
-    "curated:sg-the-coconut-club-1195654",
     "curated:sg-the-intan",
     "curated:sg-the-istana",
     "curated:sg-thevar",
     "curated:sg-tiong-bahru-air-raid",
     "curated:sg-tiong-bahru-estate",
     "curated:sg-tiong-bahru-market",
-    "curated:sg-true-blue-cuisine",
-    "curated:sg-um-yong-baek",
     "curated:sg-west-coast-market-square",
-    "curated:sg-west-coast-park",
     "curated:sg-windsor-nature-park",
     "curated:sg-woodlands-waterfront-park",
     "curated:sg-xiangyee",
     "curated:sg-yishun-pond-park",
-    "curated:sg-yong-fu",
-    "curated:sg-yueh-hai-ching",
     "curated:sg-zai-shun-curry-fish-head",
-    "curated:sg-zen",
     "curated:sg-zion-riverside-food-centre"
   ],
   "checkedAt": "2026-10-29"

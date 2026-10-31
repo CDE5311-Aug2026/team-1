@@ -12,6 +12,7 @@ import { STORY_IMAGES } from '../../assets/stories';
 import type { SourceReference } from '../../features/nearby/domain';
 import type { OrderKind } from './orders';
 import { THIAN_HOCK_KENG } from '../stories/chinatown';
+import researched from './placeCards.sg.json';
 
 export interface CardPhoto {
   src: string;
@@ -83,7 +84,7 @@ const LKC_TSCHOPP = src(
 const WIKI_PAGODA = src('Pagoda Street', 'https://en.wikipedia.org/wiki/Pagoda_Street', 'Wikipedia');
 const WIKI_CHINATOWN = src('Chinatown, Outram', 'https://en.wikipedia.org/wiki/Chinatown,_Outram', 'Wikipedia');
 
-export const PLACE_CARDS: Record<string, PlaceCard> = {
+const HAND_CARDS: Record<string, PlaceCard> = {
   // Team 1's monument card, shown on the temple's own page too (their text, photos and the NHB source).
   'curated:sg-thian-hock-keng-temple': {
     title: THIAN_HOCK_KENG.title,
@@ -310,6 +311,30 @@ export const PLACE_CARDS: Record<string, PlaceCard> = {
     reviewedAt: checked,
   },
 };
+
+/** Cards researched place by place (scripts/explore/merge-cards.py): photo paths are relative to the site root. */
+type ResearchedPhoto = CardPhoto;
+type ResearchedCard = PlaceCard;
+const at = (p: ResearchedPhoto): CardPhoto => ({ ...p, src: photo(p.src.replace(/^nearby\/cards\//, '')) });
+const fromResearch = (c: ResearchedCard): PlaceCard => ({
+  ...c,
+  clip: c.clip && { ...c.clip, poster: c.clip.poster && at(c.clip.poster) },
+  thenNow: c.thenNow && { ...c.thenNow, then: at(c.thenNow.then), now: at(c.thenNow.now) },
+});
+
+/** Researched cards with the hand-written ones on top: a hand-written field wins, its order or story link is kept. */
+function combine(r: PlaceCard | undefined, h: PlaceCard | undefined): PlaceCard {
+  if (!r || !h) return (h ?? r)!;
+  const own = Object.fromEntries(Object.entries(h).filter(([k, v]) => v !== undefined && k !== 'sources'));
+  return { ...r, ...own, sources: [...r.sources, ...h.sources] };
+}
+
+export const PLACE_CARDS: Record<string, PlaceCard> = Object.fromEntries(
+  [...new Set([...Object.keys(researched), ...Object.keys(HAND_CARDS)])].map((id) => {
+    const r = (researched as unknown as Record<string, ResearchedCard>)[id];
+    return [id, combine(r && fromResearch(r), HAND_CARDS[id])];
+  }),
+);
 
 export function placeCard(id: string): PlaceCard | undefined {
   return PLACE_CARDS[id];

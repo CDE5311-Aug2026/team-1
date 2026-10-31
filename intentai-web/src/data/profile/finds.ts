@@ -1,5 +1,6 @@
 // Home base and "Your first finds" (Figma O6 / O8): Nearby areas and places, and the culture cards for the ranked
 // topics. Only repo data: areas.json, the Nearby catalogue, Today's articles and their photos.
+import { homePlaceHref } from '../homeLinks';
 import { ARTICLE_IMAGES, type ArticleImage } from '../articleImages';
 import { type CategoryId } from '../culture';
 import { AREAS, PUBLISHED_PLACES } from '../../features/nearby/catalogue';
@@ -7,7 +8,6 @@ import type { Area, CuratedPlace } from '../../features/nearby/domain';
 import { HALF, toXY } from '../../features/nearby/map/projection';
 import type { LatLng } from '../../features/nearby/types';
 import { SUBJECTS, cardById, type Card } from '../cards';
-import { paths } from '../../routes';
 import { topicOf, type TopicId } from './profile';
 
 /** Areas a pin can snap to (not the country overview). */
@@ -175,7 +175,7 @@ export function firstFinds(baseId: string | null, _topics: readonly TopicId[] = 
       sub: `${shortArea(base)} · ${near.place.kind.toLowerCase()}`,
       why: `${formatDistance(near.distance)} from your base`,
       why_icon: 'pin',
-      href: paths.nearbyPlace(near.place.id),
+      href: homePlaceHref(near.place.id),
     });
   }
   // Lead with the #1 topic's card, as in Figma (place on the left, #1 in the middle).

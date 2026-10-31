@@ -1091,3 +1091,16 @@
 .checkIn svg {
   flex: none;
 }
+
+/* Home's place intro: Check in on its own row, the smaller actions under it */
+.checkRowWrap {
+  flex-wrap: wrap;
+}
+
+.checkRowWrap .checkIn {
+  flex: 1 1 100%;
+}
+
+.checkRowWrap .directions {
+  flex: 1 1 auto;
+}

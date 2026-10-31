@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { homePlaceHref } from '../../../data/homeLinks';
 import inkDrop from '../../../assets/v3/moments/ink-drop.svg';
 import lockIcon from '../../../assets/v3/moments/lock.svg';
 import { nearbyHref } from '../../../data/cultureLinks';
@@ -50,7 +51,7 @@ export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
         <ul className={styles.visits} aria-label="Places you checked in at">
           {visits.map((v) => (
             <li key={v.key}>
-              <Link to={v.key.startsWith('story:') ? paths.nearby : paths.nearbyPlace(v.key)} className={styles.visit}>
+              <Link to={v.key.startsWith('story:') ? paths.today : homePlaceHref(v.key)} className={styles.visit}>
                 <span className={styles.visitName}>{v.name}</span>
                 {v.on && <span className={styles.visitDate}>{longDate(v.on)}</span>}
               </Link>
@@ -59,15 +60,15 @@ export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
         </ul>
       )}
 
-      {!stamp.collected && <p className={styles.note}>Check in at a place in {subject.name} in Nearby to collect this stamp.</p>}
+      {!stamp.collected && <p className={styles.note}>Check in at a place in {subject.name} to collect this stamp.</p>}
 
       <div className={styles.actions}>
         <Link to={inNearby} className={stamp.collected ? styles.primary : styles.secondary}>
-          Open in Nearby
+          Show on the map
         </Link>
         {!stamp.collected && (
           <Link to={inNearby} className={styles.primary}>
-            Check in in Nearby
+            Find a place to check in
           </Link>
         )}
       </div>

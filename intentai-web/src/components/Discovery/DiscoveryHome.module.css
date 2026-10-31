@@ -26,55 +26,94 @@
 }
 
 .event {
+  /* Festival & Event cards are picture cards (owner, 31 Oct): the photo fills the card, the words sit on it. */
+  position: relative;
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
+  grid-template-rows: 1fr auto auto;
   column-gap: 10px;
-  align-items: center;
-  padding: 10px 14px;
-  border: 1.5px solid #8fb2e6;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #eef4ff 0%, #fff3ea 100%);
-  color: var(--text-primary);
+  align-items: end;
+  height: 112px;
+  padding: 10px 14px 12px;
+  border: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #1d1a24;
+  color: #fff;
   font: inherit;
   text-align: left;
   cursor: pointer;
+  box-shadow: 0 14px 30px -18px rgba(20, 30, 50, 0.6);
+}
+
+.eventImg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+/* darkens the bottom so the words read on any photo */
+.event::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(10, 8, 20, 0) 20%, rgba(10, 8, 20, 0.35) 50%, rgba(10, 8, 20, 0.82) 100%);
 }
 
 .eventKicker {
+  grid-row: 2;
   font-family: var(--font-mono);
   font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #2f5fb0;
+  color: rgba(255, 255, 255, 0.86);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .eventTitle {
-  grid-row: 2;
-  font-size: 0.9375rem;
+  grid-row: 3;
+  font-size: 1.0625rem;
   font-weight: 700;
-  white-space: nowrap;
+  line-height: 1.22;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }
 
 .eventGo {
-  grid-row: 1 / span 2;
+  grid-row: 2 / span 2;
   grid-column: 2;
-  width: 30px;
-  height: 30px;
+  align-self: end;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--text-primary);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-primary);
+}
+
+.eventCredit {
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  font-size: 0.5625rem;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .mapCard {
   position: relative;
-  flex: 0 1 auto;
-  height: clamp(200px, 40vh, 360px);
-  min-height: 170px;
+  flex: 1 1 auto;
+  min-height: 200px;
   border-radius: var(--radius-card);
   overflow: hidden;
   box-shadow: 0 14px 30px -18px rgba(20, 30, 50, 0.55);
@@ -185,8 +224,7 @@
 }
 
 .recommend {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -216,8 +254,8 @@
 /* The deck reaches past the side gutters, as cover art does. */
 .deckBox {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 180px;
+  flex: 0 0 auto;
+  height: clamp(150px, 22vh, 190px);
   margin: 0 calc(-1 * var(--gutter));
 }
 
@@ -239,4 +277,63 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, #a9c7df 0%, #6f9cc0 100%);
+}
+
+/* Inside a walk from Editor's Pick: open it as a 2D route. */
+.routeKey {
+  flex-shrink: 0;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
+  cursor: pointer;
+}
+
+/* Shorter phones: a slimmer picture card and map, so the deck still clears the tab bar. */
+@media (max-height: 760px) {
+  .event {
+    height: 86px;
+  }
+
+  .eventTitle {
+    -webkit-line-clamp: 1;
+  }
+
+  .mapCard {
+    min-height: 160px;
+  }
+}
+
+/* A place is open: the map card is its live 3D view, framed on the building, above the intro's cards. */
+.mapHero {
+  flex: 0 0 auto;
+  height: clamp(150px, 24vh, 240px);
+  min-height: 0;
+}
+
+.fullPage {
+  margin-left: auto;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
+}
+
+/* a place is open: the deck sits a little lower and smaller, so the intro's cards get the room */
+.recommendOpen .deckBox {
+  height: clamp(130px, 18vh, 160px);
 }

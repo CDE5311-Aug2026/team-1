@@ -110,7 +110,7 @@ const LITE = (() => {
   for (const [k, v] of new URLSearchParams(location.hash.slice(1))) q.set(k, v);
   const LON0 = 103.845, LAT0 = 1.315, MX = 111290.5, MY = 110574.0, xy = (lat, lon) => [(lon - LON0)*MX, (lat - LAT0)*MY];
   let focus = null, pin = null, card = q.get('card');
-  if (card && !/^[A-Za-z0-9_:\- ]{1,80}$/.test(card)) card = null;
+  if (card && !/^[A-Za-z0-9_:()\- ]{1,80}$/.test(card)) card = null;
   const at = (q.get('at') || '').split(',').map(Number);
   // ?at is the point (and gets a pin unless a landmark card is asked for: the card's ring marks it); ?card alone uses the model's place
   if (at.length === 2 && at.every(isFinite) && Math.abs(at[0] - LAT0) < 0.3 && Math.abs(at[1] - LON0) < 0.3){ focus = xy(at[0], at[1]); if (!card) pin = focus; }
@@ -204,7 +204,8 @@ function liteClamp(){
 }
 sgrStep = (orig => function(){ if (SGR.on){ liteClamp(); if ((LITE.frames++ & 15) === 0) liteStream(false); } return orig.apply(this, arguments); })(sgrStep);
 // the first view: over the point; with #span=<m>, as wide as the embedding page's 2D map was (the same view, tilted)
-const LITE_MAXD = 30000;
+// #far=1 (Home's map card): the camera may pull back far enough to see the whole island
+const LITE_MAXD = LITE.q.get('far') === '1' ? 52000 : 30000;
 function liteOffset(span, k){
   if (!(isFinite(span) && span > 0)) return [420*k, 560*k, 760*k];
   const hf = Math.atan(Math.tan(camera.fov*Math.PI/360)*Math.max(0.3, camera.aspect));
@@ -247,16 +248,21 @@ function litePeek(){ setTimeout(() => { const el = document.querySelector('secti
 function liteAuto(){
   try { const m = {en:'en', zh:'zh', both:'both'}[LITE.q.get('lang')] || 'en'; if (window.SGLang) SGLang.set(m); } catch (e){ console.error('[lite] lang', e); }
   try { if (window.SGAudio && SGAudio.on) SGAudio.disable(); } catch (e){ console.error('[lite] sound', e); }
-  try { if (window.SGWx) SGWx.set('auto', true); } catch (e){ console.error('[lite] weather', e); }
+  // #day=1 (Home's map card): clear weather, so no clouds sit over the map
+  try { if (window.SGWx) SGWx.set(LITE.q.get('day') === '1' ? 'clear' : 'auto', true); } catch (e){ console.error('[lite] weather', e); }
   try {
     const rate = +LITE.q.get('rate');
     if (window.SGClock){ SGClock.setLocal(false); SGClock.setRate(SGClock.RATES.includes(rate) ? rate : 2400); tod = SGClock.localNow()[0]; }
     // #hour=13 (tooling: the place pictures are taken at a fixed midday, whatever the time of the run)
     const hour = LITE.q.get('hour') === null ? NaN : +LITE.q.get('hour');
     if (isFinite(hour) && hour >= 0 && hour < 24) tod = hour;
-    todPlay = !LITE.still; applyTime();
+    // #day=1 (Home's map card): a still late morning, so the map reads the same at any hour
+    if (LITE.q.get('day') === '1') tod = 10.5;
+    todPlay = !LITE.still && LITE.q.get('day') !== '1'; applyTime();
   } catch (e){ console.error('[lite] time', e); }
 }
+// #labels=0 (Home's map card): the city's own map labels stay hidden; the page draws its numbered zones instead
+if (LITE.q.get('labels') === '0'){ const st = document.createElement('style'); st.textContent = '#labels{display:none!important}'; document.head.appendChild(st); }
 // map labels without emoji icons (the app uses none)
 {
   const EMO = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/gu;
@@ -442,6 +448,19 @@ addEventListener('message', e => {
       && p.at.every(v => typeof v === 'number' && isFinite(v)) && Math.abs(p.at[0] - 1.315) < 0.3 && Math.abs(p.at[1] - 103.845) < 0.3);
     return litePins(ok, d0.styles, typeof d0.selected === 'string' ? d0.selected : null);
   }
+  if (d0.type === 'zones'){
+    if (!Array.isArray(d0.zones) || d0.zones.length > 80) return;
+    const col = c => typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c), num01 = v => typeof v === 'number' && v >= 0 && v <= 1;
+    let pts = 0;
+    const ok = d0.zones.filter(z => z && typeof z.id === 'string' && z.id.length <= 40 && col(z.fill) && col(z.line) && num01(z.fa) && num01(z.la)
+      && Array.isArray(z.at) && z.at.length === 2 && z.at.every(v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 40000)
+      && Array.isArray(z.rings) && z.rings.length <= 20 && z.rings.every(r => Array.isArray(r) && r.length <= 2000 && (pts += r.length) < 20000
+        && r.every(p => Array.isArray(p) && p.length === 2 && p.every(v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 40000))))
+      .map(z => ({id:z.id, rings:z.rings, fill:z.fill, fa:z.fa, line:z.line, la:z.la, sel:!!z.sel, at:z.at,
+        num:Number.isInteger(z.num) && z.num > 0 && z.num < 100 ? z.num : 0, name:typeof z.name === 'string' ? z.name.slice(0, 40) : '',
+        label:typeof z.label === 'string' ? z.label.slice(0, 40) : '', kind:z.kind === 'Region' ? 'Region' : 'Area'}));
+    return liteZones(ok);
+  }
   if (d0.type === 'you'){
     if (d0.at === null) return liteYou(null);
     if (Array.isArray(d0.at) && d0.at.length === 2 && d0.at.every(v => typeof v === 'number' && isFinite(v)) && Math.abs(d0.at[0] - 1.315) < 0.3 && Math.abs(d0.at[1] - 103.845) < 0.3)
@@ -450,7 +469,7 @@ addEventListener('message', e => {
   }
   const d = d0; if (d.type !== 'show' || !LITE.ready) return;
   if (!Array.isArray(d.at) || d.at.length !== 2 || !d.at.every(v => typeof v === 'number' && isFinite(v))) return;
-  const card = typeof d.card === 'string' && /^[A-Za-z0-9_:\- ]{1,80}$/.test(d.card) ? d.card : null, p = LITE.xy(d.at[0], d.at[1]);
+  const card = typeof d.card === 'string' && /^[A-Za-z0-9_:()\- ]{1,80}$/.test(d.card) ? d.card : null, p = LITE.xy(d.at[0], d.at[1]);
   if (Math.abs(d.at[0] - 1.315) > 0.3 || Math.abs(d.at[1] - 103.845) > 0.3) return;
   if (Math.hypot(p[0] - LITE.focus[0], p[1] - LITE.focus[1]) > LITE.PAN - 300){
     const q = new URLSearchParams(location.hash.slice(1)); q.set('at', d.at.map(v => v.toFixed(5)).join(',')); if (card) q.set('card', card); else q.delete('card');
@@ -463,6 +482,69 @@ addEventListener('message', e => {
   if (opened){ if (LITE.pinMesh) LITE.pinMesh.visible = false; if (!liteFrame(card, !LITE.still)) liteLook(p[0], p[1]); litePeek(); }
   else { try { SGCard.close(); } catch (e){ } if (d.pin !== false) litePin(p[0], p[1]); liteLook(p[0], p[1], typeof d.span === 'number' ? d.span : NaN); }
 });
+// Home's map card (Discovery redesign, 31 Oct 2026): URA planning areas drawn over the city, tinted by unlock state,
+// with numbered labels. {type:'zones', zones:[{id, rings:[[[x, y]...]] (map metres), fill:'#rrggbb', fa, line:'#rrggbb',
+// la, sel, num?, name?, at:[x, y]}]}. Colours fade to their new values. A tap on a zone (or its label) goes back as
+// {type:'zone', id}. Zones sit just above sea level and are drawn over everything, as a wash on the ground picture.
+const LZ = {group:null, items:new Map(), labels:null, down:null, raf:0};
+function liteZoneLoop(){
+  LZ.raf = 0; let moving = false;
+  const rect = renderer.domElement.getBoundingClientRect(), v = new THREE.Vector3();
+  for (const it of LZ.items.values()){
+    const k = 0.18;
+    it.fa += (it.tfa - it.fa)*k; it.la += (it.tla - it.la)*k;
+    if (Math.abs(it.tfa - it.fa) > 0.003 || Math.abs(it.tla - it.la) > 0.003) moving = true;
+    it.fill.material.opacity = it.fa; it.fill.material.color.lerp(it.tcol, k); it.line.forEach(l => { l.material.opacity = it.la; l.material.color.lerp(it.tline, k); });
+    if (it.lab){ v.set(it.at[0], 30, -it.at[1]).project(camera);
+      if (v.z > 1){ it.lab.style.visibility = 'hidden'; } else { it.lab.style.visibility = ''; it.lab.style.transform = `translate(${((v.x + 1)/2*rect.width).toFixed(1)}px, ${((1 - v.y)/2*rect.height).toFixed(1)}px) translate(-50%, -50%)`; } }
+  }
+  LZ.raf = requestAnimationFrame(liteZoneLoop);   // labels follow the camera every frame while zones exist
+}
+function liteZones(list){
+  if (!LZ.group){ LZ.group = new THREE.Group(); scene.add(LZ.group);
+    LZ.labels = document.createElement('div'); LZ.labels.id = 'lzLabels';
+    LZ.labels.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden;font:600 12px Inter,system-ui,sans-serif';
+    (renderer.domElement.parentElement || document.body).appendChild(LZ.labels); }
+  const keep = new Set(list.map(z => z.id));
+  for (const [id, it] of LZ.items) if (!keep.has(id)){ LZ.group.remove(it.fill); it.line.forEach(l => LZ.group.remove(l)); it.fill.geometry.dispose(); it.fill.material.dispose(); it.line.forEach(l => { l.geometry.dispose(); l.material.dispose(); }); if (it.lab) it.lab.remove(); LZ.items.delete(id); }
+  for (const z of list){
+    let it = LZ.items.get(z.id);
+    if (!it){
+      const shapes = z.rings.map(r => new THREE.Shape(r.map(p => new THREE.Vector2(p[0], p[1]))));
+      const g = new THREE.ShapeGeometry(shapes); g.rotateX(-Math.PI/2);
+      const fill = new THREE.Mesh(g, new THREE.MeshBasicMaterial({color:z.fill, transparent:true, opacity:0, depthTest:false, depthWrite:false}));
+      fill.position.y = 6; fill.renderOrder = 9; fill.userData.zone = z.id; LZ.group.add(fill);
+      const line = z.rings.map(r => { const lg = new THREE.BufferGeometry().setFromPoints(r.map(p => new THREE.Vector3(p[0], 8, -p[1])));
+        const l = new THREE.LineLoop(lg, new THREE.LineBasicMaterial({color:z.line, transparent:true, opacity:0, depthTest:false, depthWrite:false})); l.renderOrder = 10; LZ.group.add(l); return l; });
+      it = {fill, line, fa:0, la:0, tfa:0, tla:0, tcol:new THREE.Color(z.fill), tline:new THREE.Color(z.line), lab:null, at:z.at};
+      LZ.items.set(z.id, it);
+    }
+    it.tfa = z.fa; it.tla = z.la; it.tcol.set(z.fill); it.tline.set(z.line); it.at = z.at;
+    it.line.forEach(l => { l.renderOrder = z.sel ? 12 : 10; });
+    if (z.num){
+      if (!it.lab){ it.lab = document.createElement('button'); it.lab.type = 'button';
+        it.lab.style.cssText = 'position:absolute;left:0;top:0;pointer-events:auto;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:3px;cursor:pointer;box-shadow:0 6px 14px -8px rgba(20,30,50,.7);white-space:nowrap;font:inherit';
+        it.lab.addEventListener('click', ev => { ev.stopPropagation(); litePost({type:'zone', id:z.id}); }); LZ.labels.appendChild(it.lab); }
+      it.lab.style.background = z.sel ? '#e4671f' : 'rgba(255,255,255,.94)'; it.lab.style.color = z.sel ? '#fff' : '#23211d';
+      it.lab.style.paddingRight = z.name ? '10px' : '3px'; it.lab.style.zIndex = z.sel ? '3' : '1';
+      it.lab.setAttribute('aria-label', (z.kind || 'Area') + ' ' + z.num + (z.label ? ': ' + z.label : ''));
+      it.lab.innerHTML = '';
+      const n = document.createElement('span'); n.textContent = String(z.num);
+      n.style.cssText = 'width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;' + (z.sel ? 'background:#fff;color:#e4671f' : 'background:#23211d;color:#fff');
+      it.lab.appendChild(n); if (z.name){ const t = document.createElement('span'); t.textContent = z.name; it.lab.appendChild(t); }
+    } else if (it.lab){ it.lab.remove(); it.lab = null; }
+  }
+  if (!LZ.raf) LZ.raf = requestAnimationFrame(liteZoneLoop);
+}
+// a tap on the ground inside a zone (not a pin, not a drag) picks it
+addEventListener('pointerdown', e => { LZ.down = e.button === 0 && e.target === renderer.domElement ? {x:e.clientX, y:e.clientY, t:performance.now()} : null; }, true);
+addEventListener('pointerup', e => {
+  const D = LZ.down; LZ.down = null; if (!D || !LZ.items.size || Math.hypot(e.clientX - D.x, e.clientY - D.y) > 8 || performance.now() - D.t > 600) return;
+  const r = renderer.domElement.getBoundingClientRect(), ray = new THREE.Raycaster();
+  ray.setFromCamera(new THREE.Vector2((e.clientX - r.left)/r.width*2 - 1, -(e.clientY - r.top)/r.height*2 + 1), camera);
+  const hit = ray.intersectObjects([...LZ.items.values()].map(i => i.fill), false)[0];
+  if (hit) litePost({type:'zone', id:hit.object.userData.zone});
+}, true);
 window.SGLite = {
   stats(){ let built = 0, live = 0; for (const T of SGR.tiles.values()){ if (T.done) built++; if (T.road || T.bld) live++; }
     const m = renderer.info.memory, r = renderer.info.render;
@@ -499,6 +581,8 @@ window.SGLite = {
   goTo(x, y){ controls.target.set(x, controls.target.y, -y); camera.position.set(x + 420, controls.target.y + 560, -y + 760); },
 };
 '''
+# the 3D view's box is labelled, so it needs a role (WCAG: aria-label is not allowed on a plain div)
+rep('<div id="stage" aria-label=', '<div id="stage" role="application" aria-label=')
 rep('\nsgrBoot();\nrequestAnimationFrame(loop);\n})();\n</script>', '\n' + LITE + '\nsgrBoot();\nrequestAnimationFrame(loop);\n})();\n</script>')
 
 h += '\n</body>\n</html>\n'

@@ -90,3 +90,37 @@ export const boxCorners = (b: [number, number, number, number]): XY[] => [
   { x: b[0], y: b[1] },
   { x: b[2], y: b[3] },
 ];
+
+/** "Landmark 2/9 · Food 1/12 · Culture 0/5": checked in / total for each kind of place that is there. */
+export function categoryLine(places: readonly CuratedPlace[], visited: ReadonlySet<string>): string {
+  const order = ['landmark', 'culture', 'food', 'nature'] as const;
+  const name = { landmark: 'Landmark', culture: 'Culture', food: 'Food', nature: 'Nature' } as const;
+  return order
+    .map((c) => {
+      const ps = places.filter((p) => p.category === c);
+      return ps.length ? `${name[c]} ${ps.filter((p) => visited.has(p.id)).length}/${ps.length}` : '';
+    })
+    .filter(Boolean)
+    .join(' · ');
+}
+
+/** Planning areas of a region with every place checked in. */
+export function unlockedAreas(region: RegionId, visited: ReadonlySet<string>): { done: number; total: number } {
+  const withPlaces = areasOf(region).filter((a) => placesInArea(a.id).length > 0);
+  return { done: withPlaces.filter((a) => areaProgress(a.id, visited).status === 'done').length, total: withPlaces.length };
+}
+
+function inside(x: number, y: number, ring: readonly (readonly [number, number])[]): boolean {
+  let c = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c;
+  }
+  return c;
+}
+
+/** The planning area at a point in map metres (projection.ts frame), if it is on land in Singapore. */
+export function areaAt(x: number, y: number): UraArea | undefined {
+  return URA_AREAS.find((a) => x >= a.box[0] && x <= a.box[2] && y >= a.box[1] && y <= a.box[3] && a.rings.some((r) => inside(x, y, r)));
+}

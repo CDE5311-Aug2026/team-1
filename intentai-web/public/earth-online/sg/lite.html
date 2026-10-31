@@ -274,7 +274,7 @@ body.night .lbl.n.bridge{color:#f2dfb5}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
-<div id="stage" aria-label="新加坡城市三维视图 Singapore 3D view"></div>
+<div id="stage" role="application" aria-label="新加坡城市三维视图 Singapore 3D view"></div>
 <div id="labels"></div>
 
 <aside class="panel" id="panel">
@@ -46755,6 +46755,754 @@ rowKey('ctblueginger', '蓝姜娘惹餐厅', 'The Blue Ginger', D_BLUEGINGER, [
   {w:'#ecd26a', s:'#6b3b25', t:'#fffbec'}, {w:'#7fb0d6', s:'#ffffff', t:'#f7f7f2'}, {w:'#eee3c6', s:'#2f5d43', t:'#fffaf0'}, {w:'#f6f4ee', s:'#2e7f7a', t:'#ffffff'}], {lv:3, arch:true});
 }
 
+// ===== City Brush lm40 — group dt_civic (Singapore, Downtown Core): 3 culture places =====
+// Singapore Chinese Cultural Centre (1 Straits Boulevard, beside the Singapore Conference Hall of lm26/sgcbd, which
+// stays), Red Dot Design Museum (11 Marina Boulevard: since 2017 in the former Marina Bay City Gallery pavilions on the
+// Marina Bay waterfront promenade) and Masjid Al-Burhani (39 Hill Street). Hero replicas, each on its OpenStreetMap
+// footprint (way noted per key). Real dimensions in metres; y = 0 is the model base. Each model is drawn in its own
+// natural frame (local +z = the main front) and then turned in place (aim) so that the app's card camera, which looks
+// across a model's long local axis from the side nearer the south-south-east, frames the front or corner people know.
+// No text, logos or brand colours (name boards are left out). One block; only LANDMARKS and SG_PLACES are touched.
+{
+const PI = Math.PI, HP = PI/2, TAU = PI*2;
+const lerp = (a, b, t) => a + (b - a)*t;
+// ---- triangle batches: many small parts of one colour spec become one LTris call ----
+const mkB = () => { const M = new Map(); return {
+  p(col){ const k = typeof col === 'string' ? col : JSON.stringify(col); let e = M.get(k); if (!e){ e = {col, a:[]}; M.set(k, e); } return e.a; },
+  flush(g){ for (const e of M.values()) if (e.a.length) LTris(g, e.a, e.col); M.clear(); } }; };
+const quadP = (o, a, b, c, d) => o.push(...a, ...b, ...c, ...a, ...c, ...d);
+const triP = (o, a, b, c) => o.push(...a, ...b, ...c);
+// box (w along x, d along z) standing on y, turned ry about its centre
+function boxP(o, w, h, d, x, y, z, ry){
+  const c = Math.cos(ry || 0), s = Math.sin(ry || 0), hw = w/2, hd = d/2;
+  const R = (px, py, pz) => [x + px*c + pz*s, py, z - px*s + pz*c];
+  const P = [R(-hw, y, -hd), R(hw, y, -hd), R(hw, y, hd), R(-hw, y, hd), R(-hw, y+h, -hd), R(hw, y+h, -hd), R(hw, y+h, hd), R(-hw, y+h, hd)];
+  for (const [a, b, e, f] of [[0,1,2,3],[4,7,6,5],[0,4,5,1],[1,5,6,2],[2,6,7,3],[3,7,4,0]]) quadP(o, P[a], P[b], P[e], P[f]);
+}
+const bxP = (o, x0, x1, y0, y1, z0, z1) => boxP(o, x1 - x0, y1 - y0, z1 - z0, (x0 + x1)/2, y0, (z0 + z1)/2);
+const tri2 = P => THREE.ShapeUtils.triangulateShape(P.map(p => new THREE.Vector2(p[0], p[1])), []);
+function capP(o, P, y){ for (const [a, b, c] of tri2(P)) o.push(P[a][0], y, P[a][1], P[b][0], y, P[b][1], P[c][0], y, P[c][1]); }
+function wallP(o, P, y0, y1, open){ const n = P.length; for (let i = 0; i < (open ? n - 1 : n); i++){ const a = P[i], b = P[(i+1) % n]; quadP(o, [a[0], y0, a[1]], [b[0], y0, b[1]], [b[0], y1, b[1]], [a[0], y1, a[1]]); } }
+const rectXZ = (x0, x1, z0, z1) => [[x0, z0], [x1, z0], [x1, z1], [x0, z1]];
+// surface of revolution into a batch: prof [[r, y], ...] bottom to top; n sides; ph = start angle
+function latheP(o, prof, cx, cz, n, ph){
+  ph = ph || 0;
+  for (let j = 0; j < prof.length - 1; j++){ const [r0, y0] = prof[j], [r1, y1] = prof[j+1];
+    for (let i = 0; i < n; i++){ const a0 = ph + i/n*TAU, a1 = ph + (i+1)/n*TAU;
+      quadP(o, [cx + Math.cos(a0)*r0, y0, cz + Math.sin(a0)*r0], [cx + Math.cos(a1)*r0, y0, cz + Math.sin(a1)*r0], [cx + Math.cos(a1)*r1, y1, cz + Math.sin(a1)*r1], [cx + Math.cos(a0)*r1, y1, cz + Math.sin(a0)*r1]); } }
+}
+// cylinder segment between two points into a batch (n-sided prism)
+function segP(o, a, b, r, n){
+  n = n || 4; const d = [b[0]-a[0], b[1]-a[1], b[2]-a[2]], L = Math.hypot(...d); if (L < 1e-4) return; d[0] /= L; d[1] /= L; d[2] /= L;
+  const up = Math.abs(d[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+  let u = [d[1]*up[2] - d[2]*up[1], d[2]*up[0] - d[0]*up[2], d[0]*up[1] - d[1]*up[0]]; const ul = Math.hypot(...u); u = u.map(q => q/ul);
+  const v = [d[1]*u[2] - d[2]*u[1], d[2]*u[0] - d[0]*u[2], d[0]*u[1] - d[1]*u[0]];
+  const ring = p => { const R = []; for (let i = 0; i < n; i++){ const t = (i + 0.5)/n*TAU, c = Math.cos(t)*r, s = Math.sin(t)*r; R.push([p[0]+u[0]*c+v[0]*s, p[1]+u[1]*c+v[1]*s, p[2]+u[2]*c+v[2]*s]); } return R; };
+  const A = ring(a), B = ring(b); for (let i = 0; i < n; i++){ const j = (i+1) % n; quadP(o, A[i], A[j], B[j], B[i]); }
+}
+// facade frames: F(u, v, w) -> point; u along the facade, v up, w outwards
+const fZ = (z, s, cx) => (u, v, w) => [(cx || 0) + s*u, v, z + s*(w || 0)];       // plane z = const, facing s*z
+const fX = (x, s, cz) => (u, v, w) => [x + s*(w || 0), v, (cz || 0) - s*u];       // plane x = const, facing s*x
+function shapeP(o, pts, F, w){ for (const [a, b, c] of tri2(pts)) o.push(...F(pts[a][0], pts[a][1], w), ...F(pts[b][0], pts[b][1], w), ...F(pts[c][0], pts[c][1], w)); }
+function slabP(o, pts, F, w0, w1){ shapeP(o, pts, F, w1); for (let i = 0; i < pts.length; i++){ const a = pts[i], b = pts[(i+1) % pts.length]; quadP(o, F(a[0], a[1], w0), F(b[0], b[1], w0), F(b[0], b[1], w1), F(a[0], a[1], w1)); } }
+const mv = (P, du, dv) => P.map(p => [p[0] + du, p[1] + dv]);
+const rectO = (u0, u1, v0, v1) => [[u0, v0], [u1, v0], [u1, v1], [u0, v1]];
+const rArchO = (hw, ht, n) => { const P = [[-hw, 0], [hw, 0]]; for (let i = 0; i <= (n || 8); i++){ const a = PI*i/(n || 8); P.push([Math.cos(a)*hw, ht - hw + Math.sin(a)*hw]); } return P; };
+const ringPts = (cx, cz, r, n, ph) => { const P = []; for (let i = 0; i < n; i++){ const a = (ph || 0) + i/n*TAU; P.push([cx + Math.cos(a)*r, cz + Math.sin(a)*r]); } return P; };
+// vertex-coloured batch: any number of colours in one material (porcelain shards, painted stucco)
+const mkV = () => ({pos:[], col:[]});
+const _vc = {};
+function vAdd(V, hex, fn){ const t = []; fn(t); let c = _vc[hex]; if (!c){ const k = new THREE.Color(hex); c = _vc[hex] = [k.r, k.g, k.b]; } for (let i = 0; i < t.length; i++) V.pos.push(t[i]); for (let i = 0; i < t.length; i += 3) V.col.push(c[0], c[1], c[2]); }
+function vFlush(g, V, spec){ if (!V.pos.length) return; const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(V.pos, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(V.col, 3)); geo.computeVertexNormals(); lmAdd(g, geo, Object.assign({c:'#ffffff', vc:true, ds:true}, spec || {}), 0, 0, 0, 0); V.pos = []; V.col = []; }
+// rectangular frustum: Lb x Wb at y0 to Lt x Wt at y0 + h, centred (cx, cz); top cap
+function frustP(o, cx, cz, Lb, Wb, Lt, Wt, y0, h, nocap){
+  const b = [[cx - Lb/2, y0, cz - Wb/2], [cx + Lb/2, y0, cz - Wb/2], [cx + Lb/2, y0, cz + Wb/2], [cx - Lb/2, y0, cz + Wb/2]];
+  const t = [[cx - Lt/2, y0 + h, cz - Wt/2], [cx + Lt/2, y0 + h, cz - Wt/2], [cx + Lt/2, y0 + h, cz + Wt/2], [cx - Lt/2, y0 + h, cz + Wt/2]];
+  for (let i = 0; i < 4; i++){ const j = (i + 1) % 4; quadP(o, b[i], b[j], t[j], t[i]); }
+  if (!nocap) quadP(o, t[0], t[3], t[2], t[1]);
+}
+// framing hint for the app's card camera, which looks across the longer side of a model's bounding box from its
+// south-east half. A hidden line object (two points at the centre, material not drawn) carries a preset bounding box
+// spanning x0..x1, which widens that box along x so that the camera looks at the real front (+z) instead of along a
+// shophouse row or into the towers beside a temple. It is not a mesh, so the landmark merge keeps it, and the real-city
+// buildings hidden under the model's ground plan (a hull of its mesh vertices) are not affected.
+const frameHint = (g, x0, x1, z0, z1) => { const geo = new THREE.BufferGeometry(), cx = (x0 + x1)/2, cz = (z0 + z1)/2;
+  geo.setAttribute('position', new THREE.Float32BufferAttribute([cx, 0.5, cz, cx, 0.6, cz], 3));
+  geo.boundingBox = new THREE.Box3(new THREE.Vector3(x0, 0.5, z0), new THREE.Vector3(x1, 0.6, z1)); geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(cx, 0.5, cz), 0.2);
+  const m = new THREE.Line(geo, new THREE.LineBasicMaterial({visible:false})); m.frustumCulled = true; g.add(m); };
+const sArea = P => { let A = 0; for (let i = 0; i < P.length; i++){ const a = P[i], b = P[(i+1) % P.length]; A += a[0]*b[1] - b[0]*a[1]; } return A/2; };
+// facade frames of a plan polygon's edges: u from 0 at P[i] to L at P[i+1], v up, w outwards
+function edgesF(P){ const sg = sArea(P) > 0 ? 1 : -1, out = [];
+  for (let i = 0; i < P.length; i++){ const a = P[i], b = P[(i+1) % P.length], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1e-6, ex = (b[0] - a[0])/L, ez = (b[1] - a[1])/L, nx = ez*sg, nz = -ex*sg;
+    out.push({L, F:(u, v, w) => [a[0] + ex*u + nx*(w || 0), v, a[1] + ez*u + nz*(w || 0)]}); }
+  return out; }
+// ---- dt_civic helpers ----
+// box in a facade frame F: u0..u1 along, v0..v1 up, w0..w1 outwards
+function boxF(o, F, u0, u1, v0, v1, w0, w1){
+  const P = [F(u0, v0, w0), F(u1, v0, w0), F(u1, v0, w1), F(u0, v0, w1), F(u0, v1, w0), F(u1, v1, w0), F(u1, v1, w1), F(u0, v1, w1)];
+  for (const [a, b, e, f] of [[0,1,2,3],[4,7,6,5],[0,4,5,1],[1,5,6,2],[2,6,7,3],[3,7,4,0]]) quadP(o, P[a], P[b], P[e], P[f]);
+}
+// pointed (two-centred) arch outline: half-width hw, springing at hs, apex at ht; base at v = 0
+function archPts(c, hw, ys, rise, n){
+  n = n || 6; const k = (rise*rise - hw*hw)/(2*hw), R = hw + k, fm = Math.acos(Math.max(-1, Math.min(1, k/R))), P = [];
+  for (let i = 0; i <= n; i++){ const f = fm*i/n; P.push([c + k - R*Math.cos(f), ys + R*Math.sin(f)]); }
+  for (let i = n - 1; i >= 0; i--){ const f = fm*i/n; P.push([c - k + R*Math.cos(f), ys + R*Math.sin(f)]); }
+  return P; }
+const pArchO = (hw, hs, ht, n) => [[-hw, 0], [hw, 0]].concat(archPts(0, hw, hs, ht - hs, n).reverse());
+// half-width of that arch at height dv above its springing
+const archHW = (hw, rise, dv) => { const k = (rise*rise - hw*hw)/(2*hw), R = hw + k; return dv >= rise ? 0 : -k + Math.sqrt(Math.max(0, R*R - dv*dv)); };
+// inward offset of a plan polygon (mitred, clamped at sharp corners)
+function offIn(P, d){ const n = P.length, sg = sArea(P) > 0 ? 1 : -1, out = [];
+  for (let i = 0; i < n; i++){ const p0 = P[(i + n - 1) % n], p1 = P[i], p2 = P[(i + 1) % n];
+    let ax = p1[0] - p0[0], az = p1[1] - p0[1], bx = p2[0] - p1[0], bz = p2[1] - p1[1]; const la = Math.hypot(ax, az) || 1, lb = Math.hypot(bx, bz) || 1; ax /= la; az /= la; bx /= lb; bz /= lb;
+    const n1 = [-az*sg, ax*sg], n2 = [-bz*sg, bx*sg]; let mx = n1[0] + n2[0], mz = n1[1] + n2[1]; const ml = Math.hypot(mx, mz) || 1; mx /= ml; mz /= ml;
+    const k = d/Math.max(0.35, mx*n1[0] + mz*n1[1]); out.push([p1[0] + mx*k, p1[1] + mz*k]); }
+  return out; }
+// intervals where the line (x = c if alongZ, else z = c) runs inside polygon P: [[a, b], ...] along the other axis
+function scanP(P, c, alongZ){ const t = [];
+  for (let i = 0; i < P.length; i++){ const a = P[i], b = P[(i + 1) % P.length], ka = alongZ ? 0 : 1, kb = 1 - ka;
+    if ((a[ka] <= c) !== (b[ka] <= c)){ const f = (c - a[ka])/(b[ka] - a[ka]); t.push(a[kb] + (b[kb] - a[kb])*f); } }
+  t.sort((p, q) => p - q); const out = []; for (let i = 0; i + 1 < t.length; i += 2) out.push([t[i], t[i+1]]); return out; }
+// a small tree: trunk and a seven-sided crown
+const treeP = (B, x, y, z, s, leaf, ph) => { segP(B.p('#6a5644'), [x, y, z], [x, y + 2.0*s, z], 0.13*s, 5);
+  latheP(B.p(leaf), [[0.02, y + 1.5*s], [1.3*s, y + 2.1*s], [1.55*s, y + 2.9*s], [1.0*s, y + 3.7*s], [0.02, y + 4.0*s]], x, z, 7, ph || 0); };
+// turn a model built in its natural frame (front +z, placed with rotation rn) so that it is placed with rotation tv:
+// the vertices are turned by rn - tv (world geometry unchanged) and, when the plan is not already longer across the view
+// direction, a framing hint widens the box along local x, so that the card camera looks along v = (sin tv, cos tv).
+// ext: optional points [x, z] in the turned frame that the framing box must also reach (moves the camera's target)
+function aim(g, rn, tv, ext){
+  const d = rn - tv, c = Math.cos(d), s = Math.sin(d); let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9, y1 = 1;
+  for (const m of g.children) if (m.isMesh){ if (d) m.geometry.rotateY(d); m.geometry.computeBoundingBox(); const b = m.geometry.boundingBox;
+    x0 = Math.min(x0, b.min.x); x1 = Math.max(x1, b.max.x); z0 = Math.min(z0, b.min.z); z1 = Math.max(z1, b.max.z); y1 = Math.max(y1, b.max.y); }
+  let hint = false;
+  for (const [x, z] of ext || []){ x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z); hint = true; }
+  const need = (z1 - z0 + 3)*1.12;
+  if (x1 - x0 < need){ const m = (x0 + x1)/2; x0 = m - need/2; x1 = m + need/2; hint = true; }
+  if (hint) frameHint(g, x0, x1, z0, z1);
+  return g;
+}
+
+// ======================================================================================================
+// Singapore Chinese Cultural Centre (新加坡华族文化中心; DP Architects, opened 2017), 1 Straits Boulevard, next to the
+// gazetted Singapore Conference Hall (1965; lm26 sgconfhall, kept as it is) across a small lawn to its north-west. The
+// architects' three tiers: a two-storey glazed "urban living room" on round white columns at street level; a textured
+// podium (storeys 3-6) of layered, tilted blocks clad in rust-red terracotta-coloured vertical louvres ("bamboo", with
+// knuckles at irregular intervals), cut by deep shadow gaps with white soffits and planted terraces; and a clean glass
+// box (the performance floors) floating on a recessed, column-lined terrace storey, with a roof garden of lawns,
+// hedges, white cube pavilions and red-leaf trees in a grid. Night: the glass box lit floor by floor, the lobby and the
+// terrace storey glowing, warm downlights under the cantilevered podium bands.
+// OSM way 1080516770 (a 67.5 x 50.6 m rectangle, 11 levels; anchor = its centroid). Natural frame: +z = the long
+// south-east front on Marina View, +x = north-north-east (Straits Boulevard front at -x, Union Street at +x, the
+// Conference Hall side at -z). Heights: 11 storeys incl. the roof garden (DP Architects); podium top ~30 m, glass box
+// 34.6-50.2 m (estimate from photos and storeys). Framed from the south corner (Straits Boulevard x Marina View).
+// ======================================================================================================
+LANDMARKS.dtcsccc = {zh:'新加坡华族文化中心', en:'Singapore Chinese Cultural Centre', cat:'new', r:30, h:55,
+  lt:{m:0, c:'#ffe0b4', k:0.85, e:0.45},
+  build(){
+    const g = new THREE.Group(), B = mkB(), R = LMCTX.rng;
+    const X0 = -33.6, X1 = 33.9, Z0 = -25.1, Z1 = 25.5;
+    const RIB = '#84392a', RIB2 = '#6c2c21', BACK = '#4b1e17', SOFF = {c:'#ebe7df', glow:'#ffe4c0', gk:0.32}, PAVE = '#bdb7ac', DECK = '#a8a39a',
+      LOB = {c:'#7d959e', glow:'#ffe2b6', gk:0.8}, GLS = {c:'#89a7ba', m:1, fh:3.9, cw:1.5, lc:'#fff0d4', lk:0.55}, MUL = '#d6dcdf', COL = '#f0eee8',
+      DGL = {c:'#33424a', glow:'#ffd9a6', gk:0.35}, LAWN = '#6f9b48', HEDGE = '#4b7632', LEAF = '#5c8f3e', RED = '#a23b2c', FIN = '#2a2a2c', WHITE = '#f4f3ef',
+      LAMP = {c:'#fff3d6', glow:'#ffd9a0', gk:1.5};
+    const FACES = [
+      {F:fZ(Z1, 1, 0), u0:X0, u1:X1},          // se: Marina View, u = x
+      {F:fX(X0, -1, 0), u0:Z0, u1:Z1},         // sw: Straits Boulevard, u = z
+      {F:fX(X1, 1, 0), u0:-Z1, u1:-Z0},        // ne: Union Street, u = -z
+      {F:fZ(Z0, -1, 0), u0:-X1, u1:-X0}];      // nw: towards the Conference Hall, u = -x
+    // a ribbed block on face f: u0..u1, bottom yb0 -> yb1 and top yt0 -> yt1 along u, front at w
+    const ribBlock = (f, u0, u1, yb0, yb1, yt0, yt1, w) => {
+      const F = f.F; slabP(B.p(BACK), [[u0, yb0], [u1, yb1], [u1, yt1], [u0, yt0]], F, -0.9, w);
+      boxF(B.p(RIB2), F, u0, u1, yb0 - 0.05, Math.min(yb0, yb1) + 0.12, w - 0.2, w + 0.32);
+      const n = Math.max(2, Math.round((u1 - u0)/0.7));
+      for (let i = 0; i < n; i++){ const t = (i + 0.5)/n, u = lerp(u0, u1, t), y0 = lerp(yb0, yb1, t), y1 = lerp(yt0, yt1, t);
+        boxF(B.p(i % 4 ? RIB : RIB2), F, u - 0.12, u + 0.12, y0, y1, w, w + 0.3);
+        if (R() < 0.35){ const yk = lerp(y0 + 0.8, y1 - 0.8, R()); boxF(B.p(RIB2), F, u - 0.17, u + 0.17, yk, yk + 0.4, w, w + 0.42); } }
+    };
+    // ---- site: plinth and pavement, street trees ----
+    { const P = rectXZ(X0 - 3, X1 + 3, Z0 - 3, Z1 + 4); wallP(B.p(DECK), P, -4, 0.3); capP(B.p(PAVE), P, 0.3); }
+    for (let x = X0 + 3; x < X1; x += 9.5) treeP(B, x, 0.3, Z1 + 2.6, 1.15, LEAF, x);
+    for (let z = Z0 + 4; z < Z1; z += 8) treeP(B, X0 - 1.8, 0.3, z, 1.1, LEAF, z);
+    // ---- base: the two-storey glazed hall, round columns, the soffit under the podium ----
+    bxP(B.p(LOB), X0 + 2.6, X1 - 2.6, 0.3, 9.9, Z0 + 2.6, Z1 - 2.6);
+    for (const f of FACES){ const L = f.u1 - f.u0;
+      for (let u = f.u0 + 3.2; u < f.u1 - 3; u += 2.4) boxF(B.p(MUL), f.F, u - 0.05, u + 0.05, 0.3, 9.9, -2.62, -2.5);
+      boxF(B.p(MUL), f.F, f.u0 + 2.6, f.u1 - 2.6, 5.0, 5.35, -2.62, -2.4);
+      const n = Math.round((L - 4)/8.2); for (let i = 0; i <= n; i++){ const p = f.F(f.u0 + 2 + (L - 4)*i/n, 0, -1.0); segP(B.p(COL), [p[0], 0.3, p[2]], [p[0], 10, p[2]], 0.42, 10); } }
+    bxP(B.p(SOFF), X0, X1, 9.75, 10.05, Z0, Z1);
+    for (let x = X0 + 4; x < X1 - 2; x += 6) for (const z of [Z0 + 1.2, Z1 - 1.2]) boxP(B.p(LAMP), 0.5, 0.08, 0.5, x, 9.68, z, 0);
+    // ---- podium (storeys 3-6): the core, louvred blocks on all four faces, shadow gaps, the cantilevered top band ----
+    bxP(B.p(BACK), X0 + 0.9, X1 - 0.9, 10, 30.2, Z0 + 0.9, Z1 - 0.9);
+    for (const f of FACES) boxF(B.p(DGL), f.F, f.u0 + 0.9, f.u1 - 0.9, 10.1, 25.3, -0.95, -0.85);
+    const [SE, SW, NE, NW] = FACES;
+    ribBlock(SE, X0 - 0.4, -1.5, 10.4, 10.4, 23.0, 23.0, 0.9);
+    ribBlock(SE, -1.5, 23.5, 10.4, 9.0, 23.6, 22.8, 1.6);
+    ribBlock(SE, 23.5, X1 + 2.4, 7.4, 7.4, 20.4, 20.6, 2.4);
+    ribBlock(SW, Z0 - 0.4, 8.5, 0.3, 0.3, 4.6, 4.6, 0.6);
+    ribBlock(SW, Z0 - 0.4, -8.0, 6.4, 6.8, 19.0, 18.2, 3.0);
+    ribBlock(SW, -8.0, Z1 + 0.9, 9.0, 10.3, 22.6, 22.6, 0.9);
+    ribBlock(NE, -Z1 - 2.4, 4.5, 10.2, 10.2, 22.4, 22.0, 1.2);
+    ribBlock(NE, 4.5, -Z0 + 0.4, 8.2, 9.4, 20.2, 20.2, 2.2);
+    ribBlock(NW, -X1 - 0.4, 2.0, 7.2, 8.8, 21.4, 21.4, 1.8);
+    ribBlock(NW, 2.0, -X0 + 0.4, 10.2, 10.2, 23.2, 22.6, 1.0);
+    for (const f of FACES){ ribBlock(f, f.u0 - 2.2, f.u1 + 2.2, 25.5, 25.5, 30.2, 30.2, 2.2);
+      boxF(B.p(SOFF), f.F, f.u0 - 2.2, f.u1 + 2.2, 25.3, 25.5, -0.9, 2.2);
+      for (let u = f.u0 + 2; u < f.u1; u += 5) boxF(B.p(LAMP), f.F, u - 0.25, u + 0.25, 25.22, 25.3, 1.0, 1.5); }
+    // planted terrace on the cantilevered Straits Boulevard block
+    capP(B.p(HEDGE), [[X0 - 2.9, Z0 + 0.2], [X0 - 0.4, Z0 + 0.2], [X0 - 0.4, -8.2], [X0 - 2.9, -8.2]], 19.05);
+    for (let z = Z0 + 2; z < -8.5; z += 4.2) treeP(B, X0 - 1.6, 19.0, z, 0.7, LEAF, z);
+    // ---- terrace storey (7): deck, planters and trees along the edge, recessed glazing, columns ----
+    capP(B.p(DECK), rectXZ(X0, X1, Z0, Z1), 30.25);
+    bxP(B.p(LOB), -27.6, 31.2, 30.25, 34.6, -20.6, 22.4);
+    for (let x = -26.5; x <= 33; x += 6) segP(B.p(COL), [x, 30.25, 23.6], [x, 34.6, 23.6], 0.33, 8);
+    for (let z = -20; z <= 23; z += 6) segP(B.p(COL), [-26.6, 30.25, z], [-26.6, 34.6, z], 0.33, 8);
+    for (let z = Z0 + 2; z < Z1 - 1; z += 4.6){ boxP(B.p(HEDGE), 1.4, 0.7, 1.4, X0 + 2.6, 30.25, z, 0); treeP(B, X0 + 2.6, 30.9, z, 0.75, LEAF, z); }
+    for (let x = X0 + 6; x < X1 - 2; x += 5.5){ boxP(B.p(HEDGE), 1.3, 0.6, 1.0, x, 30.25, Z1 - 0.7, 0); if (x > -27 && Math.round((x - X0 - 6)/5.5) % 2 === 0) treeP(B, x, 30.85, Z1 - 0.7, 0.55, LEAF, x); }
+    for (let z = Z0 + 3; z < Z1 - 3; z += 6) treeP(B, X1 - 1.0, 30.25, z, 0.6, LEAF, z);
+    // ---- the glass box (storeys 8-10): curtain wall with mullion fins and transoms, soffit, coping ----
+    const GX0 = -27.0, GX1 = 33.4, GZ0 = -21.5, GZ1 = 24.4, GY0 = 34.6, GY1 = 50.2, GB = rectXZ(GX0, GX1, GZ0, GZ1);
+    wallP(B.p(GLS), GB, GY0, GY1); capP(B.p(SOFF), GB, GY0); capP(B.p(DECK), GB, GY1);
+    for (const e of edgesF(GB)){
+      for (let u = 0.75; u < e.L; u += 1.5) boxF(B.p(MUL), e.F, u - 0.045, u + 0.045, GY0, GY1, 0, u % 6 < 1.5 ? 0.42 : 0.2);
+      for (const y of [38.5, 42.4, 46.3]) boxF(B.p(MUL), e.F, 0, e.L, y - 0.07, y + 0.07, 0, 0.14);
+      boxF(B.p('#c3cacd'), e.F, -0.1, e.L + 0.1, GY0 - 0.1, GY0 + 0.35, -0.05, 0.3);
+      boxF(B.p('#c3cacd'), e.F, -0.1, e.L + 0.1, GY1, GY1 + 1.15, -0.05, 0.3); }
+    // ---- roof garden: lawns, hedges, white cube pavilions, red-leaf trees in a grid, the finned plant screen ----
+    capP(B.p(LAWN), rectXZ(-22, 12, -6, 20), 50.4); capP(B.p(LAWN), rectXZ(-24, -6, -18, -9), 50.4);
+    for (const [x0, x1, z0, z1] of [[-23.5, 14, 21, 22.2], [-23.5, -22.4, -6, 21], [13, 14.2, -6, 21], [-6, 12, -8.6, -7.4]]) bxP(B.p(HEDGE), x0, x1, 50.2, 51.0, z0, z1);
+    for (const [x, z] of [[-17, 14], [-9, 14], [7, 2], [-19, -13]]) boxP(B.p(WHITE), 3.2, 3.0, 3.2, x, 50.2, z, 0);
+    for (let i = 0; i < 4; i++) for (let k = 0; k < 3; k++) treeP(B, -4 + i*4.4, 50.4, -1 + k*5.6, 0.62, RED, i + k);
+    bxP(B.p('#3a3a3c'), 18, 31.6, 50.2, 54.6, -19.5, -3.5);
+    for (const e of edgesF(rectXZ(18, 31.6, -19.5, -3.5))) for (let u = 0.3; u < e.L; u += 0.75) boxF(B.p(FIN), e.F, u - 0.08, u + 0.08, 50.2, 54.8, 0, 0.35);
+    B.flush(g); aim(g, 0.99396, 0.20944);
+    return g;
+  }};
+SG_PLACES.push({type:'dtcsccc', lat:1.275829, lon:103.849514, rot:0.20944});
+
+// ======================================================================================================
+// Red Dot Design Museum (红点设计博物馆), 11 Marina Boulevard. The museum left the Red Dot Traffic Building on Maxwell
+// Road in 2017 and has since occupied the former Marina Bay City Gallery on the Marina Bay waterfront promenade (two
+// floors of galleries, shop, cafe; still there in 2026). The building: two glass pavilions under two thin, wide
+// canopies whose tops are covered in a grid of solar panels, each canopy carried on raked white steel tubes set in
+// crossing pairs (X) round its edge, the glass walls standing back under the overhang with slim mullions; at the
+// entrance a cascade of red chain-mesh drapes hangs from the canopy in front of the glass like fanned louvres, lit
+// along their tops by small lights at night. Night: glowing glass, the drapes and the canopy edges lit.
+// OSM way 116801907 (a lozenge 67.7 m long, 24 m wide, height 9; anchor = its centroid), read as the two canopies
+// (north and south lobes; the glass walls ~3 m inside them). Natural frame: +x = NNE along the lozenge, +z = ESE.
+// Heights: OSM 9 m; north canopy 9.2 m, south canopy 8.3 m (estimates from photos). The side the drapes face is not
+// documented in the sources found: they are put on the ESE side of the north pavilion, towards the plaza.
+// ======================================================================================================
+LANDMARKS.dtcreddot = {zh:'红点设计博物馆', en:'Red Dot Design Museum', cat:'new', r:22, h:10,
+  lt:{m:0, c:'#fff0dc', k:0.75, e:0.55},
+  build(){
+    const g = new THREE.Group(), B = mkB();
+    const PV = '#2a3550', PVL = '#97a1ad', WHITE = '#f1f2f0', STEEL = '#eceeee', SOFF = {c:'#e9ebea', glow:'#ffe9c8', gk:0.25}, PAVE = '#6b6f71', PAVE2 = '#7f8385',
+      GLS = {c:'#4d6873', glow:'#ffe1b4', gk:0.55}, MUL = '#d9dee0', REDM = {c:'#a5262b', glow:'#ff4a30', gk:0.22}, REDK = '#7b1b20', LED = {c:'#ffc58a', glow:'#ff9a48', gk:2.2};
+    const NP = [[32.09, -1.16], [-4.71, -13.31], [3.67, 10.48], [10.25, 6.75], [15.4, 8.36]];
+    const SP = [[-4.71, -13.31], [-25.46, -3.36], [-28.36, -4.29], [-35.6, -1.16], [3.67, 10.48]];
+    // ---- plaza: dark slate paving round the pavilions ----
+    { const A = [[37, -1.2], [-5.5, -17.5], [-40, -1.2], [4.5, 15], [17.5, 12]]; wallP(B.p(PAVE), A, -3, 0.12); capP(B.p(PAVE), A, 0.12);
+      for (let x = -38; x < 36; x += 1.6) for (const [a, b] of scanP(A, x, true)) boxP(B.p(PAVE2), 0.05, 0.02, b - a, x, 0.12, (a + b)/2, 0); }
+    const pav = (P, inset, CY) => {
+      const GP = offIn(P, inset);
+      // glass walls, mullions, transom at the gallery floor, white base band
+      wallP(B.p(GLS), GP, 0.25, CY);
+      for (const e of edgesF(GP)){ for (let u = 0.8; u < e.L - 0.2; u += 1.6) boxF(B.p(MUL), e.F, u - 0.045, u + 0.045, 0.25, CY, 0, 0.12);
+        boxF(B.p(MUL), e.F, 0, e.L, 4.35, 4.55, 0, 0.14); boxF(B.p(WHITE), e.F, 0, e.L, 0.25, 0.6, 0, 0.08); }
+      capP(B.p('#d8dad9'), GP, CY - 0.02);
+      // the canopy: white soffit with steel beams, fascia, solar-panel top with its grid
+      capP(B.p(SOFF), P, CY); wallP(B.p(WHITE), P, CY, CY + 0.5); capP(B.p(PV), P, CY + 0.5);
+      for (let x = -36; x < 33; x += 3.2) for (const [a, b] of scanP(P, x, true)) boxP(B.p(STEEL), 0.16, 0.35, b - a, x, CY - 0.35, (a + b)/2, 0);
+      for (let x = -36; x < 33; x += 1.7) for (const [a, b] of scanP(P, x, true)) boxP(B.p(PVL), 0.07, 0.03, b - a, x, CY + 0.5, (a + b)/2, 0);
+      for (let z = -14; z < 11; z += 1.05) for (const [a, b] of scanP(P, z, false)) boxP(B.p(PVL), b - a, 0.03, 0.07, (a + b)/2, CY + 0.5, z, 0);
+      // raked white tubes in crossing pairs round the edge
+      for (const e of edgesF(P)){ if (e.L < 3) continue; const n = Math.max(1, Math.round(e.L/6.5));
+        for (let k = 0; k < n; k++){ const u = (k + 0.5)*e.L/n;
+          for (const s of [-1, 1]) segP(B.p(STEEL), e.F(u - s*1.7, 0.25, -1.7), e.F(u + s*1.3, CY - 0.05, -0.45), 0.13, 6); } }
+      return GP;
+    };
+    pav(NP, 3.0, 8.7); pav(SP, 2.6, 7.8);
+    // ---- the entrance drapes: bowed red chain-mesh panels fanned like louvres, a light strip on each top ----
+    const drape = (cx, cz, ang, w, y0, y1) => {
+      const c = Math.cos(ang), s = Math.sin(ang), P = (t, y) => { const b = 0.28*Math.sin(PI*t)*(0.4 + 0.6*(y - y0)/(y1 - y0)), u = (t - 0.5)*w; return [cx + u*c - b*s, y, cz - u*s - b*c]; };
+      const N = 6; for (let i = 0; i < N; i++){ const t0 = i/N, t1 = (i + 1)/N; quadP(B.p(REDM), P(t0, y0), P(t1, y0), P(t1, y1), P(t0, y1)); }
+      for (let y = y0 + 0.3; y < y1; y += 0.32) for (let i = 0; i < N; i++){ const a = P(i/N, y), b = P((i + 1)/N, y); segP(B.p(REDK), [a[0], a[1], a[2]], [b[0], b[1], b[2]], 0.025, 3); }
+      for (let i = 0; i < N; i++){ const a = P(i/N, y1), b = P((i + 1)/N, y1); segP(B.p(LED), [a[0], a[1] + 0.05, a[2]], [b[0], b[1] + 0.05, b[2]], 0.05, 4); }
+    };
+    { const A = [5.31, 6.1], Bq = [9.9, 3.5], C = [15.05, 5.11];
+      const seg = (p, q, n, sgn) => { const dx = q[0] - p[0], dz = q[1] - p[1], L = Math.hypot(dx, dz), ex = dx/L, ez = dz/L, nx = -ez*sgn, nz = ex*sgn, base = Math.atan2(-dz, dx);
+        for (let i = 0; i < n; i++){ const t = (i + 0.5)/n, x = p[0] + dx*t + nx*1.1, z = p[1] + dz*t + nz*1.1; drape(x, z, base + (i % 2 ? 0.42 : -0.3), 2.3, i % 3 ? 1.2 : 0.4, 8.45 - (i % 2)*0.4); } };
+      seg([1.2, 7.4], A, 2, 1); seg(A, Bq, 2, 1); seg(Bq, C, 2, 1); }
+    B.flush(g); aim(g, 1.30851, 0.95945);
+    return g;
+  }};
+SG_PLACES.push({type:'dtcreddot', lat:1.280085, lon:103.856275, rot:0.95945});
+
+// ======================================================================================================
+// Masjid Al-Burhani (布尔哈尼回教堂), 39 Hill Street - the mosque of Singapore's Dawoodi Bohra community (first masjid
+// 1890s, rebuilt 1950s; the present complex with its ten-storey annex reopened in 2000). On a deep, narrow lot running
+// back from Hill Street: the white entrance porch on the street - three pointed arches with carved archivolts on paired
+// slender columns, black lattice in the arch heads above a lintel band, black iron gates, roundels in the spandrels, an
+// arabesque frieze and cornice; behind it the prayer hall with crenellated parapets of rounded merlons, the white dome on
+// its sloped octagonal base and small domed kiosks (chhatris) on the corners; at the back the white annex tower with two
+// dark window strips flanking a pierced lattice (jali) band, a row of small pointed openings under the parapet and
+// chhatris on its corners. All white, lattice dark. Night: floodlit white, the dome and porch lamps, lit windows.
+// OSM way 723676572 (9.65 x 59.3 m, height 13 = the hall; anchor = its centroid). Natural frame: +z = the porch front on
+// Hill Street (WNW), +x = SSW (towards the Chamber of Commerce). Heights from the photos: porch 6.4 m, hall parapet 8.8 m,
+// dome 12.1 m, annex ~45 m (ten/eleven storeys x ~4 m; estimate). The annex is taken as filling the back of the lot.
+// Hill Street is in front and the 42 m Chamber of Commerce block hugs the south side, so the card view is aimed from the
+// west-south-west across Hill Street (the furthest round the viewer allows) to show the porch three-quarter on, and its
+// target is pulled forward from the middle of the lot towards the porch (aim's ext box reaching over Hill Street).
+// ======================================================================================================
+LANDMARKS.dtcburhani = {zh:'布尔哈尼回教堂', en:'Masjid Al-Burhani', cat:'old', r:6, h:48,
+  lt:{m:0, c:'#fff0d8', k:1.15, e:0.6},
+  build(){
+    const g = new THREE.Group(), B = mkB(), V = mkV(), R = LMCTX.rng;
+    const WHITE = '#f3f0e8', WH2 = '#e9e5da', ORN = '#d9d2c1', ORN2 = '#c4bba6', LAT = '#2d3134', IRON = '#1e2022', GRAN = '#9c988e', STONE = '#c9c3b6',
+      DOOR = '#4a3a2c', WIN = {c:'#2b3236', glow:'#ffd6a0', gk:0.5}, LATW = {c:'#2d3134', glow:'#ffcf8a', gk:0.55}, LAMP = {c:'#fff1cc', glow:'#ffd890', gk:1.7};
+    const XL = -5.45, XR = 4.2, XM = (XL + XR)/2, ZF = 28.45, ZP = 22.6, ZH = 3.0, ZB = -30.8, Y0 = 0.45;
+    // ---- plinth, steps ----
+    bxP(B.p(GRAN), XL - 0.3, XR + 0.3, -4, Y0, ZB, ZF + 0.3);
+    bxP(B.p(STONE), XL - 0.3, XR + 0.3, -4, 0.3, ZF + 0.3, ZF + 1.1); bxP(B.p(STONE), XL - 0.3, XR + 0.3, -4, 0.15, ZF + 1.1, ZF + 1.8);
+    // ---- the porch ----
+    const F = fZ(ZF, 1, 0), YS = 4.05, HW = 1.15, RISE = 1.5, AC = [XM - 3.1, XM, XM + 3.1];
+    { const P = [[XL, YS]]; for (const c of AC) for (const p of archPts(c, HW, YS, RISE, 7)) P.push(p); P.push([XR, YS], [XR, 6.0], [XL, 6.0]);
+      slabP(B.p(WHITE), P, F, -0.55, 0); }
+    boxF(B.p(WHITE), F, XL, AC[0] - HW, Y0, YS, -0.55, 0); boxF(B.p(WHITE), F, AC[2] + HW, XR, Y0, YS, -0.55, 0);
+    for (const c of AC){
+      // carved archivolt, lintel band, lattice in the arch head, iron gate, hanging lamps
+      const out = archPts(c, HW + 0.3, YS, RISE + 0.33, 8), inn = archPts(c, HW, YS, RISE, 8).reverse();
+      slabP(B.p(ORN), out.concat(inn), F, 0, 0.07);
+      boxF(B.p(WH2), F, c - HW, c + HW, YS - 0.25, YS, -0.5, -0.12);
+      shapeP(B.p(LATW), archPts(c, HW, YS, RISE, 8), F, -0.32);
+      for (let v = YS + 0.15; v < YS + RISE - 0.1; v += 0.26) { const hw = archHW(HW, RISE, v - YS) - 0.1; for (let u = -hw + 0.1; u <= hw - 0.05; u += 0.26){ const uu = c + u + ((Math.round((v - YS)/0.26) % 2) ? 0.13 : 0); if (Math.abs(uu - c) > hw - 0.05) continue; shapeP(B.p(WH2), [[uu, v - 0.07], [uu + 0.07, v], [uu, v + 0.07], [uu - 0.07, v]], F, -0.3); } }
+      for (let u = c - HW + 0.08; u < c + HW; u += 0.15) boxF(B.p(IRON), F, u - 0.02, u + 0.02, Y0, 2.75, -0.42, -0.38);
+      boxF(B.p(IRON), F, c - HW, c + HW, 2.7, 2.82, -0.44, -0.36); boxF(B.p(IRON), F, c - HW, c + HW, 1.2, 1.28, -0.44, -0.36);
+      for (const s of [-0.55, 0.55]){ const p = F(c + s, 0, -1.6); segP(B.p(IRON), [p[0], 3.95, p[2]], [p[0], 3.4, p[2]], 0.02, 3); boxP(B.p(LAMP), 0.26, 0.38, 0.26, p[0], 3.05, p[2], 0); } }
+    // paired slender columns between the arches, roundels in the spandrels
+    for (const c of [XM - 1.55, XM + 1.55]){
+      for (const s of [-0.2, 0.2]){ const p = F(c + s, 0, -0.27); latheP(B.p(WHITE), [[0.2, Y0], [0.2, Y0 + 0.3], [0.13, Y0 + 0.4], [0.12, 3.55], [0.17, 3.65], [0.17, 3.8]], p[0], p[2], 10); }
+      boxF(B.p(WHITE), F, c - 0.42, c + 0.42, 3.78, YS, -0.55, 0.02);
+      slabP(B.p(ORN), ringPts(c, 5.1, 0.28, 12), F, 0, 0.09); slabP(B.p(WH2), ringPts(c, 5.1, 0.15, 10), F, 0.09, 0.13); }
+    for (const c of [XL + 0.36, XR - 0.36]){ slabP(B.p(ORN), ringPts(c, 5.25, 0.2, 10), F, 0, 0.08); }
+    // arabesque frieze, cornice, porch roof; side walls, ceiling, back wall with doors
+    boxF(B.p(ORN), F, XL, XR, 5.55, 6.0, 0, 0.06);
+    for (let u = XL + 0.2; u < XR - 0.1; u += 0.32) vAdd(V, '#bdb39d', t => { shapeP(t, [[u, 5.62], [u + 0.13, 5.775], [u, 5.93], [u - 0.13, 5.775]], F, 0.07); shapeP(t, [[u + 0.16, 5.74], [u + 0.2, 5.775], [u + 0.16, 5.81], [u + 0.12, 5.775]], F, 0.07); });
+    boxF(B.p(WHITE), F, XL - 0.12, XR + 0.12, 6.0, 6.22, -0.6, 0.2); boxF(B.p(WH2), F, XL - 0.06, XR + 0.06, 6.22, 6.42, -0.6, 0.1);
+    capP(B.p(WHITE), rectXZ(XL, XR, ZP, ZF - 0.55), 6.42); capP(B.p(WH2), rectXZ(XL, XR, ZP, ZF - 0.55), 5.95);
+    bxP(B.p(WHITE), XL, XL + 0.45, Y0, 6.42, ZP, ZF); bxP(B.p(WHITE), XR - 0.45, XR, Y0, 6.42, ZP, ZF);
+    for (const [x, s] of [[XL, -1], [XR, 1]]){ const Fs = fX(x, s, 0); boxF(B.p(LAT), Fs, -s*25.4 - 0.45, -s*25.4 + 0.45, 2.4, 3.6, 0, 0.03); }
+    capP(B.p(STONE), rectXZ(XL, XR, ZP, ZF - 0.55), Y0 + 0.02);
+    { const Fb = fZ(ZP, 1, 0); for (const c of AC){ boxF(B.p(DOOR), Fb, c - 0.75, c + 0.75, Y0, 3.3, 0, 0.06); shapeP(B.p(LATW), mv(pArchO(0.75, 0.6, 1.25, 6), c, 3.3), Fb, 0.05); } }
+    // ---- the prayer hall: walls, side windows, crenellated parapets, dome, corner kiosks ----
+    bxP(B.p(WHITE), XL, XR, Y0, 8.0, ZH, ZP);
+    const crenel = (Fw, u0, u1) => { boxF(B.p(WH2), Fw, u0, u1, 7.85, 8.05, -0.35, 0.1);
+      for (let u = u0 + 0.42; u < u1 - 0.2; u += 0.84){ const P = [[u - 0.24, 8.05], [u + 0.24, 8.05]]; for (let i = 0; i <= 6; i++){ const a = PI*i/6; P.push([u + 0.24*Math.cos(a), 8.4 + 0.24*Math.sin(a)]); } slabP(B.p(WHITE), P, Fw, -0.3, 0); } };
+    crenel(fZ(ZP, 1, 0), XL, XR); crenel(fX(XL, -1, 0), ZH, ZP); crenel(fX(XR, 1, 0), -ZP, -ZH);
+    for (const [x, s] of [[XL, -1], [XR, 1]]){ const Fs = fX(x, s, 0);
+      for (const z of [7.5, 12.8, 18.1]){ const u = -s*z; slabP(B.p(ORN), mv(pArchO(0.78, 2.2, 3.4, 6), u, 2.0), Fs, 0, 0.06); shapeP(B.p(LATW), mv(pArchO(0.6, 2.1, 3.2, 6), u, 2.1), Fs, 0.08); } }
+    { const zc = 13.2, x = XM;
+      bxP(B.p(WHITE), x - 3.2, x + 3.2, 8.0, 8.55, zc - 3.2, zc + 3.2);
+      latheP(B.p(WH2), [[3.25, 8.55], [3.25, 8.7], [2.35, 9.45], [2.35, 9.75]], x, zc, 8, PI/8);
+      const prof = []; for (let i = 0; i <= 10; i++){ const f = i/10*HP; prof.push([2.3*Math.cos(f), 9.75 + 2.35*Math.sin(f)]); } prof[10][0] = 0.02;
+      latheP(B.p('#f6f4ee'), prof, x, zc, 22);
+      latheP(B.p(ORN), [[0.16, 12.05], [0.16, 12.25], [0.1, 12.35], [0.02, 12.6]], x, zc, 8);
+      for (let i = 0; i < 16; i++){ const a = i/16*TAU; boxP(B.p(WHITE), 0.3, 0.32, 0.18, x + Math.cos(a)*2.42, 9.75, zc + Math.sin(a)*2.42, -a); } }
+    const kiosk = (x, y, z, s) => {
+      bxP(B.p(WHITE), x - 0.62*s, x + 0.62*s, y, y + 0.5*s, z - 0.62*s, z + 0.62*s);
+      bxP(B.p(LAT), x - 0.38*s, x + 0.38*s, y + 0.5*s, y + 1.5*s, z - 0.38*s, z + 0.38*s);
+      for (const dx of [-1, 1]) for (const dz of [-1, 1]) bxP(B.p(WHITE), x + dx*0.5*s - 0.1*s, x + dx*0.5*s + 0.1*s, y + 0.5*s, y + 1.5*s, z + dz*0.5*s - 0.1*s, z + dz*0.5*s + 0.1*s);
+      for (const [dx, dz] of [[0, 1], [0, -1], [1, 0], [-1, 0]]){ const P = archPts(0, 0.3*s, 0, 0.32*s, 5); for (const p of P) p[1] += y + 1.18*s;
+        const Fk = dz ? fZ(z + dz*0.5*s, dz, x) : fX(x + dx*0.5*s, dx, z); slabP(B.p(WHITE), [[-0.42*s, y + 1.18*s]].concat(P, [[0.42*s, y + 1.18*s], [0.42*s, y + 1.62*s], [-0.42*s, y + 1.62*s]]), Fk, -0.1*s, 0.02*s); }
+      bxP(B.p(WH2), x - 0.68*s, x + 0.68*s, y + 1.6*s, y + 1.75*s, z - 0.68*s, z + 0.68*s);
+      latheP(B.p('#f6f4ee'), [[0.52*s, y + 1.75*s], [0.55*s, y + 1.95*s], [0.45*s, y + 2.25*s], [0.22*s, y + 2.48*s], [0.02, y + 2.6*s]], x, z, 12);
+      segP(B.p(ORN), [x, y + 2.55*s, z], [x, y + 2.85*s, z], 0.04*s, 4); };
+    for (const z of [ZP - 0.65, ZH + 1.0]) for (const x of [XL + 0.65, XR - 0.65]) kiosk(x, 8.0, z, 1);
+    // ---- the annex tower ----
+    const YT = 45.0;
+    bxP(B.p(WHITE), XL, XR, Y0, YT, ZB, ZH);
+    const tower = (Ft, u0, u1, front) => {
+      const um = (u0 + u1)/2;
+      for (const s of [-1, 1]){ const uc = um + s*2.55;
+        shapeP(B.p(WIN), rectO(uc - 0.62, uc + 0.62, 11.0, 39.6), Ft, 0.02);
+        for (let y = 11.0 + 3.6; y < 39.5; y += 3.6) boxF(B.p(WH2), Ft, uc - 0.62, uc + 0.62, y - 0.08, y + 0.08, 0, 0.05);
+        boxF(B.p(ORN), Ft, uc - 0.8, uc + 0.8, 39.6, 40.25, 0, 0.14); boxF(B.p(ORN), Ft, uc - 0.75, uc + 0.75, 10.75, 11.0, 0, 0.1); }
+      if (front){
+        slabP(B.p('#ebe7dd'), mv(pArchO(0.78, 26.2, 27.4, 6), um, 13.6), Ft, 0, 0.08);
+        let row = 0; for (let v = 13.85; v < 40.6; v += 0.34, row++){ const hw = v < 39.8 ? 0.62 : archHW(0.78, 1.2, v - 39.8) - 0.16; for (let u = -hw + 0.12 + (row % 2)*0.17; u <= hw - 0.08; u += 0.34)
+          shapeP(B.p(LATW), [[um + u, v - 0.12], [um + u + 0.1, v], [um + u, v + 0.12], [um + u - 0.1, v]], Ft, 0.09); }
+      }
+      const n = 8; for (let i = 0; i < n; i++){ const u = lerp(u0 + 0.8, u1 - 0.8, i/(n - 1)); shapeP(B.p(WIN), mv(pArchO(0.22, 0.95, 1.45, 5), u, 41.7), Ft, 0.03); }
+      boxF(B.p(WH2), Ft, u0 - 0.12, u1 + 0.12, 43.6, 43.95, -0.2, 0.16); };
+    tower(fZ(ZH, 1, 0), XL, XR, true); tower(fZ(ZB, -1, 0), -XR, -XL, false);
+    for (const [x, s] of [[XL, -1], [XR, 1]]){ const Fs = fX(x, s, 0), u0 = s < 0 ? ZB : -ZH, u1 = s < 0 ? ZH : -ZB;
+      for (let i = 0; i < 7; i++){ const uc = lerp(u0 + 3.6, u1 - 3.6, i/6);
+        shapeP(B.p(WIN), rectO(uc - 0.45, uc + 0.45, 10.5, 40.2), Fs, 0.02);
+        for (let y = 10.5 + 3.6; y < 40; y += 3.6) boxF(B.p(WH2), Fs, uc - 0.45, uc + 0.45, y - 0.07, y + 0.07, 0, 0.04); }
+      const uj = s < 0 ? ZH - 0.9 : -ZH + 0.9; shapeP(B.p('#e6e1d5'), rectO(uj - 0.4, uj + 0.4, 9.0, 42.5), Fs, 0.04);
+      for (let v = 9.3; v < 42.3; v += 0.4) shapeP(B.p(LATW), [[uj, v - 0.13], [uj + 0.13, v], [uj, v + 0.13], [uj - 0.13, v]], Fs, 0.06);
+      boxF(B.p(WH2), Fs, u0 - 0.12, u1 + 0.12, 43.6, 43.95, -0.2, 0.16); }
+    for (const z of [ZH - 0.75, ZB + 0.75]) for (const x of [XL + 0.75, XR - 0.75]) kiosk(x, YT, z, 1.15);
+    for (const x of [XL - 0.1, XR + 0.1]){ segP(B.p(IRON), [x, 0.3, ZF + 1.0], [x, 3.2, ZF + 1.0], 0.07, 6); boxP(B.p(LAMP), 0.3, 0.45, 0.3, x, 3.2, ZF + 1.0, 0); }
+    B.flush(g); vFlush(g, V); aim(g, -2.04514, -0.97738, [[-53, 0], [0, 43]]);
+    return g;
+  }};
+SG_PLACES.push({type:'dtcburhani', lat:1.293381, lon:103.850419, rot:-0.97738});
+}
+
+// ===== City Brush — group dt_hotels (Downtown Core: Marina Square and Millenia hotels): 4 landmark models =====
+// The hotels that serve three restaurants — Mandarin Oriental Singapore (Cherry Garden), PARKROYAL COLLECTION Marina Bay
+// (Peach Blossoms), both on the Marina Square podium (John Portman, 1987), and The Ritz-Carlton Millenia Singapore
+// (Summer Pavilion; Kevin Roche John Dinkeloo, 1996) — plus the Marina Square podium itself as its own key, so each hotel
+// key frames its tower and the podium the hotels stand on is modelled once.
+// Footprints and building:part outlines from OpenStreetMap (way ids per key below, fetched 2026-10-31); local metres,
+// +x east, +z south, rot 0, origin = the area centroid of the key's main OSM way. Storey heights from OSM building:levels
+// mapped to the published heights (CTBUH Skyscraper Center: Mandarin Oriental and PARKROYAL 83.2 m, Ritz-Carlton 129 m).
+// Colours and facade rhythm from Wikimedia Commons photos (intentai-work/downtown/3d/dt_hotels/refs). No text, logos or
+// brand colours on any model.
+{
+const PI = Math.PI, TAU = PI*2;
+const mkB = () => { const M = new Map(); return {
+  p(col){ const k = typeof col === 'string' ? col : JSON.stringify(col); let e = M.get(k); if (!e){ e = {col, a:[]}; M.set(k, e); } return e.a; },
+  flush(g){ for (const e of M.values()) if (e.a.length) LTris(g, e.a, e.col); M.clear(); } }; };
+const quad = (o, a, b, c, d) => o.push(...a, ...b, ...c, ...a, ...c, ...d);
+const tri = (o, a, b, c) => o.push(...a, ...b, ...c);
+function segP(o, a, b, r, n){
+  n = n || 4; const dx = b[0]-a[0], dy = b[1]-a[1], dz = b[2]-a[2], L = Math.hypot(dx, dy, dz); if (L < 1e-4) return;
+  const d = [dx/L, dy/L, dz/L], up = Math.abs(d[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+  let ux = d[1]*up[2]-d[2]*up[1], uy = d[2]*up[0]-d[0]*up[2], uz = d[0]*up[1]-d[1]*up[0]; const ul = Math.hypot(ux, uy, uz); ux /= ul; uy /= ul; uz /= ul;
+  const vx = d[1]*uz-d[2]*uy, vy = d[2]*ux-d[0]*uz, vz = d[0]*uy-d[1]*ux;
+  const ring = p => { const R = []; for (let i = 0; i < n; i++){ const t = (i + 0.5)/n*TAU, c = Math.cos(t)*r, s = Math.sin(t)*r; R.push([p[0]+ux*c+vx*s, p[1]+uy*c+vy*s, p[2]+uz*c+vz*s]); } return R; };
+  const A = ring(a), B = ring(b);
+  for (let i = 0; i < n; i++){ const j = (i+1) % n; quad(o, A[i], A[j], B[j], B[i]); }
+}
+function boxT(o, cx, y0, cz, w, h, d, ry){
+  const c = Math.cos(ry || 0), s = Math.sin(ry || 0), P = (x, y, z) => [cx + x*c + z*s, y, cz - x*s + z*c];
+  const hw = w/2, hd = d/2, y1 = y0 + h;
+  const A = P(-hw, y0, -hd), B = P(hw, y0, -hd), C = P(hw, y0, hd), D = P(-hw, y0, hd), E = P(-hw, y1, -hd), F = P(hw, y1, -hd), G = P(hw, y1, hd), H = P(-hw, y1, hd);
+  quad(o, E, H, G, F); quad(o, A, B, F, E); quad(o, B, C, G, F); quad(o, C, D, H, G); quad(o, D, A, E, H); quad(o, A, D, C, B);
+}
+function flatT(o, P, y){
+  const t2 = THREE.ShapeUtils.triangulateShape(P.map(p => new THREE.Vector2(p[0], p[1])), []);
+  for (const t of t2){ const a = P[t[0]], b = P[t[1]], c = P[t[2]]; o.push(a[0], y, a[1], b[0], y, b[1], c[0], y, c[1]); }
+}
+function latheT(o, prof, n, cx, cz, a0){
+  a0 = a0 || 0;
+  for (let i = 0; i < n; i++){ const t0 = a0 + TAU*i/n, t1 = a0 + TAU*(i+1)/n, c0 = Math.cos(t0), s0 = Math.sin(t0), c1 = Math.cos(t1), s1 = Math.sin(t1);
+    for (let k = 0; k < prof.length - 1; k++){ const p = prof[k], q = prof[k+1];
+      quad(o, [cx + p[0]*c0, p[1], cz + p[0]*s0], [cx + p[0]*c1, p[1], cz + p[0]*s1], [cx + q[0]*c1, q[1], cz + q[0]*s1], [cx + q[0]*c0, q[1], cz + q[0]*s0]); } }
+}
+const sArea = P => { let A = 0; for (let i = 0; i < P.length; i++){ const a = P[i], b = P[(i+1) % P.length]; A += a[0]*b[1] - b[0]*a[1]; } return A/2; };
+// facade frames of a plan's edges: s along the edge from P[i], o outwards (from the polygon's winding), y up
+function edges(P){ const sg = sArea(P) > 0 ? 1 : -1, out = [];
+  for (let i = 0; i < P.length; i++){ const a = P[i], b = P[(i+1) % P.length], W = Math.hypot(b[0]-a[0], b[1]-a[1]) || 1e-6, tx = (b[0]-a[0])/W, tz = (b[1]-a[1])/W, nx = tz*sg, nz = -tx*sg;
+    const ry = Math.atan2(-tz, tx), pt = (s, y, o) => [a[0] + tx*s + nx*(o || 0), y, a[1] + tz*s + nz*(o || 0)];
+    out.push({i, W, tx, tz, nx, nz, ry, pt,
+      q(arr, s0, s1, y0, y1, o){ quad(arr, pt(s0, y0, o), pt(s1, y0, o), pt(s1, y1, o), pt(s0, y1, o)); },
+      bx(arr, s, y0, o, w, h, d){ const p = pt(s, 0, o); boxT(arr, p[0], y0, p[2], w, h, d, ry); }}); }
+  return out; }
+function wallsT(o, P, y0, y1){ for (const E of edges(P)) E.q(o, 0, E.W, y0, y1, 0); }
+// framing hint for the app's card camera (it looks across the longer side of a model's bounding box from its south-east
+// half): a hidden line whose preset bounding box widens the model's box, as in lm40/ct_temples
+const frameHint = (g, x0, x1, z0, z1) => { const geo = new THREE.BufferGeometry(), cx = (x0 + x1)/2, cz = (z0 + z1)/2;
+  geo.setAttribute('position', new THREE.Float32BufferAttribute([cx, 0.5, cz, cx, 0.6, cz], 3));
+  geo.boundingBox = new THREE.Box3(new THREE.Vector3(x0, 0.5, z0), new THREE.Vector3(x1, 0.6, z1)); geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(cx, 0.5, cz), 0.2);
+  const m = new THREE.Line(geo, new THREE.LineBasicMaterial({visible:false})); m.frustumCulled = true; g.add(m); };
+
+// shared materials: window glass by day, lit rooms at night (warm), cool-lit lobbies
+const GL = {c:'#3e4c55', ds:true}, GL2 = {c:'#56707c', ds:true}, LIT = {c:'#46545c', ds:true, glow:'#ffd596', gk:1.15}, LIT2 = {c:'#5d7884', ds:true, glow:'#ffe7c0', gk:0.9},
+  LOB = {c:'#6c8590', ds:true, glow:'#fff0d0', gk:1.3}, LAMP = {c:'#fff3d6', ds:true, glow:'#ffdca0', gk:1.6}, GREEN = {c:'#5e8a48', ds:true}, GREEN2 = {c:'#47753a', ds:true},
+  DARK = {c:'#2c3034', ds:true}, RAIL = {c:'#e9e7e1', ds:true}, MUL = {c:'#8f979b', ds:true}, ROOF = {c:'#b9b4a8', ds:true}, PLANT = {c:'#a3a7a6', ds:true};
+const win = (r, k) => r() < (k || 0.5) ? LIT : GL;
+
+// balcony-stepped storeys (the Portman atrium hotels): slab edges, railings, recessed glass and pier walls, planters
+function balT(B, P, y0, y1, fh, C, r, minW, skip){
+  const n = Math.max(1, Math.round((y1 - y0)/fh)), h = (y1 - y0)/n;
+  for (const E of edges(P)){ if (E.W < (minW || 1.2) || (skip && skip(E))) continue;
+    const nb = Math.max(1, Math.round(E.W/4.2)), bw = E.W/nb;
+    for (let j = 0; j < n; j++){ const y = y0 + j*h;
+      E.q(B.p(C.wall), 0, E.W, y, y + 0.45, 0.02);                                     // slab edge band
+      quad(B.p(C.wall), E.pt(0, y + 0.45, 0.02), E.pt(E.W, y + 0.45, 0.02), E.pt(E.W, y + 0.45, -1.5), E.pt(0, y + 0.45, -1.5));
+      for (let k = 0; k < nb; k++){ const s0 = k*bw, s1 = s0 + bw;
+        E.q(B.p(r() < 0.12 ? C.wall : win(r, 0.45)), s0 + 0.35, s1 - 0.35, y + 0.45, y + h, -1.5);
+        E.q(B.p(C.pier), s0, s0 + 0.35, y + 0.45, y + h, -1.5); E.q(B.p(C.pier), s1 - 0.35, s1, y + 0.45, y + h, -1.5);
+        if (bw > 2.5) E.bx(B.p(C.wall), s0 + 0.12, y + 0.45, -0.75, 0.24, h - 0.45, 1.5);       // party wall between balconies
+        if (C.plant && r() < C.plant) E.bx(B.p(r() < 0.5 ? GREEN : GREEN2), (s0 + s1)/2, y + 0.45, -0.15, bw*0.6, 0.55, 0.3);
+      }
+      segP(B.p(RAIL), E.pt(0, y + 1.45, -0.05), E.pt(E.W, y + 1.45, -0.05), 0.05, 3);
+      E.q(B.p(C.glassRail || {c:'#9fb6ba', ds:true}), 0, E.W, y + 0.45, y + 1.4, -0.08);
+    } }
+  flatT(B.p(C.roof), P, y1);
+}
+// deep egg-crate storeys (Mandarin Oriental): projecting floor slabs and mullion fins framing recessed windows
+function gridT(B, E, s0, s1, y0, y1, fh, bay, C, r){
+  const n = Math.max(1, Math.round((y1 - y0)/fh)), h = (y1 - y0)/n, nb = Math.max(1, Math.round((s1 - s0)/bay)), bw = (s1 - s0)/nb, D = 0.75;
+  for (let j = 0; j < n; j++){ const y = y0 + j*h;
+    for (let k = 0; k < nb; k++){ const a = s0 + k*bw; E.q(B.p(win(r, 0.5)), a + 0.25, a + bw - 0.25, y + 0.3, y + h - 0.25, -D);
+      E.q(B.p(C.back), a, a + 0.25, y, y + h, -D); E.q(B.p(C.back), a + bw - 0.25, a + bw, y, y + h, -D); E.q(B.p(C.back), a, a + bw, y + h - 0.25, y + h, -D); E.q(B.p(C.back), a, a + bw, y, y + 0.3, -D); } }
+  for (let j = 0; j <= n; j++){ const y = y0 + j*h; E.bx(B.p(C.wall), (s0 + s1)/2, y - 0.14, -D/2, s1 - s0, 0.28, D); }
+  for (let k = 0; k <= nb; k++) E.bx(B.p(C.wall), s0 + k*bw, y0, -D/2 + 0.02, 0.28, y1 - y0, D + 0.04);
+}
+// Marina Square shop podium: glazed shopfronts behind round columns, tan horizontal louvred cladding, a clerestory
+// under a deep flat roof overhang
+const MALL = {wall:{c:'#d8ccb4', ds:true}, tan:{c:'#c3a682', ds:true}, slat:{c:'#d6c1a0', ds:true}, soff:{c:'#5f544a', ds:true}, roof:{c:'#c2b9a6', ds:true},
+  glass:{c:'#5d7a86', ds:true}, glassL:{c:'#6f8f9b', ds:true, glow:'#e6f0ff', gk:0.55}, sky:{c:'#6d8da0', ds:true, glow:'#d8ecff', gk:0.5}, col:{c:'#cfd2d3', ds:true}};
+function mallBlock(B, P, y0, y1, r){
+  for (const E of edges(P)){ if (E.W < 0.4) continue;
+    const big = E.W > 7;
+    if (y0 < 0.5){
+      if (!big){ E.q(B.p(MALL.wall), 0, E.W, -4, y1, 0); continue; }
+      E.q(B.p(MALL.wall), 0, E.W, -4, 0.3, -1.6); E.q(B.p(r() < 0.65 ? LOB : MALL.glass), 0, E.W, 0.3, 4.7, -1.6);
+      for (let s = 0.9; s < E.W - 0.5; s += 2.4) E.bx(B.p(MUL), s, 0.3, -1.55, 0.1, 4.4, 0.1);
+      quad(B.p(MALL.soff), E.pt(0, 4.7, 0), E.pt(E.W, 4.7, 0), E.pt(E.W, 4.7, -1.6), E.pt(0, 4.7, -1.6));
+      const nc = Math.max(1, Math.round(E.W/8)); for (let k = 0; k <= nc; k++){ const p = E.pt(Math.min(E.W - 0.5, Math.max(0.5, E.W*k/nc)), 0, -0.5); latheT(B.p(MALL.col), [[0.42, -1], [0.42, 4.7], [0.01, 4.7]], 8, p[0], p[2]); }
+    } else E.q(B.p(MALL.soff), 0, E.W, y0 - 0.3, y0 + 0.3, 0.05);
+    const yA = Math.max(y0, 4.7);
+    E.q(B.p(big ? MALL.tan : MALL.wall), 0, E.W, yA, y1, 0);
+    if (!big) continue;
+    for (let y = yA + 0.5; y < y1 - 3.2; y += 0.55) E.bx(B.p(MALL.slat), E.W/2, y, 0.14, E.W, 0.12, 0.28);
+    E.q(B.p(r() < 0.5 ? LIT2 : MALL.glass), 0.3, E.W - 0.3, y1 - 2.9, y1 - 0.8, 0.05);
+    for (let s = 1.5; s < E.W - 0.5; s += 3) E.bx(B.p(MUL), s, y1 - 2.9, 0.08, 0.1, 2.1, 0.1);
+    E.bx(B.p(MALL.wall), E.W/2, y1 - 0.75, 0.9, E.W + 0.2, 0.75, 2.6); E.bx(B.p(MALL.soff), E.W/2, y1 - 0.8, 0.9, E.W + 0.1, 0.06, 2.55);
+  }
+  flatT(B.p(MALL.roof), P, y1);
+}
+function upperBlock(B, P, y0, y1, r){
+  for (const E of edges(P)){ if (E.W < 0.4) continue; E.q(B.p(MALL.wall), 0, E.W, y0, y1, 0);
+    if (E.W > 6) E.q(B.p(r() < 0.4 ? LIT2 : MALL.glass), 0.5, E.W - 0.5, y0 + 0.6, y1 - 0.9, 0.04); E.bx(B.p(MALL.tan), E.W/2, y1 - 0.4, 0.1, E.W + 0.1, 0.4, 0.3); }
+  flatT(B.p(MALL.roof), P, y1);
+}
+const D_RITZ = {"lat":1.290541,"lon":103.860068,"P":{"slab":[[51.6,19.7],[42.6,14.4],[42.2,15.0],[19.1,1.5],[9.9,-3.9],[-2.3,-11.0],[-11.2,-16.2],[-31.5,-28.1],[-31.0,-29.1],[-41.0,-34.9],[-50.1,-19.3],[-40.3,-13.4],[-19.8,-1.8],[-10.8,3.4],[1.6,10.4],[10.6,15.7],[33.9,29.1],[43.2,34.5]],"p1":[[-31.5,-28.1],[-40.3,-13.4],[-50.1,-19.3],[-41.0,-34.9],[-31.0,-29.1]],"p2":[[-2.3,-11.0],[-10.8,3.4],[-19.8,-1.8],[-11.2,-16.2]],"p3":[[9.9,-3.9],[1.6,10.4],[10.6,15.7],[19.1,1.5]],"p4":[[42.6,14.4],[42.2,15.0],[33.9,29.1],[43.2,34.5],[51.6,19.7]],"low":[[-41.0,-34.9],[-31.0,-29.1],[-31.5,-28.1],[-11.2,-16.2],[-2.3,-11.0],[2.4,-18.8],[-1.5,-21.1],[9.9,-40.3],[29.8,-28.6],[18.2,-9.1],[14.3,-11.3],[9.9,-3.9],[19.1,1.5],[42.2,15.0],[42.6,14.4],[51.6,19.7],[43.2,34.5],[33.9,29.1],[10.6,15.7],[1.6,10.4],[-0.7,14.2],[9.0,20.0],[12.2,32.2],[11.4,42.3],[7.9,42.0],[1.8,41.6],[2.8,28.1],[-5.0,23.2],[-10.2,31.3],[-23.3,23.3],[-18.4,15.4],[-26.6,10.3],[-39.6,16.3],[-41.6,11.7],[-43.8,7.4],[-33.6,2.7],[-22.5,2.0],[-13.1,7.2],[-10.8,3.4],[-19.8,-1.8],[-40.3,-13.4],[-50.1,-19.3]]}};
+const D_MO = {"lat":1.290659,"lon":103.858312,"L":[["743776031",[[49.4,-13.8],[11.6,49.8],[28.3,59.5],[30.9,55.5],[86.5,86.7],[95.7,83.5],[95.4,12.2]],0.0,17.6],["743776032",[[-11.5,-50.1],[-42.0,1.9],[-44.0,5.2],[0.0,30.9],[8.9,36.2],[14.3,27.1],[41.4,-18.5],[35.0,-22.2],[30.4,-24.9]],0.0,22.0],["741934166",[[-44.0,5.2],[-49.3,14.1],[11.6,49.8],[49.4,-13.8],[41.4,-18.5],[14.3,27.1],[8.9,36.2],[0.0,30.9]],0.0,79.8],["741934150",[[-39.9,0.6],[-35.4,-0.8],[-34.1,3.4],[-29.7,2.1],[-28.4,6.3],[-23.9,5.0],[-22.6,9.2],[-18.1,7.8],[-16.9,11.9],[21.1,0.5],[19.7,-3.8],[24.4,-5.2],[23.1,-9.4],[27.6,-10.8],[26.3,-15.1],[30.7,-16.4],[29.4,-20.6],[25.0,-19.3],[24.3,-21.5],[23.9,-22.8],[21.8,-22.1],[21.1,-24.5],[18.7,-23.8],[18.0,-26.1],[15.9,-25.4],[15.2,-27.7],[13.8,-27.3],[12.8,-30.3],[11.3,-29.9],[10.8,-31.6],[7.3,-30.5],[6.6,-32.8],[-4.5,-29.5],[-3.9,-27.5],[-6.6,-26.7],[-5.8,-24.0],[-8.3,-23.2],[-9.2,-26.0],[-13.1,-24.8],[-13.8,-27.2],[-25.3,-23.7],[-24.7,-21.6],[-26.6,-21.0],[-26.0,-19.0],[-28.0,-18.4],[-27.3,-16.3],[-29.7,-15.6],[-29.0,-13.3],[-32.0,-12.4],[-31.3,-9.9],[-32.8,-9.5],[-32.2,-7.5],[-34.4,-6.9],[-33.9,-5.3],[-36.6,-4.5],[-36.3,-3.4],[-37.9,-2.9],[-37.7,-2.1],[-40.4,-1.3]],17.6,25.4],["393090402",[[-35.4,-0.8],[-39.9,0.6],[-39.1,4.1],[-44.0,5.2],[0.0,30.9],[8.9,36.2],[14.3,27.1],[41.4,-18.5],[36.6,-16.8],[35.0,-22.2],[29.4,-20.6],[30.1,-18.6],[30.7,-16.4],[26.3,-15.1],[26.9,-13.0],[27.6,-10.8],[23.1,-9.4],[23.8,-7.3],[24.4,-5.2],[19.7,-3.8],[20.4,-1.7],[21.1,0.5],[-16.9,11.9],[-17.5,9.9],[-18.1,7.8],[-22.6,9.2],[-23.3,7.1],[-23.9,5.0],[-28.4,6.3],[-29.0,4.2],[-29.7,2.1],[-34.1,3.4],[-34.8,1.3]],22.0,76.4],["741934165",[[-5.1,-21.7],[-7.6,-21.0],[-8.3,-23.2],[-12.7,-21.8],[-12.0,-19.6],[-16.5,-18.2],[-15.8,-16.1],[-20.3,-14.7],[-19.6,-12.6],[-24.1,-11.3],[-23.4,-9.1],[-27.9,-7.8],[-27.2,-5.6],[-31.7,-4.3],[-31.0,-2.1],[-35.4,-0.8],[-34.8,1.3],[-34.1,3.4],[-29.7,2.1],[-29.0,4.2],[-28.4,6.3],[-23.9,5.0],[-23.3,7.1],[-22.6,9.2],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7],[19.7,-3.8],[24.4,-5.2],[23.8,-7.3],[23.1,-9.4],[27.6,-10.8],[26.9,-13.0],[26.3,-15.1],[30.7,-16.4],[30.1,-18.6],[29.4,-20.6],[25.0,-19.3],[24.3,-21.5],[19.8,-20.1],[19.2,-22.2],[14.5,-20.7],[13.8,-22.9],[9.6,-21.6],[8.9,-23.7],[4.5,-22.3],[3.8,-24.4],[-0.6,-23.1],[-1.3,-25.3],[-5.8,-24.0]],25.4,28.8],["741934164",[[30.1,-18.6],[25.6,-17.2],[25.0,-19.3],[20.5,-17.9],[19.8,-20.1],[15.1,-18.6],[14.5,-20.7],[10.3,-19.5],[9.6,-21.6],[5.1,-20.2],[4.5,-22.3],[0.0,-21.0],[-0.6,-23.1],[-5.1,-21.7],[-4.4,-19.6],[-6.9,-18.8],[-7.6,-21.0],[-12.0,-19.6],[-11.4,-17.5],[-15.8,-16.1],[-15.2,-14.0],[-19.6,-12.6],[-19.0,-10.5],[-23.4,-9.1],[-22.7,-7.0],[-27.2,-5.6],[-26.6,-3.5],[-31.0,-2.1],[-30.3,-0.1],[-34.8,1.3],[-34.1,3.4],[-29.7,2.1],[-29.0,4.2],[-28.4,6.3],[-23.9,5.0],[-23.3,7.1],[-22.6,9.2],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7],[19.7,-3.8],[24.4,-5.2],[23.8,-7.3],[23.1,-9.4],[27.6,-10.8],[26.9,-13.0],[26.3,-15.1],[30.7,-16.4]],28.8,32.2],["741934163",[[26.3,-15.1],[25.6,-17.2],[21.1,-15.8],[20.5,-17.9],[15.8,-16.5],[15.1,-18.6],[10.9,-17.3],[10.3,-19.5],[5.8,-18.1],[5.1,-20.2],[0.7,-18.8],[0.0,-21.0],[-4.4,-19.6],[-3.8,-17.5],[-6.2,-16.7],[-6.9,-18.8],[-11.4,-17.5],[-10.7,-15.3],[-15.2,-14.0],[-14.5,-11.9],[-19.0,-10.5],[-18.3,-8.4],[-22.7,-7.0],[-22.1,-4.9],[-26.6,-3.5],[-25.9,-1.4],[-30.3,-0.1],[-34.8,1.3],[-34.1,3.4],[-29.7,2.1],[-29.0,4.2],[-28.4,6.3],[-23.9,5.0],[-23.3,7.1],[-22.6,9.2],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7],[19.7,-3.8],[24.4,-5.2],[23.8,-7.3],[23.1,-9.4],[27.6,-10.8],[26.9,-13.0]],32.2,35.6],["741934162",[[26.3,-15.1],[21.8,-13.7],[21.1,-15.8],[16.5,-14.4],[15.8,-16.5],[11.6,-15.2],[10.9,-17.3],[6.5,-16.0],[5.8,-18.1],[1.3,-16.7],[0.7,-18.8],[-3.8,-17.5],[-3.1,-15.4],[-5.6,-14.6],[-6.2,-16.7],[-10.7,-15.3],[-10.0,-13.2],[-14.5,-11.9],[-13.8,-9.7],[-18.3,-8.4],[-17.6,-6.2],[-22.1,-4.9],[-21.4,-2.8],[-25.9,-1.4],[-25.2,0.7],[-29.7,2.1],[-29.0,4.2],[-28.4,6.3],[-23.9,5.0],[-23.3,7.1],[-22.6,9.2],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7],[19.7,-3.8],[24.4,-5.2],[23.8,-7.3],[23.1,-9.4],[27.6,-10.8],[26.9,-13.0]],35.6,39.0],["741934161",[[26.9,-13.0],[22.5,-11.6],[21.8,-13.7],[17.1,-12.3],[16.5,-14.4],[12.2,-13.1],[11.6,-15.2],[7.1,-13.8],[6.5,-16.0],[2.0,-14.6],[1.3,-16.7],[-3.1,-15.4],[-2.5,-13.2],[-4.9,-12.5],[-5.6,-14.6],[-10.0,-13.2],[-9.4,-11.1],[-13.8,-9.7],[-13.2,-7.6],[-17.6,-6.2],[-17.0,-4.1],[-21.4,-2.8],[-20.8,-0.7],[-25.2,0.7],[-24.6,2.8],[-29.0,4.2],[-28.4,6.3],[-23.9,5.0],[-23.3,7.1],[-22.6,9.2],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7],[19.7,-3.8],[24.4,-5.2],[23.8,-7.3],[23.1,-9.4],[27.6,-10.8]],39.0,42.4],["741934160",[[23.1,-9.4],[22.5,-11.6],[17.8,-10.2],[17.1,-12.3],[12.9,-11.0],[12.2,-13.1],[7.8,-11.7],[7.1,-13.8],[2.7,-12.4],[2.0,-14.6],[-2.5,-13.2],[-1.8,-11.1],[-4.3,-10.3],[-4.9,-12.5],[-9.4,-11.1],[-8.7,-8.9],[-13.2,-7.6],[-12.5,-5.5],[-17.0,-4.1],[-16.3,-2.0],[-20.8,-0.7],[-20.1,1.5],[-24.6,2.8],[-23.9,5.0],[-23.3,7.1],[-22.6,9.2],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7],[19.7,-3.8],[24.4,-5.2],[23.8,-7.3]],42.4,45.8],["741934159",[[23.1,-9.4],[18.4,-8.0],[17.8,-10.2],[13.6,-8.9],[12.9,-11.0],[8.4,-9.6],[7.8,-11.7],[3.3,-10.4],[2.7,-12.4],[-1.8,-11.1],[-1.1,-9.0],[-3.6,-8.2],[-4.3,-10.3],[-8.7,-8.9],[-8.1,-6.9],[-12.5,-5.5],[-11.9,-3.4],[-16.3,-2.0],[-15.7,0.1],[-20.1,1.5],[-19.4,3.6],[-23.9,5.0],[-23.3,7.1],[-22.6,9.2],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7],[19.7,-3.8],[24.4,-5.2],[23.8,-7.3]],45.8,49.2],["741934158",[[23.8,-7.3],[19.1,-5.9],[18.4,-8.0],[14.2,-6.7],[13.6,-8.9],[9.1,-7.5],[8.4,-9.6],[4.0,-8.2],[3.3,-10.4],[-1.1,-9.0],[-0.5,-6.9],[-3.0,-6.1],[-3.6,-8.2],[-8.1,-6.9],[-7.4,-4.7],[-11.9,-3.4],[-11.2,-1.3],[-15.7,0.1],[-15.0,2.2],[-19.4,3.6],[-18.8,5.7],[-23.3,7.1],[-22.6,9.2],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7],[19.7,-3.8],[24.4,-5.2]],49.2,52.6],["741934157",[[19.7,-3.8],[19.1,-5.9],[14.9,-4.6],[14.2,-6.7],[9.8,-5.3],[9.1,-7.5],[4.6,-6.1],[4.0,-8.2],[-0.5,-6.9],[0.2,-4.8],[-2.3,-4.0],[-3.0,-6.1],[-7.4,-4.7],[-6.8,-2.6],[-11.2,-1.3],[-10.5,0.9],[-15.0,2.2],[-14.4,4.3],[-18.8,5.7],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7]],52.6,56.0],["741934156",[[19.7,-3.8],[15.5,-2.5],[14.9,-4.6],[10.4,-3.3],[9.8,-5.3],[5.3,-4.0],[4.6,-6.1],[0.2,-4.8],[0.9,-2.6],[-1.6,-1.8],[-2.3,-4.0],[-6.8,-2.6],[-6.1,-0.5],[-10.5,0.9],[-9.9,3.0],[-14.4,4.3],[-13.7,6.5],[-18.1,7.8],[-17.5,9.9],[-16.9,11.9],[21.1,0.5],[20.4,-1.7]],56.0,59.4],["741934155",[[20.4,-1.7],[16.2,-0.4],[15.5,-2.5],[11.1,-1.1],[10.4,-3.3],[5.9,-1.9],[5.3,-4.0],[0.9,-2.6],[1.5,-0.5],[-1.0,0.2],[-1.6,-1.8],[-6.1,-0.5],[-5.4,1.6],[-9.9,3.0],[-9.2,5.1],[-13.7,6.5],[-13.0,8.6],[-17.5,9.9],[-16.9,11.9],[21.1,0.5]],59.4,62.8],["741934154",[[16.8,1.7],[16.2,-0.4],[11.7,1.0],[11.1,-1.1],[6.6,0.2],[5.9,-1.9],[1.5,-0.5],[2.2,1.6],[-0.3,2.4],[-1.0,0.2],[-5.4,1.6],[-4.8,3.7],[-9.2,5.1],[-8.6,7.2],[-13.0,8.6],[-12.4,10.6]],59.4,62.8],["741934153",[[16.8,1.7],[16.2,-0.4],[11.7,1.0],[7.3,2.4],[2.8,3.7],[0.3,4.5],[-4.1,5.8],[-8.6,7.2],[-13.0,8.6],[-12.4,10.6],[-7.9,9.3],[-3.5,7.9],[1.0,6.5],[3.5,5.8],[7.9,4.4],[12.4,3.0]],66.2,73.0],["741934152",[[16.8,1.7],[16.2,-0.4],[11.7,1.0],[7.3,2.4],[6.6,0.2],[2.2,1.6],[2.8,3.7],[0.3,4.5],[-0.3,2.4],[-4.8,3.7],[-4.1,5.8],[-8.6,7.2],[-13.0,8.6],[-12.4,10.6]],62.8,66.2],["741934151",[[11.1,15.4],[-3.1,19.2],[0.0,30.9],[14.3,27.1]],76.4,83.2]],"out":[[11.6,49.8],[-49.3,14.1],[-44.0,5.2],[-42.0,1.9],[-11.5,-50.1],[30.4,-24.9],[35.0,-22.2],[41.4,-18.5],[49.4,-13.8]]};
+const D_PR = {"lat":1.291578,"lon":103.856797,"L":[["742205652",[[0.7,-27.2],[2.5,-30.3],[6.7,-37.4],[-51.5,-69.7],[-72.0,-11.3],[-17.9,19.7],[-16.9,13.8],[-13.8,1.3],[-7.7,-14.7],[-20.0,-21.9],[-12.5,-34.8]],15.0,21.8],["742205651",[[62.5,25.8],[40.7,62.5],[17.1,49.1],[30.0,39.6],[40.7,30.4],[51.8,19.6]],15.0,21.8],["742205654",[[6.7,-37.4],[75.4,4.2],[68.2,16.4],[63.8,13.8],[65.8,10.4],[60.3,7.2],[62.1,4.1],[2.5,-30.3]],5.0,5.0],["742205656",[[62.5,25.8],[68.2,16.4],[63.8,13.8],[65.8,10.4],[60.3,7.2],[62.1,4.1],[2.5,-30.3],[0.7,-27.2],[-12.5,-34.8],[-20.0,-21.9],[-7.7,-14.7],[-5.4,-13.4],[-3.4,-12.3],[-1.1,-10.9],[0.5,-10.0],[1.9,-9.2],[3.0,-8.6],[4.2,-7.9],[13.8,-2.3],[14.6,-1.9],[31.4,7.8],[32.8,8.6],[40.6,13.2],[41.7,13.8],[43.3,14.7],[44.4,15.3],[46.2,16.4],[48.1,17.5],[49.8,18.5],[51.8,19.6]],15.0,83.0],["742205661",[[-7.7,-14.7],[-13.8,1.3],[-16.9,13.8],[-17.9,19.7],[-19.7,31.0],[-18.5,50.8],[-0.4,61.8],[17.1,49.1],[30.0,39.6],[40.7,30.4],[51.8,19.6],[49.8,18.5],[48.1,17.5],[46.2,16.4],[44.4,15.3],[43.3,14.7],[41.7,13.8],[40.6,13.2],[32.8,8.6],[31.4,7.8],[14.6,-1.9],[13.8,-2.3],[4.2,-7.9],[3.0,-8.6],[1.9,-9.2],[0.5,-10.0],[-1.1,-10.9],[-3.4,-12.3],[-5.4,-13.4]],15.0,28.6],["742205662",[[-5.4,-13.4],[-11.8,2.0],[-15.5,14.4],[-18.5,31.2],[-18.5,50.8],[-0.4,61.8],[16.4,48.9],[29.2,38.7],[39.7,29.3],[49.8,18.5],[48.1,17.5],[46.2,16.4],[44.4,15.3],[43.3,14.7],[41.7,13.8],[40.6,13.2],[32.8,8.6],[31.4,7.8],[14.6,-1.9],[13.8,-2.3],[4.2,-7.9],[3.0,-8.6],[1.9,-9.2],[0.5,-10.0],[-1.1,-10.9],[-3.4,-12.3]],28.6,35.4],["742205659",[[48.1,17.5],[38.5,28.5],[28.2,38.2],[16.1,48.5],[-0.4,61.8],[-18.5,50.8],[-17.7,31.6],[-14.4,15.0],[-10.6,2.7],[-3.4,-12.3],[-1.1,-10.9],[0.5,-10.0],[1.9,-9.2],[3.0,-8.6],[4.2,-7.9],[13.8,-2.3],[14.6,-1.9],[31.4,7.8],[32.8,8.6],[40.6,13.2],[41.7,13.8],[43.3,14.7],[44.4,15.3],[46.2,16.4]],35.4,42.2],["742205663",[[-1.1,-10.9],[-8.8,4.0],[-12.9,15.6],[-16.8,32.0],[-18.5,50.8],[-0.4,61.8],[15.8,48.2],[27.7,37.5],[37.4,27.9],[46.2,16.4],[44.4,15.3],[43.3,14.7],[41.7,13.8],[40.6,13.2],[32.8,8.6],[31.4,7.8],[14.6,-1.9],[13.8,-2.3],[4.2,-7.9],[3.0,-8.6],[1.9,-9.2],[0.5,-10.0]],42.2,49.0],["742205658",[[44.4,15.3],[36.3,26.9],[27.1,36.9],[15.3,48.0],[-0.4,61.8],[-18.5,50.8],[-15.9,32.3],[-12.0,16.1],[-7.2,4.7],[0.5,-10.0],[1.9,-9.2],[3.0,-8.6],[4.2,-7.9],[13.8,-2.3],[14.6,-1.9],[31.4,7.8],[32.8,8.6],[40.6,13.2],[41.7,13.8],[43.3,14.7]],49.0,55.8],["742205664",[[1.9,-9.2],[-6.1,5.4],[-10.7,16.5],[-15.1,32.8],[-18.5,50.8],[-0.4,61.8],[14.9,47.3],[26.5,36.4],[35.1,26.3],[43.3,14.7],[41.7,13.8],[40.6,13.2],[32.8,8.6],[31.4,7.8],[14.6,-1.9],[13.8,-2.3],[4.2,-7.9],[3.0,-8.6]],55.8,62.6],["742205657",[[3.0,-8.6],[-4.7,5.8],[-9.7,16.9],[-14.4,33.2],[-18.5,50.8],[-0.4,61.8],[14.8,47.0],[25.8,35.8],[33.8,25.5],[41.7,13.8],[40.6,13.2],[32.8,8.6],[31.4,7.8],[14.6,-1.9],[13.8,-2.3],[4.2,-7.9]],62.6,69.4],["742205665",[[4.2,-7.9],[-3.6,6.6],[-8.7,17.5],[-13.6,33.6],[-18.5,50.8],[-0.4,61.8],[14.6,46.8],[25.3,35.3],[33.1,24.9],[40.6,13.2],[32.8,8.6],[31.4,7.8],[14.6,-1.9],[13.8,-2.3]],69.4,76.2],["742205647",[[13.8,-2.3],[5.9,10.3],[-6.2,43.9],[2.4,48.1],[26.2,19.2],[32.8,8.6],[31.4,7.8],[25.3,4.2],[14.6,-1.9]],76.2,79.6],["742205648",[[14.6,-1.9],[10.6,5.4],[9.9,10.1],[10.7,13.2],[12.6,15.7],[14.9,17.3],[18.0,18.3],[21.3,18.0],[24.9,16.9],[27.3,14.6],[31.4,7.8]],79.6,83.0]]};
+const D_MS = {"lat":1.291283,"lon":103.857053,"L":[["742205655",[[-5.4,-113.9],[-14.5,-98.1],[-24.9,-104.1],[-26.6,-101.2],[-31.2,-93.7],[-13.6,-84.0],[-21.8,-70.0],[46.9,-28.5],[60.3,-20.6],[74.5,-45.8],[93.6,-34.5],[114.9,-21.9],[183.1,15.6],[169.4,38.0],[169.9,40.4],[170.6,44.1],[128.7,18.9],[98.2,70.9],[81.4,61.0],[77.2,68.0],[63.4,90.8],[48.8,115.9],[34.8,107.7],[17.5,97.5],[-16.2,77.8],[-40.7,63.1],[-51.1,75.1],[-66.3,63.6],[-124.4,15.7],[-126.7,13.2],[-127.7,8.9],[-128.5,4.7],[-126.3,-2.7],[-120.0,-23.8],[-102.0,-83.6],[-97.0,-81.2],[-96.2,-84.2],[-95.2,-86.8],[-90.4,-105.5],[-86.7,-113.8],[-81.3,-120.5],[-68.8,-129.6],[-54.8,-134.5],[-45.4,-134.4],[-35.8,-133.0],[-44.6,-117.2],[-60.3,-117.4],[-68.2,-113.2],[-73.3,-107.8],[-73.6,-107.5],[-45.9,-93.5],[-35.6,-110.2],[-26.4,-126.0]],0.0,15.0],["393090491",[[114.9,-21.9],[93.6,-34.5],[74.5,-45.8],[86.4,-65.8],[93.1,-77.3],[100.7,-89.6],[119.0,-78.8],[141.4,-65.5],[134.3,-53.8],[126.7,-41.5]],5.0,15.0],["743776030",[[141.4,-65.5],[156.8,-90.4],[148.0,-95.5],[142.4,-98.7],[163.8,-135.9],[161.9,-137.0],[137.3,-150.9],[133.9,-152.8],[127.8,-155.4],[121.2,-156.4],[115.3,-156.5],[109.4,-155.8],[102.9,-153.9],[97.1,-150.9],[92.6,-147.1],[90.2,-143.4],[86.6,-137.1],[83.8,-129.9],[82.9,-120.7],[83.4,-112.4],[85.7,-105.8],[89.9,-99.5],[94.9,-94.8],[100.7,-89.6],[119.0,-78.8]],0.0,15.0],["743776029",[[100.7,-89.6],[107.0,-98.8],[101.7,-102.5],[96.5,-107.8],[93.2,-115.2],[93.1,-121.8],[93.8,-129.0],[96.9,-135.9],[100.9,-140.3],[106.8,-143.3],[114.7,-144.7],[123.2,-143.9],[130.8,-140.2],[137.3,-150.9],[133.9,-152.8],[127.8,-155.4],[121.2,-156.4],[115.3,-156.5],[109.4,-155.8],[102.9,-153.9],[97.1,-150.9],[92.6,-147.1],[90.2,-143.4],[86.6,-137.1],[83.8,-129.9],[82.9,-120.7],[83.4,-112.4],[85.7,-105.8],[89.9,-99.5],[94.9,-94.8]],15.0,18.4],["743776028",[[-14.5,-98.1],[-24.9,-104.1],[-35.6,-110.2],[-26.4,-126.0],[-5.4,-113.9]],15.0,18.4],["742205650",[[12.3,29.9],[77.2,68.0],[81.4,61.0],[98.2,70.9],[128.7,18.9],[60.3,-20.6],[46.9,-28.5],[39.7,-16.3],[34.1,-6.8]],15.0,18.4],["742205649",[[12.3,29.9],[-16.2,77.8],[17.5,97.5],[34.8,107.7],[48.8,115.9],[63.4,90.8],[77.2,68.0]],15.0,18.4],["743776035",[[86.3,15.3],[66.7,48.7],[59.9,44.8],[61.7,41.8],[75.6,18.2],[56.3,7.0],[42.5,30.6],[40.7,33.7],[34.6,30.1],[54.2,-3.3]],18.4,21.8],["743776034",[[75.6,18.2],[61.7,41.8],[42.5,30.6],[56.3,7.0]],18.4,21.8],["743776033",[[59.9,44.8],[40.7,33.7],[42.5,30.6],[61.7,41.8]],18.4,21.8]]};
+
+// ======================================================================================================
+// The Ritz-Carlton, Millenia Singapore, 7 Raffles Avenue (Kevin Roche John Dinkeloo and Associates with DP Architects,
+// 1996): a 32-storey slab, 108 x 18 m, raised on four massive piers over a low podium (lobby, ballrooms, the
+// porte-cochère and the glazed garden-court roofs). Pale grey stone cladding with a tight grid of square-cornered room
+// windows and the hotel's signature octagonal bathroom bay windows, which run up the faces in single and paired
+// columns; each long face has two tall inverted-U grooves framing its outer bays and a narrow slot of small windows
+// either side of the centre; the end faces carry two central columns of octagonal windows. Plain parapet band on top.
+// OSM ways 326926564 (slab), 591301847, 591301835, 1413217015, 591301844 (piers), 46594815 (podium outline).
+// Height 129 m (CTBUH Skyscraper Center); slab underside 24 m and podium 12 m estimated from photos. Serves Summer
+// Pavilion (Level 3).
+// ======================================================================================================
+LANDMARKS.dthritz = {zh:'新加坡丽思卡尔顿美年酒店', en:'The Ritz-Carlton, Millenia Singapore', cat:'new', r:57, h:129, lt:{m:0, c:'#ffe2b8', k:0.55, e:0.4}, build(){
+  const g = new THREE.Group(), B = mkB(), r = LMCTX.rng, P = D_RITZ.P;
+  const ST = {c:'#d6d2c9', ds:true}, ST2 = {c:'#c7c2b8', ds:true}, GRV = {c:'#7d786f', ds:true}, PIER = {c:'#c4bfb5', ds:true}, OCT = {c:'#2f3a40', ds:true},
+    OCTL = {c:'#35424a', ds:true, glow:'#ffd9a0', gk:1.2}, PODW = {c:'#d9d3c6', ds:true}, VAULT = {c:'#a9c4c9', ds:true, glow:'#e4f2ff', gk:0.6};
+  const S = P.slab, c1 = S[9], c2 = S[10], c3 = S[17];
+  const Lu = Math.hypot(c3[0]-c2[0], c3[1]-c2[1]), U = [(c3[0]-c2[0])/Lu, (c3[1]-c2[1])/Lu], Wv = Math.hypot(c1[0]-c2[0], c1[1]-c2[1]), V = [(c1[0]-c2[0])/Wv, (c1[1]-c2[1])/Wv];
+  const Q = (u, v, y) => [c2[0] + U[0]*u + V[0]*v, y, c2[1] + U[1]*u + V[1]*v];
+  const Y0 = 24, Y1 = 129, R0 = 26.5, RP = 3.05, NR = 31;
+  // a face: origin (u0, v0), s along d = [du, dv], out = [ou, ov]
+  function face(u0, v0, d, ou, L, feats, ends){
+    const F = (s, y, o) => Q(u0 + d[0]*s + ou[0]*o, v0 + d[1]*s + ou[1]*o, y);
+    const q = (m, s0, s1, y0, y1, o) => quad(B.p(m), F(s0, y0, o), F(s1, y0, o), F(s1, y1, o), F(s0, y1, o));
+    q(ST, 0, L, Y0, Y1, 0);
+    for (let y = Y0 + 1.5; y < Y1 - 1; y += 1.525) q(ST2, 0, L, y, y + 0.05, 0.015);                      // stone course joints
+    for (const f of feats){
+      if (f[0] === 'g'){ q(GRV, f[1] - 0.45, f[1] + 0.45, Y0 + 0.6, ends ? 116.8 : Y1 - 6, 0.02); continue; }
+      for (let j = 0; j < NR; j++){ const yc = R0 + j*RP;
+        if (f[0] === 'R'){ q(r() < 0.5 ? LIT : GL, f[1], f[2], yc - 0.72, yc + 0.72, 0.03); q(ST2, f[1] - 0.12, f[2] + 0.12, yc - 0.84, yc - 0.72, 0.12); }
+        else if (f[0] === 's') q(r() < 0.4 ? LIT : GL, f[1] - 0.42, f[1] + 0.42, yc - 0.72, yc + 0.72, 0.03);
+        else {                                                                       // octagonal bay window, 0.45 m deep
+          const rr = 0.86, dd = 0.45, pts = []; for (let k = 0; k < 8; k++){ const a = (k + 0.5)*TAU/8; pts.push([f[1] + Math.cos(a)*rr, yc + Math.sin(a)*rr]); }
+          const m = r() < 0.4 ? OCTL : OCT;
+          for (let k = 0; k < 8; k++){ const a = pts[k], b = pts[(k+1) % 8]; quad(B.p(ST2), F(a[0], a[1], 0), F(b[0], b[1], 0), F(b[0], b[1], dd), F(a[0], a[1], dd)); tri(B.p(m), F(f[1], yc, dd + 0.01), F(a[0], a[1], dd + 0.01), F(b[0], b[1], dd + 0.01)); }
+        } } }
+    if (ends) for (const [a, b] of ends) q(GRV, a - 0.45, b + 0.45, 116.3, 117.2, 0.02);        // tops of the inverted-U grooves
+    q(ST2, 0, L, Y1 - 0.5, Y1, 0.12);                                              // coping
+  }
+  const half = [['o',2.1],['R',5.2,9.3],['g',10.2],['R',11.1,14.6],['o',16.3],['o',18.4],['R',21.0,25.0],['R',26.8,30.8],['o',33.2],['g',34.9],['s',39.6],['o',46.6],['R',49.5,53.0]];
+  const mir = f => f[0] === 'R' ? ['R', Lu - f[2], Lu - f[1]] : [f[0], Lu - f[1]];
+  const longF = half.concat(half.map(mir)), uEnds = [[10.2, 34.9], [Lu - 34.9, Lu - 10.2]];
+  face(0, 0, [1, 0], [0, -1], Lu, longF, uEnds);                                   // south-west face (to the bay)
+  face(Lu, Wv, [-1, 0], [0, 1], Lu, longF.map(f => f[0] === 'R' ? ['R', Lu - f[2], Lu - f[1]] : [f[0], Lu - f[1]]), uEnds);   // north-east face
+  const endF = [['o', Wv/2 - 2.6], ['o', Wv/2 + 2.6]];
+  face(0, Wv, [0, -1], [-1, 0], Wv, endF, null);                                    // north-west end
+  face(Lu, 0, [0, 1], [1, 0], Wv, endF, null);                                      // south-east end
+  // soffit under the slab, roof with a parapet and plant rooms
+  quad(B.p(ST2), Q(0, 0, Y0), Q(Lu, 0, Y0), Q(Lu, Wv, Y0), Q(0, Wv, Y0));
+  quad(B.p(ROOF), Q(0, 0, Y1 - 0.4), Q(Lu, 0, Y1 - 0.4), Q(Lu, Wv, Y1 - 0.4), Q(0, Wv, Y1 - 0.4));
+  { const pc = Q(Lu/2, Wv/2, 0); boxT(B.p(PLANT), pc[0], Y1 - 0.4, pc[2], 30, 3.2, 9, Math.atan2(-U[1], U[0]));
+    for (const u of [Lu/2 - 22, Lu/2 + 22]){ const p = Q(u, Wv/2, 0); boxT(B.p(PLANT), p[0], Y1 - 0.4, p[2], 7, 2.2, 7, Math.atan2(-U[1], U[0])); }
+    for (const u of [8, Lu - 8]){ const p = Q(u, Wv - 3, 0); segP(B.p(MUL), [p[0], Y1, p[2]], [p[0], Y1 + 5, p[2]], 0.08, 4); } }
+  // the four piers: stone with deep vertical joints, rising through the podium to the slab
+  for (const k of ['p1', 'p2', 'p3', 'p4']){ const Pp = P[k]; wallsT(B.p(PIER), Pp, -4, Y0);
+    for (const E of edges(Pp)) if (E.W > 4) for (let s = E.W/3; s < E.W - 1; s += E.W/3) E.q(B.p(GRV), s - 0.15, s + 0.15, 12, Y0, 0.03); }
+  // podium: stone walls with a glazed ground storey, cornice, roof gardens; glass barrel vaults over the garden courts
+  { const Pp = P.low;
+    for (const E of edges(Pp)){ if (E.W < 0.5) continue;
+      E.q(B.p(PODW), 0, E.W, -4, 12, 0);
+      if (E.W > 5){ const n = Math.max(1, Math.round(E.W/4.5)), bw = E.W/n;
+        for (let k = 0; k < n; k++){ E.q(B.p(r() < 0.6 ? LOB : GL2), k*bw + 0.4, (k + 1)*bw - 0.4, 0.3, 4.6, 0.04); E.q(B.p(r() < 0.3 ? LIT : GL), k*bw + 0.8, (k + 1)*bw - 0.8, 7.0, 9.4, 0.04); } }
+      E.bx(B.p(ST2), E.W/2, 11.4, 0.2, E.W + 0.1, 0.6, 0.7); E.bx(B.p(ST2), E.W/2, 4.8, 0.3, E.W, 0.35, 0.9); }
+    flatT(B.p(ROOF), Pp, 12);
+    // planting on the podium roof (the lobby courts), clear of the slab and piers
+    for (const [a, b] of [[5, 9], [21, 26], [27, 31]]){ const P2 = Pp.slice(a, b + 1); let cx = 0, cz = 0; for (const p of P2){ cx += p[0]; cz += p[1]; } cx /= P2.length; cz /= P2.length;
+      boxT(B.p(GREEN), cx, 12, cz, 7, 0.5, 7, Math.atan2(-U[1], U[0]));
+      // glazed barrel vault on ribs
+      const ry = Math.atan2(-U[1], U[0]) + PI/2, cs = Math.cos(ry), sn = Math.sin(ry), L2 = 16, R2 = 4.2, NS = 8;
+      const pv = (x, a) => [cx + x*cs + Math.cos(a)*R2*sn, 12.6 + Math.sin(a)*R2*0.8, cz - x*sn + Math.cos(a)*R2*cs];
+      for (let k = 0; k < NS; k++){ const a0 = PI*k/NS, a1 = PI*(k+1)/NS; quad(B.p(VAULT), pv(-L2/2, a0), pv(L2/2, a0), pv(L2/2, a1), pv(-L2/2, a1)); }
+      for (let x = -L2/2; x <= L2/2 + 0.01; x += 2) for (let k = 0; k < NS; k++) segP(B.p(MUL), pv(x, PI*k/NS), pv(x, PI*(k+1)/NS), 0.06, 3);
+      for (const x of [-L2/2, L2/2]) for (let k = 0; k < NS; k++) tri(B.p(VAULT), pv(x, PI*k/NS), pv(x, PI*(k+1)/NS), [cx + x*cs, 12.6, cz - x*sn]); }
+  }
+  // porte-cochère lamps along the podium front
+  for (let u = 14; u < Lu - 10; u += 12){ const p = Q(u, -6.5, 0); segP(B.p(MUL), [p[0], 0, p[2]], [p[0], 4.2, p[2]], 0.07, 4); boxT(B.p(LAMP), p[0], 4.2, p[2], 0.45, 0.45, 0.45, 0); }
+  B.flush(g); return g; }};
+SG_PLACES.push({type:'dthritz', lat:D_RITZ.lat, lon:D_RITZ.lon, rot:0});
+
+// ======================================================================================================
+// Mandarin Oriental, Singapore, 5 Raffles Avenue (John Portman, 1987, as The Oriental): a fan-shaped atrium hotel at the
+// south-east corner of the Marina Square podium. The guest-room wing bends round the two bay-facing faces (south-west to
+// the Esplanade, south-east to Marina Bay) with a deep white egg-crate of projecting floor slabs and mullion fins, a
+// dark louvred slot at the bend, a plain white crown band and a grey service tower at the west end. On the north
+// (atrium) side the rooms step back storey by storey in a white terraced pyramid of balconies over a podium-roof garden,
+// up to a small crown block above the top terrace. Lower floors: white walls with large windows over a glazed ground
+// storey; the five-storey podium is white too, the Marina Square shops round the east side are tan.
+// OSM ways 46594816 (hotel outline), 741934166 (room wing), 393090402 (atrium block), 741934152-741934165 (terraces),
+// 741934151 (crown), 741934150 (podium garden), 743776032, 743776031 (podium). Height 83.2 m (CTBUH); storey heights:
+// podium 4.4 m, rooms 3.4 m from level 5 (OSM building:levels). Serves Cherry Garden (Level 5).
+// ======================================================================================================
+LANDMARKS.dthmo = {zh:'新加坡文华东方酒店', en:'Mandarin Oriental, Singapore', cat:'new', r:60, h:84, lt:{m:0, c:'#ffe6c0', k:0.55, e:0.4}, build(){
+  const g = new THREE.Group(), B = mkB(), r = LMCTX.rng, L = D_MO.L;
+  const WH = {c:'#f1f0ea', ds:true}, WH2 = {c:'#dddcd5', ds:true}, GREY = {c:'#858c94', ds:true}, GREY2 = {c:'#6f767e', ds:true}, LOUV = {c:'#3b4045', ds:true}, SLAT = {c:'#9aa0a4', ds:true};
+  const C = {wall:WH, pier:WH2, roof:{c:'#e4e2da', ds:true}, plant:0.35, glassRail:{c:'#a8bfc2', ds:true}};
+  // podium blocks
+  mallBlock(B, L[0][1], 0, 17.6, r, 'MO');
+  { const P = L[1][1]; for (const E of edges(P)){ E.q(B.p(WH), 0, E.W, -4, 22, 0); if (E.W < 6) continue; const n = Math.max(1, Math.round(E.W/4.4)), bw = E.W/n;
+      for (let k = 0; k < n; k++){ E.q(B.p(r() < 0.6 ? LOB : GL2), k*bw + 0.3, (k + 1)*bw - 0.3, 0.3, 4.4, 0.04); for (const y of [7.2, 11.6, 16.0]) E.q(B.p(win(r, 0.45)), k*bw + 0.6, (k + 1)*bw - 0.6, y, y + 2.3, 0.04); }
+      E.bx(B.p(WH2), E.W/2, 4.6, 0.6, E.W, 0.4, 1.2); E.bx(B.p(WH2), E.W/2, 21.4, 0.2, E.W + 0.2, 0.6, 0.6); }
+    flatT(B.p(C.roof), P, 22); }
+  // the podium-roof garden (17.6-25.4 m) with lawns and palms
+  { const P = L[3][1]; wallsT(B.p(WH), P, 17.6, 25.4); flatT(B.p(GREEN), P, 25.4);
+    for (let k = 0; k < 12; k++){ const t = (k + 0.5)/12, a = [-36, 1], b = [26, -18], x = a[0] + (b[0] - a[0])*t, z = a[1] + (b[1] - a[1])*t - 3;
+      segP(B.p({c:'#7a6a55', ds:true}), [x, 25.4, z], [x, 30.5, z], 0.18, 4); latheT(B.p(GREEN2), [[0.01, 29.6], [2.2, 30.4], [0.01, 31.4]], 6, x, z); } }
+  // the room wing: outer faces egg-crate from level 5, lower floors punched, crown band; inner faces balconies
+  const Wg = L[2][1], WE = edges(Wg);
+  for (const E of WE){
+    const outer = E.i === 1 || E.i === 2, end = E.i === 0 || E.i === 3;
+    if (outer){
+      E.q(B.p(WH), 0, E.W, -4, 22, 0);
+      const n = Math.max(1, Math.round(E.W/3.9)), bw = E.W/n;
+      for (let k = 0; k < n; k++){ E.q(B.p(r() < 0.6 ? LOB : GL2), k*bw + 0.3, (k + 1)*bw - 0.3, 0.3, 4.4, 0.04); for (const y of [8.4, 13.0, 17.4]) E.q(B.p(win(r, 0.4)), k*bw + 0.45, (k + 1)*bw - 0.45, y, y + 2.6, 0.04); }
+      gridT(B, E, 0, E.W, 22, 76.4, 3.4, 3.9, {wall:WH, back:WH2}, r);
+      E.q(B.p(WH), 0, E.W, 76.4, 79.8, 0.0); E.bx(B.p(WH2), E.W/2, 79.8, -0.1, E.W, 0.5, 0.5);
+    } else if (end){ E.q(B.p(WH), 0, E.W, -4, 79.8, 0); gridT(B, E, 0.5, E.W - 0.5, 22, 76.4, 3.4, 3.4, {wall:WH, back:WH2}, r); }
+    else { E.q(B.p(WH2), 0, E.W, 22, 79.8, 0); }
+  }
+  flatT(B.p(C.roof), Wg, 79.8);
+  // the dark louvred slot at the bend of the wing
+  { const E1 = WE[1], E2 = WE[2];
+    for (const [E, s0, s1] of [[E1, E1.W - 1.7, E1.W], [E2, 0, 1.7]]){ E.q(B.p(LOUV), s0, s1, 22, 79.8, 0.8);
+      for (let y = 22.4; y < 79.6; y += 0.7) E.q(B.p(SLAT), s0, s1, y, y + 0.12, 0.84); } }
+  // the grey service tower at the west end of the wing, rising above the crown
+  { const E = WE[0], p = E.pt(E.W/2, 0, -2.5); boxT(B.p(GREY), p[0], -4, p[2], E.W + 3, 90, 9, E.ry);
+    const q = E.pt(E.W/2, 0, 2.0); boxT(B.p(GREY2), q[0], 4, q[2], 1.6, 82, 0.2, E.ry);
+    boxT(B.p(GREY2), p[0], 86, p[2], E.W + 3.4, 0.6, 9.4, E.ry); }
+  // the atrium block and the terraced pyramid of balconies
+  balT(B, L[4][1], 22, 76.4, 3.4, C, r, 1.5);
+  for (let i = 5; i < L.length - 1; i++) balT(B, L[i][1], L[i][2], L[i][3], 3.4, C, r, 1.5);
+  // crown block above the top terrace (left blank), roof plant
+  { const P = L[L.length - 1][1]; wallsT(B.p(WH), P, 76.4, 84.5); flatT(B.p(C.roof), P, 84.5); for (const E of edges(P)) E.bx(B.p(WH2), E.W/2, 84.2, 0.1, E.W + 0.2, 0.5, 0.4);
+    boxT(B.p(PLANT), -20, 79.8, 22, 8, 3.0, 6, 0.52); boxT(B.p(PLANT), 30, 79.8, 0, 6, 2.6, 6, -1.0);
+    segP(B.p(MUL), [6, 84.5, 25], [6, 91, 25], 0.1, 4); segP(B.p(LAMP), [6, 90.6, 25], [6, 91.2, 25], 0.18, 4); }
+  frameHint(g, -60, 60, -30, 60);
+  B.flush(g); return g; }};
+SG_PLACES.push({type:'dthmo', lat:D_MO.lat, lon:D_MO.lon, rot:0});
+
+// ======================================================================================================
+// PARKROYAL COLLECTION Marina Bay, 6 Raffles Boulevard (John Portman with DP Architects, 1987, as the Marina Mandarin):
+// a wedge-shaped atrium hotel on the west wing of the Marina Square podium. Two room wings meet at a point to the south;
+// their faces step back two storeys at a time in long raked terraces of balconies (cream slab edges, white railings,
+// planters), round one of the largest atriums in South-East Asia, roofed by a long glazed skylight; along the
+// north-east side a tall plain cream slab (lifts, services) with dark vertical slots and narrow window strips rises above
+// the wings; a blue fascia band runs under the lowest balconies; roof-garden decks on the podium either side.
+// OSM ways 742205653 (hotel outline), 742205656 (slab), 742205661, -662, -659, -663, -658, -664, -657, -665 (stepped
+// wings), 742205647 (skylight), 742205648 (roof drum), 742205652, 742205651 (podium decks), 742205654 (canopy).
+// Height 83.2 m (CTBUH); storeys: podium 5 m, rooms 3.4 m from level 3 (OSM building:levels). Serves Peach Blossoms
+// (Level 5).
+// ======================================================================================================
+LANDMARKS.dthparkroyal = {zh:'滨华宾乐雅臻选酒店', en:'PARKROYAL COLLECTION Marina Bay', cat:'new', r:58, h:84, lt:{m:0, c:'#ffe0b4', k:0.6, e:0.4}, build(){
+  const g = new THREE.Group(), B = mkB(), r = LMCTX.rng, L = D_PR.L;
+  const CR = {c:'#ece3d1', ds:true}, CR2 = {c:'#d8ccb5', ds:true}, SLAB = {c:'#e6dcc7', ds:true}, BLUE = {c:'#4d77a6', ds:true}, SKY = {c:'#4d6a7c', ds:true, glow:'#c9e2ff', gk:0.45}, SLOT = {c:'#4a4740', ds:true};
+  const C = {wall:{c:'#f2ebdc', ds:true}, pier:CR2, roof:{c:'#cdbfa5', ds:true}, plant:0.45, glassRail:{c:'#a9bcb9', ds:true}};
+  // podium-roof decks with gardens
+  for (const i of [0, 1]){ const P = L[i][1]; for (const E of edges(P)){ E.q(B.p(CR2), 0, E.W, 15, 21.8, 0); if (E.W > 6) E.q(B.p(win(r, 0.35)), 0.5, E.W - 0.5, 16.8, 19.6, 0.04); E.bx(B.p(CR), E.W/2, 21.3, 0.15, E.W, 0.5, 0.5); }
+    flatT(B.p({c:'#5a7a44', ds:true}), P, 21.8);
+    let cx = 0, cz = 0; for (const p of P){ cx += p[0]; cz += p[1]; } cx /= P.length; cz /= P.length;
+    for (let k = 0; k < 7; k++){ const a = k*2.4, x = cx + Math.cos(a)*k*2.3, z = cz + Math.sin(a)*k*2.3; segP(B.p({c:'#7a6a55', ds:true}), [x, 21.8, z], [x, 26.5, z], 0.16, 4); latheT(B.p(GREEN2), [[0.01, 25.6], [2.0, 26.4], [0.01, 27.3]], 6, x, z); } }
+  // the entrance canopy over the drive at 5 m
+  { const P = L[2][1]; flatT(B.p(CR), P, 5.4); flatT(B.p(CR2), P, 4.8); wallsT(B.p(CR2), P, 4.8, 5.4);
+    for (let k = 0; k < P.length; k += 2){ const p = P[k]; segP(B.p(MUL), [p[0], 0, p[1]], [p[0], 4.8, p[1]], 0.25, 6); } }
+  // the service slab: plain cream with panel joints, dark vertical slots and narrow window strips on its long faces
+  // OSM tags it 23 storeys, but the photos (from the south-west and north-west) show it well below the wedge point: ~66 m, estimate
+  const HS = 66;
+  { const P = L[3][1], E = edges(P);
+    for (const e of E){ if (e.W < 0.5) continue; e.q(B.p(SLAB), 0, e.W, 15, HS, 0);
+      for (let y = 18.4; y < HS; y += 3.4) e.q(B.p(CR2), 0, e.W, y, y + 0.06, 0.015);
+      if (e.W > 30){ for (let s = 3; s < e.W - 2; s += 3.6) e.q(B.p(win(r, 0.4)), s - 0.5, s + 0.5, 22, HS - 3, 0.03); }
+      else if (e.W > 8){ e.q(B.p(SLOT), e.W/2 - 0.8, e.W/2 + 0.8, 15, HS, 0.03); for (let y = 16; y < HS - 1; y += 3.4) e.q(B.p(win(r, 0.5)), e.W/2 - 0.6, e.W/2 + 0.6, y, y + 1.6, 0.05); } }
+    flatT(B.p(C.roof), P, HS); for (const e of E) if (e.W > 2) e.bx(B.p(CR), e.W/2, HS - 0.4, 0.1, e.W + 0.1, 0.6, 0.5); }
+  // the stepped wings: two storeys per OSM part, raked balcony terraces; blue fascia under the lowest
+  // the point of the wedge (south): a plain cream end slab in two halves either side of a deep slot with two columns of
+  // small windows, the lift shaft in the slot rising above the roof
+  const AP = [[-18.5, 50.8], [-0.4, 61.8]], onAp = E => { const a = E.pt(0, 0, 0), b = E.pt(E.W, 0, 0); return Math.hypot(a[0] - AP[0][0], a[2] - AP[0][1]) < 1 && Math.hypot(b[0] - AP[1][0], b[2] - AP[1][1]) < 1 || Math.hypot(b[0] - AP[0][0], b[2] - AP[0][1]) < 1 && Math.hypot(a[0] - AP[1][0], a[2] - AP[1][1]) < 1; };
+  for (let i = 4; i < 12; i++) balT(B, L[i][1], L[i][2], L[i][3], 3.4, C, r, 1.0, onAp);
+  { const E = edges(L[4][1]).find(onAp);
+    if (E){ const W = E.W, sc = W/2, hs = 2.6;
+      for (const [s0, s1, top] of [[0, sc - hs, 79.6], [sc + hs, W, 81.2]]){ const p = E.pt((s0 + s1)/2, 0, -4); boxT(B.p(SLAB), p[0], 15, p[2], s1 - s0, top - 15, 8.4, E.ry);
+        for (let y = 18.4; y < top; y += 3.4) E.q(B.p(CR2), s0, s1, y, y + 0.06, 0.215);
+        const q = E.pt((s0 + s1)/2, 0, -4); boxT(B.p(CR), q[0], top - 0.5, q[2], s1 - s0 + 0.3, 0.6, 8.7, E.ry); }
+      E.q(B.p(SLAB), sc - hs, sc + hs, 15, 84.5, -1.4);
+      for (const sd of [-1, 1]) for (let y = 17.5; y < 80; y += 3.4) E.q(B.p(win(r, 0.5)), sc + sd*1.3 - 0.75, sc + sd*1.3 + 0.75, y, y + 2.0, -1.37);
+      E.q(B.p(SLAB), sc - 0.5, sc + 0.5, 15, 84.5, -1.36);
+      const p = E.pt(sc, 0, -4); boxT(B.p(CR2), p[0], 84.5, p[2], 2 * hs, 0.5, 8, E.ry); } }
+  for (const E of edges(L[4][1])) if (E.W > 2) E.bx(B.p(BLUE), E.W/2, 15.2, 0.15, E.W, 1.3, 0.3);
+  // the long atrium skylight: a glazed ridge roof with mullions, and the cream roof drum at its north end
+  { const P = L[12][1]; wallsT(B.p(CR), P, 76.2, 77.4); flatT(B.p(SKY), P, 77.4);
+    const a = [2.4, 48.1], b = [19.2, 3.0]; for (let t = 0; t <= 1.001; t += 1/14){ const x = a[0] + (b[0] - a[0])*t, z = a[1] + (b[1] - a[1])*t; segP(B.p(MUL), [x - 6, 77.5, z - 3], [x + 6, 77.5, z + 3], 0.06, 3); }
+    segP(B.p(MUL), [a[0], 77.6, a[1]], [b[0], 77.6, b[1]], 0.1, 4);
+    const D = L[13][1]; wallsT(B.p(CR), D, 77.4, 83); flatT(B.p(C.roof), D, 83); for (const E of edges(D)) if (E.W > 1) E.q(B.p(win(r, 0.5)), 0.2, E.W - 0.2, 79.2, 81.6, 0.04); }
+  B.flush(g); return g; }};
+SG_PLACES.push({type:'dthparkroyal', lat:D_PR.lat, lon:D_PR.lon, rot:0});
+
+// ======================================================================================================
+// Marina Square podium, 6 Raffles Boulevard (1986): the shopping centre the three Portman hotels stand on. Three storeys
+// of shops: a glazed shopfront storey behind round columns, tan horizontal louvred cladding above, a glazed clerestory
+// under a deep flat roof overhang; the main entrance from the Esplanade side is a flared glass box on columns; roof
+// decks, a car-park level and the glazed atrium lanterns on top. OSM ways 303311927 (outline), 742205655, 393090491,
+// 743776030, 743776029, 743776028, 742205650, 742205649, 743776033-743776035 (parts); storey heights 5 m (estimate).
+// The Pan Pacific Singapore on its north-east corner is not modelled here.
+// ======================================================================================================
+LANDMARKS.dthmarinasq = {zh:'滨海广场', en:'Marina Square', cat:'new', r:80, h:22, lt:{m:0, c:'#ffe2b8', k:0.5, e:0.4}, build(){
+  const g = new THREE.Group(), B = mkB(), r = LMCTX.rng, L = D_MS.L;
+  mallBlock(B, L[0][1], 0, 15, r, 'MS'); mallBlock(B, L[1][1], 5, 15, r, 'MS'); mallBlock(B, L[2][1], 0, 15, r, 'MS');
+  for (const i of [3, 4, 5, 6]) upperBlock(B, L[i][1], 15, 18.4, r);
+  // roof plant on the shop roofs: air-handling units, cooling towers
+  for (const [x, z, w, d] of [[-7, 42, 9, 5], [118, -4, 6, 6], [-95, -6, 7, 4], [-64, -7, 8, 5], [-96, -84, 6, 6], [78, -33, 9, 4], [-41, -100, 6, 5], [-61, 60, 7, 5]]){
+    boxT(B.p(PLANT), x, 15, z, w, 2.4, d, 0.52); boxT(B.p(DARK), x, 17.4, z, w - 0.6, 0.08, d - 0.6, 0.52); }
+  // the atrium lanterns: glazed pyramids on a square frame
+  for (const i of [7, 9]) upperBlock(B, L[i][1], 18.4, 21.8, r);
+  { const P = L[8][1]; wallsT(B.p(MALL.glass), P, 18.4, 21.8); let cx = 0, cz = 0; for (const p of P){ cx += p[0]; cz += p[1]; } cx /= P.length; cz /= P.length;
+    for (let i = 0; i < P.length; i++){ const a = P[i], b = P[(i+1) % P.length]; tri(B.p(MALL.sky), [a[0], 21.8, a[1]], [b[0], 21.8, b[1]], [cx, 26.5, cz]); segP(B.p(MUL), [a[0], 21.8, a[1]], [cx, 26.5, cz], 0.1, 3); } }
+  // the main entrance from the Esplanade side: a flared glass box on round columns over the steps
+  { let best = null, bd = 1e9; for (const E of edges(L[0][1])){ if (E.W < 30) continue; const m = E.pt(E.W/2, 0, 0), d = Math.hypot(m[0] + 83, m[2] - 49); if (d < bd){ bd = d; best = E; } }
+    if (best){ const E = best, s0 = E.W/2 - 12, s1 = E.W/2 + 12;
+      for (let k = 0; k < 10; k++){ const t0 = k/10, t1 = (k + 1)/10, a0 = s0 + (s1 - s0)*t0, a1 = s0 + (s1 - s0)*t1;
+        quad(B.p(MALL.glassL), E.pt(a0 + (t0 - 0.5)*0, 5.2, 4 + Math.sin(PI*t0)*1.2), E.pt(a1, 5.2, 4 + Math.sin(PI*t1)*1.2), E.pt(a1 + (t1 - 0.5)*3, 17.5, 5 + Math.sin(PI*t1)*1.6), E.pt(a0 + (t0 - 0.5)*3, 17.5, 5 + Math.sin(PI*t0)*1.6)); }
+      for (const sd of [-1, 1]) quad(B.p(MALL.glassL), E.pt(E.W/2 + sd*12, 5.2, 0), E.pt(E.W/2 + sd*12, 5.2, 4), E.pt(E.W/2 + sd*13.5, 17.5, 5), E.pt(E.W/2 + sd*13.5, 17.5, 0));
+      for (let y = 7.6; y < 17.5; y += 2.4) for (let k = 0; k < 10; k++){ const t0 = k/10, t1 = (k + 1)/10, f = (y - 5.2)/12.3;
+        segP(B.p(MUL), E.pt(s0 + (s1 - s0)*t0 + (t0 - 0.5)*3*f, y, 4.05 + f + Math.sin(PI*t0)*(1.2 + 0.4*f)), E.pt(s0 + (s1 - s0)*t1 + (t1 - 0.5)*3*f, y, 4.05 + f + Math.sin(PI*t1)*(1.2 + 0.4*f)), 0.05, 3); }
+      E.bx(B.p(MALL.soff), E.W/2, 17.5, 3, 28, 0.7, 7); E.bx(B.p({c:'#a8552e', ds:true}), E.W/2, 4.4, 2.6, 25, 0.8, 5.6);
+      for (const s of [-5, -1.7, 1.7, 5]){ const p = E.pt(E.W/2 + s, 0, 4.5); latheT(B.p({c:'#c9cdd0', ds:true}), [[0.55, 0], [0.55, 4.4], [0.01, 4.4]], 10, p[0], p[2]); } } }
+  B.flush(g); return g; }};
+SG_PLACES.push({type:'dthmarinasq', lat:D_MS.lat, lon:D_MS.lon, rot:0});
+}
+
 /* ================= v21 add-on: light — the real sun, moon and sky over Singapore (lm20/light) =================
    Time of day follows the real sky at 1.35 N (or a generic 25 N site on the generated islands), for today's date
    (the date moves on when the simulated clock passes midnight; SGLight.date = 'YYYY-MM-DD' pins one):
@@ -54363,7 +55111,7 @@ const LITE = (() => {
   for (const [k, v] of new URLSearchParams(location.hash.slice(1))) q.set(k, v);
   const LON0 = 103.845, LAT0 = 1.315, MX = 111290.5, MY = 110574.0, xy = (lat, lon) => [(lon - LON0)*MX, (lat - LAT0)*MY];
   let focus = null, pin = null, card = q.get('card');
-  if (card && !/^[A-Za-z0-9_:\- ]{1,80}$/.test(card)) card = null;
+  if (card && !/^[A-Za-z0-9_:()\- ]{1,80}$/.test(card)) card = null;
   const at = (q.get('at') || '').split(',').map(Number);
   // ?at is the point (and gets a pin unless a landmark card is asked for: the card's ring marks it); ?card alone uses the model's place
   if (at.length === 2 && at.every(isFinite) && Math.abs(at[0] - LAT0) < 0.3 && Math.abs(at[1] - LON0) < 0.3){ focus = xy(at[0], at[1]); if (!card) pin = focus; }
@@ -54457,7 +55205,8 @@ function liteClamp(){
 }
 sgrStep = (orig => function(){ if (SGR.on){ liteClamp(); if ((LITE.frames++ & 15) === 0) liteStream(false); } return orig.apply(this, arguments); })(sgrStep);
 // the first view: over the point; with #span=<m>, as wide as the embedding page's 2D map was (the same view, tilted)
-const LITE_MAXD = 30000;
+// #far=1 (Home's map card): the camera may pull back far enough to see the whole island
+const LITE_MAXD = LITE.q.get('far') === '1' ? 52000 : 30000;
 function liteOffset(span, k){
   if (!(isFinite(span) && span > 0)) return [420*k, 560*k, 760*k];
   const hf = Math.atan(Math.tan(camera.fov*Math.PI/360)*Math.max(0.3, camera.aspect));
@@ -54500,16 +55249,21 @@ function litePeek(){ setTimeout(() => { const el = document.querySelector('secti
 function liteAuto(){
   try { const m = {en:'en', zh:'zh', both:'both'}[LITE.q.get('lang')] || 'en'; if (window.SGLang) SGLang.set(m); } catch (e){ console.error('[lite] lang', e); }
   try { if (window.SGAudio && SGAudio.on) SGAudio.disable(); } catch (e){ console.error('[lite] sound', e); }
-  try { if (window.SGWx) SGWx.set('auto', true); } catch (e){ console.error('[lite] weather', e); }
+  // #day=1 (Home's map card): clear weather, so no clouds sit over the map
+  try { if (window.SGWx) SGWx.set(LITE.q.get('day') === '1' ? 'clear' : 'auto', true); } catch (e){ console.error('[lite] weather', e); }
   try {
     const rate = +LITE.q.get('rate');
     if (window.SGClock){ SGClock.setLocal(false); SGClock.setRate(SGClock.RATES.includes(rate) ? rate : 2400); tod = SGClock.localNow()[0]; }
     // #hour=13 (tooling: the place pictures are taken at a fixed midday, whatever the time of the run)
     const hour = LITE.q.get('hour') === null ? NaN : +LITE.q.get('hour');
     if (isFinite(hour) && hour >= 0 && hour < 24) tod = hour;
-    todPlay = !LITE.still; applyTime();
+    // #day=1 (Home's map card): a still late morning, so the map reads the same at any hour
+    if (LITE.q.get('day') === '1') tod = 10.5;
+    todPlay = !LITE.still && LITE.q.get('day') !== '1'; applyTime();
   } catch (e){ console.error('[lite] time', e); }
 }
+// #labels=0 (Home's map card): the city's own map labels stay hidden; the page draws its numbered zones instead
+if (LITE.q.get('labels') === '0'){ const st = document.createElement('style'); st.textContent = '#labels{display:none!important}'; document.head.appendChild(st); }
 // map labels without emoji icons (the app uses none)
 {
   const EMO = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]+\s*/gu;
@@ -54695,6 +55449,19 @@ addEventListener('message', e => {
       && p.at.every(v => typeof v === 'number' && isFinite(v)) && Math.abs(p.at[0] - 1.315) < 0.3 && Math.abs(p.at[1] - 103.845) < 0.3);
     return litePins(ok, d0.styles, typeof d0.selected === 'string' ? d0.selected : null);
   }
+  if (d0.type === 'zones'){
+    if (!Array.isArray(d0.zones) || d0.zones.length > 80) return;
+    const col = c => typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c), num01 = v => typeof v === 'number' && v >= 0 && v <= 1;
+    let pts = 0;
+    const ok = d0.zones.filter(z => z && typeof z.id === 'string' && z.id.length <= 40 && col(z.fill) && col(z.line) && num01(z.fa) && num01(z.la)
+      && Array.isArray(z.at) && z.at.length === 2 && z.at.every(v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 40000)
+      && Array.isArray(z.rings) && z.rings.length <= 20 && z.rings.every(r => Array.isArray(r) && r.length <= 2000 && (pts += r.length) < 20000
+        && r.every(p => Array.isArray(p) && p.length === 2 && p.every(v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 40000))))
+      .map(z => ({id:z.id, rings:z.rings, fill:z.fill, fa:z.fa, line:z.line, la:z.la, sel:!!z.sel, at:z.at,
+        num:Number.isInteger(z.num) && z.num > 0 && z.num < 100 ? z.num : 0, name:typeof z.name === 'string' ? z.name.slice(0, 40) : '',
+        label:typeof z.label === 'string' ? z.label.slice(0, 40) : '', kind:z.kind === 'Region' ? 'Region' : 'Area'}));
+    return liteZones(ok);
+  }
   if (d0.type === 'you'){
     if (d0.at === null) return liteYou(null);
     if (Array.isArray(d0.at) && d0.at.length === 2 && d0.at.every(v => typeof v === 'number' && isFinite(v)) && Math.abs(d0.at[0] - 1.315) < 0.3 && Math.abs(d0.at[1] - 103.845) < 0.3)
@@ -54703,7 +55470,7 @@ addEventListener('message', e => {
   }
   const d = d0; if (d.type !== 'show' || !LITE.ready) return;
   if (!Array.isArray(d.at) || d.at.length !== 2 || !d.at.every(v => typeof v === 'number' && isFinite(v))) return;
-  const card = typeof d.card === 'string' && /^[A-Za-z0-9_:\- ]{1,80}$/.test(d.card) ? d.card : null, p = LITE.xy(d.at[0], d.at[1]);
+  const card = typeof d.card === 'string' && /^[A-Za-z0-9_:()\- ]{1,80}$/.test(d.card) ? d.card : null, p = LITE.xy(d.at[0], d.at[1]);
   if (Math.abs(d.at[0] - 1.315) > 0.3 || Math.abs(d.at[1] - 103.845) > 0.3) return;
   if (Math.hypot(p[0] - LITE.focus[0], p[1] - LITE.focus[1]) > LITE.PAN - 300){
     const q = new URLSearchParams(location.hash.slice(1)); q.set('at', d.at.map(v => v.toFixed(5)).join(',')); if (card) q.set('card', card); else q.delete('card');
@@ -54716,6 +55483,69 @@ addEventListener('message', e => {
   if (opened){ if (LITE.pinMesh) LITE.pinMesh.visible = false; if (!liteFrame(card, !LITE.still)) liteLook(p[0], p[1]); litePeek(); }
   else { try { SGCard.close(); } catch (e){ } if (d.pin !== false) litePin(p[0], p[1]); liteLook(p[0], p[1], typeof d.span === 'number' ? d.span : NaN); }
 });
+// Home's map card (Discovery redesign, 31 Oct 2026): URA planning areas drawn over the city, tinted by unlock state,
+// with numbered labels. {type:'zones', zones:[{id, rings:[[[x, y]...]] (map metres), fill:'#rrggbb', fa, line:'#rrggbb',
+// la, sel, num?, name?, at:[x, y]}]}. Colours fade to their new values. A tap on a zone (or its label) goes back as
+// {type:'zone', id}. Zones sit just above sea level and are drawn over everything, as a wash on the ground picture.
+const LZ = {group:null, items:new Map(), labels:null, down:null, raf:0};
+function liteZoneLoop(){
+  LZ.raf = 0; let moving = false;
+  const rect = renderer.domElement.getBoundingClientRect(), v = new THREE.Vector3();
+  for (const it of LZ.items.values()){
+    const k = 0.18;
+    it.fa += (it.tfa - it.fa)*k; it.la += (it.tla - it.la)*k;
+    if (Math.abs(it.tfa - it.fa) > 0.003 || Math.abs(it.tla - it.la) > 0.003) moving = true;
+    it.fill.material.opacity = it.fa; it.fill.material.color.lerp(it.tcol, k); it.line.forEach(l => { l.material.opacity = it.la; l.material.color.lerp(it.tline, k); });
+    if (it.lab){ v.set(it.at[0], 30, -it.at[1]).project(camera);
+      if (v.z > 1){ it.lab.style.visibility = 'hidden'; } else { it.lab.style.visibility = ''; it.lab.style.transform = `translate(${((v.x + 1)/2*rect.width).toFixed(1)}px, ${((1 - v.y)/2*rect.height).toFixed(1)}px) translate(-50%, -50%)`; } }
+  }
+  LZ.raf = requestAnimationFrame(liteZoneLoop);   // labels follow the camera every frame while zones exist
+}
+function liteZones(list){
+  if (!LZ.group){ LZ.group = new THREE.Group(); scene.add(LZ.group);
+    LZ.labels = document.createElement('div'); LZ.labels.id = 'lzLabels';
+    LZ.labels.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden;font:600 12px Inter,system-ui,sans-serif';
+    (renderer.domElement.parentElement || document.body).appendChild(LZ.labels); }
+  const keep = new Set(list.map(z => z.id));
+  for (const [id, it] of LZ.items) if (!keep.has(id)){ LZ.group.remove(it.fill); it.line.forEach(l => LZ.group.remove(l)); it.fill.geometry.dispose(); it.fill.material.dispose(); it.line.forEach(l => { l.geometry.dispose(); l.material.dispose(); }); if (it.lab) it.lab.remove(); LZ.items.delete(id); }
+  for (const z of list){
+    let it = LZ.items.get(z.id);
+    if (!it){
+      const shapes = z.rings.map(r => new THREE.Shape(r.map(p => new THREE.Vector2(p[0], p[1]))));
+      const g = new THREE.ShapeGeometry(shapes); g.rotateX(-Math.PI/2);
+      const fill = new THREE.Mesh(g, new THREE.MeshBasicMaterial({color:z.fill, transparent:true, opacity:0, depthTest:false, depthWrite:false}));
+      fill.position.y = 6; fill.renderOrder = 9; fill.userData.zone = z.id; LZ.group.add(fill);
+      const line = z.rings.map(r => { const lg = new THREE.BufferGeometry().setFromPoints(r.map(p => new THREE.Vector3(p[0], 8, -p[1])));
+        const l = new THREE.LineLoop(lg, new THREE.LineBasicMaterial({color:z.line, transparent:true, opacity:0, depthTest:false, depthWrite:false})); l.renderOrder = 10; LZ.group.add(l); return l; });
+      it = {fill, line, fa:0, la:0, tfa:0, tla:0, tcol:new THREE.Color(z.fill), tline:new THREE.Color(z.line), lab:null, at:z.at};
+      LZ.items.set(z.id, it);
+    }
+    it.tfa = z.fa; it.tla = z.la; it.tcol.set(z.fill); it.tline.set(z.line); it.at = z.at;
+    it.line.forEach(l => { l.renderOrder = z.sel ? 12 : 10; });
+    if (z.num){
+      if (!it.lab){ it.lab = document.createElement('button'); it.lab.type = 'button';
+        it.lab.style.cssText = 'position:absolute;left:0;top:0;pointer-events:auto;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:3px;cursor:pointer;box-shadow:0 6px 14px -8px rgba(20,30,50,.7);white-space:nowrap;font:inherit';
+        it.lab.addEventListener('click', ev => { ev.stopPropagation(); litePost({type:'zone', id:z.id}); }); LZ.labels.appendChild(it.lab); }
+      it.lab.style.background = z.sel ? '#e4671f' : 'rgba(255,255,255,.94)'; it.lab.style.color = z.sel ? '#fff' : '#23211d';
+      it.lab.style.paddingRight = z.name ? '10px' : '3px'; it.lab.style.zIndex = z.sel ? '3' : '1';
+      it.lab.setAttribute('aria-label', (z.kind || 'Area') + ' ' + z.num + (z.label ? ': ' + z.label : ''));
+      it.lab.innerHTML = '';
+      const n = document.createElement('span'); n.textContent = String(z.num);
+      n.style.cssText = 'width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;' + (z.sel ? 'background:#fff;color:#e4671f' : 'background:#23211d;color:#fff');
+      it.lab.appendChild(n); if (z.name){ const t = document.createElement('span'); t.textContent = z.name; it.lab.appendChild(t); }
+    } else if (it.lab){ it.lab.remove(); it.lab = null; }
+  }
+  if (!LZ.raf) LZ.raf = requestAnimationFrame(liteZoneLoop);
+}
+// a tap on the ground inside a zone (not a pin, not a drag) picks it
+addEventListener('pointerdown', e => { LZ.down = e.button === 0 && e.target === renderer.domElement ? {x:e.clientX, y:e.clientY, t:performance.now()} : null; }, true);
+addEventListener('pointerup', e => {
+  const D = LZ.down; LZ.down = null; if (!D || !LZ.items.size || Math.hypot(e.clientX - D.x, e.clientY - D.y) > 8 || performance.now() - D.t > 600) return;
+  const r = renderer.domElement.getBoundingClientRect(), ray = new THREE.Raycaster();
+  ray.setFromCamera(new THREE.Vector2((e.clientX - r.left)/r.width*2 - 1, -(e.clientY - r.top)/r.height*2 + 1), camera);
+  const hit = ray.intersectObjects([...LZ.items.values()].map(i => i.fill), false)[0];
+  if (hit) litePost({type:'zone', id:hit.object.userData.zone});
+}, true);
 window.SGLite = {
   stats(){ let built = 0, live = 0; for (const T of SGR.tiles.values()){ if (T.done) built++; if (T.road || T.bld) live++; }
     const m = renderer.info.memory, r = renderer.info.render;

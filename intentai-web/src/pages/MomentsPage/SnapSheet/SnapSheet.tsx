@@ -537,7 +537,7 @@ function MatchResult({
           Save to Moments
         </button>
         <Link to={photo.href} className={styles.primary}>
-          Open in Nearby
+          Show on the map
           <span aria-hidden="true">→</span>
         </Link>
       </div>

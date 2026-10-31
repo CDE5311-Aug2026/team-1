@@ -7,11 +7,23 @@ import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { Rgba } from '../../features/nearby/map/CityMap';
 import { toXY } from '../../features/nearby/map/projection';
 import type { LatLng } from '../../features/nearby/types';
-import { URA_AREAS, URA_REGIONS, areaProgress, areasOf, regionBox, type RegionId, type UnlockStatus } from '../../data/ura/ura';
+import {
+  URA_AREAS,
+  URA_REGIONS,
+  areaProgress,
+  areasOf,
+  regionBox,
+  regionProgress,
+  type RegionId,
+  type UnlockProgress,
+  type UnlockStatus,
+} from '../../data/ura/ura';
+import groundUrl from '../../assets/nearby/sg-ground.webp';
 import { MapScene, type TileLook } from './three/mapScene';
 import styles from './MapCard3D.module.css';
 
-export type MapLevel = 'regions' | 'areas' | 'places';
+/** picks: Editor's Pick (the selected pick's stops shown); pick: inside one pick, its stops. */
+export type MapLevel = 'regions' | 'areas' | 'places' | 'picks' | 'pick';
 
 export interface MapPlacePin {
   id: string;
@@ -32,6 +44,10 @@ interface Props {
   onPickRegion(id: RegionId): void;
   onPickArea(id: string): void;
   onPickPlace(id: string): void;
+  /** Number the pins in order (a walk's stops). */
+  numbered?: boolean;
+  /** Join the pins with a dashed line (a walk's order of stops). */
+  path?: boolean;
 }
 
 const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
@@ -46,22 +62,18 @@ function webglOk(): boolean {
   }
 }
 
-const LAND: Record<UnlockStatus, Rgba> = { none: [214, 208, 196, 1], exploring: [150, 188, 240, 1], done: [47, 111, 228, 1] };
-const LAND_DIM: Record<UnlockStatus, Rgba> = { none: [120, 128, 138, 0.9], exploring: [96, 120, 158, 0.9], done: [44, 76, 140, 0.9] };
+// Tints over EARTH ONLINE's ground picture: see-through, so the city's own art shows under them.
+const LAND: Record<UnlockStatus, Rgba> = { none: [236, 230, 218, 0.38], exploring: [130, 175, 245, 0.55], done: [47, 111, 228, 0.62] };
+const LAND_DIM: Record<UnlockStatus, Rgba> = { none: [24, 28, 38, 0.55], exploring: [30, 48, 90, 0.55], done: [26, 52, 120, 0.6] };
 /** The selected planning area: a warmer, lighter tile. */
-const LAND_FOCUS: Record<UnlockStatus, Rgba> = { none: [252, 214, 176, 1], exploring: [176, 210, 252, 1], done: [82, 146, 245, 1] };
+const LAND_FOCUS: Record<UnlockStatus, Rgba> = { none: [252, 196, 150, 0.5], exploring: [150, 196, 252, 0.6], done: [82, 146, 245, 0.66] };
 /** The rest of the region around it. */
-const LAND_NEAR: Record<UnlockStatus, Rgba> = { none: [196, 190, 178, 1], exploring: [136, 170, 220, 1], done: [42, 98, 204, 1] };
+const LAND_NEAR: Record<UnlockStatus, Rgba> = { none: [236, 230, 218, 0.3], exploring: [130, 175, 245, 0.5], done: [47, 111, 228, 0.58] };
 const EDGE: Rgba = [255, 255, 255, 0.85];
 const EDGE_DIM: Rgba = [255, 255, 255, 0.18];
 const ORANGE: Rgba = [228, 103, 31, 1];
 
 const areaById = new Map(URA_AREAS.map((a) => [a.id, a]));
-/** The main island (offshore island areas left out), for the regions view. */
-const ISLAND: [number, number, number, number] = (() => {
-  const bs = URA_AREAS.filter((a) => !/Islands$/.test(a.name)).map((a) => a.box);
-  return [Math.min(...bs.map((b) => b[0])), Math.min(...bs.map((b) => b[1])), Math.max(...bs.map((b) => b[2])), Math.max(...bs.map((b) => b[3]))];
-})();
 const mainland = (region: RegionId) => areasOf(region).filter((a) => !/Islands$/.test(a.name));
 /** A region's label point: the middle of its biggest mainland areas. */
 function regionPoint(region: RegionId): [number, number] {
@@ -71,7 +83,49 @@ function regionPoint(region: RegionId): [number, number] {
   return [xs.reduce((s, v) => s + v, 0) / xs.length, ys.reduce((s, v) => s + v, 0) / ys.length];
 }
 
-export function MapCard3D({ level, region, areaId, areaOrder, places, selectedPlaceId, visited, label, onPickRegion, onPickArea, onPickPlace }: Props) {
+/** A badge's ring: how much of the region or area is checked in (the card below has the full numbers). */
+function Ring({ p }: { p: UnlockProgress }) {
+  const r = 12.5;
+  const c = 2 * Math.PI * r;
+  const k = p.total ? p.visited / p.total : 0;
+  return (
+    <svg className={styles.ring} width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+      <circle cx="15" cy="15" r={r} fill="none" stroke="rgba(35,33,29,0.16)" strokeWidth="3" />
+      {k > 0 && (
+        <circle
+          cx="15"
+          cy="15"
+          r={r}
+          fill="none"
+          stroke={p.status === 'done' ? '#1f9d55' : '#2f6fe4'}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray={`${Math.max(2, k * c)} ${c}`}
+          transform="rotate(-90 15 15)"
+        />
+      )}
+    </svg>
+  );
+}
+
+const pct = (p: UnlockProgress) => (p.total ? `${Math.round((p.visited / p.total) * 100)}% checked in` : 'no places yet');
+
+export function MapCard3D({
+  level,
+  region,
+  areaId,
+  areaOrder,
+  places,
+  selectedPlaceId,
+  visited,
+  label,
+  onPickRegion,
+  onPickArea,
+  onPickPlace,
+  numbered = false,
+  path = false,
+}: Props) {
+  const isPick = level === 'picks' || level === 'pick';
   const reduced = useReducedMotion();
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -83,7 +137,7 @@ export function MapCard3D({ level, region, areaId, areaOrder, places, selectedPl
   // ---- scene lifetime ----
   useEffect(() => {
     if (!gl || !canvasRef.current || !boxRef.current) return undefined;
-    const scene = new MapScene(canvasRef.current, URA_AREAS);
+    const scene = new MapScene(canvasRef.current, URA_AREAS, groundUrl);
     sceneRef.current = scene;
     const box = boxRef.current;
     const size = () => scene.setSize(box.clientWidth, box.clientHeight);
@@ -107,6 +161,11 @@ export function MapCard3D({ level, region, areaId, areaOrder, places, selectedPl
     const m = new Map<string, TileLook>();
     for (const a of URA_AREAS) {
       const status = areaProgress(a.id, visited).status;
+      if (isPick) {
+        // a pick crosses areas: the land stays even and flat, the stops and their line stand out
+        m.set(a.id, { color: LAND_NEAR[status], lift: 0, edge: EDGE_DIM });
+        continue;
+      }
       const inRegion = a.region === region;
       const focusTile = level === 'regions' ? inRegion : a.id === areaId;
       const lit = level === 'regions' ? inRegion : inRegion;
@@ -117,19 +176,52 @@ export function MapCard3D({ level, region, areaId, areaOrder, places, selectedPl
       });
     }
     return m;
-  }, [level, region, areaId, visited]);
+  }, [level, region, areaId, visited, isPick]);
 
   useEffect(() => {
     sceneRef.current?.setLooks(looks);
   }, [looks, ready]);
 
   useEffect(() => {
+    sceneRef.current?.setPath(
+      isPick && path
+        ? places.map((p) => {
+            const q = toXY(p.point);
+            return [q.x, q.y] as [number, number];
+          })
+        : null,
+    );
+  }, [isPick, path, places, ready]);
+
+  useEffect(() => {
     const s = sceneRef.current;
     if (!s) return;
-    if (level === 'places') s.fit(areaById.get(areaId)?.box ?? regionBox(region), false, 0.18);
-    else if (level === 'regions') s.fit(ISLAND, false, 0.04);
-    else s.fit(regionBox(region), false, 0.08);
-  }, [level, region, areaId, ready]);
+    if (isPick) {
+      const pts = places.map((p) => toXY(p.point));
+      const sel = places.find((p) => p.id === selectedPlaceId);
+      if (level === 'pick' && sel) {
+        // the map follows the stop card, wherever on the island it is
+        const q = toXY(sel.point);
+        s.fit([q.x - 900, q.y - 900, q.x + 900, q.y + 900], false, 0.2);
+      } else if (pts.length) {
+        const xs = pts.map((q) => q.x);
+        const ys = pts.map((q) => q.y);
+        const half = Math.max(700, (Math.max(...xs) - Math.min(...xs)) / 2, (Math.max(...ys) - Math.min(...ys)) / 2);
+        const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
+        const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+        s.fit([cx - half, cy - half, cx + half, cy + half], false, 0.15);
+      }
+    } else if (level === 'places') s.fit(areaById.get(areaId)?.box ?? regionBox(region), false, 0.18);
+    else if (level === 'regions') s.fit(regionBox(region), false, 0.3);
+    else {
+      // the selected area, with room around it for its neighbours (the map follows the card)
+      const b = areaById.get(areaId)?.box ?? regionBox(region);
+      const cx = (b[0] + b[2]) / 2;
+      const cy = (b[1] + b[3]) / 2;
+      const half = Math.max(2600, (b[2] - b[0]) / 2, (b[3] - b[1]) / 2);
+      s.fit([cx - half, cy - half, cx + half, cy + half], false, 0.35);
+    }
+  }, [level, region, areaId, ready, isPick, places, selectedPlaceId]);
 
   // ---- labels and pins follow the camera ----
   type Marker = { key: string; x: number; y: number; top: () => number };
@@ -148,9 +240,9 @@ export function MapCard3D({ level, region, areaId, areaOrder, places, selectedPl
       });
     return places.map((p) => {
       const q = toXY(p.point);
-      return { key: `p:${p.id}`, x: q.x, y: q.y, top: () => s()?.topOf(areaId) ?? 0 };
+      return { key: `p:${p.id}`, x: q.x, y: q.y, top: () => (isPick ? 0.14 : (s()?.topOf(areaId) ?? 0)) };
     });
-  }, [level, areaOrder, places, areaId]);
+  }, [level, areaOrder, places, areaId, isPick]);
 
   useEffect(() => {
     const s = sceneRef.current;
@@ -211,10 +303,13 @@ export function MapCard3D({ level, region, areaId, areaOrder, places, selectedPl
               type="button"
               className={`${styles.badge} ${r.id === region ? styles.badgeOn : ''}`}
               aria-pressed={r.id === region}
-              aria-label={`Region ${i + 1}: ${r.name}`}
+              aria-label={`Region ${i + 1}: ${r.name}, ${pct(regionProgress(r.id, visited))}`}
               onClick={() => onPickRegion(r.id)}
             >
-              <span className={styles.num}>{i + 1}</span>
+              <span className={styles.numWrap}>
+                <Ring p={regionProgress(r.id, visited)} />
+                <span className={styles.num}>{i + 1}</span>
+              </span>
               <span className={styles.badgeName}>{r.name}</span>
             </button>
           ))}
@@ -228,16 +323,19 @@ export function MapCard3D({ level, region, areaId, areaOrder, places, selectedPl
                 type="button"
                 className={`${styles.badge} ${styles.small} ${id === areaId ? styles.badgeOn : ''}`}
                 aria-pressed={id === areaId}
-                aria-label={`Area ${i + 1}: ${a.name}`}
+                aria-label={`Area ${i + 1}: ${a.name}, ${pct(areaProgress(id, visited))}`}
                 onClick={() => onPickArea(id)}
               >
-                <span className={styles.num}>{i + 1}</span>
+                <span className={styles.numWrap}>
+                  <Ring p={areaProgress(id, visited)} />
+                  <span className={styles.num}>{i + 1}</span>
+                </span>
                 {id === areaId && <span className={styles.badgeName}>{a.name}</span>}
               </button>
             );
           })}
-        {level === 'places' &&
-          places.map((p) => (
+        {(level === 'places' || isPick) &&
+          places.map((p, i) => (
             <button
               key={p.id}
               ref={setRef(`p:${p.id}`)}
@@ -245,9 +343,11 @@ export function MapCard3D({ level, region, areaId, areaOrder, places, selectedPl
               data-pin={p.id}
               className={`${styles.pin} ${p.id === selectedPlaceId ? styles.pinOn : ''} ${visited.has(p.id) ? styles.pinDone : ''}`}
               aria-pressed={p.id === selectedPlaceId}
-              aria-label={p.name}
+              aria-label={numbered ? `Stop ${i + 1}: ${p.name}` : p.name}
               onClick={() => onPickPlace(p.id)}
-            />
+            >
+              {numbered && <span className={styles.pinNum}>{i + 1}</span>}
+            </button>
           ))}
       </div>
     </div>

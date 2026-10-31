@@ -38,7 +38,7 @@ test('sources from one publisher are listed once, with each page', () => {
 });
 
 test('a place without a card still gets the header and its photo, and nothing made up', () => {
-  const id = 'curated:sg-tian-tian-hainanese-chicken-rice';
+  const id = 'curated:sg-gardens-by-the-bay'; // outside the 31 Oct research wave (no card yet)
   renderCard(id);
   expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(curatedPlace(id)!.name);
   expect(screen.getByRole('img', { name: curatedPlace(id)!.name })).toBeInTheDocument();
@@ -47,7 +47,7 @@ test('a place without a card still gets the header and its photo, and nothing ma
   expect(screen.queryByRole('region', { name: 'Look for' })).not.toBeInTheDocument();
 });
 
-test('a place with a Team 1 story card links to it', () => {
+test("Team 1's story pages are gone (31 Oct): no link to them", () => {
   renderCard('curated:sg-lim-chee-guan-new-bridge-road');
-  expect(screen.getByRole('link', { name: 'Chinatown story card: bak kwa' })).toHaveAttribute('href', '/place/chinatown/food');
+  expect(screen.queryByRole('link', { name: /story card/ })).toBeNull();
 });

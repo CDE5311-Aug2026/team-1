@@ -1,6 +1,7 @@
 // M3 Snap: the "Recent photos" tray. Recognition is a demo: every tray photo is one of the app's own photos of a
 // known card, so each carries its card, three tags written by hand from what the photo shows, and a fixed match score.
 // A live camera photo is never matched (SnapSheet shows "No match yet").
+import { homePlaceHref } from '../../../data/homeLinks';
 import { snapTray, subjectOfCardId, topicOfCard, TOPIC_LABELS, imageOf, type CardTopic } from '../../../data/moments/moments';
 import type { Facet } from '../../../data/placeStories';
 import { storyPlace } from '../../../data/stories/places';
@@ -9,12 +10,12 @@ import { ARTICLE_LINKS, nearbyHref } from '../../../data/cultureLinks';
 
 /** Where a match opens in Nearby (story and culture-card pages were removed in the Discovery redesign). */
 const STORY_HREF: Readonly<Record<string, string>> = {
-  'berlin-wall-fragments': paths.nearbyPlace('curated:sg-berlin-wall-fragments-utown'),
+  'berlin-wall-fragments': homePlaceHref('curated:sg-berlin-wall-fragments-utown'),
   chinatown: nearbyHref({ kind: 'area', id: 'sg-chinatown', label: 'Chinatown' }),
 };
 const cardHref = (id: string) => {
   const link = ARTICLE_LINKS[id]?.[0];
-  return link ? nearbyHref(link) : paths.nearby;
+  return link ? nearbyHref(link) : paths.today;
 };
 
 export type SnapTarget = { kind: 'card'; cardId: string } | { kind: 'story'; placeId: string; facet: Facet };
@@ -79,7 +80,7 @@ function storyPhotos(): SnapPhoto[] {
         tags,
         score,
         target: { kind: 'story', placeId, facet },
-        href: STORY_HREF[placeId] ?? paths.nearby,
+        href: STORY_HREF[placeId] ?? paths.today,
       },
     ];
   });

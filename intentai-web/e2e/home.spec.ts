@@ -2,9 +2,9 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './test';
 import type { Page } from './test';
 
-// Home (Discovery redesign, 31 Oct 2026): a Three.js map card of URA's planning areas and a Three.js Cover Flow deck
-// that goes region → planning area → place. Invisible DOM cards, badges and pins sit over the drawn ones, so tests use
-// roles as on any page.
+// Home (Discovery redesign, 31 Oct 2026): a map card (regions and planning areas on a light Three.js map over EARTH
+// ONLINE's ground picture; places in the EARTH ONLINE 3D city) and a Three.js Cover Flow deck: region → area → place.
+// Invisible DOM cards sit over the drawn ones, so tests use roles as on any page.
 
 const BRAND_ORANGES = ['#e4671f', '#e8622c']; // accepted contrast exception, as in a11y.spec.ts
 
@@ -38,7 +38,7 @@ test('load: the five URA regions, Central current, no outside requests at region
   expect(outside).toEqual([]);
 });
 
-test('dragging the Cover Flow deck settles on another region; the map badge follows', async ({ page }) => {
+test('dragging the Cover Flow deck settles on another region', async ({ page }) => {
   await openHome(page);
   await expect(card(page, 'Central')).toHaveAttribute('aria-current', 'true');
   await deck(page, 'Regions').locator('canvas').waitFor();
@@ -50,21 +50,20 @@ test('dragging the Cover Flow deck settles on another region; the map badge foll
   await page.mouse.up();
   await expect(card(page, 'Central')).not.toHaveAttribute('aria-current', 'true');
   await expect(page).not.toHaveURL(/r=central/);
-  await expect(page.locator('button[aria-pressed="true"]').first()).not.toHaveAccessibleName('Region 1: Central');
 });
 
 test('a numbered region on the map selects its card', async ({ page }) => {
   await openHome(page);
-  await page.getByRole('button', { name: 'Region 5: West' }).click();
+  await page.getByRole('button', { name: /^Region 5: West/ }).click();
   await expect(card(page, 'West')).toHaveAttribute('aria-current', 'true');
   await expect(page).toHaveURL(/r=west/);
 });
 
-test('region → areas → places → place page, and Back returns to the same card', async ({ page }) => {
+test('region → areas → places → the place pops up over Home; Back closes it on the same card', async ({ page }) => {
   // Settled cards: a click mid-animation can land on the neighbouring card.
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await openHome(page);
-  await page.getByRole('button', { name: 'Region 5: West' }).click();
+  await page.getByRole('button', { name: /^Region 5: West/ }).click();
   await page.getByRole('button', { name: 'Explore West' }).click();
   await expect(page.getByLabel('Where you are')).toHaveText('Singapore › West');
   await expect(card(page, 'Clementi')).toHaveAttribute('aria-current', 'true');
@@ -72,13 +71,15 @@ test('region → areas → places → place page, and Back returns to the same c
   await expect(page.getByLabel('Where you are')).toHaveText('Singapore › West › Clementi');
   // Cover Flow keeps only the cards near the middle in the page; the live line counts them all.
   await expect(page.getByRole('region', { name: 'Nearby places' }).locator('[aria-live]')).toContainText('1 of 11');
-  // The selected place has a pin on the map.
-  await expect(page.locator('button[data-pin][aria-pressed="true"]')).toBeVisible();
   const first = page.getByRole('region', { name: 'Nearby places' }).locator('[aria-current="true"]');
   const name = (await first.getAttribute('aria-label'))!;
   await first.getByRole('button', { name: /in Nearby$/ }).click();
-  await expect(page).toHaveURL(/\/nearby\/place\//);
+  const sheet = page.getByRole('dialog', { name });
+  await expect(sheet).toBeVisible();
+  await expect(sheet.getByRole('button', { name: /Check in/ })).toBeVisible();
+  await expect(page).toHaveURL(/open=/);
   await page.goBack();
+  await expect(sheet).toBeHidden();
   await expect(card(page, name)).toHaveAttribute('aria-current', 'true');
   await page.getByRole('button', { name: 'Back to West areas' }).click();
   await page.getByRole('button', { name: 'Back to regions' }).click();
@@ -92,7 +93,7 @@ test('a check-in shows on the deck: the area turns yellow, then green with a tic
   // Ang Mo Kio has one place: check in there.
   await page.getByRole('button', { name: 'See 1 place' }).click();
   await page.getByRole('region', { name: 'Nearby places' }).getByRole('button', { name: /in Nearby$/ }).click();
-  await page.getByRole('button', { name: 'Check in' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Check in' }).click();
   await page.goBack();
   await page.getByRole('button', { name: 'Back to North-East areas' }).click();
   await expect(card(page, 'Ang Mo Kio').getByRole('img', { name: 'all checked in' })).toBeVisible();
@@ -105,6 +106,8 @@ for (const width of [320, 390]) {
   test(`at ${width}px the deck sits above the tab bar, nothing scrolls sideways, the tabs stay on top`, async ({ page }) => {
     await page.setViewportSize({ width, height: 700 });
     await openHome(page);
+    await deck(page, 'Regions').locator('canvas').waitFor();
+    await expect(card(page, 'Central')).toHaveAttribute('aria-current', 'true');
     const bar = await box(page, tabs(page));
     const middle = await box(page, card(page, 'Central'));
     expect(middle.y + middle.height, 'deck clears the tab bar').toBeLessThanOrEqual(bar.y + 1);

@@ -1,6 +1,7 @@
 // One route (a team route, an editor's route or one generated from a station): map with numbered stops joined in
 // order, stats, the route note, Google Maps directions, then the stops in order with check-in for those in the Nearby
 // catalogue. A team route also lists the pages behind its note and links back to its place story.
+import { homePlaceHref } from '../../../data/homeLinks';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AppShell from '../../../components/AppShell/AppShell';
@@ -275,7 +276,7 @@ function StopRow({ stop, number, visited, onOpen }: { stop: RouteStop; number: n
             <h3 className={styles.stopName}>
               <span className={styles.srOnly}>Stop {number}: </span>
               {stop.curated ? (
-                <Link id={nameId} className={styles.stopLink} to={paths.nearbyPlace(stop.key)}>
+                <Link id={nameId} className={styles.stopLink} to={homePlaceHref(stop.key)}>
                   {stop.name}
                 </Link>
               ) : (

@@ -81,7 +81,7 @@ export class CoverFlowScene {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.anisotropy = 4;
       const card = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ map: texture, transparent: true }));
-      const mirror = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ map: texture, alphaMap: fadeMap, transparent: true, opacity: 0.32, depthWrite: false }));
+      const mirror = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({ map: texture, alphaMap: fadeMap, transparent: true, opacity: 0.16, depthWrite: false }));
       mirror.scale.y = -1;
       mirror.position.y = -CARD_H - 0.02;
       const ring = new THREE.Mesh(ringGeom, new THREE.MeshBasicMaterial({ color: 0xe4671f, transparent: true, opacity: 0 }));
@@ -102,7 +102,7 @@ export class CoverFlowScene {
     // uv.y = 0 is the card's bottom edge, which touches the reflection: opaque there, gone by mid-height
     const grad = g.createLinearGradient(0, 128, 0, 0);
     grad.addColorStop(0, '#fff');
-    grad.addColorStop(0.45, '#000');
+    grad.addColorStop(0.22, '#000');
     grad.addColorStop(1, '#000');
     g.fillStyle = grad;
     g.fillRect(0, 0, 4, 128);
@@ -115,13 +115,13 @@ export class CoverFlowScene {
     this.height = Math.max(1, height);
     this.renderer.setSize(this.width, this.height, false);
     this.camera.aspect = this.width / this.height;
-    // the middle card takes about 46% of the width, and card + a third of its reflection fit the height
+    // the middle card takes about 36% of the width, and card + a sliver of its reflection fit the height
     const v = Math.tan(((FOV / 2) * Math.PI) / 180);
-    const byW = CARD_W / 0.46 / (2 * v * this.camera.aspect);
-    const byH = (CARD_H * 1.42) / (2 * v);
+    const byW = CARD_W / 0.36 / (2 * v * this.camera.aspect);
+    const byH = (CARD_H * 1.2) / (2 * v);
     const d = Math.max(byW, byH);
-    this.camera.position.set(0, -CARD_H * 0.2, d);
-    this.camera.lookAt(0, -CARD_H * 0.2, 0);
+    this.camera.position.set(0, -CARD_H * 0.09, d);
+    this.camera.lookAt(0, -CARD_H * 0.09, 0);
     this.camera.updateProjectionMatrix();
     this.kick();
   }
@@ -261,7 +261,7 @@ export class CoverFlowScene {
       s.card.renderOrder = order;
       s.mirror.renderOrder = order - 50;
       (s.card.material as THREE.MeshBasicMaterial).opacity = p.fade;
-      (s.mirror.material as THREE.MeshBasicMaterial).opacity = 0.32 * p.fade;
+      (s.mirror.material as THREE.MeshBasicMaterial).opacity = 0.16 * p.fade;
       (s.ring.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 1 - Math.abs(o) * 3);
     }
   }

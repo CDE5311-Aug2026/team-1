@@ -42,7 +42,7 @@ test('new user: no stamps, locked outlines, and the empty states say what to do'
   expect(screen.getByText(/No stamps yet\. Check in at a place in/)).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Chinatown: no stamp yet. See its cards.' })).toBeInTheDocument();
   expect(screen.getByText('Nothing collected yet')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Explore places' })).toHaveAttribute('href', '/nearby');
+  expect(screen.getByRole('link', { name: 'Explore places' })).toHaveAttribute('href', '/');
   expect(screen.getByRole('button', { name: /Recap/ })).toBeDisabled();
 });
 
@@ -65,7 +65,7 @@ test('an outline stamp sends you to Nearby to check in', async () => {
   await user.click(screen.getByRole('button', { name: 'Chinatown: no stamp yet. See its cards.' }));
   const sheet = screen.getByRole('dialog', { name: 'Chinatown' });
   expect(within(sheet).getByText(/Not checked in yet/)).toBeInTheDocument();
-  expect(within(sheet).getByRole('link', { name: 'Check in in Nearby' })).toHaveAttribute('href', '/nearby?area=sg-chinatown');
+  expect(within(sheet).getByRole('link', { name: 'Find a place to check in' })).toHaveAttribute('href', '/?lvl=places&r=central&a=ot');
   expect(within(sheet).queryByRole('button', { name: /Add ink/ })).not.toBeInTheDocument();
 });
 

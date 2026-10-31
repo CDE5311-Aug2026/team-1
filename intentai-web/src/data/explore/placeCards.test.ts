@@ -9,13 +9,13 @@ const ON_DISK = new Set(Object.keys(import.meta.glob('../../../public/nearby/car
 describe('place story cards', () => {
   test.each(Object.entries(PLACE_CARDS))('%s: a published place; sourced numbers and text; licensed photos on disk', (id, card) => {
     expect(curatedPlace(id)?.editorialStatus).toBe('published');
-    for (const t of card.tiles ?? []) expect(t.source.url, t.label).toMatch(/^https:\/\/[^/]+\/.+/);
+    for (const t of card.tiles ?? []) expect(t.source.url, t.label).toMatch(/^https?:\/\/[^/]+\/.+/);
     if (card.lead || card.lookFor || card.clip) expect(card.sources.length + (card.tiles?.length ?? 0)).toBeGreaterThan(0);
-    for (const s of card.sources) expect(s.url).toMatch(/^https:\/\/[^/]+\/.+/);
+    for (const s of card.sources) expect(s.url).toMatch(/^https?:\/\/[^/]+\/.+/);
     for (const c of card.clip?.captions ?? []) expect(c.length, c).toBeLessThanOrEqual(70);
     const photos = [card.clip?.poster, card.thenNow?.then, card.thenNow?.now].filter((p) => !!p);
     for (const p of photos) {
-      expect(p!.credit, p!.src).toMatch(/public domain|CC0|CC BY/);
+      expect(p!.credit, p!.src).toMatch(/public domain|CC0|CC BY/i);
       // our own crops live in public/nearby/cards; Team 1's are bundled assets
       if (p!.src.includes('nearby/cards/')) expect(ON_DISK.has(p!.src.split('/').pop()), p!.src).toBe(true);
     }

@@ -6,6 +6,7 @@ import { atlasPlace, atlasRoute, atlasRoutes, placeKeyOf } from '../../data/atla
 import { teamRoute, teamRoutes } from '../../data/routes/teamRoutes';
 import { explorePersonalStore } from '../../data/stores';
 import { curatedPlace } from '../../features/nearby/catalogue';
+import { homePlaceHref } from '../../data/homeLinks';
 import { stateOf } from '../../features/nearby/personal';
 import { paths, patterns } from '../../routes';
 import ExplorePage from './ExplorePage';
@@ -104,7 +105,7 @@ describe('Route detail', () => {
       const curated = curatedPlace(placeKeyOf(id));
       const name = curated?.name ?? atlasPlace(id)!.name_en;
       expect(within(items[i]).getByRole('heading', { name: `Stop ${i + 1}: ${name}` })).toBeInTheDocument();
-      if (curated) expect(within(items[i]).getByRole('link', { name })).toHaveAttribute('href', paths.nearbyPlace(curated.id));
+      if (curated) expect(within(items[i]).getByRole('link', { name })).toHaveAttribute('href', homePlaceHref(curated.id));
     });
     expect(screen.getByTestId('map-path')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Stop 1: .*, (Culture|Landmark|Food|Nature)/ })).toHaveTextContent('1');
@@ -145,7 +146,7 @@ describe('Route detail', () => {
     expect(items).toHaveLength(route.stops.length);
     route.stops.forEach((s, i) => {
       const name = curatedPlace(s.key)!.name;
-      expect(within(items[i]).getByRole('link', { name })).toHaveAttribute('href', paths.nearbyPlace(s.key));
+      expect(within(items[i]).getByRole('link', { name })).toHaveAttribute('href', homePlaceHref(s.key));
     });
     // Lim Chee Guan is not an atlas place: the team's estimate, the catalogue's sourced hours, no atlas notes
     const last = items[items.length - 1];

@@ -71,7 +71,7 @@ test('every topic photo card exists in the repo', () => {
 test('first finds: the closest place to the base, opening in Nearby (culture cards removed 31 Oct)', () => {
   const finds = firstFinds('sg-chinatown', ['monuments', 'food']);
   expect(finds.map((f) => f.why)).toEqual([expect.stringMatching(/from your base$/)]);
-  expect(finds[0].href).toMatch(/^\/nearby\/place\//);
+  expect(finds[0].href).toMatch(/^\/\?lvl=places&r=\w[\w-]*&a=\w+&p=curated/);
   expect(firstFinds(null, [])).toEqual([]);
 });
 

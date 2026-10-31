@@ -49,7 +49,7 @@ export default function Passport({ stamps, progress, today, onOpen }: PassportPr
           <h2 id="passport-heading">MY PLACES</h2>
           <img src={headingRule} alt="" />
           {progress && (
-            <Link to={paths.nearby} className={styles.count} aria-label={`${progress.visited} of ${progress.total} places checked in. Open Nearby`}>
+            <Link to={paths.today} className={styles.count} aria-label={`${progress.visited} of ${progress.total} places checked in. Open Nearby`}>
               {progress.visited} / {progress.total}
             </Link>
           )}
@@ -94,7 +94,7 @@ export default function Passport({ stamps, progress, today, onOpen }: PassportPr
             <img src={inkDrop} alt="" width={13} height={14} />
             <span>
               No stamps yet. Check in at a place in{' '}
-              <Link to={paths.nearby} className={styles.link}>
+              <Link to={paths.today} className={styles.link}>
                 Nearby
               </Link>{' '}
               to collect one.

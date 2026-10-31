@@ -1,7 +1,7 @@
 // Sharing a place or a checklist with a friend: the phone's share sheet when there is one, else the text and
 // link go to the clipboard. Only what the person sees on screen is shared: names, the list's count and which
 // places are checked in. Never a position, a check-in date or anything else from this device.
-import { paths } from '../../routes';
+import { homeListHref, homePlaceHref } from '../../data/homeLinks';
 import { collectionProgress, collectionTitle, members, area as areaById, regionName } from './catalogue';
 import type { CuratedPlace, ExploreCollection, ExplorePersonalData } from './domain';
 import { stateOf } from './personal';
@@ -55,7 +55,7 @@ export function placeShare(place: CuratedPlace, personal: ExplorePersonalData): 
   const lines = [`${name}: ${place.kind.toLowerCase()} in ${where}, Singapore.`];
   if (place.recognition) lines.push(`${place.recognition.label} ${place.recognition.year}.`);
   if (visited) lines.push('I checked in here.');
-  return { title: place.name, text: lines.join(' '), url: appUrl(paths.nearbyPlace(place.id)) };
+  return { title: place.name, text: lines.join(' '), url: appUrl(homePlaceHref(place.id)) };
 }
 
 /** Longest list of names in a shared checklist; the rest is a count. */
@@ -75,5 +75,5 @@ export function checklistShare(c: ExploreCollection, personal: ExplorePersonalDa
     if (done.length > SHARE_NAMES_MAX) lines.push(`and ${done.length - SHARE_NAMES_MAX} more`);
   }
   lines.push('Try the list:');
-  return { title, text: lines.join('\n'), url: appUrl(`${paths.nearby}?list=${encodeURIComponent(c.id)}`) };
+  return { title, text: lines.join('\n'), url: appUrl(homeListHref(c.id)) };
 }

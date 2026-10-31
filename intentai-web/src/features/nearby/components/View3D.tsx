@@ -39,6 +39,30 @@ export interface View3DProps {
   onRecenter?: () => void;
   /** px of the view the page covers (search bar, sheet): the 3D view centres in the rest, as the 2D map does. */
   insets?: { top?: number; bottom?: number; left?: number; right?: number };
+  /** Areas drawn over the city (Home's planning areas): tinted, outlined, optionally numbered. A tap calls onZone. */
+  zones?: View3DZone[];
+  onZone?: (id: string) => void;
+  /** Home's map card: daytime, no city labels, room for the whole island. */
+  overview?: boolean;
+}
+
+export interface View3DZone {
+  id: string;
+  /** Outer rings in map metres (projection.ts frame). */
+  rings: readonly (readonly (readonly [number, number])[])[];
+  fill: string;
+  /** Fill opacity 0–1. */
+  fa: number;
+  line: string;
+  /** Outline opacity 0–1. */
+  la: number;
+  sel?: boolean;
+  /** Label point in map metres; num/name label it (a numbered badge). */
+  at: [number, number];
+  num?: number;
+  name?: string;
+  label?: string;
+  kind?: 'Region' | 'Area';
 }
 
 export interface View3DPin {
@@ -60,6 +84,7 @@ type LiteMessage =
   | { source: 'earth-online-lite'; type: 'ready' }
   | { source: 'earth-online-lite'; type: 'card'; key: string | null; title?: string | null }
   | { source: 'earth-online-lite'; type: 'pick'; key: string }
+  | { source: 'earth-online-lite'; type: 'zone'; id: string }
   | { source: 'earth-online-lite'; type: 'view'; at: [number, number]; span: number };
 
 function isLiteMessage(d: unknown): d is LiteMessage {
@@ -67,7 +92,7 @@ function isLiteMessage(d: unknown): d is LiteMessage {
   const m = d as Record<string, unknown>;
   return (
     m.source === 'earth-online-lite' &&
-    (m.type === 'ready' || (m.type === 'card' && (m.key === null || typeof m.key === 'string')) || (m.type === 'pick' && typeof m.key === 'string') ||
+    (m.type === 'ready' || (m.type === 'card' && (m.key === null || typeof m.key === 'string')) || (m.type === 'pick' && typeof m.key === 'string') || (m.type === 'zone' && typeof m.id === 'string') ||
       (m.type === 'view' && Array.isArray(m.at) && m.at.length === 2 && m.at.every((v) => typeof v === 'number' && Number.isFinite(v)) &&
         typeof m.span === 'number' && Number.isFinite(m.span)))
   );
@@ -83,14 +108,14 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick, onView, controlsTop, onRecenter, insets }: View3DProps) {
+export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick, onView, controlsTop, onRecenter, insets, zones, onZone, overview = false }: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
   // The address is fixed when the view opens; later targets go to the page as messages (no reload nearby).
   // The 3D page speaks the app's language (English unless the page is marked Chinese).
   const [src] = useState(() =>
-    view3dUrl(target, { still: reducedMotion(), hideCards, lang: /^zh/i.test(document.documentElement.lang) ? 'zh' : 'en' }),
+    view3dUrl(target, { still: reducedMotion(), hideCards, overview, lang: /^zh/i.test(document.documentElement.lang) ? 'zh' : 'en' }),
   );
   // The landmark whose card the 3D page has open: a target with that card needs no message (no second flight).
   const openCard = useRef<string | null>(null);
@@ -126,6 +151,18 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
       earthOnline3dOrigin(),
     );
   };
+  const zonesRef = useRef(zones);
+  zonesRef.current = zones;
+  const onZoneRef = useRef(onZone);
+  onZoneRef.current = onZone;
+  const zonesSent = useRef<string | null>(null);
+  const postZones = (key: string) => {
+    const z = zonesRef.current;
+    if (!z || zonesSent.current === key) return;
+    zonesSent.current = key;
+    frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'zones', zones: z }, earthOnline3dOrigin());
+  };
+  const zonesKeyRef = useRef('');
   const insetsRef = useRef(insets);
   insetsRef.current = insets;
   const insetsSent = useRef<string | null>(null);
@@ -161,6 +198,10 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
         postYou();
         pinsSent.current = null;
         postPins(pinsKeyRef.current);
+        zonesSent.current = null;
+        postZones(zonesKeyRef.current);
+      } else if (e.data.type === 'zone') {
+        onZoneRef.current?.(e.data.id);
       } else if (e.data.type === 'pick') {
         onPickRef.current?.(e.data.key);
       } else if (e.data.type === 'view') {
@@ -188,6 +229,14 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     if (ready) postPins(pinsKey);
     // pins are read through pinsKey
   }, [ready, pinsKey]);
+
+  // Zones follow the page's level and selection.
+  const zonesKey = zones ? zones.map((z) => `${z.id}:${z.fill}${z.fa}${z.line}${z.la}${z.sel ? 1 : 0}${z.num ?? ''}${z.name ?? ''}`).join('|') : '';
+  zonesKeyRef.current = zonesKey;
+  useEffect(() => {
+    if (ready) postZones(zonesKey);
+    // zones are read through zonesKey
+  }, [ready, zonesKey]);
 
   const insetsKey = insets ? `${insets.top ?? 0},${insets.bottom ?? 0},${insets.left ?? 0},${insets.right ?? 0}` : '';
   useEffect(() => {

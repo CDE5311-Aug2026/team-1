@@ -39,13 +39,29 @@ export class MapScene {
   onFrame: (() => void) | null = null;
   reduced = false;
 
-  constructor(canvas: HTMLCanvasElement, areas: readonly SceneArea[]) {
+  constructor(canvas: HTMLCanvasElement, areas: readonly SceneArea[], groundUrl?: string) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
     this.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     this.scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.6));
     const sun = new THREE.DirectionalLight(0xffffff, 1.4);
     sun.position.set(-20, 40, 25);
     this.scene.add(sun);
+    // EARTH ONLINE's ground picture of Singapore (the same art as the 3D city), ±28 km around the map origin
+    if (groundUrl) {
+      const tex = new THREE.TextureLoader().load(groundUrl, () => this.kick());
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 4;
+      // open sea (the picture's own sea colour) to the horizon, so the picture's edge never shows
+      const sea = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(77 / 255, 126 / 255, 162 / 255, THREE.SRGBColorSpace) }));
+      sea.rotation.x = -Math.PI / 2;
+      sea.position.y = -0.02;
+      this.scene.add(sea);
+      this.scene.fog = new THREE.Fog(0x9fbcd4, 60, 160);
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(56, 56), new THREE.MeshBasicMaterial({ map: tex }));
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.01;
+      this.scene.add(ground);
+    }
     for (const a of areas) {
       const shapes = a.rings.map((ring) => new THREE.Shape(ring.map(([x, y]) => new THREE.Vector2(x / 1000, y / 1000))));
       const geom = new THREE.ExtrudeGeometry(shapes, { depth: TILE_DEPTH, bevelEnabled: false });
@@ -83,6 +99,27 @@ export class MapScene {
   }
 
   private lastBox: [number, number, number, number] = [-20000, -12000, 20000, 12000];
+
+  private path: THREE.Line | null = null;
+
+  /** A dashed line through these points (map metres), just above the tiles: a walk's order of stops. */
+  setPath(points: readonly (readonly [number, number])[] | null) {
+    if (this.path) {
+      this.scene.remove(this.path);
+      this.path.geometry.dispose();
+      (this.path.material as THREE.Material).dispose();
+      this.path = null;
+    }
+    if (points && points.length > 1) {
+      const g = new THREE.BufferGeometry().setFromPoints(points.map(([x, y]) => new THREE.Vector3(x / 1000, 0.32, -y / 1000)));
+      const line = new THREE.Line(g, new THREE.LineDashedMaterial({ color: 0xe4671f, dashSize: 0.18, gapSize: 0.1, depthTest: false, transparent: true }));
+      line.computeLineDistances();
+      line.renderOrder = 20;
+      this.scene.add(line);
+      this.path = line;
+    }
+    this.kick();
+  }
 
   /** Frame a box in map metres [minX, minY, maxX, maxY], leaving `pad` (0–1) around it. */
   fit(box: [number, number, number, number], instant = false, pad = 0.12) {

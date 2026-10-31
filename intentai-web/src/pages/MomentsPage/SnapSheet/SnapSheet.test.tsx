@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { openedCardsStore, placeStoriesStore, reduceMotionStore } from '../../../data/stores';
 import { paths, patterns } from '../../../routes';
+import { homePlaceHref } from '../../../data/homeLinks';
 import SnapSheet from './SnapSheet';
 
 function Probe({ name }: { name: string }) {
@@ -65,7 +66,7 @@ test('reduced motion: a recent photo is matched at once, its story card opened a
   expect(placeStoriesStore.get()['berlin-wall-fragments'].opened).toEqual(['monument']);
   expect(screen.getByText('1 of 4 cards')).toBeInTheDocument();
   expect(screen.getByText('+1 card · ink added to your stamp')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: /Open in Nearby/ })).toHaveAttribute('href', '/nearby/place/curated%3Asg-berlin-wall-fragments-utown');
+  expect(screen.getByRole('link', { name: /Show on the map/ })).toHaveAttribute('href', homePlaceHref('curated:sg-berlin-wall-fragments-utown'));
   expect(screen.getByRole('status')).toHaveTextContent('Match found: The Wall panels, 94% match.');
 });
 

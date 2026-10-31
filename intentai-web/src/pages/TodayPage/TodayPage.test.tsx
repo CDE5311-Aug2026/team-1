@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, expect, test } from 'vitest';
@@ -68,7 +68,7 @@ test('tapping a region selects it; its action opens its planning areas; Back ret
   expect(card('West')).toHaveAttribute('aria-current', 'true');
 });
 
-test('an area opens its places; Open goes to the place page', async () => {
+test('an area opens its places; Open shows its story card above the deck, closing it brings the map back', async () => {
   const user = userEvent.setup();
   renderHome('/?lvl=areas&r=west&a=cl');
   await user.click(screen.getByRole('button', { name: 'See 11 places' }));
@@ -76,8 +76,22 @@ test('an area opens its places; Open goes to the place page', async () => {
   expect(screen.getByLabelText('Where you are')).toHaveTextContent('Singapore › West › Clementi');
   const places = within(screen.getByRole('region', { name: 'Nearby places' })).getAllByRole('group');
   expect(places).toHaveLength(placesInArea('cl').length);
+  const name = places[0].getAttribute('aria-label')!;
   await user.click(within(places[0]).getByRole('button', { name: /in Nearby$/ }));
-  expect(screen.getByText('place page')).toBeInTheDocument();
+  const sheet = screen.getByRole('dialog', { name });
+  expect(within(sheet).getByTestId('place-story-card')).toBeInTheDocument();
+  expect(within(sheet).getByRole('button', { name: /Check in/ })).toBeInTheDocument();
+  // the status card: checked in or not, and the area's progress
+  expect(within(sheet).getByRole('img', { name: 'Not checked in yet' })).toBeInTheDocument();
+  expect(within(sheet).getByRole('progressbar', { name: /^Clementi: 0 of \d+ places checked in$/ })).toBeInTheDocument();
+  // the map stays as the place's 3D view; its tools fold away; the deck stays
+  expect(screen.queryByRole('toolbar', { name: 'Map tools' })).toBeNull();
+  expect(screen.getByRole('region', { name: 'Nearby places' })).toBeInTheDocument();
+  expect(screen.getByTestId('where')).toHaveTextContent('open=');
+  await user.click(screen.getByRole('button', { name: `Close ${name}` }));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(screen.getByLabelText('Where you are')).toHaveTextContent('Singapore › West › Clementi');
+  expect(screen.getByRole('toolbar', { name: 'Map tools' })).toBeInTheDocument();
 });
 
 test('the level and card come back from the URL (Back from a place page)', () => {
@@ -118,4 +132,55 @@ test('the map credits name URA and the open data licence', async () => {
   renderHome();
   await user.click(screen.getByText('Map data'));
   expect(screen.getByText(/Master Plan 2019 Planning Area Boundary \(No Sea\), Urban Redevelopment Authority, via data\.gov\.sg \(Singapore Open Data Licence v1\.0\)/)).toBeInTheDocument();
+});
+
+test('map tools: Custom finds a place and opens it; Undo goes back', async () => {
+  const user = userEvent.setup();
+  renderHome();
+  await user.click(screen.getByRole('button', { name: 'Custom' }));
+  await user.type(screen.getByRole('searchbox', { name: 'Search a place or planning area' }), 'Maxwell');
+  await user.click(screen.getByRole('button', { name: /^Maxwell Food Centre/ }));
+  expect(screen.getByRole('dialog', { name: 'Maxwell Food Centre' })).toBeInTheDocument();
+  expect(screen.getByTestId('where')).toHaveTextContent('lvl=places');
+  await user.click(screen.getByRole('button', { name: 'Close Maxwell Food Centre' }));
+  await user.click(screen.getByRole('button', { name: 'Undo' }));
+  expect(screen.getByTestId('where')).not.toHaveTextContent('lvl=places');
+});
+
+test("map tools: Editor's Pick switches the deck to the picks; a walk's stops; its 2D route opens Google Maps", async () => {
+  const user = userEvent.setup();
+  renderHome();
+  await user.click(screen.getByRole('button', { name: "Editor's Pick" }));
+  expect(screen.getByRole('button', { name: "Editor's Pick" })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByTestId('where')).toHaveTextContent('lvl=picks');
+  const picks = within(deck("Editor's Pick")).getAllByRole('group').map((g) => g.getAttribute('aria-label'));
+  expect(picks).toContain('Chinatown · The story walk');
+  expect(picks).toContain('Hawker centres to know');
+  await user.click(screen.getByRole('button', { name: 'Start Chinatown · The story walk' }));
+  expect(screen.getByTestId('where')).toHaveTextContent('lvl=pick&');
+  expect(screen.getByTestId('where')).toHaveTextContent('k=chinatown-story-walk');
+  expect(within(deck('Nearby places')).getAllByRole('group')[0]).toHaveAttribute('aria-label', 'Thian Hock Keng Temple');
+  await user.click(screen.getByRole('button', { name: '2D route' }));
+  expect(screen.getByTestId('where')).toHaveTextContent('route=1');
+  expect(screen.getByRole('link', { name: /^Go with Google Maps/ }).getAttribute('href')).toMatch(/^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&/);
+  await user.click(screen.getByRole('button', { name: '3D map' }));
+  expect(screen.getByTestId('where')).not.toHaveTextContent('route=1');
+  await user.click(screen.getByRole('button', { name: "Back to Editor's Pick" }));
+  expect(screen.getByTestId('where')).toHaveTextContent('lvl=picks');
+  await user.click(screen.getByRole('button', { name: "Editor's Pick" }));
+  expect(screen.getByTestId('where')).not.toHaveTextContent('lvl=pick');
+});
+
+test("a list from Editor's Pick crosses the island; a stop opens its intro", async () => {
+  const user = userEvent.setup();
+  renderHome('/?lvl=pick&k=list:sg-hawker-centres');
+  expect(screen.queryByRole('button', { name: '2D route' })).toBeNull();
+  const first = within(deck('Nearby places')).getAllByRole('group')[0].getAttribute('aria-label')!;
+  await user.click(screen.getByRole('button', { name: `Open ${first} in Nearby` }));
+  expect(screen.getByRole('dialog', { name: first })).toBeInTheDocument();
+});
+
+test('cards carry the full numbers: areas unlocked and checked in by kind', () => {
+  renderHome('/?lvl=areas&r=west&a=cl');
+  expect(within(card('Clementi')).getByText(/0 of 11 places checked in/)).toBeInTheDocument();
 });

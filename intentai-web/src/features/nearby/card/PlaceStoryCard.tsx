@@ -2,6 +2,7 @@
 // subtitle, then (each only when the place has it) the sample clip or its photo, three key numbers, then and now,
 // the card's text, "Look for" and its sources. Every place gets the header and its photo; the rest comes from
 // src/data/explore/placeCards.ts, written place by place from sources.
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { InfoCard, SampleVideo, SourceLine, StatTiles, StoryArticle, StoryIcon, type StatTile, type StoryIconName } from '../../../components/story';
 import headerStyles from '../../../components/story/StoryHeader.module.css';
@@ -27,14 +28,10 @@ const statTile = (t: CardTile): StatTile => ({
 
 /** The pages and photos behind the card, once each. */
 function credits(card: PlaceCard | undefined, photoCredit: string | undefined) {
-  const sources = [...(card?.sources ?? []), ...(card?.tiles?.map((t) => t.source) ?? [])].filter(
-    (s, i, all) => all.findIndex((o) => o.url === s.url) === i,
+  const sources = [...(card?.sources ?? []), ...(card?.tiles?.map((t) => t.source) ?? [])].filter((s, i, all) => all.findIndex((o) => o.url === s.url) === i);
+  const photos = [card?.clip?.poster?.credit ?? photoCredit?.replace(/^Photo:\s*/, ''), card?.thenNow?.then.credit, card?.thenNow?.now.credit].filter(
+    (c, i, all): c is string => !!c && all.indexOf(c) === i,
   );
-  const photos = [
-    card?.clip?.poster?.credit ?? photoCredit?.replace(/^Photo:\s*/, ''),
-    card?.thenNow?.then.credit,
-    card?.thenNow?.now.credit,
-  ].filter((c, i, all): c is string => !!c && all.indexOf(c) === i);
   return { sources, photos };
 }
 
@@ -54,7 +51,30 @@ function SourceLink({ s, children }: { s: SourceReference; children: string }) {
   );
 }
 
-export default function PlaceStoryCard({ place, distance }: { place: CuratedPlace; distance?: string | null }) {
+/** A story block: its own card when framed, else as it was. */
+function Block({ framed, label, children }: { framed: boolean; label?: string; children: ReactNode }) {
+  return framed ? (
+    <section className={styles.block} aria-label={label}>
+      {children}
+    </section>
+  ) : (
+    <>{children}</>
+  );
+}
+
+export default function PlaceStoryCard({
+  place,
+  distance,
+  framed = false,
+  hideHeader = false,
+}: {
+  place: CuratedPlace;
+  distance?: string | null;
+  /** Each block in its own card (Home's place intro, owner 31 Oct: "card-style, not flat"). */
+  framed?: boolean;
+  /** The heading is shown elsewhere (Home's intro has it in its status card). */
+  hideHeader?: boolean;
+}) {
   const card = placeCard(place.id);
   const info = CATEGORY_INFO[place.category];
   const areaName = areaById(place.areaId)?.name ?? regionName(place.regionId);
@@ -66,64 +86,79 @@ export default function PlaceStoryCard({ place, distance }: { place: CuratedPlac
 
   return (
     // The story blocks keep Team 1's own 20px margins inside a box that reaches the screen edge (as a story page).
-    <div className={styles.card} data-testid="place-story-card" data-allow-bleed>
-      <header className={headerStyles.header}>
-        <p className={`a-up ${headerStyles.kicker}`}>
-          <StoryIcon name={ICON[place.category]} size={14} className={headerStyles.icon} />
-          {`${info.label} · ${areaName}`.toUpperCase()}
-        </p>
-        {/* The page's h1 is the place's name in the top bar; the card's own heading sits under it. */}
-        <h2 className={headerStyles.title}>
-          {(card?.title ?? [place.name]).map((phrase, i) => (
-            <span key={i} className="a-blur" style={{ animationDelay: `${Math.round(5 + i * 10) / 100}s` }}>
-              {i > 0 && ' '}
-              {phrase}
-            </span>
-          ))}
-        </h2>
-        <p className={`a-up ${headerStyles.subtitle}`} style={{ animationDelay: '.2s' }}>
-          {place.nameZh && (
-            <>
-              <span lang="zh-Hans">{place.nameZh}</span>
-              {' · '}
-            </>
-          )}
-          {subtitle}
-          {distance && ` · ${distance}`}
-        </p>
-        {card?.story && (
-          <p className={styles.storyRow}>
-            <Link className={styles.storyLink} to={card.story.path}>
-              <StoryIcon name="history" size={16} />
-              {card.story.label}
-            </Link>
+    <div className={framed ? `${styles.card} ${styles.framed}` : styles.card} data-testid="place-story-card" data-allow-bleed>
+      {!hideHeader && (
+        <header className={headerStyles.header}>
+          <p className={`a-up ${headerStyles.kicker}`}>
+            <StoryIcon name={ICON[place.category]} size={14} className={headerStyles.icon} />
+            {`${info.label} · ${areaName}`.toUpperCase()}
           </p>
-        )}
-      </header>
-
-      {card?.clip && poster ? (
-        <SampleVideo poster={poster} title={card.clip.title} duration={card.clip.seconds} captions={card.clip.captions} top={16} />
-      ) : (
-        photo && (
-          <figure className={`a-up ${styles.photo}`}>
-            <img src={photo.src} alt={place.name} loading="eager" decoding="async" />
-          </figure>
-        )
+          {/* The page's h1 is the place's name in the top bar; the card's own heading sits under it. */}
+          <h2 className={headerStyles.title}>
+            {(card?.title ?? [place.name]).map((phrase, i) => (
+              <span key={i} className="a-blur" style={{ animationDelay: `${Math.round(5 + i * 10) / 100}s` }}>
+                {i > 0 && ' '}
+                {phrase}
+              </span>
+            ))}
+          </h2>
+          <p className={`a-up ${headerStyles.subtitle}`} style={{ animationDelay: '.2s' }}>
+            {place.nameZh && (
+              <>
+                <span lang="zh-Hans">{place.nameZh}</span>
+                {' · '}
+              </>
+            )}
+            {subtitle}
+            {distance && ` · ${distance}`}
+          </p>
+          {/* Team 1's story pages were removed in the Discovery redesign (31 Oct): their link only shows if one comes back */}
+          {card?.story && !/^\/place\//.test(card.story.path) && (
+            <p className={styles.storyRow}>
+              <Link className={styles.storyLink} to={card.story.path}>
+                <StoryIcon name="history" size={16} />
+                {card.story.label}
+              </Link>
+            </p>
+          )}
+        </header>
       )}
 
-      {card?.tiles && <StatTiles tiles={card.tiles.map(statTile) as [StatTile, StatTile, StatTile]} highlightThird label="Key numbers" />}
+      <Block framed={framed}>
+        {card?.clip && poster ? (
+          <SampleVideo poster={poster} title={card.clip.title} duration={card.clip.seconds} captions={card.clip.captions} top={16} />
+        ) : (
+          photo && (
+            <figure className={`a-up ${styles.photo}`}>
+              <img src={photo.src} alt={place.name} loading="eager" decoding="async" />
+            </figure>
+          )
+        )}
+      </Block>
+
+      {card?.tiles && (
+        <Block framed={framed} label="Key numbers">
+          <StatTiles tiles={card.tiles.map(statTile) as [StatTile, StatTile, StatTile]} highlightThird label="Key numbers" />
+        </Block>
+      )}
 
       {card?.thenNow && (
-        <ThenNow
-          delay={0.4}
-          data={{
-            ...card.thenNow,
-            sliderLabel: `Compare ${place.name} in ${card.thenNow.thenLabel} and ${card.thenNow.nowLabel}`,
-          }}
-        />
+        <Block framed={framed} label="Then and now">
+          <ThenNow
+            delay={0.4}
+            data={{
+              ...card.thenNow,
+              sliderLabel: `Compare ${place.name} in ${card.thenNow.thenLabel} and ${card.thenNow.nowLabel}`,
+            }}
+          />
+        </Block>
       )}
 
-      {card?.lead && <StoryArticle top={16} leadDelay={0.45} lead={card.lead} more={card.more ?? []} />}
+      {card?.lead && (
+        <Block framed={framed} label="Story">
+          <StoryArticle top={framed ? 12 : 16} leadDelay={0.45} lead={card.lead} more={card.more ?? []} />
+        </Block>
+      )}
 
       {card?.lookFor && card.lookFor.length > 0 && (
         <InfoCard label="Look for" kicker="LOOK FOR" kickerDelay={0.6}>
@@ -138,7 +173,11 @@ export default function PlaceStoryCard({ place, distance }: { place: CuratedPlac
         </InfoCard>
       )}
 
-      {card?.order && <OrderBuilder guide={ORDER_GUIDES[card.order]} />}
+      {card?.order && (
+        <Block framed={framed} label="How to order">
+          <OrderBuilder guide={ORDER_GUIDES[card.order]} />
+        </Block>
+      )}
 
       {(sources.length > 0 || photos.length > 0) && (
         <SourceLine delay={0.7}>

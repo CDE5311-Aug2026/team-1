@@ -1,13 +1,13 @@
 // Home › Nearby: a strip of small cards, one per real Nearby place, over the map. Swipe (touch), drag (mouse) or
 // scroll (trackpad); the card in the middle is the selected pin on the map, and a tapped pin brings its card in.
 // A tap on a card opens that place in Nearby. Only cards near the visible ones load their picture.
+import { homePlaceHref } from '../../data/homeLinks';
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReducedMotionConfig } from 'motion/react';
 import groundUrl from '../../assets/nearby/sg-ground.webp';
 import { groundCrop, placePicture } from '../../data/home/nearbyCards';
 import type { CuratedPlace } from '../../features/nearby/domain';
-import { paths } from '../../routes';
 import HomeIcon from './shared/HomeIcon';
 import styles from './NearbyStrip.module.css';
 
@@ -144,7 +144,7 @@ export default function NearbyStrip({ items, active, onActive }: Props) {
             <button
               type="button"
               className={styles.hit}
-              onClick={() => navigate(paths.nearbyPlace(place.id))}
+              onClick={() => navigate(homePlaceHref(place.id))}
               onFocus={() => {
                 if (current.current !== i) {
                   current.current = i;

@@ -48,7 +48,10 @@ export function view3dTarget(place: Pick<CuratedPlace, 'earthKey' | 'coordinates
  * The 3D page address. Everything is in the hash (#at=…&card=…), which browsers never send to a server,
  * so even a "near you" view does not put the position in a request.
  */
-export function view3dUrl(target: View3DTarget, opts: { still?: boolean; hideCards?: boolean; lang?: 'en' | 'zh' } = {}): string {
+export function view3dUrl(
+  target: View3DTarget,
+  opts: { still?: boolean; hideCards?: boolean; lang?: 'en' | 'zh'; overview?: boolean } = {},
+): string {
   const params = new URLSearchParams();
   params.set('at', `${target.at.lat.toFixed(5)},${target.at.lng.toFixed(5)}`);
   if (target.card) params.set('card', target.card);
@@ -57,6 +60,8 @@ export function view3dUrl(target: View3DTarget, opts: { still?: boolean; hideCar
   if (opts.still) params.set('still', '1');
   if (opts.hideCards) params.set('cards', '0');
   if (opts.lang && opts.lang !== 'en') params.set('lang', opts.lang);
+  // Home's map card: daytime, no city labels (it draws its own), room to see the whole island, a wider pan
+  if (opts.overview) for (const [k, v] of [['day', '1'], ['labels', '0'], ['far', '1'], ['r', '5000']]) params.set(k, v);
   return `${earthOnline3dBase()}#${params.toString()}`;
 }
 
