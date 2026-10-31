@@ -2,9 +2,9 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './test';
 import type { Page } from './test';
 
-// Home (Discovery redesign, 31 Oct 2026): a full-screen map of URA's planning areas and a deck that goes
-// region → planning area → place. The map is our own (CityMap: canvas ground, roads and area outlines, DOM pin
-// buttons); OneMap street tiles appear only when zoomed in on a place.
+// Home (Discovery redesign, 31 Oct 2026): a Three.js map card of URA's planning areas and a Three.js Cover Flow deck
+// that goes region → planning area → place. Invisible DOM cards, badges and pins sit over the drawn ones, so tests use
+// roles as on any page.
 
 const BRAND_ORANGES = ['#e4671f', '#e8622c']; // accepted contrast exception, as in a11y.spec.ts
 
@@ -38,12 +38,24 @@ test('load: the five URA regions, Central current, no outside requests at region
   expect(outside).toEqual([]);
 });
 
-test('swiping the regions selects the one in the middle', async ({ page }) => {
+test('dragging the Cover Flow deck settles on another region; the map badge follows', async ({ page }) => {
   await openHome(page);
-  await deck(page, 'Regions').locator('div').first().evaluate((t) => {
-    const c = t.children[4] as HTMLElement;
-    t.scrollTo({ left: c.offsetLeft + c.offsetWidth / 2 - t.clientWidth / 2, behavior: 'smooth' });
-  });
+  await expect(card(page, 'Central')).toHaveAttribute('aria-current', 'true');
+  await deck(page, 'Regions').locator('canvas').waitFor();
+  const box = (await deck(page, 'Regions').boundingBox())!;
+  const y = box.y + box.height * 0.4;
+  await page.mouse.move(box.x + box.width * 0.75, y);
+  await page.mouse.down();
+  for (let i = 1; i <= 8; i++) await page.mouse.move(box.x + box.width * (0.75 - i * 0.04), y);
+  await page.mouse.up();
+  await expect(card(page, 'Central')).not.toHaveAttribute('aria-current', 'true');
+  await expect(page).not.toHaveURL(/r=central/);
+  await expect(page.locator('button[aria-pressed="true"]').first()).not.toHaveAccessibleName('Region 1: Central');
+});
+
+test('a numbered region on the map selects its card', async ({ page }) => {
+  await openHome(page);
+  await page.getByRole('button', { name: 'Region 5: West' }).click();
   await expect(card(page, 'West')).toHaveAttribute('aria-current', 'true');
   await expect(page).toHaveURL(/r=west/);
 });
@@ -52,14 +64,14 @@ test('region → areas → places → place page, and Back returns to the same c
   // Settled cards: a click mid-animation can land on the neighbouring card.
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await openHome(page);
-  await card(page, 'West').click();
+  await page.getByRole('button', { name: 'Region 5: West' }).click();
   await page.getByRole('button', { name: 'Explore West' }).click();
   await expect(page.getByLabel('Where you are')).toHaveText('Singapore › West');
   await expect(card(page, 'Clementi')).toHaveAttribute('aria-current', 'true');
   await page.getByRole('button', { name: 'See 11 places' }).click();
   await expect(page.getByLabel('Where you are')).toHaveText('Singapore › West › Clementi');
-  const places = page.getByRole('region', { name: 'Nearby places' }).getByRole('group');
-  await expect(places).toHaveCount(11);
+  // Cover Flow keeps only the cards near the middle in the page; the live line counts them all.
+  await expect(page.getByRole('region', { name: 'Nearby places' }).locator('[aria-live]')).toContainText('1 of 11');
   // The selected place has a pin on the map.
   await expect(page.locator('button[data-pin][aria-pressed="true"]')).toBeVisible();
   const first = page.getByRole('region', { name: 'Nearby places' }).locator('[aria-current="true"]');

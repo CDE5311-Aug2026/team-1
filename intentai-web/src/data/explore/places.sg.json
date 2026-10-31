@@ -12842,7 +12842,8 @@
           }
         ]
       }
-    }
+    },
+    "earthKey": "chijmes"
   },
   {
     "id": "curated:sg-cherry-garden-by-chef-fei",
@@ -13130,7 +13131,8 @@
           }
         ]
       }
-    }
+    },
+    "earthKey": "mbs"
   },
   {
     "id": "curated:sg-summer-palace",
@@ -13413,7 +13415,8 @@
           }
         ]
       }
-    }
+    },
+    "earthKey": "suntec"
   },
   {
     "id": "curated:sg-shisen-hanten",
@@ -18923,7 +18926,8 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
-    }
+    },
+    "earthKey": "natgallery"
   },
   {
     "id": "curated:sg-zen",
@@ -19114,7 +19118,8 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
-    }
+    },
+    "earthKey": "rafflescity"
   },
   {
     "id": "curated:sg-born",
@@ -19591,7 +19596,8 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
-    }
+    },
+    "earthKey": "mbs"
   },
   {
     "id": "curated:sg-pangium",
@@ -19963,7 +19969,8 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
-    }
+    },
+    "earthKey": "esplanade"
   },
   {
     "id": "curated:sg-seroja",
@@ -20058,7 +20065,8 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
-    }
+    },
+    "earthKey": "duo"
   },
   {
     "id": "curated:sg-sushi-zen-1247221",
@@ -20409,7 +20417,8 @@
           "publisher": "Tripadvisor"
         }
       ]
-    }
+    },
+    "earthKey": "mbs"
   },
   {
     "id": "curated:sg-hill-street-tai-hwa-pork-noodle",
