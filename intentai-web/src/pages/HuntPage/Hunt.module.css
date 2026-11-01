@@ -1,0 +1,1320 @@
+/* Hunt, in IntentAI's language (the same values as My Space v3: src/pages/MySpacePage/v3/MySpace.module.css). */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 0.5rem;
+  color: #23211d;
+}
+
+/* ---- header ---- */
+.header,
+.subHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3rem;
+}
+.subHeader {
+  justify-content: flex-start;
+  gap: 0.75rem;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+.logoLink {
+  display: inline-flex;
+  border-radius: 12px;
+}
+/* FindSG's mark: the Merlion in a magnifying glass, raised like a badge */
+.findsgMark {
+  display: block;
+  width: 42px;
+  height: 42px;
+}
+.brandTitle {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+/* the FindSG wordmark: heavy, tight, cream and orange */
+.wordmark {
+  margin: 0;
+  font:
+    800 1.75rem/1 'Inter',
+    'Helvetica Neue',
+    Arial,
+    system-ui,
+    sans-serif;
+  letter-spacing: -0.045em;
+  color: #f2e8d5;
+}
+.wordmark span {
+  color: #e8833a;
+}
+.square {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 14px;
+  border: 1px solid #dedad2;
+  background: #fff;
+  color: #23211d;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+/* ---- tabs: a white track, the chosen one in ink ---- */
+.segment {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+}
+.segment button {
+  flex: 1;
+  min-height: 2.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #3a3731;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.segment button[aria-selected='true'] {
+  background: #23211d;
+  color: #fff;
+}
+
+/* ---- hunter pass: the passport holder's sibling ---- */
+.pass,
+.podiumCard {
+  display: block;
+  width: 100%;
+  padding: 0.875rem 1rem 1rem;
+  border: 0;
+  border-radius: 24px;
+  background: repeating-radial-gradient(circle at 90% 10%, rgba(228, 103, 31, 0.05) 0 1px, transparent 1px 7px), linear-gradient(160deg, #fbf3e8, #f6ead9);
+  box-shadow:
+    0 10px 24px rgba(35, 33, 29, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: #23211d;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.passHead {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #a3400a;
+}
+.passHead > :last-child {
+  color: #4d473f;
+}
+.passRule {
+  flex: 1;
+  border-top: 1px dashed #d8b89f;
+}
+.passBody {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.passRank {
+  flex: none;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.125rem;
+  width: 5.25rem;
+  border: 1.5px dashed #e4a57c;
+  border-radius: 14px;
+  color: #a3400a;
+}
+.passRank b {
+  font-family: var(--font-mono);
+  font-size: 1.625rem;
+  line-height: 1;
+}
+.passRank small {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a5a3a;
+}
+.passStats {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+}
+.passStat {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.25rem;
+  min-height: 4rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #efe2d0;
+}
+.passStat b {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+.passStat small {
+  font-size: 0.75rem;
+  color: #5f5b54;
+}
+
+/* ---- the stories (FindSG, themed by src/findsg/theme*.css) ---- */
+.stories {
+  margin-top: 0.25rem;
+}
+
+/* ---- Public ---- */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.kicker {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4d473f;
+}
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+.sectionHead .kicker {
+  margin: 0;
+}
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #3a3731;
+  cursor: pointer;
+}
+
+/* this weekend's challenge: a photo card, as Home's region cards (white type on a dark scrim) */
+.challenge {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 4 / 4.4;
+  border: 0;
+  border-radius: 24px;
+  padding: 0;
+  background: #2b2925;
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 18px 30px -18px rgba(35, 33, 29, 0.7);
+}
+.challenge img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.challenge::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(24, 22, 19, 0) 35%, rgba(24, 22, 19, 0.82) 72%, rgba(24, 22, 19, 0.92));
+}
+.chTag {
+  position: absolute;
+  z-index: 1;
+  top: 0.875rem;
+  left: 0.875rem;
+  padding: 0.3125rem 0.625rem;
+  border-radius: 6px;
+  background: #23211d;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.chBody {
+  position: absolute;
+  z-index: 1;
+  inset: auto 0 0;
+  display: grid;
+  gap: 0.25rem;
+  padding: 1.125rem;
+}
+.chBody > small {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f4b389;
+}
+.chBody > b {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.chBody > span {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.86);
+}
+.chFoot {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.625rem;
+  font-size: 0.8125rem;
+}
+.chFoot b {
+  font-family: var(--font-mono);
+}
+.chGo {
+  margin-left: auto;
+  padding: 0.5625rem 1.125rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #23211d;
+  font-weight: 700;
+}
+
+/* boards */
+.boards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.mini {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+  min-width: 0;
+}
+.miniHead {
+  display: grid;
+  gap: 0.125rem;
+  border: 0;
+  padding: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.miniHead h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.miniHead small {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5f5b54;
+}
+.mini ol,
+.list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mini li,
+.list li {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini li b,
+.list li b {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+.mini li b small,
+.list li b small {
+  font-family: var(--font-family);
+  font-weight: 400;
+  color: #5f5b54;
+}
+.medal {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 6px;
+  background: #efede8;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #3a3731;
+}
+.medal[data-n='1'] {
+  background: #e4671f;
+  color: #fff;
+}
+.medal[data-n='2'] {
+  background: #f3d5c0;
+  color: #a3400a;
+}
+.medal[data-n='3'] {
+  background: #fff3ea;
+  color: #a3400a;
+}
+.me {
+  padding-top: 0.5rem;
+  border-top: 1px dashed #dedad2;
+}
+.me .medal {
+  background: #23211d;
+  color: #fff;
+}
+
+/* coming up: the date as an inked stamp */
+.upcoming {
+  margin: 0;
+  padding: 0.25rem 1rem;
+  list-style: none;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+}
+.upcoming li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem 0;
+}
+.upcoming li + li {
+  border-top: 1px solid #ebe8e2;
+}
+.date {
+  display: grid;
+  justify-items: center;
+  width: 3.25rem;
+  padding: 0.375rem 0;
+  border: 1.5px dashed #e4a57c;
+  border-radius: 10px;
+  color: #a3400a;
+  font-family: var(--font-mono);
+  transform: rotate(-3deg);
+}
+.date b {
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+.date small {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.upText {
+  display: grid;
+  gap: 0.1875rem;
+  min-width: 0;
+}
+.upText b {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+.upText small {
+  font-size: 0.8125rem;
+  color: #5f5b54;
+}
+.ghost {
+  border: 1px solid #d3cec4;
+  border-radius: 999px;
+  padding: 0.4375rem 0.875rem;
+  background: #fff;
+  color: #23211d;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* chips (as Moments' filters, smaller) */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+.chips.scroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 calc(var(--gutter) * -1);
+  padding: 0 var(--gutter);
+}
+.chips button {
+  flex: none;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid #dedad2;
+  border-radius: 999px;
+  background: #fff;
+  color: #3a3731;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chips button[aria-checked='true'] {
+  border-color: #23211d;
+  background: #23211d;
+  color: #fff;
+}
+
+/* write your own */
+.ai {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+}
+.cardKicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a3400a;
+}
+.ai h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.aiText {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #5f5b54;
+}
+.primary {
+  align-self: flex-start;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: #23211d;
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.primary:disabled {
+  background: #d3cec4;
+  color: #5f5b54;
+  cursor: default;
+}
+
+.note {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #5f5b54;
+}
+.sub {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #5f5b54;
+}
+
+/* ---- boards page ---- */
+.podiumCard {
+  cursor: default;
+}
+.podium {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: end;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.podium li {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  text-align: center;
+  min-width: 0;
+}
+.podium li b {
+  font-size: 0.875rem;
+  font-weight: 700;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.podium li small {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: #5f5b54;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #efe2d0;
+  font-weight: 800;
+  color: #3a3731;
+}
+.podium li[data-n='1'] .avatar {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-color: #e4671f;
+  color: #a3400a;
+  font-size: 1.25rem;
+}
+.step {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 3rem;
+  margin-top: 0.25rem;
+  border-radius: 12px 12px 4px 4px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #efe2d0;
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #5f5b54;
+}
+.podium li[data-n='1'] .step {
+  height: 4.5rem;
+  background: #e4671f;
+  border-color: #e4671f;
+  color: #fff;
+}
+.podium li[data-n='3'] .step {
+  height: 2.25rem;
+}
+.list {
+  padding: 0.75rem 1rem;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+}
+.list li {
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
+}
+.youRow {
+  position: sticky;
+  bottom: 6.5rem;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 20px;
+  background: #fff;
+  border: 1.5px solid #e4671f;
+  box-shadow: 0 10px 24px rgba(35, 33, 29, 0.12);
+}
+.youRow .medal {
+  width: 2rem;
+  height: 2rem;
+  background: #23211d;
+  color: #fff;
+}
+.youRank {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  color: #a3400a;
+}
+
+.square:focus-visible,
+.logoLink:focus-visible,
+.segment button:focus-visible,
+.pass:focus-visible,
+.challenge:focus-visible,
+.miniHead:focus-visible,
+.more:focus-visible,
+.ghost:focus-visible,
+.chips button:focus-visible,
+.primary:focus-visible {
+  outline: 2px solid #23211d;
+  outline-offset: 2px;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .pass,
+  .podiumCard,
+  .challenge,
+  .mini,
+  .upcoming,
+  .ai,
+  .list,
+  .square {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+/* ---- the Stories tab: a desk under a lamp ---- */
+.desk {
+  position: relative;
+  min-height: calc(100svh - 96px);
+  /* edge to edge, whatever the page's gutter */
+  width: calc(100% + 2 * (50vw - 50%));
+  max-width: none;
+  box-sizing: border-box;
+  margin: -0.5rem calc(50% - 50vw) -6rem;
+  padding: 0.5rem max(16px, calc(50vw - 50% + 0px)) 2.5rem;
+  color: #f0e2c4;
+  /* the town on an old sea chart: light ink on deep brown, a lamp from above */
+  background:
+    radial-gradient(90% 40% at 50% 16%, rgba(255, 200, 130, 0.13), transparent 70%),
+    radial-gradient(140% 90% at 50% 40%, transparent 45%, rgba(0, 0, 0, 0.5)),
+    var(--chart, none) center top / 100% auto no-repeat,
+    repeating-linear-gradient(0deg, rgba(226, 196, 140, 0.04) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(90deg, rgba(226, 196, 140, 0.04) 0 1px, transparent 1px 46px),
+    linear-gradient(180deg, #241c14, #1d1711 60%, #17120d);
+}
+.desk .brandTitle {
+  color: #f3e3c0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.625rem;
+  letter-spacing: 0.02em;
+}
+.desk .findsgMark {
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55));
+}
+.desk .square {
+  border: 1px solid rgba(232, 201, 131, 0.35);
+  background: rgba(20, 12, 6, 0.45);
+  color: #e8c983;
+}
+.desk .segment {
+  /* two headings on the chart's legend: the chosen one inked in, an orange stroke sliding under it */
+  position: relative;
+  gap: 0;
+  margin: -2px 0 2px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(226, 196, 140, 0.16);
+}
+
+.desk .segment button {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.45em;
+  min-height: 2.125rem;
+  border-radius: 4px;
+  color: rgba(226, 206, 168, 0.5);
+  font:
+    400 1rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+  transition: color 0.3s;
+}
+.desk .segment button small {
+  font:
+    400 0.75rem/1 var(--font-display);
+  letter-spacing: 0.2em;
+}
+.desk .segment button[aria-selected='true'] {
+  background: none;
+  color: #f2e8d5;
+}
+.desk .segment button[aria-selected='true'] small {
+  color: #e8833a;
+}
+.segInk {
+  display: none;
+}
+.desk .segInk {
+  display: block;
+  position: absolute;
+  bottom: -1.5px;
+  left: calc(var(--at) * 50% + 19%);
+  width: 12%;
+  height: 3px;
+  border-radius: 3px 5px 4px 2px / 3px 2px 4px 3px;
+  background: linear-gradient(90deg, rgba(232, 131, 58, 0.4), #e8833a 20%, #e8833a 75%, rgba(232, 131, 58, 0.55));
+  transform: skewX(-12deg) rotate(-1deg);
+  transition: left 0.45s cubic-bezier(0.5, 1.4, 0.4, 1);
+  pointer-events: none;
+}
+
+/* the desk's own pages (the shelf, Public, the boards) scroll clear of the field-guide roll in the corner */
+.deskHome {
+  padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px));
+}
+/* a story or a stop: one big page of the notebook on the desk */
+.storyPage.storyPage:global(.findsg) {
+  position: relative;
+  margin-top: 0.25rem;
+  padding: 14px 14px 22px 18px;
+  border-radius: 3px 10px 10px 3px;
+  color: #2c2117;
+  background: radial-gradient(120% 70% at 55% 30%, rgba(255, 249, 230, 0.5), transparent 65%), var(--stains), var(--fibres), var(--grain), #eadcbd;
+  box-shadow:
+    inset 16px 0 20px -14px rgba(60, 38, 16, 0.5),
+    inset 0 0 50px rgba(120, 78, 30, 0.32),
+    0 18px 36px rgba(0, 0, 0, 0.5),
+    2px 2px 0 #d4bf93,
+    4px 4px 0 #c9b286;
+}
+.storyPage::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: -7px;
+  width: 12px;
+  border-radius: 6px 2px 2px 6px;
+  background: linear-gradient(90deg, #170d08, #3f2316 45%, #2a160d);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.45);
+}
+/* ---- Public on the chart: a notice board of paper ----
+   (the challenge as a pinned photo print, the boards as ledger pages, what's next as ticket stubs) */
+.publicDesk {
+  --paper: radial-gradient(120% 80% at 50% 20%, rgba(255, 249, 230, 0.5), transparent 70%), var(--grain, none), #eadcbd;
+  --ink: #2c2117;
+}
+.publicDesk .stack {
+  gap: 14px;
+}
+.publicDesk .kicker {
+  margin: 4px 2px 0;
+  font:
+    400 1.125rem/1.2 var(--font-display);
+  letter-spacing: 0;
+  text-transform: none;
+  color: #f2e8d5;
+}
+.publicDesk .sectionHead {
+  align-items: baseline;
+}
+.publicDesk .more {
+  color: #f0a060;
+  font-weight: 600;
+}
+/* the weekend challenge: a photo print with a cream border, taped at the top */
+.publicDesk .challenge {
+  position: relative;
+  border: 7px solid #efe3c4;
+  border-bottom-width: 7px;
+  border-radius: 3px;
+  overflow: visible;
+  background: #2b2925;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.5);
+  transform: rotate(-0.6deg);
+}
+.publicDesk .challenge::before {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  top: -16px;
+  left: 50%;
+  width: 84px;
+  height: 22px;
+  margin-left: -42px;
+  background: rgba(236, 222, 186, 0.78);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transform: rotate(2deg);
+}
+.publicDesk .challenge img {
+  border-radius: 0;
+}
+.publicDesk .chTag {
+  border-radius: 2px;
+  background: rgba(29, 23, 17, 0.82);
+  font:
+    500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.14em;
+  color: #f2e8d5;
+}
+.publicDesk .chBody > span:not(.chFoot) {
+  font:
+    400 0.875rem/1.3 var(--font-display);
+  letter-spacing: 0.04em;
+  color: rgba(242, 232, 213, 0.82);
+}
+.publicDesk .chFoot {
+  font:
+    400 0.875rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+  color: rgba(242, 232, 213, 0.82);
+}
+.publicDesk .chBody > small {
+  font:
+    italic 400 0.8125rem/1 'IM Fell English',
+    Georgia,
+    serif;
+  letter-spacing: 0.06em;
+  color: #f0a060;
+}
+.publicDesk .chBody > b {
+  font:
+    400 1.625rem/1.15 var(--font-display);
+}
+.publicDesk .chFoot b {
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+.publicDesk .chGo {
+  font:
+    500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.06em;
+  border-radius: 3px;
+  padding-inline: 18px;
+  background: linear-gradient(180deg, #c95a35, #9b2c1c);
+  color: #fbeedd;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 190, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+/* the boards: two ledger pages */
+.publicDesk .mini,
+.publicDesk .upcoming,
+.publicDesk .ai {
+  border-radius: 3px;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow:
+    0 12px 22px rgba(0, 0, 0, 0.45),
+    inset 0 0 24px rgba(120, 78, 30, 0.22);
+}
+.publicDesk .mini:first-child {
+  transform: rotate(-0.8deg);
+}
+.publicDesk .mini:last-child {
+  transform: rotate(0.7deg);
+}
+.publicDesk .miniHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(120, 80, 40, 0.3);
+}
+.publicDesk .miniHead > span {
+  font:
+    400 1.125rem/1 var(--font-display);
+  color: #9b2c1c;
+}
+.publicDesk .miniHead h3 {
+  font:
+    400 1.25rem/1.1 var(--font-display);
+  color: var(--ink);
+}
+.publicDesk .miniHead small {
+  font:
+    italic 400 0.75rem/1.2 'IM Fell English',
+    Georgia,
+    serif;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: rgba(44, 33, 23, 0.6);
+}
+.publicDesk .mini li {
+  color: var(--ink);
+  font:
+    400 0.875rem/1.2 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.publicDesk .mini li b {
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+}
+.publicDesk .medal {
+  border-radius: 50%;
+  background: none;
+  box-shadow: inset 0 0 0 1px rgba(60, 40, 20, 0.35);
+  font:
+    400 0.8125rem/1 var(--font-display);
+  color: var(--ink);
+}
+.publicDesk .medal[data-n='1'] {
+  background: radial-gradient(circle at 35% 30%, #fbe7a6, #d4a442 60%, #8c6420);
+  box-shadow: none;
+}
+.publicDesk .medal[data-n='2'] {
+  background: radial-gradient(circle at 35% 30%, #f4f4f0, #b9b9b2 60%, #75756e);
+  box-shadow: none;
+}
+.publicDesk .medal[data-n='3'] {
+  background: radial-gradient(circle at 35% 30%, #f3c9a0, #b9774a 60%, #7a4a26);
+  box-shadow: none;
+}
+.publicDesk .me {
+  border-top: 1px dashed rgba(120, 80, 40, 0.4);
+}
+.publicDesk .me .medal {
+  background: #e8833a;
+  color: #fff;
+  box-shadow: none;
+}
+.publicDesk .me .name {
+  color: #9b2c1c;
+}
+/* what's next: ticket stubs with a date stamp in red ink */
+.publicDesk .upcoming li + li {
+  border-top: 1px dashed rgba(120, 80, 40, 0.35);
+}
+.publicDesk .date {
+  border: 1.5px solid rgba(155, 44, 28, 0.7);
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  color: #9b2c1c;
+  font-family: var(--font-display);
+  transform: rotate(-8deg);
+  box-shadow: inset 0 0 0 3px rgba(155, 44, 28, 0.15);
+}
+.publicDesk .upText b {
+  font:
+    400 1rem/1.25 var(--font-display);
+  color: var(--ink);
+}
+.publicDesk .upText small {
+  font:
+    400 0.8125rem/1.3 var(--font-display);
+  letter-spacing: 0.02em;
+  color: rgba(44, 33, 23, 0.62);
+}
+.publicDesk .ghost {
+  font:
+    500 0.8125rem/1 var(--font-display);
+  letter-spacing: 0.06em;
+  border-radius: 3px;
+  border-color: rgba(60, 40, 20, 0.45);
+  background: transparent;
+  color: var(--ink);
+}
+/* write your own: a page of the notebook */
+.publicDesk .cardKicker {
+  font:
+    italic 400 0.8125rem/1 'IM Fell English',
+    Georgia,
+    serif;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: #9b2c1c;
+}
+.publicDesk .ai h2 {
+  font:
+    400 1.5rem/1.15 var(--font-display);
+  color: var(--ink);
+}
+.publicDesk .aiText {
+  font:
+    italic 400 0.9375rem/1.4 'IM Fell English',
+    Georgia,
+    serif;
+  color: rgba(44, 33, 23, 0.72);
+}
+.publicDesk .ai {
+  position: relative;
+  gap: 6px;
+}
+/* not built yet: a red rubber stamp across the corner of the notice */
+.aiStamp {
+  align-self: flex-start;
+  margin: 6px 0 2px 4px;
+  padding: 6px 9px 5px;
+  border: 2px solid rgba(155, 44, 28, 0.85);
+  border-radius: 4px;
+  font:
+    600 0.75rem/1 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(155, 44, 28, 0.9);
+  box-shadow: inset 0 0 0 2px rgba(236, 222, 190, 0.6), inset 0 0 0 3px rgba(155, 44, 28, 0.6);
+  transform: rotate(-4deg);
+}
+.publicDesk .chips button {
+  border-radius: 3px;
+  border-color: rgba(60, 40, 20, 0.35);
+  background: rgba(255, 250, 235, 0.4);
+  color: var(--ink);
+}
+.publicDesk .chips button[aria-checked='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #f2e8d5;
+}
+.publicDesk .primary:disabled {
+  border-radius: 3px;
+  background: rgba(60, 40, 20, 0.18);
+  color: rgba(44, 33, 23, 0.55);
+}
+.publicDesk .note {
+  font:
+    italic 400 0.8125rem/1.3 'IM Fell English',
+    Georgia,
+    serif;
+  color: rgba(242, 232, 213, 0.5);
+}
+/* the game's small labels were set for two Chinese characters; English needs them on one line */
+.storyPage :global(.quest-mechanism-name),
+.storyPage :global(.quest-camera-controls) button,
+.storyPage :global(.og-topbar) button,
+.storyPage :global(.og-step-track) strong {
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+.storyPage :global(.og-eyebrow) {
+  flex-wrap: wrap;
+  letter-spacing: 0.04em;
+}
+.storyPage :global(.og-eyebrow) > * {
+  white-space: nowrap;
+}
+
+/* prologue game: keep short English labels on one line */
+.storyPage :global(.short-mode-tabs) button,
+.storyPage :global(.ss-focus),
+.storyPage :global(.ss-overview),
+.storyPage :global(.ss-stage-footer) > * {
+  white-space: nowrap;
+}
+.storyPage :global(.short-mode-tabs),
+.storyPage :global(.ss-focus) {
+  flex: none;
+}
+.storyPage :global(.ss-topline) {
+  gap: 10px;
+}
+.storyPage :global(.ss-stage-footer),
+.storyPage :global(.ss-tools) {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+/* ---- the boards on the desk: a ledger of names, the podium as three wooden blocks ---- */
+.boardDesk {
+  /* the chart reaches the foot of the screen even when the board is short */
+  min-height: calc(100svh + 5.5rem);
+}
+.boardDesk .subHeader {
+  gap: 12px;
+}
+.boardDesk .chips button {
+  min-height: 2rem;
+  border-radius: 3px;
+  border-color: rgba(226, 196, 140, 0.3);
+  background: rgba(20, 12, 6, 0.45);
+  color: rgba(242, 232, 213, 0.78);
+  font:
+    400 0.8125rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+}
+.boardDesk .chips button[aria-checked='true'] {
+  border-color: #e8833a;
+  background: #e8833a;
+  color: #1d1711;
+}
+.boardDesk .sub {
+  font:
+    400 0.9375rem/1.3 var(--font-display);
+  letter-spacing: 0.02em;
+  color: rgba(242, 232, 213, 0.72);
+}
+.boardDesk .podiumCard,
+.boardDesk .list {
+  border-radius: 3px;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow:
+    0 12px 22px rgba(0, 0, 0, 0.45),
+    inset 0 0 24px rgba(120, 78, 30, 0.22);
+}
+.boardDesk .passHead {
+  font:
+    500 0.6875rem/1 var(--font-display);
+  letter-spacing: 0.16em;
+  color: #9b2c1c;
+}
+.boardDesk .passHead > :last-child {
+  color: rgba(44, 33, 23, 0.6);
+}
+.boardDesk .passRule {
+  border-top-color: rgba(120, 80, 40, 0.4);
+}
+.boardDesk .avatar {
+  background: radial-gradient(circle at 40% 35%, #fff8e6, #ead9b4);
+  border: 1.5px solid rgba(90, 60, 30, 0.45);
+  color: var(--ink);
+  font:
+    500 1rem/1 var(--font-display);
+}
+.boardDesk .podium li[data-n='1'] .avatar {
+  border: 2px solid #9b2c1c;
+  color: #9b2c1c;
+  font-size: 1.375rem;
+}
+.boardDesk .podium li b {
+  font:
+    500 0.9375rem/1.2 var(--font-display);
+}
+.boardDesk .podium li small {
+  /* Oswald's figures: IM Fell's old-style 0 and 1 read as letters */
+  font:
+    400 0.75rem/1.2 var(--font-display);
+  letter-spacing: 0.04em;
+  color: rgba(44, 33, 23, 0.65);
+}
+.boardDesk .step {
+  border: 0;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(180deg, #7a5230, #4e3119);
+  box-shadow: inset 0 1px 0 rgba(255, 220, 170, 0.25);
+  color: #f2e8d5;
+  font:
+    500 1.25rem/1 var(--font-display);
+}
+.boardDesk .podium li[data-n='1'] .step {
+  border: 0;
+  background: linear-gradient(180deg, #f1cf7e, #c79a40 55%, #9a7128);
+  color: #2c2117;
+}
+.boardDesk .list li {
+  font:
+    400 0.9375rem/1.3 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.boardDesk .list li + li {
+  border-top: 1px dashed rgba(120, 80, 40, 0.3);
+  padding-top: 0.5rem;
+}
+.boardDesk .list li b {
+  font:
+    500 0.9375rem/1 var(--font-display);
+}
+.boardDesk .list li b small {
+  font:
+    italic 400 0.75rem/1 'IM Fell English',
+    Georgia,
+    serif;
+  color: rgba(44, 33, 23, 0.6);
+}
+.boardDesk .youRow {
+  border-radius: 3px;
+  border: 1.5px solid #e8833a;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+.boardDesk .youRow .medal {
+  width: 2rem;
+  height: 2rem;
+  background: #e8833a;
+  color: #fff;
+  box-shadow: none;
+  font-size: 0.9375rem;
+}
+.boardDesk .youRow .upText b {
+  font:
+    500 1rem/1.2 var(--font-display);
+  color: var(--ink);
+}
+.boardDesk .youRow .upText small {
+  font:
+    400 0.8125rem/1.3 var(--font-display);
+  letter-spacing: 0.02em;
+  color: rgba(44, 33, 23, 0.65);
+}
+.boardDesk .youRank {
+  font:
+    500 1.375rem/1 var(--font-display);
+  color: #9b2c1c;
+}
+.boardDesk .primary {
+  border-radius: 3px;
+  background: linear-gradient(180deg, #c95a35, #9b2c1c);
+  color: #fbeedd;
+  font:
+    500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.06em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 190, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.boardDesk .square:focus-visible,
+.boardDesk .chips button:focus-visible,
+.boardDesk .segment button:focus-visible,
+.boardDesk .primary:focus-visible {
+  outline-color: #f0a060;
+}

@@ -1,4 +1,4 @@
-// The light part of the Singapore Culture Atlas: the five editor routes and the atlas id ↔ Nearby key mapping.
+// The light part of the Singapore Culture Atlas: the five editor routes and the atlas id ↔︎ Nearby key mapping.
 // Kept apart from atlas.ts so a Nearby place page can say "On routes: …" without loading the whole atlas
 // (Vite turns each top-level JSON key into its own export, so only `routes` is bundled here).
 import { routes as zhRoutes } from './atlas.zh.json';

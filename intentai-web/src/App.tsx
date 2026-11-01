@@ -14,7 +14,7 @@ import UserGate from './components/UserGate/UserGate';
 // Every screen but Today loads on demand, so a phone opening the app downloads Today's code only (the place catalogue,
 // the community posts, the atlas and the map stay out of it). Nearby Explorer screens were already split this way.
 const HolidayPage = lazyPage(() => import('./pages/HolidayPage/HolidayPage'));
-const PlaceholderPage = lazyPage(() => import('./pages/PlaceholderPage/PlaceholderPage'));
+const HuntPage = lazyPage(() => import('./pages/HuntPage/HuntPage'));
 const MomentsPage = lazyPage(() => import('./pages/MomentsPage/MomentsPage'));
 const MySpacePage = lazyPage(() => import('./pages/MySpacePage/MySpacePage'));
 const MySpaceSettingsPage = lazyPage(() => import('./pages/MySpacePage/SettingsPage'));
@@ -80,7 +80,7 @@ export default function App() {
             />
             <Route path={paths.holiday} element={<HolidayPage />} />
             <Route path={paths.moments} element={<MomentsPage />} />
-            <Route path={paths.hunt} element={<PlaceholderPage name="Hunt" icon="tab-hunt" />} />
+            <Route path={paths.hunt} element={<HuntPage />} />
             <Route path={paths.nearby} element={<ExplorePage />} />
             <Route path={paths.nearbyLocation} element={<LocationPage />} />
             <Route path={patterns.nearbyPlace} element={<PlaceDetailPage />} />

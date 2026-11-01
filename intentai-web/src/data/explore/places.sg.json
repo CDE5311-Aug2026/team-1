@@ -15108,13 +15108,13 @@
     "regionId": "west",
     "areaId": "sg-clementi",
     "coordinates": {
-      "lat": 1.3157,
-      "lng": 103.7685,
+      "lat": 1.312485,
+      "lng": 103.771076,
       "source": {
-        "title": "Singapore Culture Atlas research snapshot",
-        "url": "https://www.google.com/maps/search/?api=1&query=Darussalam%20Mosque%2C%203002%20Commonwealth%20Avenue%20West%2C%20Singapore%20129579",
-        "publisher": "google.com",
-        "checkedAt": "2026-10-29"
+        "title": "OneMap search: 129579",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=129579&returnGeom=Y&getAddrDetails=Y",
+        "publisher": "OneMap (Singapore Land Authority)",
+        "checkedAt": "2026-11-01"
       }
     },
     "category": "culture",
@@ -15614,13 +15614,13 @@
     "regionId": "west",
     "areaId": "sg-clementi",
     "coordinates": {
-      "lat": 1.3221,
-      "lng": 103.7673,
+      "lat": 1.322712,
+      "lng": 103.769888,
       "source": {
-        "title": "Singapore Culture Atlas research snapshot",
-        "url": "https://www.google.com/maps/search/?api=1&query=Balmoral%20Bakery%2C%20105%20Clementi%20Street%2012%2C%20%2301-06%2C%20Singapore%20120105",
-        "publisher": "google.com",
-        "checkedAt": "2026-10-29"
+        "title": "OneMap search: 120105",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=120105&returnGeom=Y&getAddrDetails=Y",
+        "publisher": "OneMap (Singapore Land Authority)",
+        "checkedAt": "2026-11-01"
       }
     },
     "category": "food",
@@ -15954,13 +15954,13 @@
     "regionId": "central",
     "areaId": "sg-chinatown",
     "coordinates": {
-      "lat": 1.2796,
-      "lng": 103.8415,
+      "lat": 1.277059,
+      "lng": 103.837362,
       "source": {
-        "title": "Singapore Culture Atlas research snapshot",
-        "url": "https://www.google.com/maps/search/?api=1&query=NUS%20Baba%20House%2C%20157%20Neil%20Road%2C%20Singapore%20088883",
-        "publisher": "google.com",
-        "checkedAt": "2026-10-29"
+        "title": "OneMap search: 088883",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=088883&returnGeom=Y&getAddrDetails=Y",
+        "publisher": "OneMap (Singapore Land Authority)",
+        "checkedAt": "2026-11-01"
       }
     },
     "category": "culture",
@@ -20172,13 +20172,13 @@
     "regionId": "central",
     "areaId": "sg-marina-bay",
     "coordinates": {
-      "lat": 1.29161,
-      "lng": 103.85681,
+      "lat": 1.291855,
+      "lng": 103.858578,
       "source": {
-        "title": "Singapore Culture Atlas research snapshot",
-        "url": "https://www.google.com/maps/search/?api=1&query=Peach%20Blossoms%2C%20PARKROYAL%20COLLECTION%20Marina%20Bay%2C%20Level%205%2C%206%20Raffles%20Boulevard%2C%20Singapore%20039594",
-        "publisher": "google.com",
-        "checkedAt": "2026-10-29"
+        "title": "OneMap search: 039594",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=039594&returnGeom=Y&getAddrDetails=Y",
+        "publisher": "OneMap (Singapore Land Authority)",
+        "checkedAt": "2026-11-01"
       }
     },
     "category": "food",

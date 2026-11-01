@@ -255,7 +255,7 @@ export default function PlaceInfo({
               rel="noopener noreferrer"
               aria-label="Directions (opens Google Maps)"
             >
-              <span className={styles.directionsText}>Directions</span> ↗
+              <span className={styles.directionsText}>Directions</span> ↗︎
             </a>
           </div>
 

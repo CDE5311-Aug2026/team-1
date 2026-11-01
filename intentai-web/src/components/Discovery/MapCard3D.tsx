@@ -7,6 +7,7 @@ import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { Rgba } from '../../features/nearby/map/CityMap';
 import { toXY } from '../../features/nearby/map/projection';
 import type { LatLng } from '../../features/nearby/types';
+import { NEAR_M } from './nearYou';
 import {
   URA_AREAS,
   URA_REGIONS,
@@ -22,8 +23,9 @@ import groundUrl from '../../assets/nearby/sg-ground.webp';
 import { MapScene, type TileLook } from './three/mapScene';
 import styles from './MapCard3D.module.css';
 
-/** picks: Editor's Pick (the selected pick's stops shown); pick: inside one pick, its stops. */
-export type MapLevel = 'regions' | 'areas' | 'places' | 'picks' | 'pick';
+/** picks: Editor's Pick (the selected pick's stops shown); pick: inside one pick, its stops; near: what is within
+ *  NEAR_M of where you are (Locate). */
+export type MapLevel = 'regions' | 'areas' | 'places' | 'picks' | 'pick' | 'near';
 
 export interface MapPlacePin {
   id: string;
@@ -48,6 +50,8 @@ interface Props {
   numbered?: boolean;
   /** Join the pins with a dashed line (a walk's order of stops). */
   path?: boolean;
+  /** Where you are (Locate): a blue dot, and the map frames NEAR_M round it. */
+  here?: LatLng;
 }
 
 const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
@@ -124,8 +128,10 @@ export function MapCard3D({
   onPickPlace,
   numbered = false,
   path = false,
+  here,
 }: Props) {
-  const isPick = level === 'picks' || level === 'pick';
+  // near-you pins stand on the ground like a pick's stops
+  const isPick = level === 'picks' || level === 'pick' || level === 'near';
   const reduced = useReducedMotion();
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -196,7 +202,11 @@ export function MapCard3D({
   useEffect(() => {
     const s = sceneRef.current;
     if (!s) return;
-    if (isPick) {
+    if (level === 'near' && here) {
+      // the circle round you; a picked card's pin stays in it
+      const q = toXY(here);
+      s.fit([q.x - NEAR_M, q.y - NEAR_M, q.x + NEAR_M, q.y + NEAR_M], false, 0.15);
+    } else if (isPick) {
       const pts = places.map((p) => toXY(p.point));
       const sel = places.find((p) => p.id === selectedPlaceId);
       if (level === 'pick' && sel) {
@@ -221,7 +231,7 @@ export function MapCard3D({
       const half = Math.max(2600, (b[2] - b[0]) / 2, (b[3] - b[1]) / 2);
       s.fit([cx - half, cy - half, cx + half, cy + half], false, 0.35);
     }
-  }, [level, region, areaId, ready, isPick, places, selectedPlaceId]);
+  }, [level, region, areaId, ready, isPick, places, selectedPlaceId, here]);
 
   // ---- labels and pins follow the camera ----
   type Marker = { key: string; x: number; y: number; top: () => number };
@@ -238,11 +248,16 @@ export function MapCard3D({
         const a = areaById.get(id)!;
         return { key: `a:${id}`, x: a.centre[0], y: a.centre[1], top: () => s()?.topOf(id) ?? 0 };
       });
-    return places.map((p) => {
+    const pins: Marker[] = places.map((p) => {
       const q = toXY(p.point);
       return { key: `p:${p.id}`, x: q.x, y: q.y, top: () => (isPick ? 0.14 : (s()?.topOf(areaId) ?? 0)) };
     });
-  }, [level, areaOrder, places, areaId, isPick]);
+    if (level === 'near' && here) {
+      const q = toXY(here);
+      pins.push({ key: 'here', x: q.x, y: q.y, top: () => 0.14 });
+    }
+    return pins;
+  }, [level, areaOrder, places, areaId, isPick, here]);
 
   useEffect(() => {
     const s = sceneRef.current;
@@ -349,6 +364,7 @@ export function MapCard3D({
               {numbered && <span className={styles.pinNum}>{i + 1}</span>}
             </button>
           ))}
+        {level === 'near' && here && <span ref={setRef('here')} className={styles.here} role="img" aria-label="You are here" />}
       </div>
     </div>
   );

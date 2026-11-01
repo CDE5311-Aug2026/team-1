@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPoi
 import { Link } from 'react-router-dom';
 import cameraIcon from '../../../assets/v3/moments/camera.svg';
 import checkWhite from '../../../assets/v3/moments/check-white.svg';
-import closeIcon from '../../../assets/v3/moments/close.svg';
 import CountUp from '../../../components/reactbits/CountUp';
 import ShinyText from '../../../components/reactbits/ShinyText';
 import { showToast } from '../../../hooks/useToast';
@@ -15,6 +14,7 @@ import { markOpened, openedCardsStore, placeStoriesStore, reduceMotionStore } fr
 import { storyPlace } from '../../../data/stories/places';
 import { CardDots } from '../Passport/Passport';
 import { stampDate, TOPIC_ICONS } from '../parts';
+import Icon from '../../OnboardingPage/v3/icons';
 import Sheet from '../Sheet/Sheet';
 import Stamp from '../Stamp/Stamp';
 import { snapPhotos, STORY_STAMP_NAMES, type SnapPhoto } from './snapPhotos';
@@ -238,7 +238,7 @@ export default function SnapSheet({ stamps, onClose }: { stamps: readonly StampD
       <div className={`${styles.root} ${reduce ? styles.reduce : ''}`} data-stage={stage}>
         <div className={styles.top}>
           <button type="button" className={styles.close} aria-label="Close" onClick={onClose}>
-            <img src={closeIcon} alt="" width={18} height={18} />
+            <Icon name="close" size={20} />
           </button>
           <p className={styles.topTitle} aria-hidden="true">
             Snap a moment
@@ -414,7 +414,7 @@ export default function SnapSheet({ stamps, onClose }: { stamps: readonly StampD
             {reduce ? (
               <span className={styles.workingText}>Recognising image</span>
             ) : (
-              <ShinyText text="Recognising image" className={styles.workingText} color="#cfc8bc" shineColor="#ffffff" speed={1.6} />
+              <ShinyText text="Recognising image" className={styles.workingText} color="#c9b48a" shineColor="#fff6e0" speed={1.6} />
             )}
           </div>
         )}
@@ -614,7 +614,11 @@ function StampPanel({ photo, wasNew, stamps }: { photo: SnapPhoto; wasNew: boole
         </p>
         {dots}
         <p className={styles.stampLine}>{wasNew ? '+1 card · ink added to your stamp' : collected ? 'Already in your stamp' : 'Already opened'}</p>
-        {wasNew && complete && <p className={styles.stampDone}>All {total} cards: {name} is complete</p>}
+        {wasNew && complete && (
+          <p className={styles.stampDone}>
+            All {total} cards: {name} is complete
+          </p>
+        )}
         {!collected && <p className={styles.stampHint}>Check in at {placeName} to collect the stamp.</p>}
       </div>
     </div>

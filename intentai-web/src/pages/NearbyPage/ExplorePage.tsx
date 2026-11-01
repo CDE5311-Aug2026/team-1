@@ -128,7 +128,7 @@ export default function ExplorePage() {
 
   const rawView = params.get('view');
   const view = rawView === 'list' ? 'list' : rawView === '3d' ? '3d' : 'map';
-  // 2D ⇄ 3D keeps what you were looking at: the 2D map's last view opens the 3D view (and the 3D view's, the map).
+  // 2D ⇄︎ 3D keeps what you were looking at: the 2D map's last view opens the 3D view (and the 3D view's, the map).
   // `carry` holds that view for one focus id; any later focus (recenter, search, a list, My location) replaces it.
   const view2d = useRef<{ center: LatLng; radiusM: number } | null>(null);
   const view3d = useRef<{ center: LatLng; radiusM: number } | null>(null);
@@ -348,7 +348,7 @@ export default function ExplorePage() {
     if (entryIdx > 0) navigate(entryIdx - 1 - historyIdx());
     else navigate(paths.today);
   };
-  // 3D on and off: going back to the map undoes the step into 3D (so Back is not filled with 3D ⇄ map toggles)
+  // 3D on and off: going back to the map undoes the step into 3D (so Back is not filled with 3D ⇄︎ map toggles)
   const entered3d = useRef<number | null>(null);
   const enter3d = () => {
     entered3d.current = historyIdx() + 1;
@@ -569,8 +569,8 @@ export default function ExplorePage() {
         )}
       </div>
 
-      {/* Map buttons: 2D ⇄ 3D and your location (zoom and recenter are on the map itself). */}
-      {/* 2D ⇄ 3D, as in a maps app: the button names the view it switches to (Esc also leaves 3D) */}
+      {/* Map buttons: 2D ⇄︎ 3D and your location (zoom and recenter are on the map itself). */}
+      {/* 2D ⇄︎ 3D, as in a maps app: the button names the view it switches to (Esc also leaves 3D) */}
       <div className={x.side} role="group" aria-label="Map view">
         <button type="button" className={x.sideButton} onClick={() => (view === '3d' ? leave3dNow() : enter3d())}>
           {view === '3d' ? '2D' : '3D'}

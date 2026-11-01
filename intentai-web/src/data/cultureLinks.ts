@@ -1,4 +1,4 @@
-// Today's culture content ↔ Nearby. A Today article (and its video) or holiday that names a real place (a monument, a temple,
+// Today's culture content ↔︎ Nearby. A Today article (and its video) or holiday that names a real place (a monument, a temple,
 // a neighbourhood) links to that place in Nearby, and the place shows the article in its culture cards.
 // Only places the text itself names, or a catalogue stall that serves the dish the article is about ("try it").
 // Labels are stored here so Today does not load the Nearby catalogue; src/data/cultureLinks.test.ts checks that every

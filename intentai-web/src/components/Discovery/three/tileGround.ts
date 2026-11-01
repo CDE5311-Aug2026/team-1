@@ -17,8 +17,8 @@ const KY = 110574;
 const BOUNDS = { west: 103.56, east: 104.13, south: 1.13, north: 1.5 };
 const MIN_Z = 11;
 const MAX_Z = 18;
-const MAX_TILES = 110; // in view at once
-const KEEP = 260; // in memory
+const MAX_TILES = 160; // in view at once
+const KEEP = 320; // in memory
 
 const tileLon = (x: number, z: number) => (x / 2 ** z) * 360 - 180;
 const tileLat = (y: number, z: number) => (Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / 2 ** z))) * 180) / Math.PI;
@@ -52,17 +52,13 @@ export class TileGround {
   }
 
   /**
-   * The ground the camera sees: `cx`, `cy` its centre in map metres, `distKm` the camera's distance, `viewPx` the
-   * canvas height in CSS pixels, `fovDeg` the vertical field of view.
+   * The ground the camera sees: `box` its footprint in map metres (west, east, south, north), `mpp` the metres one
+   * device pixel covers at the centre of the view. The detail level gives a tile pixel no bigger than a screen pixel
+   * there (owner, 1 Nov 2026: the zoomed-out map still looked blurry), so the map is never stretched.
    */
-  update(cx: number, cy: number, distKm: number, viewPx: number, fovDeg: number) {
-    // metres a screen pixel covers at the centre; a tile pixel about half that is sharp on a 2× screen
-    const mpp = (2 * distKm * 1000 * Math.tan((fovDeg * Math.PI) / 360)) / Math.max(1, viewPx);
-    let z = Math.round(Math.log2(156543 / (mpp * 0.6)));
+  update(box: { w: number; e: number; s: number; n: number }, mpp: number) {
+    let z = Math.floor(Math.log2(156543 / Math.max(0.1, mpp)) + 0.7);
     z = Math.max(MIN_Z, Math.min(MAX_Z, z));
-    // the tilted camera sees further ahead (north) than behind
-    const r = distKm * 1000 * 1.15;
-    const box = { w: cx - r * 1.15, e: cx + r * 1.15, s: cy - r * 0.7, n: cy + r * 1.35 };
     let range = this.range(box, z);
     while (z > MIN_Z && (range.x1 - range.x0 + 1) * (range.y1 - range.y0 + 1) > MAX_TILES) range = this.range(box, --z);
     const key = `${z}:${range.x0}:${range.x1}:${range.y0}:${range.y1}`;

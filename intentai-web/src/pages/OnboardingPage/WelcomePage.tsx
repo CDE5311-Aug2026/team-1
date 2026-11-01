@@ -2,7 +2,7 @@
 // the browser's Back goes to the previous question. "Stamp my passport" finishes and opens O8 (ResultPage).
 import { motion, useReducedMotionConfig } from 'motion/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import logo from '../../assets/v3/onboarding/logo.png';
+import logo from '../../assets/brand/findsg-logo.png';
 import lion from '../../assets/v3/onboarding/lion.png';
 import AppShell from '../../components/AppShell/AppShell';
 import BlurText from '../../components/reactbits/BlurText';
@@ -62,7 +62,7 @@ function Welcome({ onStart }: { onStart: () => void }) {
       <div className={styles.wallWrap} data-allow-bleed>
         <FilmWall />
       </div>
-      <img className={styles.logo} src={logo} alt="IntentAI" width={44} height={44} />
+      <img className={styles.logo} src={logo} alt="FindSG" width={44} height={44} />
       <motion.div
         className={styles.book}
         aria-hidden="true"

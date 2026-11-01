@@ -1,0 +1,2402 @@
+{
+  "schema_version": "1.0",
+  "title": "FindSG · Story Scene Visuals",
+  "created_at": "2026-10-31",
+  "art_direction": "Hand-drawn architectural concept vectors, keeping four distinct visual languages: paper, printer's ink, film and night-time timekeeping.",
+  "source_files": [
+    "story-data.json",
+    "gameplay-data.json"
+  ],
+  "accuracy_note": "All buildings, objects, streets and routes are drawn as recognisable concepts — not exact elevations, survey maps or real historical images.",
+  "motion_note": "Readable as a still; plays once only when the parent page adds is-playing, and respects prefers-reduced-motion.",
+  "routes": [
+    {
+      "route_id": "telok-ayer",
+      "story_id": "telok-ayer-letter-to-the-sea",
+      "title": "Letters to the Shore",
+      "palette": {
+        "bg": "#eeeadd",
+        "paper": "#fff9e9",
+        "ink": "#2b4c43",
+        "accent": "#b66b4a",
+        "muted": "#9b9a7b",
+        "gold": "#c8ad70",
+        "wash": "#d4dfcf",
+        "dark": false,
+        "english": "LETTERS BY THE SHORE"
+      },
+      "unit_ids": [
+        "telok-ayer-01",
+        "telok-ayer-02",
+        "telok-ayer-03",
+        "telok-ayer-04",
+        "telok-ayer-05",
+        "telok-ayer-06",
+        "telok-ayer-07",
+        "telok-ayer-08"
+      ],
+      "focus_stop_id": "telok-ayer-04",
+      "next_stop_id": "telok-ayer-05",
+      "final_stop_id": "telok-ayer-08",
+      "ability": {
+        "id": "telok-ayer-observation",
+        "title": "Observation Card",
+        "symbol": "◎",
+        "effect": "Highlights “voyage” and “Mazu” in the Thian Hock Keng evidence, helping you find the first generation's wish.",
+        "grant_rule": "At Stop 4, fill both shape slots in turn — square for the base, octagon for the upper tier — to claim the Observation Card ×1.",
+        "one_use": true,
+        "quantity": 1,
+        "grant_stop_id": "telok-ayer-04",
+        "use_stop_id": "telok-ayer-05",
+        "grant_puzzle_id": "telok-ayer-representative-puzzle",
+        "grant_event": "representative_puzzle_solved",
+        "use_feedback": "Observation Card used: two keywords light up. It's up to you how they connect to “arrive safely”.",
+        "unchanged_core": "You still choose how the wish matches the history, and read or say one sentence of explanation.",
+        "type": "ability",
+        "label": "Prototype ability card",
+        "is_fiction": true,
+        "source_urls": [],
+        "max_quantity_per_run": 1,
+        "grant_is_idempotent": true,
+        "equal_reward_for_accessibility_mode": true,
+        "use_task_id": "telok-ayer-next-task",
+        "used_effect_persists_on_retry": true
+      },
+      "fiction_note": "The family letters, characters, seals, ledger pages, annotations, time windows, AI judgements and level passwords are all fiction created for this project; we don't claim that real venues hold these objects or ever passed this letter along together. Only each stop's historical_fact and its sources are researched history; no real religious site is cast as a secret society, curse or criminal group."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "story_id": "kampong-gelam-unprinted-edition",
+      "title": "The Last Edition",
+      "palette": {
+        "bg": "#e5e9de",
+        "paper": "#fffbee",
+        "ink": "#2b483f",
+        "accent": "#638b78",
+        "muted": "#8e9b84",
+        "gold": "#c4a162",
+        "wash": "#ccd9cb",
+        "dark": false,
+        "english": "THE NEIGHBOURHOOD EDITION"
+      },
+      "unit_ids": [
+        "kampong-gelam-01",
+        "kampong-gelam-02",
+        "kampong-gelam-03",
+        "kampong-gelam-04",
+        "kampong-gelam-05",
+        "kampong-gelam-06",
+        "kampong-gelam-07"
+      ],
+      "focus_stop_id": "kampong-gelam-04",
+      "next_stop_id": "kampong-gelam-05",
+      "final_stop_id": "kampong-gelam-07",
+      "ability": {
+        "id": "kampong-gelam-proofread",
+        "title": "Proofing Card",
+        "symbol": "✓",
+        "effect": "Strikes one mismatched relationship from the fictional subscription list at the next stop, leaving two links for you to judge.",
+        "grant_rule": "At Stop 4, put the 111, JALAN and SULTAN blocks in the right order, choose the mirrored plate and make a successful test print to claim the Proofing Card ×1.",
+        "one_use": true,
+        "quantity": 1,
+        "grant_stop_id": "kampong-gelam-04",
+        "use_stop_id": "kampong-gelam-05",
+        "grant_puzzle_id": "kampong-gelam-representative-puzzle",
+        "grant_event": "representative_puzzle_solved",
+        "use_feedback": "Proofing Card used: the line that mistook the printing house for the school's founder has been struck out. Keep comparing the remaining two.",
+        "unchanged_core": "You still need to identify the historical fact that charity supported the school, and to sort out the fictional subscription links.",
+        "type": "ability",
+        "label": "Prototype ability card",
+        "is_fiction": true,
+        "source_urls": [],
+        "max_quantity_per_run": 1,
+        "grant_is_idempotent": true,
+        "equal_reward_for_accessibility_mode": true,
+        "use_task_id": "kampong-gelam-next-task",
+        "used_effect_persists_on_retry": true
+      },
+      "fiction_note": "Ah Ming, the time travel, the blank paper, the mission dialogue and the layout codes are all fiction. 1938 is the fictional character’s year of departure, not a claim that every building on the route existed then. Each fact card states its own date; the 3D print room is an artistic reconstruction."
+    },
+    {
+      "route_id": "balestier",
+      "story_id": "balestier-lost-credits",
+      "title": "The Last Screening: The Deleted Credits",
+      "palette": {
+        "bg": "#e8dfd4",
+        "paper": "#fff4e2",
+        "ink": "#493e35",
+        "accent": "#ac684c",
+        "muted": "#a49380",
+        "gold": "#bf9a60",
+        "wash": "#d9c9b6",
+        "dark": false,
+        "english": "THE MISSING CREDITS"
+      },
+      "unit_ids": [
+        "balestier-01",
+        "balestier-02",
+        "balestier-03",
+        "balestier-04",
+        "balestier-05",
+        "balestier-06",
+        "balestier-07"
+      ],
+      "focus_stop_id": "balestier-04",
+      "next_stop_id": "balestier-05",
+      "final_stop_id": "balestier-07",
+      "ability": {
+        "id": "balestier-edit",
+        "title": "Editing Card",
+        "symbol": "✂",
+        "effect": "At the water kiosk, place the “free water” and “passers-by” evidence side by side so you can see one relationship in daily life.",
+        "grant_rule": "At Stop 4, open the 1926 and 1928 records first, then pick the shared developer, Sim Cheng Neo, from the candidate credits to earn Editing Card ×1.",
+        "one_use": true,
+        "quantity": 1,
+        "grant_stop_id": "balestier-04",
+        "use_stop_id": "balestier-05",
+        "grant_puzzle_id": "balestier-representative-puzzle",
+        "grant_event": "representative_puzzle_solved",
+        "use_feedback": "Editing Card used: water and passers-by now share one frame. What the blank bill means is still yours to decide.",
+        "unchanged_core": "You still have to tell gift, sale and loan apart, and must not treat the fictional bill as a real charity record.",
+        "type": "ability",
+        "label": "Prototype ability card",
+        "is_fiction": true,
+        "source_urls": [],
+        "max_quantity_per_run": 1,
+        "grant_is_idempotent": true,
+        "equal_reward_for_accessibility_mode": true,
+        "use_task_id": "balestier-next-task",
+        "used_effect_persists_on_retry": true
+      },
+      "fiction_note": "Mariam, the Time Camera, the plea footage, the missing credits, all character dialogue and all fictional props are invented. There is no evidence that the seven places took part in one event; we do not claim to have found a real lost film, nor attribute any case or crime to real historical figures. Numbers, subtitles and route hints on the game screen are not real inscriptions on site. Public exteriors and historical facts ground the story, but artistic 3D reconstructions are not exact historical restorations."
+    },
+    {
+      "route_id": "civic-f1",
+      "story_id": "civic-f1-lost-zero",
+      "title": "The Missing Years: Recovering the City's 25 Years",
+      "palette": {
+        "bg": "#172f33",
+        "paper": "#e8ecdb",
+        "ink": "#e9efdd",
+        "accent": "#d8a167",
+        "muted": "#88aaa3",
+        "gold": "#d4bd78",
+        "wash": "#25464a",
+        "dark": true,
+        "english": "THE CITY TIMEKEEPER"
+      },
+      "unit_ids": [
+        "civic-f1-01",
+        "civic-f1-02",
+        "civic-f1-03",
+        "civic-f1-04",
+        "civic-f1-05",
+        "civic-f1-06",
+        "civic-f1-07",
+        "civic-f1-08"
+      ],
+      "focus_stop_id": "civic-f1-07",
+      "next_stop_id": "civic-f1-08",
+      "final_stop_id": "civic-f1-08",
+      "ability": {
+        "id": "civic-f1-boost",
+        "title": "Boost Card",
+        "symbol": "⚡",
+        "effect": "At Tan Kim Seng Fountain, sort the three file pages in one go — the donor, the 1857 donation and the 1882 memorial fountain — saving three manual placements.",
+        "grant_rule": "At Stop 7, complete the three driving segments in turn — accelerate, brake, exit the corner — to collect Boost Card ×1. There is no countdown; keyboard and buttons earn the same reward.",
+        "one_use": true,
+        "quantity": 1,
+        "grant_stop_id": "civic-f1-07",
+        "use_stop_id": "civic-f1-08",
+        "grant_puzzle_id": "civic-f1-driving-rhythm",
+        "grant_event": "driving_rhythm_completed",
+        "use_feedback": "Boost Card used: the three file pages slot into place. 1857 and 1882 light up together; the 25 years are still yours to explain.",
+        "unchanged_core": "It will not choose the 25 years for you, nor skip telling the donation apart from the memorial.",
+        "type": "ability",
+        "label": "Prototype ability card",
+        "is_fiction": true,
+        "source_urls": [],
+        "max_quantity_per_run": 1,
+        "grant_is_idempotent": true,
+        "equal_reward_for_accessibility_mode": true,
+        "use_task_id": "civic-f1-next-task",
+        "used_effect_persists_on_retry": true
+      },
+      "fiction_note": "The file restorer, every year turning into 2026, the calibration cards, the three English words in the race and the timer fault are all original fiction. Real people are not given unevidenced private conversations or secret actions. Historical facts follow each stop's source_urls. The existing 3D game has not been consulted or connected, so we do not assume its track year, assets, code, interfaces or completion callbacks are compatible with this plan."
+    }
+  ],
+  "scenes": [
+    {
+      "route_id": "telok-ayer",
+      "step_id": "route",
+      "phase": "Choose a story",
+      "order": 1,
+      "title": "One street, three generations of signatures",
+      "action": "Follow the coastline and the outlines of buildings to choose this family-letter journey.",
+      "feedback": "Eight places become the reading order of a single letter.",
+      "transition": "Open the envelope addressed “Telok Ayer, by the sea”.",
+      "units": [
+        "telok-ayer-01",
+        "telok-ayer-02",
+        "telok-ayer-03",
+        "telok-ayer-04",
+        "telok-ayer-05",
+        "telok-ayer-06",
+        "telok-ayer-07",
+        "telok-ayer-08"
+      ],
+      "current_stop_id": null,
+      "source_card_ids": [],
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/places/historic-sites/fuk-tak-chi",
+        "https://www.roots.gov.sg/places/places-landing/Places/museums/fuk-tak-chi-museum",
+        "https://chinatown.sg/visit/fuk-tak-chi-museum/",
+        "https://www.yingfofuikun.org.sg/about/",
+        "https://www.yingfofuikun.org.sg/contact/",
+        "https://www.roots.gov.sg/MUSE/articles/Former-Nagore-Dargah",
+        "https://ndimhc.mimbar.sg/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+        "https://thianhockkeng.com.sg/site/contactus2/",
+        "https://chinatown.sg/visit/thian-hock-keng-temple/",
+        "https://www.shhk.com.sg/newsroom/shhk-family-day-2021/",
+        "https://moehc.moe.edu.sg/explore/beginnings-of-education-1819-to-1958/learning-in-the-19th-and-early-20th-century/",
+        "https://culturepaedia.singaporeccc.org.sg/communities/contributions-to-education-by-hokkien-community-in-singapore/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/al-abrar-mosque",
+        "https://www.muis.gov.sg/community/mosque/mosque-directory/al-abrar/",
+        "https://www.tacmc.org.sg/our-heritage/history/",
+        "https://www.cac-singapore.org.sg/church/telok-ayer-chinese-methodist-church/",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-14-issue-1-apr-jun-2018-chinese-renaissance-architecture/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Founded in 1824 as a small shrine by Hakka and Cantonese migrants, it also served as a centre of community mutual aid; it became a museum in 1998. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "telok-ayer",
+      "step_id": "intro",
+      "phase": "Opening",
+      "order": 2,
+      "title": "A letter that never reached the sea",
+      "action": "Open the envelope and look at the addresses left in three different hands.",
+      "feedback": "The pages unfold from the envelope, and a fictional family letter meets a historical street.",
+      "transition": "Carry the thirty-six signatures to the former Keng Teck Whay.",
+      "units": [
+        "telok-ayer-01",
+        "telok-ayer-04"
+      ],
+      "current_stop_id": null,
+      "source_card_ids": [],
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/places/historic-sites/fuk-tak-chi",
+        "https://www.roots.gov.sg/places/places-landing/Places/museums/fuk-tak-chi-museum",
+        "https://chinatown.sg/visit/fuk-tak-chi-museum/",
+        "https://www.yingfofuikun.org.sg/about/",
+        "https://www.yingfofuikun.org.sg/contact/",
+        "https://www.roots.gov.sg/MUSE/articles/Former-Nagore-Dargah",
+        "https://ndimhc.mimbar.sg/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+        "https://thianhockkeng.com.sg/site/contactus2/",
+        "https://chinatown.sg/visit/thian-hock-keng-temple/",
+        "https://www.shhk.com.sg/newsroom/shhk-family-day-2021/",
+        "https://moehc.moe.edu.sg/explore/beginnings-of-education-1819-to-1958/learning-in-the-19th-and-early-20th-century/",
+        "https://culturepaedia.singaporeccc.org.sg/communities/contributions-to-education-by-hokkien-community-in-singapore/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/al-abrar-mosque",
+        "https://www.muis.gov.sg/community/mosque/mosque-directory/al-abrar/",
+        "https://www.tacmc.org.sg/our-heritage/history/",
+        "https://www.cac-singapore.org.sg/church/telok-ayer-chinese-methodist-church/",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-14-issue-1-apr-jun-2018-chinese-renaissance-architecture/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Founded in 1824 as a small shrine by Hakka and Cantonese migrants, it also served as a centre of community mutual aid; it became a museum in 1998. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "telok-ayer",
+      "step_id": "arrival",
+      "phase": "Arrival",
+      "order": 3,
+      "title": "An old identity, a new name over the door",
+      "action": "Find the square lower storey and the octagonal upper tier, then open the place file.",
+      "feedback": "The place marker lands beside a concept outline of the former Keng Teck Whay; this is an arrival preview only.",
+      "transition": "Read the society's founding record and the building's outline separately.",
+      "units": [
+        "telok-ayer-04"
+      ],
+      "current_stop_id": "telok-ayer-04",
+      "source_card_ids": [],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The Keng Teck Whay was founded in 1831 by 36 Peranakan Chinese merchants as a private mutual-aid society; its old building later became Singapore Yu Huang Gong. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "telok-ayer",
+      "step_id": "evidence",
+      "phase": "Read the evidence",
+      "order": 4,
+      "title": "Read the year and the outline apart",
+      "action": "Compare the 1831 society record with the evidence of the square-and-octagon form.",
+      "feedback": "The two pieces of evidence sit side by side, so the society's founding year is never mistaken for the building's completion.",
+      "transition": "Choose the shapes for the lower storey and the upper tier, in that order.",
+      "units": [
+        "telok-ayer-04"
+      ],
+      "current_stop_id": "telok-ayer-04",
+      "source_card_ids": [
+        "telok-ayer-04-fact",
+        "telok-ayer-preview-detail"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The Keng Teck Whay was founded in 1831 by 36 Peranakan Chinese merchants as a private mutual-aid society; its old building later became Singapore Yu Huang Gong. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "telok-ayer",
+      "step_id": "puzzle",
+      "phase": "Solve",
+      "order": 5,
+      "title": "Piece the two tiers back together",
+      "action": "Tap the lower slot, then the upper slot, and choose square and octagon.",
+      "feedback": "The two tiers draw together in the sketch; the real answer is confirmed in the puzzle below.",
+      "transition": "Get it right and collect the Observation Card.",
+      "units": [
+        "telok-ayer-04"
+      ],
+      "current_stop_id": "telok-ayer-04",
+      "source_card_ids": [
+        "telok-ayer-04-fact",
+        "telok-ayer-preview-detail"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The Keng Teck Whay was founded in 1831 by 36 Peranakan Chinese merchants as a private mutual-aid society; its old building later became Singapore Yu Huang Gong. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "Tap the “Base” shape slot and choose the square, then tap the “Upper tier” slot and choose the octagon, and confirm the two-tier combination."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "telok-ayer",
+      "step_id": "reward",
+      "phase": "Collect the card",
+      "order": 6,
+      "title": "The Observation Card joins the family letter",
+      "action": "See what the Observation Card does, then carry it on to Thian Hock Keng Temple.",
+      "feedback": "The card rises from the letter; when used, it highlights the words voyage and Mazu.",
+      "transition": "Follow the wish for a safe landing to Thian Hock Keng Temple.",
+      "units": [
+        "telok-ayer-04",
+        "telok-ayer-05"
+      ],
+      "current_stop_id": "telok-ayer-04",
+      "source_card_ids": [
+        "telok-ayer-preview-reward",
+        "telok-ayer-preview-next-clue"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+        "https://thianhockkeng.com.sg/site/contactus2/",
+        "https://chinatown.sg/visit/thian-hock-keng-temple/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The Keng Teck Whay was founded in 1831 by 36 Peranakan Chinese merchants as a private mutual-aid society; its old building later became Singapore Yu Huang Gong. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "Highlights “voyage” and “Mazu” in the Thian Hock Keng evidence, helping you find the first generation's wish."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "telok-ayer",
+      "step_id": "next",
+      "phase": "On to the next stop",
+      "order": 7,
+      "title": "Next page: a safe arrival",
+      "action": "Compare the two places and follow the walking-order sketch to Thian Hock Keng Temple.",
+      "feedback": "A dotted trail links the former Keng Teck Whay and Thian Hock Keng Temple; it is not measured navigation.",
+      "transition": "Use the evidence at Thian Hock Keng Temple to explain the first generation's wish.",
+      "units": [
+        "telok-ayer-04",
+        "telok-ayer-05"
+      ],
+      "current_stop_id": "telok-ayer-05",
+      "source_card_ids": [
+        "telok-ayer-preview-next-clue"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+        "https://thianhockkeng.com.sg/site/contactus2/",
+        "https://chinatown.sg/visit/thian-hock-keng-temple/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Where Hokkien migrants prayed to Mazu for safe voyages; the present large temple was built in 1839–1842 and also hosted clan-association and educational activities. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "Highlights “voyage” and “Mazu” in the Thian Hock Keng evidence, helping you find the first generation's wish."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "telok-ayer",
+      "step_id": "ending",
+      "phase": "Collected ending",
+      "order": 8,
+      "title": "Hand the family letter to the future",
+      "action": "Gather the chapters of arrival, letter-writing and shelter into your family-letter collection.",
+      "feedback": "Each generation's story finds its place, and the line between fact cards and fictional letters stays clear.",
+      "transition": "Collect the ending preview, or choose another route.",
+      "units": [
+        "telok-ayer-01",
+        "telok-ayer-02",
+        "telok-ayer-03",
+        "telok-ayer-04",
+        "telok-ayer-05",
+        "telok-ayer-06",
+        "telok-ayer-07",
+        "telok-ayer-08"
+      ],
+      "current_stop_id": "telok-ayer-08",
+      "source_card_ids": [
+        "telok-ayer-ending-collection",
+        "telok-ayer-01-fact",
+        "telok-ayer-02-fact",
+        "telok-ayer-03-fact",
+        "telok-ayer-04-fact",
+        "telok-ayer-05-fact",
+        "telok-ayer-06-fact",
+        "telok-ayer-07-fact",
+        "telok-ayer-08-fact"
+      ],
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/places/historic-sites/fuk-tak-chi",
+        "https://www.roots.gov.sg/places/places-landing/Places/museums/fuk-tak-chi-museum",
+        "https://chinatown.sg/visit/fuk-tak-chi-museum/",
+        "https://www.yingfofuikun.org.sg/about/",
+        "https://www.yingfofuikun.org.sg/contact/",
+        "https://www.roots.gov.sg/MUSE/articles/Former-Nagore-Dargah",
+        "https://ndimhc.mimbar.sg/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+        "https://thianhockkeng.com.sg/site/contactus2/",
+        "https://chinatown.sg/visit/thian-hock-keng-temple/",
+        "https://www.shhk.com.sg/newsroom/shhk-family-day-2021/",
+        "https://moehc.moe.edu.sg/explore/beginnings-of-education-1819-to-1958/learning-in-the-19th-and-early-20th-century/",
+        "https://culturepaedia.singaporeccc.org.sg/communities/contributions-to-education-by-hokkien-community-in-singapore/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/al-abrar-mosque",
+        "https://www.muis.gov.sg/community/mosque/mosque-directory/al-abrar/",
+        "https://www.tacmc.org.sg/our-heritage/history/",
+        "https://www.cac-singapore.org.sg/church/telok-ayer-chinese-methodist-church/",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-14-issue-1-apr-jun-2018-chinese-renaissance-architecture/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The congregation began in 1889 and the present building was completed in 1925, a Chinese pavilion set atop a Western-style hall; during the Second World War it sheltered about 300 people. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "step_id": "route",
+      "phase": "Choose a story",
+      "order": 1,
+      "title": "Seven pages, one street",
+      "action": "Follow the buildings and the clues in the type to pick up a neighbourhood paper.",
+      "feedback": "Seven places become seven traceable pages of reporting.",
+      "transition": "Open the blank news-sheet Ah Ming brought.",
+      "units": [
+        "kampong-gelam-01",
+        "kampong-gelam-02",
+        "kampong-gelam-03",
+        "kampong-gelam-04",
+        "kampong-gelam-05",
+        "kampong-gelam-06",
+        "kampong-gelam-07"
+      ],
+      "current_stop_id": null,
+      "source_card_ids": [],
+      "source_urls": [
+        "https://artsandculture.google.com/asset/bussorah-street-former-kampong-kaji/sgFPVzW1m5FRaA?hl=en",
+        "https://artsandculture.google.com/asset/gedung-kuning/RQF-rhKfBmntEg?hl=en",
+        "https://www.gedungkuning.sg/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00085/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf?la=en",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00665/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/070-iskg/",
+        "https://www.pmo.gov.sg/newsroom/pm-lawrence-wong-at-the-malay-heritage-centres-reopening-festival-apr-2026/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The stretch near Sultan Mosque was once called Kampong Kaji, where pilgrims from the region waited for ships, lodged and prepared for the journey. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "step_id": "intro",
+      "phase": "Opening",
+      "order": 2,
+      "title": "The edition that was never finished",
+      "action": "Unfold the blank newspaper and read a fictional request from 1938.",
+      "feedback": "The type area and empty columns appear; the paper is still waiting for news from different decades.",
+      "transition": "Go to 101 Jalan Sultan to find out who the old press was.",
+      "units": [
+        "kampong-gelam-01",
+        "kampong-gelam-04"
+      ],
+      "current_stop_id": null,
+      "source_card_ids": [],
+      "source_urls": [
+        "https://artsandculture.google.com/asset/bussorah-street-former-kampong-kaji/sgFPVzW1m5FRaA?hl=en",
+        "https://artsandculture.google.com/asset/gedung-kuning/RQF-rhKfBmntEg?hl=en",
+        "https://www.gedungkuning.sg/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00085/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf?la=en",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00665/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/070-iskg/",
+        "https://www.pmo.gov.sg/newsroom/pm-lawrence-wong-at-the-malay-heritage-centres-reopening-festival-apr-2026/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The stretch near Sultan Mosque was once called Kampong Kaji, where pilgrims from the region waited for ships, lodged and prepared for the journey. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "step_id": "arrival",
+      "phase": "Arrival",
+      "order": 3,
+      "title": "What did the address leave behind?",
+      "action": "Compare the records of the old press with the building's identity today as The Sultan.",
+      "feedback": "The place marker appears, with the old use and the current use shown apart.",
+      "transition": "Check the building's uses in the archive, then get ready to set the type.",
+      "units": [
+        "kampong-gelam-04"
+      ],
+      "current_stop_id": "kampong-gelam-04",
+      "source_card_ids": [],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "No. 101 was once the Al-Ahmadiah and HARMY presses and is now The Sultan hotel; the old building is a survivor of Kampong Gelam's publishing network. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "step_id": "evidence",
+      "phase": "Read the evidence",
+      "order": 4,
+      "title": "One building, two lives",
+      "action": "Read the evidence for both identities: the press and today's hotel.",
+      "feedback": "The two files sit side by side; the fictional subscription slip stays in its own props tray.",
+      "transition": "Set the three blocks of type: 111, JALAN, SULTAN.",
+      "units": [
+        "kampong-gelam-04"
+      ],
+      "current_stop_id": "kampong-gelam-04",
+      "source_card_ids": [
+        "kampong-gelam-04-fact",
+        "kampong-gelam-preview-detail"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "No. 101 was once the Al-Ahmadiah and HARMY presses and is now The Sultan hotel; the old building is a survivor of Kampong Gelam's publishing network. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "step_id": "puzzle",
+      "phase": "Solve",
+      "order": 5,
+      "title": "Make the page read the right way round",
+      "action": "Order the three address blocks, choose the mirrored plate, then tap Test print.",
+      "feedback": "A sheet rolls out from under the cylinder, showing the page the right way round.",
+      "transition": "Pass the test print to collect the Proofing Card.",
+      "units": [
+        "kampong-gelam-04"
+      ],
+      "current_stop_id": "kampong-gelam-04",
+      "source_card_ids": [
+        "kampong-gelam-04-fact",
+        "kampong-gelam-preview-detail"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "No. 101 was once the Al-Ahmadiah and HARMY presses and is now The Sultan hotel; the old building is a survivor of Kampong Gelam's publishing network. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "Arrange the 111, JALAN and SULTAN blocks in address order, choose the mirrored plate, then tap Test print and check that the paper reads 111 JALAN SULTAN the right way round."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "step_id": "reward",
+      "phase": "Collect the card",
+      "order": 6,
+      "title": "Carry the proofs to the next page",
+      "action": "See which mismatched relationship the Proofing Card can strike out.",
+      "feedback": "The Proofing Card and the subscription slip unfold; it strikes out only one line and never decides the history for you.",
+      "transition": "Head to Madrasah Alsagoff to read the school's records.",
+      "units": [
+        "kampong-gelam-04",
+        "kampong-gelam-05"
+      ],
+      "current_stop_id": "kampong-gelam-04",
+      "source_card_ids": [
+        "kampong-gelam-preview-reward",
+        "kampong-gelam-preview-next-clue"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "No. 101 was once the Al-Ahmadiah and HARMY presses and is now The Sultan hotel; the old building is a survivor of Kampong Gelam's publishing network. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "Strikes one mismatched relationship from the fictional subscription list at the next stop, leaving two links for you to judge."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "step_id": "next",
+      "phase": "On to the next stop",
+      "order": 7,
+      "title": "The next reader is at No. 111",
+      "action": "Follow the route-order sketch from the press chapter to the school chapter.",
+      "feedback": "Footsteps join the address labels; the subscription link is still marked as fiction.",
+      "transition": "Work out how the school and its charitable support are connected.",
+      "units": [
+        "kampong-gelam-04",
+        "kampong-gelam-05"
+      ],
+      "current_stop_id": "kampong-gelam-05",
+      "source_card_ids": [
+        "kampong-gelam-preview-next-clue"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The school was founded in 1912 and is linked to the Alsagoff family from Hadhramaut in Yemen and their charitable support. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "Strikes one mismatched relationship from the fictional subscription list at the next stop, leaving two links for you to judge."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "kampong-gelam",
+      "step_id": "ending",
+      "phase": "Collected ending",
+      "order": 8,
+      "title": "The last edition: yours to put to bed",
+      "action": "Place the facts and the personal feelings from seven reports onto the page, each in its own column.",
+      "feedback": "The neighbourhood paper folds into a keepsake, and each piece of history keeps its own year.",
+      "transition": "Collect this edition, or revisit another story.",
+      "units": [
+        "kampong-gelam-01",
+        "kampong-gelam-02",
+        "kampong-gelam-03",
+        "kampong-gelam-04",
+        "kampong-gelam-05",
+        "kampong-gelam-06",
+        "kampong-gelam-07"
+      ],
+      "current_stop_id": "kampong-gelam-07",
+      "source_card_ids": [
+        "kampong-gelam-ending-collection",
+        "kampong-gelam-01-fact",
+        "kampong-gelam-02-fact",
+        "kampong-gelam-03-fact",
+        "kampong-gelam-04-fact",
+        "kampong-gelam-05-fact",
+        "kampong-gelam-06-fact",
+        "kampong-gelam-07-fact"
+      ],
+      "source_urls": [
+        "https://artsandculture.google.com/asset/bussorah-street-former-kampong-kaji/sgFPVzW1m5FRaA?hl=en",
+        "https://artsandculture.google.com/asset/gedung-kuning/RQF-rhKfBmntEg?hl=en",
+        "https://www.gedungkuning.sg/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00085/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf?la=en",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00665/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/070-iskg/",
+        "https://www.pmo.gov.sg/newsroom/pm-lawrence-wong-at-the-malay-heritage-centres-reopening-festival-apr-2026/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The former palace is now the Malay Heritage Centre, which reopened on 25 April 2026. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "balestier",
+      "step_id": "route",
+      "phase": "Choose a story",
+      "order": 1,
+      "title": "Seven frames to recover the credits",
+      "action": "Follow street scenes and everyday objects to choose this unfinished screening.",
+      "feedback": "Seven places become linked shots of the street.",
+      "transition": "Open the damaged film Mariam left behind.",
+      "units": [
+        "balestier-01",
+        "balestier-02",
+        "balestier-03",
+        "balestier-04",
+        "balestier-05",
+        "balestier-06",
+        "balestier-07"
+      ],
+      "current_stop_id": null,
+      "source_card_ids": [],
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Goh-Chor-Tua-Pek-Kong-Temple",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00163/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+        "https://www.roots.gov.sg/stories-landing/stories/street-corner-heritage-galleries-balestier",
+        "https://www.roots.gov.sg/places/places-landing/trails/balestier-food-trail",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+        "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Maha-Sasanaramsi-Burmese-Buddhist-Temple",
+        "https://www.bbt.org.sg/contact/",
+        "https://www.nlb.gov.sg/main/article-detail?cmsuuid=5fbdda52-038b-447c-b383-1ec74609166e",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-11-issue-1-apr-jun-2015-golden-age-of-malay-cinema/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Former-Malay-Film-Productions-Studio",
+        "https://www.nhb.gov.sg/-/media/nhb/images/nhb2017/what-we-do/grants/0-minor-and-major-project-grant/heritage-trails---a-practical-guide-to-action.pdf"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Founded in 1847 by Hokkien labourers from the sugar-cane plantations; the permanent stage beside it was built by Tan Boo Liat in 1906. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "balestier",
+      "step_id": "intro",
+      "phase": "Opening",
+      "order": 2,
+      "title": "The end credits were cut",
+      "action": "Thread the film into the projector beam and find where the credits are missing.",
+      "feedback": "Sprocket holes and blank captions appear; the Time Camera is clearly part of the fiction.",
+      "transition": "At Stop 4, check the builder against two rows of shophouses.",
+      "units": [
+        "balestier-01",
+        "balestier-04"
+      ],
+      "current_stop_id": null,
+      "source_card_ids": [],
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Goh-Chor-Tua-Pek-Kong-Temple",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00163/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+        "https://www.roots.gov.sg/stories-landing/stories/street-corner-heritage-galleries-balestier",
+        "https://www.roots.gov.sg/places/places-landing/trails/balestier-food-trail",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+        "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Maha-Sasanaramsi-Burmese-Buddhist-Temple",
+        "https://www.bbt.org.sg/contact/",
+        "https://www.nlb.gov.sg/main/article-detail?cmsuuid=5fbdda52-038b-447c-b383-1ec74609166e",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-11-issue-1-apr-jun-2015-golden-age-of-malay-cinema/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Former-Malay-Film-Productions-Studio",
+        "https://www.nhb.gov.sg/-/media/nhb/images/nhb2017/what-we-do/grants/0-minor-and-major-project-grant/heritage-trails---a-practical-guide-to-action.pdf"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Founded in 1847 by Hokkien labourers from the sugar-cane plantations; the permanent stage beside it was built by Tan Boo Liat in 1906. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "balestier",
+      "step_id": "arrival",
+      "phase": "Arrival",
+      "order": 3,
+      "title": "A familiar name appears again",
+      "action": "Open the 1928 shophouse records and bring along the old 1926 file.",
+      "feedback": "The viewfinder settles on another row of shophouses; the place art shows only a concept elevation.",
+      "transition": "Open both fact files and tell apart the roles each name played.",
+      "units": [
+        "balestier-04"
+      ],
+      "current_stop_id": "balestier-04",
+      "source_card_ids": [],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Developed in 1928 by Sim Cheng Neo and designed by Kwan Yow Luen; this row of shophouses once appeared in P. Ramlee's films. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "balestier",
+      "step_id": "evidence",
+      "phase": "Read the evidence",
+      "order": 4,
+      "title": "Two rows of shophouses, one builder",
+      "action": "Read the developer entries in the 1926 and 1928 files side by side.",
+      "feedback": "The two façades sit side by side with their own years; building name, architect and developer are never mixed up.",
+      "transition": "Open both files first, then choose the shared developer.",
+      "units": [
+        "balestier-02",
+        "balestier-04"
+      ],
+      "current_stop_id": "balestier-04",
+      "source_card_ids": [
+        "balestier-02-fact",
+        "balestier-04-fact"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Developed in 1928 by Sim Cheng Neo and designed by Kwan Yow Luen; this row of shophouses once appeared in P. Ramlee's films. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "balestier",
+      "step_id": "puzzle",
+      "phase": "Solve",
+      "order": 5,
+      "title": "Whose credit is this?",
+      "action": "Open both files, then put the shared developer back into the credits.",
+      "feedback": "The open files connect to the blank credit frame; the visual demo does not replace submitting the puzzle.",
+      "transition": "Answer correctly to collect the Editing Card.",
+      "units": [
+        "balestier-02",
+        "balestier-04"
+      ],
+      "current_stop_id": "balestier-04",
+      "source_card_ids": [
+        "balestier-02-fact",
+        "balestier-04-fact"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Developed in 1928 by Sim Cheng Neo and designed by Kwan Yow Luen; this row of shophouses once appeared in P. Ramlee's films. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "Tap to open the 1926 and 1928 records, read the building name, developer and designer, then choose the developer both rows share."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "balestier",
+      "step_id": "reward",
+      "phase": "Collect the card",
+      "order": 6,
+      "title": "Take an Editing Card with you",
+      "action": "See how the Editing Card puts two pieces of evidence on screen at once.",
+      "feedback": "The ability card floats out of the film; the next prop is a bill with the amount left blank.",
+      "transition": "Go to the water kiosk to understand a transaction where no one was paid.",
+      "units": [
+        "balestier-04",
+        "balestier-05"
+      ],
+      "current_stop_id": "balestier-04",
+      "source_card_ids": [
+        "balestier-preview-reward",
+        "balestier-preview-next-clue"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+        "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Developed in 1928 by Sim Cheng Neo and designed by Kwan Yow Luen; this row of shophouses once appeared in P. Ramlee's films. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "At the water kiosk, place the “free water” and “passers-by” evidence side by side so you can see one relationship in daily life."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "balestier",
+      "step_id": "next",
+      "phase": "On to the next stop",
+      "order": 7,
+      "title": "A blank amount, but not a blank relationship",
+      "action": "Follow the credits' clue from the shophouses to the Boon Teck Road Water Kiosk.",
+      "feedback": "A trail appears between the two places; the blank bill is always marked as a fictional prop.",
+      "transition": "Set the free water beside the evidence of passers-by, and work out the relationship of giving.",
+      "units": [
+        "balestier-04",
+        "balestier-05"
+      ],
+      "current_stop_id": "balestier-05",
+      "source_card_ids": [
+        "balestier-preview-next-clue"
+      ],
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+        "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The charitable halls behind it merged in 1950 and for decades gave free water and tea to passers-by; NHB records that the water kiosk was preserved at this junction. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "At the water kiosk, place the “free water” and “passers-by” evidence side by side so you can see one relationship in daily life."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "balestier",
+      "step_id": "ending",
+      "phase": "Collected ending",
+      "order": 8,
+      "title": "Give the street its full credits",
+      "action": "Arrange the seven credits by real chronology or by how lives connected.",
+      "feedback": "The credits roll out in full; the Time Camera's fictional leaps never rewrite the factual years.",
+      "transition": "Collect your street's end credits, or watch the clips again.",
+      "units": [
+        "balestier-01",
+        "balestier-02",
+        "balestier-03",
+        "balestier-04",
+        "balestier-05",
+        "balestier-06",
+        "balestier-07"
+      ],
+      "current_stop_id": "balestier-07",
+      "source_card_ids": [
+        "balestier-ending-collection",
+        "balestier-01-fact",
+        "balestier-02-fact",
+        "balestier-03-fact",
+        "balestier-04-fact",
+        "balestier-05-fact",
+        "balestier-06-fact",
+        "balestier-07-fact"
+      ],
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Goh-Chor-Tua-Pek-Kong-Temple",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00163/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+        "https://www.roots.gov.sg/stories-landing/stories/street-corner-heritage-galleries-balestier",
+        "https://www.roots.gov.sg/places/places-landing/trails/balestier-food-trail",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+        "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Maha-Sasanaramsi-Burmese-Buddhist-Temple",
+        "https://www.bbt.org.sg/contact/",
+        "https://www.nlb.gov.sg/main/article-detail?cmsuuid=5fbdda52-038b-447c-b383-1ec74609166e",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-11-issue-1-apr-jun-2015-golden-age-of-malay-cinema/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Former-Malay-Film-Productions-Studio",
+        "https://www.nhb.gov.sg/-/media/nhb/images/nhb2017/what-we-do/grants/0-minor-and-major-project-grant/heritage-trails---a-practical-guide-to-action.pdf"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "Production at the Jalan Ampas studio resumed in 1947, bringing together Chinese producers, Indian directors and Malay actors; it closed in 1967. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "civic-f1",
+      "step_id": "route",
+      "phase": "Choose a story",
+      "order": 1,
+      "title": "The city's clock has lost a stretch of time",
+      "action": "Follow clues of gates, gifts, surveying and the waterfront to choose the timekeeping mission.",
+      "feedback": "Eight memories of public life join into one route; the racing happens only on screen.",
+      "transition": "Open the fictional timer with a glitch in its dates.",
+      "units": [
+        "civic-f1-01",
+        "civic-f1-02",
+        "civic-f1-03",
+        "civic-f1-04",
+        "civic-f1-05",
+        "civic-f1-06",
+        "civic-f1-07",
+        "civic-f1-08"
+      ],
+      "current_stop_id": null,
+      "source_card_ids": [],
+      "source_urls": [
+        "https://chijmes.com.sg/heritage/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/former-convent-of-the-holy-infant-jesus-chapel-and-caldwell-house-now-chijmes",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Hill-Street-Police-Station",
+        "https://www.roots.gov.sg/Collection-Landing/listing/1071116?taigerlist=collections",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Parliament-House",
+        "https://www.singaporeartmuseum.sg/-/media/SAM/Files/Exhibitions/The-Gift/The-Gift-of-Entanglement_-June-Yap.pdf",
+        "https://www.roots.gov.sg/stories-landing/stories/all-around-us/Story",
+        "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+        "https://www.nparks.gov.sg/docs/default-source/parks-docs/shared/monument-trail.pdf?sfvrsn=e0a5424e_1",
+        "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.sg101.gov.sg/resources/archives/heritage-victoria-theatre-and-victoria-concert-hall/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/Civic-District-Heritage-Trail/Civic-District-Trail_Booklet.pdf",
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "From 1854 the convent cared for abandoned baby girls; this gate was named the Gate of Hope in 1996. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "civic-f1",
+      "step_id": "intro",
+      "phase": "Opening",
+      "order": 2,
+      "title": "Who changed the year to 2026?",
+      "action": "Open the timekeeping file and look at the 25-year gap no one has explained.",
+      "feedback": "The clock and the file pages unfold; the glitch is part of the story, not a real event in the city.",
+      "transition": "Bring the character card and the calibration fragments to the waterfront chapter.",
+      "units": [
+        "civic-f1-01",
+        "civic-f1-07"
+      ],
+      "current_stop_id": null,
+      "source_card_ids": [],
+      "source_urls": [
+        "https://chijmes.com.sg/heritage/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/former-convent-of-the-holy-infant-jesus-chapel-and-caldwell-house-now-chijmes",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Hill-Street-Police-Station",
+        "https://www.roots.gov.sg/Collection-Landing/listing/1071116?taigerlist=collections",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Parliament-House",
+        "https://www.singaporeartmuseum.sg/-/media/SAM/Files/Exhibitions/The-Gift/The-Gift-of-Entanglement_-June-Yap.pdf",
+        "https://www.roots.gov.sg/stories-landing/stories/all-around-us/Story",
+        "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+        "https://www.nparks.gov.sg/docs/default-source/parks-docs/shared/monument-trail.pdf?sfvrsn=e0a5424e_1",
+        "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.sg101.gov.sg/resources/archives/heritage-victoria-theatre-and-victoria-concert-hall/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/Civic-District-Heritage-Trail/Civic-District-Trail_Booklet.pdf",
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "From 1854 the convent cared for abandoned baby girls; this gate was named the Gate of Hope in 1996. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "civic-f1",
+      "step_id": "arrival",
+      "phase": "Arrival",
+      "order": 3,
+      "title": "Stop on the promenade and open the screen",
+      "action": "Confirm this chapter is in a public walking area, then look at the virtual driving view.",
+      "feedback": "The location marker and the on-screen car sit on separate layers, so the real promenade and the game track never mix.",
+      "transition": "Read the Tan Kim Seng character card first, then collect the three clues.",
+      "units": [
+        "civic-f1-07"
+      ],
+      "current_stop_id": "civic-f1-07",
+      "source_card_ids": [],
+      "source_urls": [
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The 2026 Singapore Grand Prix runs from 9 to 11 October; official Connaught Grandstand information links Esplanade Bridge with Turn 14. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "civic-f1",
+      "step_id": "evidence",
+      "phase": "Read the evidence",
+      "order": 4,
+      "title": "Water, a donor and a fountain",
+      "action": "Compare the character file with three race-segment captions clearly marked as fiction.",
+      "feedback": "The character card and clues are shown side by side, with the historical figure and the game captions each labelled.",
+      "transition": "Complete the three step-by-step driving segments with buttons or the keyboard.",
+      "units": [
+        "civic-f1-07"
+      ],
+      "current_stop_id": "civic-f1-07",
+      "source_card_ids": [
+        "civic-f1-05-fact",
+        "civic-f1-preview-detail"
+      ],
+      "source_urls": [
+        "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+        "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge",
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The 2026 Singapore Grand Prix runs from 9 to 11 October; official Connaught Grandstand information links Esplanade Bridge with Turn 14. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "civic-f1",
+      "step_id": "puzzle",
+      "phase": "Solve",
+      "order": 5,
+      "title": "Three rhythms, one Boost Card",
+      "action": "Confirm the three virtual speed ranges in turn: 60–90, 30–50, 70–100.",
+      "feedback": "The car and target bar sketch accelerate, brake, speed up again — not guidance for real driving.",
+      "transition": "Finish all three segments to collect the card, then use the clues to choose the fountain.",
+      "units": [
+        "civic-f1-07"
+      ],
+      "current_stop_id": "civic-f1-07",
+      "source_card_ids": [
+        "civic-f1-05-fact",
+        "civic-f1-preview-detail"
+      ],
+      "source_urls": [
+        "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+        "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge",
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The 2026 Singapore Grand Prix runs from 9 to 11 October; official Connaught Grandstand information links Esplanade Bridge with Turn 14. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "Control the virtual speed with the on-screen Accelerate, Brake and Confirm buttons; confirm each segment once you reach its target range."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "civic-f1",
+      "step_id": "reward",
+      "phase": "Collect the card",
+      "order": 6,
+      "title": "Save the boost for sorting the files",
+      "action": "See exactly what the Boost Card does in the fountain task.",
+      "feedback": "The card lights up three file icons; once used it places the three pages for you, leaving the history question to you.",
+      "transition": "Walk the open promenade to Tan Kim Seng Fountain.",
+      "units": [
+        "civic-f1-07",
+        "civic-f1-08"
+      ],
+      "current_stop_id": "civic-f1-07",
+      "source_card_ids": [
+        "civic-f1-preview-reward",
+        "civic-f1-preview-next-clue",
+        "civic-f1-preview-water",
+        "civic-f1-preview-donor",
+        "civic-f1-preview-fountain"
+      ],
+      "source_urls": [
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "The 2026 Singapore Grand Prix runs from 9 to 11 October; official Connaught Grandstand information links Esplanade Bridge with Turn 14. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "At Tan Kim Seng Fountain, sort the three file pages in one go — the donor, the 1857 donation and the 1882 memorial fountain — saving three manual placements."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "civic-f1",
+      "step_id": "next",
+      "phase": "On to the next stop",
+      "order": 7,
+      "title": "Put the three file pages back in place",
+      "action": "Move from the waterfront chapter to the fountain, then sort the files by hand or use the Boost Card.",
+      "feedback": "A trail links the chapters, and the file pages show two different events: 1857 and 1882.",
+      "transition": "Work out for yourself how the gap relates to the donation and the memorial.",
+      "units": [
+        "civic-f1-07",
+        "civic-f1-08"
+      ],
+      "current_stop_id": "civic-f1-08",
+      "source_card_ids": [
+        "civic-f1-preview-next-clue"
+      ],
+      "source_urls": [
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "In 1857 Tan Kim Seng donated $13,000 to improve the public water supply; the fountain in his memory was erected in 1882. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "At Tan Kim Seng Fountain, sort the three file pages in one go — the donor, the 1857 donation and the 1882 memorial fountain — saving three manual placements."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    },
+    {
+      "route_id": "civic-f1",
+      "step_id": "ending",
+      "phase": "Collected ending",
+      "order": 8,
+      "title": "The 25 years, recovered",
+      "action": "Put the 1857 donation and the 1882 memorial back in their own years.",
+      "feedback": "The 25 years return to the timer; the ending keeps both events apart and invents no construction time.",
+      "transition": "Collect the City Timekeeper ending preview.",
+      "units": [
+        "civic-f1-01",
+        "civic-f1-02",
+        "civic-f1-03",
+        "civic-f1-04",
+        "civic-f1-05",
+        "civic-f1-06",
+        "civic-f1-07",
+        "civic-f1-08"
+      ],
+      "current_stop_id": "civic-f1-08",
+      "source_card_ids": [
+        "civic-f1-ending-collection",
+        "civic-f1-01-fact",
+        "civic-f1-02-fact",
+        "civic-f1-03-fact",
+        "civic-f1-04-fact",
+        "civic-f1-05-fact",
+        "civic-f1-06-fact",
+        "civic-f1-07-fact",
+        "civic-f1-08-fact"
+      ],
+      "source_urls": [
+        "https://chijmes.com.sg/heritage/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/former-convent-of-the-holy-infant-jesus-chapel-and-caldwell-house-now-chijmes",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Hill-Street-Police-Station",
+        "https://www.roots.gov.sg/Collection-Landing/listing/1071116?taigerlist=collections",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Parliament-House",
+        "https://www.singaporeartmuseum.sg/-/media/SAM/Files/Exhibitions/The-Gift/The-Gift-of-Entanglement_-June-Yap.pdf",
+        "https://www.roots.gov.sg/stories-landing/stories/all-around-us/Story",
+        "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+        "https://www.nparks.gov.sg/docs/default-source/parks-docs/shared/monument-trail.pdf?sfvrsn=e0a5424e_1",
+        "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.sg101.gov.sg/resources/archives/heritage-victoria-theatre-and-victoria-concert-hall/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/Civic-District-Heritage-Trail/Civic-District-Trail_Booklet.pdf",
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge"
+      ],
+      "hotspots": [
+        {
+          "id": "history",
+          "label": "Read the history clue",
+          "detail": "In 1857 Tan Kim Seng donated $13,000 to improve the public water supply; the fountain in his memory was erected in 1882. The building is drawn as a concept vector, not an exact reconstruction."
+        },
+        {
+          "id": "story",
+          "label": "See the story action",
+          "detail": "The letters, dialogue, captions and puzzle mechanics here are story creations; historical facts keep the sources on their original cards."
+        }
+      ],
+      "concept_only": true,
+      "records_real_visit": false,
+      "preview_note": "Scene animations only demonstrate the action; they do not submit answers or award real level rewards."
+    }
+  ],
+  "units": [
+    {
+      "id": "telok-ayer-01",
+      "stop_id": "telok-ayer-01",
+      "route_id": "telok-ayer",
+      "order": 1,
+      "name": "Fuk Tak Chi Museum",
+      "short_name": "Fuk Tak Chi",
+      "form": "fuk-tak-chi",
+      "motifs": [
+        "Low-eaved entrance",
+        "Museum label"
+      ],
+      "design_note": "A temple entrance and exhibit labels express the shrine-turned-museum's two identities; real displays are not reproduced.",
+      "historical_fact": "Founded in 1824 by Hakka and Cantonese migrants as a small shrine that also served as a community mutual-aid centre; converted into a museum in 1998.",
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/places/historic-sites/fuk-tak-chi",
+        "https://www.roots.gov.sg/places/places-landing/Places/museums/fuk-tak-chi-museum",
+        "https://chinatown.sg/visit/fuk-tak-chi-museum/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "telok-ayer-02",
+      "stop_id": "telok-ayer-02",
+      "route_id": "telok-ayer",
+      "order": 2,
+      "name": "Ying Fo Fui Kun",
+      "short_name": "Ying Fo Fui Kun",
+      "form": "ying-fo-fui-kun",
+      "motifs": [
+        "Long clan-house façade",
+        "Five-point network"
+      ],
+      "design_note": "Eaves, doors and windows are simplified concepts; the five-point network stands for the five-county community and is not original decoration.",
+      "historical_fact": "Founded in 1822 to serve Hakka migrants from five counties in Guangdong; the association still stands on its original Telok Ayer site.",
+      "source_urls": [
+        "https://www.yingfofuikun.org.sg/about/",
+        "https://www.yingfofuikun.org.sg/contact/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "telok-ayer-03",
+      "stop_id": "telok-ayer-03",
+      "route_id": "telok-ayer",
+      "order": 3,
+      "name": "Nagore Dargah Indian Muslim Heritage Centre",
+      "short_name": "Nagore Dargah",
+      "form": "nagore-dargah",
+      "motifs": [
+        "Tiered twin towers",
+        "Central arch"
+      ],
+      "design_note": "Emphasises the twin-tower outline from the records; no tomb is drawn, and the number of tiers is not a survey fact.",
+      "historical_fact": "A memorial to a saint built by the South Indian Chulia community; no saint's remains are buried here. Since 2011 it has housed the Indian Muslim Heritage Centre.",
+      "source_urls": [
+        "https://www.roots.gov.sg/MUSE/articles/Former-Nagore-Dargah",
+        "https://ndimhc.mimbar.sg/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "telok-ayer-04",
+      "stop_id": "telok-ayer-04",
+      "route_id": "telok-ayer",
+      "order": 4,
+      "name": "Former Keng Teck Whay Building / Singapore Yu Huang Gong",
+      "short_name": "Former Keng Teck Whay",
+      "form": "keng-teck-whay",
+      "motifs": [
+        "Square lower storey",
+        "Octagonal upper tier"
+      ],
+      "design_note": "Square and octagon form comparable volumes; the original building's completion year is not inferred.",
+      "historical_fact": "Keng Teck Whay was founded in 1831 by 36 Peranakan Chinese merchants as a private mutual-aid society; its original building later became Yu Huang Gong.",
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "telok-ayer-05",
+      "stop_id": "telok-ayer-05",
+      "route_id": "telok-ayer",
+      "order": 5,
+      "name": "Thian Hock Keng",
+      "short_name": "Thian Hock Keng",
+      "form": "thian-hock-keng",
+      "motifs": [
+        "Broad eaves",
+        "Red columns",
+        "Arrival clue"
+      ],
+      "design_note": "Temple eaves and voyage labels sit on separate layers; the labels are story props, and no deities or worshippers are drawn.",
+      "historical_fact": "Where Hokkien migrants prayed to Mazu for safe voyages; the present large temple was built in 1839–1842 and also hosted clan association and education activities.",
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+        "https://thianhockkeng.com.sg/site/contactus2/",
+        "https://chinatown.sg/visit/thian-hock-keng-temple/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "telok-ayer-06",
+      "stop_id": "telok-ayer-06",
+      "route_id": "telok-ayer",
+      "order": 6,
+      "name": "Chong Wen Ge",
+      "short_name": "Chong Wen Ge",
+      "form": "chong-wen-ge",
+      "motifs": [
+        "Book pages",
+        "Corridor",
+        "Education event card"
+      ],
+      "design_note": "The books are an education-theme object; they do not claim the interior still holds this arrangement.",
+      "historical_fact": "Tan Kim Seng led its building in 1849, with donations from the Hokkien, Hakka and Teochew communities; the neighbouring Chong Hock Pavilion opened Chong Hock Girls' School in 1915.",
+      "source_urls": [
+        "https://www.shhk.com.sg/newsroom/shhk-family-day-2021/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+        "https://moehc.moe.edu.sg/explore/beginnings-of-education-1819-to-1958/learning-in-the-19th-and-early-20th-century/",
+        "https://culturepaedia.singaporeccc.org.sg/communities/contributions-to-education-by-hokkien-community-in-singapore/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "telok-ayer-07",
+      "stop_id": "telok-ayer-07",
+      "route_id": "telok-ayer",
+      "order": 7,
+      "name": "Al-Abrar Mosque",
+      "short_name": "Al-Abrar",
+      "form": "al-abrar",
+      "motifs": [
+        "Narrow façade",
+        "Flanking tower elements"
+      ],
+      "design_note": "Distinguished from Nagore's tiered twin towers by its narrow frontage and central entrance.",
+      "historical_fact": "Began as a thatched hut in 1827 and became a permanent building in 1855, serving the South Indian Chulia community; its narrow façade has two minaret-like features.",
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/al-abrar-mosque",
+        "https://www.muis.gov.sg/community/mosque/mosque-directory/al-abrar/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "telok-ayer-08",
+      "stop_id": "telok-ayer-08",
+      "route_id": "telok-ayer",
+      "order": 8,
+      "name": "Telok Ayer Chinese Methodist Church",
+      "short_name": "Telok Ayer Chinese Methodist Church",
+      "form": "telok-ayer-church",
+      "motifs": [
+        "Western-style main block",
+        "Chinese rooftop pavilion"
+      ],
+      "design_note": "Composed from the mixed architectural features in existing records; not a full construction drawing.",
+      "historical_fact": "The congregation began in 1889 and the present building was completed in 1925; a Chinese pavilion sits atop a Western building, and it sheltered about 300 people during the Second World War.",
+      "source_urls": [
+        "https://www.tacmc.org.sg/our-heritage/history/",
+        "https://www.cac-singapore.org.sg/church/telok-ayer-chinese-methodist-church/",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-14-issue-1-apr-jun-2018-chinese-renaissance-architecture/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "kampong-gelam-01",
+      "stop_id": "kampong-gelam-01",
+      "route_id": "kampong-gelam",
+      "order": 1,
+      "name": "Bussorah Street · former Kampong Kaji stretch",
+      "short_name": "Bussorah Street",
+      "form": "bussorah-street",
+      "motifs": [
+        "Shophouses on both sides",
+        "Distant outline",
+        "Travel luggage"
+      ],
+      "design_note": "The street perspective is a concept composition; the luggage and ship tickets are everyday-life objects.",
+      "historical_fact": "A stretch near Sultan Mosque was once called Kampong Kaji, where pilgrims from the region waited for ships, lodged and prepared for the journey.",
+      "source_urls": [
+        "https://artsandculture.google.com/asset/bussorah-street-former-kampong-kaji/sgFPVzW1m5FRaA?hl=en"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "kampong-gelam-02",
+      "stop_id": "kampong-gelam-02",
+      "route_id": "kampong-gelam",
+      "order": 2,
+      "name": "Gedung Kuning",
+      "short_name": "Gedung Kuning",
+      "form": "gedung-kuning",
+      "motifs": [
+        "Yellow house",
+        "Dark roof"
+      ],
+      "design_note": "Shown as a detached yellow house; the residents' ethnicity is not inferred from the building's look.",
+      "historical_fact": "Gedung Kuning was long a family home. Javanese merchant Haji Yusoff bought it in 1912; it was later sold, then bought back.",
+      "source_urls": [
+        "https://artsandculture.google.com/asset/gedung-kuning/RQF-rhKfBmntEg?hl=en",
+        "https://www.gedungkuning.sg/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "kampong-gelam-03",
+      "stop_id": "kampong-gelam-03",
+      "route_id": "kampong-gelam",
+      "order": 3,
+      "name": "Aliwal Arts Centre · former Chong Cheng School and Chong Pun Girls’ School",
+      "short_name": "Aliwal Arts Centre",
+      "form": "aliwal-arts",
+      "motifs": [
+        "Two wings",
+        "Central hall"
+      ],
+      "design_note": "The two wings and shared hall show a relationship, not a navigable floor plan.",
+      "historical_fact": "This building once housed two Chinese schools — boys in one wing, girls in the other, sharing a hall. The facade records the year it was built and its donors.",
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00085/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf?la=en"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "kampong-gelam-04",
+      "stop_id": "kampong-gelam-04",
+      "route_id": "kampong-gelam",
+      "order": 4,
+      "name": "The Sultan · former Al-Ahmadiah and HARMY Press",
+      "short_name": "The Sultan",
+      "form": "the-sultan",
+      "motifs": [
+        "Terrace shophouses",
+        "Printing cylinder"
+      ],
+      "design_note": "A concept pairing of old printing and today's building; it does not claim a real press stands at the door.",
+      "historical_fact": "No. 101 was once the Al-Ahmadiah and HARMY Press and is now The Sultan hotel; the old building is a remnant of Kampong Gelam’s publishing network.",
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "kampong-gelam-05",
+      "stop_id": "kampong-gelam-05",
+      "route_id": "kampong-gelam",
+      "order": 5,
+      "name": "Madrasah Alsagoff Al-Arabiah",
+      "short_name": "Madrasah Alsagoff",
+      "form": "alsagoff-school",
+      "motifs": [
+        "School façade",
+        "Open book"
+      ],
+      "design_note": "The address 111 is used for the digital label; the fictional subscription slip is not treated as a real school record.",
+      "historical_fact": "The school was founded in 1912 and is linked to the Alsagoff family from Hadhramaut, Yemen, and their charitable support.",
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "kampong-gelam-06",
+      "stop_id": "kampong-gelam-06",
+      "route_id": "kampong-gelam",
+      "order": 6,
+      "name": "Malabar Mosque",
+      "short_name": "Malabar Mosque",
+      "form": "malabar-mosque",
+      "motifs": [
+        "Blue walls",
+        "Golden dome"
+      ],
+      "design_note": "Uses the building's later colours from existing records, not its original look at the 1963 opening.",
+      "historical_fact": "The mosque was championed by the Malabar Muslim community from Kerala and opened in 1963; the blue walls and golden dome were added later.",
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00665/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "kampong-gelam-07",
+      "stop_id": "kampong-gelam-07",
+      "route_id": "kampong-gelam",
+      "order": 7,
+      "name": "Istana Kampong Gelam · Malay Heritage Centre",
+      "short_name": "Malay Heritage Centre",
+      "form": "malay-heritage-centre",
+      "motifs": [
+        "Long palace façade",
+        "Front lawn"
+      ],
+      "design_note": "The building is a concept outline; the 2026 reopening stays on the fact card, and no on-site plaque is faked.",
+      "historical_fact": "The former palace is now the Malay Heritage Centre, which reopened on 25 April 2026.",
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/070-iskg/",
+        "https://www.pmo.gov.sg/newsroom/pm-lawrence-wong-at-the-malay-heritage-centres-reopening-festival-apr-2026/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "balestier-01",
+      "stop_id": "balestier-01",
+      "route_id": "balestier",
+      "order": 1,
+      "name": "Goh Chor Tua Pek Kong Temple and the old opera stage",
+      "short_name": "Goh Chor temple and stage",
+      "form": "goh-chor-stage",
+      "motifs": [
+        "Temple and freestanding stage",
+        "Audience space"
+      ],
+      "design_note": "The two spaces sit side by side and the 1847 and 1906 events stay separate; no performance on the day is shown as visual fact.",
+      "historical_fact": "Founded in 1847 by Hokkien labourers from the sugar-cane plantations; the permanent stage beside it was built by Tan Boo Liat in 1906.",
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Goh-Chor-Tua-Pek-Kong-Temple",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00163/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "balestier-02",
+      "stop_id": "balestier-02",
+      "route_id": "balestier",
+      "order": 2,
+      "name": "Sim Kwong Ho Shophouses",
+      "short_name": "Sim Kwong Ho",
+      "form": "sim-kwong-ho",
+      "motifs": [
+        "Corner shophouses",
+        "Curved corner",
+        "Credit slip"
+      ],
+      "design_note": "The façade outline and the name card are kept apart; the developer is not the building's name.",
+      "historical_fact": "Sim Cheng Neo developed these shophouses in 1926; the building name comes from the words Sim Kwong Ho on the corner facade.",
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "balestier-03",
+      "stop_id": "balestier-03",
+      "route_id": "balestier",
+      "order": 3,
+      "name": "Lam Yeo Coffee Powder Factory",
+      "short_name": "Lam Yeo Coffee Powder Factory",
+      "form": "lam-yeo-coffee",
+      "motifs": [
+        "Narrow shopfront",
+        "Coffee sacks",
+        "Newspapers"
+      ],
+      "design_note": "Coffee sacks and newspapers are concept objects for changing trades; no product packaging is copied.",
+      "historical_fact": "The founder was once an assistant editor at the Nanyang Siang Pau, sold coffee on the street in 1959 and opened a shop with his wife in 1960; Lam Yeo means Nanyang.",
+      "source_urls": [
+        "https://www.roots.gov.sg/stories-landing/stories/street-corner-heritage-galleries-balestier",
+        "https://www.roots.gov.sg/places/places-landing/trails/balestier-food-trail"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "balestier-04",
+      "stop_id": "balestier-04",
+      "route_id": "balestier",
+      "order": 4,
+      "name": "Kwan Yow Luen Shophouses",
+      "short_name": "Kwan Yow Luen",
+      "form": "kwan-yow-luen",
+      "motifs": [
+        "Row of slender windows",
+        "Decorative pilasters",
+        "Film viewfinder"
+      ],
+      "design_note": "Brings out the rhythm of the terrace façade, distinct from the corner shophouses; no real film stills are invented.",
+      "historical_fact": "Developed by Sim Cheng Neo in 1928 and designed by Kwan Yow Luen, this row of shophouses once appeared in a P. Ramlee film.",
+      "source_urls": [
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "balestier-05",
+      "stop_id": "balestier-05",
+      "route_id": "balestier",
+      "order": 5,
+      "name": "Boon Teck Road Water Kiosk",
+      "short_name": "Boon Teck Water Kiosk",
+      "form": "boon-teck-water",
+      "motifs": [
+        "Small kiosk",
+        "Water vessels",
+        "Passer-by label"
+      ],
+      "design_note": "The vessels are a water-giving concept; the number of vessels or drinks on any given day is not guaranteed.",
+      "historical_fact": "The related charitable halls merged in 1950 and long offered free water and herbal tea to passers-by; NHB records that the water kiosk was kept at this junction.",
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+        "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "balestier-06",
+      "stop_id": "balestier-06",
+      "route_id": "balestier",
+      "order": 6,
+      "name": "Maha Sasanaramsi Burmese Buddhist Temple",
+      "short_name": "Maha Sasanaramsi Burmese Buddhist Temple",
+      "form": "burmese-temple",
+      "motifs": [
+        "Layered roofs",
+        "Separate courtyard"
+      ],
+      "design_note": "The roofs are simplified; no Buddha image details are drawn, and the 1991 move to this site is kept apart from the original temple's dates.",
+      "historical_fact": "The original temple was set up on Kinta Road in 1878, and the temple at the present site was completed in 1991; the marble Buddha was already enshrined at the old temple in 1921.",
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Maha-Sasanaramsi-Burmese-Buddhist-Temple",
+        "https://www.bbt.org.sg/contact/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "balestier-07",
+      "stop_id": "balestier-07",
+      "route_id": "balestier",
+      "order": 7,
+      "name": "Former Malay Film Productions Studio",
+      "short_name": "Former film studio",
+      "form": "malay-film-studio",
+      "motifs": [
+        "Studio entrance",
+        "Film and projector lamp"
+      ],
+      "design_note": "The entrance and equipment are film-theme concepts; real interiors that are not open to visitors are not shown.",
+      "historical_fact": "The Jalan Ampas studio resumed production in 1947, bringing together Chinese producers, Indian directors and Malay actors; it closed in 1967.",
+      "source_urls": [
+        "https://www.nlb.gov.sg/main/article-detail?cmsuuid=5fbdda52-038b-447c-b383-1ec74609166e",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-11-issue-1-apr-jun-2015-golden-age-of-malay-cinema/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Former-Malay-Film-Productions-Studio",
+        "https://www.nhb.gov.sg/-/media/nhb/images/nhb2017/what-we-do/grants/0-minor-and-major-project-grant/heritage-trails---a-practical-guide-to-action.pdf"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "civic-f1-01",
+      "stop_id": "civic-f1-01",
+      "route_id": "civic-f1",
+      "order": 1,
+      "name": "Gate of Hope",
+      "short_name": "Gate of Hope",
+      "form": "gate-of-hope",
+      "motifs": [
+        "Closed archway",
+        "Boundary wall",
+        "Care label"
+      ],
+      "design_note": "No abandoned infants or frightening scenes are drawn; the gate stays closed and never suggests players may enter.",
+      "historical_fact": "From 1854 the convent cared for abandoned baby girls; in 1996 this gate was named the Gate of Hope.",
+      "source_urls": [
+        "https://chijmes.com.sg/heritage/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/former-convent-of-the-holy-infant-jesus-chapel-and-caldwell-house-now-chijmes"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "civic-f1-02",
+      "stop_id": "civic-f1-02",
+      "route_id": "civic-f1",
+      "order": 2,
+      "name": "The Family Side of the Former Hill Street Police Station",
+      "short_name": "Former Hill Street Police Station",
+      "form": "hill-street-station",
+      "motifs": [
+        "Broad façade",
+        "Multicoloured shutters"
+      ],
+      "design_note": "The window grid is a recognisable simplification; its count and colour order are not an exact façade record.",
+      "historical_fact": "Completed in 1934, the building housed not only police facilities but also quarters for officers and their families, with a children's playground.",
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Hill-Street-Police-Station"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "civic-f1-03",
+      "stop_id": "civic-f1-03",
+      "route_id": "civic-f1",
+      "order": 3,
+      "name": "The Siamese Bronze Elephant outside The Arts House (Old Parliament House)",
+      "short_name": "Bronze Elephant",
+      "form": "bronze-elephant",
+      "motifs": [
+        "Bronze elephant",
+        "Memorial plinth"
+      ],
+      "design_note": "The sculpture stands as its own object; text appears on separate information labels, and no plinth inscription is faked.",
+      "historical_fact": "The bronze elephant commemorates King Chulalongkorn (Rama V)'s 1871 visit; it was set up in front of the Town Hall in 1872 and moved to today's Arts House in 1919.",
+      "source_urls": [
+        "https://www.roots.gov.sg/Collection-Landing/listing/1071116?taigerlist=collections",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Parliament-House",
+        "https://www.singaporeartmuseum.sg/-/media/SAM/Files/Exhibitions/The-Gift/The-Gift-of-Entanglement_-June-Yap.pdf"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "civic-f1-04",
+      "stop_id": "civic-f1-04",
+      "route_id": "civic-f1",
+      "order": 4,
+      "name": "The Benchmark Story at Cavenagh Bridge",
+      "short_name": "Cavenagh Bridge",
+      "form": "cavenagh-bridge",
+      "motifs": [
+        "Abutment",
+        "Suspension chains",
+        "Survey mark"
+      ],
+      "design_note": "The broad arrow is a separate archive icon; the concept position is not on-site navigation to a carved mark.",
+      "historical_fact": "NHB records that the north abutment keeps a survey benchmark from around 1882, marked with a broad arrow and a line to show a known height reference.",
+      "source_urls": [
+        "https://www.roots.gov.sg/stories-landing/stories/all-around-us/Story",
+        "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+        "https://www.nparks.gov.sg/docs/default-source/parks-docs/shared/monument-trail.pdf?sfvrsn=e0a5424e_1"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "civic-f1-05",
+      "stop_id": "civic-f1-05",
+      "route_id": "civic-f1",
+      "order": 5,
+      "name": "Dalhousie Obelisk",
+      "short_name": "Dalhousie Obelisk",
+      "form": "dalhousie-obelisk",
+      "motifs": [
+        "Obelisk",
+        "Stepped plinth"
+      ],
+      "design_note": "Emphasises the monument's mass; unverified details of its relocation are left out of the art.",
+      "historical_fact": "The obelisk marks the Governor-General's visit in 1850; local merchants including Tan Kim Seng raised the funds and used it to voice their support for free trade.",
+      "source_urls": [
+        "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+        "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "civic-f1-06",
+      "stop_id": "civic-f1-06",
+      "route_id": "civic-f1",
+      "order": 6,
+      "name": "The Victoria Clock Tower and the Old Name That Never Left",
+      "short_name": "Victoria clock tower",
+      "form": "victoria-clock",
+      "motifs": [
+        "Central clock tower",
+        "Flanking buildings"
+      ],
+      "design_note": "The clock face serves the public-time theme; the time on its hands carries no historical meaning.",
+      "historical_fact": "The Memorial Hall was renamed Victoria Concert Hall in 1979, yet the old name remains on its outer wall; the central clock tower joins the two buildings.",
+      "source_urls": [
+        "https://www.sg101.gov.sg/resources/archives/heritage-victoria-theatre-and-victoria-concert-hall/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/Civic-District-Heritage-Trail/Civic-District-Trail_Booklet.pdf"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "civic-f1-07",
+      "stop_id": "civic-f1-07",
+      "route_id": "civic-f1",
+      "order": 7,
+      "name": "Waterfront Public Walkway: Virtual Racing Unlocks the Next Stop",
+      "short_name": "Waterfront screen drive",
+      "form": "waterfront-race",
+      "motifs": [
+        "Waterfront railing",
+        "Virtual single-seater"
+      ],
+      "design_note": "The car and corners in the scene are prototype design, not a survey of a real circuit, and do not represent driving on real roads.",
+      "historical_fact": "The 2026 Singapore Grand Prix runs from 9 to 11 October; the official Connaught Grandstand information links Esplanade Bridge with Turn 14.",
+      "source_urls": [
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    },
+    {
+      "id": "civic-f1-08",
+      "stop_id": "civic-f1-08",
+      "route_id": "civic-f1",
+      "order": 8,
+      "name": "Tan Kim Seng Fountain: The Missing 25 Years",
+      "short_name": "Tan Kim Seng Fountain",
+      "form": "tan-kim-seng-fountain",
+      "motifs": [
+        "Tiered basins",
+        "Central column",
+        "Archive dates"
+      ],
+      "design_note": "The fountain's form is a thematic concept; 1857 and 1882 are written on separate archive cards, not falsely carved on the structure.",
+      "historical_fact": "In 1857 Tan Kim Seng donated $13,000 to improve the public water supply; the fountain in his memory was put up in 1882.",
+      "source_urls": [
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge",
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/"
+      ],
+      "concept_only": true,
+      "field_verified": false
+    }
+  ]
+}

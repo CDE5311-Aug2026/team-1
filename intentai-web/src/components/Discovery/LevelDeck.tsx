@@ -39,7 +39,10 @@ export function LevelDeck({ label, cards, selectedId, actionLabel, onSelect, onE
   const trackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   useMouseDrag(trackRef);
-  const selectedIndex = Math.max(0, cards.findIndex((c) => c.id === selectedId));
+  const selectedIndex = Math.max(
+    0,
+    cards.findIndex((c) => c.id === selectedId),
+  );
   const latest = useRef({ cards, selectedId, onSelect });
   latest.current = { cards, selectedId, onSelect };
   /** scrollLeft of a scroll we started ourselves; its settle is not a user choice. */
@@ -157,7 +160,16 @@ export function LevelDeck({ label, cards, selectedId, actionLabel, onSelect, onE
                 <span className={styles.kicker}>{card.kicker}</span>
                 {p.status === 'done' && (
                   <span className={styles.check} aria-hidden="true">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M5 12.5 10 17.5 19 7" />
                     </svg>
                   </span>

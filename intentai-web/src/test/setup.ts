@@ -20,6 +20,10 @@ if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.sho
   };
 }
 
+// jsdom has no canvas: drawing code (FindSG's paper and 3D scenes) gets no context and falls back, without jsdom's
+// "Not implemented" noise.
+if (typeof HTMLCanvasElement !== 'undefined') HTMLCanvasElement.prototype.getContext = (() => null) as unknown as HTMLCanvasElement['getContext'];
+
 // jsdom has no IntersectionObserver (motion's useInView, React Bits CountUp / BlurText). Report everything as in view,
 // so animations finish and their final text is what the tests read.
 if (typeof window !== 'undefined' && typeof window.IntersectionObserver === 'undefined') {

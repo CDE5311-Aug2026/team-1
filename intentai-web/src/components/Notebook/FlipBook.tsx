@@ -14,21 +14,28 @@ export interface BookPage {
   node: ReactNode;
 }
 
+/** Turning the pages from outside the book (Home's ↵ key). */
+export interface BookControls {
+  turn(dir: 1 | -1): void;
+}
+
 interface Props {
   pages: BookPage[];
+  /** Filled with the book's controls while it is mounted. */
+  controls?: React.MutableRefObject<BookControls | null>;
   /** A new value starts again at the first page (a different place). */
   resetKey: string;
   /** Number the pages after the first as notebook entries ("No. 01 · Key numbers"). */
   numbered?: boolean;
   /** Where the book is, continuously while a page turns: 0 on the first page, 0.5 halfway to the second, 1 on it, … */
   onTurn?: (position: number) => void;
-  /** Shown at the start of the strip under the pages, on every page but the first (a close button). */
+  /** Shown at the start of the strip under the pages, on every page (the way out, always in the same place). */
   navStart?: ReactNode;
 }
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
 
-export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart }: Props) {
+export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, controls }: Props) {
   const reduce = useReducedMotionConfig();
   const [index, setIndex] = useState(0);
   const leaves = useRef<(HTMLElement | null)[]>([]);
@@ -102,6 +109,16 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart }:
     if ((dir === 1 && at >= last) || (dir === -1 && at <= 0)) return;
     finish(dir, 0, 1);
   };
+
+  const turnRef = useRef(turn);
+  turnRef.current = turn;
+  useEffect(() => {
+    if (!controls) return;
+    controls.current = { turn: (dir) => turnRef.current(dir) };
+    return () => {
+      controls.current = null;
+    };
+  }, [controls]);
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (turning.current || e.button !== 0) return;
@@ -197,10 +214,8 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart }:
                     {page.label}
                   </p>
                 )}
+                {/* (no folio at the foot: the page's number is in the strip under the pages, and the room is the page's) */}
                 <div className={styles.body}>{page.node}</div>
-                <p className={styles.folio} aria-hidden="true">
-                  {`— ${i + 1} —`}
-                </p>
               </div>
               {i < last && (
                 // the corner turned up: a tap turns the page
@@ -213,12 +228,7 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart }:
       </div>
 
       <nav className={styles.nav} aria-label="Pages">
-        {at > 0 && navStart}
-        <button type="button" className={styles.arrow} aria-label="Previous page" disabled={at <= 0} onClick={() => turn(-1)}>
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        {navStart}
         <p className={styles.where} aria-live="polite">
           <span className={styles.count}>{`${at + 1}/${pages.length}`}</span>
           <span className={styles.label}>{pages[at]?.label}</span>
@@ -228,11 +238,19 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart }:
             <i key={p.key} data-on={i === at || undefined} />
           ))}
         </span>
-        <button type="button" className={styles.arrow} aria-label="Next page" disabled={at >= last} onClick={() => turn(1)}>
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        {/* turning the page: both arrows together, apart from the way out */}
+        <span className={styles.turns}>
+          <button type="button" className={styles.arrow} aria-label="Previous page" disabled={at <= 0} onClick={() => turn(-1)}>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <button type="button" className={styles.arrow} aria-label="Next page" disabled={at >= last} onClick={() => turn(1)}>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </span>
       </nav>
     </div>
   );

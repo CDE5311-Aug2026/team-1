@@ -49,7 +49,9 @@
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .badge.small {
@@ -144,4 +146,40 @@
   font-size: 0.6875rem;
   font-weight: 700;
   line-height: 1;
+}
+
+/* Near you: where you are, a blue dot with a soft pulse (like a maps app) */
+.here {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: #2f6fe4;
+  box-shadow:
+    0 0 0 6px rgba(47, 111, 228, 0.22),
+    0 4px 10px -4px rgba(20, 30, 50, 0.8);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .here {
+    animation: herePulse 2.2s ease-out infinite;
+  }
+}
+
+@keyframes herePulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(47, 111, 228, 0.45),
+      0 4px 10px -4px rgba(20, 30, 50, 0.8);
+  }
+  100% {
+    box-shadow:
+      0 0 0 18px rgba(47, 111, 228, 0),
+      0 4px 10px -4px rgba(20, 30, 50, 0.8);
+  }
 }

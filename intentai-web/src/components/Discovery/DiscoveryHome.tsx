@@ -8,9 +8,9 @@
 import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import homeLogo from '../../assets/home/logo.png';
+import homeLogo from '../../assets/brand/findsg-logo-black.png'; // Home wears the black mark
 import { todaysHoliday } from '../../data/holiday';
-import { ALL_HOME_PLACES, type HomePlace } from '../../data/homePlaces';
+import { ALL_HOME_PLACES, HOME_BASE, HOME_BASE_LABEL, type HomePlace } from '../../data/homePlaces';
 import { formatMinutes } from '../../data/pickFormat';
 import type { EditorPick } from '../../data/picks';
 import {
@@ -33,8 +33,6 @@ import {
   type UnlockProgress,
 } from '../../data/ura/ura';
 import { useExplorePersonal } from '../../features/nearby/actions';
-import { curatedPlace } from '../../features/nearby/catalogue';
-import { distanceM } from '../../features/nearby/geo';
 import { localToday } from '../../features/nearby/personal';
 import { toXY } from '../../features/nearby/map/projection';
 import { showToast } from '../../hooks/useToast';
@@ -42,7 +40,10 @@ import { paths } from '../../routes';
 import HomeHeader from '../HomeHeader/HomeHeader';
 import { PlaceCarousel } from '../PlaceCarousel/PlaceCarousel';
 import type { CoverItem } from './CoverFlow3D';
+import { NEAR_M, nearYou, shortDistance, type NearItem } from './nearYou';
+import type { LatLng } from '../../features/nearby/types';
 import { LevelDeck, progressLine, type LevelCard } from './LevelDeck';
+import type { BookControls } from '../Notebook/FlipBook';
 // Three.js loads with these two, after the rest of Home has drawn.
 // The map card (owner, 31 Oct): regions and planning areas on a light Three.js map over EARTH ONLINE's ground picture
 // (fast, no 18 MB download, the camera flies to each card); a planning area's places in the full EARTH ONLINE 3D city.
@@ -128,8 +129,26 @@ import { SkyControls } from './SkyControls';
 import type { View3DSky } from '../../features/nearby/components/View3D';
 import styles from './DiscoveryHome.module.css';
 
-type Level = 'regions' | 'areas' | 'places' | 'picks' | 'pick';
-const DEPTH: Record<Level, number> = { regions: 0, areas: 1, places: 2, picks: 1, pick: 2 };
+type Level = 'regions' | 'areas' | 'places' | 'picks' | 'pick' | 'near';
+const DEPTH: Record<Level, number> = { regions: 0, areas: 1, places: 2, picks: 1, pick: 2, near: 1 };
+
+// Where Locate last found you, for this tab only: kept out of the URL, so a shared link never carries your position.
+const HERE_KEY = 'intentai:home-here';
+function readHere(): LatLng | null {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(HERE_KEY) ?? 'null') as LatLng | null;
+    return v && Number.isFinite(v.lat) && Number.isFinite(v.lng) ? { lat: v.lat, lng: v.lng } : null;
+  } catch {
+    return null;
+  }
+}
+function saveHere(v: LatLng) {
+  try {
+    sessionStorage.setItem(HERE_KEY, JSON.stringify(v));
+  } catch {
+    // private mode: Near you lasts until the page reloads
+  }
+}
 const isPickLevel = (l: Level) => l === 'picks' || l === 'pick';
 
 /** The last of these pictures to finish loading (the first one at once), so a background never fades in blank. */
@@ -201,23 +220,37 @@ export default function DiscoveryHome() {
   }, []);
   // until they arrive, a ?lvl=picks link shows the regions; the URL is left alone, so the picks open when ready
   const picks = loadedPicks ?? NO_PICKS;
+  // ---- Near you (Locate): places and Picks within 2 km ----
+  const [here, setHere] = useState<LatLng | null>(readHere);
+  const near = useMemo(() => (here ? nearYou(here, ALL_HOME_PLACES, picks) : null), [here, picks]);
+  const nearSel = near?.items.find((i) => i.id === params.get('n')) ?? near?.items[0];
   const pick = picks.find((k) => k.id === params.get('k')) ?? picks[0];
   const lvlParam = params.get('lvl');
   const level: Level =
-    lvlParam === 'areas' || (lvlParam === 'places' && placeList.length > 0) || ((lvlParam === 'picks' || lvlParam === 'pick') && pick)
+    lvlParam === 'areas' ||
+    (lvlParam === 'places' && placeList.length > 0) ||
+    ((lvlParam === 'picks' || lvlParam === 'pick') && pick) ||
+    (lvlParam === 'near' && !!near?.items.length)
       ? (lvlParam as Level)
       : 'regions';
   const place = placeList.find((p) => p.id === params.get('p')) ?? placeList[0];
   const stop = pick?.stops.find((st) => st.place.id === params.get('p')) ?? pick?.stops[0];
   const routeMode = level === 'pick' && pick?.kind === 'walk' && !!pick.links?.length && params.get('route') === '1';
 
-  // Undo (the map toolbar): the selections this visit went through, newest last.
-  const undoStack = useRef<string[]>([]);
-  const go = (next: { lvl?: Level; r?: string; a?: string; p?: string; open?: string; k?: string; route?: boolean }) => {
-    undoStack.current = [...undoStack.current.slice(-29), params.toString()];
+  const go = (next: { lvl?: Level; r?: string; a?: string; p?: string; open?: string; k?: string; route?: boolean; n?: string }) => {
     const q = new URLSearchParams();
     const lvl = next.lvl ?? level;
     if (lvl !== 'regions') q.set('lvl', lvl);
+    if (lvl === 'near') {
+      // your planning area stays in the URL, so ↩ and the other decks go on from there
+      q.set('r', next.r ?? region);
+      q.set('a', next.a ?? area.id);
+      const n = 'n' in next ? next.n : nearSel?.id;
+      if (n) q.set('n', n);
+      if (next.open) q.set('open', next.open);
+      setParams(q, { replace: true });
+      return;
+    }
     if (isPickLevel(lvl)) {
       // the region and area stay in the URL, so leaving the picks returns to them
       q.set('r', region);
@@ -239,10 +272,6 @@ export default function DiscoveryHome() {
     if (lvl === 'places' && next.open) q.set('open', next.open);
     setParams(q, { replace: true });
   };
-  const undo = () => {
-    const prev = undoStack.current.pop();
-    if (prev !== undefined) setParams(new URLSearchParams(prev), { replace: true });
-  };
   const lastDepth = useRef(DEPTH[level]);
   const direction = DEPTH[level] >= lastDepth.current ? 1 : -1;
   lastDepth.current = DEPTH[level];
@@ -256,7 +285,7 @@ export default function DiscoveryHome() {
   const enterArea = (id: string) => (placesInArea(id).length ? go({ lvl: 'places', a: id, p: homePlacesIn(id)[0]?.id }) : go({ a: id }));
   // A place opens as a sheet over Home; the URL keeps it (?open=), so Back closes it and a reload keeps it open.
   const location = useLocation();
-  const openId = level === 'places' || level === 'pick' ? params.get('open') : null;
+  const openId = level === 'places' || level === 'pick' || level === 'near' ? params.get('open') : null;
   const openPlace = (id: string) => {
     const q = new URLSearchParams(params);
     q.set('p', id);
@@ -340,28 +369,30 @@ export default function DiscoveryHome() {
       setTall(grow > 0.5);
     },
   };
+  // Locate (owner, 1 Nov 2026): what is near you, within 2 km: landmarks and Editor's Picks, nearest first
+  const showNear = (at: LatLng) => {
+    const q = toXY(at);
+    const a = areaAt(q.x, q.y) ?? BASE_AREA;
+    setHere(at);
+    saveHere(at);
+    void loadPicks().then((m) => setLoadedPicks((had) => had ?? m.editorPicks(localToday())));
+    go({ lvl: 'near', r: a?.region ?? region, a: a?.id ?? area.id, n: undefined });
+  };
   const locate = () => {
     const fallback = (why: string) => {
       setLocating(false);
-      showToast(`${why} Showing your home base, NUS University Town.`);
-      if (BASE_AREA) pickArea(BASE_AREA.id);
+      showToast(`${why} Showing what is near your home base, ${HOME_BASE_LABEL}.`);
+      showNear(HOME_BASE);
     };
     if (!navigator.geolocation) return fallback('Location is not available here.');
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocating(false);
-        const q = toXY({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        const a = areaAt(q.x, q.y);
-        if (!a) return fallback('You seem to be outside Singapore.');
-        const ps = homePlacesIn(a.id);
-        // the nearest place in your planning area
-        const near = [...ps].sort(
-          (m, n) =>
-            distanceM(m.point, { lat: pos.coords.latitude, lng: pos.coords.longitude }) -
-            distanceM(n.point, { lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        )[0];
-        go(near ? { lvl: 'places', r: a.region, a: a.id, p: near.id } : { lvl: 'areas', r: a.region, a: a.id });
+        const at = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const q = toXY(at);
+        if (!areaAt(q.x, q.y)) return fallback('You seem to be outside Singapore.');
+        showNear(at);
       },
       () => fallback('Location is off.'),
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 },
@@ -440,7 +471,7 @@ export default function DiscoveryHome() {
         id: p.id,
         title: p.name,
         kicker: visited.has(p.id) ? 'Checked in' : `${p.distance} · ${area.name}`,
-        line: p.area,
+        line: p.kind,
         status: visited.has(p.id) ? 'done' : 'none',
         progress: null,
         image: p.photo,
@@ -471,6 +502,46 @@ export default function DiscoveryHome() {
       }),
     [picks, visited],
   );
+  const nearItems: CoverItem[] = useMemo(
+    () =>
+      (near?.items ?? []).map((it) => {
+        const away = shortDistance(it.m);
+        if (it.kind === 'place') {
+          const p = it.place;
+          return {
+            id: p.id,
+            title: p.name,
+            kicker: visited.has(p.id) ? `Checked in · ${away}` : `${away} · ${p.area}`,
+            line: p.kind,
+            status: visited.has(p.id) ? 'done' : 'none',
+            progress: null,
+            image: p.photo,
+            action: 'Open',
+            actionLabel: `Open ${p.name}`,
+          } satisfies CoverItem;
+        }
+        const k = it.pick;
+        const prog = pickProgress(k, visited);
+        return {
+          id: k.id,
+          title: k.title,
+          kicker: `Editor's Pick · nearest stop ${away}`,
+          line: pickKicker(k),
+          stats: [`${prog.visited} of ${prog.total} ${k.kind === 'walk' ? 'stops' : 'places'} checked in`],
+          status: prog.status,
+          progress: ratio(prog),
+          image: homeOf(it.stopId)?.photo ?? k.stops.map((st) => homeOf(st.place.id)?.photo).find(Boolean),
+          action: k.kind === 'walk' ? 'Start the walk' : `See ${k.stops.length} places`,
+        } satisfies CoverItem;
+      }),
+    [near, visited],
+  );
+  // a place opens over Home; a pick opens its deck of stops
+  const enterNear = (id: string) => {
+    const it = near?.items.find((i) => i.id === id);
+    if (it?.kind === 'pick') go({ lvl: 'pick', k: it.id, p: it.stopId });
+    else if (it) openPlace(it.id);
+  };
   const stopItems: CoverItem[] = useMemo(
     () =>
       (pick?.stops ?? []).map((st, i) => {
@@ -496,19 +567,26 @@ export default function DiscoveryHome() {
   const stopHomes = useMemo(() => (pick?.stops ?? []).flatMap((st) => homeOf(st.place.id) ?? []), [pick]);
 
   const regionName = uraRegion(region)?.name ?? '';
-  const crumbs = isPickLevel(level)
-    ? ['Singapore', "Editor's Pick", ...(level === 'pick' && pick ? [pick.title] : [])]
-    : ['Singapore', ...(level === 'regions' ? [] : [regionName]), ...(level === 'places' ? [area.name] : [])];
+  const crumbs =
+    level === 'near'
+      ? ['Singapore', 'Near you']
+      : isPickLevel(level)
+        ? ['Singapore', "Editor's Pick", ...(level === 'pick' && pick ? [pick.title] : [])]
+        : ['Singapore', ...(level === 'regions' ? [] : [regionName]), ...(level === 'places' ? [area.name] : [])];
   const title =
-    level === 'picks'
-      ? "Editor's Pick"
-      : level === 'pick'
-        ? (pick?.title ?? '')
-        : level === 'regions'
-          ? 'Regions'
-          : level === 'areas'
-            ? `${regionName} · planning areas`
-            : area.name;
+    level === 'near'
+      ? near?.within
+        ? `Near you · ${NEAR_M / 1000} km`
+        : 'Nearest to you'
+      : level === 'picks'
+        ? "Editor's Pick"
+        : level === 'pick'
+          ? (pick?.title ?? '')
+          : level === 'regions'
+            ? 'Regions'
+            : level === 'areas'
+              ? `${regionName} · planning areas`
+              : area.name;
   const up = () => (level === 'pick' ? go({ lvl: 'picks' }) : level === 'places' ? go({ lvl: 'areas' }) : go({ lvl: 'regions' }));
   const upLabel = level === 'pick' ? "Back to Editor's Pick" : level === 'places' ? `Back to ${regionName} areas` : 'Back to regions';
   const inPicks = isPickLevel(level);
@@ -522,17 +600,19 @@ export default function DiscoveryHome() {
         ? { level: 'regions' }
         : level === 'areas'
           ? { level: 'areas', region }
-          : level === 'places'
+          : level === 'places' || level === 'near'
             ? { level: 'places', areaId: area.id }
             : { level: 'picks' },
   );
   const shownBackdrop = useLoadedImage(wantedBackdrop);
   const mapPlaces = useMemo(
     () =>
-      inPicks
-        ? (pick?.stops.map((st) => ({ id: st.place.id, name: st.place.name, point: { lat: st.place.coordinates.lat, lng: st.place.coordinates.lng } })) ?? [])
-        : placeList.map((p) => ({ id: p.id, name: p.name, point: p.point })),
-    [inPicks, pick, placeList],
+      level === 'near'
+        ? (near?.places.map((p) => ({ id: p.id, name: p.name, point: p.point })) ?? [])
+        : inPicks
+          ? (pick?.stops.map((st) => ({ id: st.place.id, name: st.place.name, point: { lat: st.place.coordinates.lat, lng: st.place.coordinates.lng } })) ?? [])
+          : placeList.map((p) => ({ id: p.id, name: p.name, point: p.point })),
+    [inPicks, pick, placeList, level, near],
   );
 
   const deckMotion = {
@@ -556,6 +636,68 @@ export default function DiscoveryHome() {
       ease: [0.2, 0.8, 0.2, 1] as const,
     },
   };
+
+  // Enter (the ↵ key, or the keyboard's Enter): open what the deck has selected; in a place's notebook, the next page
+  const book = useRef<BookControls | null>(null);
+  const enter = () => {
+    if (openId) return book.current?.turn(1);
+    if (level === 'regions') enterRegion(region);
+    else if (level === 'areas') enterArea(area.id);
+    else if (level === 'places' && place) openPlace(place.id);
+    else if (level === 'picks' && pick) go({ lvl: 'pick', k: pick.id });
+    else if (level === 'pick' && stop) openPlace(stop.place.id);
+    else if (level === 'near' && nearSel) enterNear(nearSel.id);
+  };
+  const enterLabel = openId
+    ? 'Next page'
+    : level === 'regions'
+      ? `Enter ${regionName}`
+      : level === 'areas'
+        ? `Enter ${area.name}`
+        : level === 'picks'
+          ? `Open ${pick?.title ?? 'pick'}`
+          : level === 'near'
+            ? `Open ${nearSel?.kind === 'pick' ? nearSel.pick.title : (nearSel?.place.name ?? 'place')}`
+            : `Open ${(level === 'pick' ? stop?.place.name : place?.name) ?? 'place'}`;
+  const enterRef = useRef(enter);
+  enterRef.current = enter;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      // only when nothing that takes Enter itself has focus
+      const t = e.target instanceof Element ? e.target : null;
+      if (
+        t &&
+        t !== document.body &&
+        t.closest('button, a, input, textarea, select, [role="slider"], [tabindex], [contenteditable], [role="dialog"] [data-no-flip]')
+      )
+        return;
+      e.preventDefault();
+      enterRef.current();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+  const keys = (
+    <MapToolbar
+      // ↩ is the one back key (owner, 1 Nov 2026: it replaces the one at the top left): out of a place, else up a level
+      canUndo={!!openId || (level !== 'regions' && !routeMode)}
+      undoLabel={openId ? 'Back to the map' : upLabel}
+      onEnter={enter}
+      canEnter={!routeMode}
+      enterLabel={enterLabel}
+      locating={locating}
+      onLocate={locate}
+      onUndo={openId ? closePlace : up}
+      onPickArea={pickArea}
+      onPickPlace={pickPlace}
+      picksOn={isPickLevel(level)}
+      onPicks={() => (isPickLevel(level) ? go({ lvl: 'regions' }) : go({ lvl: 'picks' }))}
+      picks={picks}
+      onPickPick={(id) => go({ lvl: 'pick', k: id })}
+      onSearchOpen={() => void loadPicks().then((m) => setLoadedPicks((had) => had ?? m.editorPicks(localToday())))}
+    />
+  );
 
   return (
     // One screen with a deck that reaches the screen edges: bleeds past the column on purpose.
@@ -634,52 +776,43 @@ export default function DiscoveryHome() {
             ) : (
               <Suspense fallback={<div className={styles.mapLoading} role="application" aria-label={`Map of Singapore's planning areas. ${title}.`} />}>
                 <MapCard3D
-                  level={openId ? 'places' : level}
+                  level={openId && level !== 'near' ? 'places' : level}
                   region={openId ? (openArea?.region ?? region) : region}
                   areaId={openId ? (openArea?.id ?? area.id) : area.id}
                   areaOrder={areaList.map((a) => a.id)}
                   places={mapPlaces}
-                  selectedPlaceId={openId ?? (level === 'places' ? place?.id : level === 'pick' ? stop?.place.id : undefined)}
+                  selectedPlaceId={
+                    openId ??
+                    (level === 'places'
+                      ? place?.id
+                      : level === 'pick'
+                        ? stop?.place.id
+                        : level === 'near'
+                          ? nearSel?.kind === 'pick'
+                            ? nearSel.stopId
+                            : nearSel?.id
+                          : undefined)
+                  }
                   numbered={isPickLevel(level) && pick?.kind === 'walk'}
                   path={pick?.kind === 'walk'}
                   visited={visited}
                   label={`Map of Singapore's planning areas. ${title}.`}
                   onPickRegion={(id) => (level === 'regions' ? go({ r: id }) : enterRegion(id))}
                   onPickArea={(id) => (level === 'areas' ? go({ a: id }) : enterArea(id))}
-                  onPickPlace={(id) => (isPickLevel(level) ? go({ lvl: 'pick', p: id }) : go({ lvl: 'places', p: id }))}
+                  onPickPlace={(id) => (level === 'near' ? go({ n: id }) : isPickLevel(level) ? go({ lvl: 'pick', p: id }) : go({ lvl: 'places', p: id }))}
+                  here={level === 'near' ? (here ?? undefined) : undefined}
                   sky={openId ? sky : undefined}
                 />
               </Suspense>
             )}
             {openId && (
-              <div className={styles.mapTop}>
-                <button type="button" className={styles.back} onClick={closePlace} aria-label={`Close ${curatedPlace(openId)?.name ?? 'place'}`}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
-                    <path d="M6 6l12 12M18 6 6 18" />
-                  </svg>
-                </button>
+              // the way back is the ↩ key in the row below, which stays while the pages turn
+              <div className={`${styles.mapTop} ${styles.mapTopEnd}`}>
                 <SkyControls sky={sky} onChange={setSky} />
               </div>
             )}
             {!routeMode && !openId && (
               <div className={styles.mapTop}>
-                {level !== 'regions' && (
-                  <button type="button" className={styles.back} onClick={up} aria-label={upLabel}>
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M15 5l-7 7 7 7" />
-                    </svg>
-                  </button>
-                )}
                 <div className={styles.crumbBox}>
                   <span className={styles.dots} aria-hidden="true">
                     {[0, 1, 2].map((d) => (
@@ -723,26 +856,16 @@ export default function DiscoveryHome() {
               </details>
             )}
           </div>
-          {!openId && (
-            <MapToolbar
-              canUndo={undoStack.current.length > 0}
-              locating={locating}
-              onLocate={locate}
-              onUndo={undo}
-              onPickArea={pickArea}
-              onPickPlace={pickPlace}
-              picksOn={isPickLevel(level)}
-              onPicks={() => (isPickLevel(level) ? go({ lvl: 'regions' }) : go({ lvl: 'picks' }))}
-            />
-          )}
+          {!openId && keys}
         </div>
         {openId && (
           <Suspense fallback={null}>
             <AnimatePresence mode="popLayout">
-              <PlaceIntro key="intro" placeId={openId} distance={homeOf(openId)?.distance} onClose={closePlace} onTurn={onIntroTurn} />
+              <PlaceIntro key="intro" placeId={openId} distance={homeOf(openId)?.distance} onClose={closePlace} onTurn={onIntroTurn} book={book} />
             </AnimatePresence>
           </Suspense>
         )}
+        {openId && <div className={styles.keysOpen}>{keys}</div>}
       </>
 
       <div className={openId ? `${styles.recommend} ${styles.recommendOpen}` : styles.recommend}>
@@ -760,9 +883,11 @@ export default function DiscoveryHome() {
                     ? `areas:${region}`
                     : level === 'picks'
                       ? 'picks'
-                      : level === 'pick'
-                        ? `pick:${pick?.id}`
-                        : `places:${area.id}`
+                      : level === 'near'
+                        ? 'near'
+                        : level === 'pick'
+                          ? `pick:${pick?.id}`
+                          : `places:${area.id}`
               }
               className={styles.deckLayer}
               {...deckMotion}
@@ -840,6 +965,37 @@ export default function DiscoveryHome() {
                       actionLabel={(c) => (picks.find((k) => k.id === c.id)?.kind === 'walk' ? `Start ${c.name}` : `See ${c.name}`)}
                       onSelect={(id) => go({ k: id })}
                       onEnter={(id) => go({ lvl: 'pick', k: id })}
+                    />
+                  }
+                />
+              )}
+              {level === 'near' && nearSel && (
+                <CoverFlow3D
+                  label={title}
+                  items={nearItems}
+                  hideAction={!!openId}
+                  selectedId={nearSel.id}
+                  onSelect={(id) => go({ n: id, open: openId && near?.items.find((i) => i.id === id)?.kind === 'place' ? id : undefined })}
+                  onEnter={enterNear}
+                  fallback={
+                    <LevelDeck
+                      label={title}
+                      cards={nearItems.map((c) => ({
+                        id: c.id,
+                        name: c.title,
+                        kicker: c.kicker,
+                        progress:
+                          c.progress === null
+                            ? { visited: c.status === 'done' ? 1 : 0, total: 1, status: c.status }
+                            : pickProgress((near?.items.find((i) => i.id === c.id) as Extract<NearItem, { kind: 'pick' }>).pick, visited),
+                      }))}
+                      selectedId={nearSel.id}
+                      actionLabel={(c) => {
+                        const it = near?.items.find((i) => i.id === c.id);
+                        return it?.kind === 'pick' ? `${it.pick.kind === 'walk' ? 'Start' : 'See'} ${c.name}` : `Open ${c.name}`;
+                      }}
+                      onSelect={(id) => go({ n: id })}
+                      onEnter={enterNear}
                     />
                   }
                 />

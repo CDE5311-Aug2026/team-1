@@ -328,7 +328,7 @@ export default function SettingsPage() {
             <Icon name="chevron" size={18} className={styles.rowChevron} />
           </button>
         </nav>
-        <p className={styles.footerNote}>IntentAI · beta</p>
+        <p className={styles.footerNote}>FindSG · beta</p>
       </div>
       {editing && <FieldEditor field={editing} profile={profile} onClose={() => setEditing(null)} />}
       {help && <HelpDialog onClose={() => setHelp(false)} />}

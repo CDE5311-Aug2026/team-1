@@ -1,0 +1,26 @@
+.findsg .mission-ticket{position:relative;max-width:470px;margin:22px 0 4px;min-width:0}
+.findsg .mission-ticket__caption{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 5px 18px;color:#b9a77d}
+.findsg .mission-ticket__caption>span{font:8px/1.6 var(--mono,monospace);letter-spacing:1.5px}
+.findsg .mission-ticket__caption>small{font:10px/1.6 var(--sans,sans-serif);color:#8d9c7f}
+.findsg .mission-ticket__paper{filter:drop-shadow(0 11px 15px #020d0770)}
+.findsg .mission-ticket__body{position:absolute;inset:0;overflow:hidden;padding:23px 25px 18px;display:flex;flex-direction:column;align-items:flex-start;box-sizing:border-box;isolation:isolate}
+.findsg .mission-ticket__body:before{content:'';position:absolute;inset:9px 12px;border:1px solid #9f844c44;z-index:-1;pointer-events:none}
+.findsg .mission-ticket__folio{font:9px/1.7 var(--mono,monospace);letter-spacing:1.6px;color:#8d7449}
+.findsg .mission-ticket .mission-ticket__body h3{font:500 27px/1.45 var(--serif,Georgia,serif);color:#334a36;margin:10px 0 6px;position:relative;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;letter-spacing:.4px}
+.findsg .mission-ticket .mission-ticket__body p{font:13px/1.8 var(--sans,sans-serif);color:#6b6e4e;margin:0;position:relative;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.findsg .mission-ticket__details{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;border-top:1px solid #ab945857;padding-top:9px;margin-top:auto;color:#7a704c;position:relative}
+.findsg .mission-ticket__details>span{font-size:11px;line-height:1.5}
+.findsg .mission-ticket__details>b{font:9px/1.5 var(--mono,monospace);font-weight:400;letter-spacing:1px;white-space:nowrap}
+.findsg .mission-ticket__mark{position:absolute;right:25px;bottom:35px;z-index:-1;font:italic 112px/1 Georgia,serif;letter-spacing:-9px;color:#7b794115;transform:rotate(-9deg);pointer-events:none}
+.findsg .mission-ticket__stub{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;padding:14px 11px;color:#f8e7c5;text-align:center;background:repeating-linear-gradient(0deg,#4f351710 0 1px,transparent 1px 4px)}
+.findsg .mission-ticket__stub>small{font-size:10px;letter-spacing:2px;color:#4f4427;margin-bottom:11px}
+.findsg .mission-ticket__stub>strong{font:500 23px/1.55 var(--serif,Georgia,serif);letter-spacing:2px;text-shadow:0 1px #64422344}
+.findsg .mission-ticket__stub>span{font-size:28px;line-height:1.4;color:#f4d5a1}
+.findsg .mission-ticket__stub>b{font:8px/1.6 var(--mono,monospace);font-weight:400;letter-spacing:2px;border-top:1px solid #f0cf983b;padding-top:7px;color:#ebce9f}
+.findsg .mission-ticket__actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 2px 0;position:relative;z-index:1}
+.findsg .mission-ticket .mission-ticket__actions p{font-size:10px;line-height:1.8;color:#8e9d7f;margin:0}
+.findsg .mission-ticket__actions>button{font:11px/1.7 var(--sans,sans-serif);color:#cfac78;white-space:nowrap;padding:8px 0 8px 8px;border-bottom:1px solid #b5935f55;background:none;cursor:pointer}
+.findsg .mission-ticket__actions>button:hover{color:#f0d3a5}
+.findsg .mission-ticket__actions>button:focus-visible{outline:2px solid #e0b47d;outline-offset:4px;border-radius:2px}
+.findsg .mission-ticket__actions>button>span{margin-left:4px}
+@media(max-width:760px){.findsg .mission-ticket{max-width:460px;margin-top:18px}.findsg .mission-ticket__caption{margin-bottom:15px}.findsg .mission-ticket__caption>span{font-size:7px}.findsg .mission-ticket__caption>small{font-size:9px}.findsg .mission-ticket__actions{gap:9px;margin-top:12px}.findsg .mission-ticket .mission-ticket__actions p{font-size:9px;max-width:175px}.findsg .mission-ticket__actions>button{font-size:10px}}

@@ -54159,7 +54159,7 @@ function sgcShow(T, via){
   const R = sgcResolve(T); SGC.T = T; SGC.R = R; SGC.via = via || 'api'; SGC.opens++; if (SGC.el) SGC.el.classList.remove('peek');
   sgcRender(); const el = SGC.el; el.style.transform = '';
   if (el.hidden){ el.hidden = false; void el.offsetWidth; } el.classList.add('on'); SGC.open = true;
-  sgcRing('sel', R.D); sgcSelLabel(R.D);
+  if (!/[#?&]cards=0(&|$)/.test(location.search + location.hash)) sgcRing('sel', R.D); sgcSelLabel(R.D);   // #cards=0 (Explore's sheet): no orange ring across the view
   if (!SGC.modeTimer) SGC.modeTimer = setInterval(() => { if (!SGC.open){ clearInterval(SGC.modeTimer); SGC.modeTimer = 0; return; } if (sgcBlocked()) sgcClose(); }, 1000);
   return true;
 }

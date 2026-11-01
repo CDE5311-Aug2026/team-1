@@ -18,7 +18,8 @@ const HOME_PLACES: readonly HomePlace[] = [
   {
     id: 'chinatown',
     name: 'Chinatown',
-    area: 'Chinatown & Tanjong Pagar',
+    area: 'Outram',
+    kind: 'Neighbourhood',
     point: { lat: 1.28361, lng: 103.84417 },
     distance: '8.4 km',
     photo: '/chinatown.webp',
@@ -63,14 +64,7 @@ function setup(opts: { selectedId?: string; stories?: PlaceStories } = {}) {
   const onActivate = vi.fn();
   const onOpen = vi.fn();
   const ui = (selectedId: string) => (
-    <PlaceCarousel
-      places={HOME_PLACES}
-      selectedId={selectedId}
-      stories={opts.stories ?? {}}
-      onSelect={onSelect}
-      onActivate={onActivate}
-      onOpen={onOpen}
-    />
+    <PlaceCarousel places={HOME_PLACES} selectedId={selectedId} stories={opts.stories ?? {}} onSelect={onSelect} onActivate={onActivate} onOpen={onOpen} />
   );
   const view = render(ui(opts.selectedId ?? ids[0]), { wrapper: Wrap });
   const region = screen.getByRole('region', { name: 'Nearby places' });
@@ -406,16 +400,7 @@ test('no parallax under reduced motion', () => {
 
 test('a place without a photo gets a placeholder', () => {
   const places = HOME_PLACES.map((p, i) => (i === 0 ? { ...p, photo: undefined } : p));
-  render(
-    <PlaceCarousel
-      places={places}
-      selectedId={ids[0]}
-      stories={{}}
-      onSelect={() => {}}
-      onActivate={() => {}}
-      onOpen={() => {}}
-    />,
-  );
+  render(<PlaceCarousel places={places} selectedId={ids[0]} stories={{}} onSelect={() => {}} onActivate={() => {}} onOpen={() => {}} />);
   const first = screen.getAllByRole('group')[0];
   expect(first.querySelector('img')).toBeNull();
   expect(first.querySelector('[data-parallax]')).not.toBeNull();

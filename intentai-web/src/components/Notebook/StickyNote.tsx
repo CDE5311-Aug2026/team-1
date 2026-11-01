@@ -3,7 +3,7 @@
 // way you move it, as paper does in the air; let go, it glides a little, settles back at its own slight angle, and stays
 // where you left it. The newest one picked up sits on top. Arrow keys move it too.
 import { motion, useMotionValue, useReducedMotionConfig, useSpring, useTransform, useVelocity } from 'motion/react';
-import { useState, type ReactNode, type RefObject } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import styles from './StickyNote.module.css';
 
 export type NoteTone = 'butter' | 'rose' | 'sage' | 'sky' | 'print';
@@ -22,9 +22,11 @@ interface Props {
   /** What it is, for screen readers (the content is read as well). */
   label?: string;
   className?: string;
+  /** A plain tap (no drag) on the note. */
+  onTap?: () => void;
 }
 
-export function StickyNote({ children, tone = 'butter', tilt = 0, bounds, tape, label, className }: Props) {
+export function StickyNote({ children, tone = 'butter', tilt = 0, bounds, tape, label, className, onTap }: Props) {
   const reduce = useReducedMotionConfig();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -40,8 +42,42 @@ export function StickyNote({ children, tone = 'butter', tilt = 0, bounds, tape, 
   );
   const [z, setZ] = useState(1);
   const [lifted, setLifted] = useState(false);
+  // the area it can move in, from layout offsets: on-screen boxes are wrong while a book page is turned in 3D
+  const me = useRef<HTMLLIElement>(null);
+  const [box, setBox] = useState<{ left: number; right: number; top: number; bottom: number }>();
+  useLayoutEffect(() => {
+    const el = me.current,
+      area = bounds.current;
+    if (!el || !area) return;
+    const measure = () => {
+      let left = 0,
+        top = 0;
+      for (let n: HTMLElement | null = el; n && n !== area; n = n.offsetParent as HTMLElement | null) {
+        left += n.offsetLeft;
+        top += n.offsetTop;
+      }
+      setBox({ left: -left, top: -top, right: area.clientWidth - left - el.offsetWidth, bottom: area.clientHeight - top - el.offsetHeight });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(area);
+    return () => ro.disconnect();
+  }, [bounds]);
+
+  // a tap is a press that ends close to where it began; anything further is a drag
+  const press = useRef<{ x: number; y: number } | null>(null);
+  const release = (e: React.PointerEvent) => {
+    const p = press.current;
+    press.current = null;
+    if (p && onTap && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 8) onTap();
+  };
 
   const nudge = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && onTap && e.target === e.currentTarget) {
+      e.preventDefault();
+      onTap();
+      return;
+    }
     const step = e.shiftKey ? 40 : 12;
     const d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
     if (!d) return;
@@ -61,11 +97,17 @@ export function StickyNote({ children, tone = 'butter', tilt = 0, bounds, tape, 
       tabIndex={0}
       aria-roledescription="movable note"
       aria-label={label}
+      ref={me}
       drag
-      dragConstraints={bounds}
+      dragConstraints={box}
       dragElastic={0.16}
       dragTransition={{ power: 0.22, timeConstant: 240, bounceStiffness: 340, bounceDamping: 20 }}
-      onPointerDown={() => setZ(++top)}
+      onPointerDown={(e) => {
+        setZ(++top);
+        press.current = { x: e.clientX, y: e.clientY };
+      }}
+      onPointerUp={release}
+      onPointerCancel={() => (press.current = null)}
       onDragStart={() => setLifted(true)}
       onDragEnd={() => setLifted(false)}
       onKeyDown={nudge}

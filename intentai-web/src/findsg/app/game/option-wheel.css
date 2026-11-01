@@ -1,0 +1,75 @@
+/* Adapted from React Bits — OptionWheel (JavaScript + CSS), user-supplied
+   source. The supplied excerpt does not identify a specific license. */
+.findsg .option-wheel {
+  --ow-text-color: #a6a6a6;
+  --ow-active-color: #ffffff;
+  --ow-font-size: 3rem;
+  --ow-inset: 80px;
+  --ow-focus-color: #d99c69;
+  position: relative;
+  width: 100%;
+  height: var(--ow-height, 100%);
+  min-height: var(--ow-min-height, 16rem);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  outline: none;
+  isolation: isolate;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+}
+.findsg .option-wheel:focus-visible {
+  outline: 2px solid var(--ow-focus-color);
+  outline-offset: -4px;
+  border-radius: 12px;
+}
+.findsg .option-wheel--dragging { cursor: grabbing; }
+.findsg .option-wheel--fixed { cursor: default; touch-action: pan-y; }
+.findsg .option-wheel--static { cursor: default; touch-action: pan-y; }
+.findsg .option-wheel--disabled { cursor: default; touch-action: auto; }
+.findsg .option-wheel--disabled .option-wheel__item { pointer-events: none; cursor: default; }
+
+/* Absolute options follow the shared animated curve. --ow-p preserves the
+   original active-colour blend contract from the supplied component. */
+.findsg .option-wheel__item {
+  position: absolute;
+  top: 50%;
+  left: var(--ow-inset);
+  max-width: calc(100% - var(--ow-inset) - 1rem);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: inherit;
+  font-size: var(--ow-font-size);
+  line-height: 1.18;
+  font-weight: 200;
+  transform-origin: left center;
+  cursor: pointer;
+  opacity: 0;
+  will-change: transform, opacity, filter;
+  color: var(--ow-text-color);
+  color: color-mix(in srgb, var(--ow-active-color) calc(var(--ow-p, 0) * 100%), var(--ow-text-color));
+}
+.findsg .option-wheel--right .option-wheel__item {
+  left: auto;
+  right: var(--ow-inset);
+  transform-origin: right center;
+  text-align: right;
+}
+.findsg .option-wheel__item--selected { font-weight: 500; }
+.findsg .option-wheel__empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ow-text-color);
+  font: inherit;
+  font-size: .9rem;
+  cursor: default;
+}
+.findsg .option-wheel[data-reduced-motion="true"] .option-wheel__item { will-change: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .findsg .option-wheel__item { will-change: auto; }
+}

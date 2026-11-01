@@ -1,0 +1,458 @@
+/* The field notebook. Geometry: the page block is 16px thick (z 0 → -16px); the front cover lies on top (z +3px) and
+   swings open on its left edge; every page is a leaf hinged at the spine with a front and a reverse face. */
+
+.desk {
+  --paper: #eadcbd;
+  --paper-light: #f4e9cf;
+  --paper-dark: #d8c49b;
+  --ink: #2c2117;
+  --ink-soft: #5a4632;
+  --ink-red: #9b2c1c;
+  --cover: #4f2a1b;
+  --thick: 16px;
+  --turn: 0.75s cubic-bezier(0.28, 0.72, 0.2, 1);
+  position: relative;
+  padding: 6px 0 4px;
+}
+
+.book {
+  position: relative;
+  width: calc(100% - 26px);
+  max-width: 372px;
+  aspect-ratio: 1 / 1.46;
+  max-height: calc(100svh - 228px);
+  min-height: 470px;
+  margin: 0 auto 0 4px;
+  perspective: 2400px;
+  perspective-origin: 30% 40%;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@media (min-width: 430px) {
+  .book {
+    margin-left: auto;
+  }
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(22deg) rotateY(-16deg) rotateZ(-5deg) scale(0.86) translateY(-10px);
+  transition: transform 1.1s cubic-bezier(0.4, 0.1, 0.2, 1);
+  animation: idle 6s ease-in-out infinite;
+}
+.isOpen .stage {
+  transform: none;
+  animation: none;
+}
+@keyframes idle {
+  50% {
+    transform: rotateX(19deg) rotateY(-12deg) rotateZ(-4deg) scale(0.86) translateY(-16px);
+  }
+}
+
+/* page block edges: hundreds of sheets seen side-on */
+.edgeRight,
+.edgeBottom {
+  position: absolute;
+  background: repeating-linear-gradient(90deg, #efe4c8 0 1px, #cdb88f 1px 2px, #e6d7b5 2px 3px), #e2d2ad;
+  box-shadow: inset 0 0 6px rgba(80, 50, 20, 0.45);
+}
+.edgeRight {
+  top: 4px;
+  bottom: 4px;
+  right: 0;
+  width: var(--thick);
+  transform-origin: right center;
+  transform: rotateY(-90deg);
+}
+.edgeBottom {
+  left: 6px;
+  right: 2px;
+  bottom: 0;
+  height: var(--thick);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+  background: repeating-linear-gradient(0deg, #efe4c8 0 1px, #cdb88f 1px 2px, #e6d7b5 2px 3px), #e2d2ad;
+}
+/* the back board, and the book's shadow on the desk */
+.back {
+  position: absolute;
+  inset: -3px -6px -5px -2px;
+  border-radius: 4px 12px 12px 4px;
+  transform: translateZ(calc(var(--thick) * -1 - 3px));
+  background: var(--leather), var(--cover);
+  box-shadow:
+    0 30px 50px rgba(0, 0, 0, 0.55),
+    0 8px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- leaves ---- */
+.leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition:
+    transform var(--turn),
+    visibility 0s;
+}
+.dragging {
+  transition: none;
+}
+.turned {
+  visibility: hidden;
+  transition:
+    transform var(--turn),
+    visibility 0s 0.75s;
+}
+.front,
+.reverse {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 2px 8px 8px 2px;
+  overflow: hidden;
+}
+.reverse {
+  transform: rotateY(180deg);
+  background: var(--stains), var(--fibres), var(--grain), linear-gradient(90deg, #dccaa3, var(--paper) 30%);
+  box-shadow: inset 0 0 40px rgba(110, 72, 30, 0.35);
+}
+.paper {
+  position: absolute;
+  inset: 0;
+  color: var(--ink);
+  background: radial-gradient(120% 90% at 55% 42%, rgba(255, 249, 230, 0.55), transparent 62%), var(--stains), var(--fibres), var(--grain), var(--paper);
+  box-shadow:
+    inset 18px 0 22px -14px rgba(60, 38, 16, 0.55),
+    inset 0 0 46px rgba(120, 78, 30, 0.38),
+    inset 0 0 3px rgba(90, 60, 25, 0.5);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+}
+/* the light and shade of a page as it lifts */
+.curl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to left, rgba(50, 30, 12, calc(var(--lift) * 0.45)), transparent 55%),
+    linear-gradient(to right, rgba(255, 248, 228, calc(var(--lift) * 0.35)), transparent 35%);
+}
+.castShadow {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(-0.5px);
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(40, 24, 10, 0.75), transparent 70%);
+  z-index: 499;
+}
+
+/* the dog-eared corner: tap to turn */
+.dogEar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+.dogEar span {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(315deg, transparent 50%, #c9b385 50%, #e2d0a8 72%, #f0e3c4);
+  filter: drop-shadow(-2px -2px 2px rgba(60, 38, 16, 0.35));
+  transition: transform 0.25s;
+  transform-origin: 100% 100%;
+}
+.dogEar:hover span,
+.dogEar:focus-visible span {
+  transform: scale(1.35);
+}
+.dogEar:focus-visible {
+  outline: 2px solid var(--ink-red);
+  outline-offset: -6px;
+}
+.backEar {
+  position: absolute;
+  left: 18px;
+  bottom: 6px;
+  width: 44px;
+  height: 36px;
+  border: 0;
+  background: none;
+  color: rgba(70, 50, 30, 0.55);
+  font:
+    400 1.5rem/1 var(--font-display);
+  cursor: pointer;
+}
+
+/* ---- cover ---- */
+.cover {
+  position: absolute;
+  inset: -3px -6px -5px -2px;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform: translateZ(3px);
+  transition:
+    transform 1.15s cubic-bezier(0.45, 0.05, 0.2, 1) 0.35s,
+    visibility 0s 1.6s;
+  z-index: 900;
+}
+.isOpen .cover {
+  transform: translateZ(3px) rotateY(-178deg);
+  visibility: hidden;
+}
+.coverFront {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  border-radius: 4px 12px 12px 4px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  cursor: pointer;
+  color: #e8c983;
+  text-align: center;
+  background:
+    radial-gradient(90% 70% at 35% 25%, rgba(255, 210, 160, 0.16), transparent 60%),
+    radial-gradient(130% 100% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.45)), var(--scuffs), var(--leather), var(--cover);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 220, 170, 0.08),
+    inset 0 2px 1px rgba(255, 220, 170, 0.12),
+    inset 0 0 22px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+.coverFront:focus-visible {
+  outline: 3px solid #e8c983;
+  outline-offset: 3px;
+}
+.coverInside {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px 4px 4px 12px;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: linear-gradient(90deg, transparent 88%, rgba(0, 0, 0, 0.35)), var(--marble);
+  box-shadow: inset 0 0 0 10px var(--cover);
+}
+.coverEdge {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  right: 0;
+  width: 4px;
+  transform-origin: right center;
+  transform: rotateY(-90deg);
+  background: #2a160d;
+}
+/* the elastic strap that holds it shut */
+.strap {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  right: 30px;
+  width: 13px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 4px),
+    linear-gradient(90deg, #120b07, #36241a 35%, #4a3224 50%, #2a1b12 70%, #120b07);
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 0.45s cubic-bezier(0.5, 0, 0.6, 1),
+    opacity 0.45s;
+}
+.isOpen .strap {
+  transform: translateX(46px) rotate(9deg);
+  opacity: 0;
+}
+
+/* stitched leather spine over the binding */
+.spine {
+  position: absolute;
+  top: -3px;
+  bottom: -5px;
+  left: -6px;
+  width: 15px;
+  transform: translateZ(4px);
+  border-radius: 6px 2px 2px 6px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 9px, rgba(232, 201, 131, 0.55) 9px 14px, transparent 14px 20px) 8px 0 / 1.5px 100% no-repeat,
+    linear-gradient(90deg, #170d08, #3f2316 45%, #2a160d),
+    var(--leather);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.45);
+  z-index: 950;
+  opacity: 0;
+  transition: opacity 0.4s 1.2s;
+}
+.isOpen .spine {
+  opacity: 1;
+}
+
+/* ---- thumb tabs: chapter index on the fore-edge ---- */
+.tabs {
+  position: absolute;
+  top: 7%;
+  right: -26px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 1000;
+  animation: tabsIn 0.5s 1.3s both;
+}
+@keyframes tabsIn {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+}
+.tab {
+  position: relative;
+  width: 30px;
+  min-height: 52px;
+  border: 0;
+  padding: 6px 0 6px 6px;
+  border-radius: 0 7px 7px 0;
+  cursor: pointer;
+  color: #f3e6c8;
+  background:
+    var(--grain), linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent 30%), hsl(calc(8 + var(--n) * 6) calc(48% - var(--n) * 3%) calc(27% + var(--n) * 2.4%));
+  box-shadow:
+    2px 2px 3px rgba(0, 0, 0, 0.35),
+    inset -1px 0 0 rgba(255, 255, 255, 0.12);
+  font:
+    400 0.6875rem/1 var(--font-display);
+  letter-spacing: 0.08em;
+  writing-mode: vertical-rl;
+  transition: transform 0.2s;
+}
+.tab[aria-current='page'] {
+  transform: translateX(5px);
+  color: #fff8e6;
+  box-shadow:
+    3px 2px 5px rgba(0, 0, 0, 0.45),
+    inset -1px 0 0 rgba(255, 255, 255, 0.2);
+}
+.tab:focus-visible {
+  outline: 2px solid #e8c983;
+  outline-offset: 2px;
+}
+
+.folio {
+  margin: 14px 0 0;
+  text-align: center;
+  color: rgba(240, 222, 186, 0.62);
+  font:
+    italic 400 0.8125rem/1.3 'IM Fell English',
+    'IM Fell English',
+    Georgia,
+    serif;
+  opacity: 0;
+  animation: tabsIn 0.4s 1.5s both;
+}
+.folio span {
+  margin-right: 8px;
+  font-style: normal;
+  letter-spacing: 0.1em;
+}
+
+:global(html.reduce-motion) .stage,
+:global(html.reduce-motion) .leaf,
+:global(html.reduce-motion) .cover,
+:global(html.reduce-motion) .strap {
+  transition-duration: 0.01s !important;
+  transition-delay: 0s !important;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .leaf,
+  .cover {
+    transition-duration: 0.01s !important;
+    transition-delay: 0s !important;
+    animation: none !important;
+  }
+}
+
+/* taken off the shelf: held upright, facing you, before it opens */
+.held .stage {
+  transform: rotateY(-7deg) scale(0.94);
+  animation: none;
+}
+.held.isOpen .stage {
+  transform: none;
+}
+
+/* ---- reading screen: the book is the whole screen ---- */
+.fit {
+  padding: 0;
+  display: grid;
+  justify-items: center;
+}
+.fit .book {
+  /* as big as the phone allows, keeping a book's proportions; room left for the fore-edge tabs */
+  --ratio: 1.46;
+  width: min(calc(100vw - 52px), calc((100dvh - 118px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / var(--ratio)), 470px);
+  aspect-ratio: 1 / var(--ratio);
+  max-width: none;
+  max-height: none;
+  min-height: 0;
+  margin: 0 18px 0 0;
+  perspective: 1900px;
+  perspective-origin: 40% 45%;
+}
+/* the block of pages under the open leaf: you see how thick the book is */
+.fit.isOpen .stage::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  bottom: -2px;
+  right: -7px;
+  width: 7px;
+  transform: translateZ(-2px);
+  border-radius: 0 3px 3px 0;
+  background:
+    repeating-linear-gradient(90deg, #e9dbb8 0 1px, #c9b285 1px 2px),
+    #d9c79d;
+  box-shadow: 3px 2px 6px rgba(0, 0, 0, 0.45);
+}
+.fit.isOpen .stage::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: -6px;
+  bottom: -7px;
+  height: 7px;
+  transform: translateZ(-2px);
+  background:
+    repeating-linear-gradient(180deg, #e9dbb8 0 1px, #c9b285 1px 2px),
+    #d9c79d;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+.fit .folio {
+  margin-top: 12px;
+}
+/* on a phone the casebook is a little taller than a shelf book: a reporter's notebook, filling the screen */
+@media (max-width: 760px) {
+  .fit .book {
+    --ratio: 1.62;
+  }
+}
+/* a heavy book: the cover takes its time and settles */
+.fit .cover {
+  transition:
+    transform 1.5s cubic-bezier(0.55, 0.02, 0.18, 1.04) 0.25s,
+    visibility 0s 1.8s;
+}
+.fit .leaf {
+  --turn: 0.9s cubic-bezier(0.38, 0.06, 0.16, 1);
+}

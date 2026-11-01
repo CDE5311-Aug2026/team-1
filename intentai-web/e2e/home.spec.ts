@@ -114,7 +114,7 @@ for (const width of [320, 390]) {
     expect(middle.x, 'middle card inside the screen').toBeGreaterThanOrEqual(0);
     expect(middle.x + middle.width).toBeLessThanOrEqual(width);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
-    const header = await box(page, page.getByRole('link', { name: /day streak/ }));
+    const header = await box(page, page.getByRole('link', { name: /Open your passport/ }));
     expect(header.y).toBeGreaterThanOrEqual(0);
   });
 }

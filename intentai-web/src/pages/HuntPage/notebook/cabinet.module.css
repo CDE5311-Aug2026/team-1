@@ -1,0 +1,52 @@
+/* ---- shared section heading on the chart ---- */
+.head {
+  display: flex;
+  align-items: baseline;
+  /* the link sits by the heading, not in the corner where the field-guide roll floats */
+  gap: 14px;
+  margin: 0 2px 8px;
+}
+.head h2 {
+  margin: 0;
+  font:
+    500 1.125rem/1.2 var(--font-display);
+  letter-spacing: 0.02em;
+  color: #f2e8d5;
+}
+.head button {
+  border: 0;
+  padding: 4px 0;
+  background: none;
+  cursor: pointer;
+  font:
+    400 0.8125rem/1 var(--font-display);
+  font-weight: 600;
+  color: #f0a060;
+}
+.head button:focus-visible {
+  outline: 2px solid #f0a060;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ---- the display case ---- */
+.case {
+  margin-top: 6px;
+}
+.tally {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 2px 6px;
+  font:
+    500 0.6875rem/1.2 var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(242, 232, 213, 0.6);
+}
+.tally b {
+  /* Oswald's figures: IM Fell's old-style 0 reads as an o */
+  font:
+    500 1.125rem/1 var(--font-display);
+  letter-spacing: 0;
+  color: #f2e8d5;
+}

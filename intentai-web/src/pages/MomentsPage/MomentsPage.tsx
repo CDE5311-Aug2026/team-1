@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
-import camera from '../../assets/v3/moments/camera.svg';
-import play from '../../assets/v3/moments/play.svg';
-import star from '../../assets/v3/moments/star.svg';
+import '@fontsource/im-fell-english/400.css';
+import '@fontsource/im-fell-english/400-italic.css';
+import { useMemo, useState, type CSSProperties } from 'react';
+import { Link } from 'react-router-dom';
+import logo from '../../assets/brand/findsg-logo.png';
 import AppShell from '../../components/AppShell/AppShell';
-import HomeLink from '../../components/HomeLink/HomeLink';
 import type { Lookup } from '../../data/domain';
 import { communitySocialStore } from '../../data/community/social';
 import { usePersistentStore } from '../../data/persistentStore';
@@ -24,9 +24,14 @@ import { useExplorePersonal } from '../../features/nearby/actions';
 import { MAIN_COLLECTION, collectionProgress } from '../../features/nearby/catalogue';
 import { localToday } from '../../features/nearby/personal';
 import { showToast } from '../../hooks/useToast';
+import { paths } from '../../routes';
 import { useSpan } from '../../usage/useSpan';
+import { CHART_BACKDROP } from '../HuntPage/notebook/chartBackdrop';
+import { MATERIALS } from '../HuntPage/notebook/Notebook';
+import Icon from '../OnboardingPage/v3/icons';
 import Collected from './Collected/Collected';
 import ConversationSheet from './ConversationSheet/ConversationSheet';
+import Journal from './Journal/Journal';
 import Passport from './Passport/Passport';
 import PhraseSheet from './PhraseSheet/PhraseSheet';
 import PlaceSheet from './PlaceSheet/PlaceSheet';
@@ -36,6 +41,11 @@ import Recap from './Recap/Recap';
 import SnapSheet from './SnapSheet/SnapSheet';
 import styles from './MomentsPage.module.css';
 
+/** The dark sea-chart colour under the backdrop (as Hunt's). */
+const CHART_BG = '#1d1711';
+/** Hunt's paper materials (grain, stains, fibres) and its sea chart, as CSS variables for the page and its sheets. */
+const DESK_STYLE = { ...MATERIALS, '--chart': CHART_BACKDROP } as CSSProperties;
+
 type Modal =
   | { type: 'place'; areaId: string }
   | { type: 'rank' }
@@ -44,7 +54,10 @@ type Modal =
   | { type: 'phrase'; key: string }
   | { type: 'conversation'; threadId: string };
 
-/** Moments (ZIP `moments()`, Figma M1–M5): a passport of the places you checked in, inked by the cards you opened. */
+/**
+ * Moments (ZIP `moments()`, Figma M1–M5): a passport of the places you checked in, inked by the cards you opened.
+ * Dressed as Hunt's desk (1 Nov 2026): parchment pages and pinned prints on a dark antique sea chart.
+ */
 export default function MomentsPage() {
   const personal = useExplorePersonal();
   const [opened] = usePersistentStore(openedCardsStore);
@@ -92,33 +105,37 @@ export default function MomentsPage() {
   };
 
   const placeStamp = modal?.type === 'place' ? stamps.find((s) => s.subject.id === modal.areaId) : undefined;
-  const phraseItem = modal?.type === 'phrase' ? items.find((i): i is Extract<CollectedItem, { kind: 'phrase' }> => i.key === modal.key && i.kind === 'phrase') : undefined;
+  const phraseItem =
+    modal?.type === 'phrase' ? items.find((i): i is Extract<CollectedItem, { kind: 'phrase' }> => i.key === modal.key && i.kind === 'phrase') : undefined;
   const conversation = modal?.type === 'conversation' ? social.saved.find((c) => c.threadId === modal.threadId) : undefined;
   const recapImages = facts.flatMap((f) => (f.cardId && imageOf(f.cardId) ? [imageOf(f.cardId)!] : [])).slice(0, 1);
 
   return (
-    <AppShell background="#edebe5">
-      <div className={styles.page}>
+    <AppShell background={CHART_BG}>
+      <div className={styles.desk} style={DESK_STYLE}>
         <header className={styles.header}>
-          <HomeLink className={styles.logo} />
-          <h1 className={styles.srOnly}>Moments</h1>
-          <button type="button" className={styles.snap} onClick={() => setModal({ type: 'snap' })}>
-            <span className={styles.snapOrb}>
-              <img src={camera} alt="" width={13} height={13} />
-            </span>
-            Snap
-          </button>
-          <button type="button" className={styles.rank} onClick={() => setModal({ type: 'rank' })} aria-label={`Rank: ${rank.step.label}. ${rank.line}`}>
-            <span className={styles.rankMark}>
-              <Ring value={rank.progress} size={28} stroke={3} />
-              <img src={star} alt="" width={12} height={12} />
-            </span>
-            {rank.step.label}
-          </button>
+          <span className={styles.brand}>
+            <Link to={paths.today} aria-label="Home" className={styles.logoLink}>
+              <img className={styles.mark} src={logo} alt="" width={42} height={42} />
+            </Link>
+            <h1 className={styles.wordmark}>Moments</h1>
+          </span>
+          <span className={styles.tools}>
+            <button type="button" className={styles.square} onClick={() => setModal({ type: 'snap' })} aria-label="Snap">
+              <Icon name="camera" size={22} />
+            </button>
+            <button type="button" className={styles.square} onClick={() => setModal({ type: 'rank' })} aria-label={`Rank: ${rank.step.label}. ${rank.line}`}>
+              <span className={styles.rankMark}>
+                <Ring value={rank.progress} size={32} stroke={2.5} track="rgba(232, 201, 131, 0.22)" color="#e8833a" />
+                <Icon name="star" size={15} />
+              </span>
+            </button>
+          </span>
         </header>
 
-        <Passport stamps={stamps} progress={progress} today={today} onOpen={(stamp) => setModal({ type: 'place', areaId: stamp.subject.id })} />
+        <Journal />
 
+        <Passport stamps={stamps} progress={progress} today={today} onOpen={(stamp) => setModal({ type: 'place', areaId: stamp.subject.id })} />
 
         <Collected items={items} filter={filter} onFilter={setFilter} onOpen={openItem} />
 
@@ -133,42 +150,50 @@ export default function MomentsPage() {
             <small>{facts.length ? recapLine(facts.length) : 'Open a card to add facts'}</small>
           </span>
           <span className={styles.recapArrow} aria-hidden="true">
-            <img src={play} alt="" width={18} height={18} />
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <path d="M5 3.2v9.6L12.6 8z" fill="currentColor" />
+            </svg>
           </span>
         </button>
-      </div>
 
-      {placeStamp && <PlaceSheet stamp={placeStamp} index={stamps.indexOf(placeStamp)} onClose={() => setModal(null)} />}
-      {modal?.type === 'rank' && <RankSheet rank={rank} badges={badges} onClose={() => setModal(null)} />}
-      {modal?.type === 'snap' && <SnapSheet stamps={stamps} onClose={() => setModal(null)} />}
-      {modal?.type === 'recap' && <Recap facts={facts} onClose={() => setModal(null)} />}
-      {conversation && <ConversationSheet saved={conversation} onClose={() => setModal(null)} />}
-      {phraseItem && !practising && (
-        <PhraseSheet
-          item={phraseItem}
-          onClose={() => setModal(null)}
-          onPractise={() =>
-            setPractising(
-              phraseItem.lookup ?? { id: phraseItem.key, word: phraseItem.word, meaning: phraseItem.meaning, source: 'IntentAI editorial', example: phraseItem.example },
-            )
-          }
-          onToggleGot={() => {
-            const lookup = phraseItem.lookup;
-            if (!lookup) return;
-            const got = !lookup.got;
-            setLookups((prev) => prev.map((l) => (l.id === lookup.id ? { ...l, got } : l)));
-            showToast(got ? 'Marked as understood' : 'Marked as not understood yet');
-          }}
-          onDelete={() => phraseItem.lookup && removeLookup(phraseItem.lookup)}
-        />
-      )}
-      {practising && (
-        <PractiseDialog
-          lookup={practising}
-          onClose={() => setPractising(null)}
-          onSaveExample={(example) => setLookups((prev) => prev.map((l) => (l.id === practising.id ? { ...l, example } : l)))}
-        />
-      )}
+        {placeStamp && <PlaceSheet stamp={placeStamp} index={stamps.indexOf(placeStamp)} onClose={() => setModal(null)} />}
+        {modal?.type === 'rank' && <RankSheet rank={rank} badges={badges} onClose={() => setModal(null)} />}
+        {modal?.type === 'snap' && <SnapSheet stamps={stamps} onClose={() => setModal(null)} />}
+        {modal?.type === 'recap' && <Recap facts={facts} onClose={() => setModal(null)} />}
+        {conversation && <ConversationSheet saved={conversation} onClose={() => setModal(null)} />}
+        {phraseItem && !practising && (
+          <PhraseSheet
+            item={phraseItem}
+            onClose={() => setModal(null)}
+            onPractise={() =>
+              setPractising(
+                phraseItem.lookup ?? {
+                  id: phraseItem.key,
+                  word: phraseItem.word,
+                  meaning: phraseItem.meaning,
+                  source: 'IntentAI editorial',
+                  example: phraseItem.example,
+                },
+              )
+            }
+            onToggleGot={() => {
+              const lookup = phraseItem.lookup;
+              if (!lookup) return;
+              const got = !lookup.got;
+              setLookups((prev) => prev.map((l) => (l.id === lookup.id ? { ...l, got } : l)));
+              showToast(got ? 'Marked as understood' : 'Marked as not understood yet');
+            }}
+            onDelete={() => phraseItem.lookup && removeLookup(phraseItem.lookup)}
+          />
+        )}
+        {practising && (
+          <PractiseDialog
+            lookup={practising}
+            onClose={() => setPractising(null)}
+            onSaveExample={(example) => setLookups((prev) => prev.map((l) => (l.id === practising.id ? { ...l, example } : l)))}
+          />
+        )}
+      </div>
     </AppShell>
   );
 }

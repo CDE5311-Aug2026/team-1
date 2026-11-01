@@ -112,7 +112,6 @@ test('a card opened before: "Already in your stamp"; Snap again returns to the v
   expect(screen.getByRole('button', { name: /^Take photo/ })).toBeInTheDocument();
 });
 
-
 test('Save to Moments closes the sheet', async () => {
   reduceMotionStore.set(true);
   const user = userEvent.setup();

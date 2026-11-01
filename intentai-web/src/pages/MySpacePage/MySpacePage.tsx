@@ -4,7 +4,7 @@ import { motion, useReducedMotionConfig } from 'motion/react';
 import { useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import groundUrl from '../../assets/nearby/sg-ground.webp';
-import logo from '../../assets/v3/onboarding/logo.png';
+import logo from '../../assets/brand/findsg-logo.png';
 import AppShell from '../../components/AppShell/AppShell';
 import { buildStamps, openedCards, rankOf } from '../../data/moments/moments';
 import { usePersistentStore } from '../../data/persistentStore';

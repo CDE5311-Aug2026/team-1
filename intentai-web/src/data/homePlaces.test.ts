@@ -1,16 +1,8 @@
 import { beforeEach, expect, test } from 'vitest';
-import {
-  ALL_HOME_PLACES,
-  BERLIN_THUMB,
-  FACETS,
-  HOME_PLACES,
-  PINNED_COUNT,
-  formatHomeDistance,
-  searchHomePlaces,
-  visiblePins,
-} from './homePlaces';
+import { ALL_HOME_PLACES, BERLIN_THUMB, FACETS, HOME_PLACES, PINNED_COUNT, formatHomeDistance, searchHomePlaces, visiblePins } from './homePlaces';
 import placesJson from './explore/places.sg.json';
 import areasJson from './explore/areas.json';
+import { areaOfPlace } from './ura/ura';
 import { resetPersistentStores } from './persistentStore';
 
 beforeEach(() => {
@@ -29,7 +21,7 @@ test('four places in card order (story cards removed 31 Oct)', () => {
   expect(PINNED_COUNT).toBe(4);
 });
 
-test('the Berlin Wall keeps Team 1\'s photo', () => {
+test("the Berlin Wall keeps Team 1's photo", () => {
   const berlin = HOME_PLACES[0];
   expect(berlin.name).toBe('Berlin Wall Fragments');
   expect(berlin.credit).toBe('Photo supplied by the IntentAI team');
@@ -84,7 +76,9 @@ test('the literal Home places match the Nearby catalogue', () => {
     const raw = places.find((r) => r.id === p.id)!;
     expect(p.name).toBe(raw.name);
     expect(p.point).toEqual({ lat: raw.coordinates.lat, lng: raw.coordinates.lng });
-    expect(p.area).toBe(areas.find((a) => a.id === raw.areaId)!.name);
+    // the card names the URA planning area; Nearby's locality name stays searchable
+    expect(p.area).toBe(areaOfPlace(p.id)!.name);
+    expect(p.aliases).toContain(areas.find((a) => a.id === raw.areaId)!.name);
   }
 });
 
@@ -115,6 +109,13 @@ test('search: case-insensitive on name, area and aliases', () => {
   expect(ids(searchHomePlaces('haw par'))).toEqual([[], ['curated:sg-haw-par-villa']]);
   expect(ids(searchHomePlaces('queenstown'))[1].length).toBeGreaterThanOrEqual(3);
   expect(ids(searchHomePlaces('zzz'))).toEqual([[], []]);
+});
+
+test('the Berlin Wall is in Queenstown, as its deck says (NUS University Town lies in URA Queenstown)', () => {
+  const berlin = ALL_HOME_PLACES.find((p) => p.id === 'curated:sg-berlin-wall-fragments-utown')!;
+  expect(berlin.area).toBe('Queenstown');
+  expect(berlin.kind).toBe('Monument');
+  expect(ids(searchHomePlaces('kent ridge'))[1]).toContain(berlin.id);
 });
 
 test('the Berlin Wall shows once on Home', () => {

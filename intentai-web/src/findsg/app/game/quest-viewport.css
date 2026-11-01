@@ -1,0 +1,47 @@
+.findsg .quest-viewport{--quest-ink:#253e34;--quest-brass:#ad864f;--quest-orange:#d57b3f;position:relative;isolation:isolate;width:100%;color:var(--quest-ink);font:inherit;background:#f3ead8;border:1px solid #cbbb9b;border-radius:19px;overflow:hidden;box-shadow:0 14px 40px #203e3015}
+.findsg .quest-stage{position:relative;height:470px;min-height:340px;background:radial-gradient(ellipse at 50% 30%,#f4ebd7,#e2d6bc);overflow:hidden}
+.findsg .quest-host,.findsg .quest-render-surface{position:absolute;inset:0;width:100%;height:100%}
+.findsg .quest-canvas{display:block;width:100%;height:100%;outline:none;cursor:grab;touch-action:none}
+.findsg .quest-canvas:active{cursor:grabbing}
+.findsg .quest-canvas:focus-visible{outline:3px solid var(--quest-orange);outline-offset:-5px}
+.findsg .quest-stage-top{position:absolute;inset:14px 14px auto;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none;z-index:2}
+.findsg .quest-mechanism-name{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#fff9ebdc;border:1px solid #aa936333;box-shadow:0 2px 6px #4c382411;font-size:12px;font-weight:700;letter-spacing:.06em}
+.findsg .quest-mechanism-name i{width:7px;height:7px;background:#99876a;border-radius:50%;box-shadow:0 0 0 3px #a78d571a}
+.findsg .quest-viewport.is-enabled .quest-mechanism-name i{background:var(--quest-orange);box-shadow:0 0 0 3px #dd874329}
+.findsg .quest-viewport.is-solved .quest-mechanism-name i{background:#3f6a45}
+.findsg .quest-camera-controls{display:flex;gap:3px;pointer-events:auto;padding:3px;border:1px solid #ad966344;border-radius:999px;background:#fff8e9e8}
+.findsg .quest-viewport button{font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.findsg .quest-camera-controls button{border:0;background:transparent;padding:6px 11px;border-radius:999px;font-size:12px;cursor:pointer;min-height:32px}
+.findsg .quest-camera-controls button[aria-pressed=true]{background:#274c3f;color:#fff3d8}
+.findsg .quest-viewport button:focus-visible,.findsg .quest-access-controls summary:focus-visible{outline:3px solid #d0773f;outline-offset:3px}
+.findsg .quest-viewport button:disabled{opacity:.42;cursor:default}
+.findsg .quest-turn-controls{position:absolute;left:14px;right:14px;top:49%;display:flex;justify-content:space-between;pointer-events:none;z-index:2}
+.findsg .quest-turn-controls button{width:38px;height:45px;display:grid;place-items:center;border:1px solid #987c4d38;border-radius:14px;background:#fff8eabf;font-size:25px;line-height:1;pointer-events:auto;cursor:pointer;box-shadow:0 3px 10px #59462b12}
+.findsg .quest-turn-controls button:hover{background:#fff8eb}
+.findsg .quest-stage-caption{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);max-width:calc(100% - 24px);padding:5px 12px;white-space:nowrap;font-size:10px;letter-spacing:.025em;background:#f8efddd6;border:1px solid #aa92652b;border-radius:999px;pointer-events:none}
+.findsg .quest-locked-label,.findsg .quest-opening-label{position:absolute;bottom:45px;left:50%;transform:translateX(-50%);max-width:86%;padding:9px 16px;background:#274a40ed;border:1px solid #f4d29c44;color:#f9edd7;border-radius:10px;font-size:12px;text-align:center;box-shadow:0 6px 20px #19382b1c;pointer-events:none}
+.findsg .quest-opening-label{display:flex;align-items:center;gap:8px;background:#e7a05a;color:#203f33;font-weight:700}
+.findsg .quest-opening-label span{display:block;width:7px;height:7px;border-radius:50%;background:#2d5844;animation:quest-pulse .7s ease-in-out 3}
+.findsg .quest-system-message{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;background:#eee4d0f2;z-index:3}
+.findsg .quest-system-message strong{font-size:18px;letter-spacing:.04em}
+.findsg .quest-system-message p{font-size:12px;line-height:1.7;max-width:230px;margin:8px 0 0;color:#63705a}
+.findsg .quest-system-message button{margin-top:18px;padding:10px 18px;border:0;border-radius:10px;background:#27503f;color:#fff0d1;cursor:pointer}
+.findsg .quest-loading-object{display:block;width:32px;height:32px;border:3px solid #b9955b;border-top-color:#294d3e;transform:rotate(45deg);border-radius:7px;margin-bottom:25px;animation:quest-loading 1.4s ease-in-out 5}
+.findsg .quest-response{position:relative;border-top:1px solid #c6b39291;background:linear-gradient(135deg,#fbf4e4,#efe1c8);padding:14px 18px 15px}
+.findsg .quest-response:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.13;background-image:repeating-linear-gradient(0deg,#8e71451c 0,#8e71451c 1px,transparent 1px,transparent 4px)}
+.findsg .quest-response-heading{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:750;color:#3c5745}
+.findsg .quest-response-heading small{font-size:11px;letter-spacing:.1em;color:#967344}
+.findsg .quest-response p{position:relative;font-size:13px;line-height:1.8;margin:7px 0 0;min-height:24px;max-width:66ch}
+.findsg .quest-access-controls{border-top:1px solid #c6b39260;padding:0 18px;background:#f3ead9}
+.findsg .quest-access-controls summary{padding:12px 0;font-size:11px;color:#697361;cursor:pointer;list-style-position:inside}
+.findsg .quest-access-controls p{margin:0 0 12px;font-size:11px;line-height:1.7;color:#697361}
+.findsg .quest-assist-camera,.findsg .quest-assist-parts,.findsg .quest-assist-slots,.findsg .quest-assist-action{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 12px}
+.findsg .quest-access-controls button{border:1px solid #baaa8a;background:#fff8e8;border-radius:8px;padding:9px 11px;font-size:11px;line-height:1.5;cursor:pointer;min-height:36px}
+.findsg .quest-access-controls button[aria-pressed=true]{color:#fff3d5;border-color:#345443;background:#345443}
+.findsg .quest-assist-slots button{background:#dfd1b5;border-style:dashed}
+.findsg .quest-assist-action output{min-width:48px;text-align:center;font-size:12px;font-variant-numeric:tabular-nums}
+.findsg .quest-concept-caption{margin:0!important;padding:9px 14px 11px;text-align:center;background:#f3ead9;color:#8d826d;font-size:9px!important;line-height:1.65!important;letter-spacing:.02em}
+@keyframes quest-loading{0%,100%{transform:rotate(45deg);opacity:.5}50%{transform:rotate(135deg);opacity:1}}
+@keyframes quest-pulse{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
+@media(max-width:620px){.findsg .quest-stage{height:390px;min-height:340px}.findsg .quest-viewport{border-radius:14px}.findsg .quest-stage-top{inset:12px 10px auto;gap:6px}.findsg .quest-mechanism-name{font-size:10px;padding:7px 10px}.findsg .quest-camera-controls button{padding:5px 10px;font-size:11px}.findsg .quest-turn-controls{left:8px;right:8px}.findsg .quest-turn-controls button{width:32px;height:40px;font-size:22px;border-radius:12px}.findsg .quest-response{padding:12px 14px}.findsg .quest-response p{font-size:12px}.findsg .quest-access-controls{padding:0 14px}.findsg .quest-stage-caption{font-size:9px;bottom:10px}.findsg .quest-concept-caption{font-size:8px!important;padding-inline:10px}}
+@media(prefers-reduced-motion:reduce){.findsg .quest-loading-object,.findsg .quest-opening-label span{animation:none}}

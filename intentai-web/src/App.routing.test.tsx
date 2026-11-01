@@ -15,16 +15,16 @@ test('default route shows Home: the regions deck and the holiday event', () => {
   expect(screen.getByRole('button', { name: /Deepavali long weekend starts today/ })).toBeInTheDocument();
 });
 
-test('the tab bar is Home, Moments, Hunt, Mine; Hunt opens its page', async () => {
+test('the tab bar is Home, Moments, Hunt, Mine; Hunt opens FindSG', async () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
       <App />
     </MemoryRouter>,
   );
   const tabs = within(screen.getByRole('navigation', { name: 'Primary' })).getAllByRole('button');
-  expect(tabs.map((t) => t.textContent)).toEqual(['Home', 'Moments', 'Hunt', 'Mine']);
+  expect(tabs.map((t) => t.getAttribute('aria-label'))).toEqual(['Home', 'Moments', 'Hunt', 'Mine', 'Tabs: on Home. Unroll to switch']);
   await userEvent.click(screen.getByRole('button', { name: /^hunt$/i }));
-  expect(screen.getByRole('heading', { level: 1, name: 'Hunt' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { level: 1, name: 'FindSG' })).toBeInTheDocument();
 });
 
 test('an unknown route redirects to Home instead of rendering blank', () => {

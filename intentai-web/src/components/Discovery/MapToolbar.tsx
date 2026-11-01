@@ -1,16 +1,24 @@
 // The keys at the bottom of the map card (owner, 31 Oct 2026: "like the bottom row of a phone keyboard", then "one
 // piece with the map, keys in Three.js you can press, tucked into the phone's big rounded bottom"): go to where you
-// are, search a place or area, switch the deck to the editor's picks (walks and themed lists), and undo the last move.
+// are, search a place or area, switch the deck to the editor's picks (walks and themed lists), back (up a level), and Enter
+// (owner, 1 Nov 2026: "back and confirm, like a keyboard's Enter: five keys, not four"; it replaces the deck's round
+// arrow). With a place open the row stays under the notebook: back closes it, Enter turns the page.
 // With WebGL the keys are drawn in 3D (three/keyTray.ts) under the real buttons, which stay for taps and the keyboard.
 import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { KeyTrayScene } from './three/keyTray';
-import { URA_AREAS, uraRegion } from '../../data/ura/ura';
-import { PUBLISHED_PLACES } from '../../features/nearby/catalogue';
+import { uraRegion } from '../../data/ura/ura';
+import { searchMap, type SearchPick } from './mapSearch';
 import styles from './MapToolbar.module.css';
 
 interface Props {
   canUndo: boolean;
+  /** Back's name for screen readers ("Undo", "Back to the map"). */
+  undoLabel?: string;
+  /** Enter: open what the deck has selected, or turn the notebook's page. */
+  onEnter(): void;
+  canEnter: boolean;
+  enterLabel: string;
   locating: boolean;
   onLocate(): void;
   onUndo(): void;
@@ -19,13 +27,18 @@ interface Props {
   /** The deck shows Editor's Pick (the key looks pressed; pressing it again goes back). */
   picksOn: boolean;
   onPicks(): void;
+  /** Editor's Pick walks and lists, searchable by name (empty until they have loaded). */
+  picks?: readonly SearchPick[];
+  onPickPick?(id: string): void;
+  /** The search panel opened (Home starts loading the picks). */
+  onSearchOpen?(): void;
 }
 
 function Icon({ d }: { d: string }) {
   return (
     <svg
-      width="18"
-      height="18"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -44,6 +57,7 @@ const ICONS = {
   search: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM20 20l-4-4',
   picks: 'M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9L12 3Z',
   undo: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+  enter: 'M20 5v7a3 3 0 0 1-3 3H5M9 11l-4 4 4 4',
 };
 
 function Panel({ title, onClose, children }: { title: string; onClose(): void; children: ReactNode }) {
@@ -84,7 +98,23 @@ function webgl(): boolean {
   }
 }
 
-export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, onPickPlace, picksOn, onPicks }: Props) {
+export function MapToolbar({
+  canUndo,
+  undoLabel = 'Undo',
+  onEnter,
+  canEnter,
+  enterLabel,
+  locating,
+  onLocate,
+  onUndo,
+  onPickArea,
+  onPickPlace,
+  picksOn,
+  onPicks,
+  picks = [],
+  onPickPick,
+  onSearchOpen,
+}: Props) {
   const [open, setOpen] = useState<'search' | null>(null);
   const reduce = useReducedMotionConfig();
   const bar = useRef<HTMLDivElement>(null);
@@ -96,6 +126,7 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
     { label: 'Search', icon: ICONS.search, on: open === 'search', disabled: false },
     { label: 'Picks', icon: ICONS.picks, on: picksOn, disabled: false },
     { label: '', icon: ICONS.undo, on: false, disabled: !canUndo },
+    { label: '', icon: ICONS.enter, on: false, disabled: !canEnter },
   ];
   const specsRef = useRef(specs);
   specsRef.current = specs;
@@ -165,14 +196,8 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
     onKeyUp: (e: React.KeyboardEvent) => (e.key === ' ' || e.key === 'Enter') && scene.current?.press(i, false),
   });
   const [q, setQ] = useState('');
-  const hits = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (s.length < 2) return { areas: [], places: [] };
-    return {
-      areas: URA_AREAS.filter((a) => a.name.toLowerCase().includes(s)).slice(0, 6),
-      places: PUBLISHED_PLACES.filter((p) => p.name.toLowerCase().includes(s) || (p.nameZh ?? '').includes(q.trim())).slice(0, 10),
-    };
-  }, [q]);
+  const hits = useMemo(() => searchMap(q, picks), [q, picks]);
+  const nothing = hits.areas.length + hits.picks.length + hits.places.length === 0;
 
   const close = () => {
     setOpen(null);
@@ -190,7 +215,10 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
         <button
           type="button"
           className={styles.key}
-          onClick={() => setOpen(open === 'search' ? null : 'search')}
+          onClick={() => {
+            if (open !== 'search') onSearchOpen?.();
+            setOpen(open === 'search' ? null : 'search');
+          }}
           aria-expanded={open === 'search'}
           {...keyProps(1)}
         >
@@ -211,8 +239,22 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
           <Icon d={ICONS.picks} />
           <span>Picks</span>
         </button>
-        <button type="button" className={`${styles.key} ${styles.small}`} onClick={onUndo} disabled={!canUndo} aria-label="Undo" {...keyProps(3)}>
+        <button type="button" className={`${styles.key} ${styles.small}`} onClick={onUndo} disabled={!canUndo} aria-label={undoLabel} {...keyProps(3)}>
           <Icon d={ICONS.undo} />
+        </button>
+        <button
+          type="button"
+          className={`${styles.key} ${styles.small} ${styles.enter}`}
+          onClick={() => {
+            close();
+            onEnter();
+          }}
+          disabled={!canEnter}
+          aria-label={enterLabel}
+          aria-keyshortcuts="Enter"
+          {...keyProps(4)}
+        >
+          <Icon d={ICONS.enter} />
         </button>
       </div>
       <AnimatePresence>
@@ -222,12 +264,12 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
               className={styles.search}
               type="search"
               autoFocus
-              placeholder="Search a place or planning area"
+              placeholder="Place, area, type (hawker, temple) or walk"
               aria-label="Search a place or planning area"
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
-            {q.trim().length >= 2 && hits.areas.length + hits.places.length === 0 && <p className={styles.empty}>Nothing matches “{q.trim()}”.</p>}
+            {q.trim().length >= 2 && nothing && <p className={styles.empty}>Nothing matches “{q.trim()}”.</p>}
             <ul className={styles.list}>
               {hits.areas.map((a) => (
                 <li key={a.id}>
@@ -243,7 +285,21 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
                   </button>
                 </li>
               ))}
-              {hits.places.map((p) => (
+              {hits.picks.map((k) => (
+                <li key={k.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onPickPick?.(k.id);
+                      close();
+                    }}
+                  >
+                    <strong>{k.title}</strong>
+                    <span>{`Editor's Pick · ${k.kind === 'walk' ? 'walk' : 'list'}`}</span>
+                  </button>
+                </li>
+              ))}
+              {hits.places.map(({ place: p, line }) => (
                 <li key={p.id}>
                   <button
                     type="button"
@@ -253,11 +309,14 @@ export function MapToolbar({ canUndo, locating, onLocate, onUndo, onPickArea, on
                     }}
                   >
                     <strong>{p.name}</strong>
-                    <span>{p.kind}</span>
+                    <span>{line}</span>
                   </button>
                 </li>
               ))}
             </ul>
+            {hits.placeCount > hits.places.length && (
+              <p className={styles.empty}>{`${hits.places.length} of ${hits.placeCount} places. Type more to narrow it down.`}</p>
+            )}
           </Panel>
         )}
       </AnimatePresence>

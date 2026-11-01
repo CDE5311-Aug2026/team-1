@@ -61,7 +61,7 @@ test('by default the greeting shows and there is no spacer', () => {
 
 test('logoSrc replaces the mascot image; default keeps the mascot asset', () => {
   const { container, unmount } = renderHeader();
-  expect(container.querySelector('img')?.getAttribute('src')).toContain('mascot-logo');
+  expect(container.querySelector('img')?.getAttribute('src')).toContain('findsg-logo');
   unmount();
   const { container: c2 } = renderHeader({ logoSrc: '/custom-logo.png' });
   expect(c2.querySelector('img')?.getAttribute('src')).toBe('/custom-logo.png');

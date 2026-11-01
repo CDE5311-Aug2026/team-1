@@ -56,6 +56,18 @@
 
 /* --- the field note's heading ------------------------------------------------------------------------------------ */
 .head {
+  /* fills the sheet (data-fill): the heading at the top, the key numbers at the foot, the rest spread between */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.head > * {
+  flex: none;
+}
+
+.headTop {
   display: flow-root;
 }
 
@@ -69,26 +81,27 @@
 }
 
 .name {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   font-family: var(--serif);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.005em;
   color: #2a1a0e;
 }
 
-.sub {
-  margin: 5px 0 0;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 0.875rem;
-  color: #6b5640;
+/* a long title in a smaller hand, so it keeps to two or three lines */
+.name[data-long] {
+  font-size: 1.0625rem;
+  line-height: 1.2;
 }
 
-.me {
-  margin: 8px 0 0;
-  font-size: 0.75rem;
+.sub {
+  margin: 3px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.35;
   color: #6b5640;
 }
 
@@ -96,9 +109,9 @@
 .stamp {
   float: right;
   shape-outside: circle(50%);
-  width: 82px;
-  height: 82px;
-  margin: -2px -8px 6px 8px;
+  width: 66px;
+  height: 66px;
+  margin: -2px -8px 2px 6px;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
@@ -126,7 +139,7 @@
 }
 
 .stamp small {
-  font-size: 0.5rem;
+  font-size: 0.4375rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -134,7 +147,7 @@
 
 .stamp b {
   font-family: var(--serif);
-  font-size: 1.0625rem;
+  font-size: 0.9375rem;
   line-height: 1;
   letter-spacing: 0.02em;
 }
@@ -153,28 +166,23 @@
   border-style: dotted;
 }
 
-/* the planning area's tally */
+/* the planning area's tally, in one line */
 .area {
-  margin-top: 14px;
-  clear: both;
-}
-
-.areaHead {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
-  font-size: 0.8125rem;
 }
 
 .areaName {
+  flex: none;
   font-family: var(--serif);
   font-weight: 700;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 .areaNum {
-  margin-left: auto;
-  font-size: 0.75rem;
+  flex: none;
+  font-size: 0.6875rem;
   color: #6b5640;
 }
 
@@ -185,7 +193,8 @@
 /* a pencil track with the ink filled in */
 .bar {
   position: relative;
-  margin-top: 6px;
+  flex: 1 1 auto;
+  min-width: 24px;
   height: 7px;
   border-radius: 4px;
   background: repeating-linear-gradient(90deg, rgba(90, 60, 30, 0.22) 0 6px, transparent 6px 9px);
@@ -205,7 +214,7 @@
 }
 
 .actions {
-  margin-top: 14px;
+  margin: 0;
 }
 
 /* --- the visit notes ---------------------------------------------------------------------------------------------- */
@@ -257,8 +266,8 @@
   letter-spacing: 0.6em;
 }
 
-/* check in: rust ink; checked in: green ink, as the stamp */
-.actions button[aria-pressed] {
+/* check in: rust ink; checked in: green ink, as the stamp (the first button only: Save has its own look) */
+.actions button[aria-pressed]:first-child {
   background: #b9502a;
   color: #fff8ec;
   box-shadow:
@@ -266,27 +275,10 @@
     0 6px 12px -8px rgba(90, 40, 15, 0.8);
 }
 
-.actions button[aria-pressed='true'] {
+.actions button[aria-pressed='true']:first-child {
   background: transparent;
   color: #2f6b4f;
   box-shadow: inset 0 0 0 1.5px rgba(47, 107, 79, 0.65);
 }
 
 /* close, in the strip under the pages once the 3D view has turned away with the first page */
-.close {
-  flex: none;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: #4a2f1c;
-  color: #f8f0dd;
-  cursor: pointer;
-}
-
-.close:focus-visible {
-  outline: 2px solid #b9502a;
-  outline-offset: 2px;
-}

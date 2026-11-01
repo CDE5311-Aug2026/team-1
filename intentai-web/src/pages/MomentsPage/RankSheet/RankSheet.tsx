@@ -21,7 +21,21 @@ const BADGE_ICONS: Record<Badge['id'], string> = {
 };
 
 /** A ring that fills to `value` (0–1). */
-export function Ring({ value, size, stroke, track = '#f3d5c0', color = '#e3661f', className }: { value: number; size: number; stroke: number; track?: string; color?: string; className?: string }) {
+export function Ring({
+  value,
+  size,
+  stroke,
+  track = 'rgba(44, 33, 23, 0.14)',
+  color = '#e8833a',
+  className,
+}: {
+  value: number;
+  size: number;
+  stroke: number;
+  track?: string;
+  color?: string;
+  className?: string;
+}) {
   const reduce = useReducedMotionConfig();
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
@@ -66,14 +80,14 @@ export default function RankSheet({ rank, badges, onClose }: { rank: Rank; badge
       </div>
 
       <div className={styles.stepsWrap}>
-      <ol className={styles.steps} aria-label="Ranks">
-        {RANKS.map((r, i) => (
-          <li key={r.id} className={i <= rank.index ? styles.stepOn : undefined} aria-current={i === rank.index ? 'step' : undefined}>
-            <span className={styles.stepDot}>{i + 1}</span>
-            <span className={styles.stepLabel}>{r.label}</span>
-          </li>
-        ))}
-      </ol>
+        <ol className={styles.steps} aria-label="Ranks">
+          {RANKS.map((r, i) => (
+            <li key={r.id} className={i <= rank.index ? styles.stepOn : undefined} aria-current={i === rank.index ? 'step' : undefined}>
+              <span className={styles.stepDot}>{i + 1}</span>
+              <span className={styles.stepLabel}>{r.label}</span>
+            </li>
+          ))}
+        </ol>
         <span className={styles.track} aria-hidden="true">
           <span style={{ width: `${((rank.index + (rank.next ? rank.progress : 0)) / (RANKS.length - 1)) * 100}%` }} />
         </span>
@@ -84,7 +98,11 @@ export default function RankSheet({ rank, badges, onClose }: { rank: Rank; badge
       </h3>
       <ul className={styles.badges}>
         {badges.map((b) => (
-          <li key={b.id} className={b.earned ? `${styles.badge} ${styles.earned}` : styles.badge} aria-label={`${b.label}: ${b.earned ? 'earned' : `${b.have} of ${b.need}. ${b.hint}`}`}>
+          <li
+            key={b.id}
+            className={b.earned ? `${styles.badge} ${styles.earned}` : styles.badge}
+            aria-label={`${b.label}: ${b.earned ? 'earned' : `${b.have} of ${b.need}. ${b.hint}`}`}
+          >
             <span className={styles.badgeOrb}>
               {!b.earned && <Ring value={b.have / b.need} size={64} stroke={4} track="transparent" className={styles.badgeRing} />}
               <img src={BADGE_ICONS[b.id]} alt="" width={22} height={22} />

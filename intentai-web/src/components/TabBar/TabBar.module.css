@@ -1,57 +1,245 @@
-.bar {
-  display: flex;
-  gap: 0.25rem;
-  border-radius: var(--radius-tabbar);
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-tabbar);
-  padding: 0.25rem;
+/* The tabs as a field guide: a parchment roll in the corner that unrolls into a strip of old map. */
+.guide {
+  --h: 76px; /* the sheet's height */
+  --rod: 26px;
+  --ink: #3b2f22;
+  --red: #b4442a;
+  position: relative;
+  height: 0;
+  pointer-events: none;
 }
 
-.tab {
+/* ---- the sheet ---- */
+.sheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: calc(var(--rod) / 2);
+  height: var(--h);
+  border-radius: 2px 6px 6px 2px;
+  pointer-events: auto;
+  color: var(--ink);
+  background:
+    /* the curl beside the rod */
+    linear-gradient(90deg, rgba(70, 45, 15, 0.38), rgba(70, 45, 15, 0.08) 18px, transparent 34px),
+    /* folds between the stops */ linear-gradient(90deg, transparent calc(25% - 1px), rgba(110, 80, 40, 0.16) 25%, transparent calc(25% + 1px)),
+    linear-gradient(90deg, transparent calc(50% - 1px), rgba(110, 80, 40, 0.16) 50%, transparent calc(50% + 1px)),
+    linear-gradient(90deg, transparent calc(75% - 1px), rgba(110, 80, 40, 0.16) 75%, transparent calc(75% + 1px)),
+    /* old map lines */ linear-gradient(32deg, transparent 46%, rgba(120, 90, 50, 0.14) 46.4%, transparent 47%),
+    linear-gradient(-14deg, transparent 62%, rgba(120, 90, 50, 0.12) 62.3%, transparent 62.8%),
+    repeating-linear-gradient(0deg, transparent 0 17px, rgba(120, 90, 50, 0.06) 17px 18px),
+    repeating-linear-gradient(90deg, transparent 0 17px, rgba(120, 90, 50, 0.06) 17px 18px),
+    radial-gradient(60% 80% at 80% 30%, rgba(170, 120, 60, 0.16), transparent 70%),
+    radial-gradient(50% 70% at 20% 90%, rgba(150, 100, 50, 0.14), transparent 70%),
+    linear-gradient(180deg, #f4ead0, #ead9b2);
+  box-shadow:
+    0 10px 24px rgba(30, 18, 6, 0.32),
+    0 2px 4px rgba(30, 18, 6, 0.25),
+    inset 0 0 0 1px rgba(120, 85, 40, 0.25);
+  clip-path: inset(-30px 0 -30px 100%);
+  transition: clip-path 0.62s cubic-bezier(0.55, 0.1, 0.25, 1);
+}
+.open .sheet {
+  clip-path: inset(-30px -30px -30px 0);
+}
+.stops {
+  position: absolute;
+  inset: 6px 6px 6px 18px;
+  display: flex;
+}
+.stop {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  height: 3rem;
-  border: none;
-  border-radius: var(--radius-tab-active);
-  background: transparent;
+  gap: 1px;
+  min-width: 0;
+  border: 0;
+  border-radius: 4px;
+  padding: 4px 2px 6px;
+  background: none;
   cursor: pointer;
-  padding: 0.375rem 0.25rem;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateX(10px);
+  transition:
+    opacity 0.3s,
+    transform 0.4s;
 }
-
-.active {
-  background: var(--surface-tab-active);
+.open .stop {
+  opacity: 1;
+  transform: none;
+  /* each stop shows as the paper reaches it (it unrolls right to left) */
+  transition-delay: calc(0.36s - var(--i) * 0.08s);
 }
-
+.stop:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: -2px;
+}
 .icon {
-  width: 1.375rem;
-  height: 1.375rem;
+  width: 1.75rem;
+  height: 1.75rem;
   flex: none;
-  background-color: var(--text-tab);
-  mask-size: contain;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  -webkit-mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
+  color: var(--ink);
 }
-
-.active .icon {
-  background-color: var(--accent);
+.icon svg,
+.tagIcon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
-
 .label {
-  font-size: var(--fs-tab);
-  color: var(--text-tab);
-  font-weight: 500;
+  font:
+    400 0.9375rem/1.15 'IM Fell English',
+    Georgia,
+    serif;
   white-space: nowrap;
 }
+/* the stop you are on: a pinned paper slip, inked in red */
+.active {
+  color: var(--red);
+  background: linear-gradient(180deg, rgba(255, 250, 235, 0.55), rgba(240, 225, 190, 0.4));
+  box-shadow:
+    inset 0 0 0 1px rgba(180, 68, 42, 0),
+    0 1px 3px rgba(80, 50, 20, 0.2);
+  outline: 1px dashed rgba(180, 68, 42, 0.55);
+  outline-offset: -4px;
+  transform: rotate(-2deg);
+}
+.open .active {
+  transform: rotate(-2deg);
+}
+.active .icon {
+  color: var(--red);
+}
+.active::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--red);
+}
 
-.active .label {
-  color: var(--accent);
-  font-weight: 600;
+/* ---- the roll: rod, brass caps, and the tag naming the tab you are on ---- */
+.roll {
+  position: absolute;
+  bottom: -9px;
+  left: calc(100% - var(--rod) - 12px);
+  width: var(--rod);
+  height: calc(var(--h) + 18px);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: left 0.62s cubic-bezier(0.55, 0.1, 0.25, 1);
+  filter: drop-shadow(0 6px 8px rgba(20, 12, 4, 0.4));
+}
+.open .roll {
+  left: 0;
+}
+.roll:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.cap {
+  flex: none;
+  height: 10px;
+  margin: 0 -3px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #6b4e22, #d9b569 35%, #f1d996 50%, #b48a3e 70%, #5e431c);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+.rod {
+  flex: 1;
+  margin: 0 1px;
+  /* rolled paper: banded, lit from the left; the bands slide as it turns */
+  background:
+    linear-gradient(90deg, rgba(70, 45, 15, 0.45), rgba(255, 250, 235, 0.35) 38%, rgba(70, 45, 15, 0.1) 62%, rgba(70, 45, 15, 0.5)),
+    repeating-linear-gradient(180deg, transparent 0 11px, rgba(110, 80, 40, 0.12) 11px 12px), #eadbb5;
+  background-position: 0 0;
+  transition: background-position 0.62s cubic-bezier(0.55, 0.1, 0.25, 1);
+}
+.open .rod {
+  background-position:
+    0 0,
+    0 -120px,
+    0 0;
+}
+/* the tag: a slip pinned to the roll with the tab you are on */
+.tag {
+  position: absolute;
+  top: 50%;
+  right: calc(100% - 8px);
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 44px;
+  padding: 7px 0 5px;
+  border-radius: 6px 3px 3px 6px;
+  transform: translateY(-50%);
+  background: radial-gradient(80% 60% at 40% 30%, rgba(255, 250, 235, 0.6), transparent 70%), linear-gradient(180deg, #f2e6c8, #e2cf9f);
+  box-shadow:
+    0 2px 5px rgba(40, 25, 8, 0.3),
+    inset 0 0 0 1px rgba(120, 85, 40, 0.3);
+  transition:
+    opacity 0.25s,
+    transform 0.35s;
+}
+.open .tag {
+  opacity: 0;
+  transform: translate(12px, -50%);
+  pointer-events: none;
+}
+.tagIcon {
+  width: 28px;
+  height: 28px;
+  color: var(--red);
+}
+.chev {
+  font:
+    400 1rem/1 Georgia,
+    serif;
+  color: rgba(59, 47, 34, 0.75);
+}
+.close {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font:
+    400 1.125rem/1 Georgia,
+    serif;
+  color: rgba(59, 47, 34, 0.75);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s 0.4s;
+}
+.open .close {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .roll,
+  .rod,
+  .stop,
+  .tag {
+    transition: none !important;
+  }
+}
+:global(.reduce-motion) .sheet,
+:global(.reduce-motion) .roll,
+:global(.reduce-motion) .stop,
+:global(.reduce-motion) .tag {
+  transition: none !important;
 }

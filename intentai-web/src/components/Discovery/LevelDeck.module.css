@@ -41,7 +41,9 @@
 }
 
 .card.selected {
-  box-shadow: 0 16px 30px -14px rgba(35, 33, 29, 0.6), 0 0 0 2px var(--accent) inset;
+  box-shadow:
+    0 16px 30px -14px rgba(35, 33, 29, 0.6),
+    0 0 0 2px var(--accent) inset;
 }
 
 .card:focus-visible {

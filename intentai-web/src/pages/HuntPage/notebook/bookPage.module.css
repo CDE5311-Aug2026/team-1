@@ -1,0 +1,872 @@
+/* One page of a story book. Everything sits on the page as print, ink and pasted-in objects; a page never scrolls. */
+.page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px 30px 26px;
+  overflow: hidden;
+  color: var(--ink, #2a2016);
+  font:
+    400 0.875rem/1.45 'IM Fell English',
+    Georgia,
+    serif;
+  container-type: size;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(90, 60, 25, 0.28);
+  font: 500 0.625rem/1.2 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(70, 46, 22, 0.72);
+  white-space: nowrap;
+}
+.head span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.h {
+  margin: 2px 0 0;
+  font:
+    400 1.5rem/1.1 var(--font-display);
+  color: #2b1d10;
+  letter-spacing: -0.005em;
+}
+.small {
+  margin: -4px 0 0;
+  font-style: italic;
+  font-size: 0.8125rem;
+  color: rgba(70, 46, 22, 0.75);
+}
+.body {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.note,
+.foot {
+  margin: 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  line-height: 1.35;
+  color: rgba(80, 56, 30, 0.7);
+}
+.foot {
+  margin-top: auto;
+}
+.handNote {
+  margin: 0;
+  padding: 2px 0 2px 10px;
+  border-left: 2px solid rgba(155, 44, 28, 0.55);
+  font:
+    italic 400 0.95rem/1.35 'IM Fell English',
+    Georgia,
+    serif;
+  color: #4a2a14;
+}
+.page a.ink {
+  align-self: flex-start;
+  opacity: 1;
+  color: #7a2e17;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+}
+.doneMark {
+  margin: 0;
+  color: #3d5b3a;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+.turnHint {
+  position: absolute;
+  right: 40px;
+  bottom: 9px;
+  margin: 0;
+  font-style: italic;
+  font-size: 0.75rem;
+  color: rgba(122, 46, 23, 0.7);
+  animation: nudge 2.4s ease-in-out infinite;
+}
+@keyframes nudge {
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+/* a ribbon-tied button, the only kind of button the book has */
+.ribbonBtn,
+.sealBtn {
+  position: relative;
+  min-height: 40px;
+  padding: 8px 18px 8px 16px;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+  color: #f6e7c8;
+  background: linear-gradient(180deg, #9b2c1c, #7c1f12);
+  box-shadow:
+    0 2px 0 #561409,
+    0 6px 10px rgba(60, 20, 8, 0.28);
+  font:
+    400 0.95rem/1 var(--font-display);
+  white-space: nowrap;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 50%, 100% 100%, 0 100%);
+  transition: transform 0.15s;
+}
+.ribbonBtn:active,
+.sealBtn:active {
+  transform: translateY(2px);
+}
+.ribbonBtn:focus-visible,
+.sealBtn:focus-visible {
+  outline: 2px solid #9b2c1c;
+  outline-offset: 3px;
+}
+
+/* title page */
+.titlePage {
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+.titlePage .head {
+  align-self: stretch;
+}
+.plate {
+  position: relative;
+  width: 100%;
+  margin: 4px 0 2px;
+  padding: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #f4ead2;
+  box-shadow:
+    0 1px 2px rgba(60, 38, 16, 0.4),
+    0 10px 18px -8px rgba(60, 38, 16, 0.45);
+  transform: rotate(-0.8deg);
+}
+.plate::before,
+.plate::after {
+  /* photo corners */
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #2a1d12 50%, transparent 50%);
+  opacity: 0.85;
+}
+.plate::before {
+  left: -3px;
+  top: -3px;
+}
+.plate::after {
+  right: -3px;
+  bottom: -3px;
+  transform: rotate(180deg);
+}
+.plate img {
+  display: block;
+  width: 100%;
+  height: calc(100% - 16px);
+  object-fit: cover;
+  filter: sepia(0.25) contrast(1.02);
+}
+.plate figcaption {
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(80, 56, 30, 0.65);
+  padding-top: 3px;
+}
+.title {
+  margin: 4px 0 0;
+  font:
+    400 2rem/1 var(--font-display);
+  color: #2b1d10;
+}
+.title em {
+  display: block;
+  font-style: italic;
+  color: #8a5a17;
+  font-size: 2.3rem;
+}
+.lede {
+  margin: 0;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+.titlePage .foot {
+  margin-top: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-style: normal;
+}
+
+/* the pass page */
+.pass {
+  width: 100%;
+  margin: 6px 0 2px;
+  display: grid;
+  justify-items: center;
+}
+.usedPass {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: #eee0bf;
+  border: 1px solid #ad9369;
+  border-right: 2px dashed #ad9369;
+  border-radius: 5px 0 0 5px;
+  box-shadow: 0 6px 12px -6px rgba(60, 38, 16, 0.5);
+  transform: rotate(-1.2deg);
+}
+.admitted {
+  position: absolute;
+  right: 18px;
+  top: 40%;
+  padding: 3px 10px;
+  border: 2px solid #a3291a;
+  color: #a3291a;
+  font-size: 0.875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transform: rotate(-12deg);
+  opacity: 0.85;
+}
+.mode {
+  margin: auto 0 0;
+  padding: 8px 0 0;
+  border: 0;
+  border-top: 1px dashed rgba(90, 60, 25, 0.35);
+  display: grid;
+  gap: 4px;
+  font-size: 0.8125rem;
+}
+.mode legend {
+  padding: 0;
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(70, 46, 22, 0.72);
+}
+.mode label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  cursor: pointer;
+}
+.mode input {
+  appearance: none;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1.5px solid rgba(74, 42, 20, 0.7);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.mode input:checked {
+  background: radial-gradient(circle, #9b2c1c 0 4px, transparent 4.5px);
+  border-color: #9b2c1c;
+}
+.mode input:focus-visible {
+  outline: 2px solid #9b2c1c;
+  outline-offset: 2px;
+}
+
+/* pages holding a pasted-in paper object */
+.objectPage {
+  gap: 6px;
+}
+.fitBox {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.fitInner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  transform-origin: 50% 0;
+}
+/* our page head names the object, so its own heading, corner print and replay link are dropped; the object lies on the
+   page itself rather than in a grey box */
+.page .fitInner :global(.paper-object) {
+  width: 100%;
+}
+.page .fitInner :global(.paper-object) :global(.po-heading),
+.page .fitInner :global(.paper-object) :global(.po-replay),
+.page .fitInner :global(.paper-object) :global(.po-scene-corner),
+.page .fitInner :global(.paper-object) :global(.po-actions > p),
+.page .fitInner :global(.paper-object) :global(.po-page-hint),
+.page .fitInner :global(.paper-object) :global(.po-scene-note) {
+  display: none;
+}
+.page .fitInner :global(.paper-object) :global(.po-scene) {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.page .fitInner :global(.paper-object) :global(.po-status),
+.page .fitInner :global(.paper-object) :global(.po-page-hint) {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(80, 56, 30, 0.8);
+  text-align: center;
+}
+.page .fitInner :global(.paper-object) :global(.po-direct) {
+  justify-content: center;
+  gap: 10px;
+  width: auto;
+  margin: 0 auto;
+  min-height: 42px;
+  padding: 8px 22px;
+  border: 0;
+  border-radius: 2px;
+  color: #f6e7c8;
+  background: linear-gradient(180deg, #9b2c1c, #7c1f12);
+  box-shadow:
+    0 2px 0 #561409,
+    0 6px 10px rgba(60, 20, 8, 0.28);
+  font:
+    400 16px/1 'IM Fell English',
+    Georgia,
+    serif;
+}
+.page .fitInner :global(.paper-object) :global(.po-actions) {
+  display: flex;
+  justify-content: center;
+}
+.page .fitInner :global(.paper-object) :global(.po-page-controls button) {
+  border-radius: 2px;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 14px;
+  color: #4a2a14;
+  background: rgba(244, 234, 210, 0.7);
+}
+
+/* the letter, unfolded into the book */
+.letterPage {
+  gap: 10px;
+}
+.letterSheet {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 16px 16px 14px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 21px, rgba(120, 90, 50, 0.16) 21px 22px),
+    #f3e8cf;
+  box-shadow:
+    0 1px 2px rgba(60, 38, 16, 0.35),
+    0 12px 20px -12px rgba(60, 38, 16, 0.55);
+  transform: rotate(0.6deg);
+  font:
+    italic 400 0.95rem/22px 'IM Fell English',
+    Georgia,
+    serif;
+  color: #33261a;
+  overflow: hidden;
+  animation: unfold 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: 50% 0;
+}
+.letterSheet p {
+  margin: 0;
+}
+.letterSheet p:last-child {
+  font-size: 0.75rem;
+  font-style: normal;
+  color: rgba(80, 56, 30, 0.7);
+}
+@keyframes unfold {
+  from {
+    transform: rotate(0.6deg) perspective(600px) rotateX(-70deg);
+    opacity: 0;
+  }
+}
+
+/* a stop's page in the book */
+.placePage .h {
+  font-size: 1.7rem;
+}
+.stampArea {
+  flex: 1 1 auto;
+  min-height: 150px;
+  container-type: inline-size;
+}
+
+/* the 3D building plate, tipped into the book */
+.modelPage {
+  gap: 7px;
+}
+.modelPlate {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 5px;
+  background: #efe5cb;
+  box-shadow:
+    0 1px 2px rgba(60, 38, 16, 0.4),
+    0 12px 18px -10px rgba(60, 38, 16, 0.6);
+}
+.corner {
+  position: absolute;
+  z-index: 4;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #2a1d12 50%, transparent 50%);
+  pointer-events: none;
+}
+.corner:nth-child(1) {
+  left: -2px;
+  top: -2px;
+}
+.corner:nth-child(2) {
+  right: -2px;
+  top: -2px;
+  transform: rotate(90deg);
+}
+.corner:nth-child(3) {
+  right: -2px;
+  bottom: -2px;
+  transform: rotate(180deg);
+}
+.corner:nth-child(4) {
+  left: -2px;
+  bottom: -2px;
+  transform: rotate(270deg);
+}
+.modelPlate :global(.short-scene) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  background: #ece6d2;
+}
+.modelPlate :global(.ss-viewport) {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+}
+.modelPlate :global(.ss-topline) {
+  left: 8px;
+  right: 8px;
+  top: 8px;
+}
+.modelPlate :global(.ss-stage-footer) {
+  left: 9px;
+  right: 9px;
+  bottom: 7px;
+}
+.modelPlate :global(.ss-stage-footer span:last-child) {
+  display: none;
+}
+.modelPlate :global(.ss-tools) {
+  padding: 4px 6px;
+  background: #e6dcc0;
+  border-top-color: rgba(120, 90, 50, 0.3);
+}
+.modelPlate :global(.ss-orbit-tools button) {
+  width: 30px;
+  height: 28px;
+  min-height: 28px;
+  font-size: 16px;
+  border-radius: 2px;
+  background: #f4ead2;
+  border-color: rgba(120, 90, 50, 0.4);
+  color: #4a2a14;
+}
+.modelPlate :global(.ss-overview) {
+  color: #7a2e17;
+  font-family: 'IM Fell English', Georgia, serif !important;
+  font-size: 13px !important;
+}
+/* the plate's running instruction answers each touch ("try the curved frame of the upper window"), so it shows as a
+   caption over the model; the model note is read aloud only */
+.modelPlate :global(.short-scene) {
+  position: relative;
+}
+.modelPlate :global(.ss-instruction) {
+  position: absolute;
+  z-index: 3;
+  left: 10px;
+  right: 10px;
+  top: 44px;
+  min-height: 0;
+  margin: 0;
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: rgba(244, 234, 210, 0.9);
+  box-shadow: 0 1px 3px rgba(60, 40, 15, 0.18);
+  font:
+    italic 400 12px/1.35 'IM Fell English',
+    Georgia,
+    serif;
+  color: #4a2a14;
+  text-align: center;
+  pointer-events: none;
+}
+.modelPlate :global(.ss-model-note) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  padding: 0;
+  margin: 0;
+  min-height: 0;
+}
+.modelPlate :global(.ss-actions) {
+  padding: 5px 0 0;
+  gap: 5px;
+  background: #efe5cb;
+}
+.modelPlate :global(.ss-primary-action) {
+  min-height: 36px;
+  padding: 6px 12px;
+  line-height: 1.2;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #9b2c1c, #7c1f12);
+  border-color: #6b1a0e;
+  font-family: 'IM Fell English', Georgia, serif !important;
+  font-size: 14px !important;
+}
+.modelPlate :global(.ss-primary-action:disabled) {
+  background: #e4dcc4;
+  color: #8a7a5e;
+  border-color: #cfc2a2;
+}
+.modelPlate :global(.ss-select-bottle) {
+  min-height: 38px;
+  border-radius: 2px;
+  font-family: 'IM Fell English', Georgia, serif !important;
+  font-size: 12px !important;
+  background: #f4ead2;
+  border-color: rgba(120, 90, 50, 0.4);
+  color: #4a2a14;
+  white-space: normal;
+}
+.modelPlate :global(.ss-confirmed) {
+  padding: 8px 10px;
+  border-radius: 2px;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 13px;
+  background: #e8e4cc;
+}
+.modelPage .h {
+  font-size: 1.3rem;
+}
+.modelPage .handNote {
+  font-size: 0.8125rem;
+}
+.modelPage .foot {
+  margin-top: 0;
+}
+
+/* walking sketch */
+.sketch {
+  width: 100%;
+  height: auto;
+  max-height: 44cqh;
+  margin: 4px 0;
+}
+.street {
+  fill: none;
+  stroke: rgba(90, 60, 25, 0.3);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+.route {
+  fill: none;
+  stroke: #9b2c1c;
+  stroke-width: 2.2;
+  stroke-dasharray: 5 5;
+  animation: walk 1.6s linear infinite;
+}
+@keyframes walk {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.sketch g circle {
+  fill: #f4ead2;
+  stroke: #9b2c1c;
+  stroke-width: 2.4;
+}
+.sketch text {
+  fill: #3b2614;
+  font:
+    italic 12px 'IM Fell English',
+    Georgia,
+    serif;
+  text-anchor: middle;
+}
+.rose path {
+  fill: #4a2a14;
+}
+.rose text {
+  font-size: 10px;
+  font-style: normal;
+}
+
+/* the last page */
+.endPage {
+  gap: 9px;
+}
+.endPage .h {
+  font-size: 1.35rem;
+}
+.spread {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.spread section {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding-top: 6px;
+  border-top: 1px solid rgba(90, 60, 25, 0.3);
+}
+.spread small {
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(70, 46, 22, 0.72);
+}
+.spread p {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+.spread span {
+  font-size: 0.6875rem;
+  color: #7a2e17;
+}
+.reply {
+  margin: 0;
+  font-style: italic;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #4a2a14;
+}
+.sealBtn {
+  align-self: center;
+  margin-top: auto;
+}
+.seal {
+  align-self: center;
+  margin-top: auto;
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  color: #f2d6b8;
+  background: radial-gradient(circle at 36% 30%, #c2402a, #8f1f12 60%, #5e1208);
+  box-shadow:
+    inset 0 0 0 5px rgba(0, 0, 0, 0.15),
+    inset 0 0 0 7px rgba(255, 200, 170, 0.18),
+    0 4px 8px rgba(60, 20, 8, 0.35);
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  animation: stampDown 0.5s cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+@keyframes stampDown {
+  from {
+    transform: scale(2.2) rotate(-20deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(0.94) rotate(-6deg);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1) rotate(-8deg);
+  }
+}
+
+/* a page you have not earned yet: folded shut and sealed with wax */
+.sealedPage {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+}
+.foldedSheet {
+  position: relative;
+  width: 62%;
+  aspect-ratio: 1.3;
+  margin-bottom: 10px;
+  background:
+    linear-gradient(160deg, transparent 49.5%, rgba(90, 60, 25, 0.25) 50%, transparent 51%),
+    linear-gradient(20deg, transparent 49.5%, rgba(90, 60, 25, 0.22) 50%, transparent 51%),
+    #eadcb9;
+  box-shadow:
+    0 1px 2px rgba(60, 38, 16, 0.35),
+    0 14px 22px -12px rgba(60, 38, 16, 0.6);
+  transform: rotate(-3deg);
+}
+.string {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: #8a6a3a;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+.wax {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  display: grid;
+  place-items: center;
+  border-radius: 46% 54% 50% 50%;
+  background: radial-gradient(circle at 36% 30%, #c2402a, #8f1f12 60%, #5e1208);
+  color: rgba(255, 210, 180, 0.7);
+  font-size: 1.2rem;
+  box-shadow:
+    inset 0 0 0 4px rgba(0, 0, 0, 0.15),
+    0 3px 5px rgba(60, 20, 8, 0.4);
+}
+.sealedPage .h {
+  font-size: 1.3rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.sealedPage .body {
+  max-width: 24ch;
+  font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turnHint,
+  .route,
+  .letterSheet,
+  .seal {
+    animation: none;
+  }
+}
+
+/* the ticket's own print, sized for a page */
+.pass :global(.short-ticket-copy) {
+  padding: 14px 14px 10px;
+}
+.pass :global(.short-ticket-copy h3) {
+  font-family: 'IM Fell English', Georgia, serif !important;
+  font-size: 22px !important;
+  line-height: 1.1 !important;
+  margin: 6px 0 4px !important;
+}
+.pass :global(.short-ticket-stub > b) {
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 17px;
+}
+.usedPass {
+  height: auto;
+}
+.usedPass :global(.short-ticket-copy) {
+  height: auto;
+  gap: 2px;
+}
+
+/* the prototype pieces carry FindSG's own style scope; keep its dark backdrop and body type off the page */
+.page .fitInner,
+.page .pass {
+  background: transparent;
+  color: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.page .modelPlate {
+  background: #efe5cb;
+  color: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* the ending's line drawing */
+.endPlate {
+  width: 100%;
+  height: auto;
+  max-height: 22cqh;
+  margin: 2px 0;
+}
+.endPlate text {
+  fill: rgba(80, 56, 30, 0.75);
+  font:
+    italic 9px 'IM Fell English',
+    Georgia,
+    serif;
+  text-anchor: middle;
+}
+.archDraw,
+.domeDraw {
+  fill: none;
+  stroke: #4a2a14;
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+}
+.domeDraw circle {
+  fill: #c98a2c;
+  stroke: #6b4a14;
+  stroke-width: 0.8;
+  animation: glint 2.6s ease-in-out infinite;
+}
+.domeDraw circle:nth-child(odd) {
+  animation-delay: 0.6s;
+}
+@keyframes glint {
+  50% {
+    fill: #f2c464;
+  }
+}
+
+/* the plate's own labels in the book's type */
+.modelPlate :global(.ss-observation-label),
+.modelPlate :global(.ss-focus),
+.modelPlate :global(.ss-stage-footer),
+.modelPlate :global(.ss-bottle-label) {
+  font-family: 'IM Fell English', Georgia, serif !important;
+  letter-spacing: 0.02em;
+}
+.modelPlate :global(.ss-focus) {
+  padding: 6px 9px;
+  gap: 8px;
+  border-radius: 2px;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+.modelPlate :global(.ss-observation-label) {
+  font-size: 11px;
+  font-weight: 400;
+}

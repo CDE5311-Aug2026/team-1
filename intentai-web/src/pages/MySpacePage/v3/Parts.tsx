@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../../../assets/v3/onboarding/logo.png';
+import logo from '../../../assets/brand/findsg-logo.png';
 import Dialog from '../../../components/Dialog/Dialog';
 import { paths } from '../../../routes';
 import Icon from '../../OnboardingPage/v3/icons';

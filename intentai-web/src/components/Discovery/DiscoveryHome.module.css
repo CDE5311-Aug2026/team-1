@@ -151,7 +151,8 @@
 
 .deviceOpen {
   flex: 0 0 auto;
-  height: calc(clamp(180px, 30vh, 270px) + 20px);
+  /* a little shorter than the overview map, so the field note under it fits without scrolling (owner, 1 Nov 2026) */
+  height: calc(clamp(150px, 21vh, 250px) + 20px);
   /* a place is open: the 3D view is pasted in at the top of the notebook's first page (the notebook follows with no
      gap), and when that page turns it swings over the spine with it, then folds away */
   margin-bottom: -10px;
@@ -198,6 +199,16 @@
 .mapAway + section {
   border-top-left-radius: 6px;
   border-top-right-radius: 18px;
+}
+
+/* a place is open: the same key row, under the notebook, staying while the pages turn */
+.keysOpen {
+  flex: none;
+  margin-top: -4px;
+  padding: 0 5px;
+  border-radius: 0 0 28px 28px;
+  background: linear-gradient(180deg, #4f3624 0%, #3a2717 100%);
+  box-shadow: 0 16px 28px -16px rgba(60, 34, 14, 0.75);
 }
 
 .grip {
@@ -270,6 +281,10 @@
   align-items: center;
   gap: 8px;
   pointer-events: none;
+}
+
+.mapTopEnd {
+  justify-content: flex-end;
 }
 
 .mapTop > * {

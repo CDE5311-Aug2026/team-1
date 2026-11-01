@@ -89,13 +89,13 @@ export default function PlaceDetails({ place, panel, idPrefix }: { place: Curate
         {d.website && (
           <Row icon="globe" label="Website">
             <a className={styles.detailLink} href={d.website.url} target="_blank" rel="noopener noreferrer">
-              {hostOf(d.website.url)} ↗
+              {hostOf(d.website.url)} ↗︎
             </a>
           </Row>
         )}
         <Row icon="map" label="Maps">
           <a className={styles.detailLink} href={appleMapsUrl(place)} target="_blank" rel="noopener noreferrer" aria-label="Open in Apple Maps (opens Apple Maps)">
-            Open in Apple Maps ↗
+            Open in Apple Maps ↗︎
           </a>
         </Row>
       </ul>
@@ -111,7 +111,7 @@ export default function PlaceDetails({ place, panel, idPrefix }: { place: Curate
               {d.reviews.map((r) => (
                 <li key={r.url}>
                   <a className={styles.reviewChip} href={r.url} target="_blank" rel="noopener noreferrer" aria-label={`${r.publisher}: ${r.title} (opens the site)`}>
-                    {r.publisher} ↗
+                    {r.publisher} ↗︎
                   </a>
                 </li>
               ))}

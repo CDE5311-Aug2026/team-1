@@ -13,7 +13,8 @@ function Probe({ name }: { name: string }) {
   const params = useParams();
   return (
     <p data-testid="probe">
-      {name} {params.cardId ?? params.placeKey ?? ''} {(state as { prompt?: string; askLocal?: string } | null)?.prompt ?? (state as { askLocal?: string } | null)?.askLocal ?? ''}
+      {name} {params.cardId ?? params.placeKey ?? ''}{' '}
+      {(state as { prompt?: string; askLocal?: string } | null)?.prompt ?? (state as { askLocal?: string } | null)?.askLocal ?? ''}
     </p>
   );
 }
@@ -31,7 +32,10 @@ function renderPage() {
 }
 
 const checkIn = (key: `curated:${string}`, date = '2026-11-02') =>
-  explorePersonalStore.set((d) => ({ ...d, places: [...d.places, { placeKey: key, saved: false, visited: true, visitedOn: date, updatedAt: `${date}T00:00:00.000Z` }] }));
+  explorePersonalStore.set((d) => ({
+    ...d,
+    places: [...d.places, { placeKey: key, saved: false, visited: true, visitedOn: date, updatedAt: `${date}T00:00:00.000Z` }],
+  }));
 
 test('new user: no stamps, locked outlines, and the empty states say what to do', () => {
   lookupsStore.set([]);
@@ -58,7 +62,6 @@ test('a check-in collects the stamp at once; ink counts the opened cards of that
   expect(screen.getByRole('link', { name: /1 of 100 places checked in/ })).toBeInTheDocument();
 });
 
-
 test('an outline stamp sends you to Nearby to check in', async () => {
   const user = userEvent.setup();
   renderPage();
@@ -68,8 +71,6 @@ test('an outline stamp sends you to Nearby to check in', async () => {
   expect(within(sheet).getByRole('link', { name: 'Find a place to check in' })).toHaveAttribute('href', '/?lvl=places&r=central&a=ot');
   expect(within(sheet).queryByRole('button', { name: /Add ink/ })).not.toBeInTheDocument();
 });
-
-
 
 test('a phrase sheet deletes with Undo', async () => {
   const user = userEvent.setup();
@@ -107,6 +108,3 @@ test('recap: sort the facts, then a score; results are stored', async () => {
   expect(Object.values(recapStore.get().results).sort()).toEqual(['again', 'knew', 'knew']);
   expect(recapStore.get().last).toMatchObject({ knew: 2, total: 3 });
 });
-
-
-

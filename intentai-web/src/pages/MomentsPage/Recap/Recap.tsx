@@ -1,7 +1,6 @@
 import { AnimatePresence, motion, useMotionValue, useReducedMotionConfig, useTransform, type PanInfo } from 'motion/react';
 import { useState } from 'react';
 import checkDark from '../../../assets/v3/moments/check-dark.svg';
-import closeIcon from '../../../assets/v3/moments/close.svg';
 import crossOrange from '../../../assets/v3/moments/cross-orange.svg';
 import flipWhite from '../../../assets/v3/moments/flip-white.svg';
 import flipIcon from '../../../assets/v3/moments/flip.svg';
@@ -13,6 +12,7 @@ import { imageOf, recapOrder, type Fact, type RecapResult } from '../../../data/
 import { recapStore } from '../../../data/moments/recapStore';
 import { TOPIC_ICONS } from '../parts';
 import { Ring } from '../RankSheet/RankSheet';
+import Icon from '../../OnboardingPage/v3/icons';
 import Sheet from '../Sheet/Sheet';
 import styles from './Recap.module.css';
 
@@ -20,7 +20,8 @@ const SWIPE = 90;
 
 /**
  * M5 Recap: a Stack of flip cards (React Bits Stack idea, built on motion). Tap to flip; drag right if you knew it, left
- * to see it again (or use the buttons / arrow keys). Ends on a score ring. Results go to the recap store.
+ * to see it again (or use the buttons / arrow keys). Ends on a score ring. Results go to the recap store. On the chart:
+ * each card is a parchment page with its photo taped on as a print.
  */
 export default function Recap({ facts, onClose }: { facts: readonly Fact[]; onClose: () => void }) {
   const [record, setRecord] = usePersistentStore(recapStore);
@@ -67,11 +68,11 @@ export default function Recap({ facts, onClose }: { facts: readonly Fact[]; onCl
       >
         <div className={styles.top}>
           <button type="button" className={styles.close} onClick={onClose} aria-label="Close recap">
-            <img src={closeIcon} alt="" width={18} height={18} />
+            <Icon name="close" size={20} />
           </button>
           <img src={mascot} alt="" width={34} height={34} className={styles.mascot} />
           <span className={styles.counter} aria-label={`${Math.min(pos, deck.length)} of ${deck.length} sorted`}>
-            <Ring value={deck.length ? pos / deck.length : 0} size={40} stroke={3} track="#ded9d1" />
+            <Ring value={deck.length ? pos / deck.length : 0} size={40} stroke={2.5} track="rgba(232, 201, 131, 0.22)" />
             <span aria-hidden="true">
               {Math.min(pos, deck.length)}/{deck.length}
             </span>
@@ -94,14 +95,7 @@ export default function Recap({ facts, onClose }: { facts: readonly Fact[]; onCl
                   .map((fact, k) => ({ fact, k }))
                   .reverse()
                   .map(({ fact, k }) => (
-                    <StackCard
-                      key={fact.id}
-                      fact={fact}
-                      depth={k}
-                      flipped={k === 0 && flipped}
-                      onFlip={() => setFlipped((f) => !f)}
-                      onDecide={decide}
-                    />
+                    <StackCard key={fact.id} fact={fact} depth={k} flipped={k === 0 && flipped} onFlip={() => setFlipped((f) => !f)} onDecide={decide} />
                   ))}
               </AnimatePresence>
             </div>
@@ -109,7 +103,12 @@ export default function Recap({ facts, onClose }: { facts: readonly Fact[]; onCl
               <button type="button" className={styles.again} onClick={() => decide('again')} aria-label="See it again">
                 <img src={crossOrange} alt="" width={22} height={22} />
               </button>
-              <button type="button" className={styles.flip} onClick={() => setFlipped((f) => !f)} aria-label={flipped ? 'Show the question' : 'Show the answer'}>
+              <button
+                type="button"
+                className={styles.flip}
+                onClick={() => setFlipped((f) => !f)}
+                aria-label={flipped ? 'Show the question' : 'Show the answer'}
+              >
                 <img src={flipWhite} alt="" width={18} height={18} />
               </button>
               <button type="button" className={styles.knew} onClick={() => decide('knew')} aria-label="I knew it">
@@ -123,7 +122,19 @@ export default function Recap({ facts, onClose }: { facts: readonly Fact[]; onCl
   );
 }
 
-function StackCard({ fact, depth, flipped, onFlip, onDecide }: { fact: Fact; depth: number; flipped: boolean; onFlip: () => void; onDecide: (r: RecapResult) => void }) {
+function StackCard({
+  fact,
+  depth,
+  flipped,
+  onFlip,
+  onDecide,
+}: {
+  fact: Fact;
+  depth: number;
+  flipped: boolean;
+  onFlip: () => void;
+  onDecide: (r: RecapResult) => void;
+}) {
   const reduce = useReducedMotionConfig();
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-14, 14]);
@@ -144,7 +155,8 @@ function StackCard({ fact, depth, flipped, onFlip, onDecide }: { fact: Fact; dep
       animate={{ scale: 1 - depth * 0.05, y: depth * 14, opacity: 1 }}
       exit="exit"
       variants={{
-        exit: (dir: number) => (reduce ? { opacity: 0, transition: { duration: 0 } } : { x: dir * 420, opacity: 0, rotate: dir * 18, transition: { duration: 0.3 } }),
+        exit: (dir: number) =>
+          reduce ? { opacity: 0, transition: { duration: 0 } } : { x: dir * 420, opacity: 0, rotate: dir * 18, transition: { duration: 0.3 } },
       }}
       transition={{ type: 'spring', stiffness: 300, damping: 26 }}
       drag={top && !reduce ? 'x' : false}
@@ -194,7 +206,7 @@ function Score({ knew, total, onAgain, onDone }: { knew: number; total: number; 
   return (
     <div className={styles.score}>
       <span className={styles.scoreRing}>
-        <Ring value={total ? knew / total : 0} size={168} stroke={12} />
+        <Ring value={total ? knew / total : 0} size={168} stroke={10} track="rgba(232, 201, 131, 0.16)" />
         <span className={styles.scoreValue}>
           <CountUp to={percent} duration={1} />%
         </span>
@@ -202,7 +214,9 @@ function Score({ knew, total, onAgain, onDone }: { knew: number; total: number; 
       <h3 className={styles.scoreTitle}>
         You knew {knew} of {total}
       </h3>
-      <p className={styles.scoreLine}>{knew === total ? 'Every one. Open another card to add new facts.' : `${total - knew} to see again. They come first next time.`}</p>
+      <p className={styles.scoreLine}>
+        {knew === total ? 'Every one. Open another card to add new facts.' : `${total - knew} to see again. They come first next time.`}
+      </p>
       <div className={styles.scoreActions}>
         {onAgain && (
           <button type="button" className={styles.secondary} onClick={onAgain}>

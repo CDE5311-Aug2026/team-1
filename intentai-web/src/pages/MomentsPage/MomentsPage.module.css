@@ -1,170 +1,231 @@
-/* Moments v3 (ZIP restored.css .mo-*, Figma M1). Content runs 16px from the screen edge, inside AppShell's gutter. */
-.page {
-  margin-inline: calc(1rem - var(--gutter));
-  padding-bottom: 8px;
-  color: #24211c;
+/* Moments on Hunt's desk (1 Nov 2026): the same dark antique sea chart as src/pages/HuntPage/Hunt.module.css `.desk`,
+   parchment pages and pinned prints on top. The tokens below are inherited by every part and sheet of the page. */
+
+.desk {
+  /* ink and paper */
+  --ink: #2c2117;
+  --ink-soft: #5c4a36;
+  --ink-faint: rgba(44, 33, 23, 0.32);
+  --cream: #f2e8d5;
+  --cream-soft: rgba(242, 232, 213, 0.7);
+  --brass: #e8c983;
+  --orange: #e8833a;
+  --red-ink: #9b2c1c;
+  --serif: 'IM Fell English', Georgia, serif;
+  --paper-color: #eadcbd;
+  --paper: radial-gradient(120% 70% at 55% 20%, rgba(255, 249, 230, 0.55), transparent 65%), var(--stains), var(--fibres), var(--grain), #eadcbd;
+  --paper-shadow: 0 14px 26px rgba(0, 0, 0, 0.45), inset 0 0 30px rgba(120, 78, 30, 0.25);
+  --print: #f6efdf;
+  /* the chart itself, for full-screen layers (Recap, Snap) */
+  --desk-bg:
+    radial-gradient(90% 40% at 50% 16%, rgba(255, 200, 130, 0.13), transparent 70%), radial-gradient(140% 90% at 50% 40%, transparent 45%, rgba(0, 0, 0, 0.5)),
+    var(--chart, none) center top / 100% auto no-repeat, repeating-linear-gradient(0deg, rgba(226, 196, 140, 0.04) 0 1px, transparent 1px 46px),
+    repeating-linear-gradient(90deg, rgba(226, 196, 140, 0.04) 0 1px, transparent 1px 46px), linear-gradient(180deg, #241c14, #1d1711 60%, #17120d);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - 96px);
+  /* edge to edge, whatever the page's gutter */
+  width: calc(100% + 2 * (50vw - 50%));
+  max-width: none;
+  box-sizing: border-box;
+  margin: -0.5rem calc(50% - 50vw) -6rem;
+  padding: 0.5rem max(16px, calc(50vw - 50% + 0px)) 7rem;
+  overflow-x: clip;
+  color: var(--cream);
+  background: var(--desk-bg);
 }
 
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
+/* ---- header: Hunt's (mark + heavy cream wordmark, square tools) ---- */
 .header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 58px;
-  margin-bottom: 8px;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3rem;
+  margin-bottom: 0.875rem;
 }
 
-.logo {
-  width: 3.25rem;
-  height: 3.25rem;
-  margin-left: -6px;
-  margin-right: auto;
-}
-
-.snap,
-.rank {
+.brand {
   display: flex;
   align-items: center;
-  gap: 7px;
-  height: 44px;
-  box-sizing: border-box;
-  border-radius: 16px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 800;
-  white-space: nowrap;
-  cursor: pointer;
+  gap: 0.625rem;
+  min-width: 0;
 }
 
-.snap {
-  padding: 0 14px 0 9px;
-  border: 0;
-  background: #24211c;
-  color: #fff;
+.logoLink {
+  display: inline-flex;
+  flex: none;
+  border-radius: 12px;
 }
 
-.snapOrb {
+.mark {
+  display: block;
+  width: 42px;
+  height: 42px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55));
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wordmark {
+  margin: 0;
+  font:
+    800 1.75rem/1 'Inter',
+    'Helvetica Neue',
+    Arial,
+    system-ui,
+    sans-serif;
+  letter-spacing: -0.045em;
+  color: var(--cream);
+}
+
+
+.tools {
+  display: flex;
+  gap: 0.5rem;
+  flex: none;
+}
+
+.square {
+  flex: none;
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: conic-gradient(from 200deg, #f6c343, #ef5b3b, #b84ae3, #3a8ef6, #3fc58a, #f6c343);
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgba(232, 201, 131, 0.35);
+  border-radius: 14px;
+  background: rgba(20, 12, 6, 0.45);
+  color: var(--brass);
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
 
-.snapOrb img {
-  padding: 3px;
-  border-radius: 50%;
-  background: #fff;
+.square:hover {
+  border-color: rgba(232, 201, 131, 0.6);
+  background: rgba(20, 12, 6, 0.65);
 }
 
-.rank {
-  padding: 0 14px 0 7px;
-  border: 1px solid #ded9d1;
-  background: #fff;
-  color: #24211c;
+@supports (corner-shape: superellipse(1.5)) {
+  .square {
+    corner-shape: superellipse(1.5);
+  }
 }
 
 .rankMark {
   position: relative;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
 }
 
-.rankMark svg {
+.rankMark svg:first-child {
   position: absolute;
   inset: 0;
 }
 
-.snap:focus-visible,
-.rank:focus-visible,
+.square:focus-visible,
+.logoLink:focus-visible,
 .recap:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--orange);
   outline-offset: 2px;
 }
 
+/* ---- Recap: a parchment slip with three prints fanned at its edge ---- */
 .recap {
   position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
-  min-height: 88px;
-  margin: 16px 0 0;
-  padding: 12px;
+  min-height: 92px;
+  margin: 26px 0 0;
+  padding: 12px 14px 12px 12px;
   border: 0;
-  border-radius: 24px;
-  background: #24211c;
-  color: #fff;
+  border-radius: 3px;
+  background: var(--paper);
+  box-shadow: var(--paper-shadow);
+  color: var(--ink);
   font: inherit;
   text-align: left;
+  rotate: 0.5deg;
   cursor: pointer;
 }
 
+/* a ruled margin, like a library slip */
+.recap::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(155, 44, 28, 0.22);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
 .recap:disabled {
-  opacity: 0.6;
   cursor: default;
 }
 
-@supports (corner-shape: superellipse(1.5)) {
-  .recap,
-  .snap,
-  .rank {
-    corner-shape: superellipse(1.5);
-  }
+.recap:disabled .recapStack,
+.recap:disabled .recapArrow {
+  opacity: 0.5;
 }
 
 .recapStack {
   position: relative;
   display: block;
-  width: 64px;
-  height: 64px;
+  width: 66px;
+  height: 66px;
   flex: none;
 }
 
 .recapStack i,
 .recapStack img {
   position: absolute;
-  left: 12px;
+  left: 13px;
   top: 6px;
   display: block;
   width: 40px;
   height: 52px;
-  border-radius: 8px;
+  box-sizing: border-box;
+  border: 3px solid var(--print);
+  border-bottom-width: 9px;
+  border-radius: 2px;
+  background: #cdb88f;
   object-fit: cover;
+  box-shadow: 0 3px 6px rgba(44, 33, 23, 0.35);
 }
 
 .recapStack i:first-child {
-  background: #f5b28a;
-  transform: rotate(-12deg) translateX(-3px);
+  background: #b89b6c;
+  transform: rotate(-12deg) translateX(-4px);
 }
 
 .recapStack i:nth-child(2) {
-  background: #fcede5;
-  transform: rotate(-2deg) translateX(3px);
+  background: #d9c59c;
+  transform: rotate(-3deg) translateX(2px);
 }
 
 .recapStack img,
 .recapStack .recapTop {
-  background: #e3661f;
-  transform: rotate(8deg) translateX(7px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  background: #8e6a43;
+  transform: rotate(8deg) translateX(8px);
+  box-shadow: 0 6px 10px rgba(44, 33, 23, 0.45);
   transition: transform 220ms ease;
 }
 
-.recap:hover .recapStack img,
-.recap:hover .recapTop {
-  transform: rotate(14deg) translateX(10px);
+.recap:hover:not(:disabled) .recapStack img,
+.recap:hover:not(:disabled) .recapTop {
+  transform: rotate(14deg) translateX(11px);
 }
 
 .recapCopy {
@@ -175,49 +236,46 @@
 
 .recapCopy strong {
   display: block;
-  font-size: 16px;
-  font-weight: 800;
-  line-height: 20px;
+  font:
+    400 1.375rem/1.1 var(--font-display);
 }
 
 .recapCopy small {
   display: block;
-  margin-top: 3px;
-  color: #d9d4cc;
-  font-size: 12px;
-  line-height: 15px;
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  line-height: 16px;
 }
 
 .recapArrow {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   flex: none;
   border-radius: 50%;
-  background: #e3661f;
+  background: var(--orange);
+  color: #2c1608;
+  box-shadow:
+    0 3px 8px rgba(44, 33, 23, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 350px) {
-  .snap,
-  .rank {
-    font-size: 13px;
+  .wordmark {
+    font-size: 1.5rem;
   }
-  .snap {
-    padding-right: 10px;
-  }
-  .rank {
-    padding-right: 10px;
-  }
-  .logo {
-    width: 2.75rem;
-    height: 2.75rem;
+  .mark {
+    width: 36px;
+    height: 36px;
   }
 }
 
-/* Wider screens: the shared content column (as Today / Ask), no phone gutter trick. */
-@media (min-width: 481px) {
-  .page {
-    margin-inline: 0;
+@media (prefers-reduced-motion: reduce) {
+  .recapStack img,
+  .recapStack .recapTop,
+  .square {
+    transition: none;
   }
 }

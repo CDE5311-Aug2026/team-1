@@ -2,6 +2,7 @@
 // focus lift and brighten, the rest sink and dim; the camera glides to the focus. Rendering runs only while something
 // moves, so an idle Home costs nothing.
 import * as THREE from 'three';
+import { SEA, surroundings } from './surroundings';
 import type { Rgba } from '../../../features/nearby/map/CityMap';
 import { TileGround } from './tileGround';
 
@@ -54,11 +55,8 @@ export class MapScene {
       const tex = new THREE.TextureLoader().load(groundUrl, () => this.kick());
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = 4;
-      // open sea (the picture's own sea colour) to the horizon, so the picture's edge never shows
-      const sea = new THREE.Mesh(
-        new THREE.PlaneGeometry(400, 400),
-        new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(77 / 255, 126 / 255, 162 / 255, THREE.SRGBColorSpace), depthWrite: false }),
-      );
+      // open sea to the horizon in OneMap's water colour, like the land and water round Singapore (surroundings.ts)
+      const sea = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshBasicMaterial({ color: SEA, depthWrite: false }));
       sea.rotation.x = -Math.PI / 2;
       sea.position.y = -0.02;
       // the ground's layers lie a hair apart, too close for the depth buffer from far away: they are drawn in order
@@ -71,6 +69,7 @@ export class MapScene {
       ground.position.y = -0.01;
       ground.renderOrder = -40;
       this.scene.add(ground);
+      this.scene.add(surroundings());
       this.streets = new TileGround(this.scene, this.renderer.capabilities.getMaxAnisotropy(), () => this.kick());
     }
     for (const a of areas) {
@@ -212,11 +211,50 @@ export class MapScene {
     cam.position.set(this.shown.center.x, this.shown.dist * Math.sin(TILT), this.shown.center.z + this.shown.dist * Math.cos(TILT));
     cam.lookAt(this.shown.center);
     // the street tiles for where the camera has come to rest (not every step of a glide)
-    if (!moving) this.streets?.update(this.shown.center.x * 1000, -this.shown.center.z * 1000, this.shown.dist, this.height, FOV);
+    if (!moving && this.streets) {
+      cam.updateMatrixWorld();
+      this.streets.update(this.footprint(), this.centreMpp());
+    }
     this.renderer.render(this.scene, cam);
     this.onFrame?.();
     if (moving) this.kick();
   };
+
+  /** The ground the camera sees, in map metres: the screen's corners cast onto the ground, the far edge capped. */
+  private footprint() {
+    const ray = new THREE.Raycaster();
+    const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const hit = new THREE.Vector3();
+    const reach = this.shown.dist * 2.2; // beyond this the fog has the ground
+    const c = this.shown.center;
+    let w = Infinity,
+      e = -Infinity,
+      s = Infinity,
+      n = -Infinity;
+    for (const [x, y] of [
+      [-1, -1],
+      [1, -1],
+      [1, 1],
+      [-1, 1],
+      [0, 1],
+      [0, -1],
+    ]) {
+      ray.setFromCamera(new THREE.Vector2(x, y), this.camera);
+      let p = ray.ray.intersectPlane(ground, hit);
+      if (!p || p.distanceTo(c) > reach) p = ray.ray.at(reach, hit).setY(0);
+      w = Math.min(w, p.x);
+      e = Math.max(e, p.x);
+      s = Math.min(s, -p.z);
+      n = Math.max(n, -p.z);
+    }
+    return { w: w * 1000, e: e * 1000, s: s * 1000, n: n * 1000 };
+  }
+
+  /** Metres one device pixel covers on the ground at the centre of the view. */
+  private centreMpp() {
+    const cssPx = (2 * this.shown.dist * 1000 * Math.tan((FOV * Math.PI) / 360)) / this.height;
+    return cssPx / this.renderer.getPixelRatio();
+  }
 
   dispose() {
     cancelAnimationFrame(this.frame);

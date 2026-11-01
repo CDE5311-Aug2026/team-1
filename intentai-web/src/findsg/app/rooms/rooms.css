@@ -1,0 +1,218 @@
+.findsg .rooms-page,.findsg .story-room{--room-brass:#c4a76c;--room-cream:#ede0bc;--room-muted:#a9b5a4;--room-line:#d3c19628;--room-dark:#0b1817;--room-accent:#e58e44}
+.findsg .rooms-page{padding-top:64px}
+.findsg .rooms-page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;margin-bottom:38px}
+.findsg .rooms-page-heading h1{font:500 clamp(38px,4.8vw,68px)/1.18 Georgia,"Songti SC",STSong,serif;margin:19px 0 23px;letter-spacing:-.035em;color:var(--room-cream)}
+.findsg .rooms-page-heading h1>span{color:#d6ae70}
+.findsg .rooms-page-heading p{max-width:610px;font-size:14px;line-height:1.9;color:var(--room-muted)}
+.findsg .rooms-edition{padding-bottom:8px;text-align:right;flex-shrink:0}
+.findsg .rooms-edition>b{display:block;font:italic 80px/.95 Georgia,serif;color:var(--room-brass)}
+.findsg .rooms-edition>span{display:block;margin-top:16px;font-size:13px;letter-spacing:.08em;color:var(--room-cream)}
+.findsg .rooms-edition>small{display:block;margin-top:9px;color:var(--room-muted);font-size:10px}
+.findsg .rooms-selector{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:62px}
+.findsg .rooms-selector-card{position:relative;min-height:207px;overflow:hidden;border:1px solid var(--room-line);text-align:left;background:#14251e;isolation:isolate;transition:transform .25s,border-color .25s}
+.findsg .rooms-selector-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.65) brightness(.7);z-index:-2;transition:transform .5s,filter .5s}
+.findsg .rooms-selector-card:hover>img{transform:scale(1.04);filter:saturate(.9) brightness(.9)}
+.findsg .rooms-selector-card.active{border-color:#dbb779;box-shadow:inset 0 0 0 2px #caa26b33}
+.findsg .rooms-selector-card.active>img{filter:saturate(.9) brightness(.83)}
+.findsg .rooms-selector-shade{position:absolute;inset:0;background:linear-gradient(180deg,#0b171a22,#0b171a00 15%,#0b171aee);z-index:-1}
+.findsg .rooms-selector-index{position:absolute;top:18px;left:20px;font:italic 26px Georgia,serif;color:#ead7ad}
+.findsg .rooms-selector-copy{display:block;padding:100px 20px 20px}
+.findsg .rooms-selector-copy>small{font-size:9px;letter-spacing:.1em;color:#dbca9e}
+.findsg .rooms-selector-copy>b{display:block;font:500 21px/1.6 Georgia,"Songti SC",STSong,serif;color:#f1e4c4}
+.findsg .rooms-selector-copy>span{font-size:9px;color:#adb6a2}
+.findsg .rooms-selector-card>i{position:absolute;right:16px;top:20px;font-size:10px;font-style:normal;color:#e5d3ad}
+.findsg .story-room{position:relative;margin:32px 0 48px}
+.findsg .room-chapter-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:26px}
+.findsg .room-chapter-heading h2{font:500 clamp(29px,3vw,43px)/1.3 Georgia,"Songti SC",STSong,serif;color:var(--room-cream);margin:10px 0 15px;letter-spacing:-.025em}
+.findsg .room-chapter-heading p{max-width:750px;font-size:13px;line-height:1.9;color:var(--room-muted);margin:0}
+.findsg .room-progress-medallion{text-align:right;white-space:nowrap;padding:7px 0 0 20px}
+.findsg .room-progress-medallion>b{font:500 45px/1.1 Georgia,serif;display:block;color:var(--room-brass)}
+.findsg .room-progress-medallion i{font:11px sans-serif;letter-spacing:.08em;color:var(--room-muted)}
+.findsg .room-progress-medallion>span{display:block;font-size:9px;letter-spacing:.1em;margin-top:7px;color:var(--room-muted)}
+.findsg .room-mission{display:flex;gap:20px;align-items:center;border-block:1px solid var(--room-line);padding:17px 22px;background:linear-gradient(105deg,#c1a36a0c,#0d211d55);margin-bottom:20px}
+.findsg .room-mission-label{font-size:10px;letter-spacing:.12em;white-space:nowrap;color:#d8b97a;border-right:1px solid var(--room-line);padding-right:20px}
+.findsg .room-mission>p{font-size:12px;line-height:1.8;color:#d3d5bd;flex:1;margin:0}
+.findsg .room-mission>button{flex-shrink:0;font-size:10px;color:#e1b377;padding:9px 0;display:flex;gap:16px;align-items:center}
+.findsg .room-play-layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;align-items:stretch;border:1px solid var(--room-line);background:#091715}
+.findsg .room-scene-column{min-width:0;display:flex;flex-direction:column}
+.findsg .room-viewport{position:relative;isolation:isolate;height:650px;min-height:510px;overflow:hidden;background:#14221e}
+.findsg .room-scene-poster{position:absolute;inset:0;background-position:center;background-size:cover;opacity:.65;transition:opacity .4s;pointer-events:none}
+.findsg .room-render-ready .room-scene-poster{opacity:0}
+.findsg .room-canvas-host{position:absolute;inset:0;z-index:1}
+.findsg .room-canvas-host canvas{display:block;width:100%;height:100%;outline:none}
+.findsg .room-canvas-host canvas:focus-visible{outline:2px solid #f2bd76;outline-offset:-4px}
+.findsg .room-scene-vignette{position:absolute;inset:0;background:linear-gradient(180deg,#05100f99 0%,transparent 20%,transparent 72%,#05100fb3 100%);pointer-events:none;z-index:2}
+.findsg .room-frame-top{position:absolute;top:22px;left:23px;right:23px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:20px;pointer-events:none}
+.findsg .room-frame-top>span{display:flex;align-items:center;gap:8px;font-size:10px;color:#efe2c3;letter-spacing:.05em}
+.findsg .room-frame-top i{width:5px;height:5px;border-radius:50%;background:#dbb56f;box-shadow:0 0 10px #e4b76d88}
+.findsg .room-frame-top>b{font-size:8px;letter-spacing:.16em;color:#beccbe;font-weight:400}
+.findsg .room-view-switch{position:absolute;left:22px;top:62px;z-index:4;display:flex;gap:1px;background:#081413aa;border:1px solid #c6b18555;backdrop-filter:blur(10px)}
+.findsg .room-view-switch>button{min-height:36px;padding:8px 12px;color:#c7d0bc;font-size:10px;transition:background .2s,color .2s}
+.findsg .room-view-switch>button[aria-pressed=true]{background:#d5b578;color:#142521}
+.findsg .room-view-switch>button:disabled{opacity:.5;cursor:wait}
+.findsg .room-scene-bottom{position:absolute;left:23px;right:23px;bottom:18px;z-index:3;display:flex;justify-content:space-between;gap:18px;pointer-events:none}
+.findsg .room-scene-bottom>span{font-size:9px;color:#d1d4bb;letter-spacing:.02em}
+.findsg .room-scene-bottom>span:last-child{font-size:8px;color:#abbba9}
+.findsg .room-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:13px;color:#f3e7c7;z-index:3;padding:35px;text-align:center;background:#0a141a55;pointer-events:none}
+.findsg .room-loading>span{width:37px;height:37px;border-radius:50%;border:1px solid #d6b17d44;border-top-color:#dfbe7f;animation:room-spin 1.4s linear infinite}
+.findsg .room-loading>strong{font:400 24px Georgia,"Songti SC",STSong,serif;margin-top:10px}
+.findsg .room-loading>small{font-size:10px;color:#cecfb9}
+@keyframes room-spin{to{transform:rotate(360deg)}}
+.findsg .room-stage-chapters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--room-line);margin-top:auto;background:#0c1d19}
+.findsg .room-stage-chapters>button{padding:19px 14px;min-width:0;display:flex;align-items:center;text-align:left;gap:10px;border-right:1px solid var(--room-line)}
+.findsg .room-stage-chapters>button:last-child{border:0}
+.findsg .room-stage-chapters>button>span{font:18px Georgia,serif;color:#acb397}
+.findsg .room-stage-chapters>button>div{min-width:0;flex:1}
+.findsg .room-stage-chapters b{display:block;font-size:11px;font-weight:500;line-height:1.6;color:#dfddc1}
+.findsg .room-stage-chapters small{display:block;font-size:8px;color:#8ea291;margin-top:4px}
+.findsg .room-stage-chapters i{font-size:12px;font-style:normal;color:#a9b496}
+.findsg .room-stage-chapters>button.selected{background:#b4965c17}
+.findsg .room-stage-chapters>button.solved>span{color:#d4b076}
+.findsg .room-stage-chapters>button.solved small{color:#c3a873}
+.findsg .room-inspector{position:relative;min-width:0;display:flex;flex-direction:column;border-left:1px solid var(--room-line);padding:23px;background:radial-gradient(ellipse at 90% 0,#826c3d15,transparent 65%),#11221c;scrollbar-width:thin;scrollbar-color:#9e8650 #11221c}
+.findsg .room-inspector-label{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--room-line);padding-bottom:17px;font-size:7px;letter-spacing:.15em;color:#baa273}
+.findsg .room-inspection-content{padding-top:22px}
+.findsg .room-object-type{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.findsg .room-object-type>span{font-size:9px;letter-spacing:.08em;color:#d1b076}
+.findsg .room-inspector h3{font:400 29px/1.35 Georgia,"Songti SC",STSong,serif;color:#efe1bc;letter-spacing:-.02em;margin:0 0 16px}
+.findsg .room-object-description{font-size:12px;line-height:1.8;color:#d4d4bd;margin-bottom:16px}
+.findsg .room-object-detail{font-size:11px;line-height:1.9;color:#9daf9a}
+.findsg .room-clue-slip{position:relative;padding:19px 17px;margin:20px 0;background:linear-gradient(140deg,#e9dbb7,#d6c697);color:#27382b;box-shadow:0 8px 25px #0002;clip-path:polygon(0 0,96% 0,100% 7%,100% 100%,2% 100%,0 97%)}
+.findsg .room-clue-slip:before{content:'';position:absolute;right:6px;top:0;width:25px;height:40px;border:1px solid #655d41aa;border-radius:13px;transform:rotate(11deg)}
+.findsg .room-clue-slip>span{display:block;font-size:7px;letter-spacing:.1em;color:#685d3a;margin-bottom:12px;padding-right:16px}
+.findsg .room-clue-slip>p{font:500 16px/1.85 Georgia,"Songti SC",STSong,serif;color:#2c382b;margin:0;white-space:pre-line}
+.findsg .room-mechanism{margin-top:22px;border-top:1px solid var(--room-line);padding-top:18px}
+.findsg .room-mechanism-rule>small,.findsg .room-observation>small{font-size:9px;letter-spacing:.1em;color:#d6b47b}
+.findsg .room-mechanism-rule>p{font-size:11px;color:#c4cbb2;line-height:1.8;margin:9px 0 16px}
+.findsg .room-dependency{padding:12px 13px;background:#0002;border:1px solid #ccab6f33;display:flex;gap:10px;color:#c3b995;font-size:10px;line-height:1.7}
+.findsg .room-dependency>span{font-size:19px}
+.findsg .room-tool-slot{display:flex;align-items:center;text-align:left;gap:13px;border:1px dashed #b79f6255;background:#192b2255;width:100%;padding:13px;margin:15px 0;color:#d4c496;min-height:60px}
+.findsg .room-tool-slot>span{width:29px;height:29px;border:1px solid #c7a66b55;display:grid;place-items:center;font-size:20px}
+.findsg .room-tool-slot small{display:block;font-size:8px;color:#9dad94;margin-bottom:5px}
+.findsg .room-tool-slot b{font-size:12px;font-weight:500}
+.findsg .room-tool-slot.equipped{border-style:solid;background:#ad8d4930;border-color:#b49a66}
+.findsg .room-tool-slot:disabled{opacity:.65;cursor:default}
+.findsg .room-dial-bank{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}
+.findsg .room-number-dial{display:flex;flex-direction:column;align-items:stretch;min-width:0;text-align:center}
+.findsg .room-number-dial>span{font-size:9px;color:#abbb9f;margin-bottom:12px}
+.findsg .room-number-dial>button{height:28px;font-size:18px;line-height:1;color:#bfa67b;border:1px solid #c4a56a33;background:#0e1c18}
+.findsg .room-number-dial>input{appearance:textfield;-moz-appearance:textfield;width:100%;height:74px;border-radius:0;border:1px solid #d1ac69aa;border-block:0;font:500 45px/1 Georgia,serif;text-align:center;color:#342c1e;background:repeating-linear-gradient(0deg,transparent,transparent 3px,#171d140a 4px),linear-gradient(180deg,#584b31 0,#c6b17c 3%,#e1d0a1 50%,#b19b66 79%,#51442c 100%);text-shadow:0 1px #fff8;box-shadow:inset 0 0 14px #2c271b66}
+.findsg .room-number-dial input::-webkit-inner-spin-button,.findsg .room-number-dial input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.findsg .room-number-dial>input:disabled,.findsg .room-number-dial>button:disabled{opacity:.48}
+.findsg .room-number-dial>button:focus-visible,.findsg .room-number-dial>input:focus-visible{outline:2px solid #f0ba78;outline-offset:2px}
+.findsg .room-alignment-console{border:1px solid var(--room-line);padding:17px 14px 3px;background:#091b16;margin:17px 0}
+.findsg .room-range-control{display:block;margin-bottom:20px}
+.findsg .room-range-control>span:first-child{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:#dfd7b8}
+.findsg .room-range-control b{font-weight:400}
+.findsg .room-range-control output{font:16px Georgia,serif;border:1px solid #c0a26844;color:#d8b579;min-width:36px;text-align:center;padding:3px 4px;background:#1a2d21}
+.findsg .room-range-control input{appearance:none;width:100%;height:5px;border:0;background:linear-gradient(90deg,#6c7e5f,#c6ac78);margin:24px 0 15px;cursor:pointer;border-radius:0}
+.findsg .room-range-control input::-webkit-slider-thumb{appearance:none;width:17px;height:27px;border:1px solid #e7cd92;border-radius:2px;background:linear-gradient(90deg,#8c7243,#dfc38b 35%,#b3945e);box-shadow:2px 4px 8px #0008}
+.findsg .room-range-control input::-moz-range-thumb{width:17px;height:27px;border:1px solid #e7cd92;border-radius:2px;background:#bd9d66}
+.findsg .room-range-control input:disabled{opacity:.5}
+.findsg .room-range-ticks{display:flex;justify-content:space-between;gap:6px;color:#92a28b;font-size:7px}
+.findsg .room-range-ticks>i{font-style:normal}
+.findsg .room-sequence-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:20px 0 14px}
+.findsg .room-sequence-slots>div{min-height:66px;min-width:0;padding:9px 7px;border:1px dashed #bda16a44;background:#0c1c16;color:#91a289;display:flex;flex-direction:column;gap:8px}
+.findsg .room-sequence-slots small{font:10px Georgia,serif;color:#ba9e6d}
+.findsg .room-sequence-slots span{font-size:10px;line-height:1.5}
+.findsg .room-sequence-slots>div.filled{border-style:solid;border-color:#bc9c5f77;background:#b5965122;color:#e4d5ae}
+.findsg .room-sequence-options{display:grid;gap:7px}
+.findsg .room-sequence-options>button{text-align:left;padding:11px 12px;display:grid;grid-template-columns:16px minmax(0,1fr);align-items:center;gap:4px 8px;border:1px solid #bfa57033;background:#1a2e2255;color:#d7d7bb}
+.findsg .room-sequence-options>button>b{font-size:11px;font-weight:400}
+.findsg .room-sequence-options>button>span{font-size:17px;color:#c5aa76}
+.findsg .room-sequence-options>button>small{grid-column:2;font-size:8px;color:#8fa38d}
+.findsg .room-sequence-options>button:disabled{opacity:.45;cursor:default}
+.findsg .room-console-secondary{display:flex;justify-content:space-between;gap:10px;padding:13px 0 2px}
+.findsg .room-console-secondary>button{font-size:9px;color:#b5bea0;padding:4px 0}
+.findsg .room-console-secondary>button:disabled{opacity:.4}
+.findsg .room-submit{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:47px;margin-top:17px;padding:13px 17px;color:#192419;background:linear-gradient(125deg,#deb67b,#b88d54);font-size:12px;font-weight:600;box-shadow:0 6px 18px #0002;border:1px solid #dfbd8588;transition:filter .2s}
+.findsg .room-submit:hover:not(:disabled){filter:brightness(1.09)}
+.findsg .room-submit:disabled{opacity:.45;cursor:default}
+.findsg .room-hint-button{display:block;font-size:9px;color:#b4bd9f;padding:15px 0 3px;margin-left:auto}
+.findsg .room-hint{font-size:11px;line-height:1.8;color:#d6cba8;border-left:2px solid #ba9b5b;padding:9px 12px;background:#d1ab6111}
+.findsg .room-solved-note{border:1px solid #b99b5e44;padding:16px;margin-top:18px;background:#bc9e5b13}
+.findsg .room-solved-note>span{font-size:7px;letter-spacing:.15em;color:#d1b377}
+.findsg .room-solved-note>p{font-size:11px;color:#ced2b4;line-height:1.9;margin:8px 0 0}
+.findsg .room-observation{margin-top:26px;padding-top:20px;border-top:1px solid var(--room-line)}
+.findsg .room-observation p{font-size:11px;line-height:1.9;color:#aabb9f}
+.findsg .room-text-button{font-size:10px;line-height:1.8;color:#dbb47a;text-align:left;padding:10px 0}
+.findsg .room-inspector-empty{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:450px;padding:26px 0}
+.findsg .room-archive-symbol{position:relative;width:71px;height:85px;border:1px solid #b79b6155;margin-bottom:40px}
+.findsg .room-archive-symbol>span{position:absolute;left:17px;top:11px;font:58px Georgia,serif;color:#d3b77b}
+.findsg .room-archive-symbol>i{position:absolute;width:29px;height:49px;border:1px solid #bba36966;right:-10px;bottom:-8px;transform:rotate(20deg);background:#10251cc9}
+.findsg .room-archive-symbol>i:last-child{right:-17px;bottom:-12px;transform:rotate(34deg);background:transparent}
+.findsg .room-inspector-empty>.eyebrow{font-size:7px;letter-spacing:.12em;margin-bottom:16px}
+.findsg .room-inspector-empty>h3{font-size:28px;line-height:1.5}
+.findsg .room-inspector-empty>p{font-size:11px;line-height:1.9;color:#aab99f}
+.findsg .room-feedback{margin-top:auto;padding-top:22px;font-size:10px;line-height:1.8;color:#94a78e;min-height:44px}
+.findsg .room-feedback.visible{color:#f0cf8b}
+.findsg .room-inventory{display:grid;grid-template-columns:195px minmax(0,1fr);gap:22px;border:1px solid var(--room-line);border-top:0;padding:24px;background:linear-gradient(110deg,#1e3026,#10241e);position:relative}
+.findsg .room-inventory-title .eyebrow{font-size:8px;letter-spacing:.17em}
+.findsg .room-inventory-title>h3{font:500 22px/1.5 Georgia,"Songti SC",STSong,serif;color:#e1d4b3;margin:6px 0}
+.findsg .room-inventory-title>h3>b{font:11px sans-serif;border:1px solid #b59a6166;border-radius:50%;margin-left:8px;width:21px;height:21px;display:inline-grid;place-items:center;vertical-align:middle;color:#d6b77c}
+.findsg .room-inventory-title>p{font-size:9px;color:#8fa68f;line-height:1.8;margin:0}
+.findsg .room-inventory-items{display:flex;gap:12px;align-items:stretch;overflow-x:auto;min-width:0}
+.findsg .room-inventory-item{flex:0 0 auto;display:flex;align-items:center;gap:13px;min-width:220px;max-width:340px;padding:13px 16px;border:1px solid #c1a46744;text-align:left;background:#091c1788}
+.findsg .room-inventory-item.active{border-color:#d5af70;background:#c4a66b22}
+.findsg .room-item-token{position:relative;width:37px;height:49px;flex-shrink:0;display:grid;place-items:center;border:1px solid #bda36b77;color:#e4c68b;background:linear-gradient(145deg,#374d39,#0c211c);box-shadow:2px 2px #071613}
+.findsg .room-item-token:before{content:'';position:absolute;width:27px;height:39px;border:1px solid #c4ac7022;inset:4px}
+.findsg .room-item-token>i{font:17px Georgia,serif;font-style:normal}
+.findsg .room-inventory-item>div{min-width:0;flex:1}
+.findsg .room-inventory-item b{display:block;font-size:12px;font-weight:500;color:#e1d7b7}
+.findsg .room-inventory-item small{display:block;max-width:225px;font-size:9px;line-height:1.6;color:#a3b196;margin-top:6px}
+.findsg .room-inventory-item>span:last-child{color:#c8ac71}
+.findsg .room-empty-satchel{display:flex;align-items:center;gap:20px;border:1px dashed #b6a06a33;width:100%;padding:14px 22px;color:#9eae92}
+.findsg .room-empty-satchel>span{font-size:30px;color:#b6a06a66}
+.findsg .room-empty-satchel p{margin:0;font-size:12px;line-height:1.8}
+.findsg .room-empty-satchel small{font-size:10px;color:#839b82}
+.findsg .room-equipped-caption{grid-column:2;margin:0;font-size:9px;color:#d5b276}
+.findsg .room-object-catalog{margin-top:40px}
+.findsg .room-catalog-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:21px}
+.findsg .room-catalog-heading h3{font:400 26px/1.4 Georgia,"Songti SC",STSong,serif;margin:9px 0 0;color:#e6d9b8}
+.findsg .room-object-filters{display:flex;border-bottom:1px solid var(--room-line);gap:22px}
+.findsg .room-object-filters>button{font-size:10px;color:#99ad96;padding:10px 0;position:relative;white-space:nowrap}
+.findsg .room-object-filters>button.active{color:#e0be82}
+.findsg .room-object-filters>button.active:after{content:'';position:absolute;height:1px;background:#d4b57c;bottom:-1px;left:0;right:0}
+.findsg .room-object-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.findsg .room-object-tile{position:relative;min-height:156px;display:flex;align-items:flex-start;gap:14px;text-align:left;padding:20px 17px 38px;border:1px solid #bba06826;background:linear-gradient(130deg,#1e322766,#14261e44);transition:background .2s,border .2s}
+.findsg .room-object-tile:hover,.findsg .room-object-tile.selected{border-color:#c8a96d99;background:#bba26c13}
+.findsg .room-object-number{font:italic 25px Georgia,serif;color:#8a916b}
+.findsg .room-object-tile.selected .room-object-number{color:#e0b97a}
+.findsg .room-object-tile>div{min-width:0}
+.findsg .room-object-tile small{display:block;font-size:7px;letter-spacing:.1em;color:#ab9263;margin-bottom:8px}
+.findsg .room-object-tile b{display:block;font-size:12px;font-weight:500;color:#dfd8b9}
+.findsg .room-object-tile p{font-size:9px;line-height:1.8;color:#94aa91;margin:9px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.findsg .room-object-read{position:absolute;right:16px;bottom:14px;color:#b6a16d;font-size:8px}
+.findsg .room-journal{border-block:1px solid var(--room-line);margin-top:30px}
+.findsg .room-journal-toggle{display:flex;justify-content:space-between;align-items:center;gap:25px;text-align:left;width:100%;padding:22px 0}
+.findsg .room-journal-toggle>span:first-child{display:flex;gap:24px;align-items:center}
+.findsg .room-journal-toggle small{font-size:8px;letter-spacing:.12em;color:#b99c6a}
+.findsg .room-journal-toggle b{font-size:12px;font-weight:400;color:#d2cfb0}
+.findsg .room-journal-toggle>span:last-child{font-size:10px;color:#93a78b;display:flex;gap:24px;align-items:center}
+.findsg .room-journal-toggle i{font-style:normal;font-size:20px;color:#cab179}
+.findsg .room-journal-content{padding:0 25px 20px;border-left:1px solid #bba16d33;margin:0 0 24px 1px}
+.findsg .room-journal-content ol{margin:0;padding:0 0 0 17px;display:grid;gap:9px}
+.findsg .room-journal-content li,.findsg .room-journal-content>p{font-size:11px;line-height:1.9;color:#b5c1a5}
+.findsg .room-journal-content>.quiet{font-size:9px;color:#8b9e83;margin-top:22px}
+.findsg .room-story-bridge{display:flex;align-items:center;justify-content:space-between;gap:34px;padding:32px 0 8px}
+.findsg .room-story-bridge>div:first-child{max-width:700px}
+.findsg .room-story-bridge h3{font:500 24px/1.5 Georgia,"Songti SC",STSong,serif;color:#dacdab;margin:10px 0}
+.findsg .room-story-bridge p{font-size:11px;color:#93a48d;line-height:1.9;margin:0}
+.findsg .room-story-bridge>div:last-child{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.findsg .room-story-bridge .button{font-size:10px;padding:12px 18px;white-space:nowrap;min-height:44px}
+.findsg .room-story-bridge.is-complete{border-bottom:1px solid #b99d6b55;padding-bottom:32px}
+.findsg .room-embedded .room-chapter-heading h2{font-size:31px}
+.findsg .room-embedded .room-chapter-heading{margin-top:15px}
+.findsg .room-launch-link{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:26px;border:1px solid #c3a56b44;margin:20px 0 28px;background:linear-gradient(105deg,#b9a46b1c,#10291b66)}
+.findsg .room-launch-link h3{font:400 27px Georgia,"Songti SC",STSong,serif;color:#e8d9b5;margin:9px 0}
+.findsg .room-launch-link p{font-size:12px;line-height:1.9;color:#a6b499;margin:0}
+.findsg .room-launch-link>.button{flex-shrink:0}
+@media(min-width:1600px){.findsg .room-viewport{height:720px}.findsg .room-play-layout{grid-template-columns:minmax(0,1fr) 380px}.findsg .room-inspector{padding:28px}.findsg .room-object-tile{min-height:165px}}
+@media(max-width:1150px){.findsg .room-play-layout{grid-template-columns:minmax(0,1fr) 310px}.findsg .room-inspector{padding:20px}.findsg .room-viewport{height:610px;min-height:500px}.findsg .room-stage-chapters>button{gap:8px;padding:15px 9px}.findsg .room-stage-chapters b{font-size:10px}.findsg .room-stage-chapters i{display:none}.findsg .room-object-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.findsg .room-object-tile{min-height:140px}.findsg .rooms-selector-copy{padding-inline:16px}.findsg .rooms-selector-copy>b{font-size:19px}.findsg .room-scene-bottom>span:last-child{display:none}.findsg .room-story-bridge{align-items:flex-start}.findsg .room-story-bridge>div:last-child{flex-direction:column}}
+@media(max-width:900px){.findsg .room-play-layout{grid-template-columns:minmax(0,1fr)}.findsg .room-viewport{height:620px}.findsg .room-inspector{border-left:0;border-top:1px solid var(--room-line);padding:25px 28px}.findsg .room-inspector-empty{min-height:200px;display:grid;grid-template-columns:90px 1fr;gap:4px 24px;padding:24px 0}.findsg .room-archive-symbol{grid-column:1;grid-row:1/5;margin-bottom:0;align-self:center}.findsg .room-inspector-empty>*:not(.room-archive-symbol){grid-column:2}.findsg .room-inspector-empty>.eyebrow{margin-bottom:7px}.findsg .room-inspector-empty>h3{font-size:26px;margin-bottom:6px}.findsg .room-inspector-empty>h3 br{display:none}.findsg .room-inspector-empty>p{margin-bottom:7px}.findsg .room-inspector-empty>.room-submit{width:260px;margin-top:12px}.findsg .room-inspection-content{display:grid;grid-template-columns:1fr 1fr;gap:0 30px;align-content:start}.findsg .room-object-type,.findsg .room-inspection-content>h3,.findsg .room-object-description,.findsg .room-object-detail,.findsg .room-clue-slip,.findsg .room-observation{grid-column:1}.findsg .room-mechanism{grid-column:2;grid-row:1/9;margin:0;border-top:0;border-left:1px solid var(--room-line);padding:0 0 0 28px}.findsg .room-object-detail{font-size:12px}.findsg .room-feedback{margin-top:15px;padding-top:15px;border-top:1px solid var(--room-line)}.findsg .room-inventory{grid-template-columns:165px minmax(0,1fr)}.findsg .rooms-selector{gap:10px}.findsg .rooms-selector-card{min-height:190px}.findsg .rooms-selector-copy>b{font-size:17px}.findsg .room-frame-top>span{font-size:11px}.findsg .room-stage-chapters b{font-size:12px}.findsg .room-stage-chapters>button{padding:18px}}
+@media(max-width:640px){.findsg .site-nav{gap:8px!important}.findsg .site-nav>button{font-size:10px!important}.findsg .rooms-page{padding-top:33px}.findsg .rooms-page-heading{gap:15px;margin-bottom:27px;align-items:flex-start}.findsg .rooms-page-heading h1{font-size:37px;margin:15px 0 17px}.findsg .rooms-page-heading p{font-size:11px;max-width:290px}.findsg .rooms-page-heading .eyebrow{font-size:7px;letter-spacing:.12em}.findsg .rooms-edition{display:none}.findsg .rooms-selector{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:33px}.findsg .rooms-selector-card{min-height:165px}.findsg .rooms-selector-index{top:13px;left:14px;font-size:21px}.findsg .rooms-selector-copy{padding:80px 14px 15px}.findsg .rooms-selector-copy>b{font-size:18px;margin:3px 0}.findsg .rooms-selector-copy>small,.findsg .rooms-selector-copy>span{font-size:8px}.findsg .rooms-selector-card>i{right:12px;top:14px;font-size:8px}.findsg .story-room{margin-top:20px}.findsg .room-chapter-heading{gap:13px;margin-bottom:18px}.findsg .room-chapter-heading h2,.findsg .room-embedded .room-chapter-heading h2{font-size:28px;margin:10px 0 13px}.findsg .room-chapter-heading .eyebrow{font-size:7px;letter-spacing:.1em}.findsg .room-chapter-heading p{font-size:11px;line-height:1.9}.findsg .room-progress-medallion{padding-left:0;padding-top:18px}.findsg .room-progress-medallion>b{font-size:31px}.findsg .room-progress-medallion i{font-size:9px}.findsg .room-progress-medallion>span{font-size:7px}.findsg .room-mission{display:grid;grid-template-columns:1fr auto;gap:9px 14px;padding:15px}.findsg .room-mission-label{border:0;padding:0;font-size:9px}.findsg .room-mission>p{grid-column:1/-1;grid-row:2;font-size:10px}.findsg .room-mission>button{font-size:9px;padding:0}.findsg .room-viewport{height:490px;min-height:490px}.findsg .room-frame-top{top:16px;left:16px;right:16px;gap:10px}.findsg .room-frame-top>span{font-size:9px}.findsg .room-frame-top>b{font-size:6px}.findsg .room-view-switch{left:16px;top:49px}.findsg .room-view-switch>button{font-size:10px;min-height:38px;padding:8px 11px}.findsg .room-scene-bottom{left:16px;right:16px;bottom:16px}.findsg .room-scene-bottom>span{font-size:8px}.findsg .room-loading{padding:22px}.findsg .room-loading>strong{font-size:22px}.findsg .room-stage-chapters>button{padding:14px 9px;gap:6px;align-items:flex-start}.findsg .room-stage-chapters>button>span{font-size:13px;margin-top:1px}.findsg .room-stage-chapters b{font-size:9px}.findsg .room-stage-chapters small{font-size:7px}.findsg .room-inspector{padding:20px}.findsg .room-inspector-empty{display:block;min-height:260px;padding:25px 0 10px}.findsg .room-archive-symbol{width:48px;height:59px;margin-bottom:24px}.findsg .room-archive-symbol>span{font-size:42px;left:12px;top:6px}.findsg .room-archive-symbol>i{height:34px;width:21px}.findsg .room-inspector-empty>h3{font-size:27px;margin-top:14px}.findsg .room-inspector-empty>.room-submit{width:100%;margin-top:22px}.findsg .room-inspection-content{display:block;padding-top:20px}.findsg .room-inspector h3{font-size:28px}.findsg .room-object-description{font-size:12px}.findsg .room-object-detail{font-size:11px}.findsg .room-mechanism{margin-top:22px;border-top:1px solid var(--room-line);border-left:0;padding:19px 0 0}.findsg .room-dial-bank{gap:14px;margin:23px 0}.findsg .room-number-dial>input{height:80px;font-size:49px}.findsg .room-number-dial>button{height:35px}.findsg .room-mechanism-rule>p{font-size:11px}.findsg .room-alignment-console{padding:19px 16px 3px}.findsg .room-range-control{margin-bottom:24px}.findsg .room-sequence-options>button{min-height:45px;padding:12px}.findsg .room-sequence-slots>div{min-height:71px}.findsg .room-submit{min-height:50px}.findsg .room-hint-button{min-height:44px;padding-top:16px}.findsg .room-inventory{grid-template-columns:minmax(0,1fr);gap:17px;padding:20px}.findsg .room-inventory-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.findsg .room-inventory-title>.eyebrow{font-size:7px}.findsg .room-inventory-title>h3{font-size:23px;margin:0}.findsg .room-inventory-title>p{flex-basis:100%;font-size:10px}.findsg .room-inventory-item{min-width:235px;max-width:280px}.findsg .room-empty-satchel{padding:16px}.findsg .room-equipped-caption{grid-column:1;line-height:1.7}.findsg .room-object-catalog{margin-top:30px}.findsg .room-catalog-heading{display:block;margin-bottom:17px}.findsg .room-catalog-heading h3{font-size:25px;margin-top:10px}.findsg .room-object-filters{gap:24px;width:100%;margin-top:18px}.findsg .room-object-filters>button{font-size:11px;min-height:40px}.findsg .room-object-grid{gap:9px}.findsg .room-object-tile{padding:15px 12px 34px;gap:10px;min-height:165px;display:block}.findsg .room-object-number{font-size:23px;display:block;margin-bottom:12px}.findsg .room-object-tile small{font-size:7px;margin-bottom:6px}.findsg .room-object-tile b{font-size:12px}.findsg .room-object-tile p{font-size:9px}.findsg .room-object-read{font-size:8px;right:12px;bottom:13px}.findsg .room-journal{margin-top:24px}.findsg .room-journal-toggle{padding:18px 0;align-items:flex-start;gap:14px}.findsg .room-journal-toggle>span:first-child{display:block}.findsg .room-journal-toggle small{display:block;font-size:7px;margin-bottom:7px}.findsg .room-journal-toggle b{font-size:12px}.findsg .room-journal-toggle>span:last-child{font-size:8px;gap:10px;padding-top:8px}.findsg .room-journal-content{padding-left:17px}.findsg .room-journal-content li{font-size:10px}.findsg .room-story-bridge{display:block;padding-top:28px}.findsg .room-story-bridge h3{font-size:23px}.findsg .room-story-bridge p{font-size:10px}.findsg .room-story-bridge>div:last-child{display:flex;flex-direction:column;margin-top:21px;gap:10px}.findsg .room-story-bridge .button{width:100%;justify-content:space-between;min-height:46px;font-size:11px}.findsg .room-launch-link{display:block;padding:22px}.findsg .room-launch-link h3{font-size:25px}.findsg .room-launch-link p{font-size:11px}.findsg .room-launch-link>.button{margin-top:19px;width:100%;justify-content:space-between}}
+@media(prefers-reduced-motion:reduce){.findsg .story-room *,.findsg .rooms-selector-card,.findsg .rooms-selector-card>img{animation:none!important;transition:none!important}}
+html[data-motion=reduced] .findsg .story-room *,html[data-motion=reduced] .findsg .rooms-selector-card,html[data-motion=reduced] .findsg .rooms-selector-card>img{animation:none!important;transition:none!important}
+
+@media(min-width:901px){.findsg .room-inspector{height:730px;max-height:730px;overflow-y:auto;overscroll-behavior:contain}.findsg .room-inspection-content,.findsg .room-inspector-label,.findsg .room-feedback{flex-shrink:0}.findsg .room-scene-column{align-self:start}.findsg .room-stage-chapters{margin-top:0}}
+@media(min-width:901px) and (max-width:1150px){.findsg .room-inspector{height:690px;max-height:690px}}

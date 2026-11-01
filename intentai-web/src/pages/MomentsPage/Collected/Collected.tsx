@@ -40,7 +40,11 @@ function columns(items: readonly CollectedItem[]) {
   return cols;
 }
 
-/** M1 "Collected": masonry of opened cards, local tips, saved Ask insights and phrases, with topic filters. */
+/**
+ * M1 "Collected": masonry of opened cards, local tips, saved Ask insights and phrases, with topic filters. Pinned to the
+ * chart like a scrapbook: phrases on parchment slips, photos as taped prints; the filters are a compact ink-underlined
+ * switch (as Hunt's Stories/Public).
+ */
 export default function Collected({ items, filter, onFilter, onOpen }: CollectedProps) {
   const reduce = useReducedMotionConfig();
   const count = (f: CollectedFilter) => items.filter((i) => matchesFilter(i, f)).length;
@@ -51,7 +55,7 @@ export default function Collected({ items, filter, onFilter, onOpen }: Collected
   return (
     <section className={styles.section} aria-labelledby="collected-heading">
       <div className={styles.heading}>
-        <h2 id="collected-heading">COLLECTED</h2>
+        <h2 id="collected-heading">Collected</h2>
         <span>
           {visible.length} of {items.length}
         </span>
@@ -69,9 +73,8 @@ export default function Collected({ items, filter, onFilter, onOpen }: Collected
               aria-label={`${f.label}, ${count(f.id)}`}
               onClick={() => onFilter(f.id)}
             >
-              <img src={f.icon} alt="" width={15} height={15} className={f.id === 'all' ? styles.allIcon : undefined} />
               <span className={styles.filterLabel}>{f.label}</span>
-              <span className={styles.filterCount}>{count(f.id)}</span>
+              <small className={styles.filterCount}>{count(f.id)}</small>
             </button>
           );
         })}
@@ -96,16 +99,16 @@ export default function Collected({ items, filter, onFilter, onOpen }: Collected
         <div className={styles.masonry} key={filter}>
           {columns(visible).map((col, c) => (
             <ul key={c} className={styles.column}>
-                {col.map(({ item, index }) => (
-                  <motion.li
-                    key={item.key}
-                    initial={reduce ? false : { opacity: 0, y: 14 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.28, delay: reduce ? 0 : Math.min(index, 8) * 0.04 }}
-                  >
-                    <Tile item={item} index={index} onOpen={() => onOpen(item)} />
-                  </motion.li>
-                ))}
+              {col.map(({ item, index }) => (
+                <motion.li
+                  key={item.key}
+                  initial={reduce ? false : { opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.28, delay: reduce ? 0 : Math.min(index, 8) * 0.04 }}
+                >
+                  <Tile item={item} index={index} onOpen={() => onOpen(item)} />
+                </motion.li>
+              ))}
             </ul>
           ))}
         </div>
@@ -164,7 +167,12 @@ function Tile({ item, index, onOpen }: { item: CollectedItem; index: number; onO
   if (item.kind === 'tip') {
     const { tip, card } = item;
     return (
-      <button type="button" className={`${styles.tile} ${styles.tip}`} onClick={onOpen} aria-label={`Open ${tip.by}’s tip${card ? ` on ${card.article.title}` : ''}`}>
+      <button
+        type="button"
+        className={`${styles.tile} ${styles.tip}`}
+        onClick={onOpen}
+        aria-label={`Open ${tip.by}’s tip${card ? ` on ${card.article.title}` : ''}`}
+      >
         <span className={styles.tipTop}>
           <span className={styles.avatar} aria-hidden="true">
             {tip.by.trim().charAt(0).toUpperCase() || 'L'}
@@ -215,9 +223,7 @@ function Tile({ item, index, onOpen }: { item: CollectedItem; index: number; onO
         </span>
         <strong className={styles.noteTitle}>{saved.title}</strong>
         {saved.body && <span className={styles.noteSummary}>{saved.body}</span>}
-        <span className={styles.source}>
-          Saved from Community{replies > 0 ? ` · ${replies} ${replies === 1 ? 'reply' : 'replies'}` : ''}
-        </span>
+        <span className={styles.source}>Saved from Community{replies > 0 ? ` · ${replies} ${replies === 1 ? 'reply' : 'replies'}` : ''}</span>
       </button>
     );
   }

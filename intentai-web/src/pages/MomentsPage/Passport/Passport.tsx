@@ -1,15 +1,12 @@
 import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import chevronLeft from '../../../assets/v3/moments/chevron-left.svg';
-import chevronRight from '../../../assets/v3/moments/chevron-right.svg';
-import headingRule from '../../../assets/v3/moments/heading-rule.png';
 import inkDrop from '../../../assets/v3/moments/ink-drop.svg';
 import lockIcon from '../../../assets/v3/moments/lock.svg';
-import paper from '../../../assets/v3/moments/passport-paper.webp';
 import iconAll from '../../../assets/v3/moments/filter-all.svg';
 import { imageOf, topicOfCard, type Stamp as StampData } from '../../../data/moments/moments';
 import { paths } from '../../../routes';
+import Icon from '../../OnboardingPage/v3/icons';
 import { TOPIC_ICONS, shapeAt, stampDate } from '../parts';
 import Stamp from '../Stamp/Stamp';
 import styles from './Passport.module.css';
@@ -25,7 +22,7 @@ interface PassportProps {
   onOpen: (stamp: StampData) => void;
 }
 
-/** M1: "My places" passport, four stamps a page; swipe or use the arrows for the next page. */
+/** M1: "My places" passport (a parchment page bound on the left), four stamps a page; swipe or use the arrows for the next page. */
 export default function Passport({ stamps, progress, today, onOpen }: PassportProps) {
   const reduce = useReducedMotionConfig();
   const pages = Math.max(1, Math.ceil(stamps.length / PER_PAGE));
@@ -43,11 +40,10 @@ export default function Passport({ stamps, progress, today, onOpen }: PassportPr
   return (
     <section className={styles.section} aria-labelledby="passport-heading">
       <div className={styles.book}>
-        <img className={styles.paper} src={paper} alt="" />
         <span className={styles.spine} aria-hidden="true" />
         <div className={styles.heading}>
-          <h2 id="passport-heading">MY PLACES</h2>
-          <img src={headingRule} alt="" />
+          <h2 id="passport-heading">My places</h2>
+          <span className={styles.rule} aria-hidden="true" />
           {progress && (
             <Link to={paths.today} className={styles.count} aria-label={`${progress.visited} of ${progress.total} places checked in. Open Nearby`}>
               {progress.visited} / {progress.total}
@@ -101,15 +97,12 @@ export default function Passport({ stamps, progress, today, onOpen }: PassportPr
             </span>
           </p>
         ) : (
-          <p>
-            <img src={inkDrop} alt="" width={13} height={14} />
-            <span>Ink fills as you open each place’s cards</span>
-          </p>
+          <span />
         )}
         {pages > 1 && (
           <div className={styles.pager}>
             <button type="button" onClick={() => go(current - 1)} disabled={current === 0} aria-label="Previous passport page">
-              <img src={chevronLeft} alt="" width={14} height={14} />
+              <Icon name="back" size={16} />
             </button>
             <span className={styles.dots} aria-hidden="true">
               {Array.from({ length: pages }, (_, i) => (
@@ -117,7 +110,7 @@ export default function Passport({ stamps, progress, today, onOpen }: PassportPr
               ))}
             </span>
             <button type="button" onClick={() => go(current + 1)} disabled={current === pages - 1} aria-label="Next passport page">
-              <img src={chevronRight} alt="" width={14} height={14} />
+              <Icon name="chevron" size={16} />
             </button>
           </div>
         )}
@@ -150,10 +143,21 @@ function CollectedStamp({ stamp, index, today, onOpen }: { stamp: StampData; ind
       type="button"
       className={styles.place}
       onClick={onOpen}
-      aria-label={total > 0 ? `${stamp.subject.short}, ${stamp.openedIds.length} of ${total} cards opened. Open this stamp.` : `${stamp.subject.short}, checked in, no cards here yet. Open this stamp.`}
+      aria-label={
+        total > 0
+          ? `${stamp.subject.short}, ${stamp.openedIds.length} of ${total} cards opened. Open this stamp.`
+          : `${stamp.subject.short}, checked in, no cards here yet. Open this stamp.`
+      }
     >
       <span className={shapeAt(index) === 'card' ? styles.stampCard : styles.stampRound}>
-        <Stamp shape={shapeAt(index)} name={stamp.subject.short} date={stampDate(stamp.checkedInOn)} ink={stamp.ink} thump={isToday} delay={(index % PER_PAGE) * 0.08} />
+        <Stamp
+          shape={shapeAt(index)}
+          name={stamp.subject.short}
+          date={stampDate(stamp.checkedInOn)}
+          ink={stamp.ink}
+          thump={isToday}
+          delay={(index % PER_PAGE) * 0.08}
+        />
         {isToday && <span className={styles.today}>TODAY</span>}
       </span>
       <CardDots stamp={stamp} dark={index % 2 === 1} />

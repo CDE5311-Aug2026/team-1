@@ -3,6 +3,7 @@ import Dialog from '../../../components/Dialog/Dialog';
 import type { Lookup } from '../../../data/domain';
 import useSpeech from '../../../hooks/useSpeech';
 import { showToast } from '../../../hooks/useToast';
+import styles from './PractiseDialog.module.css';
 
 interface PractiseDialogProps {
   lookup: Lookup;
@@ -33,24 +34,23 @@ export default function PractiseDialog({ lookup, onClose, onSaveExample }: Pract
 
   return (
     <Dialog title={`Practise ${lookup.word}`} onClose={onClose}>
-      <p>{lookup.meaning}</p>
-      <div className="dialog-row">
-        <button type="button" className="dialog-secondary" onClick={hear}>
-          Hear it
-        </button>
-      </div>
-      <label>
-        Your example
-        <textarea
-          value={example}
-          onChange={(event) => setExample(event.target.value)}
-          placeholder="Try the phrase in a sentence…"
-        />
-      </label>
-      <div className="dialog-row">
-        <button type="button" className="dialog-primary" onClick={done}>
-          Done
-        </button>
+      {/* the shared Dialog, dressed as a parchment page by this wrapper (PractiseDialog.module.css) */}
+      <div className={styles.practise}>
+        <p>{lookup.meaning}</p>
+        <div className="dialog-row">
+          <button type="button" className="dialog-secondary" onClick={hear}>
+            Hear it
+          </button>
+        </div>
+        <label>
+          Your example
+          <textarea value={example} onChange={(event) => setExample(event.target.value)} placeholder="Try the phrase in a sentence…" />
+        </label>
+        <div className="dialog-row">
+          <button type="button" className="dialog-primary" onClick={done}>
+            Done
+          </button>
+        </div>
       </div>
     </Dialog>
   );

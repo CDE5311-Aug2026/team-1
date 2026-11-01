@@ -6,6 +6,7 @@ import { THUMB_CREDIT, thumbUrl } from '../features/nearby/thumbs';
 import type { LatLng } from '../features/nearby/types';
 import { PUBLISHED_PLACES } from '../features/nearby/catalogue';
 import { placePicture } from './home/nearbyCards';
+import { areaOfPlace } from './ura/ura';
 
 export { FACETS, openedCount } from './placeStories';
 export type { Facet, PlaceStories } from './placeStories';
@@ -13,7 +14,10 @@ export type { Facet, PlaceStories } from './placeStories';
 export interface HomePlace {
   id: string;
   name: string;
+  /** The URA planning area it lies in (as Home's decks group places), e.g. "Queenstown". */
   area: string;
+  /** What it is, from the catalogue: "Monument", "Hawker centre", … */
+  kind: string;
   point: LatLng;
   distance: string;
   /** Optional; the UI shows a placeholder when a place has no photo. */
@@ -46,13 +50,24 @@ interface RawArea {
 
 const areas = (areasJson as { areas: RawArea[] }).areas;
 
+const KIND = new Map<string, string>(PUBLISHED_PLACES.map((p) => [p.id, p.kind]));
+
+/**
+ * The area a card names is the URA planning area, the same one the deck it sits in is named after (owner, 1 Nov 2026:
+ * the Berlin Wall's card said "Queenstown" above and "Clementi & Kent Ridge" below). Nearby's own locality name
+ * (`locality`) stays searchable.
+ */
+function placeArea(id: string, locality: string): Pick<HomePlace, 'area' | 'kind'> {
+  return { area: areaOfPlace(id)?.name ?? locality, kind: KIND.get(id) ?? '' };
+}
+
 // Written out here so the Nearby catalogue (places.sg.json) stays out of the main bundle;
 // homePlaces.test.ts checks these against the catalogue.
-function nearbyPlace(id: string, name: string, area: string, point: LatLng, aliases?: readonly string[]): HomePlace {
+function nearbyPlace(id: string, name: string, locality: string, point: LatLng, aliases?: readonly string[]): HomePlace {
   return {
     id,
     name,
-    area,
+    ...placeArea(id, locality),
     point,
     distance: formatHomeDistance(distanceM(HOME_BASE, point)),
     photo: thumbUrl(id)!,
@@ -60,19 +75,27 @@ function nearbyPlace(id: string, name: string, area: string, point: LatLng, alia
     credit: THUMB_CREDIT,
     hasCards: false,
     pinAlways: true,
-    aliases,
+    aliases: [...(aliases ?? []), locality],
   };
 }
 
 export const HOME_PLACES: readonly HomePlace[] = [
   {
     // Team 1's photo of the panels; the place itself is the Nearby catalogue entry (story cards removed 31 Oct).
-    ...nearbyPlace('curated:sg-berlin-wall-fragments-utown', 'Berlin Wall Fragments', 'Clementi & Kent Ridge', { lat: 1.30583, lng: 103.77472 }, ['Tembusu College', 'Berlin']),
+    ...nearbyPlace('curated:sg-berlin-wall-fragments-utown', 'Berlin Wall Fragments', 'Clementi & Kent Ridge', { lat: 1.30583, lng: 103.77472 }, [
+      'Tembusu College',
+      'Berlin',
+      'UTown',
+      'University Town',
+    ]),
     photo: berlinPhoto,
     photoAlt: 'Two painted Berlin Wall panels in a garden at NUS University Town',
     credit: 'Photo supplied by the IntentAI team',
   },
-  nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }, ['NUS', 'UTown']),
+  nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }, [
+    'NUS',
+    'UTown',
+  ]),
   nearbyPlace('curated:sg-haw-par-villa', 'Haw Par Villa', 'Queenstown & Holland', { lat: 1.28405, lng: 103.78142 }, ['Haw Par', 'Tiger Balm Garden']),
   nearbyPlace('curated:sg-holland-village', 'Holland Village', 'Queenstown & Holland', { lat: 1.31194, lng: 103.79611 }, ['Holland V', 'Holland Road']),
 ];
@@ -91,7 +114,7 @@ const CATALOGUE_PLACES: HomePlace[] = PUBLISHED_PLACES.filter((p) => !HOME_PLACE
     return {
       id: p.id,
       name: p.name,
-      area: AREA_NAME.get(p.areaId) ?? '',
+      ...placeArea(p.id, AREA_NAME.get(p.areaId) ?? ''),
       point: { lat: p.coordinates.lat, lng: p.coordinates.lng },
       distance: formatHomeDistance(distanceM(HOME_BASE, p.coordinates)),
       photo: picture.src,
@@ -99,7 +122,7 @@ const CATALOGUE_PLACES: HomePlace[] = PUBLISHED_PLACES.filter((p) => !HOME_PLACE
       credit: picture.credit,
       hasCards: false,
       pinAlways: false,
-      aliases: p.nameZh ? [p.nameZh] : undefined,
+      aliases: [...(p.nameZh ? [p.nameZh] : []), AREA_NAME.get(p.areaId) ?? ''].filter(Boolean),
     };
   })
   .sort((a, b) => distanceM(HOME_BASE, a.point) - distanceM(HOME_BASE, b.point));
@@ -125,8 +148,6 @@ export function visiblePins(selectedId: string): HomePlace[] {
 export function searchHomePlaces(query: string): { withCards: HomePlace[]; others: HomePlace[] } {
   const q = query.trim().toLowerCase();
   // An empty query suggests the five Home places; typing searches every real place.
-  const hits = (q ? ALL_HOME_PLACES : HOME_PLACES).filter(
-    (p) => !q || [p.name, p.area, ...(p.aliases ?? [])].some((text) => text.toLowerCase().includes(q)),
-  );
+  const hits = (q ? ALL_HOME_PLACES : HOME_PLACES).filter((p) => !q || [p.name, p.area, ...(p.aliases ?? [])].some((text) => text.toLowerCase().includes(q)));
   return { withCards: hits.filter((p) => p.hasCards), others: hits.filter((p) => !p.hasCards) };
 }

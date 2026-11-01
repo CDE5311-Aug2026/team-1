@@ -9,8 +9,8 @@
   position: relative;
   z-index: 1;
   display: flex;
-  gap: 7px;
-  padding: 9px 7px 10px;
+  gap: 6px;
+  padding: 7px 7px 9px;
 }
 
 .canvas {
@@ -24,7 +24,7 @@
 .key {
   flex: 1 1 0;
   min-width: 0;
-  height: 42px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -34,7 +34,7 @@
   background: #f4ead6;
   color: var(--text-primary);
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   white-space: nowrap;
   box-shadow:
@@ -68,7 +68,7 @@
 }
 
 .key.small {
-  flex: 0 0 48px;
+  flex: 0 0 40px;
 }
 
 .key:disabled {

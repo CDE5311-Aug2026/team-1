@@ -20,9 +20,19 @@ function StampArt({ shape, name, date, filled }: StampArtProps) {
   if (shape === 'card') {
     return (
       <svg viewBox="0 0 150 104" className={styles.svg} aria-hidden="true">
-        <rect x="2" y="2" width="146" height="100" rx="11" fill={filled ? 'currentColor' : 'none'} fillOpacity={filled ? 0.13 : 0} stroke="currentColor" strokeWidth="3" />
+        <rect
+          x="2"
+          y="2"
+          width="146"
+          height="100"
+          rx="11"
+          fill={filled ? 'currentColor' : 'none'}
+          fillOpacity={filled ? 0.13 : 0}
+          stroke="currentColor"
+          strokeWidth="3"
+        />
         <rect x="9" y="9" width="132" height="86" rx="7" fill="none" stroke="currentColor" strokeWidth="1.1" strokeDasharray="3 2.5" />
-        <text x="75" y="36" textAnchor="middle" className={styles.name} {...fit(118, 12.5)}>
+        <text x="75" y="36" textAnchor="middle" className={styles.name} {...fit(118, 14)}>
           {upper}
         </text>
         <path d="M30 50h90" stroke="currentColor" strokeWidth="1.2" />
@@ -54,7 +64,7 @@ function StampArt({ shape, name, date, filled }: StampArtProps) {
         </text>
       )}
       <path d="M52 34l2.4 6.2 6.2 2.4-6.2 2.4L52 51.2l-2.4-6.2-6.2-2.4 6.2-2.4z" fill="currentColor" />
-      <text x="52" y="66" textAnchor="middle" className={styles.roundName} {...fit(60, 10)}>
+      <text x="52" y="66" textAnchor="middle" className={styles.roundName} {...fit(62, 11)}>
         {upper}
       </text>
     </svg>

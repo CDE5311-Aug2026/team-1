@@ -1,283 +1,323 @@
-/* The story's pages in the notebook: ink, a serif hand, notes scattered on a board you can move them about on. */
-.board {
-  position: relative;
-  margin: 12px -10px 0;
-  padding: 14px 10px 10px;
-  list-style: none;
-  perspective: 700px;
+/* The story's page in the notebook: ink, a serif hand, small paper notes. Everything on one page, set compactly; the
+   clip or the picture takes the height the page has to spare, so a short story does not leave blank paper under it. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.pictureBoard {
-  min-height: 250px;
-  padding: 18px 6px 40px;
+.page > * {
+  flex: none;
+}
+
+/* --- the clip or the picture: grows into any spare height ----------------------------------------------------------- */
+.clip,
+.print {
+  flex: 1 1 100px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* a short clip: a smaller play button, and only the clip's title under it */
+.clip {
+  container-type: size;
+}
+
+@container (max-height: 150px) {
+  .clip [data-testid='video-frame'] > div:has(> button[aria-label^='Play video']) {
+    scale: 0.56;
+  }
+
+  .clip [data-testid='video-frame'] > span:has(> span + span) > span + span {
+    display: none;
+  }
+}
+
+.clip > :global(section) {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.clip [data-testid='video-frame'] {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+}
+
+/* the play button and its ring of words, a little smaller on a page */
+.clip [data-testid='video-frame'] > div:has(> button[aria-label^='Play video']) {
+  scale: 0.72;
 }
 
 .print {
+  position: relative;
+  margin: 6px 4px 0;
+  min-height: 112px;
+  padding: 6px 6px 18px;
+  background: #fffcf4;
+  transform: rotate(-1deg);
+  box-shadow:
+    0 1px 1px rgba(60, 35, 10, 0.18),
+    0 8px 14px -8px rgba(60, 35, 10, 0.45);
+}
+
+/* the tape */
+.print::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 64px;
+  height: 16px;
+  margin-left: -32px;
+  transform: rotate(3deg);
+  background: rgba(222, 200, 150, 0.8);
+  clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 52%);
+}
+
+.print img {
+  flex: 1 1 auto;
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  min-height: 0;
+  height: 100%;
   object-fit: cover;
-  border-radius: 1px;
   pointer-events: none;
 }
 
-/* three notes, stuck on a little out of line */
-.numbers {
-  min-height: 270px;
+/* --- the story, set like a book, with a drop cap -------------------------------------------------------------------- */
+.story article {
+  margin: 0;
+  padding: 0;
+  font-family: var(--serif, Georgia, serif);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #3a2a1a;
+}
+
+.story article > p:first-child::first-letter {
+  float: left;
+  margin: 3px 6px 0 0;
+  font-size: 2.9em;
+  line-height: 0.82;
+  font-weight: 700;
+  color: #a8481f;
+}
+
+.story details {
+  margin-top: 4px;
+}
+
+.story summary {
+  height: 26px;
+  padding: 0 10px 0 12px;
+  border: 1px solid rgba(70, 45, 20, 0.45);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* --- then and now, a shorter print ---------------------------------------------------------------------------------- */
+.thenNow > :global(section) {
+  margin: 6px 0 0;
+}
+
+.thenNow [data-testid='then-now-box'] {
+  /* the inline height a portrait pair asks for is too tall on a page */
+  height: 180px !important;
+}
+
+/* --- then and now, how to order: folded ----------------------------------------------------------------------- */
+.fold {
+  border-top: 1px dashed rgba(90, 60, 30, 0.35);
+}
+
+.fold + .fold {
+  margin-top: -10px;
+}
+
+.fold > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 4px 0 0;
+  list-style: none;
+  cursor: pointer;
+}
+
+.fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.fold > summary::after {
+  content: '▾';
+  flex: none;
+  margin-left: auto;
+  color: #a8481f;
+  transition: transform 0.25s;
+}
+
+.fold[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.fold > summary:focus-visible {
+  outline: 2px solid #b9502a;
+  outline-offset: 2px;
+}
+
+.fold > summary .kicker {
+  flex: none;
+}
+
+.foldTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 0.8125rem;
+  color: #3a2a1a;
+}
+
+/* the two photos, small, on the fold */
+.thumbs {
+  flex: none;
+  display: flex;
+  margin-left: auto;
+}
+
+.thumbs img {
+  width: 34px;
+  height: 26px;
+  object-fit: cover;
+  border: 2px solid #fffcf4;
+  box-shadow: 0 2px 4px -2px rgba(60, 35, 10, 0.5);
+}
+
+.thumbs img:first-child {
+  filter: sepia(0.5);
+  transform: rotate(-4deg);
+}
+
+.thumbs img + img {
+  margin-left: -6px;
+  transform: rotate(3deg);
+}
+
+.fold > summary:has(.thumbs)::after {
+  margin-left: 6px;
+}
+
+.fold[open] {
+  padding-bottom: 4px;
+}
+
+.order > :global(section) {
+  margin: 8px 0 0;
+}
+
+/* --- small paper tiles: the key numbers on the field note, and what to look for --------------------------------------- */
+.tile {
+  --paper: #f4dc8a;
+  position: relative;
+  list-style: none;
+  padding: 6px 7px 7px;
+  background: linear-gradient(180deg, rgba(160, 120, 30, 0.12) 0 6px, transparent 6px), var(--paper);
+  color: #3a2814;
+  border-radius: 2px 2px 3px 10px / 2px 2px 3px 4px;
+  box-shadow:
+    0 1px 1px rgba(60, 35, 10, 0.16),
+    0 5px 8px -6px rgba(60, 35, 10, 0.45);
+}
+
+.tile[data-tone='rose'] {
+  --paper: #efbfaa;
+}
+
+.tile[data-tone='sage'] {
+  --paper: #cddbb2;
+}
+
+.tile[data-tone='sky'] {
+  --paper: #bfd6e0;
+}
+
+.strip {
+  margin: 0;
+}
+
+.tiles {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px 16px;
-  align-content: start;
-}
-
-.numbers > li:nth-child(2) {
-  margin-top: 22px;
-}
-
-.numbers > li:nth-child(3) {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: 58%;
-  margin-top: -6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
 }
 
 .value {
   display: block;
-  font-family: var(--serif, Georgia, serif);
-  font-size: 1.75rem;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.05;
   letter-spacing: -0.01em;
   color: #2a1a0e;
 }
 
 .what {
   display: block;
-  margin-top: 6px;
-  font-size: 0.75rem;
-  line-height: 1.3;
+  margin-top: 3px;
+  font-size: 0.6875rem;
+  line-height: 1.25;
   color: #4a3420;
 }
 
-.hint {
-  margin: 4px 0 0;
-  text-align: center;
-  font-family: var(--serif, Georgia, serif);
-  font-style: italic;
-  font-size: 0.8125rem;
-  color: rgba(90, 60, 30, 0.6);
-}
-
-.hint::before {
-  content: '↺ ';
-  font-style: normal;
-}
-
-.lead {
-  margin: 6px 0 0;
-  font-family: var(--serif, Georgia, serif);
-  font-style: italic;
-  font-size: 0.9375rem;
-  color: #4a3420;
-}
-
-/* what to look for: a spotter's sheet that fills the page — the notes spread down it, a print and a tally at the foot */
-.lookPage {
+/* --- what to look for ------------------------------------------------------------------------------------------------ */
+.lookHead {
   display: flex;
-  flex-direction: column;
-}
-
-.look {
-  flex: 1 0 auto;
-  min-height: 240px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  gap: 18px;
-  padding: 18px 10px 22px;
-}
-
-.look > li {
-  min-height: 0;
-  width: 88%;
-  padding: 22px 14px 12px 16px;
-}
-
-.look > li:nth-child(even) {
-  align-self: flex-end;
-}
-
-.look1 {
-  display: flex;
-  gap: 10px;
   align-items: baseline;
-  font-family: var(--serif, Georgia, serif);
-  font-size: 1.0625rem;
-  line-height: 1.38;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
-.look1 i {
-  flex: none;
-  font-style: normal;
+.kicker {
+  margin: 0;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: #a8481f;
-}
-
-/* the box you tick, bottom right of the note */
-.tick {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin: 10px 0 0 auto;
-  padding: 4px 2px;
-  border: 0;
-  background: none;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(58, 40, 20, 0.62);
-  cursor: pointer;
-}
-
-.tick[aria-pressed='true'] {
-  color: #8f3a17;
-}
-
-.tick:focus-visible {
-  outline: 2px solid #b9502a;
-  outline-offset: 2px;
-}
-
-.box {
-  width: 18px;
-  height: 18px;
-  display: grid;
-  place-items: center;
-  border: 1.5px solid rgba(58, 40, 20, 0.55);
-  border-radius: 3px 4px 3px 5px;
-  background: rgba(255, 255, 255, 0.35);
-}
-
-.box svg {
-  width: 20px;
-  height: 20px;
-  margin: -6px -4px 0 0;
-  fill: none;
-  stroke: #a8481f;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* a rubber stamp, a little crooked */
-.stamp {
-  position: absolute;
-  bottom: 13px;
-  left: 16px;
-  padding: 2px 7px;
-  border: 2px solid rgba(168, 72, 31, 0.6);
-  border-radius: 4px;
-  transform: rotate(-9deg);
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(168, 72, 31, 0.68);
-  mix-blend-mode: multiply;
-  pointer-events: none;
-}
-
-/* the foot of the page: a print of the place taped in beside the tally */
-.lookFoot {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
-  align-items: center;
-  margin-top: 6px;
-  padding-top: 16px;
-  border-top: 1px dashed rgba(90, 60, 30, 0.3);
-}
-
-.lookFoot[data-photo] {
-  grid-template-columns: 46% 1fr;
-}
-
-.snap {
-  position: relative;
-  margin: 0;
-  padding: 6px 6px 20px;
-  background: #fffcf4;
-  transform: rotate(-3deg);
-  box-shadow:
-    0 1px 1px rgba(60, 35, 10, 0.18),
-    0 8px 14px -8px rgba(60, 35, 10, 0.45);
-}
-
-.snap::before {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  width: 54px;
-  height: 16px;
-  margin-left: -27px;
-  transform: rotate(4deg);
-  background: rgba(222, 200, 150, 0.8);
-  clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 52%);
-}
-
-.snap img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
 }
 
 .tally {
-  text-align: center;
-  color: #3a2814;
-}
-
-.tally p {
-  margin: 0;
-}
-
-.tallyHead {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #a8481f;
-}
-
-.tallyNum {
-  font-family: var(--serif, Georgia, serif);
-  font-size: 1.25rem;
-  color: rgba(58, 40, 20, 0.6);
-}
-
-.tallyNum b {
-  font-size: 2.75rem;
-  line-height: 1.05;
-  color: #2a1a0e;
+  margin: 0 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 0.8125rem;
+  color: rgba(90, 60, 30, 0.75);
 }
 
 .marks {
   display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin: 6px 0 8px;
+  gap: 4px;
 }
 
 .marks i {
-  width: 14px;
-  height: 14px;
+  width: 9px;
+  height: 9px;
   border: 1.5px solid rgba(58, 40, 20, 0.45);
   border-radius: 50%;
   transition:
@@ -290,50 +330,83 @@
   background: #c2602f;
 }
 
-.tallyNote {
-  font-family: var(--serif, Georgia, serif);
-  font-style: italic;
-  font-size: 0.8125rem;
-  color: rgba(90, 60, 30, 0.7);
-}
-
-.clip,
-.thenNow,
-.order {
-  margin-top: 12px;
-}
-
-.clip > :global(*),
-.thenNow > :global(*),
-.order > :global(*) {
-  margin-left: 0;
-  margin-right: 0;
-}
-
-/* the story, set like a book, with a drop cap */
-.story article {
+.look {
+  display: grid;
+  gap: 8px;
   margin: 0;
-  font-family: var(--serif, Georgia, serif);
-  font-size: 1rem;
-  line-height: 1.62;
-  color: #3a2a1a;
+  padding: 0;
 }
 
-.story article > p:first-child::first-letter {
-  float: left;
-  margin: 4px 6px 0 0;
-  font-size: 3.1em;
-  line-height: 0.82;
+.look > .tile {
+  padding: 7px 8px 9px;
+}
+
+.lookNo {
+  display: block;
+  line-height: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
   font-weight: 700;
   color: #a8481f;
 }
 
-.story summary {
-  height: 32px;
-  border: 1px solid rgba(70, 45, 20, 0.45);
-  background: transparent;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.lookText {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--serif, Georgia, serif);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+/* the box you tick, top right of the note */
+.tick {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1.5px solid rgba(58, 40, 20, 0.55);
+  border-radius: 3px 4px 3px 5px;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+}
+
+/* a bigger target than the box itself */
+.tick::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+
+.tick:focus-visible {
+  outline: 2px solid #b9502a;
+  outline-offset: 2px;
+}
+
+.tick svg {
+  width: 20px;
+  height: 20px;
+  margin: -6px -4px 0 0;
+  fill: none;
+  stroke: #a8481f;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.look > .tile[data-found] .lookText {
+  text-decoration: line-through;
+  text-decoration-color: rgba(168, 72, 31, 0.55);
+}
+
+/* the fold already names it: the slider's own heading keeps only its "drag to compare" hint */
+.thenNow [aria-label='Then and now'] > div:first-child > p:first-child {
+  display: none;
+}
+
+.thenNow [aria-label='Then and now'] > div:first-child {
+  justify-content: flex-end;
 }

@@ -47,7 +47,7 @@
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  padding: 18px 38px 22px 22px;
+  padding: 12px 38px 8px 22px;
   background:
     radial-gradient(circle, rgba(110, 80, 45, 0.2) 1px, transparent 1.3px) 0 0 / 18px 18px local,
     linear-gradient(90deg, rgba(120, 85, 45, 0.12), transparent 14px) local;
@@ -85,7 +85,7 @@
 }
 
 .entryNo {
-  margin: 0 0 4px;
+  margin: 0 0 2px;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 600;
@@ -96,15 +96,6 @@
 
 .entryNo span {
   color: rgba(90, 60, 30, 0.55);
-}
-
-.folio {
-  margin: 22px 0 0;
-  text-align: center;
-  font-family: var(--serif, Georgia, serif);
-  font-style: italic;
-  font-size: 0.75rem;
-  color: rgba(90, 60, 30, 0.5);
 }
 
 /* the bottom corner, turned up a little: tap to turn */
@@ -139,6 +130,12 @@
   padding: 6px 30px 7px 8px;
   border-top: 1px dashed rgba(90, 60, 30, 0.3);
   background: #efe3c8;
+}
+
+.turns {
+  flex: none;
+  display: flex;
+  gap: 6px;
 }
 
 .arrow {

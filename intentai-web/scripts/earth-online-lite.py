@@ -629,7 +629,10 @@ window.SGLite = {
 };
 '''
 # the 3D view's box is labelled, so it needs a role (WCAG: aria-label is not allowed on a plain div)
-rep('<div id="stage" aria-label=', '<div id="stage" role="application" aria-label=')
+# #cards=0 (Explore's sheet shows the place itself): no orange selection ring across the 3D view either
+rep("  sgcRing('sel', R.D); sgcSelLabel(R.D);\n",
+    "  if (!/[#?&]cards=0(&|$)/.test(location.search + location.hash)) sgcRing('sel', R.D); sgcSelLabel(R.D);   // #cards=0 (Explore's sheet): no orange ring across the view\n")
+rep('<div id="stage" aria-label=','<div id="stage" role="application" aria-label=')
 rep('\nsgrBoot();\nrequestAnimationFrame(loop);\n})();\n</script>', '\n' + LITE + '\nsgrBoot();\nrequestAnimationFrame(loop);\n})();\n</script>')
 
 h += '\n</body>\n</html>\n'

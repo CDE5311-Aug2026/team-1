@@ -11,7 +11,7 @@ export interface CoverItem {
   id: string;
   title: string;
   kicker: string;
-  /** "3 of 11 places checked in", "Clementi & Kent Ridge". */
+  /** "3 of 11 places checked in", "Monument". */
   line: string;
   /** Full numbers under the bar: "3 of 22 areas unlocked", "Landmark 2/9 · Food 1/12". */
   stats?: string[];
@@ -212,7 +212,6 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
   const cardRefs = useRef(new Map<number, HTMLDivElement>());
   // the middle card's button lies over the caption's button under the deck
   const actionRef = useRef<HTMLButtonElement>(null);
-  const pillRef = useRef<HTMLSpanElement>(null);
   const selectedIndex = Math.max(
     0,
     items.findIndex((i) => i.id === selectedId),
@@ -288,15 +287,6 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
         el.style.width = `${r.width}px`;
         el.style.height = `${r.height}px`;
         el.style.zIndex = String(100 - Math.abs(i - s.scroll) * 10);
-        const btn = actionRef.current;
-        if (btn && el.contains(btn) && pillRef.current) {
-          const p = pillRef.current.getBoundingClientRect();
-          const h = el.getBoundingClientRect();
-          btn.style.left = `${p.left - h.left}px`;
-          btn.style.top = `${p.top - h.top}px`;
-          btn.style.width = `${p.width}px`;
-          btn.style.height = `${p.height}px`;
-        }
       }
     };
     s.onFrame = follow;
@@ -430,13 +420,6 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
             <p className={styles.capLine}>{items[centre].line}</p>
             {!!items[centre].stats?.length && <p className={styles.capStats}>{items[centre].stats!.join(' · ')}</p>}
           </div>
-          {!hideAction && (
-            <span ref={pillRef} className={styles.capGo} title={items[centre].action}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
-            </span>
-          )}
         </div>
       )}
       <p className={styles.live} aria-live="polite">

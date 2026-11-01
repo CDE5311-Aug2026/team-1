@@ -1,77 +1,88 @@
+/* A saved phrase, on the sheet's parchment. */
 .tag {
   display: inline-block;
-  padding: 3px 8px;
-  border-radius: 8px;
-  background: #ece8e1;
-  color: #5e5c54;
-  font-size: 11px;
-  font-weight: 700;
+  color: var(--ink-soft);
+  font:
+    italic 400 0.9375rem/1.2 'IM Fell English',
+    Georgia,
+    serif;
 }
 
 .local {
-  background: #e5f1e3;
-  color: #2b5f3a;
+  color: var(--red-ink);
+}
+
+.local::before {
+  content: '✓ ';
+  font-style: normal;
 }
 
 .meaning {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
+  color: var(--ink);
   font-size: 17px;
-  font-weight: 600;
-  line-height: 24px;
+  font-weight: 500;
+  line-height: 25px;
 }
 
+/* the example, written on a ruled slip */
 .example {
-  margin: 12px 0 0;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: #fff;
-  font-size: 14px;
-  line-height: 20px;
+  margin: 14px 0 0;
+  padding: 10px 12px 12px 18px;
+  border-left: 2px solid rgba(155, 44, 28, 0.45);
+  background: rgba(255, 249, 230, 0.45);
+  color: var(--ink);
+  font:
+    italic 400 1.0625rem/1.4 'IM Fell English',
+    Georgia,
+    serif;
 }
 
 .example span {
   display: block;
-  color: #a3400a;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.6px;
+  margin-bottom: 2px;
+  color: var(--red-ink);
+  font:
+    normal 400 0.75rem/1.2 'IM Fell English',
+    Georgia,
+    serif;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .actions {
   display: flex;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 20px;
 }
 
 .primary,
 .secondary {
   flex: 1;
   min-height: 50px;
-  border-radius: 16px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 800;
+  padding: 0 10px;
+  border-radius: 3px;
+  font:
+    400 1.0625rem/1.1 var(--font-display);
   cursor: pointer;
 }
 
 .primary {
   border: 0;
-  background: #24211c;
-  color: #fff;
+  background: var(--ink);
+  color: var(--cream);
+  box-shadow: 0 4px 10px rgba(44, 33, 23, 0.35);
 }
 
 .secondary {
-  border: 1px solid #ded9d1;
-  background: #fff;
-  color: #24211c;
+  border: 1px solid rgba(44, 33, 23, 0.4);
+  background: transparent;
+  color: var(--ink);
 }
 
 .secondary[aria-pressed='true'] {
-  border-color: #b9d4b1;
-  background: #e5f1e3;
-  color: #2b5f3a;
+  border-color: var(--red-ink);
+  color: var(--red-ink);
 }
 
 .links {
@@ -86,21 +97,24 @@
   padding: 0 4px;
   border: 0;
   background: none;
-  color: #a3400a;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
+  color: var(--red-ink);
+  font:
+    italic 400 0.9375rem/1 'IM Fell English',
+    Georgia,
+    serif;
   cursor: pointer;
 }
 
 .links .delete {
   margin-left: auto;
-  color: #5e5c54;
+  color: var(--ink-soft);
+  text-decoration: underline 1px rgba(44, 33, 23, 0.35);
+  text-underline-offset: 3px;
 }
 
 .primary:focus-visible,
 .secondary:focus-visible,
 .links button:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--orange);
   outline-offset: 2px;
 }

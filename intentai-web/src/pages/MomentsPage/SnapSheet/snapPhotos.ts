@@ -94,7 +94,19 @@ function cardPhotos(): SnapPhoto[] {
     if (!shot || !image) return [];
     const topic = topicOfCard(card);
     const meta = [subjectOfCardId(id)?.short, topic ? TOPIC_LABELS[topic] : undefined].filter(Boolean).join(' · ');
-    return [{ key: `card:${id}`, title: card.article.title, meta, topic, image, tags: shot.tags, score: shot.score, target: { kind: 'card', cardId: id }, href: cardHref(id) }];
+    return [
+      {
+        key: `card:${id}`,
+        title: card.article.title,
+        meta,
+        topic,
+        image,
+        tags: shot.tags,
+        score: shot.score,
+        target: { kind: 'card', cardId: id },
+        href: cardHref(id),
+      },
+    ];
   });
 }
 

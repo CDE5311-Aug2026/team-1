@@ -1,0 +1,387 @@
+/* The journal: one block per day — the date in big type, a pinned print of the day with its tally card behind,
+   and a dark log of what happened, each line with an icon and a tag. */
+.journal {
+  margin: 0 0 30px;
+  color: var(--cream);
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 16px;
+}
+.head h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.1;
+  color: var(--cream);
+}
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(232, 201, 131, 0.45);
+  border-radius: 999px;
+  background: rgba(232, 201, 131, 0.08);
+  color: var(--brass);
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+.file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.add {
+  position: relative;
+}
+.add:focus-within,
+.more:focus-visible,
+.print:focus-visible,
+button.entry:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+/* ---- a day ---- */
+.day {
+  position: relative;
+  margin: 0 0 28px;
+}
+.top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  /* the print reaches down over the log's top edge */
+  margin-bottom: -34px;
+}
+.date {
+  display: grid;
+  grid-template-columns: auto;
+  margin: 2px 0 0;
+  line-height: 1;
+}
+.date b {
+  font: 500 4.5rem/0.9 var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--cream);
+}
+.date span {
+  margin-top: 6px;
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.date small {
+  margin-top: 4px;
+  font: italic 400 0.9375rem/1 var(--serif);
+  color: var(--cream-soft);
+}
+
+/* the print and the tally card behind it: the card peeks out above the print, its numbers along the top */
+.prints {
+  position: relative;
+  width: min(62%, 240px);
+  aspect-ratio: 5 / 4;
+  margin: 30px 4px 0 0;
+}
+.tally {
+  position: absolute;
+  top: -30px;
+  right: -4px;
+  width: 96%;
+  height: 70%;
+  margin: 0;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--ink);
+  background: var(--paper);
+  border-radius: 3px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  transform: rotate(5deg);
+}
+.tally div {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.tally dt {
+  font: 500 1.25rem/1 var(--font-display);
+}
+.tally dd {
+  margin: 0;
+  font: italic 400 0.8125rem/1 var(--serif);
+  color: var(--ink-soft);
+}
+/* no picture that day: just the card, small and square-on */
+.prints:has(.tallyAlone) {
+  aspect-ratio: auto;
+  margin-top: 14px;
+}
+.tallyAlone {
+  position: relative;
+  top: 0;
+  right: 0;
+  width: fit-content;
+  min-width: 58%;
+  height: auto;
+  margin-left: auto;
+  padding: 12px 16px 40px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  transform: rotate(3deg);
+}
+.print {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 86%;
+  height: 86%;
+  padding: 6px 6px 14px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #faf4e4, #ede2c8);
+  box-shadow:
+    0 14px 24px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  transform: rotate(-5deg);
+  cursor: default;
+}
+button.print {
+  cursor: pointer;
+}
+/* a strip of tape across the top */
+.print::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 54px;
+  height: 16px;
+  margin-left: -27px;
+  background: rgba(236, 226, 196, 0.72);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  transform: rotate(3deg);
+}
+.print img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1px;
+}
+
+/* ---- the log ---- */
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 44px 0 4px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #2c231a, #241c15);
+  border: 1px solid rgba(232, 201, 131, 0.16);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+}
+.log li + li {
+  border-top: 1px solid rgba(232, 201, 131, 0.1);
+}
+.entry {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  column-gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+button.entry {
+  cursor: pointer;
+}
+.icon {
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  color: var(--brass);
+  background: rgba(232, 201, 131, 0.1);
+  border: 1px solid rgba(232, 201, 131, 0.28);
+}
+.icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.body {
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.body b {
+  font: 500 1.0625rem/1.2 var(--font-display);
+  letter-spacing: 0.01em;
+  color: var(--cream);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.body span {
+  font: 400 0.875rem/1.3 var(--serif);
+  color: var(--cream-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tag {
+  align-self: flex-start;
+  margin-top: 3px;
+  max-width: 100%;
+  font-style: normal;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 131, 58, 0.5);
+  color: var(--orange);
+  font: 500 0.75rem/1.1 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.when {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  margin-top: 4px;
+  font: 500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.06em;
+  color: rgba(242, 232, 213, 0.5);
+}
+.span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font: 500 0.875rem/1 var(--font-display);
+  letter-spacing: 0.08em;
+  color: rgba(242, 232, 213, 0.6);
+}
+.more {
+  display: block;
+  margin: -6px auto 0;
+  padding: 10px 16px;
+  border: 0;
+  background: none;
+  color: var(--brass);
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+/* ---- sheets (parchment) ---- */
+.sheetBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0 6px;
+}
+.preview {
+  display: block;
+  width: 100%;
+  max-height: 46dvh;
+  object-fit: contain;
+  background: #1d1711;
+  border: 6px solid #faf4e4;
+  border-bottom-width: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 18px rgba(40, 24, 8, 0.3);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field span {
+  font: 500 0.875rem/1 var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.field input {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid rgba(92, 74, 54, 0.4);
+  border-radius: 4px;
+  background: rgba(255, 252, 240, 0.65);
+  color: var(--ink);
+  /* 16px stops iOS Safari zooming into the field */
+  font: 400 1rem/1.2 var(--serif);
+}
+.field input:focus-visible {
+  outline: 2px solid var(--red-ink);
+  outline-offset: 1px;
+}
+.meta {
+  margin: 0;
+  text-align: center;
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+.save,
+.ghost,
+.danger {
+  min-height: 46px;
+  border-radius: 4px;
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.save {
+  border: 0;
+  background: var(--red-ink);
+  color: #fbf3e2;
+}
+.save:disabled {
+  opacity: 0.6;
+}
+.ghost {
+  border: 1.5px solid rgba(92, 74, 54, 0.45);
+  background: transparent;
+  color: var(--ink-soft);
+}
+.danger {
+  border: 0;
+  background: #7a1f12;
+  color: #fbf3e2;
+}
