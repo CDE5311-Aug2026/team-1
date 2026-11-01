@@ -2,7 +2,8 @@
 // one lifts at its right edge and swings over the spine on the left, in 3D, showing the next; swipe right and the last
 // one comes back. The page follows your finger, then finishes the turn (or falls back) on a spring. A page scrolls up and
 // down as usual; only a sideways swipe turns it. The arrows, the dots, the turned-up corner and the arrow keys turn it
-// too. Things inside a page that move sideways themselves (a slider, a note) are marked data-no-flip.
+// too. Things inside a page that move sideways themselves (a slider, a note) are marked data-no-flip. A page's top-level
+// element marked data-fill stretches to the sheet's height.
 import { animate, useReducedMotionConfig, type AnimationPlaybackControls } from 'motion/react';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import styles from './FlipBook.module.css';
@@ -196,7 +197,7 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart }:
                     {page.label}
                   </p>
                 )}
-                {page.node}
+                <div className={styles.body}>{page.node}</div>
                 <p className={styles.folio} aria-hidden="true">
                   {`— ${i + 1} —`}
                 </p>

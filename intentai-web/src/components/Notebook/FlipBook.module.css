@@ -45,6 +45,8 @@
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
   padding: 18px 38px 22px 22px;
   background:
     radial-gradient(circle, rgba(110, 80, 45, 0.2) 1px, transparent 1.3px) 0 0 / 18px 18px local,
@@ -65,6 +67,21 @@
       rgba(60, 35, 12, calc(var(--lift, 0) * 0.18))
     ),
     linear-gradient(270deg, rgba(40, 22, 6, calc(var(--under, 0) * 0.32)), transparent 70%);
+}
+
+/* a page's own content grows to fill the sheet, so a short page is not left with blank paper under it */
+.body {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.body > :global(*) {
+  flex: none;
+}
+
+.body > :global([data-fill]) {
+  flex: 1 0 auto;
 }
 
 .entryNo {
