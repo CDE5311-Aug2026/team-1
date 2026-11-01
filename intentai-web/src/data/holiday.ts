@@ -2,7 +2,7 @@
 // Detail content leads with the survey's top Holidays choice, "Meaning and origins of each festival",
 // layered per the survey's length preference: quick facts first, then the deeper read.
 
-import deepavaliPhoto from '../assets/holiday/deepavali.jpg';
+import deepavaliPhoto from '../assets/holiday/deepavali.webp';
 import type { ArticleImage } from './articleImages';
 
 export interface Holiday {

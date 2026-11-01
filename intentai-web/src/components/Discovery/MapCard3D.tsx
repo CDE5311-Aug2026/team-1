@@ -163,7 +163,7 @@ export function MapCard3D({
       const status = areaProgress(a.id, visited).status;
       if (isPick) {
         // a pick crosses areas: the land stays even and flat, the stops and their line stand out
-        m.set(a.id, { color: LAND_NEAR[status], lift: 0, edge: EDGE_DIM });
+        m.set(a.id, { color: [LAND_NEAR[status][0], LAND_NEAR[status][1], LAND_NEAR[status][2], 0.1], lift: 0, edge: EDGE_DIM });
         continue;
       }
       const inRegion = a.region === region;

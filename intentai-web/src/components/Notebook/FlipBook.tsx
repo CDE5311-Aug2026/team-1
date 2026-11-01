@@ -19,11 +19,15 @@ interface Props {
   resetKey: string;
   /** Number the pages after the first as notebook entries ("No. 01 · Key numbers"). */
   numbered?: boolean;
+  /** Where the book is, continuously while a page turns: 0 on the first page, 0.5 halfway to the second, 1 on it, … */
+  onTurn?: (position: number) => void;
+  /** Shown at the start of the strip under the pages, on every page but the first (a close button). */
+  navStart?: ReactNode;
 }
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
 
-export function FlipBook({ pages, resetKey, numbered = true }: Props) {
+export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart }: Props) {
   const reduce = useReducedMotionConfig();
   const [index, setIndex] = useState(0);
   const leaves = useRef<(HTMLElement | null)[]>([]);
@@ -33,6 +37,8 @@ export function FlipBook({ pages, resetKey, numbered = true }: Props) {
   const swallowClick = useRef(false);
   const last = pages.length - 1;
   const at = Math.min(index, last);
+  const onTurnRef = useRef(onTurn);
+  onTurnRef.current = onTurn;
 
   useEffect(() => {
     turning.current?.stop();
@@ -47,6 +53,7 @@ export function FlipBook({ pages, resetKey, numbered = true }: Props) {
       el.style.removeProperty('--lift');
       el.style.removeProperty('--under');
     }
+    onTurnRef.current?.(at);
   }, [at, resetKey]);
 
   /** Draw a turn in progress: dir 1 lifts the top page away, -1 brings the one before back; p from 0 to 1. */
@@ -59,6 +66,7 @@ export function FlipBook({ pages, resetKey, numbered = true }: Props) {
       leaf.style.setProperty('--lift', String(Math.sin(turned * Math.PI)));
     }
     under?.style.setProperty('--under', String(1 - turned));
+    onTurnRef.current?.(dir === 1 ? at + p : at - p);
   };
 
   const finish = (dir: 1 | -1, from: number, to: 0 | 1) => {
@@ -76,7 +84,8 @@ export function FlipBook({ pages, resetKey, numbered = true }: Props) {
       onComplete: () => {
         turning.current = null;
         if (to === 1) setIndex(at + dir);
-        else
+        else onTurnRef.current?.(at);
+        if (to === 0)
           for (const el of leaves.current)
             if (el) {
               el.style.removeProperty('transform');
@@ -203,6 +212,7 @@ export function FlipBook({ pages, resetKey, numbered = true }: Props) {
       </div>
 
       <nav className={styles.nav} aria-label="Pages">
+        {at > 0 && navStart}
         <button type="button" className={styles.arrow} aria-label="Previous page" disabled={at <= 0} onClick={() => turn(-1)}>
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

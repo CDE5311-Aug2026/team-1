@@ -90,6 +90,8 @@ test('an area opens its places; Open shows its story card above the deck, closin
   expect(within(pagesNav).getByRole('button', { name: 'Previous page' })).toBeDisabled();
   await user.click(within(pagesNav).getByRole('button', { name: 'Next page' }));
   await waitFor(() => expect(pagesNav).toHaveTextContent(/^2\//));
+  // the 3D view went with the first page, so the strip under the pages has a way back to the map
+  expect(within(pagesNav).getByRole('button', { name: `Back to the map from ${name}` })).toBeInTheDocument();
   await user.click(within(pagesNav).getByRole('button', { name: 'Previous page' }));
   await waitFor(() => expect(pagesNav).toHaveTextContent(/^1\/\d+Field note$/));
   // the map stays as the place's 3D view; its tools fold away; the deck stays
@@ -142,10 +144,11 @@ test('the event card opens the holiday page; the bell opens notices', async () =
   expect(screen.getByText('holiday page')).toBeInTheDocument();
 });
 
-test('the map credits name URA and the open data licence', async () => {
+test('the map credits name URA and the open data licence, and OneMap for the street map', async () => {
   const user = userEvent.setup();
   renderHome();
-  await user.click(screen.getByText('Map data'));
+  await user.click(screen.getByText('Map data · OneMap'));
+  expect(screen.getByRole('link', { name: 'OneMap © Singapore Land Authority' })).toHaveAttribute('href', 'https://www.onemap.gov.sg/');
   expect(screen.getByText(/Master Plan 2019 Planning Area Boundary \(No Sea\), Urban Redevelopment Authority, via data\.gov\.sg \(Singapore Open Data Licence v1\.0\)/)).toBeInTheDocument();
 });
 

@@ -6,7 +6,7 @@ import chevronRight from '../../../assets/v3/moments/chevron-right.svg';
 import headingRule from '../../../assets/v3/moments/heading-rule.png';
 import inkDrop from '../../../assets/v3/moments/ink-drop.svg';
 import lockIcon from '../../../assets/v3/moments/lock.svg';
-import paper from '../../../assets/v3/moments/passport-paper.png';
+import paper from '../../../assets/v3/moments/passport-paper.webp';
 import iconAll from '../../../assets/v3/moments/filter-all.svg';
 import { imageOf, topicOfCard, type Stamp as StampData } from '../../../data/moments/moments';
 import { paths } from '../../../routes';

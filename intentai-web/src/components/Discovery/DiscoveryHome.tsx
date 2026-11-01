@@ -6,12 +6,13 @@
 // deck to Editor's Pick (?lvl=picks&k=): walks and lists, then a pick's stops (?lvl=pick), the map flying across the
 // island with them; a walk also opens as a 2D route (&route=1) with a button that starts Google Maps.
 import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react';
-import { lazy, Suspense, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import homeLogo from '../../assets/home/logo.png';
 import { todaysHoliday } from '../../data/holiday';
 import { ALL_HOME_PLACES, type HomePlace } from '../../data/homePlaces';
-import { editorPicks, formatMinutes, type EditorPick } from '../../data/picks';
+import { formatMinutes } from '../../data/pickFormat';
+import type { EditorPick } from '../../data/picks';
 import {
   URA_AREAS,
   URA_REGIONS,
@@ -50,6 +51,47 @@ const MapDetail = lazy(() => import('./MapCardEarth').then((m) => ({ default: m.
 function MapCard3D({ sky, ...props }: Parameters<typeof MapOverview>[0] & { sky?: View3DSky }) {
   return props.level === 'places' ? <MapDetail {...props} sky={sky} /> : <MapOverview {...props} />;
 }
+// Loaded after Home first paints (phones on slow networks): the Editor's Pick decks need the whole Culture Atlas, and
+// a place's notebook needs its story cards. Both start loading once Home is up, so a tap rarely waits.
+let picksModule: typeof import('../../data/picks') | undefined;
+const loadPicks = () => import('../../data/picks').then((m) => (picksModule = m));
+registerPreload(loadPicks);
+type IntroProps = Parameters<typeof import('./PlaceIntro').PlaceIntro>[0];
+const PlaceIntro = lazyPage<IntroProps>(() => import('./PlaceIntro').then((m) => ({ default: m.PlaceIntro })));
+const loadIntro = () => import('./PlaceIntro');
+const NO_PICKS: EditorPick[] = [];
+/** Run `fn` once the pictures on screen are in (or after 6 s) and the phone is idle; returns a cancel. On a slow phone
+ *  network the window's load event comes before Home has even asked for its pictures, so it is not enough to wait for. */
+function afterLoad(fn: () => void): () => void {
+  let done = false;
+  let idle = 0;
+  const timers: number[] = [];
+  const run = () => {
+    if (done) return;
+    done = true;
+    if (typeof window.requestIdleCallback === 'function') idle = window.requestIdleCallback(fn, { timeout: 2000 });
+    else fn();
+  };
+  // let React put the first screen's pictures in the page, then wait for those still loading
+  timers.push(
+    window.setTimeout(() => {
+      const pending = [...document.images].filter((im) => !im.complete && im.loading !== 'lazy');
+      let left = pending.length;
+      if (!left) return run();
+      for (const im of pending) {
+        const one = () => --left <= 0 && run();
+        im.addEventListener('load', one, { once: true });
+        im.addEventListener('error', one, { once: true });
+      }
+    }, 400),
+    window.setTimeout(run, 6000),
+  );
+  return () => {
+    done = true;
+    timers.forEach((t) => window.clearTimeout(t));
+    if (idle) window.cancelIdleCallback?.(idle);
+  };
+}
 const CoverFlow3DLazy = lazy(() => import('./CoverFlow3D').then((m) => ({ default: m.CoverFlow3D })));
 const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
 /** WebGL here? Without it (old devices, unit tests) the plain decks show and Three.js is never downloaded. */
@@ -79,7 +121,9 @@ const SHAPE_COLOR = {
 } as const;
 import { MapToolbar } from './MapToolbar';
 import { PickRoute } from './PickRoute';
-import { PlaceIntro } from './PlaceIntro';
+import { backdropSrc } from './backdrop';
+import { ONEMAP_CREDIT } from './mapCredit';
+import { lazyPage, registerPreload } from '../../pages/lazyPage';
 import { SkyControls } from './SkyControls';
 import type { View3DSky } from '../../features/nearby/components/View3D';
 import styles from './DiscoveryHome.module.css';
@@ -87,6 +131,22 @@ import styles from './DiscoveryHome.module.css';
 type Level = 'regions' | 'areas' | 'places' | 'picks' | 'pick';
 const DEPTH: Record<Level, number> = { regions: 0, areas: 1, places: 2, picks: 1, pick: 2 };
 const isPickLevel = (l: Level) => l === 'picks' || l === 'pick';
+
+/** The last of these pictures to finish loading (the first one at once), so a background never fades in blank. */
+function useLoadedImage(src: string) {
+  const [shown, setShown] = useState(src);
+  useEffect(() => {
+    if (src === shown) return;
+    let live = true;
+    const img = new Image();
+    img.onload = () => live && setShown(src);
+    img.src = src;
+    return () => {
+      live = false;
+    };
+  }, [src, shown]);
+  return shown;
+}
 
 /** Home base (NUS University Town) decides the first region and area shown. */
 const BASE_AREA = URA_AREAS.find((a) => a.id === areaOfPlace('curated:sg-national-university-of-singapore')?.id);
@@ -123,7 +183,24 @@ export default function DiscoveryHome() {
   const areaParam = uraArea(params.get('a') ?? undefined);
   const area = areaParam?.region === region ? areaParam : (areaList.find((a) => a.id === BASE_AREA?.id) ?? areaList[0]);
   const placeList = useMemo(() => homePlacesIn(area.id), [area.id]);
-  const picks = useMemo(() => editorPicks(localToday()), []);
+  const [loadedPicks, setLoadedPicks] = useState<EditorPick[] | null>(() => picksModule?.editorPicks(localToday()) ?? null);
+  useEffect(() => {
+    let live = true;
+    const fetchPicks = () => void loadPicks().then((m) => live && setLoadedPicks((had) => had ?? m.editorPicks(localToday())));
+    // a link straight into the picks needs them now; otherwise they wait until the page's own pictures are in
+    if (isPickLevel(params.get('lvl') as Level)) fetchPicks();
+    const cancel = afterLoad(() => {
+      fetchPicks();
+      void loadIntro();
+    });
+    return () => {
+      live = false;
+      cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
+  }, []);
+  // until they arrive, a ?lvl=picks link shows the regions; the URL is left alone, so the picks open when ready
+  const picks = loadedPicks ?? NO_PICKS;
   const pick = picks.find((k) => k.id === params.get('k')) ?? picks[0];
   const lvlParam = params.get('lvl');
   const level: Level =
@@ -204,6 +281,16 @@ export default function DiscoveryHome() {
   // The map stretches (owner, 31 Oct 2026: "the screen can stretch"): drag the tab at its top up and the picture card
   // above folds away to give the map its room; drag it down (or tap the tab) to bring the card back.
   const eventRef = useRef<HTMLButtonElement>(null);
+  // a place is open: its 3D view is the top of the notebook's first page, and turns away with it
+  const deviceRef = useRef<HTMLDivElement>(null);
+  const [mapAway, setMapAway] = useState(false);
+  const onIntroTurn = useCallback((position: number) => {
+    deviceRef.current?.style.setProperty('--away', String(Math.max(0, Math.min(1, position))));
+    setMapAway(position >= 0.999);
+  }, []);
+  useEffect(() => {
+    if (!openId) setMapAway(false);
+  }, [openId]);
   const eventH = useRef(112);
   const [grow, setGrow] = useState(() => {
     try {
@@ -426,6 +513,20 @@ export default function DiscoveryHome() {
   const upLabel = level === 'pick' ? "Back to Editor's Pick" : level === 'places' ? `Back to ${regionName} areas` : 'Back to regions';
   const inPicks = isPickLevel(level);
   const openArea = openId ? areaOfPlace(openId) : undefined;
+  const wantedBackdrop = backdropSrc(
+    openId
+      ? openArea
+        ? { level: 'places', areaId: openArea.id }
+        : { level: 'picks' }
+      : level === 'regions'
+        ? { level: 'regions' }
+        : level === 'areas'
+          ? { level: 'areas', region }
+          : level === 'places'
+            ? { level: 'places', areaId: area.id }
+            : { level: 'picks' },
+  );
+  const shownBackdrop = useLoadedImage(wantedBackdrop);
   const mapPlaces = useMemo(
     () =>
       inPicks
@@ -459,7 +560,19 @@ export default function DiscoveryHome() {
   return (
     // One screen with a deck that reaches the screen edges: bleeds past the column on purpose.
     <div className={styles.home} data-allow-bleed>
-      <div className={styles.backdrop} style={{ backgroundImage: `url(${import.meta.env.BASE_URL}home/paper.webp)` }} aria-hidden="true" />
+      {/* the deck's own map; the old one fades out once the new one has loaded */}
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={shownBackdrop}
+          className={styles.backdrop}
+          style={{ backgroundImage: `url(${shownBackdrop})` }}
+          aria-hidden="true"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.9, delay: 0.25 } }}
+          transition={{ duration: reduce ? 0 : 0.7, ease: 'easeOut' }}
+        />
+      </AnimatePresence>
       <h1 className={styles.srOnly}>Explore Singapore</h1>
       {!openId && (
         <div className={styles.head}>
@@ -482,7 +595,8 @@ export default function DiscoveryHome() {
                 : undefined
             }
           >
-            <img className={styles.eventImg} src={todaysHoliday.image.src} alt="" />
+            {/* the first picture on Home: ahead of the 3D map's ground in the queue (React 18 spells the attribute in lower case) */}
+            <img className={styles.eventImg} src={todaysHoliday.image.src} alt="" {...{ fetchpriority: 'high' }} />
             <span className={styles.eventCredit}>{todaysHoliday.image.credit.replace(/ · cropped$/, '')}</span>
             <span className={styles.eventKicker}>Festival · {todaysHoliday.today}</span>
             <span className={styles.eventTitle}>{todaysHoliday.cardTitle}</span>
@@ -496,7 +610,12 @@ export default function DiscoveryHome() {
       {/* The map card stays mounted when a place opens: it becomes the live 3D view on top of the intro (no reload).
           With the keys it is one piece, like a phone: the map as its screen, the keys in its rounded bottom. */}
       <>
-        <div className={openId ? `${styles.device} ${styles.deviceOpen}` : styles.device}>
+        <div
+          ref={deviceRef}
+          className={openId ? `${styles.device} ${styles.deviceOpen}${mapAway ? ` ${styles.mapAway}` : ''}` : styles.device}
+          aria-hidden={(openId && mapAway) || undefined}
+          {...{ inert: openId && mapAway ? '' : undefined }}
+        >
           {!openId && (
             <button
               type="button"
@@ -593,9 +712,13 @@ export default function DiscoveryHome() {
             )}
             {!routeMode && !openId && (
               <details className={styles.credits}>
-                <summary>Map data</summary>
+                <summary>Map data · OneMap</summary>
                 <p>
-                  Planning areas: {URA_SOURCE.title}, {URA_SOURCE.publisher} ({URA_SOURCE.licence}). {URA_SOURCE.note}
+                  Street map:{' '}
+                  <a href={ONEMAP_CREDIT.url} target="_blank" rel="noopener noreferrer">
+                    {ONEMAP_CREDIT.text}
+                  </a>
+                  . Planning areas: {URA_SOURCE.title}, {URA_SOURCE.publisher} ({URA_SOURCE.licence}). {URA_SOURCE.note}
                 </p>
               </details>
             )}
@@ -614,9 +737,11 @@ export default function DiscoveryHome() {
           )}
         </div>
         {openId && (
-          <AnimatePresence mode="popLayout">
-            <PlaceIntro key="intro" placeId={openId} distance={homeOf(openId)?.distance} onClose={closePlace} />
-          </AnimatePresence>
+          <Suspense fallback={null}>
+            <AnimatePresence mode="popLayout">
+              <PlaceIntro key="intro" placeId={openId} distance={homeOf(openId)?.distance} onClose={closePlace} onTurn={onIntroTurn} />
+            </AnimatePresence>
+          </Suspense>
         )}
       </>
 

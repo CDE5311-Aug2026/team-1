@@ -3,6 +3,7 @@
 // moves, so an idle Home costs nothing.
 import * as THREE from 'three';
 import type { Rgba } from '../../../features/nearby/map/CityMap';
+import { TileGround } from './tileGround';
 
 export interface SceneArea {
   id: string;
@@ -35,6 +36,8 @@ export class MapScene {
   private last = 0;
   private width = 1;
   private height = 1;
+  /** OneMap's street tiles over the painted picture, as sharp as the camera's distance needs. */
+  private streets: TileGround | null = null;
   /** Called after each rendered frame (labels and pins follow the camera). */
   onFrame: (() => void) | null = null;
   reduced = false;
@@ -52,15 +55,23 @@ export class MapScene {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = 4;
       // open sea (the picture's own sea colour) to the horizon, so the picture's edge never shows
-      const sea = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(77 / 255, 126 / 255, 162 / 255, THREE.SRGBColorSpace) }));
+      const sea = new THREE.Mesh(
+        new THREE.PlaneGeometry(400, 400),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(77 / 255, 126 / 255, 162 / 255, THREE.SRGBColorSpace), depthWrite: false }),
+      );
       sea.rotation.x = -Math.PI / 2;
       sea.position.y = -0.02;
+      // the ground's layers lie a hair apart, too close for the depth buffer from far away: they are drawn in order
+      // (sea, picture, street tiles coarse to fine) without writing depth, and the area tiles go over them
+      sea.renderOrder = -50;
       this.scene.add(sea);
       this.scene.fog = new THREE.Fog(0x9fbcd4, 60, 160);
-      const ground = new THREE.Mesh(new THREE.PlaneGeometry(56, 56), new THREE.MeshBasicMaterial({ map: tex }));
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(56, 56), new THREE.MeshBasicMaterial({ map: tex, depthWrite: false }));
       ground.rotation.x = -Math.PI / 2;
       ground.position.y = -0.01;
+      ground.renderOrder = -40;
       this.scene.add(ground);
+      this.streets = new TileGround(this.scene, this.renderer.capabilities.getMaxAnisotropy(), () => this.kick());
     }
     for (const a of areas) {
       const shapes = a.rings.map((ring) => new THREE.Shape(ring.map(([x, y]) => new THREE.Vector2(x / 1000, y / 1000))));
@@ -141,7 +152,10 @@ export class MapScene {
   pick(px: number, py: number): string | undefined {
     const ray = new THREE.Raycaster();
     ray.setFromCamera(new THREE.Vector2((px / this.width) * 2 - 1, -(py / this.height) * 2 + 1), this.camera);
-    const hit = ray.intersectObjects([...this.tiles.values()].map((t) => t.mesh), false)[0];
+    const hit = ray.intersectObjects(
+      [...this.tiles.values()].map((t) => t.mesh),
+      false,
+    )[0];
     return hit?.object.userData.areaId as string | undefined;
   }
 
@@ -197,6 +211,8 @@ export class MapScene {
     const cam = this.camera;
     cam.position.set(this.shown.center.x, this.shown.dist * Math.sin(TILT), this.shown.center.z + this.shown.dist * Math.cos(TILT));
     cam.lookAt(this.shown.center);
+    // the street tiles for where the camera has come to rest (not every step of a glide)
+    if (!moving) this.streets?.update(this.shown.center.x * 1000, -this.shown.center.z * 1000, this.shown.dist, this.height, FOV);
     this.renderer.render(this.scene, cam);
     this.onFrame?.();
     if (moving) this.kick();
@@ -204,6 +220,7 @@ export class MapScene {
 
   dispose() {
     cancelAnimationFrame(this.frame);
+    this.streets?.dispose();
     for (const t of this.tiles.values()) {
       t.mesh.geometry.dispose();
       (t.mesh.material as THREE.Material).dispose();

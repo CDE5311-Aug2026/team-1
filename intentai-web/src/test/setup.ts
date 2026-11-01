@@ -1,10 +1,14 @@
 import '@testing-library/jest-dom';
-import { beforeEach } from 'vitest';
+import { beforeAll, beforeEach } from 'vitest';
 import { STORAGE_PREFIX, resetPersistentStores } from '../data/persistentStore';
 import { dismissToast } from '../hooks/useToast';
 import { resetLocationForTests } from '../features/nearby/location';
+import { preloadPages } from '../pages/lazyPage';
 import { matchMediaShim, resetMedia } from './media';
 import { ResizeObserverMock, resetResizeObservers } from './resizeObserver';
+
+// Screens load on demand in the app (pages/lazyPage.ts); tests that render <App> get them all up front.
+beforeAll(() => preloadPages(), 60_000);
 
 // jsdom has <dialog> but not its modal methods.
 if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {

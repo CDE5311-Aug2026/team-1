@@ -47930,11 +47930,14 @@ LANDMARKS.qtbbiopolis = {zh:'启奥城', en:'Biopolis', cat:'new', r:150, h:46, 
         if (sty === 'l'){ fq(B.p(WIN), E, 0, E.L, Y0, yT, 0); for (let y = Y0; y < yT; y += FH){ fq(B.p(ST), E, 0, E.L, y, y + 1.0, 0.05); for (let s = 1.4; s < FH - 0.3; s += 0.55) fq(B.p(LV2), E, 0, E.L, y + s, y + s + 0.16, 0.7); } return; }
         fq(B.p(ST), E, 0, E.L, Y0, yT, 0); for (let y = Y0 + 0.35*FH; y < yT; y += FH) for (let s = 0.0; s < E.L - 1; s += 2.6) fq(B.p(WIN), E, s + 0.35, Math.min(E.L - 0.35, s + 2.25), y, y + 1.5, 0.04);
         for (let y = Y0; y < yT; y += 3*FH) fq(B.p(ST2), E, 0, E.L, y - 0.08, y + 0.08, 0.03);
+        for (let u = 0; u <= E.L + 0.01; u += Math.max(2.6, E.L/Math.round(E.L/7.8))) quadP(B.p(ST2), E.F(u, Y0, 0), E.F(u, Y0, 0.6), E.F(u, yT + 1.2, 0.6), E.F(u, yT + 1.2, 0));
         if (scr && E.L > 14 && scr(E, i)){ const u0 = E.L*0.08, u1 = E.L*0.92; fq(B.p(DARK), E, u0, u1, Y0 + FH, yT - 0.6, 0.05);
           for (let y = Y0 + FH; y < yT - 0.6; y += 0.6) fq(B.p(LV), E, u0, u1, y, y + 0.22, 0.8);
           const n = Math.max(2, Math.round((u1 - u0)/3)); for (let k = 0; k <= n; k++) fq(B.p(LV2), E, lerp(u0, u1, k/n) - 0.1, lerp(u0, u1, k/n) + 0.1, Y0 + FH, yT - 0.6, 0.9); } });
       // parapet, roof and plant screens
       loftP(B.p(ST2), Pd, yT, Pd, yT + 1.2); capP(B.p({c:'#8f9597'}), Pd, yT + 0.3);
+      // louvred crown: grey slats on a frame round the roof plant floor, set out from the parapet
+      { const C = offP(Pd, 0.6); for (let y = yT + 1.6; y < yT + 4.6; y += 0.5) loftP(B.p(LV2), C, y, C, y + 0.2); for (let i = 0; i < C.length; i++) segP(B.p(LV), [C[i][0], yT + 1.2, C[i][1]], [C[i][0], yT + 4.8, C[i][1]], 0.15, 4); loftP(B.p(LV), C, yT + 4.8, offP(C, -1.0), yT + 4.8); }
       { const c = cen(P), ins = offP(P, -6); if (pip(ins, c[0], c[1])){ boxP(B.p(LV2), Math.min(16, Math.sqrt(Math.abs(sArea(P)))*0.4), 3.2, 8, c[0], yT + 0.3, c[1], R()*0.2); } }
       return cen(P); };
     const M = bld(BP.matrix, 39, 's', E => true), N = bld(BP.nanos, 36, 'l'), C = bld(BP.centros, 33, 'g'), H = bld(BP.helios, 45, 'l'),
@@ -48551,7 +48554,7 @@ LANDMARKS.qtetrueway = {zh:'真道长老会', en:'True Way Presbyterian Church',
       slabP(B.p(BR), rectO(0, e.L, 0.4, 0.9), e.F, 0, 0.08); }
     // the east wing, four storeys
     const Q = [[1.4,-4.0],[21.7,-22.0],[33.0,-2.5],[33.1,5.5],[3.3,22.0],[-1.0,4.0]];
-    wallP(B.p(CR), Q, 7.6, 15.2); capP(B.p(CR2), Q, 15.2); wallP(B.p(CR2), Q, 15.2, 16.1);
+    wallP(B.p(CR), Q, 7.6, 15.2); capP(B.p('#b9b4a8'), Q, 15.2); wallP(B.p(CR2), Q, 15.2, 16.1); bxP(B.p(CR2), 12, 18, 15.2, 17.6, -6, 0); bxP(B.p('#9aa0a3'), 20, 24, 15.2, 16.8, 2, 6);
     for (const e of edgesF(Q)){ const n = Math.floor(e.L/3.2); for (let f = 0; f < 2; f++){ const v = 8.4 + f*3.8; slabP(B.p(BR), rectO(0, e.L, v - 0.5, v - 0.25), e.F, 0, 0.15); for (let k = 0; k < n; k++){ const u = (k + 0.5)*e.L/n; shapeP(B.p(WIN), rectO(u - 1.1, u + 1.1, v, v + 1.9), e.F, 0.03); slabP(B.p(CR2), rectO(u - 1.25, u + 1.25, v + 1.9, v + 2.1), e.F, 0, 0.35); } }
       for (let k = 0; k <= n; k++) if (n) slabP(B.p(CR2), rectO(k*e.L/n - 0.2, k*e.L/n + 0.2, 7.6, 15.2), e.F, 0, 0.2); }
     // the sanctuary: tall hall, gable roof along x, glazed gable on the street end (west) and narrow lancets on the sides
@@ -56859,9 +56862,34 @@ if (LITE.q.get('labels') === '0'){ const st = document.createElement('style'); s
 // far enough to show all of it in this view's width and height, lower for towers, higher for flat sites.
 // Campus / garden sites use their card's own framing, a little closer. Returns false when the key has no model.
 const LITE_VIEW = {   // per-landmark adjustments: d distance factor, az extra azimuth (deg), el elevation (deg)
-  merlion:{d:0.6, el:20, az:-100}, thianhockkeng:{el:42, az:180}, sgsiloso:{d:0.7, el:34}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
+  merlion:{d:0.6, el:20, az:-100}, thianhockkeng:{el:42, az:180}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
   cttansichongsu:{az:180},  // its front faces west-north-west, away from the default south-east view
   cthonglim:{el:62, d:0.9},   // Chinatown 3D batch (31 Oct): Hong Lim sits in a courtyard of housing slabs; only a steep view clears them
+  // front views (1 Nov): turned to face each landmark's entrance, from its street; d 0.85 frames it a little closer
+  acm:{d:0.85}, anderson:{d:0.85, az:180}, armenian:{d:0.85, az:270}, artscience:{d:0.85, az:90}, artshouse:{d:0.85, az:270},
+  asiasquare:{d:0.85, az:90}, barrage:{d:0.85}, buddhatooth:{d:0.85, az:270}, capitaspring:{d:0.85, az:90}, capitol:{d:0.85, az:270},
+  cavenagh:{d:0.85}, changitower:{d:0.85}, chijmes:{d:0.85, az:90}, chinesegarden:{d:0.85, az:90}, cliffordpier:{d:0.85}, ctalabrar:{d:0.85},
+  ctamoyst:{d:0.85}, ctanju:{d:0.85}, ctblueginger:{d:0.85}, ctchinatowncx:{d:0.85}, ctcloudstreet:{d:0.85}, ctguum:{d:0.85}, cthongsansee:{d:0.85},
+  ctjinrikisha:{d:0.85}, ctkoksen:{d:0.85}, ctlimcheeguan:{d:0.85}, ctmaxwell:{d:0.85}, ctmeta:{d:0.85}, ctnaeum:{d:0.85, az:90}, ctobba:{d:0.85},
+  ctpagoda:{d:0.85, az:270}, ctsongfa:{d:0.85, az:270}, ctsushizen:{d:0.85, az:180}, ctthendayuthapani:{d:0.85, az:270}, ctthevar:{d:0.85},
+  ctumyongbaek:{d:0.85}, ctura:{d:0.85}, ctyuehhai:{d:0.85}, ctzen:{d:0.85}, dukenus:{d:0.85, az:270}, duo:{d:0.85, az:270}, esplanade:{d:0.85},
+  firestation:{d:0.85}, float:{d:0.85}, flyer:{d:0.85, az:180}, fullerton:{d:0.85}, goldenmile:{d:0.85}, goodshepherd:{d:0.85, az:90},
+  goodwood:{d:0.85, az:90}, guoco:{d:0.85, az:180}, helix:{d:0.85, az:180}, hendersonwaves:{d:0.85}, hillstreet:{d:0.85},
+  indoorstadium:{d:0.85, az:90}, interlace:{d:0.85}, ionorchard:{d:0.85}, istana:{d:0.85, az:270}, jewel:{d:0.85, az:180}, kmspks:{d:0.85},
+  kranji:{d:0.85, az:270}, ktmstation:{d:0.85, az:270}, lauPaSat:{d:0.85, az:270}, malayheritage:{d:0.85, az:270}, mariamman:{d:0.85, az:270},
+  marinaone:{d:0.85}, mbfc:{d:0.85, az:180}, mbs:{d:0.85, az:180}, mhfatimah:{d:0.85, az:270}, natgallery:{d:0.85}, natlibrary:{d:0.85, az:180},
+  natmuseum:{d:0.85, az:180}, ngeeann:{d:0.85, az:180}, nusbt:{d:0.85}, ocbc:{d:0.85, az:180}, oneraffles:{d:0.85, az:90}, parkroyal:{d:0.85, az:180},
+  parkview:{d:0.85}, parliament:{d:0.85, az:90}, peoplespark:{d:0.85, az:90}, peranakan:{d:0.85, az:270}, pinnacle:{d:0.85, az:180},
+  rafflescity:{d:0.85}, raffleshotel:{d:0.7, el:50, az:270}, reflections:{d:0.85}, republic:{d:0.65, az:90}, sam:{d:0.85},
+  sgabdulgafoor:{d:0.85, az:180}, sgalkaff:{d:0.85}, sgboatquay:{d:0.85}, sgbotanic:{d:0.85}, sgcapitagreen:{d:0.85, az:180},
+  sgclarkequay:{d:0.85, az:180}, sgcoleman:{d:0.85}, sgconcourse:{d:0.85}, sgconfhall:{d:0.85, az:90}, sgcricket:{d:0.85, az:180}, sgelgin:{d:0.85},
+  sgfortcanning:{d:0.85}, sggateway:{d:0.85, az:270}, sghawpar:{d:0.85, az:270}, sgjamae:{d:0.85, az:270}, sgjurongtower:{d:0.85, az:180},
+  sgkallangairport:{d:0.85}, sgkwanim:{d:0.8, el:60}, sglasalle:{d:0.85}, sglayan:{d:0.85, az:270}, sgmacdonald:{d:0.85, az:180},
+  sgmajestic:{el:35, az:270}, sgnagore:{d:0.85, az:270}, sgoasia:{d:0.85, az:180}, sgofc:{d:0.85, az:270}, sgrafflesltd:{d:0.85, az:90},
+  sgsciencecentre:{d:0.85}, sgsiloso:{d:0.85, el:34, az:180}, sgsrc:{d:0.85}, sgstjoseph:{d:0.85, az:270}, sgtantengniah:{d:0.85},
+  sgtelokayer:{d:0.85}, sgveeramakali:{d:0.85, az:270}, sgwarmem:{d:0.85}, shuanglin:{d:0.85, az:90}, southbeach:{az:180}, sportshub:{d:0.85},
+  srinivasa:{d:0.85}, standrews:{d:0.85, az:90}, sultanmosque:{d:0.85, az:270}, suntec:{d:0.85, az:180}, supremecourt:{d:0.85}, tampineshub:{d:0.85},
+  tangplaza:{d:0.85}, thesail:{d:0.85}, uob:{d:0.85, az:180}, victoria:{d:0.85}, vivocity:{d:0.85},
 };
 function liteFrame(key, animate){
   let T = null, D = null; try { T = SGCard._t.sgcByKey(key); D = T && SGCard._t.sgcResolve(T).D; } catch (e){ }

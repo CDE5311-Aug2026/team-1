@@ -38,7 +38,7 @@ import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalDa
 import { stopLocation } from '../features/nearby/location';
 import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeState } from './placeStories';
 import { createPersistentStore } from './persistentStore';
-import { EMPTY_SOCIAL, communitySocialStore } from './community/social';
+import { EMPTY_SOCIAL, communitySocialStore } from './community/socialStore';
 import { EMPTY_RECAP, recapStore } from './moments/recapStore';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';

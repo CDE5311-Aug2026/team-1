@@ -274,9 +274,34 @@ if (LITE.q.get('labels') === '0'){ const st = document.createElement('style'); s
 // far enough to show all of it in this view's width and height, lower for towers, higher for flat sites.
 // Campus / garden sites use their card's own framing, a little closer. Returns false when the key has no model.
 const LITE_VIEW = {   // per-landmark adjustments: d distance factor, az extra azimuth (deg), el elevation (deg)
-  merlion:{d:0.6, el:20, az:-100}, thianhockkeng:{el:42, az:180}, sgsiloso:{d:0.7, el:34}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
+  merlion:{d:0.6, el:20, az:-100}, thianhockkeng:{el:42, az:180}, sgcenotaph:{d:0.9}, sgtankimseng:{d:0.85, el:30},
   cttansichongsu:{az:180},  // its front faces west-north-west, away from the default south-east view
   cthonglim:{el:62, d:0.9},   // Chinatown 3D batch (31 Oct): Hong Lim sits in a courtyard of housing slabs; only a steep view clears them
+  // front views (1 Nov): turned to face each landmark's entrance, from its street; d 0.85 frames it a little closer
+  acm:{d:0.85}, anderson:{d:0.85, az:180}, armenian:{d:0.85, az:270}, artscience:{d:0.85, az:90}, artshouse:{d:0.85, az:270},
+  asiasquare:{d:0.85, az:90}, barrage:{d:0.85}, buddhatooth:{d:0.85, az:270}, capitaspring:{d:0.85, az:90}, capitol:{d:0.85, az:270},
+  cavenagh:{d:0.85}, changitower:{d:0.85}, chijmes:{d:0.85, az:90}, chinesegarden:{d:0.85, az:90}, cliffordpier:{d:0.85}, ctalabrar:{d:0.85},
+  ctamoyst:{d:0.85}, ctanju:{d:0.85}, ctblueginger:{d:0.85}, ctchinatowncx:{d:0.85}, ctcloudstreet:{d:0.85}, ctguum:{d:0.85}, cthongsansee:{d:0.85},
+  ctjinrikisha:{d:0.85}, ctkoksen:{d:0.85}, ctlimcheeguan:{d:0.85}, ctmaxwell:{d:0.85}, ctmeta:{d:0.85}, ctnaeum:{d:0.85, az:90}, ctobba:{d:0.85},
+  ctpagoda:{d:0.85, az:270}, ctsongfa:{d:0.85, az:270}, ctsushizen:{d:0.85, az:180}, ctthendayuthapani:{d:0.85, az:270}, ctthevar:{d:0.85},
+  ctumyongbaek:{d:0.85}, ctura:{d:0.85}, ctyuehhai:{d:0.85}, ctzen:{d:0.85}, dukenus:{d:0.85, az:270}, duo:{d:0.85, az:270}, esplanade:{d:0.85},
+  firestation:{d:0.85}, float:{d:0.85}, flyer:{d:0.85, az:180}, fullerton:{d:0.85}, goldenmile:{d:0.85}, goodshepherd:{d:0.85, az:90},
+  goodwood:{d:0.85, az:90}, guoco:{d:0.85, az:180}, helix:{d:0.85, az:180}, hendersonwaves:{d:0.85}, hillstreet:{d:0.85},
+  indoorstadium:{d:0.85, az:90}, interlace:{d:0.85}, ionorchard:{d:0.85}, istana:{d:0.85, az:270}, jewel:{d:0.85, az:180}, kmspks:{d:0.85},
+  kranji:{d:0.85, az:270}, ktmstation:{d:0.85, az:270}, lauPaSat:{d:0.85, az:270}, malayheritage:{d:0.85, az:270}, mariamman:{d:0.85, az:270},
+  marinaone:{d:0.85}, mbfc:{d:0.85, az:180}, mbs:{d:0.85, az:180}, mhfatimah:{d:0.85, az:270}, natgallery:{d:0.85}, natlibrary:{d:0.85, az:180},
+  natmuseum:{d:0.85, az:180}, ngeeann:{d:0.85, az:180}, nusbt:{d:0.85}, ocbc:{d:0.85, az:180}, oneraffles:{d:0.85, az:90}, parkroyal:{d:0.85, az:180},
+  parkview:{d:0.85}, parliament:{d:0.85, az:90}, peoplespark:{d:0.85, az:90}, peranakan:{d:0.85, az:270}, pinnacle:{d:0.85, az:180},
+  rafflescity:{d:0.85}, raffleshotel:{d:0.7, el:50, az:270}, reflections:{d:0.85}, republic:{d:0.65, az:90}, sam:{d:0.85},
+  sgabdulgafoor:{d:0.85, az:180}, sgalkaff:{d:0.85}, sgboatquay:{d:0.85}, sgbotanic:{d:0.85}, sgcapitagreen:{d:0.85, az:180},
+  sgclarkequay:{d:0.85, az:180}, sgcoleman:{d:0.85}, sgconcourse:{d:0.85}, sgconfhall:{d:0.85, az:90}, sgcricket:{d:0.85, az:180}, sgelgin:{d:0.85},
+  sgfortcanning:{d:0.85}, sggateway:{d:0.85, az:270}, sghawpar:{d:0.85, az:270}, sgjamae:{d:0.85, az:270}, sgjurongtower:{d:0.85, az:180},
+  sgkallangairport:{d:0.85}, sgkwanim:{d:0.8, el:60}, sglasalle:{d:0.85}, sglayan:{d:0.85, az:270}, sgmacdonald:{d:0.85, az:180},
+  sgmajestic:{el:35, az:270}, sgnagore:{d:0.85, az:270}, sgoasia:{d:0.85, az:180}, sgofc:{d:0.85, az:270}, sgrafflesltd:{d:0.85, az:90},
+  sgsciencecentre:{d:0.85}, sgsiloso:{d:0.85, el:34, az:180}, sgsrc:{d:0.85}, sgstjoseph:{d:0.85, az:270}, sgtantengniah:{d:0.85},
+  sgtelokayer:{d:0.85}, sgveeramakali:{d:0.85, az:270}, sgwarmem:{d:0.85}, shuanglin:{d:0.85, az:90}, southbeach:{az:180}, sportshub:{d:0.85},
+  srinivasa:{d:0.85}, standrews:{d:0.85, az:90}, sultanmosque:{d:0.85, az:270}, suntec:{d:0.85, az:180}, supremecourt:{d:0.85}, tampineshub:{d:0.85},
+  tangplaza:{d:0.85}, thesail:{d:0.85}, uob:{d:0.85, az:180}, victoria:{d:0.85}, vivocity:{d:0.85},
 };
 function liteFrame(key, animate){
   let T = null, D = null; try { T = SGCard._t.sgcByKey(key); D = T && SGCard._t.sgcResolve(T).D; } catch (e){ }

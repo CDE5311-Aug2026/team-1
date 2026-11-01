@@ -6,141 +6,17 @@ import { answererFor } from './people';
 import { ARTICLE_IMAGES } from '../articleImages';
 import { isAnswered, makeId, type Lookup, type Question, type QuestionTopic } from '../domain';
 import { cardTitle, linkedLookup } from '../localAnswer';
-import { createPersistentStore } from '../persistentStore';
 import { V3_PHOTO_CREDITS } from '../../assets/v3/credits';
 import bakKwa from '../../assets/v3/community/bak-kwa.jpg';
 import street from '../../assets/v3/community/street.jpg';
 import temple from '../../assets/v3/community/temple.jpg';
-import {
-  CHANNELS,
-  FEEDS,
-  SAMPLE_NOTIFICATIONS,
-  SAMPLE_REPLIES,
-  SAMPLE_THREADS,
-  channelName,
-  sampleThread,
-  type ChannelId,
-  type Feed,
-} from './channels';
+import { CHANNELS, FEEDS, SAMPLE_NOTIFICATIONS, SAMPLE_REPLIES, SAMPLE_THREADS, channelName, sampleThread, type ChannelId, type Feed } from './channels';
 
-/* ---------- Stored on this device ---------- */
+/* ---------- Stored on this device (socialStore.ts) ---------- */
 
-export interface LocalReply {
-  id: string;
-  threadId: string;
-  parentId?: string;
-  text: string;
-  createdAt: number;
-}
-
-/** A conversation saved to Moments: a snapshot, so it stays readable after the question is withdrawn. */
-export interface SavedConversation {
-  threadId: string;
-  title: string;
-  body: string;
-  topic: string;
-  replies: { author: string; text: string }[];
-  savedAt: number;
-}
-
-export interface CommunitySocial {
-  likes: string[];
-  following: string[];
-  readNotifications: string[];
-  /** My questions I closed (shown as Resolved; replies closed). */
-  closed: string[];
-  replies: LocalReply[];
-  saved: SavedConversation[];
-  /** Where I pinned each question when asking (a Nearby place or an area centre). */
-  places: QuestionPlace[];
-  /** Show me on the Locals map (only while Answer as a local is on), at area level. */
-  profile: { shown: boolean; areaId?: string };
-  /** Example people I follow on the map. */
-  followingPeople: string[];
-}
-
-/** The spot a question is about: an area or a Nearby place (placeKey), with its published coordinates. */
-export interface QuestionPlace {
-  questionId: string;
-  areaId: string;
-  placeKey?: string;
-  name: string;
-  lat: number;
-  lng: number;
-}
-
-export const EMPTY_SOCIAL: CommunitySocial = {
-  likes: [],
-  following: [],
-  readNotifications: [],
-  closed: [],
-  replies: [],
-  saved: [],
-  places: [],
-  profile: { shown: false },
-  followingPeople: [],
-};
-
-const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
-const isStrings = (v: unknown): v is string[] => Array.isArray(v) && v.every((s) => typeof s === 'string');
-
-function isLocalReply(v: unknown): v is LocalReply {
-  return (
-    isRecord(v) &&
-    typeof v.id === 'string' &&
-    typeof v.threadId === 'string' &&
-    typeof v.text === 'string' &&
-    typeof v.createdAt === 'number' &&
-    (v.parentId === undefined || typeof v.parentId === 'string')
-  );
-}
-
-function isSaved(v: unknown): v is SavedConversation {
-  return (
-    isRecord(v) &&
-    ['threadId', 'title', 'body', 'topic'].every((k) => typeof v[k] === 'string') &&
-    typeof v.savedAt === 'number' &&
-    Array.isArray(v.replies) &&
-    v.replies.every((r) => isRecord(r) && typeof r.author === 'string' && typeof r.text === 'string')
-  );
-}
-
-function isQuestionPlace(v: unknown): v is QuestionPlace {
-  return (
-    isRecord(v) &&
-    ['questionId', 'areaId', 'name'].every((k) => typeof v[k] === 'string') &&
-    typeof v.lat === 'number' &&
-    typeof v.lng === 'number' &&
-    (v.placeKey === undefined || typeof v.placeKey === 'string')
-  );
-}
-
-export function isCommunitySocial(v: unknown): v is CommunitySocial {
-  return (
-    isRecord(v) &&
-    isStrings(v.likes) &&
-    isStrings(v.following) &&
-    isStrings(v.readNotifications) &&
-    isStrings(v.closed) &&
-    Array.isArray(v.replies) &&
-    v.replies.every(isLocalReply) &&
-    Array.isArray(v.saved) &&
-    v.saved.every(isSaved) &&
-    Array.isArray(v.places) &&
-    v.places.every(isQuestionPlace) &&
-    isRecord(v.profile) &&
-    typeof v.profile.shown === 'boolean' &&
-    (v.profile.areaId === undefined || typeof v.profile.areaId === 'string') &&
-    isStrings(v.followingPeople)
-  );
-}
-
-/** deleteAllData(): communitySocialStore.set(EMPTY_SOCIAL) */
-export const communitySocialStore = createPersistentStore<CommunitySocial>({
-  key: 'community-social',
-  fallback: EMPTY_SOCIAL,
-  isValid: isCommunitySocial,
-});
+export { EMPTY_SOCIAL, communitySocialStore, isCommunitySocial } from './socialStore';
+export type { CommunitySocial, LocalReply, QuestionPlace, SavedConversation } from './socialStore';
+import type { CommunitySocial, LocalReply, SavedConversation } from './socialStore';
 
 export const toggleIn = (list: string[], id: string): string[] => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
 
@@ -413,8 +289,7 @@ export function replyTree(replies: readonly ThreadReply[], sort: ReplySort): Rep
   }
   const descendants = (id: string): number => (children.get(id) ?? []).reduce((n, c) => n + 1 + descendants(c.id), 0);
   // Latest: newest first (replies without a time are older than any written on this device, in their seeded order).
-  const latest = (a: ThreadReply, b: ThreadReply) =>
-    (b.createdAt ?? -1) - (a.createdAt ?? -1) || position.get(b.id)! - position.get(a.id)!;
+  const latest = (a: ThreadReply, b: ThreadReply) => (b.createdAt ?? -1) - (a.createdAt ?? -1) || position.get(b.id)! - position.get(a.id)!;
   // Top: most liked on this device, then the busiest conversation, then the original order.
   const top = (a: ThreadReply, b: ThreadReply) => b.likes - a.likes || descendants(b.id) - descendants(a.id) || position.get(a.id)! - position.get(b.id)!;
   roots.sort(sort === 'latest' ? latest : top);
@@ -483,7 +358,9 @@ export function linkLine(question: Question, lookups: readonly Lookup[], tipCite
   }
   const phrase = linkedLookup(question, lookups);
   if (phrase) {
-    return question.status === 'Added' ? `Added to “${phrase.word}” in Moments.` : `Linked to “${phrase.word}” in Moments: a local’s answer will be added to it.`;
+    return question.status === 'Added'
+      ? `Added to “${phrase.word}” in Moments.`
+      : `Linked to “${phrase.word}” in Moments: a local’s answer will be added to it.`;
   }
   return 'Not linked to a card or phrase: the answer stays here.';
 }

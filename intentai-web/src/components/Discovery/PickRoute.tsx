@@ -4,7 +4,7 @@
 // (each part starts where the last ended).
 import { useState } from 'react';
 import type { EditorPick } from '../../data/picks';
-import { formatMinutes } from '../../data/picks';
+import { formatMinutes } from '../../data/pickFormat';
 import styles from './PickRoute.module.css';
 
 interface Props {

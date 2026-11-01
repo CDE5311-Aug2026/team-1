@@ -271,3 +271,22 @@
   color: #2f6b4f;
   box-shadow: inset 0 0 0 1.5px rgba(47, 107, 79, 0.65);
 }
+
+/* close, in the strip under the pages once the 3D view has turned away with the first page */
+.close {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #4a2f1c;
+  color: #f8f0dd;
+  cursor: pointer;
+}
+
+.close:focus-visible {
+  outline: 2px solid #b9502a;
+  outline-offset: 2px;
+}

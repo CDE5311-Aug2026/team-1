@@ -66,8 +66,4 @@ export function editorPick(id: string, date: string): EditorPick | undefined {
   return editorPicks(date).find((p) => p.id === id);
 }
 
-export function formatMinutes(m: number): string {
-  const h = Math.floor(m / 60);
-  const r = Math.round(m % 60);
-  return h ? (r ? `${h} h ${r} min` : `${h} h`) : `${r} min`;
-}
+export { formatMinutes } from './pickFormat';

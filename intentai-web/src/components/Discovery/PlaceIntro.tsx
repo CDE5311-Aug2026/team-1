@@ -23,11 +23,13 @@ interface Props {
   placeId: string;
   distance?: string;
   onClose(): void;
+  /** Where the notebook is while its pages turn (Home folds the 3D view away with the first page). */
+  onTurn?: (position: number) => void;
 }
 
 const STATUS_TEXT = { done: 'unlocked', exploring: 'exploring', none: 'not started' } as const;
 
-export function PlaceIntro({ placeId, distance, onClose }: Props) {
+export function PlaceIntro({ placeId, distance, onClose, onTurn }: Props) {
   const reduce = useReducedMotionConfig();
   const place = curatedPlace(placeId);
   const personal = useExplorePersonal();
@@ -144,7 +146,19 @@ export function PlaceIntro({ placeId, distance, onClose }: Props) {
       <span className={styles.strap} aria-hidden="true" />
 
       <div className={styles.bookWrap} data-testid="place-story-card">
-        <FlipBook pages={pages} resetKey={place.id} />
+        <FlipBook
+          pages={pages}
+          resetKey={place.id}
+          onTurn={onTurn}
+          navStart={
+            // the 3D view (and its close button) went with the first page
+            <button type="button" className={styles.close} onClick={onClose} aria-label={`Back to the map from ${place.name}`}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                <path d="M6 6l12 12M18 6 6 18" />
+              </svg>
+            </button>
+          }
+        />
       </div>
     </motion.section>
   );
