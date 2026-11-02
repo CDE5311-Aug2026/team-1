@@ -470,6 +470,31 @@
   }
 }
 
+/* Safari with its toolbars showing (about 660-720pt of screen): everything gives a little, so the map's keys stay
+   inside its frame and the deck keeps its title. */
+@media (max-height: 720px) {
+  .home {
+    gap: 8px;
+    padding-bottom: calc(1.25rem + 58px);
+  }
+
+  .event {
+    height: 66px;
+  }
+
+  .mapCard {
+    min-height: 118px;
+  }
+
+  .deckBox {
+    height: clamp(150px, 24vh, 176px);
+  }
+
+  .pageBar.pageBar {
+    min-height: 42px;
+  }
+}
+
 /* A place is open: the map card is its live 3D view, framed on the building, above the intro's cards. */
 .mapHero {
   flex: 1 1 auto;
