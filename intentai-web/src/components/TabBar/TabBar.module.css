@@ -1,4 +1,4 @@
-/* The tabs as a field guide: a parchment roll in the corner that unrolls into a strip of old map. */
+/* The tabs as a field guide: a parchment roll in the bottom-left corner that unrolls to the right into a strip of old map. */
 .guide {
   --h: 76px; /* the sheet's height */
   --rod: 26px;
@@ -12,16 +12,16 @@
 /* ---- the sheet ---- */
 .sheet {
   position: absolute;
-  right: 0;
+  left: 0;
   bottom: 0;
-  left: calc(var(--rod) / 2);
+  right: calc(var(--rod) / 2);
   height: var(--h);
-  border-radius: 2px 6px 6px 2px;
+  border-radius: 6px 2px 2px 6px;
   pointer-events: auto;
   color: var(--ink);
   background:
     /* the curl beside the rod */
-    linear-gradient(90deg, rgba(70, 45, 15, 0.38), rgba(70, 45, 15, 0.08) 18px, transparent 34px),
+    linear-gradient(270deg, rgba(70, 45, 15, 0.38), rgba(70, 45, 15, 0.08) 18px, transparent 34px),
     /* folds between the stops */ linear-gradient(90deg, transparent calc(25% - 1px), rgba(110, 80, 40, 0.16) 25%, transparent calc(25% + 1px)),
     linear-gradient(90deg, transparent calc(50% - 1px), rgba(110, 80, 40, 0.16) 50%, transparent calc(50% + 1px)),
     linear-gradient(90deg, transparent calc(75% - 1px), rgba(110, 80, 40, 0.16) 75%, transparent calc(75% + 1px)),
@@ -36,7 +36,7 @@
     0 10px 24px rgba(30, 18, 6, 0.32),
     0 2px 4px rgba(30, 18, 6, 0.25),
     inset 0 0 0 1px rgba(120, 85, 40, 0.25);
-  clip-path: inset(-30px 0 -30px 100%);
+  clip-path: inset(-30px 100% -30px 0);
   transition: clip-path 0.62s cubic-bezier(0.55, 0.1, 0.25, 1);
 }
 .open .sheet {
@@ -44,7 +44,7 @@
 }
 .stops {
   position: absolute;
-  inset: 6px 6px 6px 18px;
+  inset: 6px 18px 6px 6px;
   display: flex;
 }
 .stop {
@@ -63,7 +63,7 @@
   cursor: pointer;
   color: var(--ink);
   opacity: 0;
-  transform: translateX(10px);
+  transform: translateX(-10px);
   transition:
     opacity 0.3s,
     transform 0.4s;
@@ -71,8 +71,8 @@
 .open .stop {
   opacity: 1;
   transform: none;
-  /* each stop shows as the paper reaches it (it unrolls right to left) */
-  transition-delay: calc(0.36s - var(--i) * 0.08s);
+  /* each stop shows as the paper reaches it (it unrolls left to right) */
+  transition-delay: calc(0.12s + var(--i) * 0.08s);
 }
 .stop:focus-visible {
   outline: 2px solid var(--red);
@@ -130,7 +130,7 @@
 .roll {
   position: absolute;
   bottom: -9px;
-  left: calc(100% - var(--rod) - 12px);
+  left: 0;
   width: var(--rod);
   height: calc(var(--h) + 18px);
   display: flex;
@@ -145,7 +145,7 @@
   filter: drop-shadow(0 6px 8px rgba(20, 12, 4, 0.4));
 }
 .open .roll {
-  left: 0;
+  left: calc(100% - var(--rod));
 }
 .roll:focus-visible {
   outline: 2px solid var(--red);
@@ -180,13 +180,13 @@
 .tag {
   position: absolute;
   top: 50%;
-  right: calc(100% - 8px);
+  left: calc(100% - 8px);
   display: grid;
   justify-items: center;
   gap: 2px;
   width: 44px;
   padding: 7px 0 5px;
-  border-radius: 6px 3px 3px 6px;
+  border-radius: 3px 6px 6px 3px;
   transform: translateY(-50%);
   background: radial-gradient(80% 60% at 40% 30%, rgba(255, 250, 235, 0.6), transparent 70%), linear-gradient(180deg, #f2e6c8, #e2cf9f);
   box-shadow:
@@ -198,7 +198,7 @@
 }
 .open .tag {
   opacity: 0;
-  transform: translate(12px, -50%);
+  transform: translate(-12px, -50%);
   pointer-events: none;
 }
 .tagIcon {

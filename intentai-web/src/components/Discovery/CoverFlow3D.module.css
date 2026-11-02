@@ -7,6 +7,17 @@
   --caption: 66px;
 }
 
+/* the tab guide is unrolled over the deck: the cards stack (in Three.js), the words step back, nothing takes a tap */
+.gathered {
+  pointer-events: none;
+}
+.caption {
+  transition: opacity 0.3s;
+}
+.gathered .caption {
+  opacity: 0;
+}
+
 /* a place is open above: only the covers, to switch places */
 .bare {
   --caption: 0px;

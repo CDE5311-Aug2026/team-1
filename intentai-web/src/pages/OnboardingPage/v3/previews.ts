@@ -1,6 +1,6 @@
 // The live PREVIEW under each onboarding question (Figma O2–O7): what the answer changes, shown with real cards and
 // places only. Where the app cannot yet do what the answer is for (comparisons, translations), the preview says so.
-import { ARTICLE_IMAGES, type ArticleImage } from '../../../data/articleImages';
+import { ARTICLE_IMAGES } from '../../../data/articleImages';
 import { curatedPlace } from '../../../features/nearby/catalogue';
 import { areaById, formatDistance, placesNear, shortArea, topicPhoto } from '../../../data/profile/finds';
 import {
@@ -22,7 +22,7 @@ export interface Preview {
   kicker: string;
   title: string;
   text: string;
-  photo?: ArticleImage;
+  photo?: { src: string; alt: string };
   /** Card-density meter (stay): how many of 4 lines a card shows. */
   lines?: number;
   /** Text in another script, with its language tag. */
@@ -46,7 +46,7 @@ const EMPTY: Record<FieldKey, string> = {
   role: 'Pick what brings you here.',
   language: 'Pick a language for your cards.',
   base: 'Drop a pin to see what’s closest.',
-  topics: 'Tap a topic to start your ranking.',
+  topics: 'Tap a kind of place to start your ranking.',
 };
 
 const EMPTY_PHOTO: Record<FieldKey, string> = {

@@ -7,7 +7,10 @@
   gap: 10px;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: calc(var(--status-h) + 4px) var(--gutter) calc(1.75rem + 58px + 6px);
+  /* where AppShell puts the tab guide's roll (its left edge, its bottom): the deck sits beside it, level with its foot */
+  --guide-x: var(--gutter);
+  --guide-bottom: 1.75rem;
+  padding: calc(var(--status-h) + 4px) var(--gutter) calc(var(--guide-bottom) - 9px);
   box-sizing: border-box;
   overflow: hidden;
   /* its backdrop (below) paints over the app's paper, under Home's content */
@@ -26,7 +29,15 @@
 
 @media (min-width: 481px) {
   .home {
-    padding-bottom: calc(1rem + 58px + 6px);
+    --guide-bottom: 1rem;
+  }
+}
+/* phone browsers: AppShell moves the guide in and down (see AppShell.module.css) */
+@media (hover: none) and (pointer: coarse) and (display-mode: browser) and (max-width: 480px) {
+  .home {
+    --guide-x: 2rem;
+    --guide-bottom: 0.625rem;
+    padding-bottom: max(6px, calc(var(--guide-bottom) - 9px));
   }
 }
 
@@ -407,12 +418,24 @@
   color: rgba(59, 38, 20, 0.62);
 }
 
-/* The deck reaches past the side gutters, as cover art does. */
+/* The deck sits beside the tab guide's roll (rod 26px + its tag 44px, overlapping 8px, and a 6px gap) and reaches
+   past the right gutter, as cover art does. */
 .deckBox {
   position: relative;
   flex: 0 0 auto;
   height: clamp(176px, 26vh, 222px);
-  margin: 0 calc(-1 * var(--gutter));
+  margin: 0 calc(-1 * var(--gutter)) 0 calc(var(--guide-x) - var(--gutter) + 68px);
+  transition:
+    transform 0.5s cubic-bezier(0.55, 0.1, 0.25, 1),
+    opacity 0.4s;
+}
+
+/* The guide unrolled across the bottom: the deck (stacked by CoverFlow3D) rises clear of the paper and steps back. */
+:global(html[data-guide-open]) .deckBox {
+  transform: translateY(-22px) scale(0.94);
+  transform-origin: 50% 0;
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .deckLayer {
@@ -475,7 +498,6 @@
 @media (max-height: 720px) {
   .home {
     gap: 8px;
-    padding-bottom: calc(1.25rem + 58px);
   }
 
   .event {

@@ -1,5 +1,6 @@
-// Onboarding v3 (Figma O1–O7). O1 lives at /onboarding; the six questions at /onboarding?step=1…6, one per screen, so
-// the browser's Back goes to the previous question. "Stamp my passport" finishes and opens O8 (ResultPage).
+// Onboarding v3 (Figma O1–O7). O1 lives at /onboarding; the questions at /onboarding?step=1…2, one per screen, so the
+// browser's Back goes to the previous question. Onboarding asks only what chooses places: which place tags come first,
+// and where Nearby starts. "Stamp my passport" finishes and opens O8 (ResultPage).
 import { motion, useReducedMotionConfig } from 'motion/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import logo from '../../assets/brand/findsg-logo.png';
@@ -9,44 +10,37 @@ import BlurText from '../../components/reactbits/BlurText';
 import { topicPhoto } from '../../data/profile/finds';
 import { usePersistentStore } from '../../data/persistentStore';
 import {
-  FIELDS,
-  FIELD_USES,
+  ONBOARDING_FIELDS,
+  TOPICS,
   finishOnboarding,
   mySpacePrefsStore,
   profileV3Store,
   toggleHidden,
   updateProfile,
-  type FieldKey,
-  type TopicId,
 } from '../../data/profile/profile';
 import { paths } from '../../routes';
 import { onboardingStore } from '../../data/stores';
 import FilmWall, { FILM_FRAMES } from './v3/FilmWall';
 import Icon from './v3/icons';
 import Passport from './v3/Passport';
-import { BaseMap, CountryPicker, LanguagePicker, PreviewCard, RolePicker, StayPicker, TopicRanker } from './v3/Pickers';
+import { BaseMap, PreviewCard, TopicRanker } from './v3/Pickers';
 import { previewFor } from './v3/previews';
 import useInitial from './v3/useInitial';
 import styles from './Onboarding.module.css';
 
-const TITLES: Record<FieldKey, string> = {
-  from: 'Where are you from?',
-  stay: 'How long have you been in Singapore?',
-  role: 'What brings you to Singapore?',
-  language: 'Which language do you prefer?',
+type Step = (typeof ONBOARDING_FIELDS)[number];
+
+const TITLES: Record<Step, string> = {
+  topics: 'Which places do you want to find first?',
   base: 'Where do you spend most of your time?',
-  topics: 'Rank the topics you enjoy most',
 };
 
-const USES: Record<FieldKey, string> = {
-  ...FIELD_USES,
-  stay: 'Used to decide how much background each card gives',
-  language: 'Cards are in English for now; your choice is kept for later',
+const USES: Record<Step, string> = {
+  topics: 'Tap in order. Home shows your #1 first in every area',
   base: 'Tap the map to set where Nearby searches from',
-  topics: 'Tap in order. Home shows your #1 first',
 };
 
-const STEPS = FIELDS.length;
+const STEPS = ONBOARDING_FIELDS.length;
 
 export function parseStep(raw: string | null): number {
   const n = Number(raw);
@@ -55,7 +49,6 @@ export function parseStep(raw: string | null): number {
 
 function Welcome({ onStart }: { onStart: () => void }) {
   const reduce = useReducedMotionConfig();
-  const topics: TopicId[] = ['food', 'monuments', 'festivals'];
   return (
     <div className={styles.welcome}>
       {/* strips of film drifting behind the passport: Singapore's buildings, old and today */}
@@ -84,25 +77,25 @@ function Welcome({ onStart }: { onStart: () => void }) {
         <BlurText as="span" text="Welcome to the" trigger="load" delay={70} className={styles.welcomeLine} />
         <BlurText as="span" text="Singapore Treasure Hunt" trigger="load" delay={70} className={styles.welcomeLine} />
       </h1>
-      <p className={styles.welcomeLead}>Find the food, monuments and festivals around you, and collect a stamp for every place.</p>
+      <p className={styles.welcomeLead}>Find landmarks, culture, food and nature around you, and collect a stamp for every place.</p>
       <ul className={styles.circles}>
-        {topics.map((t, i) => {
-          const photo = topicPhoto(t);
+        {TOPICS.map((t, i) => {
+          const photo = topicPhoto(t.id);
           return (
             <motion.li
-              key={t}
+              key={t.id}
               initial={reduce ? false : { y: 12, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: reduce ? 0 : 0.5 + i * 0.08 }}
             >
               <span className={styles.circle}>{photo && <img src={photo.src} alt="" />}</span>
-              {t === 'food' ? 'Food' : t === 'monuments' ? 'Monuments' : 'Festivals'}
+              {t.label}
             </motion.li>
           );
         })}
       </ul>
       <p className={styles.local}>
-        <Icon name="lock" size={14} /> Six quick questions · everything stays on this phone
+        <Icon name="lock" size={14} /> Two quick questions · everything stays on this phone
       </p>
       {/* User test: usage timings (time only) go to the team's dashboard. */}
       <p className={styles.notice}>We record how long you spend on each page, anonymously, to improve the app.</p>
@@ -130,9 +123,9 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
   const [profile] = usePersistentStore(profileV3Store);
   const [prefs] = usePersistentStore(mySpacePrefsStore);
   const initial = useInitial();
-  const field = FIELDS[step - 1];
+  const field = ONBOARDING_FIELDS[step - 1];
   const last = step === STEPS;
-  const answered = field === 'topics' ? profile.topics.length > 0 : field === 'base' ? Boolean(profile.base) : profile[field] !== null;
+  const answered = field === 'topics' ? profile.topics.length > 0 : Boolean(profile.base);
 
   const next = () => {
     if (!answered) return;
@@ -143,22 +136,12 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
     } else goTo(step + 1);
   };
 
-  const picker = (() => {
-    switch (field) {
-      case 'from':
-        return <CountryPicker value={profile.from} onChange={(from) => updateProfile({ from })} />;
-      case 'stay':
-        return <StayPicker value={profile.stay} onChange={(stay) => updateProfile({ stay })} />;
-      case 'role':
-        return <RolePicker value={profile.role} onChange={(role) => updateProfile({ role })} />;
-      case 'language':
-        return <LanguagePicker value={profile.language} onChange={(language) => updateProfile({ language })} />;
-      case 'base':
-        return <BaseMap value={profile.base} onChange={(base) => updateProfile({ base })} />;
-      case 'topics':
-        return <TopicRanker value={profile.topics} onChange={(topics) => updateProfile({ topics })} />;
-    }
-  })();
+  const picker =
+    field === 'topics' ? (
+      <TopicRanker value={profile.topics} onChange={(topics) => updateProfile({ topics })} />
+    ) : (
+      <BaseMap value={profile.base} onChange={(base) => updateProfile({ base })} />
+    );
 
   return (
     <div className={styles.question}>
@@ -175,7 +158,7 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
           aria-valuenow={step}
           aria-valuetext={`Question ${step} of ${STEPS}`}
         >
-          {FIELDS.map((f, i) => (
+          {ONBOARDING_FIELDS.map((f, i) => (
             <span key={f} className={styles.segment}>
               <span className={styles.segmentFill} style={{ width: i < step - 1 ? '100%' : i === step - 1 ? (answered ? '100%' : '35%') : '0%' }} />
             </span>
@@ -186,18 +169,12 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
         </span>
         <ExitButton />
       </div>
-      <Passport profile={profile} initial={initial} active={field} onToggleHidden={toggleHidden} />
+      <Passport profile={profile} initial={initial} fields={ONBOARDING_FIELDS} active={field} onToggleHidden={toggleHidden} />
       <BlurText key={field} as="h1" text={TITLES[field]} trigger="load" delay={50} className={styles.title} />
       <p className={styles.use}>
         <span className={styles.useDot} aria-hidden="true" />
         {USES[field]}
       </p>
-      {field === 'from' && (
-        <p className={styles.use}>
-          <Icon name="eyeClosed" size={14} className={styles.useIcon} />
-          Private by default · tap the eye to show it
-        </p>
-      )}
       {picker}
       <PreviewCard preview={previewFor(field, profile)} />
       <div className={styles.footer}>

@@ -24,6 +24,9 @@ import {
   type HomePlace,
 } from "../../data/homePlaces";
 import { formatMinutes } from "../../data/pickFormat";
+import { usePersistentStore } from "../../data/persistentStore";
+import { profileV3Store, type TopicId } from "../../data/profile/profile";
+import { curatedPlace } from "../../features/nearby/catalogue";
 import type { EditorPick } from "../../data/picks";
 import {
   URA_AREAS,
@@ -225,8 +228,19 @@ const sortedAreas = (region: RegionId) =>
       a.name.localeCompare(b.name),
   );
 
-const homePlacesIn = (areaId: string): HomePlace[] =>
-  ALL_HOME_PLACES.filter((p) => areaOfPlace(p.id)?.id === areaId);
+/** An area's places; with tags ranked in onboarding, the #1 tag's places first (otherwise in their own order). */
+const homePlacesIn = (
+  areaId: string,
+  tags: readonly TopicId[] = [],
+): HomePlace[] => {
+  const list = ALL_HOME_PLACES.filter((p) => areaOfPlace(p.id)?.id === areaId);
+  if (!tags.length) return list;
+  const rank = (p: HomePlace) => {
+    const i = tags.indexOf(curatedPlace(p.id)?.category as TopicId);
+    return i < 0 ? tags.length : i;
+  };
+  return [...list].sort((a, b) => rank(a) - rank(b));
+};
 
 const ratio = (p: UnlockProgress) => (p.total ? p.visited / p.total : 0);
 
@@ -252,6 +266,7 @@ export default function DiscoveryHome() {
   const [params, setParams] = useSearchParams();
   const personal = useExplorePersonal();
   const visited = useMemo(() => visitedSet(personal), [personal]);
+  const [{ topics: tags }] = usePersistentStore(profileV3Store);
 
   // ---- level and selection, from the URL ----
   const region = (uraRegion(params.get("r") ?? undefined)?.id ??
@@ -262,7 +277,10 @@ export default function DiscoveryHome() {
     areaParam?.region === region
       ? areaParam
       : (areaList.find((a) => a.id === BASE_AREA?.id) ?? areaList[0]);
-  const placeList = useMemo(() => homePlacesIn(area.id), [area.id]);
+  const placeList = useMemo(
+    () => homePlacesIn(area.id, tags),
+    [area.id, tags],
+  );
   const [loadedPicks, setLoadedPicks] = useState<EditorPick[] | null>(
     () => picksModule?.editorPicks(localToday()) ?? null,
   );
@@ -374,7 +392,7 @@ export default function DiscoveryHome() {
     });
   const enterArea = (id: string) =>
     placesInArea(id).length
-      ? go({ lvl: "places", a: id, p: homePlacesIn(id)[0]?.id })
+      ? go({ lvl: "places", a: id, p: homePlacesIn(id, tags)[0]?.id })
       : go({ a: id });
   // A place opens as a sheet over Home; the URL keeps it (?open=), so Back closes it and a reload keeps it open.
   const location = useLocation();
@@ -392,7 +410,7 @@ export default function DiscoveryHome() {
   const pickArea = (id: string) => {
     const a = uraArea(id);
     if (!a) return;
-    const ps = homePlacesIn(id);
+    const ps = homePlacesIn(id, tags);
     go(
       ps.length
         ? { lvl: "places", r: a.region, a: id, p: ps[0].id }

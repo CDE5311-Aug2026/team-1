@@ -1,6 +1,7 @@
-// The app's four tabs as a field guide: a small parchment roll tucked in the bottom-right corner, tagged with the tab
-// you are on, so pages keep the whole width. Tap it and the guide unrolls across the bottom: four icons, one word each.
-// Pick one (or tap outside, or press Escape) and it rolls back up.
+// The app's four tabs as a field guide: a small parchment roll tucked in the bottom-left corner, tagged with the tab
+// you are on, so pages keep the whole width (Home sets its deck beside it). Tap it and the guide unrolls to the right
+// across the bottom: four icons, one word each. Pick one (or tap outside, or press Escape) and it rolls back up.
+// While it is open the page is told (html[data-guide-open] and a 'guide' event), so what lies under it can make way.
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { staticCopy } from '../../data/expressions';
 import styles from './TabBar.module.css';
@@ -74,6 +75,12 @@ export default function TabBar({ active, onNavigate, nodeId, pop = false }: TabB
   const roll = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    document.documentElement.toggleAttribute('data-guide-open', open);
+    window.dispatchEvent(new CustomEvent('guide', { detail: open }));
+    return () => document.documentElement.removeAttribute('data-guide-open');
+  }, [open]);
+
+  useEffect(() => {
     if (!open) return;
     const away = (e: PointerEvent) => {
       if (!nav.current?.contains(e.target as Node)) setOpen(false);
@@ -137,10 +144,10 @@ export default function TabBar({ active, onNavigate, nodeId, pop = false }: TabB
           <span className={styles.tagIcon}>
             <GuideIcon label={current.label} />
           </span>
-          <span className={styles.chev}>‹</span>
+          <span className={styles.chev}>›</span>
         </span>
         <span className={styles.close} aria-hidden="true">
-          ›
+          ‹
         </span>
       </button>
     </nav>

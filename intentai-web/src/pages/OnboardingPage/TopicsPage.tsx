@@ -3,5 +3,5 @@ import { Navigate } from 'react-router-dom';
 import { paths } from '../../routes';
 
 export default function TopicsPage() {
-  return <Navigate to={`${paths.welcome}?step=6`} replace />;
+  return <Navigate to={`${paths.welcome}?step=1`} replace />;
 }

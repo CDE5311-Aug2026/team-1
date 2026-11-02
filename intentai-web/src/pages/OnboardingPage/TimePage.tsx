@@ -3,5 +3,5 @@ import { Navigate } from 'react-router-dom';
 import { paths } from '../../routes';
 
 export default function TimePage() {
-  return <Navigate to={`${paths.welcome}?step=2`} replace />;
+  return <Navigate to={`${paths.welcome}?step=1`} replace />;
 }

@@ -24,7 +24,7 @@ const ANSWERED: ProfileV3 = {
   role: 'intern',
   language: 'en',
   base: 'sg-chinatown',
-  topics: ['food', 'festivals', 'monuments', 'history'],
+  topics: ['food', 'culture', 'landmark', 'nature'],
 };
 
 afterEach(() => {
@@ -53,13 +53,13 @@ test('S1: one h1, the holder card counts stamps, cards and tips from the real st
 test('S1: six tiles of what the app knows; From starts hidden and the eye shows it', async () => {
   profileV3Store.set(ANSWERED);
   renderAt(paths.mySpace);
-  for (const label of ['From', 'In Singapore', 'Here as', 'Language', 'Home base', 'Topics']) {
+  for (const label of ['From', 'In Singapore', 'Here as', 'Language', 'Home base', 'Place tags']) {
     expect(screen.getByRole('button', { name: `Edit ${label}` })).toBeInTheDocument();
   }
   expect(screen.getByRole('button', { name: 'Edit From' })).toHaveTextContent('Hidden');
   expect(screen.getByRole('button', { name: 'Edit In Singapore' })).toHaveTextContent('< 3 months');
   expect(screen.getByRole('button', { name: 'Edit Home base' })).toHaveTextContent('Chinatown');
-  expect(screen.getByRole('button', { name: 'Edit Topics' })).toHaveTextContent('Food › Festivals › Monuments › History');
+  expect(screen.getByRole('button', { name: 'Edit Place tags' })).toHaveTextContent('Food › Culture › Landmark › Nature');
   expect(screen.getByText(/1 detail private/)).toBeInTheDocument();
 
   await userEvent.click(screen.getByRole('button', { name: 'Keep From private' }));
@@ -120,7 +120,7 @@ test('links: Settings, Privacy & data, Redo onboarding, Help', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   await userEvent.click(screen.getByRole('button', { name: /Redo onboarding/ }));
   expect(currentPath()).toBe(paths.welcome);
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Where are you from?');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Which places do you want to find first?');
 });
 
 test('S2: Reduce motion is the app-wide setting; notification choices are kept locally', async () => {

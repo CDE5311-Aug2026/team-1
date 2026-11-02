@@ -1,12 +1,13 @@
 import { expect, test } from 'vitest';
-import { cardById } from '../cards';
+import { curatedPlace } from '../../features/nearby/catalogue';
 import { isCulturePrefs } from '../culturePrefs';
 import { culturePrefsStore, deleteAllData, explorePersonalStore, openedCardsStore, profileStore } from '../stores';
-import { BASE_AREAS, TOPIC_CARD, firstFinds, formatDistance, fromWindow, nearestArea, placesNear, toWindow } from './finds';
+import { BASE_AREAS, TOPIC_PLACE, firstFinds, formatDistance, fromWindow, nearestArea, placesNear, toWindow } from './finds';
 import {
   DEFAULT_PROFILE_V3,
   isProfileV3,
   mrzLine,
+  repairProfileV3,
   mySpacePrefsStore,
   prefsFromRanking,
   profileV3Store,
@@ -23,20 +24,26 @@ test('From starts hidden and the default profile is valid', () => {
   expect(isProfileV3({ ...DEFAULT_PROFILE_V3, topics: ['food', 'food'] })).toBe(false);
 });
 
-test('the ranking gives Today three valid categories, #1 first, filled in topic order', () => {
-  expect(prefsFromRanking(['festivals'])).toEqual({ categories: ['holidays', 'foods', 'monuments'] });
-  expect(prefsFromRanking(['history', 'food', 'monuments', 'festivals'])).toEqual({ categories: ['history', 'foods', 'monuments'] });
+test('the ranking gives Today three valid categories, #1 first, filled in tag order', () => {
+  expect(prefsFromRanking(['culture'])).toEqual({ categories: ['history', 'monuments', 'foods'] });
+  expect(prefsFromRanking(['nature', 'food', 'landmark', 'culture'])).toEqual({ categories: ['foods', 'monuments', 'history'] });
   expect(isCulturePrefs(prefsFromRanking([]))).toBe(true);
+});
+
+test('a profile saved with the old topics keeps its ranking as place tags', () => {
+  const old = { ...DEFAULT_PROFILE_V3, topics: ['festivals', 'food', 'monuments', 'history'] };
+  expect(isProfileV3(old)).toBe(false);
+  expect(repairProfileV3(old)?.topics).toEqual(['culture', 'food', 'landmark']);
 });
 
 test('tap-in-order ranking removes a tapped topic and closes the gap', () => {
   expect(rankTap([], 'food')).toEqual(['food']);
-  expect(rankTap(['food', 'history'], 'monuments')).toEqual(['food', 'history', 'monuments']);
-  expect(rankTap(['food', 'history', 'monuments'], 'food')).toEqual(['history', 'monuments']);
+  expect(rankTap(['food', 'culture'], 'landmark')).toEqual(['food', 'culture', 'landmark']);
+  expect(rankTap(['food', 'culture', 'landmark'], 'food')).toEqual(['culture', 'landmark']);
 });
 
 test('updateProfile writes through to the stores the app already reads', () => {
-  updateProfile({ from: 'KR', stay: '3to12m', role: 'researcher', base: 'sg-orchard', topics: ['history'] });
+  updateProfile({ from: 'KR', stay: '3to12m', role: 'researcher', base: 'sg-orchard', topics: ['culture'] });
   expect(profileStore.get()).toMatchObject({ from: 'South Korea', time: '3–12 months', role: 'Researcher' });
   expect(culturePrefsStore.get().categories[0]).toBe('history');
   expect(explorePersonalStore.get().selectedAreaId).toBe('sg-orchard');
@@ -64,14 +71,15 @@ test('closest places are sorted by distance and formatted plainly', () => {
   expect(formatDistance(2450)).toBe('2.5 km');
 });
 
-test('every topic photo card exists in the repo', () => {
-  for (const id of Object.values(TOPIC_CARD)) expect(cardById(id), id).toBeDefined();
+test('every tag photo is a published place of that tag', () => {
+  for (const [tag, id] of Object.entries(TOPIC_PLACE)) expect(curatedPlace(id)?.category, id).toBe(tag);
 });
 
-test('first finds: the closest place to the base, opening in Nearby (culture cards removed 31 Oct)', () => {
-  const finds = firstFinds('sg-chinatown', ['monuments', 'food']);
-  expect(finds.map((f) => f.why)).toEqual([expect.stringMatching(/from your base$/)]);
-  expect(finds[0].href).toMatch(/^\/\?lvl=places&r=\w[\w-]*&a=\w+&p=curated/);
+test('first finds: the closest place to the base, then the closest of the #1 and #2 tags, opening on Home', () => {
+  const finds = firstFinds('sg-chinatown', ['nature', 'food']);
+  expect(finds.map((f) => f.why)).toEqual(['Your #1 · Nature', 'Closest to your base', 'Your #2 · Food']);
+  expect(new Set(finds.map((f) => f.key)).size).toBe(3);
+  for (const f of finds) expect(f.href).toMatch(/^\/\?lvl=places&r=\w[\w-]*&a=\w+&p=curated/);
   expect(firstFinds(null, [])).toEqual([]);
 });
 

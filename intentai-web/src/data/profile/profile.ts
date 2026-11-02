@@ -57,17 +57,24 @@ export const LANGUAGES = [
 ] as const;
 export type LanguageId = (typeof LANGUAGES)[number]['id'];
 
-/** The four photo topics of O7, with the Today category each one maps to. */
+/** The four kinds of place every Home place is tagged with (the place tags), with the old Today category each one maps
+ *  to (Nature has none). */
 export const TOPICS = [
+  { id: 'landmark', label: 'Landmark', category: 'monuments' },
+  { id: 'culture', label: 'Culture', category: 'history' },
   { id: 'food', label: 'Food', category: 'foods' },
-  { id: 'monuments', label: 'Monuments', category: 'monuments' },
-  { id: 'festivals', label: 'Festivals', category: 'holidays' },
-  { id: 'history', label: 'History', category: 'history' },
-] as const satisfies readonly { id: string; label: string; category: CategoryId }[];
+  { id: 'nature', label: 'Nature', category: null },
+] as const satisfies readonly { id: string; label: string; category: CategoryId | null }[];
 export type TopicId = (typeof TOPICS)[number]['id'];
+
+/** Topic ids from before the place tags, and the tag each one became. */
+const OLD_TOPICS: Record<string, TopicId> = { monuments: 'landmark', festivals: 'culture', history: 'culture' };
 
 export const FIELDS = ['from', 'stay', 'role', 'language', 'base', 'topics'] as const;
 export type FieldKey = (typeof FIELDS)[number];
+
+/** What onboarding asks: only what chooses places (which tags first, and where Nearby starts). */
+export const ONBOARDING_FIELDS = ['topics', 'base'] as const satisfies readonly FieldKey[];
 
 export const FIELD_LABELS: Record<FieldKey, string> = {
   from: 'From',
@@ -75,7 +82,7 @@ export const FIELD_LABELS: Record<FieldKey, string> = {
   role: 'Here as',
   language: 'Language',
   base: 'Home base',
-  topics: 'Topics',
+  topics: 'Place tags',
 };
 
 export const FIELD_USES: Record<FieldKey, string> = {
@@ -84,7 +91,7 @@ export const FIELD_USES: Record<FieldKey, string> = {
   role: 'Used to pick examples that suit your days',
   language: 'Used for translations on cards and in Ask',
   base: 'Used as the point Nearby searches from',
-  topics: 'Used to decide what Home shows first',
+  topics: 'Used to decide which places Home shows first',
 };
 
 /* ---------- The store ---------- */
@@ -134,10 +141,19 @@ export function isProfileV3(value: unknown): value is ProfileV3 {
   );
 }
 
+/** A profile saved before the place tags: its old topics become tags, so no answer is lost. */
+export function repairProfileV3(value: unknown): ProfileV3 | null {
+  if (!isRecord(value) || !Array.isArray(value.topics)) return null;
+  const topics = [...new Set(value.topics.map((t) => (typeof t === 'string' ? OLD_TOPICS[t] ?? t : t)))];
+  const next = { ...value, topics };
+  return isProfileV3(next) ? next : null;
+}
+
 export const profileV3Store = createPersistentStore<ProfileV3>({
   key: 'profile-v3',
   fallback: DEFAULT_PROFILE_V3,
   isValid: isProfileV3,
+  repair: repairProfileV3,
 });
 
 /** S2 preferences that only this device keeps. The app sends no notifications: these are saved choices only. */
@@ -260,7 +276,10 @@ export function mrzLine(initial: string, profile: ProfileV3, length = 44): strin
 
 /** Today's three categories from the ranking: ranked topics first, then the default order fills the rest. */
 export function prefsFromRanking(topics: readonly TopicId[]): CulturePrefs {
-  const ranked = topics.map((t) => topicOf(t).category as CategoryId);
+  const ranked = topics.flatMap((t): CategoryId[] => {
+    const c = topicOf(t).category;
+    return c ? [c] : [];
+  });
   const filled = [...ranked, ...TOPICS.map((t) => t.category as CategoryId), ...DEFAULT_PREFS.categories];
   const categories = [...new Set(filled)].slice(0, 3) as CulturePrefs['categories'];
   return { categories };

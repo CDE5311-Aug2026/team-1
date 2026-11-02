@@ -38,12 +38,35 @@ function roundedRect(w: number, h: number, r: number) {
   return new THREE.ShapeGeometry(s, 6);
 }
 
-/** Where a card sits for its offset from the middle (o = index − scroll). */
-export function cardPose(o: number) {
+/**
+ * Where a card sits for its offset from the middle (o = index − scroll). spread 1 is the fan; spread 0 is the stack the
+ * deck gathers into while the tab guide is unrolled over it (the side cards slide in behind the middle one, square on).
+ * Past the second card on each side the cards fade, so the fan ends inside the screen instead of being cut by its edge.
+ */
+export function cardPose(o: number, spread = 1) {
   const a = Math.max(-1, Math.min(1, o));
   const sign = Math.sign(o);
-  const x = Math.abs(o) <= 1 ? o * 0.86 : sign * (0.86 + (Math.abs(o) - 1) * 0.34);
-  return { x, z: -Math.abs(a) * 0.75 - Math.max(0, Math.abs(o) - 1) * 0.04, rotY: -a * 0.95, fade: Math.abs(o) > 3.5 ? Math.max(0, 4.5 - Math.abs(o)) : 1 };
+  const ao = Math.abs(o);
+  const fan = {
+    x: ao <= 1 ? o * 0.86 : sign * (0.86 + (ao - 1) * 0.27),
+    z: -Math.abs(a) * 0.75 - Math.max(0, ao - 1) * 0.04,
+    rotY: -a * 0.95,
+    fade: ao > 2.4 ? Math.max(0, (3.4 - ao) / 1) : 1,
+  };
+  if (spread >= 1) return fan;
+  const pile = {
+    x: sign * Math.min(ao, 3) * 0.05,
+    z: -Math.min(ao, 3) * 0.06 - (ao > 0 ? 0.04 : 0),
+    rotY: 0,
+    fade: ao > 2.5 ? 0 : 1,
+  };
+  const t = spread;
+  return {
+    x: pile.x + (fan.x - pile.x) * t,
+    z: pile.z + (fan.z - pile.z) * t,
+    rotY: pile.rotY + (fan.rotY - pile.rotY) * t,
+    fade: pile.fade + (fan.fade - pile.fade) * t,
+  };
 }
 
 export class CoverFlowScene {
@@ -54,6 +77,9 @@ export class CoverFlowScene {
   private count = 0;
   private draw: DrawCard = () => {};
   scroll = 0;
+  /** 1: fanned out; 0: stacked behind the middle card (see cardPose). */
+  private spread = 1;
+  private spreadTarget = 1;
   private target = 0;
   private velocity = 0;
   private dragging = false;
@@ -142,6 +168,13 @@ export class CoverFlowScene {
     this.kick();
   }
 
+  /** Fan the deck out (1) or gather it into a stack (0), animated. */
+  setSpread(v: number) {
+    this.spreadTarget = Math.max(0, Math.min(1, v));
+    if (this.reduced) this.spread = this.spreadTarget;
+    this.kick();
+  }
+
   goTo(index: number, instant = false) {
     this.target = Math.max(0, Math.min(this.count - 1, index));
     this.velocity = 0;
@@ -181,8 +214,8 @@ export class CoverFlowScene {
     return { x: ((p.x + 1) / 2) * this.width, y: ((1 - p.y) / 2) * this.height };
   }
 
-  /** Screen rectangle of a card (index), or null when it is not drawn. */
-  rectOf(index: number): { left: number; top: number; width: number; height: number } | null {
+  /** Screen rectangle of a card (index) and its four drawn corners, or null when it is not drawn. */
+  rectOf(index: number): { left: number; top: number; width: number; height: number; quad: { x: number; y: number }[] } | null {
     const s = this.slots.find((x) => x.index === index && x.group.visible);
     if (!s) return null;
     s.group.updateMatrixWorld(true);
@@ -196,7 +229,7 @@ export class CoverFlowScene {
     const ys = corners.map((c) => c.y);
     const left = Math.min(...xs);
     const top = Math.min(...ys);
-    return { left, top, width: Math.max(...xs) - left, height: Math.max(...ys) - top };
+    return { left, top, width: Math.max(...xs) - left, height: Math.max(...ys) - top, quad: corners };
   }
 
   kick() {
@@ -210,6 +243,12 @@ export class CoverFlowScene {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     let moving = this.dragging;
+    if (this.spread !== this.spreadTarget) {
+      // eased, about a third of a second, in step with the paper unrolling
+      this.spread += (this.spreadTarget - this.spread) * Math.min(1, dt * 11);
+      if (Math.abs(this.spreadTarget - this.spread) < 0.002) this.spread = this.spreadTarget;
+      else moving = true;
+    }
     if (!this.dragging) {
       // critically damped spring towards the target card
       const k = 170;
@@ -253,8 +292,8 @@ export class CoverFlowScene {
       if (s.index < 0) continue;
       if (s.texture.userData.painted !== s.index) this.paint(s);
       const o = s.index - this.scroll;
-      const p = cardPose(o);
-      s.group.visible = true;
+      const p = cardPose(o, this.spread);
+      s.group.visible = p.fade > 0.01;
       s.group.position.set(p.x, 0, p.z);
       s.group.rotation.y = p.rotY;
       const order = 100 - Math.round(Math.abs(o) * 10);

@@ -31,23 +31,16 @@ test('[Onboarding + Home + My Space] the Treasure Hunt onboarding opens Home; th
   const user = userEvent.setup();
   const first = renderApp('/');
   await user.click(screen.getByRole('button', { name: /Start the hunt/ }));
-  await user.click(screen.getByRole('button', { name: /India/ }));
-  await user.click(screen.getByRole('button', { name: /^Continue/ }));
-  await user.click(screen.getByRole('button', { name: /1–3 years/ }));
-  await user.click(screen.getByRole('button', { name: /^Continue/ }));
-  await user.click(screen.getByRole('button', { name: /Working/ }));
-  await user.click(screen.getByRole('button', { name: /^Continue/ }));
-  await user.click(screen.getByRole('button', { name: /^English/ }));
+  await user.click(screen.getByRole('button', { name: 'Nature' }));
   await user.click(screen.getByRole('button', { name: /^Continue/ }));
   await user.click(screen.getByRole('button', { name: 'Chinatown & Tanjong Pagar' }));
-  await user.click(screen.getByRole('button', { name: /^Continue/ }));
-  await user.click(screen.getByRole('button', { name: 'Food' }));
   await user.click(screen.getByRole('button', { name: /Stamp my passport/ }));
   await user.click(screen.getByRole('button', { name: /Start exploring/ }));
   expect(screen.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeInTheDocument();
   first.unmount();
   renderApp('/my-space');
-  expect(screen.getAllByText(/1–3 years/).length).toBeGreaterThan(0);
+  expect(screen.getByRole('button', { name: 'Edit Place tags' })).toHaveTextContent(/^Nature/);
+  expect(screen.getAllByText(/Chinatown/).length).toBeGreaterThan(0);
 });
 
 

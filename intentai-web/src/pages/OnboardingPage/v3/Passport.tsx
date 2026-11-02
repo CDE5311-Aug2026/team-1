@@ -1,4 +1,4 @@
-// The passport-style header of Onboarding (Figma O2–O8): six fields fill in as the questions are answered, each answered
+// The passport-style header of Onboarding (Figma O2–O8): its fields fill in as the questions are answered, each answered
 // field has an eye (closed = private), and the machine-readable line at the bottom spells the role.
 import { motion, useReducedMotionConfig } from 'motion/react';
 import { areaShortName } from '../../../data/profile/finds';
@@ -9,6 +9,8 @@ import styles from './v3.module.css';
 interface PassportProps {
   profile: ProfileV3;
   initial: string;
+  /** The fields to show (default: all of them). */
+  fields?: readonly FieldKey[];
   /** The field the current question fills (orange label and a caret). */
   active?: FieldKey;
   onToggleHidden?: (field: FieldKey) => void;
@@ -50,7 +52,7 @@ export function Seal({ date }: { date: string }) {
   );
 }
 
-export default function Passport({ profile, initial, active, onToggleHidden, stamped }: PassportProps) {
+export default function Passport({ profile, initial, fields = FIELDS, active, onToggleHidden, stamped }: PassportProps) {
   const reduce = useReducedMotionConfig();
   return (
     <section className={styles.passport} aria-label="Your passport">
@@ -59,7 +61,7 @@ export default function Passport({ profile, initial, active, onToggleHidden, sta
       </div>
       {stamped && <Seal date={stamped} />}
       <dl className={styles.fields}>
-        {FIELDS.map((field) => {
+        {fields.map((field) => {
           const value = fieldValue(profile, field, areaShortName);
           const hidden = profile.hidden.includes(field);
           const isActive = active === field;

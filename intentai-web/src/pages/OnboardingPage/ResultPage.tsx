@@ -1,5 +1,5 @@
 // Onboarding v3 O8: the passport is stamped WELCOME and a fan of "Your first finds" says why each was picked (the closest
-// place to the home base, then a card for the #1 and #2 topics). Only repo places and cards.
+// place to the home base, then the closest place for the #1 and #2 place tags). Only repo places.
 import { motion, useReducedMotionConfig } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -7,7 +7,7 @@ import AppShell from '../../components/AppShell/AppShell';
 import BlurText from '../../components/reactbits/BlurText';
 import { usePersistentStore } from '../../data/persistentStore';
 import { firstFinds } from '../../data/profile/finds';
-import { localDate, profileV3Store, toggleHidden } from '../../data/profile/profile';
+import { ONBOARDING_FIELDS, localDate, profileV3Store, toggleHidden } from '../../data/profile/profile';
 import { onboardingStore } from '../../data/stores';
 import { paths } from '../../routes';
 import Icon from './v3/icons';
@@ -23,7 +23,7 @@ export default function ResultPage() {
   const finds = firstFinds(profile.base, profile.topics);
   const fan = useRef<HTMLUListElement>(null);
 
-  // Open the fan on the middle card (the #1 topic), as in Figma.
+  // Open the fan on the middle card (the #1 tag), as in Figma.
   useEffect(() => {
     const list = fan.current;
     const middle = list?.children[1] as HTMLElement | undefined;
@@ -42,19 +42,27 @@ export default function ResultPage() {
       <div className={styles.screen}>
         <div className={styles.question}>
           <div className={styles.progressRow}>
-            <button type="button" className={styles.back} aria-label="Back" onClick={() => navigate(`${paths.welcome}?step=6`)}>
+            <button type="button" className={styles.back} aria-label="Back" onClick={() => navigate(`${paths.welcome}?step=${ONBOARDING_FIELDS.length}`)}>
               <Icon name="back" size={22} />
             </button>
             <div className={styles.progress} aria-hidden="true">
-              {[0, 1, 2, 3, 4, 5].map((i) => (
-                <span key={i} className={styles.segment}>
+              {ONBOARDING_FIELDS.map((f) => (
+                <span key={f} className={styles.segment}>
                   <span className={styles.segmentFill} style={{ width: '100%' }} />
                 </span>
               ))}
             </div>
-            <span className={styles.count}>6/6</span>
+            <span className={styles.count}>
+              {ONBOARDING_FIELDS.length}/{ONBOARDING_FIELDS.length}
+            </span>
           </div>
-          <Passport profile={profile} initial={initial} onToggleHidden={toggleHidden} stamped={profile.stampedOn ?? localDate()} />
+          <Passport
+            profile={profile}
+            initial={initial}
+            fields={ONBOARDING_FIELDS}
+            onToggleHidden={toggleHidden}
+            stamped={profile.stampedOn ?? localDate()}
+          />
           <h1 className={styles.ready}>
             <BlurText as="span" text="Your passport is ready" trigger="load" delay={60} className={styles.readyLine} />
           </h1>
