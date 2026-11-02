@@ -60,7 +60,7 @@ test('S1: six tiles of what the app knows; From starts hidden and the eye shows 
   expect(screen.getByRole('button', { name: 'Edit In Singapore' })).toHaveTextContent('< 3 months');
   expect(screen.getByRole('button', { name: 'Edit Home base' })).toHaveTextContent('Chinatown');
   expect(screen.getByRole('button', { name: 'Edit Place tags' })).toHaveTextContent('Food › Culture › Landmark › Nature');
-  expect(screen.getByText(/1 detail private/)).toBeInTheDocument();
+  expect(screen.getByText(/on this phone · 1 private/)).toBeInTheDocument();
 
   await userEvent.click(screen.getByRole('button', { name: 'Keep From private' }));
   expect(screen.getByRole('button', { name: 'Edit From' })).toHaveTextContent('China');
@@ -110,12 +110,12 @@ test('switches: Flag occasions is the shared setting; Answer as a local is gone 
   expect(settingsStore.get().occasions).toBe(true);
 });
 
-test('links: Settings, Privacy & data, Redo onboarding, Help', async () => {
+test('links: Privacy & data and Redo onboarding; Settings and Help live in the top bar', async () => {
   renderAt(paths.mySpace);
-  await userEvent.click(screen.getByRole('button', { name: /Help & feedback/ }));
-  const help = screen.getByRole('dialog', { name: 'Help Center' });
-  expect(within(help).getByRole('tab', { name: /Feedback/ })).toHaveAttribute('aria-selected', 'true');
-  await userEvent.click(within(help).getByRole('button', { name: 'Close Help Center' }));
+  expect(screen.queryByRole('button', { name: /Help & feedback/ })).toBeNull();
+  await userEvent.click(screen.getByRole('button', { name: 'Help Center' }));
+  expect(screen.getByRole('dialog', { name: 'Help Center' })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Close Help Center' }));
   await userEvent.click(screen.getByRole('link', { name: /Privacy & data/ }));
   expect(currentPath()).toBe(paths.mySpacePrivacy);
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));

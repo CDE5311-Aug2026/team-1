@@ -175,7 +175,7 @@ test('S1: the top bar names the page (Passport) beside your avatar; the privacy 
   const h1 = screen.getByRole('heading', { level: 1, name: 'Passport' });
   expect(h1).toBeVisible();
   const card = screen.getByRole('link', { name: /Privacy & data/ });
-  expect(card).toHaveTextContent(/on this phone only/);
+  expect(card).toHaveTextContent(/on this phone/);
   expect(card.querySelector('[aria-hidden="true"] > span')).not.toBeNull();
   await userEvent.click(card);
   expect(currentPath()).toBe(paths.mySpacePrivacy);

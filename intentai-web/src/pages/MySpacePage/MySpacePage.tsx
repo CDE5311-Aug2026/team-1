@@ -1,10 +1,18 @@
-// My Space v3 (Figma S1): the holder card, what the app knows as six visual tiles (tap to edit, eye = private), the two
-// switches, and links to Privacy & data, Settings, Redo onboarding and Help.
-import { motion, useReducedMotionConfig } from "motion/react";
-import { openHelp } from "../../components/HelpCenter/helpStore";
-import { useState, type ReactNode } from "react";
+// The Passport tab on Home's kraft paper: the holder's data page (tilts like a card, the rank pressed on as a stamp),
+// what the app knows as six paper slips (tap to edit, eye = private), and a leather ledger with the two switches,
+// Privacy & data and Redo onboarding. Settings and Help live in the top bar.
+import {
+  motion,
+  useMotionValue,
+  useReducedMotionConfig,
+  useSpring,
+  useTransform,
+} from "motion/react";
+import { useState, type PointerEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import groundUrl from "../../assets/nearby/sg-ground.webp";
+import logo from "../../assets/brand/findsg-logo.png";
+import logoInk from "../../assets/brand/findsg-logo-black.png";
 import AppShell from "../../components/AppShell/AppShell";
 import { buildStamps, openedCards, rankOf } from "../../data/moments/moments";
 import { usePersistentStore } from "../../data/persistentStore";
@@ -18,7 +26,6 @@ import {
 import {
   FIELDS,
   FIELD_LABELS,
-  FIELD_USES,
   STAYS,
   countryOf,
   fieldValue,
@@ -48,6 +55,7 @@ import { setMemoryEnabled } from "../../data/memory";
 import { Switch } from "./v3/Parts";
 import StorageBar from "./v3/StorageBar";
 import styles from "./v3/MySpace.module.css";
+import book from "./v3/Booklet.module.css";
 import PageBar from "../../components/PageBar/PageBar";
 
 function Holder({ profile }: { profile: ProfileV3 }) {
@@ -69,57 +77,102 @@ function Holder({ profile }: { profile: ProfileV3 }) {
     { label: "Cards", value: cards },
     { label: "Tips", value: realTips },
   ];
+  // The page tilts toward the finger and the foil follows it, like turning a real passport in the light.
+  const px = useMotionValue(0.5);
+  const py = useMotionValue(0.5);
+  const spring = { stiffness: 180, damping: 18 };
+  const rotateY = useSpring(useTransform(px, [0, 1], [-9, 9]), spring);
+  const rotateX = useSpring(useTransform(py, [0, 1], [7, -7]), spring);
+  const foil = useTransform(px, [0, 1], ["0%", "100%"]);
+  const tilt = (e: PointerEvent<HTMLElement>) => {
+    if (reduce) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    px.set((e.clientX - r.left) / r.width);
+    py.set((e.clientY - r.top) / r.height);
+  };
+  const rest = () => {
+    px.set(0.5);
+    py.set(0.5);
+  };
   return (
-    <section className={styles.holder} aria-label="Passport holder">
-      <p className={styles.holderHead}>
-        <span>HOLDER</span>
-        <span className={styles.holderRule} aria-hidden="true" />
-        <span>SGP</span>
-      </p>
-      <div className={styles.holderBody}>
-        <div className={styles.holderPhoto} aria-hidden="true">
-          <span>{initial}</span>
-        </div>
-        <div className={styles.holderMain}>
-          <div className={styles.holderName}>
-            <span className={styles.holderInitial}>{initial}</span>
-            <Link to={paths.moments} className={styles.rank}>
-              <Icon name="star" size={13} /> {rank.step.label}
-            </Link>
+    <motion.div
+      className={book.stage}
+      initial={reduce ? false : { y: 28, opacity: 0, scale: 0.94 }}
+      animate={{ y: 0, opacity: 1, scale: 1 }}
+      transition={{ type: "spring", stiffness: 170, damping: 18 }}
+    >
+      <motion.section
+        className={book.bio}
+        aria-label="Passport holder"
+        style={{ rotateX, rotateY, "--foil": foil } as never}
+        onPointerMove={tilt}
+        onPointerLeave={rest}
+        onPointerCancel={rest}
+        onPointerUp={rest}
+      >
+        <span className={book.foil} aria-hidden="true" />
+        <p className={book.bioHead}>
+          <img src={logo} alt="" width={18} height={18} />
+          <span>FindSG Passport</span>
+          <span className={book.bioRule} aria-hidden="true" />
+          <span className={book.bioCode}>SGP</span>
+        </p>
+        <div className={book.bioBody}>
+          <div className={book.photo} aria-hidden="true">
+            <img className={book.watermark} src={logoInk} alt="" />
+            <span>{initial}</span>
           </div>
-          <dl className={styles.stats}>
-            {stats.map((s) => (
-              <div key={s.label} className={styles.stat}>
-                <dt>{s.label}</dt>
-                <dd>
-                  <motion.span
-                    key={s.value}
-                    style={{ display: "inline-block" }}
-                    initial={reduce ? false : { scale: 0.4, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={
-                      reduce
-                        ? { duration: 0 }
-                        : {
-                            type: "spring",
-                            stiffness: 420,
-                            damping: 14,
-                            delay: 0.15,
-                          }
-                    }
-                  >
-                    {s.value}
-                  </motion.span>
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <div className={book.bioMain}>
+            <p className={book.field}>
+              <span>Holder</span>
+              <strong>{initial}</strong>
+            </p>
+            <dl className={book.stats}>
+              {stats.map((s) => (
+                <div key={s.label} className={book.stat}>
+                  <dt>{s.label}</dt>
+                  <dd>
+                    <motion.span
+                      key={s.value}
+                      style={{ display: "inline-block" }}
+                      initial={reduce ? false : { scale: 0.4, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={
+                        reduce
+                          ? { duration: 0 }
+                          : { type: "spring", stiffness: 420, damping: 14, delay: 0.35 }
+                      }
+                    >
+                      {s.value}
+                    </motion.span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          {/* The rank, pressed on like the onboarding WELCOME seal. Opens Moments, where it is earned. */}
+          <motion.div
+            className={book.stampWrap}
+            initial={reduce ? false : { scale: 2.4, opacity: 0, rotate: -40 }}
+            animate={{ scale: 1, opacity: 1, rotate: -12 }}
+            transition={
+              reduce
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 380, damping: 16, delay: 0.55 }
+            }
+          >
+            <Link to={paths.moments} className={book.stamp}>
+              <Icon name="star" size={11} className={book.stampStar} />
+              <span>{rank.step.label}</span>
+            </Link>
+          </motion.div>
         </div>
-      </div>
-      <p className={styles.holderMrz} aria-hidden="true">
-        {mrzLine(initial, profile)}
-      </p>
-    </section>
+        <p className={book.mrz} aria-hidden="true">
+          <span>{mrzLine(initial, profile)}</span>
+          <span>{`${String(stamps).padStart(3, "0")}SGP${String(cards).padStart(4, "0")}<<${String(realTips).padStart(3, "0")}<<<<<<<<<<<<<<<<<<<<<<<<<<`}</span>
+        </p>
+      </motion.section>
+    </motion.div>
   );
 }
 
@@ -284,10 +337,12 @@ const ROLE_ICON: Record<string, string> = {
 
 function KnowsTile({
   field,
+  index,
   profile,
   onEdit,
 }: {
   field: FieldKey;
+  index: number;
   profile: ProfileV3;
   onEdit: () => void;
 }) {
@@ -296,76 +351,51 @@ function KnowsTile({
   const hidden = profile.hidden.includes(field);
   return (
     <motion.li
-      className={styles.knows}
-      whileTap={reduce ? undefined : { scale: 0.98 }}
+      className={book.slip}
+      initial={reduce ? false : { opacity: 0, y: 18, rotate: index % 2 ? 2 : -2 }}
+      animate={{ opacity: 1, y: 0, rotate: 0 }}
+      transition={{ type: "spring", stiffness: 260, damping: 22, delay: 0.15 + index * 0.05 }}
+      whileTap={reduce ? undefined : { scale: 0.97 }}
     >
-      <div className={styles.knowsTop}>
-        <span className={styles.knowsLabel}>{FIELD_LABELS[field]}</span>
+      <div className={book.slipTop}>
+        <span className={book.slipLabel}>{FIELD_LABELS[field]}</span>
         <EyeButton
           field={field}
           hidden={hidden}
           onToggle={() => toggleHidden(field)}
         />
       </div>
-      <span className={styles.visual} aria-hidden="true">
+      <span className={book.slipVisual} aria-hidden="true">
         <Visual field={field} profile={profile} />
       </span>
       <button
         type="button"
-        className={styles.knowsButton}
+        className={book.slipButton}
         onClick={onEdit}
         aria-label={`Edit ${FIELD_LABELS[field]}`}
       >
-        <span className={styles.knowsValue}>
+        <span className={value === null ? `${book.slipValue} ${book.slipEmpty}` : book.slipValue}>
           {value === null ? (
             "Not set"
           ) : hidden ? (
             <>
-              <Icon name="lock" size={15} /> Hidden
+              <Icon name="lock" size={14} /> Hidden
             </>
           ) : (
             value
           )}
         </span>
       </button>
-      <span className={styles.knowsUse}>{FIELD_USES[field]}</span>
     </motion.li>
   );
 }
 
-function Row({
-  icon,
-  title,
-  sub,
-  to,
-  onClick,
-}: {
-  icon: IconName;
-  title: string;
-  sub?: string;
-  to?: string;
-  onClick?: () => void;
-}) {
-  const body = (
-    <>
-      <span className={styles.rowIcon}>
-        <Icon name={icon} size={18} />
-      </span>
-      <span className={styles.rowText}>
-        <span className={styles.rowTitle}>{title}</span>
-        {sub && <span className={styles.rowSub}>{sub}</span>}
-      </span>
-      <Icon name="chevron" size={18} className={styles.rowChevron} />
-    </>
-  );
-  return to ? (
-    <Link to={to} className={styles.row}>
-      {body}
-    </Link>
-  ) : (
-    <button type="button" className={styles.row} onClick={onClick}>
-      {body}
-    </button>
+/** The brass-ringed icon at the start of a ledger line. */
+function Bead({ icon }: { icon: IconName }) {
+  return (
+    <span className={book.bead}>
+      <Icon name={icon} size={17} />
+    </span>
   );
 }
 
@@ -380,38 +410,39 @@ export default function MySpacePage() {
   ).length;
 
   return (
-    <AppShell background="#edebe5">
-      <div className={styles.screen}>
-        <PageBar title="Passport" tone="light" />
+    <AppShell background="#c8a87a">
+      <span
+        className={book.backdrop}
+        style={{ backgroundImage: `url(${import.meta.env.BASE_URL}home/paper.webp)` }}
+        aria-hidden="true"
+      />
+      <div className={`${styles.screen} ${book.screen}`}>
+        <PageBar title="Passport" tone="light" className={book.bar} />
 
         <Holder profile={profile} />
 
-        <div className={styles.sectionHead}>
-          <h2 className={styles.kicker}>What the app knows</h2>
-          <span className={styles.kickerAside}>
-            <Icon name="eyeClosed" size={15} /> Closed eye = private
-          </span>
-        </div>
-        <ul className={styles.knowsGrid}>
-          {FIELDS.map((field) => (
+        <h2 className={book.heading}>
+          <span>On file</span>
+          <span className={book.headingRule} aria-hidden="true" />
+        </h2>
+        <ul className={book.slips}>
+          {FIELDS.map((field, i) => (
             <KnowsTile
               key={field}
               field={field}
+              index={i}
               profile={profile}
               onEdit={() => setEditing(field)}
             />
           ))}
         </ul>
 
-        <h2 className={styles.kicker}>Switches</h2>
-        <div className={styles.card}>
-          <div className={styles.switchRow}>
-            <span className={styles.rowIcon}>
-              <Icon name="flag" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Flag occasions</span>
-              <span className={styles.rowSub} id="hint-occasions">
+        <div className={book.ledger}>
+          <div className={book.line}>
+            <Bead icon="flag" />
+            <span className={book.lineText}>
+              <span className={book.lineTitle}>Flag occasions</span>
+              <span className={book.lineSub} id="hint-occasions">
                 Reads calendar titles only
               </span>
             </span>
@@ -422,20 +453,18 @@ export default function MySpacePage() {
               onChange={(on) => setSettings((s) => ({ ...s, occasions: on }))}
             />
           </div>
-          <div className={styles.switchRow}>
-            <span className={styles.rowIcon}>
-              <Icon name="book" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Memory</span>
-              <span className={styles.rowSub} id="hint-memory-row">
+          <div className={book.line}>
+            <Bead icon="book" />
+            <span className={book.lineText}>
+              <span className={book.lineTitle}>Memory</span>
+              <span className={book.lineSub} id="hint-memory-row">
                 {memory.state.enabled
                   ? `${memory.items.length} ${memory.items.length === 1 ? "thing" : "things"} Ask remembers`
                   : "Off"}{" "}
                 ·{" "}
                 <Link
                   to={`${paths.mySpaceSettings}?section=memory`}
-                  className={styles.inlineLink}
+                  className={book.inlineLink}
                 >
                   Manage
                 </Link>
@@ -448,39 +477,32 @@ export default function MySpacePage() {
               onChange={setMemoryEnabled}
             />
           </div>
-        </div>
-
-        {/* PR #5's privacy summary: real size on this phone, private details, and the storage bar by area. */}
-        <Link to={paths.mySpacePrivacy} className={styles.privacyCard}>
-          <span className={styles.row}>
-            <span className={styles.rowIcon}>
-              <Icon name="shield" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Privacy & data</span>
-              <span className={styles.rowSub}>
-                {`${formatBytes(totalBytes())} · on this phone only${privateCount ? ` · ${privateCount} detail${privateCount === 1 ? "" : "s"} private` : ""}`}
+          {/* PR #5's privacy summary: real size on this phone, private details, and the storage bar by area. */}
+          <Link to={paths.mySpacePrivacy} className={book.privacy}>
+            <span className={book.line}>
+              <Bead icon="shield" />
+              <span className={book.lineText}>
+                <span className={book.lineTitle}>Privacy & data</span>
+                <span className={book.lineSub}>
+                  {`${formatBytes(totalBytes())} on this phone${privateCount ? ` · ${privateCount} private` : ""}`}
+                </span>
               </span>
+              <Icon name="chevron" size={18} className={book.chevron} />
             </span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </span>
-          <StorageBar />
-        </Link>
-
-        <nav className={styles.card} aria-label="More">
-          <Row icon="gear" title="Settings" to={paths.mySpaceSettings} />
-          <Row
-            icon="redo"
-            title="Redo onboarding"
-            sub="6 questions"
+            <StorageBar />
+          </Link>
+          <button
+            type="button"
+            className={book.line}
             onClick={() => navigate(`${paths.welcome}?step=1`)}
-          />
-          <Row
-            icon="help"
-            title="Help & feedback"
-            onClick={() => openHelp("feedback")}
-          />
-        </nav>
+          >
+            <Bead icon="redo" />
+            <span className={book.lineText}>
+              <span className={book.lineTitle}>Redo onboarding</span>
+            </span>
+            <Icon name="chevron" size={18} className={book.chevron} />
+          </button>
+        </div>
       </div>
       {editing && (
         <FieldEditor

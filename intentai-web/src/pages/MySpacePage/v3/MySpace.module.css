@@ -390,7 +390,7 @@
   left: 0;
   right: 0;
   top: 50%;
-  border-top: 2px solid #e6e1d9;
+  border-top: 2px solid rgba(120, 78, 30, 0.2);
 }
 
 .miniStop,
@@ -399,7 +399,7 @@
   width: 0.625rem;
   height: 0.625rem;
   border-radius: 50%;
-  background: #d9d3c9;
+  background: #cdb894;
 }
 
 .miniStopOn {
@@ -435,7 +435,7 @@
 .roleLines span {
   height: 0.375rem;
   border-radius: 3px;
-  background: #ece8e1;
+  background: rgba(120, 78, 30, 0.16);
 }
 
 .roleLines span:nth-child(2) {
