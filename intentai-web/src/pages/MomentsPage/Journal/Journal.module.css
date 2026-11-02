@@ -242,6 +242,15 @@
   box-shadow: inset 0 0 0 3px rgba(20, 12, 6, 0.35);
   filter: sepia(0.22) saturate(0.92);
 }
+.credit {
+  padding: 4px 8px 5px;
+  font: 400 0.625rem/1.3 var(--font-body, system-ui);
+  color: rgba(242, 232, 213, 0.6);
+  background: #1d1711;
+}
+.credit a {
+  color: inherit;
+}
 .cards {
   list-style: none;
   margin: 0;

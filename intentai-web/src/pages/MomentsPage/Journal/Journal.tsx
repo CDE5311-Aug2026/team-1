@@ -27,7 +27,7 @@ import { storyPlace } from "../../../data/stories/places";
 import { useExplorePersonal } from "../../../features/nearby/actions";
 import { curatedPlace } from "../../../features/nearby/catalogue";
 import type { CuratedPlace } from "../../../features/nearby/domain";
-import CityMap from "../../../features/nearby/map/CityMap";
+import CityMap, { MAP_ATTRIBUTION, OneMapCredit } from "../../../features/nearby/map/CityMap";
 import { localToday } from "../../../features/nearby/personal";
 import { showToast } from "../../../hooks/useToast";
 import groundUrl from "../../../assets/nearby/sg-ground.webp";
@@ -681,7 +681,8 @@ function Day({
               label={`Map of ${weekday} ${num} ${month}: ${located.length} ${located.length === 1 ? "place" : "places"} in the order you went`}
               height={200}
               // the day's places fit left of the zoom buttons (a pin under them is hidden) and above the credit
-              insets={{ top: 12, left: 44, right: 56, bottom: 36 }}
+              insets={{ top: 8, left: 76, right: 44, bottom: 44 }}
+              attribution="hidden"
               pins={located.map(({ e, n }) => ({
                 key: keyOf(e),
                 name: `${n}. ${e.title}`,
@@ -696,6 +697,10 @@ function Day({
               onSelect={(key) => choose(key, "map")}
               focus={focus}
             />
+            {/* the map's credits, under it (on it they would sit over the day's places) */}
+            <figcaption className={styles.credit}>
+              {MAP_ATTRIBUTION} · <OneMapCredit />
+            </figcaption>
           </figure>
         )}
         <ol className={styles.cards}>
