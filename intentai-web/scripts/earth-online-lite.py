@@ -631,11 +631,13 @@ window.SGLite = {
 // drive and circuit modules. Once the city round the circuit is built, the Marina Bay race starts on the grid. Out:
 // {type:'f1', race, lap, laps, pos, of} whenever one of them changes, {type:'f1-finish', pos, of, time, best} at the flag,
 // {type:'f1-exit'} if the drive closes itself, {type:'f1-error', why}. In: {source:'intentai', type:'f1-again'} starts over.
-// The drive's own ways out (exit, keep driving) are hidden: leaving belongs to the embedding page.
+// "Keep driving" is hidden (the race is the point); EXIT ends the drive, and the page reports it so the embedder closes.
 if (LITE.q.get('f1') === 'race'){
   const st = document.createElement('style');
-  // a phone keeps the touch LOOK button, so the top row loses its look-back twin, the camera name and the keyboard hints
-  st.textContent = '#labels, #f1ExitB, #f1LbB, #f1CamN, .f1res [data-a="exit"], .f1res [data-a="drive"] { display: none !important; }';
+  // a phone keeps the touch LOOK button, so the top row loses its look-back twin, the camera name and the keyboard hints.
+  // EXIT stays: leaving the race is always one tap (the embedding page closes when the drive does).
+  st.textContent = '#labels, #f1LbB, #f1CamN, .f1res [data-a="drive"] { display: none !important; }'
+    + '@media (max-width: 480px){ #f1CamB{ display: none !important; } }';   // a phone row fits three: sound, reset, exit
   document.head.appendChild(st);
   const laps = Math.max(1, Math.min(3, +LITE.q.get('laps') || 1));
   let last = '', done = false, poll = 0;
