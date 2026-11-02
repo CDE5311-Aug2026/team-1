@@ -1,4 +1,4 @@
-// Hunt (2 Nov 2026): the night race at the Esplanade stop is the EARTH ONLINE F1 drive on the real Marina Bay Street Circuit
+// Hunt (2 Nov 2026): the night race, open on any hunt puzzle, is the EARTH ONLINE F1 drive on the real Marina Bay Street Circuit
 // (public/earth-online/sg/f1.html, built by scripts/sync-earth-online.mjs), opened over the stop as one full phone screen.
 // The page starts a one-lap race and reports it (earth-online-lite.py: the race bridge); the flag hands the stop its clues.
 import React, {useEffect, useRef, useState} from 'react';
@@ -8,7 +8,9 @@ import './race-sheet.css';
 
 const SRC = `${import.meta.env.BASE_URL}earth-online/sg/f1.html#at=1.2905,103.8575&f1=race&laps=1&pin=0&cards=0`;
 
-export default function RaceSheet({reducedMotion = false, onWin, onClose}) {
+/** `title` names the puzzle the race stands in for; `gift` says a win also hands over a Boost Card. */
+export default function RaceSheet({title, gift = true, reducedMotion = false, onWin, onClose}) {
+  const [boost] = useState(gift); // as it was when the race opened (the win itself hands the card over)
   const frame = useRef(null), ref = useRef(null), won = useRef(false);
   const calls = useRef({onWin, onClose}); calls.current = {onWin, onClose};
   const [race, setRace] = useState(null), [finish, setFinish] = useState(null), [error, setError] = useState(false);
@@ -48,13 +50,13 @@ export default function RaceSheet({reducedMotion = false, onWin, onClose}) {
       {!race && <div className="race-sheet-brief" role="status">
         <i className="race-sheet-lights" aria-hidden="true"><b/><b/><b/><b/><b/></i>
         <h3>{error ? 'The circuit did not load' : 'Lights out soon'}</h3>
-        <p>{error ? 'Close the race and fit the postcard by hand instead.' : 'One lap of the street circuit against ten cars. Cross the line and the three clue cards are yours, with a Boost Card for the next stop.'}</p>
+        <p>{error ? 'Close the race and solve the puzzle by hand instead.' : `One lap of the street circuit against ten cars. Cross the line and this stop's clues are yours${boost ? ', with a Boost Card for a later puzzle' : ''}.`}</p>
         {!error && <ul><li><b>Steer</b>drag the pad</li><li><b>Throttle</b>and <b>Brake</b>right thumb</li></ul>}
       </div>}
       {finish && <div className="race-sheet-finish" role="status">
         <span>Chequered flag · P{finish.pos} of {finish.of} · {time(finish.time)}</span>
         <h3>Clues unlocked</h3>
-        <p>Water, the donor and the fountain: the postcard is complete. A Boost Card is in your clue bag.</p>
+        <p>{title ? `${title}: solved.` : 'This puzzle is solved.'}{boost ? ' A Boost Card is in your clue bag.' : ''}</p>
         <div><button className="race-sheet-go" onClick={onClose}><b>Take the clues</b><i aria-hidden="true">→</i></button><button className="race-sheet-again" onClick={again}>Race again</button></div>
       </div>}
     </div>

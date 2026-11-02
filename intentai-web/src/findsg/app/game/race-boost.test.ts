@@ -4,7 +4,7 @@ import {ONSITE_ROUTES} from './onsite-content.js';
 // @ts-expect-error the game modules are untyped JS
 import {beginOnsite, blankOnsite, checkInOnsite, observeOnsite, onsiteStatus, operateOnsite} from './onsite-state.js';
 // @ts-expect-error the game modules are untyped JS
-import {RACE_STOPS, solveActions} from './race-boost.js';
+import {canRace, solveActions} from './race-boost.js';
 
 // The race win and the Boost Card solve a puzzle by replaying the moves a player would make. Every stop on every
 // route must come out solved, or a later stop could be left stuck after a race.
@@ -26,8 +26,8 @@ test('the replayed moves solve every stop on every route', () => {
   }
 });
 
-test('the race stands in for the waterfront stop on the Civic route only', () => {
-  const ids = Object.values(ONSITE_ROUTES as Record<string, {stops: {id: string}[]}>).flatMap(route => route.stops.map(stop => stop.id));
-  for (const id of Object.keys(RACE_STOPS)) expect(ids, id).toContain(id);
-  expect(Object.keys(RACE_STOPS)).toEqual(['civic-f1-07']);
+test('every stop on every hunt can be raced for', () => {
+  for (const route of Object.values(ONSITE_ROUTES as Record<string, {stops: any[]}>))
+    for (const stop of route.stops) expect(canRace(stop), stop.id).toBe(true);
+  expect(canRace({quest: {type: 'unknown'}})).toBe(false);
 });

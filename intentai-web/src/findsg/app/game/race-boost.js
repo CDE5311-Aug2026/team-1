@@ -1,11 +1,12 @@
-/* Hunt (2 Nov 2026): the Marina Bay night race. At the waterfront stop of the Civic route the race can stand in for
- * the puzzle: winning it hands over that stop's clue cards and a Boost Card, which solves one later puzzle for you.
+/* Hunt (2 Nov 2026): the Marina Bay night race. On every hunt the race can stand in for any puzzle (owner: "every hunt
+ * can run the race as a boost"): winning it hands over that stop's clue cards and, when none is in hand, a Boost Card,
+ * which solves one later puzzle for you without racing.
  * Both go through the ordinary puzzle actions (quest-logic has no trusted "solved" action), so saved progress replays
  * exactly as if the player had done it by hand. The card itself lives outside the replayed state, per route and mode. */
 import {questTarget} from './quest-logic.js';
 
-/** Stops where the race can stand in for the puzzle: the Esplanade waterfront faces the Marina Bay street circuit. */
-export const RACE_STOPS = Object.freeze({'civic-f1-07': true});
+/** Whether the race can stand in for this stop's puzzle: any puzzle a win can solve by replaying the player's moves. */
+export const canRace = stop => solveActions(stop?.quest).length > 0;
 
 const STACK = {'square-base': 0, arcade: 0, 'octagon-body': 1, roof: 2};
 const key = (routeId, mode) => `findsg-boost:${routeId}:${mode}`;

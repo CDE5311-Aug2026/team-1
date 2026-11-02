@@ -13,7 +13,7 @@ import {readOnsite,saveOnsite,emitOnsiteEvent} from './onsite-storage.js';
 import './story-game.css';
 import './onsite-game.css';
 import OnsiteCompact from './OnsiteCompact.jsx';
-import {RACE_STOPS,readBoost,writeBoost,solveActions} from './race-boost.js';
+import {canRace,readBoost,writeBoost,solveActions} from './race-boost.js';
 const QuestViewport=lazy(()=>import('./QuestViewport.jsx'));
 const RaceSheet=lazy(()=>import('./RaceSheet.jsx'));
 const KIND_NAMES={'rotate-find':'Rotate and find','sequence':'Tap in order','align':'Turn to align','slide':'Slide to reveal','assemble':'Piece it together'};
@@ -60,12 +60,12 @@ function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
  const begin=()=>commit(beginOnsite(current.current),'story-started');
  // Hunt: the night race and the Boost Card solve a stop through the same actions a player would take by hand
  const solveHere=useCallback(()=>{let q=current.current;for(const a of solveActions(stop.quest)){const r=operateOnsite(q,stop.id,a,config.stops);if(!r.ok)break;q=r.state;}commit(q,'puzzle-action');setUiFeedback('');},[commit,config.stops,stop]);
- const raceWon=useCallback(()=>{solveHere();if(readBoost(routeId,mode)==='none'){writeBoost(routeId,mode,'ready');setBoost('ready');}},[solveHere,routeId,mode]);
+ const raceWon=useCallback(()=>{solveHere();if(readBoost(routeId,mode)!=='ready'){writeBoost(routeId,mode,'ready');setBoost('ready');}},[solveHere,routeId,mode]);
  const useBoostCard=()=>{solveHere();writeBoost(routeId,mode,'used');setBoost('used');};
  const puzzleOpen=!intro&&!ending&&phase==='puzzle';
- const race=puzzleOpen&&RACE_STOPS[stop.id]?()=>setRaceOpen(true):null;
- const boostHere=puzzleOpen&&boost==='ready'&&!RACE_STOPS[stop.id]?useBoostCard:null;
- const raceLayer=raceOpen&&<Suspense fallback={null}><RaceSheet reducedMotion={reducedMotion} onWin={raceWon} onClose={()=>setRaceOpen(false)}/></Suspense>;
+ const race=puzzleOpen&&canRace(stop)?()=>setRaceOpen(true):null;
+ const boostHere=puzzleOpen&&boost==='ready'?useBoostCard:null;
+ const raceLayer=raceOpen&&<Suspense fallback={null}><RaceSheet title={stop.quest.title} gift={boost!=='ready'} reducedMotion={reducedMotion} onWin={raceWon} onClose={()=>setRaceOpen(false)}/></Suspense>;
  function changeMode(next){commit(readOnsite(routeId,config.stops,next),'mode-changed');}
  // Hunt: remote play has no street to stand on, so the phone page starts it with one tap (check-in and observation together)
  function arrive(nextMode,andObserve=false){let q=nextMode===current.current.mode?current.current:readOnsite(routeId,config.stops,nextMode);q=beginOnsite(q);const id=config.stops[q.stopIndex].id,at=new Date().toISOString();q=checkInOnsite(q,id,config.stops,{mode:nextMode,confirmedAt:at});if(andObserve)q=observeOnsite(q,id,config.stops,{confirmedAt:at});commit(q,andObserve?'observation-confirmed':'checkin');}

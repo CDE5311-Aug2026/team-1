@@ -78,13 +78,13 @@ export default function OnsiteCompact(p) {
         <p className="og-fine-print">{manual ? 'Look from public space only. Do not touch the building.' : 'Remote play is not a site visit.'}</p></>;
     } else {
       /* the caption on the model carries the instruction and every answer, so the card only names the task */
-      /* the waterfront faces the street circuit: a night race can win this stop's clues, and a Boost Card for later */
-      card = race
-        ? <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} lead="Win the night race and the clue cards are yours, with a Boost Card for the next puzzle."
-          actions={<Primary onClick={race}>Race for the clues</Primary>} more="Hint" onMore={note}/>
-        : boostHere
-          ? <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} lead="Your race win clears this puzzle in one go."
-            actions={<><Primary onClick={boostHere}>Use the Boost Card</Primary></>} more="Hint" onMore={note}/>
+      /* on every hunt a night race can win this stop's clues (and a Boost Card); a Boost Card in hand clears it at once */
+      card = boostHere
+        ? <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} lead="Your Boost Card clears this puzzle in one go."
+          actions={<><Primary onClick={boostHere}>Use the Boost Card</Primary>{race && <Quiet onClick={race}>Race</Quiet>}</>} more="Hint" onMore={note}/>
+        : race
+          ? <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} lead="Win the night race for these clues and a Boost Card."
+            actions={<Primary onClick={race}>Race for the clues</Primary>} more="Hint" onMore={note}/>
           : <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} more="Hint" onMore={note}/>;
       body = <><h2>{stop.quest.title}</h2><p className="ogc-note-lead">{stop.quest.instruction}</p>
         <Hint stop={stop} sourceName={sourceName}/>
