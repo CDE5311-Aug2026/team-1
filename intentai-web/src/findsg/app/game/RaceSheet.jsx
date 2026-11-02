@@ -51,7 +51,7 @@ export default function RaceSheet({title, gift = true, reducedMotion = false, on
         <i className="race-sheet-lights" aria-hidden="true"><b/><b/><b/><b/><b/></i>
         <h3>{error ? 'The circuit did not load' : 'Lights out soon'}</h3>
         <p>{error ? 'Close the race and solve the puzzle by hand instead.' : `One lap of the street circuit against ten cars. Cross the line and this stop's clues are yours${boost ? ', with a Boost Card for a later puzzle' : ''}.`}</p>
-        {!error && <ul><li><b>Steer</b>drag the pad</li><li><b>Throttle</b>and <b>Brake</b>right thumb</li></ul>}
+        {!error && <ul><li><b>Steer</b>drag the pad</li><li><b>Pedals</b>slide one thumb; lower is harder</li></ul>}
       </div>}
       {finish && <div className="race-sheet-finish" role="status">
         <span>Chequered flag · P{finish.pos} of {finish.of} · {time(finish.time)}</span>

@@ -49179,8 +49179,8 @@ function brakeRamp(C, p, h){ const b = C.bf || 0, d = p - b; C.bf = b + (d > 6*h
 // reverse: hold the brake at a standstill (road cars: release after stopping, then press again); moving backwards the throttle is a
 // brake until the car stands, then it selects drive
 function revLogic(C, I, su, u, h, rc){
-  if (rc){ if (I.brk > 0.5 && su > 0.6 && !C.rev) C.brkHold = true; else if (I.brk < 0.1) C.brkHold = false; }
-  if (!C.rev && !(rc && C.brkHold) && I.brk > 0.5 && su < 0.5 && I.thr < 0.1){ C.revT = (C.revT || 0) + h; if (C.revT > 0.35) C.rev = true; } else if (!C.rev) C.revT = 0;
+  if (I.brk > 0.5 && su > 0.6 && !C.rev) C.brkHold = true; else if (I.brk < 0.1) C.brkHold = false;   // [intentai/f1touch] every car
+  if (!C.rev && !C.brkHold && I.brk > 0.5 && su < 0.5 && I.thr < 0.1){ C.revT = (C.revT || 0) + h; if (C.revT > 0.35) C.rev = true; } else if (!C.rev) C.revT = 0;
   if (C.rev && ((I.thr > 0.1 && u > -0.4) || u > 1)){ C.rev = false; C.revT = 0; }
 }
 // per-axle brakes with ABS: demand (balance) vs what each axle's tyres hold beside their side force; returns the braking force
@@ -50839,13 +50839,21 @@ const AI = [];
 // [lm24/drive] progressive keyboard pedals: a key press starts at a light pedal and builds up while held (full after ~0.2 s), a tap
 // gives partial braking / throttle, release lets go in ~0.1 s; analog inputs (gamepad triggers, touch pedals) pass straight through
 const KPED = {thr:0, brk:0};
+// [intentai/f1touch] touch pedals: the box under the thumb sets a target (TOUCH.thr / brk); the pedal follows it quickly
+const TP = {thr:0, brk:0};
+function touchPedals(dt){
+  for (const k of ['thr', 'brk']){ const t = TOUCH[k] || 0, v = TP[k];
+    TP[k] = t > v ? Math.min(t, Math.max(v, 0.3) + (k === 'brk' ? 7 : 5)*dt) : Math.max(t, v - 10*dt); }
+  return TP;
+}
 function keyPedal(k, on, dt, p0, up, dn){ const v = KPED[k]; KPED[k] = on ? (v < p0 ? p0 : Math.min(1, v + up*dt)) : Math.max(0, v - dn*dt); return KPED[k]; }
 function readInput(dt){
   if (MPN.ap && F1.on){ const A = F1.veh === 'car' ? rcAutoInput(MPN.ap) : autoInput(MPN.ap); INP.thr = A.thr; INP.brk = A.brk; INP.steer = A.steer; INP.hb = A.hb || 0; return INP; }   // [lm25/net] test autopilot
   if (SCRIPT){ INP.thr = SCRIPT.thr || 0; INP.brk = SCRIPT.brk || 0; INP.steer = SCRIPT.steer || 0; INP.hb = SCRIPT.hb || 0; return INP; }
   const k = c => KEYS.has(c); dt = dt || 1/60;
   let thr = keyPedal('thr', k('KeyW') || k('ArrowUp'), dt, 0.35, 3.2, 8), brk = keyPedal('brk', k('KeyS') || k('ArrowDown'), dt, 0.3, 3.8, 10), st = ((k('KeyA') || k('ArrowLeft')) ? 1 : 0) - ((k('KeyD') || k('ArrowRight')) ? 1 : 0), hb = k('Space') ? 1 : 0;
-  thr = Math.max(thr, TOUCH.thr); brk = Math.max(brk, TOUCH.brk); if (Math.abs(TOUCH.steer) > Math.abs(st)) st = TOUCH.steer;
+  { const tp = touchPedals(dt); thr = Math.max(thr, tp.brk > 0.02 ? 0 : tp.thr); brk = Math.max(brk, tp.brk); }   // a touch brake cuts the touch throttle
+  if (Math.abs(TOUCH.steer) > Math.abs(st)) st = TOUCH.steer;
   const gps = navigator.getGamepads ? navigator.getGamepads() : null;
   if (gps) for (const g of gps){ if (!g || !g.connected) continue;
     const ax = g.axes[0] || 0; if (Math.abs(ax) > 0.12 && Math.abs(ax) > Math.abs(st)) st = -Math.sign(ax)*Math.pow((Math.abs(ax) - 0.12)/0.88, 1.4);
@@ -52060,7 +52068,7 @@ function f1Enter(mode, opts){
 function f1Exit(){
   if (!F1.on) return;
   dcReset();   // [lm28/drivecam]
-  F1.on = false; F1.mode = null; RACE.state = 'off'; SCRIPT = null; KEYS.clear(); TOUCH.steer = TOUCH.thr = TOUCH.brk = 0; trafficSuspend(false); if (window.SGTraffic && window.SGTraffic.player) window.SGTraffic.player.on = false; if (DMG.f1m) DMG.f1m.visible = false;
+  F1.on = false; F1.mode = null; RACE.state = 'off'; SCRIPT = null; KEYS.clear(); TOUCH.steer = TOUCH.thr = TOUCH.brk = 0; TP.thr = TP.brk = 0; trafficSuspend(false); if (window.SGTraffic && window.SGTraffic.player) window.SGTraffic.player.on = false; if (DMG.f1m) DMG.f1m.visible = false;
   document.body.classList.remove('f1on'); hudShow(false); audTick(); rcHide(); setTimeout(() => { if (!F1.on && AUD.ctx) AUD.ctx.suspend().catch(() => {}); }, 700);
   restoreApp();
   const C = CAR, b = C.psi; controls.target.set(C.x, C.z, -C.y); camera.position.set(C.x - Math.cos(b)*170, C.z + 125, -(C.y - Math.sin(b)*170)); camera.up.set(0, 1, 0); camera.lookAt(controls.target); controls.update();
@@ -52179,6 +52187,10 @@ body.f1on .busy{z-index:9;left:50%;transform:translateX(-50%);top:calc(74px + en
 .f1pedal small{font:400 9px var(--font-mono);letter-spacing:.08em;opacity:.8}
 .f1pedal.brk{width:76px;height:96px;background:rgba(170,30,25,.62)}.f1pedal.thr{width:84px;height:128px;background:rgba(30,140,70,.62)}
 .f1pedal.on{filter:brightness(1.45)}
+.f1pedals{gap:8px}.f1pedals .f1pedal.brk{width:80px;height:128px}.f1pedals .f1pedal.thr{width:84px;height:128px}
+.f1pedals .f1pedal{background-image:linear-gradient(to top,rgba(255,255,255,.34) calc(var(--p,0)*100%),transparent calc(var(--p,0)*100%));user-select:none;-webkit-user-select:none}
+.f1camT{position:absolute;right:22px;bottom:calc(232px + env(safe-area-inset-bottom,0px));width:56px;height:56px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(12,17,20,.62);color:#fff;display:grid;place-items:center;touch-action:manipulation;cursor:pointer}
+.f1camT svg{width:24px;height:24px}.f1camT:active{background:rgba(255,255,255,.22)}
 .f1hud.touch .f1dash{bottom:calc(150px + env(safe-area-inset-bottom,0px));min-width:200px;padding:7px 11px 8px}
 .f1hud.touch .f1spd b{font-size:34px}.f1hud.touch .f1gear{width:36px;height:42px;font-size:28px}.f1hud.touch .f1ped{height:38px}
 .f1res{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100% - 32px));padding:16px 18px;box-sizing:border-box}
@@ -52246,7 +52258,7 @@ function buildUI(){
 <canvas class="f1map f1p" id="f1Map" width="176" height="176" aria-label="小地图 Minimap"></canvas>
 <div class="f1dash f1p" id="f1Dash"><div class="f1leds" id="f1Leds">${'<i></i>'.repeat(15)}</div><div class="f1row"><div class="f1ped"><span><b id="f1Thr"></b></span><span><b id="f1Brk"></b></span></div><div class="f1spd"><b id="f1Spd">0</b><small>KM/H</small></div><div class="f1gear" id="f1Gear">N</div></div></div>
 <div class="f1hint f1p" id="f1Hint"><kbd>W</kbd><kbd>↑</kbd> 油门 throttle · <kbd>S</kbd><kbd>↓</kbd> 刹车 brake<br><kbd>A</kbd><kbd>D</kbd> 转向 steer · <kbd>空格</kbd> 手刹 handbrake<br><kbd>C</kbd> 视角 camera · <kbd>R</kbd> 复位修复 reset/repair<br><kbd>B</kbd> 回看 look back · <kbd>V</kbd> 威胁 threat · <kbd>P</kbd> 后视 rear<br><kbd>N</kbd> 导航 nav · <kbd>M</kbd> 地图 map · <kbd>K</kbd> 声音 sound · <kbd>H</kbd> 提示 hints · <kbd>Esc</kbd> 退出 exit</div>
-<div class="f1touch" id="f1Touch"><button class="f1lbT" id="f1LbT" type="button" aria-pressed="false">回看<small>LOOK</small></button><div class="f1steer" id="f1Steer"><span>◀</span><span>▶</span><i class="f1knob" id="f1Knob"></i></div>
+<div class="f1touch" id="f1Touch"><button class="f1camT" id="f1CamT" type="button" aria-label="Camera view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg></button><button class="f1lbT" id="f1LbT" type="button" aria-pressed="false">回看<small>LOOK</small></button><div class="f1steer" id="f1Steer"><span>◀</span><span>▶</span><i class="f1knob" id="f1Knob"></i></div>
   <div class="f1pedals"><button class="f1pedal brk" id="f1BrkP" type="button">刹车<small>BRAKE</small></button><button class="f1pedal thr" id="f1ThrP" type="button">油门<small>THROTTLE</small></button></div></div>
 <div class="f1res f1p" id="f1Res" hidden></div>`;
   document.body.appendChild(h); HUD.el = h;
@@ -52265,9 +52277,23 @@ function buildUI(){
   pad.addEventListener('pointerdown', e => { try { pad.setPointerCapture(e.pointerId); } catch (_){ } pad._id = e.pointerId; sUpd(e); TOUCH.used = true; e.preventDefault(); });
   pad.addEventListener('pointermove', e => { if (pad._id === e.pointerId) sUpd(e); });
   const sEnd = e => { if (pad._id === e.pointerId){ pad._id = null; TOUCH.steer = 0; } }; pad.addEventListener('pointerup', sEnd); pad.addEventListener('pointercancel', sEnd);
-  for (const [el, k] of [[HUD.q.brkP, 'brk'], [HUD.q.thrP, 'thr']]){
-    el.addEventListener('pointerdown', e => { try { el.setPointerCapture(e.pointerId); } catch (_){ } TOUCH[k] = 1; TOUCH.used = true; el.classList.add('on'); e.preventDefault(); });
-    const up = () => { TOUCH[k] = 0; el.classList.remove('on'); }; el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); el.addEventListener('lostpointercapture', up); }
+  // [intentai/f1touch] the pedals are one box under the right thumb: the pedal nearest the finger is pressed (a thumb slides from one
+  // to the other), harder the lower the finger sits on it; a finger that leaves the box lifts off
+  { const box = h.querySelector('.f1pedals'), P = new Map(), peds = [[HUD.q.brkP, 'brk'], [HUD.q.thrP, 'thr']];
+    const at = e => { const a = HUD.q.brkP.getBoundingClientRect(), b = HUD.q.thrP.getBoundingClientRect();
+      if (e.clientX < a.left - 24 || e.clientX > b.right + 24 || e.clientY < Math.min(a.top, b.top) - 70 || e.clientY > Math.max(a.bottom, b.bottom) + 30) return null;
+      const r = e.clientX < (a.right + b.left)/2 ? a : b, k = r === a ? 'brk' : 'thr';
+      const d = clamp((e.clientY - r.top)/r.height, 0, 1); return [k, k === 'brk' ? 0.2 + 0.8*Math.pow(d, 1.4) : 0.4 + 0.6*d]; };
+    const sum = () => { const o = {thr:0, brk:0}; for (const p of P.values()) if (p) o[p[0]] = Math.max(o[p[0]], p[1]);
+      if (o.brk > 0 && !TOUCH.brk && navigator.vibrate) try { navigator.vibrate(8); } catch (_){ }
+      TOUCH.thr = o.thr; TOUCH.brk = o.brk; for (const [el, k] of peds) el.classList.toggle('on', o[k] > 0); };
+    box.addEventListener('pointerdown', e => { try { box.setPointerCapture(e.pointerId); } catch (_){ } TOUCH.used = true; P.set(e.pointerId, at(e)); sum(); e.preventDefault(); });
+    box.addEventListener('pointermove', e => { if (P.has(e.pointerId)){ P.set(e.pointerId, at(e)); sum(); } });
+    const up = e => { if (P.delete(e.pointerId)) sum(); };
+    box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up); box.addEventListener('lostpointercapture', up); }
+  // the camera button: cockpit, T-cam, chase
+  { const ORD = [0, 1, 2], NAME = ['Cockpit', 'T-cam', 'Chase'];
+    h.querySelector('#f1CamT').addEventListener('click', () => { const k = (ORD.indexOf(F1.cam) + 1) % ORD.length; dcSetCam(ORD[k]); flash(NAME[k], 0.9); }); }
   h.addEventListener('pointerdown', e => { if (e.pointerType === 'touch' && !h.classList.contains('touch')){ h.classList.add('touch'); } });
   if (isRC() && HUD.pane && HUD.tab) rcTrayUI(HUD.tab, HUD.pane);
 }
@@ -52288,7 +52314,7 @@ function hudTick(){
   const lit = Math.round(clamp((C.rpm - 9000)/2800, 0, 1)*15); if (HUD.last.leds !== lit){ HUD.last.leds = lit; q.leds.forEach((el, i) => { el.className = i < lit ? (i < 5 ? 'g' : i < 10 ? 'r' : 'b') : ''; }); }
   const th = Math.round(C.thr*100), br = Math.round(Math.max(C.brk, INP.hb ? 0.6 : 0)*100); if (HUD.last.th !== th){ HUD.last.th = th; q.thr.style.height = th + '%'; } if (HUD.last.br !== br){ HUD.last.br = br; q.brk.style.height = br + '%'; }
   const kx = Math.round(-C.steer*40); if (HUD.last.kx !== kx){ HUD.last.kx = kx; q.knob.style.transform = `translateX(${kx*1.6}px)`; }
-  q.brkP.classList.toggle('on', TOUCH.brk > 0); q.thrP.classList.toggle('on', TOUCH.thr > 0);
+  { const b = Math.round(TP.brk*20)/20, t = Math.round(TP.thr*20)/20; if (HUD.last.pb !== b){ HUD.last.pb = b; q.brkP.style.setProperty('--p', b); } if (HUD.last.pt !== t){ HUD.last.pt = t; q.thrP.style.setProperty('--p', t); } }
   // [lm24/drive] damage: the four zones of a top view, the total in %
   { const pc = DMG.wreck ? 100 : Math.round(clamp(DMG.total/2.4, 0, 1)*100), key = pc + (DMG.wreck ? 'w' : '') + [DMG.f, DMG.l, DMG.r, DMG.b].map(v => v < 0.12 ? 0 : v < 0.45 ? 1 : v < 0.85 ? 2 : 3).join('');
     if (HUD.last.dmg !== key){ HUD.last.dmg = key; q.dmg.hidden = DMG.total < 0.02; q.dmg.classList.toggle('wreck', DMG.wreck); q.dmgV.textContent = DMG.wreck ? '损毁 WRECK' : pc + '%';

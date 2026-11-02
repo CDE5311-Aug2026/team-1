@@ -668,6 +668,12 @@ rep("  sgcRing('sel', R.D); sgcSelLabel(R.D);\n",
 rep('<div id="stage" aria-label=','<div id="stage" role="application" aria-label=')
 rep('\nsgrBoot();\nrequestAnimationFrame(loop);\n})();\n</script>', '\n' + LITE + '\nsgrBoot();\nrequestAnimationFrame(loop);\n})();\n</script>')
 
+# the F1 build (f1.html): pedals that drive like pedals and a camera button (earth_online_f1_touch.py)
+if 'const KEYS = new Set(), TOUCH' in h:
+    sys.path.insert(0, __import__('os').path.dirname(__file__))
+    import earth_online_f1_touch
+    h = earth_online_f1_touch.patch(h)
+
 h += '\n</body>\n</html>\n'
 open(dst, 'w', encoding='utf-8').write(h)
 print('ok', len(h))
