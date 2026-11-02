@@ -48,7 +48,9 @@ function mockGeolocation(fix?: { lat: number; lng: number; accuracy: number }, c
   return getCurrentPosition;
 }
 
-describe('Explore', () => {
+// Every interaction re-renders the full map and list (382 places), which can pass 5 s on a slow machine
+// while the whole suite runs in parallel.
+describe('Explore', { timeout: 30_000 }, () => {
   test('first entry: manual Singapore overview, no location request, map and list of real places', () => {
     const getCurrentPosition = mockGeolocation({ lat: 1.28, lng: 103.84, accuracy: 10 });
     renderAt('/nearby');
