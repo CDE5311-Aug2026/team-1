@@ -424,7 +424,8 @@
 .deckBox {
   position: relative;
   flex: 0 0 auto;
-  height: clamp(176px, 26vh, 222px);
+  /* just the covers (their numbers are on them): about as tall as the rolled-up scroll beside it */
+  height: clamp(118px, 16vh, 146px);
   margin: 0 calc(var(--guide-x) - var(--gutter) + 52px) 0 calc(-1 * var(--gutter));
   transition:
     transform 0.5s cubic-bezier(0.55, 0.1, 0.25, 1),
@@ -510,7 +511,7 @@
   }
 
   .deckBox {
-    height: clamp(150px, 24vh, 176px);
+    height: clamp(108px, 16vh, 124px);
   }
 
   .pageBar.pageBar {
@@ -538,7 +539,7 @@
 
 /* a place is open: the deck sits a little lower and smaller, so the intro's cards get the room */
 .recommendOpen .deckBox {
-  height: clamp(104px, 15vh, 132px);
+  height: clamp(100px, 14vh, 124px);
 }
 
 /* the overview map takes a little of the paper's warmth (an open place's 3D view keeps its true colours) */

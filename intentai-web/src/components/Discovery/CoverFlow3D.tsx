@@ -21,6 +21,8 @@ export interface CoverItem {
   status: UnlockStatus;
   /** 0–1, or null when the card has no progress bar. */
   progress: number | null;
+  /** The small number beside the bar: "3/22" (checked in / all). */
+  count?: string;
   image?: string;
   /** Outline drawn on the card's band instead of a photo: areas with their colours (a region's, or one area). */
   shape?: { rings: readonly (readonly (readonly [number, number])[])[]; color: string }[];
@@ -90,8 +92,8 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number, maxLine
 }
 
 /** Album art (owner, 31 Oct 2026: "more like album covers; the words are sometimes cut off and too small"): a square
- *  cover with the picture (a photo, or the area's outline on its colour) and only the name, large. Everything else
- *  (the line, the numbers, the button) is real text under the deck, at a size that reads. */
+ *  cover with the picture (a photo, or the area's outline on its colour), the name, large, and the progress as a bar
+ *  with its small "3/22" on the right (owner, 2 Nov 2026: the numbers live on the card, no words under the deck). */
 function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: number) {
   const pad = 30;
   const r = 26;
@@ -165,13 +167,24 @@ function drawCard(ctx: CanvasRenderingContext2D, item: CoverItem, w: number, h: 
     y -= size * 1.06;
   }
   ctx.shadowBlur = 0;
-  // progress as a thin bar along the bottom
+  // progress as a thin bar along the bottom, its numbers small at the right end
   if (bar) {
-    roundRect(ctx, pad, h - pad - 4, w - pad * 2, 9, 4.5);
+    let bw = w - pad * 2;
+    if (item.count) {
+      ctx.font = '700 38px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.fillText(item.count, w - pad, h - pad + 1);
+      bw -= ctx.measureText(item.count).width + 16;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+    }
+    roundRect(ctx, pad, h - pad - 4, bw, 9, 4.5);
     ctx.fillStyle = 'rgba(255,255,255,0.28)';
     ctx.fill();
     if (item.progress! > 0) {
-      roundRect(ctx, pad, h - pad - 4, Math.max(9, (w - pad * 2) * item.progress!), 9, 4.5);
+      roundRect(ctx, pad, h - pad - 4, Math.max(9, bw * item.progress!), 9, 4.5);
       ctx.fillStyle = item.status === 'done' ? '#3ccf7a' : '#ffffff';
       ctx.fill();
     }
@@ -213,7 +226,7 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<CoverFlowScene | null>(null);
   const cardRefs = useRef(new Map<number, HTMLDivElement>());
-  // the middle card's button lies over the caption's button under the deck
+  // the middle card's way in, for keyboards and screen readers
   const actionRef = useRef<HTMLButtonElement>(null);
   const selectedIndex = Math.max(
     0,
@@ -359,7 +372,7 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
   const sel = items[selectedIndex];
   return (
     <section
-      className={`${styles.deck} ${hideAction ? styles.bare : ''} ${gathered ? styles.gathered : ''}`}
+      className={gathered ? `${styles.deck} ${styles.gathered}` : styles.deck}
       aria-label={label}
       {...(gathered ? { inert: '' } : {})}
     >
@@ -432,15 +445,6 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
           );
         })}
       </div>
-      {items[centre] && !hideAction && (
-        <div className={styles.caption} aria-hidden="true">
-          <div className={styles.capText}>
-            <p className={styles.capKicker}>{items[centre].kicker}</p>
-            <p className={styles.capLine}>{items[centre].line}</p>
-            {!!items[centre].stats?.length && <p className={styles.capStats}>{items[centre].stats!.join(' · ')}</p>}
-          </div>
-        </div>
-      )}
       <p className={styles.live} aria-live="polite">
         {sel ? `${sel.title}, ${selectedIndex + 1} of ${items.length}, ${sel.line}` : ''}
       </p>

@@ -569,6 +569,7 @@ export default function DiscoveryHome() {
         ],
         status: c.progress.status,
         progress: ratio(c.progress),
+        count: `${c.progress.visited}/${c.progress.total}`,
         shape: areasOf(c.id as RegionId)
           .filter((a) => !/Islands$/.test(a.name))
           .map((a) => ({
@@ -589,7 +590,8 @@ export default function DiscoveryHome() {
         line: progressLine(c.progress),
         stats: [categoryLine(placesInArea(c.id), visited)].filter(Boolean),
         status: c.progress.status,
-        progress: ratio(c.progress),
+        progress: c.progress.total ? ratio(c.progress) : null,
+        count: `${c.progress.visited}/${c.progress.total}`,
         shape: [
           {
             rings: URA_AREAS.find((a) => a.id === c.id)!.rings,
@@ -640,6 +642,7 @@ export default function DiscoveryHome() {
           ],
           status: prog.status,
           progress: ratio(prog),
+          count: `${prog.visited}/${prog.total}`,
           image: k.stops.map((st) => homeOf(st.place.id)?.photo).find(Boolean),
           action:
             k.kind === "walk"
@@ -681,6 +684,7 @@ export default function DiscoveryHome() {
           ],
           status: prog.status,
           progress: ratio(prog),
+          count: `${prog.visited}/${prog.total}`,
           image:
             homeOf(it.stopId)?.photo ??
             k.stops.map((st) => homeOf(st.place.id)?.photo).find(Boolean),
