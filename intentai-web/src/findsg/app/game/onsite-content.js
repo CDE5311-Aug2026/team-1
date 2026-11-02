@@ -2,6 +2,7 @@
 // Fictional letters, movable details and hidden compartments exist only in this game.
 // ONSITE_ROUTES supplies interactions; GAME_STORIES retains the opening and ending.
 import {layered} from './quest-layers.js';
+import {OM_ID,OM_ONSITE} from '../om/om-content.js';
 const item=(id,label,anchor,extra={})=>({id,label,anchor,...extra});
 const hidden=(id,label)=>item(id,label,'back-envelope',{normal:[0,0,-1],role:'collectible'});
 const reveal=(id,label)=>item(id,label,'front-envelope',{role:'collectible'});
@@ -334,5 +335,5 @@ for(const [routeId,route] of Object.entries({'telok-ayer':telok,'kampong-gelam':
 
 // Hunt (2 Nov 2026): every stop's mechanism is layer I of two or three (quest-layers.js)
 const withLayers=route=>({...route,stops:route.stops.map(layered)});
-export const ONSITE_ROUTES={'telok-ayer':withLayers(telok),'kampong-gelam':withLayers(kampong),'balestier':withLayers(balestier),'civic-f1':withLayers(civic)};
+export const ONSITE_ROUTES={[OM_ID]:OM_ONSITE,'telok-ayer':withLayers(telok),'kampong-gelam':withLayers(kampong),'balestier':withLayers(balestier),'civic-f1':withLayers(civic)};
 export const getOnsiteRoute=routeId=>ONSITE_ROUTES[routeId]||ONSITE_ROUTES['telok-ayer'];

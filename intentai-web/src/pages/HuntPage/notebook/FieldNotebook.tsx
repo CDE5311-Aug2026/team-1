@@ -71,7 +71,7 @@ export function FieldNotebook({
   const chs = useMemo(() => readChapters(), [book]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const short = useMemo(() => shortProgress(), [book]);
-  const [selected, setSelectedState] = useState<BookId>(() => bookOf(session.get(SHELF_KEY))?.id ?? book ?? 'short');
+  const [selected, setSelectedState] = useState<BookId>(() => bookOf(session.get(SHELF_KEY))?.id ?? book ?? 'only-one-missing');
   const setSelected = (id: BookId) => {
     setSelectedState(id);
     session.set(SHELF_KEY, id);
@@ -120,7 +120,7 @@ export function FieldNotebook({
   const def = bookOf(book)!;
   const cover = <BookCover book={def} />;
   return (
-    <StoryBook title={def.title} kicker={book === 'short' ? 'Prologue' : `Volume ${def.roman}`} closing={closing} onClose={putBack}>
+    <StoryBook title={def.title} kicker={`Volume ${def.roman}`} closing={closing} onClose={putBack}>
       <FlyIn from={from}>
         {book === 'short' ? (
           <PrologueBook open={open} onOpen={() => setOpen(true)} cover={cover} />
@@ -251,7 +251,10 @@ function Book({
             setReading(false);
             setLayer({ kind: 'film', reel: ch.intro, title: `Vol. ${def.roman} · The letter` });
           }}
-          onSetOut={() => onRoute(ch.routeId)}
+          onSetOut={() => {
+            setReading(false);
+            onRoute(ch.routeId);
+          }}
         />
       )}
       {/* FindSG plays a route's stops in order, so going out always resumes at the next stop */}

@@ -13,6 +13,8 @@ export interface Film {
   src: string;
   poster: string;
   seconds: number;
+  /** A portrait (9:16) film. */
+  tall?: boolean;
 }
 const FILMS = films as Record<string, Film & { request: string }>;
 
@@ -86,6 +88,12 @@ const reel = (...ids: string[]) => ids.flatMap((id) => (FILMS[id] ? [{ ...FILMS[
  * One clip a beat: a second clip that only repeated the first, or brought in someone the story never introduces, is cut.
  */
 const PLAN: Record<string, { intro: string[]; stops: Record<number, string[]>; ending: string[]; retry?: string }> = {
+  // Only One Missing: its films carry their own subtitles, so no caption is typed under them
+  'only-one-missing': {
+    intro: ['OM-01'],
+    stops: { 1: ['OM-02'], 2: ['OM-03'], 3: ['OM-04'], 4: ['OM-05'], 5: ['OM-06'], 6: ['OM-07'] },
+    ending: ['OM-08'],
+  },
   'telok-ayer': {
     intro: ['TA-01'],
     stops: { 1: ['TA-09'], 2: ['TA-02'], 3: ['TA-03'], 4: ['TA-04'], 5: ['TA-05'], 6: ['TA-06'], 7: ['TA-07'], 8: ['TA-08'] },
@@ -127,8 +135,10 @@ export const SHORT_FILMS = {
   ending: reel('GS-10', 'GS-07', 'GS-08'),
 };
 
-export const CHAPTER_ORDER = ['telok-ayer', 'kampong-gelam', 'balestier', 'civic-f1'] as const;
-const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+export const CHAPTER_ORDER = ['only-one-missing', 'telok-ayer', 'kampong-gelam', 'balestier', 'civic-f1'] as const;
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+/** Films by id, for a story that asks its host to play one (see FilmHost). */
+export const filmsById = (ids: string[]) => reel(...ids);
 
 export interface ChapterStop {
   id: string;
@@ -202,7 +212,8 @@ export function chapter(routeId: string, i = CHAPTER_ORDER.indexOf(routeId as ne
   return {
     routeId,
     // the prologue is Volume I on the shelf, so the routes are II to V: one number for a story everywhere
-    roman: ROMAN[i + 1] ?? String(i + 2),
+    // Only One Missing is the demo story, Volume I; the prologue is II, and the routes follow
+    roman: routeId === 'only-one-missing' ? 'I' : (ROMAN[i + 1] ?? String(i + 2)),
     area: ROUTES[routeId].area,
     en: ROUTES[routeId].en,
     title: ROUTES[routeId].title,
@@ -281,7 +292,7 @@ export function shortChapter(now?: { deduce: boolean; bottle: boolean }): Chapte
   const solved = stops.filter((x) => x.done).length;
   return {
     routeId: 'short',
-    roman: 'I',
+    roman: 'II',
     area: SHORT_EPISODE.start.area,
     en: SHORT_EPISODE.start.area.toUpperCase(),
     title: SHORT_EPISODE.title,

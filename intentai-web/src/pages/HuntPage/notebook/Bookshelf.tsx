@@ -9,7 +9,7 @@ import { RouteChart } from './RouteChart';
 import { ShelfScene } from './shelf3d/ShelfScene';
 import styles from './shelf.module.css';
 
-export type BookId = 'short' | 'telok-ayer' | 'kampong-gelam' | 'balestier' | 'civic-f1';
+export type BookId = 'only-one-missing' | 'short' | 'telok-ayer' | 'kampong-gelam' | 'balestier' | 'civic-f1';
 
 export interface BookDef {
   id: BookId;
@@ -33,9 +33,20 @@ const placeOf = (id: Exclude<BookId, 'short'>) =>
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
 export const BOOKS: BookDef[] = [
+  // the demo story (owner, 2 Nov 2026): first on the shelf, Volume I
+  {
+    id: 'only-one-missing',
+    roman: 'I',
+    title: route('only-one-missing').title,
+    place: placeOf('only-one-missing'),
+    en: 'THE BOTTLE BASE',
+    tone: '#1f3a2b',
+    quote: route('only-one-missing').quote,
+    art: <BandArt />,
+  },
   {
     id: 'short',
-    roman: 'I',
+    roman: 'II',
     title: 'Beneath the Golden Dome',
     en: 'THE GLASS BENEATH THE GOLD',
     tone: '#2f4a39',
@@ -45,7 +56,7 @@ export const BOOKS: BookDef[] = [
   },
   {
     id: 'telok-ayer',
-    roman: 'II',
+    roman: 'III',
     title: route('telok-ayer').title,
     place: placeOf('telok-ayer'),
     en: 'FROM THE OLD COASTLINE',
@@ -55,7 +66,7 @@ export const BOOKS: BookDef[] = [
   },
   {
     id: 'kampong-gelam',
-    roman: 'III',
+    roman: 'IV',
     title: route('kampong-gelam').title,
     place: placeOf('kampong-gelam'),
     en: 'A NEIGHBOURHOOD PAPER, 1938',
@@ -65,7 +76,7 @@ export const BOOKS: BookDef[] = [
   },
   {
     id: 'balestier',
-    roman: 'IV',
+    roman: 'V',
     title: route('balestier').title,
     place: placeOf('balestier'),
     en: 'THE UNWRITTEN CREDITS',
@@ -75,7 +86,7 @@ export const BOOKS: BookDef[] = [
   },
   {
     id: 'civic-f1',
-    roman: 'V',
+    roman: 'VI',
     title: route('civic-f1').title,
     place: placeOf('civic-f1'),
     en: 'THE CITY BETWEEN THE SECONDS',
@@ -257,6 +268,26 @@ const Svg = ({ children }: { children: ReactNode }) => (
     {children}
   </svg>
 );
+
+/** A band of bottle bases with one gap, and the hook on its edge. */
+function BandArt() {
+  return (
+    <Svg>
+      <ellipse cx="60" cy="58" rx="40" ry="16" />
+      <ellipse cx="60" cy="66" rx="40" ry="16" opacity=".5" />
+      {Array.from({ length: 13 }, (_, i) => {
+        const a = (i / 13) * Math.PI * 2 + 0.5;
+        const x = 60 + 40 * Math.cos(a),
+          y = 62 + 16 * Math.sin(a);
+        return i === 3 ? null : <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r="3.2" opacity={Math.sin(a) < 0 ? 0.5 : 1} />;
+      })}
+      <path d="M66 82 l0 -6 l4 0 l0 3" />
+      <path d="M60 28 V18 M56 22 h8" />
+      <circle cx="60" cy="98" r="5" />
+      <circle cx="60" cy="98" r="2.6" opacity=".6" />
+    </Svg>
+  );
+}
 
 function DomeArt() {
   return (

@@ -17,7 +17,8 @@ import {canRace,readBoost,writeBoost,solveActions} from './race-boost.js';
 import {questStage} from './quest-logic.js';
 const QuestViewport=lazy(()=>import('./QuestViewport.jsx'));
 const RaceSheet=lazy(()=>import('./RaceSheet.jsx'));
-const KIND_NAMES={'rotate-find':'Rotate and find','sequence':'Tap in order','align':'Turn to align','slide':'Slide to reveal','assemble':'Piece it together','lock':'Combination lock','jigsaw':'Torn page'};
+const KIND_NAMES={'rotate-find':'Rotate and find','sequence':'Tap in order','align':'Turn to align','slide':'Slide to reveal','assemble':'Piece it together','lock':'Combination lock','jigsaw':'Torn page','prop':'Handle it',
+ bag:'Look around',compare:'Spot the difference',band:'Fit the edge',catalogue:'Turn the cards',pinmap:'Pin it',door:'Slide the bolt',ring:'Hardcore · read the ring',batik:'Match the cut',lamprow:'Carry the lamp',overlay:'Hardcore · lay it over',letters:'Password',facade:'Match the photo',pack:'Untie the pack',lanelamps:'Hold to light',envelope:'Seal it'};
 const STEPS=[['arrival','Check in'],['observe','Observe'],['puzzle','Solve'],['reward','Collect']];
 function Guide({name,children}){return <div className="og-guide"><img src={assetFor('./assets/cinematic/lion-guide.png')} alt=""/><div><span>{name}<small>Your guide · fictional character</small></span><p>{children}</p></div></div>;}
 function cleanPlace(name){return name.replace(/ · .*/, '').replace(/（.*?）/g,'');}

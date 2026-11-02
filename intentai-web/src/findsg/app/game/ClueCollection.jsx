@@ -5,7 +5,7 @@ import {ROUTES,gameSceneImageFor,findStory} from '../data.js';
 import './clue-collection.css';
 import './clue-archive.css';
 
-export const CARD_MATERIALS={'telok-ayer':'letter','kampong-gelam':'newspaper',balestier:'film','civic-f1':'brass'};
+export const CARD_MATERIALS={'only-one-missing':'brass','telok-ayer':'letter','kampong-gelam':'newspaper',balestier:'film','civic-f1':'brass'};
 const two=n=>String(n).padStart(2,'0');
 
 export function DiscoveryCard({routeId,stop,index=0,reducedMotion=false,selected=false,className=''}){

@@ -7,6 +7,16 @@ import CaseFinale from './CaseFinale.jsx';
 import {lockScroll} from '../../../hooks/scrollLock';
 import {imageFor} from '../data.js';
 import './onsite-compact.css';
+import {OM_ID, OM_FILMS} from '../om/om-content.js';
+import {playFilm} from '../om/films.js';
+
+/** Play a film the first time a beat is reached in this visit (a reload does not replay it). */
+function once(key, play) {
+  try {if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1');} catch { /* private mode: play anyway */ }
+  play();
+}
+/** A round projector button: the film of this beat, again. */
+const FilmButton = ({id}) => <button className="ogc-film" onClick={() => playFilm([id])} aria-label="Play the film"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M1 0.5 L9.5 6 L1 11.5Z" fill="currentColor"/></svg></button>;
 
 /** The three things you do at every stop; the find that follows is the card, not a fourth step. */
 const STEPS = [['arrival', 'Check in'], ['observe', 'Observe'], ['puzzle', 'Solve']];
@@ -27,20 +37,31 @@ export default function OnsiteCompact(p) {
   // the page itself: nothing under it scrolls while it is open
   useEffect(() => lockScroll(), []);
 
+  // Only One Missing: its films play at the story's turns (the clue found at a stop, the verdict)
+  const films = routeId === OM_ID ? OM_FILMS : null, stopFilm = films?.stops[game.stopIndex + 1];
+  useEffect(() => {if (stopFilm && reward && celebrated) once(`om-film:${mode}:${stop.id}`, () => playFilm([stopFilm]));}, [stopFilm, reward, celebrated, mode, stop.id]);
+  useEffect(() => {
+    if (!films || !ending) return undefined;
+    const t = window.setTimeout(() => once(`om-film:${mode}:ending`, () => playFilm([films.ending])), 2400);
+    return () => window.clearTimeout(t);
+  }, [films, ending, mode]);
+  const takeCase = () => {begin(); if (films) playFilm([films.intro]);};
+
   let stage, card, body;
   if (intro) {
     stage = <figure className="ogc-plate-art">
       <img src={imageFor(routeId)} alt={`${meta.area}: story concept art`}/>
       <span className="ogc-stamp is-file" aria-hidden="true">Case {meta.no}</span>
+      {films && <FilmButton id={films.intro}/>}
     </figure>;
     card = <Card kicker="The commission" title={`You are the ${role.toLowerCase()}`} lead={story.mission}
-      actions={<Primary onClick={begin}>Take the case</Primary>} more={`${story.guideName}’s note`} onMore={note}/>;
+      actions={<Primary onClick={takeCase}>Take the case</Primary>} more={`${story.guideName}’s note`} onMore={note}/>;
     body = <><h2>{story.title}</h2><Guide name={story.guideName}>{story.prologue.map(x => x.text).join(' ')}</Guide></>;
   } else if (ending) {
     /* the guide you corrected: pages drop in, the cover slams shut, stamped and sealed (CaseFinale.jsx) */
     stage = <CaseFinale routeId={routeId} story={story} meta={meta} config={config} game={game} mode={mode} onOpen={onOpen} reducedMotion={reducedMotion}/>;
     card = <Card kicker="The verdict" title={story.ending.title} lead={story.ending.reflection}
-      actions={<><Primary onClick={onExit}>Choose another street</Primary><Quiet onClick={journal}>Clues</Quiet></>}
+      actions={<><Primary onClick={onExit}>Choose another street</Primary>{films ? <FilmButton id={films.ending}/> : <Quiet onClick={journal}>Clues</Quiet>}</>}
       more="Full story" onMore={note}/>;
     body = <><h2>{story.ending.title}</h2><Guide name={story.guideName}>{story.ending.text}</Guide></>;
   } else if (reward) {
@@ -48,7 +69,7 @@ export default function OnsiteCompact(p) {
       ? <div className="ogc-find"><DiscoveryPacket key={`${routeId}:${stop.id}:${mode}`} routeId={routeId} stop={stop} index={game.stopIndex} reducedMotion={reducedMotion} selected bare className="og-reward-packet"/></div>
       : <div className="ogc-model is-awake">{scene}</div>;
     card = <Card kicker="Clue found" title={stop.reward.title} lead={stop.transition.text}
-      actions={<Primary onClick={next}>{stop.transition.cta}</Primary>}
+      actions={<><Primary onClick={next}>{stop.transition.cta}</Primary>{stopFilm && <FilmButton id={stopFilm}/>}</>}
       more="Read it" onMore={note}/>;
     body = <><h2>{stop.reward.title}</h2>
       {stop.quest.foundText && <p className="ogc-note-said">{stop.quest.foundText}</p>}
@@ -80,7 +101,7 @@ export default function OnsiteCompact(p) {
       /* the caption on the model carries the instruction and every answer, so the card only names the task: the
        * puzzle in hand is the thing to do. The night race and a Boost Card are a way out for someone stuck, so they
        * wait at the end of the hint, as quiet lines (owner, 2 Nov 2026: a big button made the race feel required). */
-      card = <Card kicker={KIND_NAMES[layer.type]} title={layer.title} more="Hint" onMore={note}/>;
+      card = <Card kicker={KIND_NAMES[layer.kind] || KIND_NAMES[layer.type]} title={layer.title} more="Hint" onMore={note}/>;
       const away = go => () => {setSheet(false); go();};
       body = <><h2>{layer.title}</h2><p className="ogc-note-lead">{layer.instruction}</p>
         <Hint stop={stop} sourceName={sourceName}/>
@@ -131,7 +152,8 @@ export default function OnsiteCompact(p) {
 function Hint({stop, sourceName}) {
   const o = stop.observation;
   return <div className="og-reference"><strong>{o.detailToFind}</strong><p>{o.referenceNote}</p>
-    <div>{(o.sourceUrls || []).slice(0, 2).map(url => <a key={url} href={url} target="_blank" rel="noreferrer">{sourceName(url)} ↗︎</a>)}</div></div>;
+    <div>{(o.sourceUrls || []).slice(0, 2).map(url => <a key={url} href={url} target="_blank" rel="noreferrer">{sourceName(url)} ↗︎</a>)}</div>
+    {o.credits?.length > 0 && <p className="ogc-credits">Photos {o.credits.filter((c, i, all) => all.findIndex(d => d.text === c.text) === i).map(c => <a key={c.url} href={c.url} target="_blank" rel="noreferrer">{c.text}</a>)}</p>}</div>;
 }
 
 /** The paper card. `said` is a line in the guide's hand; `aside` sits beside the title (a map link, say). */

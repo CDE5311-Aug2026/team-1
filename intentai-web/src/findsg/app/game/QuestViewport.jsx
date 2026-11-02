@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {createQuestState, isQuestSolved, questStage} from './quest-logic.js';
 import './quest-viewport.css';
+import PropStage from '../om/PropStage.jsx';
 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V'];
 
@@ -42,7 +43,10 @@ export default function QuestViewport({
   const configKey = JSON.stringify(layer || {}) + ':' + shown;
   const state = layerProgress || createQuestState(layer), solved = isQuestSolved(layer, state);
 
+  const isProp = layer?.type === 'prop';
   useEffect(() => {
+    // a hand-held prop (Only One Missing) needs no 3D engine: it is ready at once
+    if (isProp) {setPhase('ready'); setRenderer('prop'); sawOpen.current = true; return undefined;}
     let alive = true, instance = null, surface = null;
     setPhase('loading'); setRenderer('loading'); setNote(null);
     setSnapshot({status: 'locked', message: '', visibleIds: [], value: current.current.progress?.value || 0, selectedId: null, hint: null});
@@ -84,6 +88,10 @@ export default function QuestViewport({
     return () => window.clearTimeout(t);
   }, [message]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const noteTimer = useRef(0);
+  const propNote = text => {window.clearTimeout(noteTimer.current); if (!text) {setNote(null); return;} setNote({text, key: Date.now()}); noteTimer.current = window.setTimeout(() => setNote(null), 3200);};
+  useEffect(() => () => window.clearTimeout(noteTimer.current), []);
+
   const available = id => phase === 'ready' && enabled && !solved && snapshot.visibleIds.includes(id);
   const canOperate = phase === 'ready' && enabled && !solved;
   const pieces = (layer?.items || []).filter(item => item?.id && item.role !== 'decoration');
@@ -91,7 +99,10 @@ export default function QuestViewport({
 
   return <section className={'quest-viewport is-' + phase + (enabled ? ' is-enabled' : ' is-locked') + (solved ? ' is-solved' : '')} data-renderer={renderer} data-quest-type={layer?.type} aria-label={layer?.title || 'Place mechanism'}>
     <div className="quest-stage">
-      <div className="quest-host" ref={host}/>
+      {isProp
+        ? <PropStage key={configKey} layer={layer} enabled={enabled} solved={solved} reducedMotion={reducedMotion} onNote={propNote}
+          onAction={action => callbacks.current.onAction?.(action)} onDone={() => callbacks.current.onComplete?.()}/>
+        : <div className="quest-host" ref={host}/>}
       {chain && <span className="quest-layer" aria-label={`Layer ${shown + 1} of ${total}`}>{ROMAN.slice(0, total).map((r, n) => <b key={r} data-done={n < shown || (n === shown && solved) ? 'true' : undefined} data-here={n === shown ? 'true' : undefined}>{r}</b>)}</span>}
       {hint && <span key={hint.id} className="quest-touch" style={{left: hint.x, top: hint.y}} aria-hidden="true"><i/><b>{hint.verb}</b></span>}
       {note && <p key={note.key} className="quest-note" role="status">{note.text}</p>}
@@ -101,7 +112,7 @@ export default function QuestViewport({
       {phase === 'error' && <div className="quest-system-message" role="alert"><strong>The model did not load</strong><button type="button" onClick={() => setRetry(value => value + 1)}>Reload</button></div>}
     </div>
     {/* keyboard and screen-reader controls for the same mechanism: out of sight until focused */}
-    {canOperate && <details className="quest-access-controls">
+    {canOperate && !isProp && <details className="quest-access-controls">
       <summary>Keyboard controls</summary>
       <div className="quest-assist-camera">
         <button type="button" onClick={() => engine.current?.rotate(Math.PI / 4)}>Turn left</button>

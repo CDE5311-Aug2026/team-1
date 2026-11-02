@@ -1,12 +1,14 @@
 import stories from '../story-data.json';
 import gameplay from '../gameplay-data.json';
 import storyboard from '../visual-story-data.json';
+import {OM_ID,OM_META,OM_STORY} from './om/om-content.js';
 
 export const DATA=stories;
 export const GAME=gameplay;
 export const ORDER=['route','intro','arrival','evidence','puzzle','reward','next','ending'];
 export const LABELS=['Route','Opening','Arrival','Evidence','Puzzle','Reward','Next stop','Ending'];
 export const ROUTES={
+ [OM_ID]:OM_META,
  'telok-ayer':{area:'Telok Ayer',en:'TELOK AYER',title:'Letters to the Shore',motif:'THE LETTER',tag:'Letters · Migration · Buildings',asset:'telok-ayer',accent:'#bd8d5c',date:'A family letter never sent',object:'Lift the envelope flap',action:'open',power:'Observe',no:'01',material:'Old paper / wax seal / brass',quote:'The sea has moved far away, but the address on the letter remains.'},
  'kampong-gelam':{area:'Kampong Gelam',en:'KAMPONG GELAM',title:'The Last Edition',motif:'THE LAST EDITION',tag:'Newspapers · Publishing · Community',asset:'kampong-glam',accent:'#b79c72',date:'1938 · a fictional typesetter’s apprentice',object:'Start the press',action:'print',power:'Proofread',no:'02',material:'Metal type / ink / old newsprint',quote:'How many voices does a city write down?'},
  'balestier':{area:'Balestier',en:'BALESTIER',title:'The Last Screening',motif:'THE LOST CREDITS',tag:'Film · Shophouses · Behind the scenes',asset:'balestier',accent:'#b1905c',date:'A cut end credit',object:'Turn the projector',action:'restore',power:'Edit',no:'03',material:'Film / lens / metal reel',quote:'The camera remembered the street. Who remembered the people who built it?'},
@@ -17,10 +19,10 @@ export function imageFor(routeId){return assetFor(`./assets/cinematic/${ROUTES[r
 // The left panel of each existing triptych is an outdoor concept scene.
 // Scene-card layout must crop to that panel; these are not location photographs.
 export function gameSceneImageFor(routeId){
- const paths={'telok-ayer':'./assets/telok-ayer-triptych.png','kampong-gelam':'./assets/kampong-gelam-triptych.png','balestier':'./assets/balestier-triptych.png','civic-f1':'./assets/civic-f1-triptych.png'};
+ const paths={'telok-ayer':'./assets/telok-ayer-triptych.png','kampong-gelam':'./assets/kampong-gelam-triptych.png','balestier':'./assets/balestier-triptych.png','civic-f1':'./assets/civic-f1-triptych.png',[OM_ID]:'./assets/only-one-missing-triptych.png'};
  return assetFor(paths[routeId]||paths['telok-ayer']);
 }
-export function findStory(routeId){return DATA.stories.find(s=>s.route_id===routeId)||DATA.stories[0];}
+export function findStory(routeId){if(routeId===OM_ID)return OM_STORY;return DATA.stories.find(s=>s.route_id===routeId)||DATA.stories[0];}
 export function findGame(routeId){return GAME.routes.find(s=>s.route_id===routeId)||GAME.routes[0];}
 export function blankProgress(){return {collected:[],visitedSteps:[],selected:null,saved:false,endingChoice:null,mechanics:{version:1,challengeComplete:false,puzzleSolved:false,granted:false,spent:false,opened:[],nextChoice:null,nextCorrect:false,nextDone:false,work:{},events:[]}};}
 export function normalizeProgress(value={},story){

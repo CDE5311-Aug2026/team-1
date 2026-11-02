@@ -28,13 +28,15 @@ test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and 
   expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'Open a volume' }));
   expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
-  // the story shelf: five books; pick the second, take it down, open it, and its tabs are the story, the map, the clue cards, notes and the record
+  // the story shelf: six books, the demo story first; pick the third, take it down, open it, and its tabs are the story, the map, the clue cards, notes and the record
   const books = within(screen.getByRole('listbox', { name: 'Story books' })).getAllByRole('option');
-  expect(books).toHaveLength(5);
-  expect(books[0]).toHaveAccessibleName(/^I\. Beneath the Golden Dome/);
-  await userEvent.click(books[1]);
-  expect(books[1]).toHaveAttribute('aria-selected', 'true');
-  await userEvent.click(books[1]);
+  expect(books).toHaveLength(6);
+  expect(books[0]).toHaveAccessibleName(/^I\. Only One Missing/);
+  expect(books[0]).toHaveAttribute('aria-selected', 'true');
+  expect(books[1]).toHaveAccessibleName(/^II\. Beneath the Golden Dome/);
+  await userEvent.click(books[2]);
+  expect(books[2]).toHaveAttribute('aria-selected', 'true');
+  await userEvent.click(books[2]);
   const cover = await screen.findByRole('button', { name: 'Open Letters to the Shore' }, { timeout: 3000 });
   await userEvent.click(cover);
   const tabs = screen.getByRole('navigation', { name: 'Chapters' });
@@ -46,7 +48,7 @@ test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and 
   await userEvent.click(screen.getByRole('button', { name: /Shelf$/ }));
   // every story's book has the same tabs: the prologue's too
   const shelf = await screen.findByRole('listbox', { name: 'Story books' }, { timeout: 3000 });
-  const first = within(shelf).getAllByRole('option')[0];
+  const first = within(shelf).getAllByRole('option')[1];
   await userEvent.click(first);
   await userEvent.click(first);
   await userEvent.click(await screen.findByRole('button', { name: 'Open Beneath the Golden Dome' }, { timeout: 3000 }));

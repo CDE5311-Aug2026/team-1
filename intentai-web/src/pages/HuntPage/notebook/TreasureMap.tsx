@@ -58,6 +58,7 @@ function trail(p: { x: number; y: number }[]) {
 const FEATURES: Record<string, { street?: string; shore?: string; river?: boolean }> = {
   'telok-ayer': { street: 'TELOK AYER STREET', shore: 'OLD SHORE · c. 1820s (approx.)' },
   'kampong-gelam': { shore: 'OLD SHORE · along Beach Road (approx.)' },
+  'only-one-missing': { shore: 'OLD SHORE · along Beach Road (approx.)' },
   // the prologue walks the same streets
   short: { shore: 'OLD SHORE · along Beach Road (approx.)' },
   balestier: { street: 'BALESTIER ROAD' },

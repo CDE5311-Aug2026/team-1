@@ -33,6 +33,7 @@ export function solveActions(quest) {
     case 'sequence': return (quest.sequence?.length ? quest.sequence : items.map(item => item.id)).map(id => ({type: 'select', id}));
     case 'rotate-find': return items.map(item => {const [x = 0, , z = -1] = item.normal || [0, 0, -1]; return {type: 'find', id: item.id, yaw: Math.atan2(x, z)};});
     case 'lock': return lockCode(quest).map((value, wheel) => ({type: 'spin', wheel, value}));
+    case 'prop': return [{type: 'answer', id: quest.answer}];
     case 'jigsaw': return items.flatMap(item => [{type: 'put', id: item.id, cell: item.cell},
       ...Array.from({length: ((4 - (item.turn || 0)) % 4 + 4) % 4}, () => ({type: 'turn', id: item.id}))]);
     default: return [];

@@ -15,6 +15,7 @@ import { Board } from './Board';
 import { huntStops, HuntHeader, HuntTabs, PublicTab, useExplored } from './HuntHome';
 import { CHART_BACKDROP } from './notebook/chartBackdrop';
 import { FieldNotebook, useShelfBook } from './notebook/FieldNotebook';
+import { FilmHost } from './notebook/FilmProjector';
 import { ClueLibrary } from './notebook/layers';
 import { MATERIALS } from './notebook/Notebook';
 import { grain, wood } from './notebook/textures';
@@ -40,8 +41,9 @@ function useFindsgHome() {
   };
   const [home, setHome] = useState(atHome);
   // the router's own moves (a button here setting #story/…) fire no hashchange, so follow its location too
-  const { hash } = useLocation();
-  useEffect(() => setHome(atHome()), [hash]);
+  // (by key too: back on the book, FindSG has already moved the hash itself, so re-entering the same story looks unchanged)
+  const { hash, key } = useLocation();
+  useEffect(() => setHome(atHome()), [hash, key]);
   useEffect(() => {
     const on = () => setHome(atHome());
     window.addEventListener('hashchange', on);
@@ -107,6 +109,7 @@ export default function HuntPage() {
         <div className={`findsg hunt ${styles.stories} ${styles.storyPage}`} style={{ ...MATERIALS, '--hunt-grain': grain } as CSSProperties}>
           <FindSGApp clues={(routeId, onClose) => <ClueLibrary routeId={routeId} onClose={onClose} />} />
         </div>
+        <FilmHost />
       </div>
     </AppShell>
   );

@@ -12,7 +12,7 @@ const SECTIONS=[
  {id:'history',label:'History'},
  {id:'story',label:'Story'}
 ];
-const MATERIALS={'telok-ayer':'letter','kampong-gelam':'newspaper',balestier:'film','civic-f1':'brass'};
+const MATERIALS={'only-one-missing':'brass','telok-ayer':'letter','kampong-gelam':'newspaper',balestier:'film','civic-f1':'brass'};
 const text=value=>typeof value==='string'?value:'';
 const excerpt=(value,length=78)=>{const letters=Array.from(text(value));return letters.length>length?letters.slice(0,length).join('')+'…':letters.join('');};
 const number=value=>String(value).padStart(2,'0');

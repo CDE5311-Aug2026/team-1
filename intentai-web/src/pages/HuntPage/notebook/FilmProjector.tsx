@@ -2,7 +2,7 @@
 // the frame; several films play as one reel. In a book the reel is a FilmPlate: a cine print tipped in over the open page
 // (the book stays in your hands); FilmProjector is the same reel on a dark screen of its own, for anywhere else.
 import { useEffect, useRef, useState } from 'react';
-import type { Film } from './chapters';
+import { filmsById, type Film } from './chapters';
 import { Overlay } from './Overlay';
 import styles from './props.module.css';
 import plate from './filmPlate.module.css';
@@ -43,7 +43,7 @@ function useReel(reel: Film[]) {
 function Screen({ r, reel }: { r: ReturnType<typeof useReel>; reel: Film[] }) {
   const { film, at, setAt, setEnded, setPlaying, playing, ended, toggle, video } = r;
   return (
-    <div className={styles.screen} style={{ ['--film-grain' as string]: filmGrain }}>
+    <div className={`${styles.screen} ${film.tall ? styles.tall : ''}`} style={{ ['--film-grain' as string]: filmGrain }}>
       <span className={styles.sprockets} aria-hidden="true" />
       <video
         key={film.id}
@@ -57,7 +57,7 @@ function Screen({ r, reel }: { r: ReturnType<typeof useReel>; reel: Film[] }) {
         onPause={() => setPlaying(false)}
         onEnded={() => (at < reel.length - 1 ? setAt(at + 1) : (setEnded(true), setPlaying(false)))}
         onClick={toggle}
-        aria-label={film.en}
+        aria-label={film.en || film.id}
       />
       <span className={styles.grainLayer} aria-hidden="true" />
       <span className={styles.vignette} aria-hidden="true" />
@@ -101,9 +101,11 @@ export function FilmPlate({ reel, title, onClose }: { reel: Film[]; title: strin
           )}
         </p>
         <Screen r={r} reel={reel} />
-        <figcaption className={plate.caption} aria-live="polite">
-          {r.film.en}
-        </figcaption>
+        {r.film.en && (
+          <figcaption className={plate.caption} aria-live="polite">
+            {r.film.en}
+          </figcaption>
+        )}
         {reel.length > 1 && (
           <div className={plate.reel}>
             {reel.map((f, i) => (
@@ -137,9 +139,12 @@ export function FilmProjector({ reel, title, onClose }: { reel: Film[]; title: s
           )}
         </p>
         <Screen r={r} reel={reel} />
-        <div className={styles.intertitle} aria-live="polite">
-          <p>{r.film.en}</p>
-        </div>
+        {r.film.en && (
+          <div className={styles.intertitle} aria-live="polite">
+            <p>{r.film.en}</p>
+          </div>
+        )}
+        {reel.length > 1 && (
         <div className={styles.reelDots}>
           {reel.map((f, i) => (
             <button key={f.id} type="button" aria-label={`Film ${i + 1}: ${f.en}`} aria-current={i === r.at} onClick={() => r.setAt(i)}>
@@ -147,8 +152,25 @@ export function FilmProjector({ reel, title, onClose }: { reel: Film[]; title: s
             </button>
           ))}
         </div>
+        )}
         <p className={styles.projNote}>Fictional characters filmed on real streets. Not historical footage.</p>
       </div>
     </Overlay>
   );
+}
+
+/** A story asks for a film (FindSG's `findsg:film` event, e.g. Only One Missing's CCTV clip): play it on the projector. */
+export function FilmHost() {
+  const [reel, setReel] = useState<{ films: Film[]; title: string } | null>(null);
+  useEffect(() => {
+    const on = (e: Event) => {
+      const { ids, title } = (e as CustomEvent<{ ids: string[]; title?: string }>).detail ?? { ids: [] };
+      const films = filmsById(ids ?? []);
+      if (films.length) setReel({ films, title: title || (films[0] as Film & { title?: string }).title || '' });
+    };
+    window.addEventListener('findsg:film', on);
+    return () => window.removeEventListener('findsg:film', on);
+  }, []);
+  if (!reel) return null;
+  return <FilmProjector key={reel.films.map((f) => f.id).join()} reel={reel.films} title={reel.title} onClose={() => setReel(null)} />;
 }

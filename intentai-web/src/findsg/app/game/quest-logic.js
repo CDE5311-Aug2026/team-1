@@ -1,6 +1,6 @@
 /** Serializable mechanism rules. A renderer can propose actions; only these
  * rules decide progress. There is deliberately no trusted `solved` action. */
-export const QUEST_TYPES = Object.freeze(['rotate-find', 'sequence', 'align', 'slide', 'assemble', 'lock', 'jigsaw']);
+export const QUEST_TYPES = Object.freeze(['rotate-find', 'sequence', 'align', 'slide', 'assemble', 'lock', 'jigsaw', 'prop']);
 
 const finite = value => typeof value === 'number' && Number.isFinite(value);
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -116,6 +116,7 @@ export function isQuestSolved(quest, progress) {
     case 'assemble': return ids.every(id => state.placed.includes(id));
     case 'lock': {const code = lockCode(quest); return code.length > 0 && code.every((d, n) => state.wheels[n] === d);}
     case 'jigsaw': return jigsawRight(quest, state) === ids.length;
+    case 'prop': return state.found.includes(quest.answer);
     default: return false;
   }
 }
@@ -220,6 +221,14 @@ export function reduceQuest(quest, progress, action) {
     if (!item || !Number.isInteger(state.cells[action.id])) return reject('Turn a piece once it lies in the frame.');
     const next = {...state, turns: {...state.turns, [action.id]: (state.turns[action.id] + 1) % 4}, attempts: state.attempts + 1};
     return accept(next, jigsawVerdict(quest, next));
+  }
+
+  /* Hunt (2 Nov 2026): a hand-held prop (om/PropStage.jsx) offers one of its items; only `answer` opens it, and a wrong
+   * one says why (the story's red herrings). */
+  if (quest.type === 'prop' && action.type === 'answer') {
+    const id = String(action.id ?? '');
+    if (id !== quest.answer) return reject(quest.misses?.[id] || quest.miss || 'Not this one.');
+    return accept({...state, found: [id], opened: true, attempts: state.attempts + 1}, quest.foundText || '');
   }
 
   return reject('That action does not work on this mechanism.');

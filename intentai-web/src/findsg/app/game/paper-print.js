@@ -11,6 +11,7 @@ export const PAPER_THEMES = {
 };
 
 const ROUTE_THEME = {
+  'only-one-missing': 'newspaper',
   'telok-ayer': 'letter',
   'kampong-gelam': 'newspaper',
   balestier: 'projection',

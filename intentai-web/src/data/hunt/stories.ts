@@ -3,7 +3,7 @@
 // building puzzle. This file holds what Hunt adds around them: the public challenges and the boards.
 
 /** The FindSG routes, by id (src/findsg/app/data.js ROUTES). */
-export const HUNT_ROUTE_IDS = ['telok-ayer', 'kampong-gelam', 'balestier', 'civic-f1'] as const;
+export const HUNT_ROUTE_IDS = ['only-one-missing', 'telok-ayer', 'kampong-gelam', 'balestier', 'civic-f1'] as const;
 export type HuntRouteId = (typeof HUNT_ROUTE_IDS)[number];
 
 /** A public challenge: a story route raced against the clock in a set window. */

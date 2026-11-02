@@ -32,6 +32,7 @@ function actionCopy(action){
   case 'spin':return Number.isInteger(action.wheel)&&Number.isInteger(action.value)?{type:'spin',wheel:action.wheel,value:action.value}:null;
   case 'put':return typeof action.id==='string'&&Number.isInteger(action.cell)?{type:'put',id:action.id,cell:action.cell}:null;
   case 'turn':return typeof action.id==='string'?{type:'turn',id:action.id}:null;
+  case 'answer':return typeof action.id==='string'?{type:'answer',id:action.id}:null;
   default:return null;
  }
 }

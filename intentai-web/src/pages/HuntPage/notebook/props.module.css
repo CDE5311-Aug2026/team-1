@@ -1374,6 +1374,11 @@
     0 0 70px rgba(255, 210, 140, 0.16),
     0 30px 60px rgba(0, 0, 0, 0.7);
 }
+.screen.tall {
+  aspect-ratio: 9 / 16;
+  height: min(64vh, 560px);
+  margin: 0 auto;
+}
 .film {
   display: block;
   width: 100%;

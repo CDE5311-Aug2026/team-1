@@ -1,4 +1,5 @@
 import {ROUTES} from '../data.js';
+import {OM_ID,OM_GAME} from '../om/om-content.js';
 // Fictional guides and assignments; historical evidence remains in FIELD_ROUTES.
 // A chapter opens a concrete problem, reveals evidence on inspection, then links
 // its result to the next real stop. No fictional prop is hidden at a real site.
@@ -302,6 +303,7 @@ const balestier=story({
 // a story has one name everywhere: the title on its book (the shelf, the book's bar, the game and the clue cards)
 export const GAME_STORIES=Object.fromEntries(Object.entries({
  'telok-ayer':telok,
+ [OM_ID]:{...OM_GAME,stops:OM_GAME.stops.map(s=>({...s,scene:{speaker:OM_GAME.guideName,text:''},transition:{text:'',cta:''}}))},
  'kampong-gelam':kampong,
  'balestier':balestier,
  'civic-f1':civic

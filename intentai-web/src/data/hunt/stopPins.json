@@ -192,6 +192,42 @@
       "lng": 103.8544,
       "pin": "approx",
       "match": "South end of Esplanade Park by Jubilee Bridge; handoff: exact pin pending site check"
+    },
+    "only-one-missing-01": {
+      "lat": 1.301617,
+      "lng": 103.8596,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-02": {
+      "lat": 1.30205,
+      "lng": 103.86005,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-03": {
+      "lat": 1.30082,
+      "lng": 103.85962,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-04": {
+      "lat": 1.30266,
+      "lng": 103.85954,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-05": {
+      "lat": 1.30318,
+      "lng": 103.85958,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-06": {
+      "lat": 1.30252,
+      "lng": 103.86012,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
     }
   }
 }

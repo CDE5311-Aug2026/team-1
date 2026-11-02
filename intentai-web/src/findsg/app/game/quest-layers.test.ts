@@ -10,7 +10,6 @@ import {createQuestState, isQuestSolved, lockCode, questStage, reduceQuest} from
 import {solveActions} from './race-boost.js';
 
 type Quest = {type: string; code?: string; items?: {id: string; text: string; cell: number; turn: number}[]; stages?: Quest[]};
-const routes = Object.values(ONSITE_ROUTES as Record<string, {stops: {id: string; quest: Quest}[]}>);
 const cards = Object.fromEntries((gameplay as any).routes.flatMap((r: any) => r.level_plan).map((s: any) => [s.stop_id, JSON.stringify(s)]));
 const run = (quest: Quest, actions: object[]) => actions.reduce((state, action) => {
   const result = reduceQuest(quest, state, action);
@@ -19,10 +18,25 @@ const run = (quest: Quest, actions: object[]) => actions.reduce((state, action) 
 }, createQuestState(quest));
 
 test('every stop has at least two layers, and the last stop of each hunt has three', () => {
-  for (const {stops} of routes) stops.forEach((stop, n) => {
+  for (const [id, {stops}] of Object.entries(ONSITE_ROUTES as Record<string, {stops: {id: string; quest: Quest}[]}>)) stops.forEach((stop, n) => {
     expect(stop.quest.type, stop.id).toBe('chain');
-    expect(stop.quest.stages!.length, stop.id).toBe(n === stops.length - 1 ? 3 : 2);
+    // the demo story's hand-made props set their own depth: two or three layers a stop
+    if (id === 'only-one-missing') expect(stop.quest.stages!.length, stop.id).toBeGreaterThanOrEqual(2);
+    else expect(stop.quest.stages!.length, stop.id).toBe(n === stops.length - 1 ? 3 : 2);
   });
+});
+
+test('the demo story: every prop opens only on its answer, and a miss says why', () => {
+  for (const stop of (ONSITE_ROUTES as any)['only-one-missing'].stops) for (const layer of stop.quest.stages) {
+    expect(layer.type, stop.id).toBe('prop');
+    const state = createQuestState(layer);
+    for (const [id, message] of Object.entries(layer.misses || {})) {
+      const miss = reduceQuest(layer, state, {type: 'answer', id});
+      expect(miss.ok, `${stop.id} ${id}`).toBe(false);
+      expect(miss.message).toBe(message);
+    }
+    expect(isQuestSolved(layer, run(layer, [{type: 'answer', id: layer.answer}]))).toBe(true);
+  }
 });
 
 test('the numbers in the locks and torn pages come from the stop’s own info card', () => {
@@ -72,7 +86,7 @@ test('a lock opens only on its number', () => {
 });
 
 test('a chain plays its layers in order and is solved only by the last', () => {
-  const stop = routes[0].stops[0], [first, second] = stop.quest.stages!;
+  const stop = (ONSITE_ROUTES as any)['telok-ayer'].stops[0] as {quest: Quest}, [first, second] = stop.quest.stages!;
   let state = createQuestState(stop.quest);
   expect(questStage(stop.quest, state).index).toBe(0);
   // the lock of layer II does not answer while layer I is still shut

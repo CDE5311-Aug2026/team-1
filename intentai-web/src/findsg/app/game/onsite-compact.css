@@ -1014,3 +1014,12 @@
 .ogc-stuck { margin-top: 18px; padding-top: 12px; border-top: 1px dashed color-mix(in srgb, currentColor 30%, transparent); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .ogc-stuck > span { font-family: var(--font-display); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; opacity: .6; }
 .ogc-stuck .sg-text-button { align-self: flex-start; margin: 0; text-align: left; }
+
+/* Only One Missing: the round projector button (a film of this beat) */
+.findsg .ogc-film { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; border: 0; cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, #f6dc94, #c99a42 55%, #7a5418); box-shadow: inset 0 1px 1px #fff9, 0 4px 10px rgba(0,0,0,.4); color: #3a2709; }
+.ogc-film svg { width: 14px; height: 16px; margin-left: 3px; }
+.findsg .ogc-plate-art .ogc-film { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; }
+.ogc-plate-art .ogc-film svg { width: 20px; height: 24px; }
+
+.ogc-credits { margin: 8px 0 0; font-size: 11px; opacity: .75; } .ogc-credits a { margin-left: 6px; color: inherit; }
