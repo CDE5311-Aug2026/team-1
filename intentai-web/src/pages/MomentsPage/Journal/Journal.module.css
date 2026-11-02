@@ -20,8 +20,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
-  padding: 0 14px;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   border: 1px solid rgba(232, 201, 131, 0.45);
   border-radius: 999px;
   background: rgba(232, 201, 131, 0.08);

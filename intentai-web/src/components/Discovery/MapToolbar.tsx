@@ -122,9 +122,9 @@ export function MapToolbar({
   const scene = useRef<KeyTrayScene | null>(null);
   const [three, setThree] = useState(false);
   const specs = [
-    { label: locating ? '…' : 'Locate', icon: ICONS.locate, on: false, disabled: false },
-    { label: 'Search', icon: ICONS.search, on: open === 'search', disabled: false },
-    { label: 'Picks', icon: ICONS.picks, on: picksOn, disabled: false },
+    { label: '', icon: ICONS.locate, on: !!locating, disabled: false },
+    { label: '', icon: ICONS.search, on: open === 'search', disabled: false },
+    { label: '', icon: ICONS.picks, on: picksOn, disabled: false },
     { label: '', icon: ICONS.undo, on: false, disabled: !canUndo },
     { label: '', icon: ICONS.enter, on: false, disabled: !canEnter },
   ];
@@ -210,7 +210,6 @@ export function MapToolbar({
       <div ref={bar} className={three ? `${styles.bar} ${styles.three}` : styles.bar} role="toolbar" aria-label="Map tools">
         <button type="button" className={styles.key} onClick={onLocate} aria-busy={locating} aria-label="My location" {...keyProps(0)}>
           <Icon d={ICONS.locate} />
-          <span>{locating ? '…' : 'Locate'}</span>
         </button>
         <button
           type="button"
@@ -220,10 +219,10 @@ export function MapToolbar({
             setOpen(open === 'search' ? null : 'search');
           }}
           aria-expanded={open === 'search'}
+          aria-label="Search the map"
           {...keyProps(1)}
         >
           <Icon d={ICONS.search} />
-          <span>Search</span>
         </button>
         <button
           type="button"
@@ -237,14 +236,13 @@ export function MapToolbar({
           {...keyProps(2)}
         >
           <Icon d={ICONS.picks} />
-          <span>Picks</span>
         </button>
-        <button type="button" className={`${styles.key} ${styles.small}`} onClick={onUndo} disabled={!canUndo} aria-label={undoLabel} {...keyProps(3)}>
+        <button type="button" className={styles.key} onClick={onUndo} disabled={!canUndo} aria-label={undoLabel} {...keyProps(3)}>
           <Icon d={ICONS.undo} />
         </button>
         <button
           type="button"
-          className={`${styles.key} ${styles.small} ${styles.enter}`}
+          className={`${styles.key} ${styles.enter}`}
           onClick={() => {
             close();
             onEnter();

@@ -41,7 +41,7 @@ test('new user: no stamps, locked outlines, and the empty states say what to do'
   lookupsStore.set([]);
   renderPage();
   expect(screen.getByRole('heading', { level: 1, name: 'Moments' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Snap' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Snap a moment with the camera' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /^Rank: Visitor\. 3 more cards to Explorer/ })).toBeInTheDocument();
   expect(screen.getByText(/No stamps yet\. Check in at a place in/)).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Chinatown: no stamp yet. See its cards.' })).toBeInTheDocument();

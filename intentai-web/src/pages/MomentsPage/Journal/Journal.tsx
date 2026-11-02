@@ -185,16 +185,15 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
               type="button"
               className={styles.add}
               onClick={onSnap}
-              aria-label="Snap"
+              aria-label="Snap a moment with the camera"
+              title="Snap a moment"
             >
-              <Icon name="cards" size={18} />
-              <span aria-hidden="true">Snap</span>
+              <Icon name="camera" size={20} />
             </button>
           )}
           {/* a label around the input: iOS Safari only opens its picker for a real tap on the file input */}
-          <label className={styles.add}>
-            <Icon name="camera" size={18} />
-            <span>Add photo</span>
+          <label className={styles.add} title="Add a photo">
+            <Icon name="gallery" size={20} />
             <input
               ref={input}
               className={styles.file}

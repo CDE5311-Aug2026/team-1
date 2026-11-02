@@ -173,7 +173,7 @@ test('map tools: Search finds a place and opens it; the back key goes up', async
   expect(screen.getByRole('button', { name: 'Smaller map' })).toHaveAttribute('aria-expanded', 'true');
   await user.click(screen.getByRole('button', { name: 'Smaller map' }));
   expect(screen.getByRole('button', { name: 'Bigger map' })).toHaveAttribute('aria-expanded', 'false');
-  await user.click(screen.getByRole('button', { name: 'Search' }));
+  await user.click(screen.getByRole('button', { name: 'Search the map' }));
   await user.type(screen.getByRole('searchbox', { name: 'Search a place or planning area' }), 'Maxwell');
   await user.click(screen.getByRole('button', { name: /^Maxwell Food Centre/ }));
   expect(screen.getByRole('dialog', { name: 'Maxwell Food Centre' })).toBeInTheDocument();

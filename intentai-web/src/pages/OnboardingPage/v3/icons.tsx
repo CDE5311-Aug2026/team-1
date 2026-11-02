@@ -129,6 +129,15 @@ const PATHS = {
       <circle cx="12" cy="13" r="3.5" />
     </>
   ),
+  /** a picture from the library, with a plus: add a photo you already took */
+  gallery: (
+    <>
+      <rect x="2.5" y="6.5" width="13.5" height="13.5" rx="2" />
+      <path d="M2.5 17l4-4 3 3 2-2 4.5 4.5" />
+      <circle cx="7.5" cy="10.5" r="1.3" />
+      <path d="M19.5 2.5v6M16.5 5.5h6" />
+    </>
+  ),
   flag: <path d="M5 21V4M5 4h11l-2 4 2 4H5" />,
   globe: (
     <>

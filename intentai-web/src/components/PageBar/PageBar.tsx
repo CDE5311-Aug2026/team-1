@@ -76,9 +76,9 @@ export default function PageBar({
         to={paths.mySpaceSettings}
         className={styles.settings}
         aria-label="Settings"
+        title="Settings"
       >
-        <Icon name="gear" size={18} />
-        <span aria-hidden="true">Settings</span>
+        <Icon name="gear" size={20} />
       </Link>
     </header>
   );
