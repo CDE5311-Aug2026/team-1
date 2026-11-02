@@ -1,0 +1,23 @@
+/* The folded-over part of a page while it turns (see paperPeel.ts). The host sits exactly over the page box and keeps
+   the flap inside it; the book sets --flap-paper to the paper of its pages. */
+.host {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 400;
+}
+
+.flap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  visibility: hidden;
+}
+
+.paper {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--light, linear-gradient(transparent, transparent)), var(--flap-paper, #f1e6cc);
+}

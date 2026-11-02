@@ -152,6 +152,15 @@
 }
 
 /* the page itself: one screen, turned like a page when you go from one to the next */
+/* a place file or an evidence card: turned like paper (PaperPages); each page is the book's own parchment */
+.findsg dialog.cb .cb-pages {
+  --pp-paper: radial-gradient(120% 70% at 55% 30%, rgba(255, 249, 230, 0.5), transparent 65%), var(--stains, none), var(--fibres, none), var(--grain, none), #eadcbd;
+  --pp-shadow: inset 16px 0 20px -14px rgba(60, 38, 16, 0.5), inset 0 0 50px rgba(120, 78, 30, 0.3);
+  --pp-flap: var(--fibres, none), var(--grain, none), linear-gradient(90deg, #d8c59c, #efe2c4 30%);
+}
+.findsg dialog.cb .cb-pages > div > .cb-page {
+  height: 100%;
+}
 .findsg dialog.cb .cb-page {
   position: relative;
   flex: 1 1 auto;

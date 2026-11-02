@@ -187,24 +187,30 @@
     linear-gradient(90deg, rgba(120, 85, 45, 0.12), transparent 14px),
     #f6eedb;
   box-shadow: inset 14px 0 18px -14px rgba(120, 85, 45, 0.35);
-  transform-origin: 0 50%;
-  transform: perspective(1500px) rotateY(calc(var(--away, 0) * -178deg));
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  /* it peels away with the first page (the crease meets the page's top edge this far in from the right) */
+  clip-path: inset(-12px calc(var(--away, 0) * 100%) 0 -12px);
   transition:
     height 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
     padding 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* the notebook's strap runs on up past the 3D view */
+/* no stitching on the pasted-in print (the notebook's strap is the board's, below) */
 .deviceOpen::after {
-  inset: 0 16px 0 auto;
-  width: 7px;
-  border: 0;
-  border-radius: 0;
-  background: linear-gradient(90deg, #4a2f1c, #7a5236 45%, #4a2f1c);
-  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.25);
-  opacity: 0.92;
+  content: none;
+}
+
+/* the fold where the print peels away with its page */
+.deviceOpen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(var(--away, 0) * 100%);
+  z-index: 6;
+  width: 26px;
+  pointer-events: none;
+  background: linear-gradient(270deg, rgba(50, 30, 10, 0.32), transparent);
+  opacity: min(1, calc(var(--away, 0) * 12));
 }
 
 .deviceOpen + section {
@@ -269,6 +275,26 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  /* the next page's paper, seen where the 3D print peels away with the first page */
+  border-radius: 6px 18px 18px 6px;
+  background: #f1e6cc;
+}
+
+/* the elastic strap that keeps the notebook shut: it lies over the book (the 3D print and the pages), from its top
+   edge to its foot, and stays put while the pages turn under it */
+.boardBook::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 16px;
+  z-index: 5;
+  width: 7px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #4a2f1c, #7a5236 45%, #4a2f1c);
+  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.25);
+  opacity: 0.92;
+  pointer-events: none;
 }
 
 .grip {

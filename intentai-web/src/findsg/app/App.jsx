@@ -10,6 +10,7 @@ import ArchiveDossier from './game/ArchiveDossier.jsx';
 import ArchivePaper from './game/ArchivePaper.jsx';
 import {readShort} from './short/short-state.js';
 import BrandMark from './components/BrandMark.jsx';
+import {PaperPages} from '../../components/Notebook/PaperPages';
 import './case-book.css';
 
 function Brand({onClick}){return <button className="sg-brand" aria-label="FindSG story box" onClick={onClick}><span className="sg-brand-mark"><BrandMark/></span><span>FindSG<em>.</em><small>PLAY THE CITY</small></span></button>;}
@@ -69,6 +70,23 @@ export default function App({top=null}={}){
  const found=progress.completed.length,total=field.stops.length,manual=progress.mode==='manual';
  const label=type==='place'?<>{PAGE_LABEL.place} <b>{meta.no}.{two(index+1)}</b></>:type==='collected'?<>{PAGE_LABEL.collected} <b>{two(index+1)}</b></>:type==='journal'||type==='route'?<>{PAGE_LABEL[type]} <b>{found}</b>/{total}</>:PAGE_LABEL[type]||'';
  const page=modal?`${type}:${modalRoute}:${index}`:'none';
+ // a place file and an evidence card are pages you turn like paper: right to left for the next stop (or the next clue
+ // found), left to right for the one before
+ const placePage=i=><ArchiveDossier key={`${modalRoute}:${i}:${progress.mode}`} routeId={modalRoute} place={base.stops[i]} stop={field.stops[i]} index={i} unlocked={progress.completed.includes(field.stops[i].id)} mode={progress.mode} reducedMotion={reducedMotion} initialCardId={i===index?modal.card||'place':'place'} onOpenClue={()=>turn({type:'collected',index:i})}/>;
+ const collectedPage=i=><div className="cb-evidence">
+  <h2 className="cb-sr">{field.stops[i].reward.title}</h2>
+  <p className="cb-where"><span>Stop {two(i+1)} · {cleanPlace(base.stops[i].name)}</span><button onClick={()=>turn({type:'place',index:i,card:'story'})}>Place file <b aria-hidden="true">›</b></button></p>
+  <DiscoveryPacket key={`${modalRoute}:${i}`} routeId={modalRoute} stop={field.stops[i]} index={i} reducedMotion={reducedMotion} selected initialView="card" framed={false} className="cb-packet"/>
+  {found>1&&<EvidenceStrip stops={field.stops} completed={progress.completed} active={i} onPick={j=>setModal({...modal,index:j})}/>}
+ </div>;
+ const paged=type==='place'||type==='collected';
+ const foundAt=paged?field.stops.map((s,i)=>progress.completed.includes(s.id)?i:-1).filter(i=>i>=0):[];
+ const besideIndex=dir=>{
+  if(type==='place'){const j=index+dir;return j>=0&&j<base.stops.length?j:null;}
+  if(type==='collected'){const list=dir===1?foundAt.filter(i=>i>index):foundAt.filter(i=>i<index).reverse();return list.length?list[0]:null;}
+  return null;
+ };
+ const pageAt=i=>type==='place'?placePage(i):collectedPage(i);
 
  return <div className="sg-app">
   <a className="skip-link" href="#main-content">Skip to the story</a>
@@ -82,7 +100,9 @@ export default function App({top=null}={}){
      <span className="cb-label">{label}</span>
      <button className="cb-close" aria-label="Close" onClick={close}><span aria-hidden="true">✕</span></button>
     </header>}
-    <div className="cb-page" key={page} tabIndex={-1} autoFocus>
+    {paged?<PaperPages className="cb-pages" pageKey={page} neighbour={dir=>{const j=besideIndex(dir);return j==null?null:<div className="cb-page">{pageAt(j)}</div>;}} onTurn={dir=>{const j=besideIndex(dir);if(j!=null)setModal({...modal,index:j,card:undefined});}}>
+     <div className="cb-page" key={page} tabIndex={-1} autoFocus>{pageAt(index)}</div>
+    </PaperPages>:<div className="cb-page" key={page} tabIndex={-1} autoFocus>
 
      {type==='how'&&<>
       <h2 className="cb-title">Every stop, three moves.</h2>
@@ -106,15 +126,6 @@ export default function App({top=null}={}){
        </li>;})}</ol>
      </>}
 
-     {type==='place'&&<ArchiveDossier key={`${modalRoute}:${index}:${progress.mode}`} routeId={modalRoute} place={place} stop={clue} index={index} unlocked={progress.completed.includes(clue.id)} mode={progress.mode} reducedMotion={reducedMotion} initialCardId={modal.card||'place'} onOpenClue={()=>turn({type:'collected',index})}/>}
-
-     {type==='collected'&&<div className="cb-evidence">
-      <h2 className="cb-sr">{clue.reward.title}</h2>
-      <p className="cb-where"><span>Stop {two(index+1)} · {cleanPlace(place.name)}</span><button onClick={()=>turn({type:'place',index,card:'story'})}>Place file <b aria-hidden="true">›</b></button></p>
-      <DiscoveryPacket key={`${modalRoute}:${index}`} routeId={modalRoute} stop={clue} index={index} reducedMotion={reducedMotion} selected initialView="card" framed={false} className="cb-packet"/>
-      {found>1&&<EvidenceStrip stops={field.stops} completed={progress.completed} active={index} onPick={i=>setModal({...modal,index:i})}/>}
-     </div>}
-
      {type==='journal'&&<>
       <div className="cb-head"><h2 className="cb-title">{story.title}</h2></div>
       {found?<ClueCollection key={`${modalRoute}:${progress.mode}`} routeId={modalRoute} stops={field.stops} completed={progress.completed} reducedMotion={reducedMotion} onOpenCard={i=>turn({type:'collected',index:i})}/>
@@ -135,7 +146,7 @@ export default function App({top=null}={}){
      </>}
 
      {type==='paper'&&<ArchivePaper key={`sample:${modalRoute}`} routeId={modalRoute} reducedMotion={reducedMotion} sample className="cb-paper"/>}
-    </div>
+    </div>}
    </>}
   </dialog>
  </div>;

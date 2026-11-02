@@ -1,12 +1,14 @@
-// Pages you turn (owner, 31 Oct 2026: "slide it like turning pages"). The pages lie in a stack; swipe left and the top
-// one lifts at its right edge and swings over the spine on the left, in 3D, showing the next; swipe right and the last
-// one comes back. The page follows your finger, then finishes the turn (or falls back) on a spring. A page scrolls up and
+// Pages you turn (owner, 31 Oct 2026: "slide it like turning pages"). The pages lie in a stack; swipe right to left and
+// the top one peels from its right edge like paper, its back folding over it, showing the next (paperPeel.ts); swipe
+// left to right and the last one comes back. The page follows your finger, then finishes the turn (or falls back) on a spring. A page scrolls up and
 // down as usual; only a sideways swipe turns it. The arrows, the dots, the turned-up corner and the arrow keys turn it
 // too. Things inside a page that move sideways themselves (a slider, a note) are marked data-no-flip. A page's top-level
 // element marked data-fill stretches to the sheet's height.
 import { animate, useReducedMotionConfig, type AnimationPlaybackControls } from 'motion/react';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import styles from './FlipBook.module.css';
+import { clearPeel, drawPeel } from './paperPeel';
+import peel from './paperPeel.module.css';
 
 export interface BookPage {
   key: string;
@@ -40,6 +42,8 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
   const [index, setIndex] = useState(0);
   const leaves = useRef<(HTMLElement | null)[]>([]);
   const book = useRef<HTMLDivElement>(null);
+  const flap = useRef<HTMLDivElement>(null);
+  const flapPaper = useRef<HTMLDivElement>(null);
   const turning = useRef<AnimationPlaybackControls | null>(null);
   const gesture = useRef<{ id: number; x: number; y: number; t: number; mode: 'wait' | 'flip'; dir: 1 | -1; edge: boolean; p: number; v: number } | null>(null);
   const swallowClick = useRef(false);
@@ -53,27 +57,32 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
     setIndex(0);
   }, [resetKey]);
 
+  const shadeOf = (el?: HTMLElement | null) => el?.querySelector<HTMLElement>(`.${styles.shade}`) ?? null;
+  /** Every page back as its classes have it, the flap put away. */
+  const settle = () => {
+    for (const el of leaves.current) clearPeel(el, shadeOf(el));
+    clearPeel(flap.current, flapPaper.current);
+  };
+
   // after a turn the classes take over from the inline styles the turn left behind
   useLayoutEffect(() => {
-    for (const el of leaves.current) {
-      if (!el) continue;
-      el.style.removeProperty('transform');
-      el.style.removeProperty('--lift');
-      el.style.removeProperty('--under');
-    }
+    settle();
     onTurnRef.current?.(at);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [at, resetKey]);
 
-  /** Draw a turn in progress: dir 1 lifts the top page away, -1 brings the one before back; p from 0 to 1. */
+  /** Draw a turn in progress: dir 1 peels the top page away, -1 brings the one before back; p from 0 to 1. */
   const paint = (dir: 1 | -1, p: number) => {
     const leaf = leaves.current[dir === 1 ? at : at - 1];
     const under = leaves.current[dir === 1 ? at + 1 : at];
-    const turned = dir === 1 ? p : 1 - p; // how far the moving page is over
-    if (leaf) {
-      leaf.style.transform = `rotateY(${-178 * turned}deg)`;
-      leaf.style.setProperty('--lift', String(Math.sin(turned * Math.PI)));
-    }
-    under?.style.setProperty('--under', String(1 - turned));
+    const turned = dir === 1 ? p : 1 - p; // how far the moving page is peeled
+    if (leaf)
+      drawPeel(
+        { leaf, leafShade: shadeOf(leaf), underShade: shadeOf(under), flap: flap.current, flapPaper: flapPaper.current },
+        turned,
+        leaf.offsetWidth,
+        leaf.offsetHeight,
+      );
     onTurnRef.current?.(dir === 1 ? at + p : at - p);
   };
 
@@ -93,13 +102,7 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
         turning.current = null;
         if (to === 1) setIndex(at + dir);
         else onTurnRef.current?.(at);
-        if (to === 0)
-          for (const el of leaves.current)
-            if (el) {
-              el.style.removeProperty('transform');
-              el.style.removeProperty('--lift');
-              el.style.removeProperty('--under');
-            }
+        if (to === 0) settle();
       },
     });
   };
@@ -137,7 +140,11 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
       g.mode = 'flip';
       g.dir = dx < 0 ? 1 : -1;
       g.edge = (g.dir === 1 && at >= last) || (g.dir === -1 && at <= 0);
-      book.current?.setPointerCapture(e.pointerId);
+      try {
+        book.current?.setPointerCapture(e.pointerId);
+      } catch {
+        // the pointer is already gone: the turn still follows its moves
+      }
     }
     const width = book.current?.clientWidth || 320;
     const raw = clamp(((g.dir === 1 ? -dx : dx) - 10) / (width * 0.8));
@@ -147,9 +154,10 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
     g.p = p;
     g.t = e.timeStamp;
     if (g.edge) {
-      // nothing more that way: the page only lifts a little and falls back
+      // nothing more that way: the last page only lifts its edge a little and falls back
       const leaf = leaves.current[at];
-      if (leaf) leaf.style.transform = `rotateY(${(g.dir === 1 ? -1 : 1) * 40 * p}deg)`;
+      if (leaf && g.dir === 1)
+        drawPeel({ leaf, leafShade: shadeOf(leaf), flap: flap.current, flapPaper: flapPaper.current }, p * 0.6, leaf.offsetWidth, leaf.offsetHeight);
     } else paint(g.dir, p);
   };
 
@@ -159,11 +167,7 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
     if (!g || g.id !== e.pointerId || g.mode !== 'flip') return;
     swallowClick.current = true;
     window.setTimeout(() => (swallowClick.current = false), 50);
-    if (g.edge) {
-      const leaf = leaves.current[at];
-      if (leaf) leaf.style.removeProperty('transform');
-      return;
-    }
+    if (g.edge) return settle();
     const go = g.p > 0.33 || g.v > 1.6;
     finish(g.dir, g.p, go ? 1 : 0);
   };
@@ -231,6 +235,12 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
             </section>
           );
         })}
+        {/* the back of the page as it folds over */}
+        <div className={`${peel.host} ${styles.flapHost}`} aria-hidden="true">
+          <div ref={flap} className={peel.flap}>
+            <div ref={flapPaper} className={peel.paper} />
+          </div>
+        </div>
       </div>
 
       <nav className={styles.nav} aria-label="Pages">

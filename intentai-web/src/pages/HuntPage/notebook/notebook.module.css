@@ -95,18 +95,17 @@
   inset: 0;
   transform-origin: left center;
   transform-style: preserve-3d;
-  transition:
-    transform var(--turn),
-    visibility 0s;
 }
-.dragging {
-  transition: none;
-}
+/* a page read: out of sight under the ones before it (it turns back with the peel in paperPeel.ts) */
 .turned {
   visibility: hidden;
-  transition:
-    transform var(--turn),
-    visibility 0s 0.75s;
+}
+/* over the open page exactly, above the leaves and under the spine */
+.flapHost {
+  inset: 0;
+  border-radius: 2px 8px 8px 2px;
+  transform: translateZ(2px);
+  --flap-paper: var(--stains), var(--fibres), var(--grain), linear-gradient(90deg, #dccaa3, var(--paper) 30%);
 }
 .front,
 .reverse {
@@ -133,22 +132,11 @@
     inset 0 0 3px rgba(90, 60, 25, 0.5);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
 }
-/* the light and shade of a page as it lifts */
+/* the light and shade on a page while one turns (drawn by paperPeel.ts) */
 .curl {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(to left, rgba(50, 30, 12, calc(var(--lift) * 0.45)), transparent 55%),
-    linear-gradient(to right, rgba(255, 248, 228, calc(var(--lift) * 0.35)), transparent 35%);
-}
-.castShadow {
-  position: absolute;
-  inset: 0;
-  transform: translateZ(-0.5px);
-  pointer-events: none;
-  background: linear-gradient(to right, rgba(40, 24, 10, 0.75), transparent 70%);
-  z-index: 499;
 }
 
 /* the dog-eared corner: tap to turn */

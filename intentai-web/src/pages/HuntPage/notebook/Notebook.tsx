@@ -1,7 +1,11 @@
 // The field notebook: a leather book lying on the desk. Tap it and the strap slips off and the cover swings open; then
-// its pages turn like paper: drag a page by its edge (it follows your finger, curling and casting a shadow), tap the
-// dog-ear, or pick a thumb tab to riffle straight to a chapter.
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type ReactNode } from 'react';
+// its pages turn like paper: swipe right to left and the page peels from its edge after your finger, its back folding
+// over it and its shadow on the page beneath (paperPeel.ts); swipe the other way to bring the last one back. The
+// dog-ear turns it too, and a thumb tab riffles straight to a chapter.
+import { animate, type AnimationPlaybackControls } from 'motion/react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type ReactNode } from 'react';
+import { clearPeel, drawPeel } from '../../../components/Notebook/paperPeel';
+import peel from '../../../components/Notebook/paperPeel.module.css';
 import styles from './notebook.module.css';
 import { fibres, grain, leather, marble, scuffs, stains } from './textures';
 
@@ -61,10 +65,63 @@ export function Notebook({
   insert?: ReactNode;
 }) {
   const book = useRef<HTMLDivElement>(null);
-  // a page being dragged: which leaf, and how far it has turned (0 flat .. -180 over)
-  const [drag, setDrag] = useState<{ leaf: number; angle: number } | null>(null);
-  const start = useRef<{ x: number; y: number; t: number; dir: 0 | 1 | -1; id: number } | null>(null);
+  const leaves = useRef<(HTMLElement | null)[]>([]);
+  const flap = useRef<HTMLDivElement>(null);
+  const flapPaper = useRef<HTMLDivElement>(null);
+  const anim = useRef<AnimationPlaybackControls | null>(null);
+  // the leaf on the move (lifted above the rest while it turns)
+  const [moving, setMoving] = useState<number | null>(null);
+  const start = useRef<{ x: number; y: number; t: number; dir: 0 | 1 | -1; id: number; k: number } | null>(null);
   const [riffle, setRiffle] = useState<number | null>(null);
+
+  const curlOf = (el?: HTMLElement | null) => el?.querySelector<HTMLElement>(`.${styles.curl}`) ?? null;
+  const settle = () => {
+    for (const el of leaves.current) clearPeel(el, curlOf(el));
+    clearPeel(flap.current, flapPaper.current);
+  };
+  /** dir 1 peels the open page away, -1 brings the one before back; p from 0 to 1. */
+  const paint = (dir: 1 | -1, p: number) => {
+    const leaf = leaves.current[dir === 1 ? index : index - 1];
+    const under = leaves.current[dir === 1 ? index + 1 : index];
+    if (!leaf) return;
+    drawPeel(
+      { leaf, leafShade: curlOf(leaf), underShade: curlOf(under), flap: flap.current, flapPaper: flapPaper.current },
+      dir === 1 ? p : 1 - p,
+      leaf.offsetWidth,
+      leaf.offsetHeight,
+    );
+  };
+  // a new page open: the classes take over from what the turn left behind
+  useLayoutEffect(() => {
+    settle();
+    setMoving(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
+  useEffect(() => () => anim.current?.stop(), []);
+
+  /** Finish (to 1) or undo (to 0) a turn from where it is; quick for a riffle. */
+  const run = (dir: 1 | -1, from: number, to: 0 | 1, quick = false) => {
+    anim.current?.stop();
+    if (reduced()) {
+      settle();
+      setMoving(null);
+      if (to === 1) onIndex(index + dir);
+      return;
+    }
+    setMoving(dir === 1 ? index : index - 1);
+    anim.current = animate(from, to, {
+      ...(quick ? { duration: 0.14, ease: 'easeIn' as const } : { type: 'spring' as const, stiffness: to === 1 ? 170 : 260, damping: 26, restDelta: 0.002 }),
+      onUpdate: (p) => paint(dir, p),
+      onComplete: () => {
+        anim.current = null;
+        if (to === 1) onIndex(index + dir);
+        else {
+          settle();
+          setMoving(null);
+        }
+      },
+    });
+  };
 
   // riffle to a far page one leaf at a time, so you see the pages go by
   useEffect(() => {
@@ -73,20 +130,22 @@ export function Notebook({
       onIndex(riffle);
       return setRiffle(null);
     }
-    const t = setTimeout(() => onIndex(index + Math.sign(riffle - index)), 110);
+    const t = setTimeout(() => run(riffle > index ? 1 : -1, 0, 1, true), 30);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [riffle, index, onIndex]);
 
   const turn = (to: number) => {
+    if (anim.current) return;
     const next = Math.max(0, Math.min(pages.length - 1, to));
     if (Math.abs(next - index) > 1) setRiffle(next);
-    else onIndex(next);
+    else if (next !== index) run(next > index ? 1 : -1, 0, 1);
   };
 
   const width = () => book.current?.getBoundingClientRect().width ?? 360;
   function down(e: RPointerEvent) {
-    if (!open || (e.target as HTMLElement).closest('button,a,input,[data-nodrag]')) return;
-    start.current = { x: e.clientX, y: e.clientY, t: performance.now(), dir: 0, id: e.pointerId };
+    if (!open || anim.current || (e.target as HTMLElement).closest('button,a,input,[data-nodrag]')) return;
+    start.current = { x: e.clientX, y: e.clientY, t: performance.now(), dir: 0, id: e.pointerId, k: 0 };
   }
   function move(e: RPointerEvent) {
     const s = start.current;
@@ -98,22 +157,24 @@ export function Notebook({
       if (Math.abs(dy) > Math.abs(dx)) return void (start.current = null); // a scroll, not a turn
       s.dir = dx < 0 ? 1 : -1;
       if ((s.dir === 1 && index >= pages.length - 1) || (s.dir === -1 && index <= 0)) return void (start.current = null);
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      setMoving(s.dir === 1 ? index : index - 1);
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      } catch {
+        // the pointer is already gone: the turn still follows its moves
+      }
     }
-    const k = Math.min(1, Math.abs(dx) / (width() * 0.9));
-    setDrag(s.dir === 1 ? { leaf: index, angle: -180 * k } : { leaf: index - 1, angle: -180 + 180 * k });
+    s.k = Math.min(1, Math.max(0, (s.dir === 1 ? -dx : dx) - 10) / (width() * 0.85));
+    paint(s.dir, s.k);
   }
   function up(e: RPointerEvent) {
     const s = start.current;
     start.current = null;
-    if (!s || !s.dir || !drag) return setDrag(null);
+    if (!s || !s.dir) return;
     const fast = Math.abs(e.clientX - s.x) / Math.max(1, performance.now() - s.t) > 0.5;
-    const k = s.dir === 1 ? -drag.angle / 180 : 1 + drag.angle / 180;
-    setDrag(null);
-    if (k > 0.35 || fast) onIndex(index + s.dir);
+    run(s.dir, s.k, s.k > 0.35 || fast ? 1 : 0);
   }
 
-  const angleOf = (i: number) => (drag?.leaf === i ? drag.angle : i < index ? -180 : 0);
   const tabs = pages.map((p, i) => ({ ...p, i })).filter((p) => p.tab);
 
   return (
@@ -129,17 +190,16 @@ export function Notebook({
           <span className={styles.back} aria-hidden="true" />
 
           {pages.map((p, i) => {
-            const angle = angleOf(i);
-            const lift = Math.sin((-angle * Math.PI) / 180); // 0 flat, 1 upright
-            const near = Math.abs(i - index) <= 1 || drag?.leaf === i;
-            const z = drag?.leaf === i ? 500 : i < index ? 100 + i : 300 - i;
+            const near = Math.abs(i - index) <= 1 || moving === i;
+            const z = moving === i ? 500 : i < index ? 100 + i : 300 - i;
             // leaves share a plane: nudge each back a hair so the one on top always paints on top
-            const depth = drag?.leaf === i ? 0.6 : i < index ? (i - index) * 0.3 : (index - i) * 0.4;
+            const depth = moving === i ? 0.6 : i < index ? (i - index) * 0.3 : (index - i) * 0.4;
             return (
               <section
                 key={p.id}
-                className={`${styles.leaf} ${drag?.leaf === i ? styles.dragging : ''} ${i < index && drag?.leaf !== i ? styles.turned : ''}`}
-                style={{ zIndex: z, transform: `translateZ(${depth}px) rotateY(${angle}deg)`, '--lift': lift } as CSSProperties}
+                ref={(el) => void (leaves.current[i] = el)}
+                className={`${styles.leaf} ${i < index && moving !== i ? styles.turned : ''}`}
+                style={{ zIndex: z, transform: `translateZ(${depth}px)` } as CSSProperties}
                 aria-hidden={i !== index}
                 {...inert(i !== index || !open)}
                 aria-label={p.label}
@@ -162,13 +222,13 @@ export function Notebook({
               </section>
             );
           })}
-          {/* the shadow a lifted page throws on the one beneath */}
-          {drag && (
-            <span
-              className={styles.castShadow}
-              style={{ opacity: Math.sin((-drag.angle * Math.PI) / 180) * 0.55, transform: `translateZ(${drag.leaf === index ? -0.2 : 0.2}px)` }}
-              aria-hidden="true"
-            />
+          {/* the back of a page as it folds over, kept on the book */}
+          {open && (
+            <div className={`${peel.host} ${styles.flapHost}`} aria-hidden="true">
+              <div ref={flap} className={peel.flap}>
+                <div ref={flapPaper} className={peel.paper} />
+              </div>
+            </div>
           )}
 
           <div className={styles.cover} aria-hidden={open}>

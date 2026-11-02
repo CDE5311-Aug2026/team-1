@@ -139,8 +139,6 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: dec
       exit={reduce ? { opacity: 0 } : { opacity: 0, y: 30 }}
       transition={{ type: 'spring', stiffness: 320, damping: 32 }}
     >
-      <span className={styles.strap} aria-hidden="true" />
-
       <div className={styles.bookWrap} data-testid="place-story-card">
         <FlipBook pages={pages} resetKey={place.id} onTurn={onTurn} controls={book} />
       </div>
