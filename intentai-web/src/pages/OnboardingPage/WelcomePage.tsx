@@ -7,7 +7,6 @@ import logo from '../../assets/brand/findsg-logo.png';
 import lion from '../../assets/v3/onboarding/lion.png';
 import AppShell from '../../components/AppShell/AppShell';
 import BlurText from '../../components/reactbits/BlurText';
-import useTestVersion from '../../hooks/useTestVersion';
 import { topicPhoto } from '../../data/profile/finds';
 import { usePersistentStore } from '../../data/persistentStore';
 import {
@@ -50,7 +49,6 @@ export function parseStep(raw: string | null): number {
 
 function Welcome({ onStart }: { onStart: () => void }) {
   const reduce = useReducedMotionConfig();
-  const version = useTestVersion();
   return (
     <div className={styles.welcome}>
       {/* strips of film drifting behind the passport: Singapore's buildings, old and today */}
@@ -77,8 +75,7 @@ function Welcome({ onStart }: { onStart: () => void }) {
       </motion.div>
       <h1 className={styles.welcomeTitle}>
         <BlurText as="span" text="Welcome to the" trigger="load" delay={70} className={styles.welcomeLine} />
-        {/* Version A of the user test has no Hunt, so it is not called one. */}
-        <BlurText as="span" text={version === 'A' ? 'Singapore Explorer' : 'Singapore Treasure Hunt'} trigger="load" delay={70} className={styles.welcomeLine} />
+        <BlurText as="span" text="Singapore Treasure Hunt" trigger="load" delay={70} className={styles.welcomeLine} />
       </h1>
       <p className={styles.welcomeLead}>Find landmarks, culture, food and nature around you, and collect a stamp for every place.</p>
       <ul className={styles.circles}>
@@ -114,7 +111,7 @@ function Welcome({ onStart }: { onStart: () => void }) {
       </details>
       <div className={styles.footer}>
         <button type="button" className={styles.primary} onClick={onStart}>
-          {version === 'A' ? 'Start exploring' : 'Start the hunt'} <Icon name="arrow" size={18} />
+          Start the hunt <Icon name="arrow" size={18} />
         </button>
       </div>
     </div>

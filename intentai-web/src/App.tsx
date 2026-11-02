@@ -14,7 +14,6 @@ import HelpCenter from './components/HelpCenter/HelpCenter';
 import CrashSwitch from './components/PageError/CrashSwitch';
 import PageErrorBoundary from './components/PageError/PageError';
 import NetStatus from './components/NetStatus/NetStatus';
-import useTestVersion from './hooks/useTestVersion';
 
 // Every screen but Today loads on demand, so a phone opening the app downloads Today's code only (the place catalogue,
 // the community posts, the atlas and the map stay out of it). Nearby Explorer screens were already split this way.
@@ -65,7 +64,6 @@ export default function App() {
   const [onboarding] = usePersistentStore(onboardingStore);
   const { pathname } = useLocation();
   const reduceMotion = useReduceMotionSetting();
-  const version = useTestVersion();
   useTextSizeSetting();
 
   return (
@@ -93,7 +91,7 @@ export default function App() {
             />
             <Route path={paths.holiday} element={<HolidayPage />} />
             <Route path={paths.moments} element={<MomentsPage />} />
-            <Route path={paths.hunt} element={version === 'A' ? <Navigate to={paths.today} replace /> : <HuntPage />} />
+            <Route path={paths.hunt} element={<HuntPage />} />
             <Route path={paths.nearby} element={<ExplorePage />} />
             <Route path={paths.nearbyLocation} element={<LocationPage />} />
             <Route path={patterns.nearbyPlace} element={<PlaceDetailPage />} />

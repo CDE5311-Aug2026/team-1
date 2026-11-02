@@ -327,19 +327,92 @@
   gap: 6px;
 }
 
-.out .alone[aria-pressed='true'] {
+.out .independent[aria-pressed='true'] {
   border-color: var(--ok);
   background: var(--ok);
   color: #fff;
 }
 
-.out .helped[aria-pressed='true'] {
+.out .assisted[aria-pressed='true'] {
   border-color: var(--warn);
   background: var(--warn);
   color: #fff;
 }
 
-.out .not[aria-pressed='true'] {
+.out .incomplete[aria-pressed='true'],
+.out .skipped[aria-pressed='true'],
+.out .technical[aria-pressed='true'] {
+  border-color: var(--bad);
+  background: var(--bad);
+  color: #fff;
+}
+
+/* End-state checks: the facilitator ticks yes or no under a task. */
+.checks {
+  display: grid;
+  gap: 6px;
+  margin-top: 0.5rem;
+}
+
+.checkRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.checkRow .chip {
+  min-width: 3.25rem;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.before {
+  margin: 0.25rem 0 0;
+  padding: 0.5rem 0.625rem;
+  border-left: 3px solid var(--warn);
+  background: var(--bg-app);
+  font-size: 0.875rem;
+}
+
+/* A labelled five-point scale (Quick responses 2, 4 and 5). */
+.points {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.points .chip {
+  padding: 0.5rem 0.375rem;
+  font-family: var(--font-family);
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.pilotBadge {
+  display: inline-block;
+  margin-left: 0.375rem;
+  padding: 1px 6px;
+  border: 1px solid var(--warn);
+  border-radius: 5px;
+  color: var(--warn);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.pillOk {
+  border-color: var(--ok);
+  background: var(--ok);
+  color: #fff;
+}
+
+.pillBad {
   border-color: var(--bad);
   background: var(--bad);
   color: #fff;

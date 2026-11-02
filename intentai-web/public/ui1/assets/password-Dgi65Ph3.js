@@ -1,0 +1,1 @@
+const s="intentai:admin-password";function e(){try{return sessionStorage.getItem(s)??""}catch{return""}}function r(t){try{t===null?sessionStorage.removeItem(s):sessionStorage.setItem(s,t)}catch{}}export{s as P,e as r,r as w};

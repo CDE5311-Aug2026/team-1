@@ -5,8 +5,7 @@
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { matchTopic, topicsFor, type HelpTopic } from '../../data/help/guide';
-import useTestVersion from '../../hooks/useTestVersion';
+import { matchTopic, TOPICS, type HelpTopic } from '../../data/help/guide';
 import Icon, { type IconName } from '../../pages/OnboardingPage/v3/icons';
 import { HelpMark } from './HelpBadge';
 import { lockScroll } from '../../hooks/scrollLock';
@@ -41,7 +40,7 @@ function pageOf(pathname: string) {
 }
 
 /** Starter questions, the ones about this tab first. */
-function startersFor(page: string, topics: HelpTopic[]): HelpTopic[] {
+function startersFor(page: string): HelpTopic[] {
   const first: Record<string, string[]> = {
     Home: ['start', 'explore', 'checkin', 'hunt'],
     Moments: ['journal', 'share', 'photos', 'stamps'],
@@ -50,8 +49,7 @@ function startersFor(page: string, topics: HelpTopic[]): HelpTopic[] {
     Explore: ['explore', 'checkin', 'stamps', 'start'],
   };
   const ids = first[page] ?? first.Home;
-  const picked = ids.map((id) => topics.find((t) => t.id === id)).filter((t): t is HelpTopic => !!t);
-  return [...picked, ...topics.filter((t) => !picked.includes(t))].slice(0, 4);
+  return [...ids.map((id) => TOPICS.find((t) => t.id === id)!), ...TOPICS.filter((t) => !ids.includes(t.id))].slice(0, 4);
 }
 
 type Note = { at: number; kind: string; page: string; text: string };
@@ -224,9 +222,7 @@ function Ask({ page }: { page: string }) {
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const here = (to: string) => to === pathname + search || (to !== '/' && to.split('?')[0] === pathname && !to.includes('?'));
-  const version = useTestVersion();
-  const topics = useMemo(() => topicsFor(version), [version]);
-  const starters = useMemo(() => startersFor(page, topics), [page, topics]);
+  const starters = useMemo(() => startersFor(page), [page]);
   useEffect(() => {
     saved = messages;
     list.current?.scrollTo({ top: list.current.scrollHeight, behavior: 'smooth' });
@@ -240,9 +236,9 @@ function Ask({ page }: { page: string }) {
     setMessages(convo);
     setDraft('');
     setBusy(true);
-    const topic = matchTopic(text, topics) ?? undefined;
+    const topic = matchTopic(text) ?? undefined;
     const started = Date.now();
-    const data = await post({ mode: 'ask', page, version, messages: convo.map((m) => ({ role: m.role, text: m.text })) });
+    const data = await post({ mode: 'ask', page, messages: convo.map((m) => ({ role: m.role, text: m.text })) });
     // a beat of "typing" even when the answer is local, so it reads as a reply
     await new Promise((r) => setTimeout(r, Math.max(0, 650 - (Date.now() - started))));
     const answer = typeof data?.answer === 'string' ? data.answer : (topic?.a ?? UNSURE);

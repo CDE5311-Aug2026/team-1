@@ -1,11 +1,12 @@
 // /api/abtest: the A/B test desk (/test) saves each participant's answers here.
-//   POST {type: "start"}           -> the new participant (code P01, P02…; odd numbers start on A, even on B)
+//   POST {type: "start"}           -> the new participant (P01, P02…; order 1 A·X, 2 B·X, 3 A·Y, 4 B·Y, repeating)
+//   POST {type: "start", pilot: true} -> a pilot session (T01, T02…), kept apart from the main results
 //   POST {type: "save", response}  -> 204: the latest state of one participant (saved after every step)
 //   GET                            -> {responses}: one entry per participant, newest state (admin password)
 //   DELETE ?code=P03               -> removes one participant; DELETE with no code clears all (admin password)
 // Answers are kept as an append-only Redis list; the newest entry per code wins, and a removal is an entry too.
 import { createHash, timingSafeEqual } from 'node:crypto';
-import type { AbResponse } from '../../src/pages/AbTestPage/abTest.js';
+import { FORM, firstOf, routeOf, type AbResponse } from '../../src/pages/AbTestPage/abTest.js';
 import type { RedisLike } from '../usage/store.js';
 
 export const ABTEST_KEY = 'intentai:abtest';
@@ -28,7 +29,9 @@ const digest = (v: string) => createHash('sha256').update(v).digest();
 const samePassword = (given: string, expected: string) => timingSafeEqual(digest(given), digest(expected));
 const NOT_CONNECTED = 'Storage not connected. Connect a Redis database to the Vercel project.';
 
-const CODE = /^P\d{2,3}$/;
+const CODE = /^[PT]\d{2,3}$/;
+const OUTCOME = ['independent', 'assisted', 'incomplete', 'skipped', 'technical'];
+const PREF_KEYS = ['ease', 'interest', 'enjoy', 'clarity', 'useful', 'comfort', 'overall'];
 const VERSIONS = ['A', 'B'];
 const isScore = (v: unknown) => v === 'na' || (typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= 5);
 const shortText = (v: unknown, max = 60) => typeof v === 'string' && v.length <= max;
@@ -37,7 +40,7 @@ const shortText = (v: unknown, max = 60) => typeof v === 'string' && v.length <=
 export function cleanResponse(raw: unknown): AbResponse | null {
   if (!raw || typeof raw !== 'object') return null;
   const r = raw as Record<string, unknown>;
-  if (typeof r.code !== 'string' || !CODE.test(r.code) || (r.first !== 'A' && r.first !== 'B')) return null;
+  if (typeof r.code !== 'string' || !CODE.test(r.code) || (r.first !== 'A' && r.first !== 'B') || (r.route !== 'X' && r.route !== 'Y')) return null;
   const n = Number(r.n);
   if (!Number.isInteger(n) || n < 1 || n > 999) return null;
   const perVersion = <T>(value: unknown, keep: (k: string, v: unknown) => T | undefined) => {
@@ -56,19 +59,23 @@ export function cleanResponse(raw: unknown): AbResponse | null {
     }
     return out;
   };
-  const tasks = perVersion<string>(r.tasks, (_, v) => (v === 'alone' || v === 'helped' || v === 'not' ? v : undefined));
+  // t1…t4 hold an outcome; t3c1-style keys hold the facilitator's end-state check.
+  const tasks = perVersion<string>(r.tasks, (k, v) =>
+    /c\d$/.test(k) ? (v === 'yes' || v === 'no' ? v : undefined) : typeof v === 'string' && OUTCOME.includes(v) ? v : undefined,
+  );
   const ratings = perVersion<number | 'na'>(r.ratings, (_, v) => (isScore(v) ? (v as number | 'na') : undefined));
   const quick = perVersion<number | 'na' | string[]>(r.quick, (_, v) =>
     isScore(v) ? (v as number | 'na') : Array.isArray(v) && v.length <= 2 && v.every((x) => shortText(x)) ? (v as string[]) : undefined,
   );
   const compare: AbResponse['compare'] = {};
   const c = r.compare && typeof r.compare === 'object' ? (r.compare as Record<string, unknown>) : {};
-  for (const k of ['fun', 'explore', 'start', 'overall']) if (isScore(c[k])) compare[k] = c[k] as number | 'na';
+  for (const k of PREF_KEYS) if (isScore(c[k])) compare[k] = c[k] as number | 'na';
   if (shortText(c.useAgain)) compare.useAgain = c.useAgain as string;
+  if (shortText(c.improve)) compare.improve = c.improve as string;
   if (shortText(c.comment, 1000)) compare.comment = c.comment as string;
   const now = Date.now();
   return {
-    code: r.code, n, first: r.first, status: r.status === 'done' ? 'done' : 'started',
+    code: r.code, n, first: r.first, route: r.route, pilot: r.code.startsWith('T'), form: FORM, status: r.status === 'done' ? 'done' : 'started',
     startedAt: Number.isFinite(r.startedAt) ? Number(r.startedAt) : now, updatedAt: now,
     tasks, ratings, quick, compare,
   };
@@ -116,8 +123,11 @@ export async function handleAbTest(req: Request, cfg: AbConfig): Promise<Respons
     if (body?.type === 'start') {
       // Removed codes still count, so a number is never handed out twice.
       // The new participant is saved straight away, so a second phone starting at the same time gets the next number.
-      const n = (await read(cfg.redis)).reduce((m, e) => Math.max(m, 'n' in e ? e.n : Number(e.code.slice(1)) || 0), 0) + 1;
-      const started = cleanResponse({ code: 'P' + String(n).padStart(2, '0'), n, first: n % 2 ? 'A' : 'B' });
+      // Pilots count apart (T01, T02…), so a dry run never uses up a participant number.
+      const prefix = body.pilot === true ? 'T' : 'P';
+      const n =
+        (await read(cfg.redis)).filter((e) => e.code.startsWith(prefix)).reduce((m, e) => Math.max(m, 'n' in e ? e.n : Number(e.code.slice(1)) || 0), 0) + 1;
+      const started = cleanResponse({ code: prefix + String(n).padStart(2, '0'), n, first: firstOf(n), route: routeOf(n) });
       if (!started) return text(500, 'Could not start');
       await append(cfg.redis, started);
       return json(200, started);

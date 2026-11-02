@@ -4,5 +4,10 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/((?!api/|earth-online/).*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/ui1", "destination": "/ui1/index.html" },
+    { "source": "/ui1/:file((?!assets/).*\\.[A-Za-z0-9]+)", "destination": "/:file" },
+    { "source": "/ui1/((?!assets/).*)", "destination": "/ui1/index.html" },
+    { "source": "/((?!api/|earth-online/|ui1/).*)", "destination": "/index.html" }
+  ]
 }

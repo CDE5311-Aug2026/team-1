@@ -36,12 +36,3 @@ test('the guide rolls up in the corner and unrolls on a tap; Escape rolls it bac
   await userEvent.keyboard('{Escape}');
   expect(screen.getByRole('button', { name: /Tabs: on Moments/ })).toHaveAttribute('aria-expanded', 'false');
 });
-
-test('user-test version A has no Hunt tab', async () => {
-  const { testerStore } = await import('../../data/stores');
-  testerStore.set({ name: 'P01', version: 'A' });
-  render(<TabBar active="/" onNavigate={vi.fn()} />);
-  expect(screen.queryByRole('button', { name: /^hunt$/i })).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /^passport$/i })).toBeInTheDocument();
-  testerStore.set({ name: '' });
-});

@@ -303,14 +303,20 @@ export function deleteAllData() {
  * sees the start screen and onboarding as new. The usage log stays, so /admin can still read this phone.
  */
 export function restartTest() {
+  // The phone keeps its version (left phone A, right phone B), so the start screen opens with it picked.
+  const version = versionOf(testerStore.get());
+  clearPhone(false);
+  window.location.assign(`/?v=${version}`);
+}
+
+/** Clears this phone's app data. Always kept: the usage log (for /admin) and feedback notes still waiting to send. */
+export function clearPhone(keepTester: boolean) {
   try {
-    // Kept: the usage log (for /admin) and feedback notes still waiting to send.
-    const keep = new Set([STORAGE_PREFIX + 'usage-log', 'findsg-help-feedback']);
+    const keep = new Set([STORAGE_PREFIX + 'usage-log', 'findsg-help-feedback', ...(keepTester ? [STORAGE_PREFIX + 'tester'] : [])]);
     const gone = Object.keys(window.localStorage).filter((k) => !keep.has(k));
     gone.forEach((k) => window.localStorage.removeItem(k));
     window.sessionStorage.clear();
   } catch {
-    // Storage blocked: the reload below still starts at the start screen if nothing was saved.
+    // Storage blocked: the reload that follows still starts at the start screen if nothing was saved.
   }
-  window.location.assign('/');
 }
