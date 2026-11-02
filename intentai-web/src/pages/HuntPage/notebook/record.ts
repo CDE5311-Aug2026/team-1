@@ -38,6 +38,8 @@ export function markStory(id: BookId, what: 'start' | 'finish', at = Date.now())
 
 export interface Stamp {
   story: BookId;
+  /** The stop's id in its chapter (its pin and its film still). */
+  stop: string;
   name: string;
   at: number;
 }
@@ -75,8 +77,8 @@ export function storyRecords(): StoryRecord[] {
       const done = Number(on.deduce || far.deduce) + Number(on.bottle || far.bottle);
       const stamps: Stamp[] = [];
       // the prologue's stamps are its two buildings, stamped on site
-      if ((on as { arrival1?: boolean }).arrival1) stamps.push({ story: b.id, name: '101 Jalan Sultan', at: times.short?.startedAt ?? 0 });
-      if ((on as { arrival2?: boolean }).arrival2) stamps.push({ story: b.id, name: 'Sultan Mosque', at: times.short?.finishedAt ?? times.short?.startedAt ?? 0 });
+      if ((on as { arrival1?: boolean }).arrival1) stamps.push({ story: b.id, stop: 'short-press', name: '101 Jalan Sultan', at: times.short?.startedAt ?? 0 });
+      if ((on as { arrival2?: boolean }).arrival2) stamps.push({ story: b.id, stop: 'short-mosque', name: 'Sultan Mosque', at: times.short?.finishedAt ?? times.short?.startedAt ?? 0 });
       return { ...base, done, total: 2, finished: done >= 2, stamps, ...times.short };
     }
     const stops = ONSITE_ROUTES[b.id].stops;
@@ -87,7 +89,7 @@ export function storyRecords(): StoryRecord[] {
     const nameOf = (id: string) => ch?.stops.find((s) => s.id === id)?.name ?? id;
     const stamps: Stamp[] = Object.entries(on.stops ?? {})
       .filter(([, r]) => r?.checkin?.countsAsVisit)
-      .map(([id, r]) => ({ story: b.id, name: nameOf(id), at: time(r.checkin?.confirmedAt) ?? 0 }));
+      .map(([id, r]) => ({ story: b.id, stop: id, name: nameOf(id), at: time(r.checkin?.confirmedAt) ?? 0 }));
     const rec: StoryRecord = { ...base, done: solved.size, total: stops.length, finished: solved.size >= stops.length, stamps };
     // fill the time log from FindSG's saved times the first time we see a story under way or finished
     const all = [on, far].flatMap((s) => Object.values(s.stops ?? {}));

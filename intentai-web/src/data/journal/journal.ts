@@ -1,6 +1,6 @@
 // The Moments journal: everything the visitor did, grouped by day, newest day first.
 // Sources: places marked visited in Nearby, Home story check-ins, Hunt stamps and finished stories, and photos.
-// Places and Home stamps only keep a date; Hunt stamps and photos also keep a time.
+// Places and Home stamps only keep a date; Hunt stamps and photos also keep a time (a photo's can be set by hand).
 
 export type EntryKind = "visit" | "checkin" | "stamp" | "finish" | "photo";
 
@@ -22,6 +22,20 @@ export interface JournalEntry {
   real?: { src: string; credit: string };
   /** The URA planning area the place is in. */
   area?: string;
+  /** The place this entry is at (its key; a photo filed under a place carries that place's key). */
+  place?: string;
+  /** Where the place is (its map pin). */
+  pin?: { lat: number; lng: number };
+  /** The place's picture, best first: your photo of it, a real photo, the hunt's film still, the 3D view. */
+  picture?: Picture;
+  /** The whole story of the entry, shown when its card opens (what you found there). */
+  detail?: string;
+}
+
+export interface Picture {
+  src: string;
+  kind: "own" | "photo" | "still" | "3d";
+  credit?: string;
 }
 
 export interface JournalDay {

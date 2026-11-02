@@ -61,16 +61,19 @@ export function framesOf(day: JournalDay, fill = 0): Frame[] {
   for (const e of day.entries)
     if (e.kind === "photo" && e.image)
       push({ id: e.id, src: e.image, title: e.title, own: true });
-  for (const e of day.entries)
-    if (e.real)
+  for (const e of day.entries) {
+    // a real photo of the place, else its other picture (the hunt's film still, the 3D view)
+    const pic = e.real ?? (e.picture && e.picture.kind !== "own" ? e.picture : undefined);
+    if (pic)
       push({
         id: e.id,
-        src: e.real.src,
+        src: pic.src,
         title: placeOf(e),
         own: false,
-        credit: e.real.credit,
+        credit: pic.credit,
         area: e.area,
       });
+  }
   if (out.length < fill) {
     const areas = [
       ...new Set(day.entries.flatMap((e) => (e.area ? [e.area] : []))),

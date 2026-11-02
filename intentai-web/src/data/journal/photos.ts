@@ -9,6 +9,25 @@ export interface JournalPhoto {
   at: number;
   caption: string;
   blob: Blob;
+  /** When it was taken (ms), set by hand: a photo filed under an earlier day keeps its own time of that day. */
+  taken?: number;
+  /** The journal place it shows (a place entry's key, e.g. `s-telok-ayer-telok-ayer-02`): its card shows the photo. */
+  place?: string;
+}
+
+/** What can be changed on a kept photo; `taken` / `place` null clear them; `file` replaces the picture. */
+export interface PhotoEdit {
+  caption?: string;
+  day?: string;
+  taken?: number | null;
+  place?: string | null;
+  file?: Blob;
+}
+
+/** The photo's time on its own day: the hand-set time, else when it was added if that was the same day. */
+export function photoTime(p: Pick<JournalPhoto, 'day' | 'at' | 'taken'>, dayOf: (at: number) => string): number | undefined {
+  if (p.taken !== undefined && dayOf(p.taken) === p.day) return p.taken;
+  return dayOf(p.at) === p.day ? p.at : undefined;
 }
 
 const DB = 'findsg-journal';
@@ -52,13 +71,38 @@ export async function listPhotos(): Promise<JournalPhoto[]> {
   return (all ?? []).sort((a, b) => a.at - b.at);
 }
 
-export async function addPhoto(file: Blob, day: string, caption: string, now = Date.now()): Promise<JournalPhoto | null> {
+export async function addPhoto(
+  file: Blob,
+  day: string,
+  caption: string,
+  now = Date.now(),
+  more: { taken?: number; place?: string } = {},
+): Promise<JournalPhoto | null> {
   const blob = await shrink(file);
   const photo: JournalPhoto = { id: `p${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, day, at: now, caption: caption.trim(), blob };
+  if (more.taken !== undefined) photo.taken = more.taken;
+  if (more.place) photo.place = more.place;
   const ok = await run('readwrite', (s) => s.put(photo));
   if (ok === null) return null;
   window.dispatchEvent(new Event(CHANGED));
   return photo;
+}
+
+export async function updatePhoto(id: string, edit: PhotoEdit): Promise<JournalPhoto | null> {
+  const old = await run<JournalPhoto | undefined>('readonly', (s) => s.get(id) as IDBRequest<JournalPhoto | undefined>);
+  if (!old) return null;
+  const next: JournalPhoto = { ...old };
+  if (edit.caption !== undefined) next.caption = edit.caption.trim();
+  if (edit.day) next.day = edit.day;
+  if (edit.taken === null) delete next.taken;
+  else if (edit.taken !== undefined) next.taken = edit.taken;
+  if (edit.place === null) delete next.place;
+  else if (edit.place !== undefined) next.place = edit.place;
+  if (edit.file) next.blob = await shrink(edit.file);
+  const ok = await run('readwrite', (s) => s.put(next));
+  if (ok === null) return null;
+  window.dispatchEvent(new Event(CHANGED));
+  return next;
 }
 
 export async function deletePhoto(id: string): Promise<void> {

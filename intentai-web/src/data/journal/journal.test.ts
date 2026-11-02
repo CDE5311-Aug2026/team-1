@@ -38,3 +38,16 @@ describe('day helpers', () => {
     expect(dayParts('2026-11-01')).toEqual({ num: '1', month: 'Nov', weekday: 'Sun' });
   });
 });
+
+describe('photoTime', async () => {
+  const { photoTime } = await import('./photos');
+  it('uses the time a photo was taken when it is on the photo’s day', () => {
+    expect(photoTime({ day: '2026-11-01', at: at('2026-11-02', '09:00'), taken: at('2026-11-01', '16:40') }, dayOfTime)).toBe(at('2026-11-01', '16:40'));
+  });
+  it('falls back to when it was added, if that was on its day', () => {
+    expect(photoTime({ day: '2026-11-02', at: at('2026-11-02', '09:00') }, dayOfTime)).toBe(at('2026-11-02', '09:00'));
+  });
+  it('has no time for a photo moved to another day without one', () => {
+    expect(photoTime({ day: '2026-10-30', at: at('2026-11-02', '09:00'), taken: at('2026-11-01', '16:40') }, dayOfTime)).toBeUndefined();
+  });
+});

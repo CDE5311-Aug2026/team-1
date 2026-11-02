@@ -47,7 +47,7 @@
 .more:focus-visible,
 .polaroid:focus-visible,
 .shareDay:focus-visible,
-button.entry:focus-visible {
+.replace:focus-within {
   outline: 2px solid var(--orange);
   outline-offset: 2px;
 }
@@ -188,15 +188,14 @@ button.entry:focus-visible {
   border-radius: 1px;
   pointer-events: none;
 }
+/* the place's whole name, on two lines if it needs them */
 .polaroid span {
   flex: none;
-  height: 26px;
-  overflow: hidden;
-  font: italic 400 0.875rem/26px var(--serif);
+  padding: 2px 2px 7px;
+  font: italic 400 0.8125rem/1.15 var(--serif);
   color: var(--ink-soft);
   text-align: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 /* a strip of tape on the top print */
 .polaroid::before {
@@ -224,9 +223,8 @@ button.entry:focus-visible {
   pointer-events: none;
 }
 
-/* ---- the log ---- */
+/* ---- the log: a map of the day, then a card for each place ---- */
 .log {
-  list-style: none;
   margin: 0;
   padding: 40px 0 4px;
   border-radius: 14px;
@@ -234,12 +232,33 @@ button.entry:focus-visible {
   border: 1px solid rgba(232, 201, 131, 0.16);
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
 }
-.log li + li {
+/* the day's route on the street map, in the journal's sepia */
+.map {
+  position: relative;
+  margin: 0 12px 6px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(232, 201, 131, 0.3);
+  box-shadow: inset 0 0 0 3px rgba(20, 12, 6, 0.35);
+  filter: sepia(0.22) saturate(0.92);
+}
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.card {
+  scroll-margin: 90px 0 20px;
+}
+.cards .card + .card {
   border-top: 1px solid rgba(232, 201, 131, 0.1);
 }
-.entry {
+.card.open {
+  background: rgba(232, 201, 131, 0.06);
+}
+.row {
   display: grid;
-  grid-template-columns: 44px 1fr auto;
+  grid-template-columns: 64px 1fr;
   column-gap: 12px;
   align-items: center;
   width: 100%;
@@ -250,30 +269,68 @@ button.entry:focus-visible {
   color: inherit;
   font: inherit;
   text-align: left;
-}
-button.entry {
   cursor: pointer;
 }
-.icon {
-  grid-row: 1;
+.row:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: -2px;
+}
+/* the place's picture, a small print with its number from the map */
+.thumb {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  overflow: hidden;
+  width: 64px;
+  height: 64px;
+  padding: 3px;
+  border-radius: 2px;
   color: var(--brass);
-  background: rgba(232, 201, 131, 0.1);
-  border: 1px solid rgba(232, 201, 131, 0.28);
+  background: #faf4e4;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
   box-sizing: border-box;
 }
-.icon img {
+.thumb img,
+.thumb .ground {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+.num {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  font: 500 0.75rem/1 var(--font-display);
+  font-style: normal;
+  color: #fff6e6;
+  background: radial-gradient(circle at 35% 30%, #d8653a, #a33d1f 70%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+}
+/* the ground map under a place with no picture, with a dot where it is */
+.ground {
+  position: relative;
+  background-repeat: no-repeat;
+  filter: sepia(0.35);
+}
+.ground i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 0 3px rgba(255, 246, 230, 0.8);
+}
 .body {
-  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -283,43 +340,90 @@ button.entry {
   font: 500 1.0625rem/1.2 var(--font-display);
   letter-spacing: 0.01em;
   color: var(--cream);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 .body span {
   font: 400 0.875rem/1.3 var(--serif);
   color: var(--cream-soft);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
-.meta {
-  grid-column: 3;
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  max-width: 92px;
-}
-.tag {
-  max-width: 100%;
-  font: 500 0.6875rem/1.1 var(--font-display);
-  font-style: normal;
+.body small {
+  font: 500 0.6875rem/1.2 var(--font-display);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--orange);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-.when {
-  font: 500 0.75rem/1 var(--font-display);
-  letter-spacing: 0.06em;
-  color: rgba(242, 232, 213, 0.5);
+.body small time {
+  color: rgba(242, 232, 213, 0.55);
+}
+/* an opened card: the picture large, what was found there, your photos of it */
+.more2 {
+  overflow: hidden;
+  padding: 0 14px 14px;
+}
+.print {
+  margin: 2px 0 10px;
+  padding: 6px 6px 0;
+  background: linear-gradient(180deg, #faf4e4, #ede2c8);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45);
+  transform: rotate(-0.6deg);
+}
+.print img,
+.print .ground {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+.print > svg {
+  display: block;
+  margin: 30px auto;
+}
+.print figcaption {
+  height: 26px;
+  font: italic 400 0.8125rem/26px var(--serif);
+  color: var(--ink-soft);
+  text-align: center;
+}
+.detail {
+  margin: 0 0 12px;
+  font: 400 0.9375rem/1.45 var(--serif);
+  color: var(--cream-soft);
+}
+.shots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.shot,
+.addShot {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.shot {
+  border: 2px solid #faf4e4;
+  background: #1d1711;
+}
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.addShot {
+  display: grid;
+  place-items: center;
+  border: 1.5px dashed rgba(232, 201, 131, 0.55);
+  color: var(--brass);
+  background: rgba(232, 201, 131, 0.06);
+}
+.addShot:focus-within,
+.shot:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
 }
 .span {
   display: flex;
@@ -425,4 +529,44 @@ button.entry {
 .tools {
   display: inline-flex;
   gap: 8px;
+}
+
+/* the photo editor */
+.previewBox {
+  position: relative;
+}
+.replace {
+  position: absolute;
+  right: 10px;
+  bottom: 24px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: #fbf3e2;
+  background: rgba(29, 23, 17, 0.78);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pair input {
+  min-width: 0;
+}
+.field select {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid rgba(92, 74, 54, 0.4);
+  border-radius: 4px;
+  background: rgba(255, 252, 240, 0.65);
+  color: var(--ink);
+  font: 400 1rem/1.2 var(--serif);
+}
+.field select:focus-visible {
+  outline: 2px solid var(--red-ink);
+  outline-offset: 1px;
 }
