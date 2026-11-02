@@ -28,11 +28,20 @@ interface Props {
   onTurn?: (position: number) => void;
   /** Filled with the notebook's page controls (Home's ↵ key turns the page). */
   book?: React.MutableRefObject<BookControls | null>;
+  /** The deck this place was opened from (its planning area by default), shown under the pages with its progress. */
+  deck?: DeckInfo;
 }
 
-const STATUS_TEXT = { done: 'unlocked', exploring: 'exploring', none: 'not started' } as const;
+export interface DeckInfo {
+  /** "Planning area", "Editor's Pick", "Near you". */
+  kind: string;
+  name: string;
+  visited: number;
+  total: number;
+  status: 'done' | 'exploring' | 'none';
+}
 
-export function PlaceIntro({ placeId, distance, onClose, onTurn, book }: Props) {
+export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: deckProp }: Props) {
   const reduce = useReducedMotionConfig();
   const place = curatedPlace(placeId);
   const personal = useExplorePersonal();
@@ -52,6 +61,10 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book }: Props) 
   const prog = ura ? areaProgress(ura.id, visited) : null;
   // the URA planning area, as the deck and the tally below name it
   const areaName = ura?.name ?? areaById(place.areaId)?.name ?? regionName(place.regionId);
+
+  // the deck it belongs to: the one it was opened from, else its planning area
+  const deck: DeckInfo | null =
+    deckProp ?? (ura && prog && prog.total > 0 ? { kind: 'Planning area', name: ura.name, visited: prog.visited, total: prog.total, status: prog.status } : null);
 
   const stampDate = state?.visitedOn ? new Date(`${state.visitedOn}T12:00:00`) : null;
 
@@ -74,7 +87,8 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book }: Props) 
             </>
           )}
         </span>
-        <p className={styles.kicker}>{`Field note · ${CATEGORY_INFO[place.category].label}${ura && prog && prog.total > 0 ? '' : ` · ${areaName}`}`}</p>
+        {/* the area is named in the strip under the pages; only without one does the kicker say where */}
+        <p className={styles.kicker}>{`Field note · ${CATEGORY_INFO[place.category].label}${deck ? '' : ` · ${areaName}`}`}</p>
         <h2 className={styles.name} data-long={(card?.title?.join(' ') ?? place.name).length > 40 || undefined}>
           {card?.title?.join(' ') ?? place.name}
         </h2>
@@ -84,26 +98,6 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book }: Props) 
           {distance && ` · ${distance}`}
         </p>
       </div>
-
-      {/* the planning area's tally in one line: its name, the pencil track, the count */}
-      {ura && prog && prog.total > 0 && (
-        <div className={styles.area}>
-          <span className={styles.areaName}>{ura.name}</span>
-          <div
-            className={styles.bar}
-            role="progressbar"
-            aria-label={`${ura.name}: ${prog.visited} of ${prog.total} places checked in`}
-            aria-valuemin={0}
-            aria-valuemax={prog.total}
-            aria-valuenow={prog.visited}
-          >
-            <span data-status={prog.status} style={{ width: `${(prog.visited / prog.total) * 100}%` }} />
-          </div>
-          <span className={styles.areaNum}>
-            <strong>{prog.visited}</strong>/{prog.total} · {STATUS_TEXT[prog.status]}
-          </span>
-        </div>
-      )}
 
       <div className={styles.actions}>
         <PlaceInfo place={place} idPrefix="intro" part="actions" />
@@ -150,6 +144,27 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book }: Props) 
       <div className={styles.bookWrap} data-testid="place-story-card">
         <FlipBook pages={pages} resetKey={place.id} onTurn={onTurn} controls={book} />
       </div>
+
+      {/* under every page: the deck this place belongs to, and how far along it you are */}
+      {deck && (
+        <div className={styles.deck}>
+          <span className={styles.deckKind}>{deck.kind}</span>
+          <span className={styles.areaName}>{deck.name}</span>
+          <div
+            className={styles.bar}
+            role="progressbar"
+            aria-label={`${deck.name}: ${deck.visited} of ${deck.total} places checked in`}
+            aria-valuemin={0}
+            aria-valuemax={deck.total}
+            aria-valuenow={deck.visited}
+          >
+            <span data-status={deck.status} style={{ width: `${deck.total ? (deck.visited / deck.total) * 100 : 0}%` }} />
+          </div>
+          <span className={styles.areaNum}>
+            <strong>{deck.visited}</strong>/{deck.total}
+          </span>
+        </div>
+      )}
     </motion.section>
   );
 }

@@ -167,10 +167,33 @@
 }
 
 /* the planning area's tally, in one line */
-.area {
+/* the strip under every page: which deck this place belongs to, and its progress */
+.deck {
+  flex: none;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 7px 30px 8px 10px;
+  border-top: 1px dashed rgba(90, 60, 30, 0.3);
+  background: #e8d9b8;
+}
+
+.deckKind {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8481f;
+}
+
+.deck .areaName {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .areaName {

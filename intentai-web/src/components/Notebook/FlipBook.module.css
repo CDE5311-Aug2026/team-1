@@ -9,6 +9,9 @@
 }
 
 .book {
+  /* each page under the open one shows this much at the right and the foot */
+  --edge-x: 4px;
+  --edge-y: 3.5px;
   position: relative;
   flex: 1 1 auto;
   min-height: 0;
@@ -19,14 +22,18 @@
 
 .leaf {
   position: absolute;
-  inset: 0;
+  /* the room left at the right and the foot shows the pages underneath (see .under) */
+  inset: 0 calc(var(--depth, 0) * var(--edge-x)) calc(var(--depth, 0) * var(--edge-y)) 0;
   transform-origin: 0 50%;
   transform-style: preserve-3d;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   background: #f6eedb;
-  /* the page's gutter, darker by the spine */
-  box-shadow: inset 14px 0 18px -14px rgba(120, 85, 45, 0.35);
+  /* the page's gutter, darker by the spine, and its shadow on the pages under it */
+  box-shadow:
+    inset 14px 0 18px -14px rgba(120, 85, 45, 0.35),
+    1px 1px 0 rgba(90, 60, 30, 0.35),
+    2px 2px 3px rgba(60, 35, 12, 0.22);
   will-change: transform;
 }
 
@@ -52,6 +59,23 @@
     radial-gradient(circle, rgba(110, 80, 45, 0.2) 1px, transparent 1.3px) 0 0 / 18px 18px local,
     linear-gradient(90deg, rgba(120, 85, 45, 0.12), transparent 14px) local;
   -webkit-overflow-scrolling: touch;
+}
+
+/* a page lying under the open one: only its edge shows, a little further out the deeper it is */
+.under {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: calc((var(--depth) - var(--k)) * var(--edge-x));
+  bottom: calc((var(--depth) - var(--k)) * var(--edge-y));
+  border-radius: 0 3px 3px 0;
+  /* deeper pages sit a little further in the shade */
+  background: linear-gradient(135deg, #f1e4c6, #e3d1a9);
+  filter: brightness(calc(1 - var(--k) * 0.035));
+  box-shadow:
+    inset -1px -1px 0 rgba(100, 68, 32, 0.5),
+    1px 1px 2px rgba(60, 35, 12, 0.25);
+  pointer-events: none;
 }
 
 /* light and shadow on a page in motion */

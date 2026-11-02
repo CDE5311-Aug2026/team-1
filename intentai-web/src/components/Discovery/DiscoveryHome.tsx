@@ -89,6 +89,7 @@ const PlaceIntro = lazyPage<IntroProps>(() =>
   import("./PlaceIntro").then((m) => ({ default: m.PlaceIntro })),
 );
 const loadIntro = () => import("./PlaceIntro");
+type DeckInfo = import("./PlaceIntro").DeckInfo;
 const NO_PICKS: EditorPick[] = [];
 /** Run `fn` once the pictures on screen are in (or after 6 s) and the phone is idle; returns a cancel. On a slow phone
  *  network the window's load event comes before Home has even asked for its pictures, so it is not enough to wait for. */
@@ -431,6 +432,26 @@ export default function DiscoveryHome() {
   // a place is open: its 3D view is the top of the notebook's first page, and turns away with it
   const deviceRef = useRef<HTMLDivElement>(null);
   const [mapAway, setMapAway] = useState(false);
+  // the deck an open place was picked from, named under its notebook (an area's deck: PlaceIntro names the area)
+  const openDeck = useMemo((): DeckInfo | undefined => {
+    if (!openId) return undefined;
+    if (level === "pick" && pick) {
+      const p = pickProgress(pick, visited);
+      return { kind: "Editor's Pick", name: pick.title, visited: p.visited, total: p.total, status: p.status };
+    }
+    if (level === "near" && near) {
+      const ps = near.items.filter((i) => i.kind === "place");
+      const v = ps.filter((i) => visited.has(i.id)).length;
+      return {
+        kind: "Nearby",
+        name: "Near you",
+        visited: v,
+        total: ps.length,
+        status: v === 0 ? "none" : v === ps.length ? "done" : "exploring",
+      };
+    }
+    return undefined;
+  }, [openId, level, pick, near, visited]);
   const onIntroTurn = useCallback((position: number) => {
     deviceRef.current?.style.setProperty(
       "--away",
@@ -973,8 +994,11 @@ export default function DiscoveryHome() {
       )}
 
       {/* The map card stays mounted when a place opens: it becomes the live 3D view on top of the intro (no reload).
-          With the keys it is one piece, like a phone: the map as its screen, the keys in its rounded bottom. */}
-      <>
+          With the keys it is one piece, like a phone: the map as its screen, the keys in its rounded bottom. With a
+          place open the same leather board holds the notebook, with the keys still in its foot (the wrappers are
+          always there, and step aside while no place is open, so the map is never mounted again). */}
+      <div className={openId ? styles.board : styles.boardIdle}>
+        <div className={openId ? styles.boardBook : styles.boardIdle}>
         <div
           ref={deviceRef}
           className={
@@ -1137,12 +1161,14 @@ export default function DiscoveryHome() {
                 onClose={closePlace}
                 onTurn={onIntroTurn}
                 book={book}
+                deck={openDeck}
               />
             </AnimatePresence>
           </Suspense>
         )}
+        </div>
         {openId && <div className={styles.keysOpen}>{keys}</div>}
-      </>
+      </div>
 
       <div
         className={

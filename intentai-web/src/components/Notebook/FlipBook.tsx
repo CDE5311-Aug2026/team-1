@@ -181,6 +181,8 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
       <div
         ref={book}
         className={styles.book}
+        // room at the right and the foot for the edges of the pages under this one
+        style={{ '--depth': last } as React.CSSProperties}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -193,6 +195,10 @@ export function FlipBook({ pages, resetKey, numbered = true, onTurn, navStart, c
         }}
         onKeyDown={onKeyDown}
       >
+        {/* the pages still to read, as a stack: their edges show at the right and the foot, thinner as you turn */}
+        {Array.from({ length: last - at }, (_, k) => (
+          <span key={`edge${k}`} className={styles.under} style={{ '--k': last - at - k } as React.CSSProperties} aria-hidden="true" />
+        ))}
         {pages.map((page, i) => {
           const state = i < at ? 'past' : i === at ? 'current' : 'next';
           return (
