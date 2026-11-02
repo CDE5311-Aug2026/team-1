@@ -56,7 +56,7 @@ export default function RaceSheet({title, gift = true, reducedMotion = false, on
       {finish && <div className="race-sheet-finish" role="status">
         <span>Chequered flag · P{finish.pos} of {finish.of} · {time(finish.time)}</span>
         <h3>Clues unlocked</h3>
-        <p>{title ? `${title}: solved.` : 'This puzzle is solved.'}{boost ? ' A Boost Card is in your clue bag.' : ''}</p>
+        <p>{title ? `${title}: solved.` : 'This puzzle is solved.'}{boost ? ' A Boost Card is with your clues.' : ''}</p>
         <div><button className="race-sheet-go" onClick={onClose}><b>Take the clues</b><i aria-hidden="true">→</i></button><button className="race-sheet-again" onClick={again}>Race again</button></div>
       </div>}
     </div>

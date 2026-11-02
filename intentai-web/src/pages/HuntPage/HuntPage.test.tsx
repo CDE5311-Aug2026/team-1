@@ -28,7 +28,7 @@ test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and 
   expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'Open a volume' }));
   expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
-  // the story shelf: five books; pick the second, take it down, open it, and its tabs are the commission, the map and the cards
+  // the story shelf: five books; pick the second, take it down, open it, and its tabs are the story, the map, the clue cards, notes and the record
   const books = within(screen.getByRole('listbox', { name: 'Story books' })).getAllByRole('option');
   expect(books).toHaveLength(5);
   expect(books[0]).toHaveAccessibleName(/^I\. Beneath the Golden Dome/);
@@ -42,9 +42,19 @@ test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and 
     within(tabs)
       .getAllByRole('button')
       .map((b) => b.textContent),
-  ).toEqual(['Letter', 'Map', 'Clues', 'Notes', 'Record']);
+  ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record']);
   await userEvent.click(screen.getByRole('button', { name: /Shelf$/ }));
-  expect(await screen.findByRole('listbox', { name: 'Story books' }, { timeout: 3000 })).toBeInTheDocument();
+  // every story's book has the same tabs: the prologue's too
+  const shelf = await screen.findByRole('listbox', { name: 'Story books' }, { timeout: 3000 });
+  const first = within(shelf).getAllByRole('option')[0];
+  await userEvent.click(first);
+  await userEvent.click(first);
+  await userEvent.click(await screen.findByRole('button', { name: 'Open Beneath the Golden Dome' }, { timeout: 3000 }));
+  expect(
+    within(screen.getByRole('navigation', { name: 'Chapters' }))
+      .getAllByRole('button')
+      .map((b) => b.textContent),
+  ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record']);
 });
 
 test('Public shows this weekend’s challenge on the Civic District route, the boards and what is coming', async () => {

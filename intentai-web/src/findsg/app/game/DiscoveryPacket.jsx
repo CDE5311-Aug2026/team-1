@@ -16,6 +16,6 @@ export default function DiscoveryPacket({routeId,stop,index=0,reducedMotion=fals
   {bare?<ArchivePaper routeId={routeId} stop={stop} index={index} reducedMotion={reducedMotion} bare/>:<>
   <div className="dp-view-switch" role="group" aria-label="Clue view"><button type="button" aria-pressed={paperView==='paper'} onClick={()=>setPaperView('paper')}>Paper</button><button type="button" aria-pressed={paperView==='card'} onClick={()=>setPaperView('card')}>Card</button></div>
   {paperView==='paper'?<ArchivePaper routeId={routeId} stop={stop} index={index} reducedMotion={reducedMotion}/>:<><div className="dp-discovery"><DiscoveryCard routeId={routeId} stop={stop} index={index} reducedMotion={reducedMotion} selected={selected}/></div>{framed?<p className="dp-art-note">The card shows story concept art, not a historical photo. Tap the card to flip it.</p>:<p className="dp-art-note">Tap the card to turn it over.</p>}</>}</>}
-  {framed&&<p className="dp-local-note">Filed in your clue bag. Open or flip it any time.</p>}
+  {framed&&<p className="dp-local-note">Filed with your clues. Open or flip it any time.</p>}
  </section>;
 }

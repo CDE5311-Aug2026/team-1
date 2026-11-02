@@ -20,7 +20,8 @@ function useProjection(stops: ChapterStop[]) {
       x1 = Math.max(...lng),
       y0 = Math.min(...lat),
       y1 = Math.max(...lat);
-    const span = Math.max((x1 - x0) * k, y1 - y0) || 0.002;
+    // never closer than a few minutes' walk across
+    const span = Math.max((x1 - x0) * k, y1 - y0, 0.004);
     const pad = span * 0.32;
     const cx = (x0 + x1) / 2,
       cy = (y0 + y1) / 2;
@@ -57,6 +58,8 @@ function trail(p: { x: number; y: number }[]) {
 const FEATURES: Record<string, { street?: string; shore?: string; river?: boolean }> = {
   'telok-ayer': { street: 'TELOK AYER STREET', shore: 'OLD SHORE · c. 1820s (approx.)' },
   'kampong-gelam': { shore: 'OLD SHORE · along Beach Road (approx.)' },
+  // the prologue walks the same streets
+  short: { shore: 'OLD SHORE · along Beach Road (approx.)' },
   balestier: { street: 'BALESTIER ROAD' },
   'civic-f1': { river: true },
 };
@@ -78,7 +81,8 @@ const dms = (v: number) => {
 
 export function MapArt({ chapter, focus, onPick }: { chapter: Chapter; focus?: string; onPick?(stop: ChapterStop): void }) {
   const { at, metresPerUnit, lat, lng } = useProjection(chapter.stops);
-  const pts = chapter.stops.map((s) => ({ s, ...(s.pin ? at(s.pin) : { x: W / 2, y: H / 2 }) }));
+  // a stop with no pin yet (the prologue's hidden second building) is not on the map until it is found
+  const pts = chapter.stops.filter((s) => s.pin).map((s) => ({ s, ...at(s.pin!) }));
   const next = chapter.stops.find((s) => !s.done);
   const done = pts.filter((p) => p.s.done);
   // a scale bar of a round length

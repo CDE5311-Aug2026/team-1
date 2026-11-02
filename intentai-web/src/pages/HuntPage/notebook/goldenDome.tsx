@@ -118,7 +118,7 @@ export function ShutterReveal({ photo, done, onFound }: { photo?: string; done: 
       </div>
       {opened &&
         (done ? (
-          <p className={g.found}>✓ The parcel is in your bag</p>
+          <p className={g.found}>✓ The parcel joins your clues</p>
         ) : (
           <button type="button" className={g.ribbon} onClick={onFound}>
             Take the parcel

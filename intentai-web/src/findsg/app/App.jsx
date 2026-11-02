@@ -26,8 +26,8 @@ const cleanPlace=name=>String(name||'').replace(/ · .*/,'').replace(/（.*?）/
 
 /* The case book's pages. Each dialog is one page of the detective's book: a bar (back, what this page is, close)
    and one screen of content. A page opened from another page remembers it, so "back" turns the page back. */
-const PAGE_LABEL={how:'How to play',route:'The route',place:'Place file',collected:'Evidence',journal:'Clue bag',restart:'Start over',paper:'Paper study'};
-const BACK_LABEL={journal:'Clue bag',route:'Route',collected:'Evidence',place:'Place file'};
+const PAGE_LABEL={how:'How to play',route:'Map',place:'Place file',collected:'Clue',journal:'Clues',restart:'Start over',paper:'Paper study'};
+const BACK_LABEL={journal:'Clues',route:'Map',collected:'Clue',place:'Place file'};
 
 /* the three moves of every stop, drawn in ink */
 const STEP_ICONS={
@@ -38,11 +38,11 @@ const STEP_ICONS={
 const STEPS=[
  ['go','Go there','Walk to the real place and check in.'],
  ['look','Look, then solve','Spot the detail on the building. Work the 3D model with it.'],
- ['keep','Keep the clue','The find lands in your clue bag. The story moves on.']
+ ['keep','Keep the clue','The find joins your clues. The story moves on.']
 ];
 
-export default function App({top=null}={}){
- const [nav,setNav]=useState(initialNav),[modal,setModal]=useState(null),[progressVersion,setProgressVersion]=useState(0);
+export default function App({top=null,clues=null}={}){
+ const [nav,setNav]=useState(initialNav),[modal,setModal]=useState(null),[library,setLibrary]=useState(null),[progressVersion,setProgressVersion]=useState(0);
  const [reducedMotion,setReducedMotion]=useState(()=>document.documentElement.classList.contains('reduce-motion')||window.matchMedia('(prefers-reduced-motion: reduce)').matches);
  const dialog=useRef(null),returnFocus=useRef(null),lastProgress=useRef(null);
  const onProgress=useCallback(state=>{lastProgress.current=state;},[]);
@@ -53,7 +53,9 @@ export default function App({top=null}={}){
  useEffect(()=>{document.documentElement.dataset.motion=reducedMotion?'reduced':'full';},[reducedMotion]);
  useEffect(()=>{if(modal){if(!dialog.current?.open){returnFocus.current=document.activeElement;dialog.current?.showModal();}}else if(dialog.current?.open){dialog.current.close();returnFocus.current?.focus?.();}},[modal]);
  useEffect(()=>{if(modal&&dialog.current)dialog.current.scrollTop=0;},[modal?.type,modal?.routeId,modal?.index]);
- function home(){setModal(null);setNav(q=>({...q,view:'home'}));setProgressVersion(n=>n+1);window.scrollTo({top:0,behavior:'instant'});}
+ /* a story keeps its clues in one place: the host's clue cards (its book's) open over the game */
+ const open=next=>{if(next?.type==='journal'&&clues)setLibrary(next.routeId||routeId);else setModal(next);};
+ function home(){setModal(null);setLibrary(null);setNav(q=>({...q,view:'home'}));setProgressVersion(n=>n+1);window.scrollTo({top:0,behavior:'instant'});}
  function play(id){setModal(null);setNav({view:'story',routeId:id});window.scrollTo({top:0,behavior:'instant'});}
  function exportProgress(){
   const records=Object.keys(GAME_STORIES).flatMap(id=>['manual','preview'].map(mode=>({routeId:id,mode,state:readOnsite(id,ONSITE_ROUTES[id].stops,mode)})));
@@ -91,7 +93,8 @@ export default function App({top=null}={}){
  return <div className="sg-app">
   <a className="skip-link" href="#main-content">Skip to the story</a>
   <header className="sg-header"><Brand onClick={home}/><div className="sg-header-tools"><button onClick={()=>setModal({type:'how'})}>How to play</button><button aria-pressed={reducedMotion} onClick={()=>setReducedMotion(!reducedMotion)}>{reducedMotion?'Motion reduced':'Reduce motion'}</button><span className="sg-preview-pill"><i/> On-site prototype</span></div></header>
-  {top}<main id="main-content">{view==='home'?<><OnsiteShelf onPlay={play} onOpenArchive={id=>setModal({type:'place',routeId:id,index:0})} onOpenPaper={id=>setModal({type:'paper',routeId:id})} progressVersion={progressVersion} reducedMotion={reducedMotion}/></>:<><OnsiteGame routeId={routeId} reducedMotion={reducedMotion} onExit={home} onOpen={setModal} onProgress={onProgress}/></>}</main>
+  {top}<main id="main-content">{view==='home'?<><OnsiteShelf onPlay={play} onOpenArchive={id=>setModal({type:'place',routeId:id,index:0})} onOpenPaper={id=>setModal({type:'paper',routeId:id})} progressVersion={progressVersion} reducedMotion={reducedMotion}/></>:<><OnsiteGame routeId={routeId} reducedMotion={reducedMotion} onExit={home} onOpen={open} onProgress={onProgress}/></>}</main>
+  {library&&clues(library,()=>setLibrary(null))}
   {view==='home'&&<footer className="sg-footer"><span>FindSG. Discover Singapore, understand each other.</span><small>City history, turned into a story in your hands.</small></footer>}
   <dialog ref={dialog} className={'cb'+(type?' cb--'+type:'')+(type==='restart'?' cb--card':'')} data-material={meta?.no} aria-label={PAGE_LABEL[type]||'Story notes'} onCancel={close} onClick={e=>{if(e.target===dialog.current)close();}}>
    {modal&&<>
@@ -141,7 +144,7 @@ export default function App({top=null}={}){
 
      {type==='restart'&&<>
       <h2 className="cb-title">Start this street again?</h2>
-      <p>Your {manual?'on-site':'remote'} progress and clue bag for <em>{story.title}</em> will be cleared. Other stories are kept.</p>
+      <p>Your {manual?'on-site':'remote'} progress and clues for <em>{story.title}</em> will be cleared. Other stories are kept.</p>
       <div className="cb-actions"><button className="cb-secondary" onClick={close}>Keep playing</button><button className="cb-primary" onClick={modal.onConfirm}>Start over</button></div>
      </>}
 

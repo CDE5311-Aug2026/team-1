@@ -5,7 +5,7 @@ import styles from './props.module.css';
 const MOVES: [string, string][] = [
   ['Go there', 'Walk to the real place and check in.'],
   ['Look, then solve', 'Spot the detail on the building, then work the 3D model with it.'],
-  ['Keep the clue', 'The find lands in your clue bag and the story moves on.'],
+  ['Keep the clue', 'The find joins your clues and the story moves on.'],
 ];
 
 export function HowToPlay({ onClose }: { onClose(): void }) {

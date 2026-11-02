@@ -1,3 +1,4 @@
+import {ROUTES} from '../data.js';
 // Fictional guides and assignments; historical evidence remains in FIELD_ROUTES.
 // A chapter opens a concrete problem, reveals evidence on inspection, then links
 // its result to the next real stop. No fictional prop is hidden at a real site.
@@ -298,10 +299,11 @@ const balestier=story({
   {text:'All seven credit cards are in. Mariam asks you to open the final credits and watch the whole web of people from your journey. The film can close in the results card you carry; there’s no need to enter the old studio, and no extra screening-room task.',cta:'Watch the finished end credits'})
 ]);
 
-export const GAME_STORIES={
+// a story has one name everywhere: the title on its book (the shelf, the book's bar, the game and the clue cards)
+export const GAME_STORIES=Object.fromEntries(Object.entries({
  'telok-ayer':telok,
  'kampong-gelam':kampong,
  'balestier':balestier,
  'civic-f1':civic
-};
+}).map(([id,story])=>[id,Object.assign(story,{title:ROUTES[id].title})]));
 export const getGameStory=routeId=>GAME_STORIES[routeId]||telok;

@@ -15,6 +15,7 @@ import { Board } from './Board';
 import { huntStops, HuntHeader, HuntTabs, PublicTab, useExplored } from './HuntHome';
 import { CHART_BACKDROP } from './notebook/chartBackdrop';
 import { FieldNotebook, useShelfBook } from './notebook/FieldNotebook';
+import { ClueLibrary } from './notebook/layers';
 import { MATERIALS } from './notebook/Notebook';
 import { grain, wood } from './notebook/textures';
 import styles from './Hunt.module.css';
@@ -104,7 +105,7 @@ export default function HuntPage() {
         {/* the header stays while you play: Help and Settings are one tap away in a story too */}
         <PageBar title="Hunt" tone="dark" className={styles.pageBar} game />
         <div className={`findsg hunt ${styles.stories} ${styles.storyPage}`} style={{ ...MATERIALS, '--hunt-grain': grain } as CSSProperties}>
-          <FindSGApp />
+          <FindSGApp clues={(routeId, onClose) => <ClueLibrary routeId={routeId} onClose={onClose} />} />
         </div>
       </div>
     </AppShell>

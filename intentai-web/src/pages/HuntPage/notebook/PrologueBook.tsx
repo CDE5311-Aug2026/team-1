@@ -3,7 +3,7 @@
 // on the parcel hidden behind them, read its backwards type in a mirror, and work out on a rough sketch where it
 // belongs. Only then does the second building's page unseal. A page you have not earned yet is sealed; finishing a
 // page turns to the next one by itself. Progress is FindSG's own (short-state).
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   assetFor,
   PaperObject,
@@ -19,7 +19,9 @@ import {
   type ShortState,
   type TearTicketHandle,
 } from '../../../findsg/book';
-import { SHORT_FILMS, type Film } from './chapters';
+import { shortChapter, SHORT_FILMS, type ChapterStop, type Film } from './chapters';
+import { ChapterLayers, type Layer } from './layers';
+import { ChapterCardsPage, ChapterMapPage } from './pages';
 import { FilmPlate } from './FilmProjector';
 import { Notebook, type NotebookPage } from './Notebook';
 import { RubberStamp } from './RubberStamp';
@@ -55,6 +57,10 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
   const [s, setS] = useState<ShortState>(() => readShort(readMode()));
   const [index, setIndexState] = useState(() => Number(sessionStorage.getItem('hunt-page-short')) || 0);
   const [film, setFilm] = useState<{ reel: Film[]; title: string } | null>(null);
+  const [layer, setLayer] = useState<Layer | null>(null);
+  // the same map, clue cards and chest as every other story's book, read from the prologue's own progress
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const ch = useMemo(() => shortChapter(s), [s, layer]);
   const setIndex = useCallback((i: number) => {
     setIndexState(i);
     try {
@@ -182,7 +188,6 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
     },
     {
       id: 'press',
-      tab: 'Stop I',
       label: `Stop I · ${press.name}`,
       open: (st) => st.letter,
       seal: 'Read the letter first.',
@@ -285,7 +290,6 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
     },
     {
       id: 'where',
-      tab: 'Clue',
       label: 'Where next?',
       open: (st) => st.mirror,
       seal: 'Read the type in the mirror first.',
@@ -300,7 +304,6 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
     },
     {
       id: 'mosque',
-      tab: 'Stop II',
       label: s.deduce ? `Stop II · ${mosque.name}` : 'Stop II',
       open: (st) => st.deduce,
       seal: 'Work out where the parcel belongs. The book will not tell you.',
@@ -363,7 +366,6 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
     },
     {
       id: 'folio',
-      tab: 'End',
       label: 'The last line',
       open: (st) => st.bottle,
       seal: 'Set the glass to finish the story.',
@@ -412,6 +414,18 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
   // the back of the book is always there to write in and to look up, whatever is still sealed
   pages.push(
     {
+      id: 'map',
+      tab: 'Map',
+      label: 'The map',
+      render: () => <ChapterMapPage ch={ch} onUnfold={() => setLayer({ kind: 'map' })} />,
+    },
+    {
+      id: 'clues',
+      tab: 'Clues',
+      label: 'The clue cards',
+      render: () => <ChapterCardsPage ch={ch} onCards={() => setLayer({ kind: 'cards' })} onChest={() => setLayer({ kind: 'ending' })} />,
+    },
+    {
       id: 'notes',
       tab: 'Notes',
       label: 'Field notes',
@@ -441,22 +455,31 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
     },
   );
   const at = Math.min(index, pages.length - 1);
+  // a stop picked on the map or a card: turn to its page (or the sealed page in the way)
+  const goTo = (stop: ChapterStop) => {
+    setLayer(null);
+    const want = pages.findIndex((pg) => pg.id === (stop.id === 'short-press' ? 'press' : 'mosque'));
+    setIndex(want >= 0 ? want : Math.max(0, firstShut));
+  };
 
   return (
-    <Notebook
-      pages={pages}
-      index={at}
-      onIndex={setIndex}
-      open={open}
-      onOpen={onOpen}
-      cover={cover}
-      tone="#2f4a3a"
-      strap={false}
-      held
-      fit
-      coverLabel="Open Beneath the Golden Dome"
-      insert={film && <FilmPlate key={film.title} reel={film.reel} title={film.title} onClose={() => setFilm(null)} />}
-    />
+    <>
+      <Notebook
+        pages={pages}
+        index={at}
+        onIndex={setIndex}
+        open={open}
+        onOpen={onOpen}
+        cover={cover}
+        tone="#2f4a3a"
+        strap={false}
+        held
+        fit
+        coverLabel="Open Beneath the Golden Dome"
+        insert={film && <FilmPlate key={film.title} reel={film.reel} title={film.title} onClose={() => setFilm(null)} />}
+      />
+      <ChapterLayers ch={ch} layer={layer} setLayer={setLayer} onGo={goTo} />
+    </>
   );
 }
 

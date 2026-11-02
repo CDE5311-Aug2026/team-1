@@ -40,7 +40,7 @@ export default function OnsiteCompact(p) {
     /* the guide you corrected: pages drop in, the cover slams shut, stamped and sealed (CaseFinale.jsx) */
     stage = <CaseFinale routeId={routeId} story={story} meta={meta} config={config} game={game} mode={mode} onOpen={onOpen} reducedMotion={reducedMotion}/>;
     card = <Card kicker="The verdict" title={story.ending.title} lead={story.ending.reflection}
-      actions={<><Primary onClick={onExit}>Choose another street</Primary><Quiet onClick={journal}>Clue bag</Quiet></>}
+      actions={<><Primary onClick={onExit}>Choose another street</Primary><Quiet onClick={journal}>Clues</Quiet></>}
       more="Full story" onMore={note}/>;
     body = <><h2>{story.ending.title}</h2><Guide name={story.guideName}>{story.ending.text}</Guide></>;
   } else if (reward) {
@@ -94,11 +94,11 @@ export default function OnsiteCompact(p) {
 
   return <section className={'ogc' + (sheet ? ' has-sheet' : '')} data-phase={intro ? 'intro' : ending ? 'ending' : phase} aria-label={`${story.title}, stop ${n} of ${total}`}>
     <header className="ogc-top">
-      <button onClick={onExit} aria-label="Back to the story box">‹ Story box</button>
+      <button onClick={onExit} aria-label="Back to the book">‹ Book</button>
       <button className="ogc-chapter" onClick={route} aria-label={intro || ending ? 'Show the route' : `Stop ${n} of ${total}. Show the route`}>
         {intro ? <>{total} stops</> : ending ? <><b>{total}</b>/{total} found</> : <>Stop <b>{n}</b>/{total}</>}
       </button>
-      <button onClick={journal}>Clue bag <b>{game.completed.length}</b></button>
+      <button onClick={journal}>Clues <b>{game.completed.length}</b></button>
     </header>
     <div className="ogc-title">
       <h1>{intro || ending ? story.title : name}</h1>

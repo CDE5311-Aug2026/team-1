@@ -11,7 +11,11 @@ export interface FindSGRoute {
 }
 
 /** The whole prototype: home (short story, story wheel, tickets), the stories and the 3D stops. `top` sits under its header. */
-export function FindSGApp(props: { top?: ReactNode }): ReactNode;
+export function FindSGApp(props: {
+  top?: ReactNode;
+  /** A story's clue cards, opened by the game's Clues button (the same cards as the story's book). */
+  clues?: (routeId: string, onClose: () => void) => ReactNode;
+}): ReactNode;
 export const ROUTES: Record<string, FindSGRoute>;
 export function assetFor(path: string): string;
 export function imageFor(routeId: string): string;
@@ -42,7 +46,7 @@ export const GAME_STORIES: Record<
     stops: FindSGStoryStop[];
   }
 >;
-export const ONSITE_ROUTES: Record<string, { stops: { id: string }[] }>;
+export const ONSITE_ROUTES: Record<string, { stops: { id: string; reward: { title: string; text: string } }[] }>;
 export function readOnsite(routeId: string, stops: { id: string }[], mode?: 'manual' | 'preview'): { completed: string[]; mode: string };
 export function readShort(mode?: 'manual' | 'preview'): { ending: boolean; deduce: boolean; bottle: boolean; ticket: boolean; arrival1: boolean; arrival2: boolean };
 export function shortCount(state: { deduce: boolean; bottle: boolean }): number;

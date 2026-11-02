@@ -5,6 +5,7 @@
 import films from '../../../data/hunt/films.json';
 import pins from '../../../data/hunt/stopPins.json';
 import { findStory, GAME_STORIES, gameSceneImageFor, imageFor, ONSITE_ROUTES, readOnsite, readShort, ROUTES } from '../../../findsg';
+import { assetFor, SHORT_EPISODE } from '../../../findsg/book';
 
 export interface Film {
   id: string;
@@ -179,8 +180,11 @@ export function chapter(routeId: string, i = CHAPTER_ORDER.indexOf(routeId as ne
   const places = findStory(routeId).stops;
   const plan = PLAN[routeId];
   const solved = solvedIds(routeId);
+  const found = ONSITE_ROUTES[routeId].stops;
   const stops = story.stops.map((s, k) => {
     const p = PINS[s.id];
+    // a clue has one title and one text everywhere: the ones the game hands you when you find it
+    const clue = found.find((f) => f.id === s.id)?.reward;
     return {
       id: s.id,
       n: k + 1,
@@ -188,7 +192,7 @@ export function chapter(routeId: string, i = CHAPTER_ORDER.indexOf(routeId as ne
       address: places[k]?.address ?? '',
       title: s.chapterTitle,
       objective: s.objective,
-      discovery: s.discovery,
+      discovery: clue ? { title: clue.title, text: clue.text } : s.discovery,
       pin: p ? { lat: p.lat, lng: p.lng, approx: p.pin === 'approx' } : null,
       done: solved.has(s.id),
       films: reel(...(plan.stops[k + 1] ?? [])),
@@ -201,7 +205,7 @@ export function chapter(routeId: string, i = CHAPTER_ORDER.indexOf(routeId as ne
     roman: ROMAN[i + 1] ?? String(i + 2),
     area: ROUTES[routeId].area,
     en: ROUTES[routeId].en,
-    title: story.title,
+    title: ROUTES[routeId].title,
     kicker: story.kicker,
     logline: story.logline,
     mission: story.mission,
@@ -231,6 +235,75 @@ export function shortProgress() {
   return { deduce: s.deduce || p.deduce, bottle: s.bottle || p.bottle, ending: s.ending || p.ending };
 }
 export const SHORT_PINS = { press: PINS['short-press'], mosque: PINS['short-mosque'] };
+
+/**
+ * The prologue as a chapter, so its book has the same map, clue cards and chest as every other story. Its second
+ * building stays hidden on the map and in the cards until the first clue is worked out.
+ */
+export function shortChapter(now?: { deduce: boolean; bottle: boolean }): Chapter {
+  const kept = shortProgress();
+  // the book's own state is newer than what is saved while a page is being played
+  const s = { deduce: kept.deduce || !!now?.deduce, bottle: kept.bottle || !!now?.bottle };
+  const [press, mosque] = SHORT_EPISODE.places;
+  const pin = (p?: { lat: number; lng: number; pin: string }) => (p ? { lat: p.lat, lng: p.lng, approx: p.pin === 'approx' } : null);
+  const stops: ChapterStop[] = [
+    {
+      id: 'short-press',
+      n: 1,
+      name: press.name,
+      address: press.address,
+      title: 'The hidden line',
+      objective: press.prompt,
+      discovery: {
+        title: 'The hidden line',
+        text: `Behind the shutter at No. 101: ${SHORT_EPISODE.parcel.map((x) => x.name.toLowerCase()).join(', ')}. In a mirror the type reads “${SHORT_EPISODE.mirrorLines.join(' / ')}”.`,
+      },
+      pin: pin(SHORT_PINS.press),
+      done: s.deduce,
+      films: SHORT_FILMS.found,
+    },
+    {
+      id: 'short-mosque',
+      n: 2,
+      name: s.deduce ? mosque.name : 'Still hidden',
+      address: s.deduce ? mosque.address : '',
+      title: 'Printed by the many',
+      objective: s.deduce ? mosque.prompt : 'Work out the first clue to find where it leads.',
+      discovery: {
+        title: 'Printed by the many',
+        text: `${mosque.fact} The slip is filled at last: “${SHORT_EPISODE.lastLine.malay}”, ${SHORT_EPISODE.lastLine.english.toLowerCase()}.`,
+      },
+      pin: s.deduce ? pin(SHORT_PINS.mosque) : null,
+      done: s.bottle,
+      films: SHORT_FILMS.glass,
+    },
+  ];
+  const solved = stops.filter((x) => x.done).length;
+  return {
+    routeId: 'short',
+    roman: 'I',
+    area: SHORT_EPISODE.start.area,
+    en: SHORT_EPISODE.start.area.toUpperCase(),
+    title: SHORT_EPISODE.title,
+    kicker: 'Prologue',
+    logline: SHORT_EPISODE.premise,
+    mission: SHORT_EPISODE.premise,
+    role: 'Finder',
+    guide: 'Ah Ning',
+    guideRole: '',
+    prologue: [],
+    goal: 'Find both clues',
+    ending: { title: SHORT_EPISODE.lastLine.english, text: SHORT_EPISODE.reply, reflection: SHORT_EPISODE.lastLine.malay },
+    image: assetFor(SHORT_EPISODE.hero),
+    scene: assetFor(SHORT_EPISODE.hero),
+    stops,
+    solved,
+    complete: solved === stops.length,
+    intro: SHORT_FILMS.opening,
+    endingFilms: SHORT_FILMS.ending,
+    hint: [],
+  };
+}
 
 /** What a stop's "go" button says: stops are played in order, so a later stop waits for the next one. */
 export function goLabel(ch: Chapter, stop: ChapterStop): string {

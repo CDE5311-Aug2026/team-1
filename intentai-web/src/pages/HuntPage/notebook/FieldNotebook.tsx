@@ -7,9 +7,8 @@ import { DisplayCase } from './Cabinet';
 import { NotesPage, RecordPage } from './BackPages';
 import { recordOf, routeRows } from './record';
 import { BookCover, bookOf, Bookshelf, type BookId, type ShelfProgress } from './Bookshelf';
-import { CardFan } from './CardBox';
-import { chapters as readChapters, shortProgress, type Chapter, type ChapterStop, type Film } from './chapters';
-import { FilmProjector } from './FilmProjector';
+import { chapters as readChapters, shortProgress, type Chapter } from './chapters';
+import { ChapterLayers, type Layer } from './layers';
 import { Notebook, type NotebookPage } from './Notebook';
 import nb from './notebook.module.css';
 import { Overlay } from './Overlay';
@@ -18,7 +17,6 @@ import { PrologueBook } from './PrologueBook';
 import { StoryBook } from './StoryBook';
 import styles from './props.module.css';
 import shelf from './shelf.module.css';
-import { UnfoldedMap } from './TreasureMap';
 
 const session = {
   get(k: string) {
@@ -51,12 +49,6 @@ export function useShelfBook() {
   return [book, setBook] as const;
 }
 
-type Layer =
-  | { kind: 'letter'; ch: Chapter }
-  | { kind: 'map'; ch: Chapter }
-  | { kind: 'cards'; ch: Chapter; focus?: string }
-  | { kind: 'ending'; ch: Chapter }
-  | { kind: 'film'; reel: Film[]; title: string; back?: Layer };
 
 export function FieldNotebook({
   book,
@@ -192,36 +184,32 @@ function Book({
     [id],
   );
   const [layer, setLayer] = useState<Layer | null>(null);
-  useEffect(() => setLayer(null), [id]);
-  const film = (reel: Film[], title: string, back?: Layer) => reel.length && setLayer({ kind: 'film', reel, title, back });
-  // FindSG plays a route's stops in order, so going out always resumes at the next stop; a stop already found
-  // shows its clue card instead
-  const go = (stop: ChapterStop | null, ch: Chapter) => {
-    if (stop?.done) return setLayer({ kind: 'cards', ch, focus: stop.id });
+  const [reading, setReading] = useState(false);
+  useEffect(() => {
     setLayer(null);
-    onRoute(ch.routeId);
-  };
+    setReading(false);
+  }, [id]);
 
   const ch = chs.find((c) => c.routeId === id);
   const pages: NotebookPage[] = ch
     ? [
         {
           id: `${ch.routeId}-letter`,
-          tab: 'Letter',
+          tab: 'Story',
           label: `Vol. ${def.roman} · The letter`,
-          render: () => <ChapterLetterPage ch={ch} onRead={() => setLayer({ kind: 'letter', ch })} onSetOut={() => onRoute(ch.routeId)} />,
+          render: () => <ChapterLetterPage ch={ch} onRead={() => setReading(true)} onSetOut={() => onRoute(ch.routeId)} />,
         },
         {
           id: `${ch.routeId}-map`,
           tab: 'Map',
           label: `Vol. ${def.roman} · The map`,
-          render: () => <ChapterMapPage ch={ch} onUnfold={() => setLayer({ kind: 'map', ch })} />,
+          render: () => <ChapterMapPage ch={ch} onUnfold={() => setLayer({ kind: 'map' })} />,
         },
         {
           id: `${ch.routeId}-cards`,
           tab: 'Clues',
           label: `Vol. ${def.roman} · The clue cards`,
-          render: () => <ChapterCardsPage ch={ch} onCards={() => setLayer({ kind: 'cards', ch })} onChest={() => setLayer({ kind: 'ending', ch })} />,
+          render: () => <ChapterCardsPage ch={ch} onCards={() => setLayer({ kind: 'cards' })} onChest={() => setLayer({ kind: 'ending' })} />,
         },
         {
           id: `${ch.routeId}-notes`,
@@ -255,29 +243,19 @@ function Book({
         coverLabel={`Open ${def.title}`}
       />
 
-      {layer?.kind === 'letter' && (
+      {reading && ch && (
         <LetterReader
-          ch={layer.ch}
-          onClose={() => setLayer(null)}
-          onFilm={() => film(layer.ch.intro, `Vol. ${def.roman} · The letter`, layer)}
-          onSetOut={() => onRoute(layer.ch.routeId)}
+          ch={ch}
+          onClose={() => setReading(false)}
+          onFilm={() => {
+            setReading(false);
+            setLayer({ kind: 'film', reel: ch.intro, title: `Vol. ${def.roman} · The letter` });
+          }}
+          onSetOut={() => onRoute(ch.routeId)}
         />
       )}
-      {layer?.kind === 'map' && <UnfoldedMap chapter={layer.ch} onClose={() => setLayer(null)} onGo={(s) => go(s, layer.ch)} />}
-      {layer?.kind === 'cards' && (
-        <CardFan
-          key={layer.focus ?? 'pile'}
-          chapter={layer.ch}
-          focus={layer.focus}
-          onClose={() => setLayer(null)}
-          onFilm={(reel, title) => film(reel, title, layer)}
-          onGo={(s) => go(s, layer.ch)}
-        />
-      )}
-      {layer?.kind === 'ending' && (
-        <EndingScroll ch={layer.ch} onClose={() => setLayer(null)} onFilm={() => film(layer.ch.endingFilms, layer.ch.ending.title, layer)} />
-      )}
-      {layer?.kind === 'film' && <FilmProjector reel={layer.reel} title={layer.title} onClose={() => setLayer(layer.back ?? null)} />}
+      {/* FindSG plays a route's stops in order, so going out always resumes at the next stop */}
+      {ch && <ChapterLayers ch={ch} layer={layer} setLayer={setLayer} onGo={() => onRoute(ch.routeId)} />}
     </>
   );
 }
@@ -308,30 +286,6 @@ function LetterReader({ ch, onClose, onFilm, onSetOut }: { ch: Chapter; onClose(
         <button type="button" className={styles.waxButton} onClick={onSetOut}>
           <span>{ch.solved ? 'Keep looking' : 'Take it on and set out'}</span>
         </button>
-      </article>
-    </Overlay>
-  );
-}
-
-function EndingScroll({ ch, onClose, onFilm }: { ch: Chapter; onClose(): void; onFilm(): void }) {
-  return (
-    <Overlay label={ch.ending.title} onClose={onClose}>
-      <article className={styles.scroll}>
-        <span className={styles.scrollRod} aria-hidden="true" />
-        <div className={styles.scrollPaper}>
-          <p className={styles.readDate}>Vol. {ch.roman} · The end</p>
-          <h2>{ch.ending.title}</h2>
-          <p>{ch.ending.text}</p>
-          <p className={styles.reflect}>{ch.ending.reflection}</p>
-          {ch.endingFilms.length > 0 && (
-            <button type="button" className={styles.clippedPhoto} onClick={onFilm}>
-              <span className={styles.paperClip} aria-hidden="true" />
-              <img src={ch.endingFilms[0].poster} alt="" />
-              <span>▶ Closing film</span>
-            </button>
-          )}
-        </div>
-        <span className={styles.scrollRod} aria-hidden="true" />
       </article>
     </Overlay>
   );
