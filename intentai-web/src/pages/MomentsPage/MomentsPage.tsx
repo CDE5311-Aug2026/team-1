@@ -44,7 +44,7 @@ import Passport from "./Passport/Passport";
 import PhraseSheet from "./PhraseSheet/PhraseSheet";
 import PlaceSheet from "./PlaceSheet/PlaceSheet";
 import PractiseDialog from "./PractiseDialog/PractiseDialog";
-import RankSheet, { Ring } from "./RankSheet/RankSheet";
+import RankSheet from "./RankSheet/RankSheet";
 import PageBar from "../../components/PageBar/PageBar";
 import Recap from "./Recap/Recap";
 import SnapSheet from "./SnapSheet/SnapSheet";
@@ -164,25 +164,16 @@ export default function MomentsPage() {
   return (
     <AppShell background={CHART_BG}>
       <div className={styles.desk} style={DESK_STYLE}>
-        <PageBar
-          title="Moments"
-          tone="dark"
-          onAvatar={() => setModal({ type: "rank" })}
-          avatarLabel={`Rank: ${rank.step.label}. ${rank.line}`}
-          ring={
-            <Ring
-              value={rank.progress}
-              size={46}
-              stroke={2.5}
-              track="rgba(232, 201, 131, 0.22)"
-              color="#e8833a"
-            />
-          }
-        />
+        <PageBar title="Moments" tone="dark" />
 
         <Journal onSnap={() => setModal({ type: "snap" })} />
 
         <Passport
+          rank={{
+            progress: rank.progress,
+            label: `Rank: ${rank.step.label}. ${rank.line}`,
+            onOpen: () => setModal({ type: "rank" }),
+          }}
           stamps={stamps}
           progress={progress}
           today={today}

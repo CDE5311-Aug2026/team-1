@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/brand/findsg-logo.png';
-import Dialog from '../../../components/Dialog/Dialog';
 import { paths } from '../../../routes';
 import Icon from '../../OnboardingPage/v3/icons';
 import styles from './MySpace.module.css';
@@ -52,19 +51,5 @@ export function SubHeader({ back = paths.mySpace }: { back?: string } = {}) {
         <img src={logo} alt="" width={40} height={40} />
       </Link>
     </header>
-  );
-}
-
-export function HelpDialog({ onClose }: { onClose: () => void }) {
-  return (
-    <Dialog title="Help & feedback" onClose={onClose}>
-      <p className={styles.dialogText}>
-        This is a design prototype in a user test. To share feedback or ask for help, tell the person running your session: there is no
-        form, and nothing you type here is sent anywhere.
-      </p>
-      <button type="button" className={styles.save} onClick={onClose}>
-        OK
-      </button>
-    </Dialog>
   );
 }

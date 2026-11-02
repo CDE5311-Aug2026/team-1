@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
+import PageBar from '../../components/PageBar/PageBar';
 import '@fontsource/im-fell-english/400.css';
 import '@fontsource/im-fell-english/400-italic.css';
 import { paths } from '../../routes';
@@ -21,7 +22,7 @@ import styles from './Hunt.module.css';
 /** The dark sea-chart colour under Hunt's backdrop. */
 const CHART_BG = '#1d1711';
 
-/** FindSG's own place (its hash): Hunt's header shows on its home, not over a story or a stop (they have their own way back). */
+/** FindSG's own place (its hash): its home is the desk with the shelf and tabs; a story or a stop is one notebook page. */
 function useFindsgHome() {
   const atHome = () => {
     // an old link to the short story (#short/…): it is the Golden Dome book on the desk now
@@ -76,6 +77,7 @@ export default function HuntPage() {
     return (
       <AppShell background={CHART_BG}>
         <div className={`${styles.screen} ${styles.desk} ${styles.deskHome} ${styles.publicDesk} ${styles.boardDesk}`} style={{ '--chart': CHART_BACKDROP } as CSSProperties}>
+          <PageBar title="Hunt" tone="dark" className={styles.pageBar} />
           <Board kind={board === 'speed' ? 'speed' : 'explore'} scope={params.get('scope') ?? 'sg'} go={go} openRoute={openRoute} />
         </div>
       </AppShell>
@@ -99,6 +101,8 @@ export default function HuntPage() {
   return (
     <AppShell background={CHART_BG}>
       <div className={`${styles.screen} ${styles.desk}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
+        {/* the header stays while you play: Help and Settings are one tap away in a story too */}
+        <PageBar title="Hunt" tone="dark" className={styles.pageBar} game />
         <div className={`findsg hunt ${styles.stories} ${styles.storyPage}`} style={{ ...MATERIALS, '--hunt-grain': grain } as CSSProperties}>
           <FindSGApp />
         </div>

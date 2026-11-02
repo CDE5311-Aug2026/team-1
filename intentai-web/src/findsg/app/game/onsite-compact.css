@@ -12,11 +12,14 @@
   --ogc-fell: 'IM Fell English', Georgia, serif;
   position: fixed;
   inset: 0;
+  /* below Hunt's top bar, which stays while you play (PageBar game) */
+  top: var(--game-top, 0px);
   z-index: 30;
   display: grid;
   grid-template-rows: auto auto auto minmax(0, 1fr) auto;
   gap: 10px;
-  padding: calc(env(safe-area-inset-top, 0px) + 8px) 14px calc(env(safe-area-inset-bottom, 0px) + 14px) 26px;
+  padding: max(8px, calc(env(safe-area-inset-top, 0px) + 8px - var(--game-top, 0px))) 14px
+    calc(env(safe-area-inset-bottom, 0px) + 14px) 26px;
   color: var(--ogc-ink);
   background:
     radial-gradient(120% 70% at 55% 30%, rgba(255, 249, 230, 0.55), transparent 65%),

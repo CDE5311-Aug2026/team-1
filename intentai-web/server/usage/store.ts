@@ -116,9 +116,15 @@ async function connectTcp(url: string): Promise<TcpClient> {
  * (Redis Cloud integration); otherwise null (not connected).
  */
 export function storeFromEnv(env: Record<string, string | undefined>): UsageStore | null {
+  const client = redisFromEnv(env);
+  return client ? redisStore(client) : null;
+}
+
+/** The Redis connection the env describes (same rules as storeFromEnv), for other lists such as Help feedback. */
+export function redisFromEnv(env: Record<string, string | undefined>): RedisLike | null {
   const url = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL;
   const token = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN;
-  if (url && token) return redisStore(new Redis({ url, token, automaticDeserialization: false }));
-  if (env.REDIS_URL && /^rediss?:\/\//.test(env.REDIS_URL)) return redisStore(tcpRedis(env.REDIS_URL));
+  if (url && token) return new Redis({ url, token, automaticDeserialization: false });
+  if (env.REDIS_URL && /^rediss?:\/\//.test(env.REDIS_URL)) return tcpRedis(env.REDIS_URL);
   return null;
 }

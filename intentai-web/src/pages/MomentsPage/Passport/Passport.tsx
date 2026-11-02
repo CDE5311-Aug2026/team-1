@@ -8,6 +8,7 @@ import { imageOf, topicOfCard, type Stamp as StampData } from '../../../data/mom
 import { paths } from '../../../routes';
 import Icon from '../../OnboardingPage/v3/icons';
 import { TOPIC_ICONS, shapeAt, stampDate } from '../parts';
+import { Ring } from '../RankSheet/RankSheet';
 import Stamp from '../Stamp/Stamp';
 import styles from './Passport.module.css';
 
@@ -20,10 +21,12 @@ interface PassportProps {
   /** YYYY-MM-DD, for the TODAY label. */
   today: string;
   onOpen: (stamp: StampData) => void;
+  /** Your rank: a small ring by the heading that opens the rank sheet. */
+  rank?: { progress: number; label: string; onOpen: () => void };
 }
 
 /** M1: "My places" passport (a parchment page bound on the left), four stamps a page; swipe or use the arrows for the next page. */
-export default function Passport({ stamps, progress, today, onOpen }: PassportProps) {
+export default function Passport({ stamps, progress, today, onOpen, rank }: PassportProps) {
   const reduce = useReducedMotionConfig();
   const pages = Math.max(1, Math.ceil(stamps.length / PER_PAGE));
   const [page, setPage] = useState(0);
@@ -43,6 +46,12 @@ export default function Passport({ stamps, progress, today, onOpen }: PassportPr
         <span className={styles.spine} aria-hidden="true" />
         <div className={styles.heading}>
           <h2 id="passport-heading">My places</h2>
+          {rank && (
+            <motion.button type="button" className={styles.rank} onClick={rank.onOpen} aria-label={rank.label} whileTap={{ scale: 0.9 }}>
+              <Ring value={rank.progress} size={30} stroke={2.5} />
+              <Icon name="badge" size={14} />
+            </motion.button>
+          )}
           <span className={styles.rule} aria-hidden="true" />
           {progress && (
             <Link to={paths.today} className={styles.count} aria-label={`${progress.visited} of ${progress.total} places checked in. Open Nearby`}>

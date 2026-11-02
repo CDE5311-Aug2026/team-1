@@ -10,6 +10,7 @@ import { lazyPage } from './pages/lazyPage';
 import { ADMIN_PATH, paths, patterns } from './routes';
 import PageTracker from './usage/PageTracker';
 import UserGate from './components/UserGate/UserGate';
+import HelpCenter from './components/HelpCenter/HelpCenter';
 
 // Every screen but Today loads on demand, so a phone opening the app downloads Today's code only (the place catalogue,
 // the community posts, the atlas and the map stay out of it). Nearby Explorer screens were already split this way.
@@ -64,6 +65,7 @@ export default function App() {
     // "user" follows the system setting; the app's own Reduce motion switch forces it off everywhere.
     <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
       <PageTracker />
+      <HelpCenter />
       <UserGate>
         <Lazy>
           <Routes>

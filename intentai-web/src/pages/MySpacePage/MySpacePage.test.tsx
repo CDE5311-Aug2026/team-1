@@ -113,8 +113,9 @@ test('switches: Flag occasions is the shared setting; Answer as a local is gone 
 test('links: Settings, Privacy & data, Redo onboarding, Help', async () => {
   renderAt(paths.mySpace);
   await userEvent.click(screen.getByRole('button', { name: /Help & feedback/ }));
-  expect(screen.getByRole('dialog', { name: 'Help & feedback' })).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'OK' }));
+  const help = screen.getByRole('dialog', { name: 'Help Center' });
+  expect(within(help).getByRole('tab', { name: /Feedback/ })).toHaveAttribute('aria-selected', 'true');
+  await userEvent.click(within(help).getByRole('button', { name: 'Close Help Center' }));
   await userEvent.click(screen.getByRole('link', { name: /Privacy & data/ }));
   expect(currentPath()).toBe(paths.mySpacePrivacy);
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));

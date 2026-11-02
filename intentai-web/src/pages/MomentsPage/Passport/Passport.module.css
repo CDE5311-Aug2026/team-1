@@ -51,6 +51,31 @@
   letter-spacing: 0.02em;
 }
 
+/* the rank ring: opens the rank sheet */
+.rank {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: -3px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 250, 240, 0.6);
+  color: #a8481f;
+  cursor: pointer;
+}
+.rank svg:first-child {
+  position: absolute;
+  inset: 0;
+}
+.rank::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+}
+
 /* a ruled line in faded ink */
 .rule {
   flex: 1;

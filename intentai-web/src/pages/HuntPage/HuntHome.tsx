@@ -64,7 +64,7 @@ export function HuntHeader({ tab }: { tab: "story" | "public"; go?: HuntGo }) {
   };
   return (
     <>
-      <PageBar title="Hunt" tone="dark" className={styles.pageBar} />
+      <PageBar title="Hunt" tone="dark" className={styles.pageBar} game={tab === "story"} />
       {how && <HowToPlay onClose={close} />}
     </>
   );

@@ -16,6 +16,16 @@
   -webkit-mask-image: linear-gradient(#000 78%, transparent);
   mask-image: linear-gradient(#000 78%, transparent);
 }
+/* over Hunt's full-screen game layers (.ogc, the story reader): solid, so the game never shows through */
+.game {
+  z-index: 80;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.game.dark {
+  background: linear-gradient(#2a2119, #1f1812);
+  box-shadow: 0 1px 0 rgba(232, 201, 131, 0.22);
+}
 .dark {
   --bar-ink: #f2e8d5;
   --pill-bg: rgba(232, 201, 131, 0.12);

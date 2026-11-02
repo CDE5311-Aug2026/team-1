@@ -152,6 +152,15 @@ const PATHS = {
     </>
   ),
   close: <path d="M6 6l12 12M18 6L6 18" />,
+  /** Send: a paper dart. */
+  send: <path d="M21 3L10 14M21 3l-7 18-4-7-7-4 18-7z" />,
+  /** Feedback: a speech bubble with a pen line. */
+  feedback: (
+    <>
+      <path d="M4 5h16v11H9l-5 4V5z" />
+      <path d="M8 10.5h8M8 13h5" />
+    </>
+  ),
   /** Text size: a large and a small A. */
   text: <path d="M3 19l5-13 5 13M4.8 14.5h6.4M14 19l3.5-8 3.5 8M15.2 16.5h4.6" />,
   /** Nearby radius: a point inside a circle. */

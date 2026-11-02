@@ -3,6 +3,7 @@
 // and links to Privacy & data, photo credits and feedback. From PR #5: Text size (applied app-wide), Nearby radius (Explore's
 // default), Today's topics, Terms & licences as a page, and notification switches that wait for their My Space switch.
 import { motion, useReducedMotionConfig } from 'motion/react';
+import { openHelp } from '../../components/HelpCenter/helpStore';
 import { useId, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
@@ -28,7 +29,7 @@ import { paths } from '../../routes';
 import Icon, { type IconName } from '../OnboardingPage/v3/icons';
 import FieldEditor from './v3/FieldEditor';
 import MemorySection from './v3/MemorySection';
-import { HelpDialog, SubHeader, Switch } from './v3/Parts';
+import { SubHeader, Switch } from './v3/Parts';
 import styles from './v3/MySpace.module.css';
 
 type NotifyKey = keyof MySpacePrefs['notify'];
@@ -76,7 +77,6 @@ export default function SettingsPage() {
   const [profile] = usePersistentStore(profileV3Store);
   const [culture] = usePersistentStore(culturePrefsStore);
   const [editing, setEditing] = useState<FieldKey | null>(null);
-  const [help, setHelp] = useState(false);
   const radiusId = useId();
   const sizeId = useId();
   const [params] = useSearchParams();
@@ -318,7 +318,7 @@ export default function SettingsPage() {
             </span>
             <Icon name="chevron" size={18} className={styles.rowChevron} />
           </Link>
-          <button type="button" className={styles.row} onClick={() => setHelp(true)}>
+          <button type="button" className={styles.row} onClick={() => openHelp('feedback')}>
             <span className={styles.rowIcon}>
               <Icon name="help" size={18} />
             </span>
@@ -331,7 +331,6 @@ export default function SettingsPage() {
         <p className={styles.footerNote}>FindSG · beta</p>
       </div>
       {editing && <FieldEditor field={editing} profile={profile} onClose={() => setEditing(null)} />}
-      {help && <HelpDialog onClose={() => setHelp(false)} />}
     </AppShell>
   );
 }

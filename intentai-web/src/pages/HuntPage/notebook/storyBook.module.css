@@ -2,12 +2,14 @@
 .reader {
   position: fixed;
   inset: 0;
+  /* below Hunt's top bar, which stays while you read (PageBar game) */
+  top: var(--game-top, 0px);
   z-index: 70;
   display: grid;
   grid-template-rows: auto 1fr;
   overflow: hidden;
   overscroll-behavior: none;
-  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  padding: max(0px, calc(env(safe-area-inset-top) - var(--game-top, 0px))) 0 env(safe-area-inset-bottom);
   color: #f2e8d5;
   background:
     radial-gradient(70% 46% at 50% 44%, rgba(255, 196, 120, 0.2), transparent 70%),

@@ -1,6 +1,7 @@
 // My Space v3 (Figma S1): the holder card, what the app knows as six visual tiles (tap to edit, eye = private), the two
 // switches, and links to Privacy & data, Settings, Redo onboarding and Help.
 import { motion, useReducedMotionConfig } from "motion/react";
+import { openHelp } from "../../components/HelpCenter/helpStore";
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import groundUrl from "../../assets/nearby/sg-ground.webp";
@@ -44,7 +45,7 @@ import useInitial from "../OnboardingPage/v3/useInitial";
 import FieldEditor from "./v3/FieldEditor";
 import { useMemories } from "./v3/MemorySection";
 import { setMemoryEnabled } from "../../data/memory";
-import { HelpDialog, Switch } from "./v3/Parts";
+import { Switch } from "./v3/Parts";
 import StorageBar from "./v3/StorageBar";
 import styles from "./v3/MySpace.module.css";
 import PageBar from "../../components/PageBar/PageBar";
@@ -374,7 +375,6 @@ export default function MySpacePage() {
   const [settings, setSettings] = usePersistentStore(settingsStore);
   const memory = useMemories();
   const [editing, setEditing] = useState<FieldKey | null>(null);
-  const [help, setHelp] = useState(false);
   const privateCount = profile.hidden.filter(
     (f) => fieldValue(profile, f, areaShortName) !== null,
   ).length;
@@ -382,7 +382,7 @@ export default function MySpacePage() {
   return (
     <AppShell background="#edebe5">
       <div className={styles.screen}>
-        <PageBar title="Passport" tone="light" here />
+        <PageBar title="Passport" tone="light" />
 
         <Holder profile={profile} />
 
@@ -478,7 +478,7 @@ export default function MySpacePage() {
           <Row
             icon="help"
             title="Help & feedback"
-            onClick={() => setHelp(true)}
+            onClick={() => openHelp("feedback")}
           />
         </nav>
       </div>
@@ -489,7 +489,6 @@ export default function MySpacePage() {
           onClose={() => setEditing(null)}
         />
       )}
-      {help && <HelpDialog onClose={() => setHelp(false)} />}
     </AppShell>
   );
 }

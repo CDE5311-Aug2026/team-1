@@ -1,70 +1,58 @@
-// Every tab's top bar, one design: your avatar (the app logo until you have a photo) on the left, the page's name in the middle, Settings on the right.
-import type { ReactNode } from "react";
+// Every tab's top bar, one design: the Help Center badge (the FindSG lion and its info bulb) on the left, the page's
+// name in the middle, Settings on the right. The badge unfolds this bar into the Help Center.
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { paths } from "../../routes";
 import Icon from "../../pages/OnboardingPage/v3/icons";
-import logo from "../../assets/avatar-logo.png";
+import HelpBadge from "../HelpCenter/HelpBadge";
+import { openHelp } from "../HelpCenter/helpStore";
 import styles from "./PageBar.module.css";
 
 interface Props {
   title: string;
   /** dark: cream type on the dark desk pages; light: ink on paper. */
   tone?: "dark" | "light";
-  /** Drawn around the avatar (e.g. the rank ring). */
+  /** Drawn around the lion (e.g. the rank ring). */
   ring?: ReactNode;
-  /** The avatar's own action; by default it opens Passport. */
-  onAvatar?: () => void;
-  avatarLabel?: string;
-  /** On Passport itself the avatar is just a picture. */
-  here?: boolean;
   className?: string;
   /** false when the page already has its own h1 (Home's is for screen readers). */
   heading?: boolean;
+  /** Hunt's game screens (a stop, the story reader) are full-screen layers: the bar stays over them and tells them
+   *  where it ends (--game-top), so the game starts below it. */
+  game?: boolean;
 }
 
 export default function PageBar({
   title,
   tone = "light",
   ring,
-  onAvatar,
-  avatarLabel,
-  here,
   className,
   heading = true,
+  game = false,
 }: Props) {
-  // no profile photo yet: everyone starts with the app's logo
-  const face = (
-    <>
-      {ring && <span className={styles.ring}>{ring}</span>}
-      <span className={styles.face} aria-hidden="true">
-        <img src={logo} alt="" draggable={false} />
-      </span>
-    </>
-  );
+  const bar = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const el = bar.current;
+    if (!game || !el) return;
+    const root = document.documentElement.style;
+    const mark = () =>
+      root.setProperty("--game-top", `${Math.round(el.getBoundingClientRect().bottom)}px`);
+    mark();
+    const ro = new ResizeObserver(mark);
+    ro.observe(el);
+    window.addEventListener("resize", mark);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", mark);
+      root.removeProperty("--game-top");
+    };
+  }, [game]);
   return (
     <header
-      className={`${styles.bar} ${tone === "dark" ? styles.dark : styles.light} ${className ?? ""}`}
+      ref={bar}
+      className={`${styles.bar} ${tone === "dark" ? styles.dark : styles.light} ${game ? styles.game : ""} ${className ?? ""}`}
     >
-      {onAvatar ? (
-        <button
-          type="button"
-          className={styles.avatar}
-          onClick={onAvatar}
-          aria-label={avatarLabel ?? "You"}
-        >
-          {face}
-        </button>
-      ) : here ? (
-        <span className={styles.avatar}>{face}</span>
-      ) : (
-        <Link
-          to={paths.mySpace}
-          className={styles.avatar}
-          aria-label={avatarLabel ?? "Passport"}
-        >
-          {face}
-        </Link>
-      )}
+      <HelpBadge ring={ring} onOpen={(el) => openHelp("ask", el)} />
       {heading ? (
         <h1 className={styles.title}>{title}</h1>
       ) : (
