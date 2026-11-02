@@ -15,6 +15,7 @@ import {
   taskScript,
   TASKS,
   T4_CLUE,
+  ROUTES,
   toCsv,
   toggleOption,
   usability,
@@ -23,6 +24,8 @@ import {
   type Session,
 } from './abTest';
 import { clueTitle, remoteRecord } from './prepare';
+// @ts-expect-error the game modules are untyped JS
+import { ROUTES as BOOKS } from '../../findsg/app/data.js';
 
 const row = (n: number, compare: AbResponse['compare'], extra: Partial<AbResponse> = {}): AbResponse => ({
   code: 'P' + String(n).padStart(2, '0'), n, first: firstOf(n), route: routeOf(n), form: FORM, status: 'done', startedAt: 0, updatedAt: 0,
@@ -33,7 +36,9 @@ test('UI and route order balance over every four participants', () => {
   expect([1, 2, 3, 4, 5].map((n) => firstOf(n) + routeOf(n))).toEqual(['AX', 'BX', 'AY', 'BY', 'AX']);
   expect(routeFor(row(1, {}), 'A')).toBe('X');
   expect(routeFor(row(1, {}), 'B')).toBe('Y');
-  expect(taskScript(TASKS[2], 'Y')).toContain('From the Old Coastline');
+  expect(taskScript(TASKS[2], 'Y')).toContain('Letters to the Shore');
+  // The script names each route's book exactly as the shelf shows it.
+  for (const r of Object.values(ROUTES)) expect(r.book).toBe(BOOKS[r.id].title);
 });
 
 test('a side needs more than half of the valid answers, and enough of them', () => {

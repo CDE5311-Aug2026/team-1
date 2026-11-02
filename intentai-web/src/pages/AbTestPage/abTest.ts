@@ -75,8 +75,8 @@ export const PHONES: Record<Version, { name: string; side: string; about: string
 
 /** The two story routes for T3. Both exist unchanged in UI1 and UI2; each participant plays one per UI. */
 export const ROUTES: Record<RouteKey, { id: string; place: string; book: string }> = {
-  X: { id: 'kampong-gelam', place: 'Kampong Gelam', book: 'A Neighbourhood Paper, 1938' },
-  Y: { id: 'telok-ayer', place: 'Telok Ayer', book: 'From the Old Coastline' },
+  X: { id: 'kampong-gelam', place: 'Kampong Gelam', book: 'The Last Edition' },
+  Y: { id: 'telok-ayer', place: 'Telok Ayer', book: 'Letters to the Shore' },
 };
 
 /** T4's prepared profile: one named remote clue already saved (Balestier, stop 1). Loaded on the phone at /t4. */
