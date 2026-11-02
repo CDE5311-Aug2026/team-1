@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from
 import { readPassword, writePassword } from '../AdminPage/password';
 import {
   COMPARE,
-  IMPROVE,
+  HYPOTHESES,
   ITEMS,
   OUTCOMES,
   PHONES,
@@ -13,12 +13,13 @@ import {
   USE_AGAIN,
   fmt,
   itemKey,
+  judge,
+  optionsFor,
   median,
   nextStep,
   openCount,
   preference,
   tasksDone,
-  textAmount,
   toCsv,
   toggleOption,
   versionAt,
@@ -29,7 +30,7 @@ import {
 import styles from './AbTestPage.module.css';
 
 /**
- * The A/B test desk, for three phones: the left phone opens version A, the right phone version B, and the
+ * The A/B test desk, for three phones: the left phone runs the app as A (Explore), the right as B (Hunt), and the
  * third runs the session (the facilitator ticks tasks, then hands it over for the questions). Answers save
  * to /api/abtest after every step; the results need the team password from /admin. Not linked from the app.
  */
@@ -81,7 +82,7 @@ export default function AbTestPage() {
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>A/B Test</h1>
-          <p className={styles.sub}>A Clean · left phone &nbsp;/&nbsp; B Pirate · right phone</p>
+          <p className={styles.sub}>A Explore · left phone &nbsp;/&nbsp; B Hunt · right phone</p>
         </div>
         <nav className={styles.switch} aria-label="Views">
           {VIEWS.map((v) => (
@@ -134,18 +135,20 @@ function PhonesView() {
     <Card className={styles['phone' + phone]}>
       <div className={styles.row}>
         <Tag v={phone} />
-        <h2 className={styles.h2}>
-          {P.name} · {P.side} phone
-        </h2>
+        <div>
+          <h2 className={styles.h2}>
+            {P.name} · {P.side} phone
+          </h2>
+          <p className={styles.mute}>{P.about}</p>
+        </div>
       </div>
       <div className={styles.links}>
-        {P.links.map((l) => (
-          <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer">
-            {l.title}
-            <span>{l.task}</span>
-          </a>
-        ))}
+        <a href={P.href}>
+          Open FindSG as {phone}
+          <span>Type the participant code</span>
+        </a>
       </div>
+      <p className={styles.mute}>Between participants: Passport › Settings › Restart test.</p>
       <button type="button" className={`${styles.btn} ${styles.ghost} ${styles.small}`} onClick={() => pick(null)}>
         Change phone
       </button>
@@ -296,7 +299,7 @@ function SessionView() {
     body = (
       <Card>
         {versionHead(`Your experience with ${v}`, '1 = strongly disagree, 5 = strongly agree.')}
-        {ITEMS.map((text, i) => {
+        {ITEMS.map(({ text }, i) => {
           const k = itemKey(i);
           return (
             <div key={k} className={`${styles.q} ${miss(r[k])}`}>
@@ -324,14 +327,8 @@ function SessionView() {
               {i + 1}. {x.text}
               {x.max === 2 && <span className={styles.mute}> (up to two)</span>}
             </p>
-            {x.scale ? (
-              <>
-                <Scale value={q[x.key]} label={x.text} onPick={(val) => set('quick', v, x.key, val)} />
-                <Ends left={x.scale[0]} right={x.scale[1]} />
-              </>
-            ) : (
-              <div className={styles.multi} role="group" aria-label={x.text}>
-                {x.options!.map((o) => (
+            <div className={styles.multi} role="group" aria-label={x.text}>
+                {optionsFor(x, v).map((o) => (
                   <button
                     key={o}
                     type="button"
@@ -342,8 +339,7 @@ function SessionView() {
                     {o}
                   </button>
                 ))}
-              </div>
-            )}
+            </div>
           </div>
         ))}
         <button type="button" className={styles.btn} onClick={advance}>
@@ -381,10 +377,9 @@ function SessionView() {
           </div>
         ))}
         <OneOf label="Which version would you use again?" options={USE_AGAIN} value={c.useAgain} missing={missing} onPick={(o) => setCompare('useAgain', o)} />
-        <OneOf label="What should we improve first?" options={IMPROVE} value={c.improve} missing={missing} onPick={(o) => setCompare('improve', o)} />
         <div className={styles.q}>
           <label className={styles.qt} htmlFor="ab-comment">
-            Reason or example <span className={styles.mute}>(optional)</span>
+            What made the difference? <span className={styles.mute}>(optional)</span>
           </label>
           <textarea
             id="ab-comment"
@@ -556,11 +551,17 @@ function ResultsView() {
   const paired = rows.filter((r) => Object.keys(r.compare).length > 0);
   const tA = tasksDone(rows, 'A');
   const tB = tasksDone(rows, 'B');
-  const ease = preference('ease', paired, min);
-  const interest = preference('interest', paired, min);
   const pill = (side: Version | null, label: string) => <span className={`${styles.pill} ${side ? styles['pill' + side] : ''}`}>{label}</span>;
-  const textA = textAmount(rows, 'A');
-  const textB = textAmount(rows, 'B');
+  const pct = (x: number | null) => (x == null ? '–' : Math.round(x * 100) + '%');
+  /** How often each option was picked, per version, most picked first. */
+  const counts = (key: string, v: Version) => {
+    const tally = new Map<string, number>();
+    for (const r of rows) {
+      const val = r.quick[v]?.[key];
+      if (Array.isArray(val)) val.forEach((o) => tally.set(o, (tally.get(o) ?? 0) + 1));
+    }
+    return [...tally].sort((a, b) => b[1] - a[1]);
+  };
 
   return (
     <>
@@ -594,20 +595,24 @@ function ResultsView() {
 
       <Card>
         <h3 className={styles.h3}>Hypotheses</h3>
-        <div className={styles.verdict}>
-          <b>H1 Ease</b>
-          {pill(ease.side, ease.verdict)}
-          <span />
-          <span className={styles.mute}>
-            {ease.a} favour A · {ease.same} same · {ease.b} favour B. Tasks done alone: A {tA.alone}/{tA.tried}, B {tB.alone}/{tB.tried}.
-          </span>
-          <b>H2 Interest</b>
-          {pill(interest.side, interest.verdict)}
-          <span />
-          <span className={styles.mute}>
-            {interest.a} favour A · {interest.same} same · {interest.b} favour B.
-          </span>
-        </div>
+        {HYPOTHESES.map((h) => {
+          const r = judge(h, rows, min);
+          return (
+            <div key={h.key} className={styles.hypo}>
+              <div className={styles.top}>
+                <b>
+                  {h.key} {h.name}
+                </b>
+                {pill(r.verdict === 'Supported' ? 'B' : null, r.verdict === 'Inconclusive' ? `Inconclusive (${r.pref.valid} of ${min})` : r.verdict)}
+              </div>
+              <p className={styles.mute}>{h.claim}</p>
+              <p className={styles.evidence}>
+                Compare: {r.pref.a} A · {r.pref.same} same · {r.pref.b} B. Ratings median: A {fmt(r.rating.A)} · B {fmt(r.rating.B)}.
+                {h.nonInferior && ` Tasks done alone: A ${pct(r.alone.A)} · B ${pct(r.alone.B)}.`}
+              </p>
+            </div>
+          );
+        })}
       </Card>
 
       <Card>
@@ -657,8 +662,7 @@ function ResultsView() {
                 return (
                   <tr key={t.key}>
                     <td>
-                      {t.name}
-                      {t.key === 't2' && <span className={styles.mute}> (prepared start)</span>}
+                      {t.name} <span className={styles.mute}>{t.h.join(' ')}</span>
                     </td>
                     <td className={styles.n}>
                       {a.alone}/{a.tried}
@@ -687,42 +691,56 @@ function ResultsView() {
               </tr>
             </thead>
             <tbody>
-              {ITEMS.map((text, i) => {
+              {ITEMS.map(({ text, h }, i) => {
                 const k = itemKey(i);
                 const va = rows.map((r) => r.ratings.A?.[k]);
                 const vb = rows.map((r) => r.ratings.B?.[k]);
                 const na = [...va, ...vb].filter((x) => x === 'na').length;
                 return (
                   <tr key={k}>
-                    <td>{text}</td>
+                    <td>
+                      {text} <span className={styles.mute}>{h}</span>
+                    </td>
                     <td className={styles.n}>{fmt(median(va))}</td>
                     <td className={styles.n}>{fmt(median(vb))}</td>
                     <td className={styles.n}>{na || ''}</td>
                   </tr>
                 );
               })}
-              {[
-                ['q2', 'Wanted to keep exploring'],
-                ['q5', 'Learned about Singapore'],
-              ].map(([k, label]) => (
-                <tr key={k}>
-                  <td>{label}</td>
-                  <td className={styles.n}>{fmt(median(rows.map((r) => r.quick.A?.[k])))}</td>
-                  <td className={styles.n}>{fmt(median(rows.map((r) => r.quick.B?.[k])))}</td>
-                  <td />
-                </tr>
-              ))}
-              <tr>
-                <td>
-                  Amount of text <span className={styles.mute}>(little · right · much)</span>
-                </td>
-                <td className={styles.n}>{textA.join('·')}</td>
-                <td className={styles.n}>{textB.join('·')}</td>
-                <td />
-              </tr>
             </tbody>
           </table>
         </div>
+      </Card>
+
+      <Card>
+        <h3 className={styles.h3}>Why</h3>
+        {QUICK.map((q) => (
+          <div key={q.key} className={styles.why}>
+            <p className={styles.qt}>
+              {q.text} <span className={styles.mute}>{q.h}</span>
+            </p>
+            {(['A', 'B'] as Version[]).map((v) => {
+              const top = counts(q.key, v);
+              return (
+                <p key={v} className={styles.row}>
+                  <Tag v={v} />
+                  <span className={styles.mute}>{top.length ? top.map(([o, n]) => `${o} ${n}`).join(' · ') : 'No answers yet'}</span>
+                </p>
+              );
+            })}
+          </div>
+        ))}
+        {paired.some((r) => r.compare.comment) && (
+          <ul className={styles.comments}>
+            {paired
+              .filter((r) => r.compare.comment)
+              .map((r) => (
+                <li key={r.code}>
+                  <span className={styles.mono}>{r.code}</span> {String(r.compare.comment)}
+                </li>
+              ))}
+          </ul>
+        )}
       </Card>
 
       <Card>

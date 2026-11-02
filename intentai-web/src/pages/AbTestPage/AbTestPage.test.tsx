@@ -19,7 +19,7 @@ beforeEach(() => {
       ? JSON.parse(String(init.body)).type === 'start'
         ? json(P01)
         : Promise.resolve(new Response(null, { status: 204 }))
-      : json({ responses: [{ ...P01, status: 'done', compare: { ease: 1 } }] }),
+      : json({ responses: [{ ...P01, status: 'done', compare: { fun: 1 } }] }),
   );
   vi.stubGlobal('fetch', fetchMock);
   vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
@@ -43,9 +43,9 @@ test('a session starts on A, asks for every task, then saves', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Start session' }));
   expect(await screen.findByText('P01')).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'Begin with phone A' }));
-  expect(screen.getByRole('heading', { name: 'Phone A · Clean' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Phone A · Explore' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: '4 left' }));
-  expect(screen.getByRole('heading', { name: 'Phone A · Clean' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Phone A · Explore' })).toBeInTheDocument();
   for (const group of screen.getAllByRole('group')) await userEvent.click(group.querySelector('button')!);
   await userEvent.click(screen.getByRole('button', { name: 'Hand over' }));
   expect(screen.getByRole('heading', { name: 'Your experience with A' })).toBeInTheDocument();

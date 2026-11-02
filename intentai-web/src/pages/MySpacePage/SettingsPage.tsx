@@ -22,7 +22,8 @@ import {
   type MySpacePrefs,
 } from '../../data/profile/profile';
 import { formatBytes, totalBytes } from '../../data/profile/storage';
-import { culturePrefsStore, reduceMotionStore, settingsStore } from '../../data/stores';
+import { culturePrefsStore, reduceMotionStore, restartTest, settingsStore, testerStore, versionOf } from '../../data/stores';
+import { USER_GATE_ENABLED } from '../../components/UserGate/UserGate';
 import { RADII_M } from '../../features/nearby/types';
 import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
@@ -326,8 +327,47 @@ export default function SettingsPage() {
             <Icon name="chevron" size={18} className={styles.rowChevron} />
           </button>
         </nav>
+        {USER_GATE_ENABLED && <RestartTest />}
       </div>
       {editing && <FieldEditor field={editing} profile={profile} onClose={() => setEditing(null)} />}
     </AppShell>
+  );
+}
+
+/** User test only: wipe this phone and go back to the start screen for the next person. Asks once before it clears. */
+function RestartTest() {
+  const [tester] = usePersistentStore(testerStore);
+  const [sure, setSure] = useState(false);
+  return (
+    <>
+      <h2 className={styles.kicker}>User test</h2>
+      <div className={styles.card}>
+        {sure ? (
+          <div className={styles.row}>
+            <span className={styles.rowText}>
+              <span className={styles.rowTitle}>Clear this phone?</span>
+              <span className={styles.rowSub}>Visits, stamps and settings go. The next person starts fresh.</span>
+            </span>
+            <button type="button" className={styles.restartNo} onClick={() => setSure(false)}>
+              Keep
+            </button>
+            <button type="button" className={styles.restartYes} onClick={restartTest}>
+              Restart
+            </button>
+          </div>
+        ) : (
+          <button type="button" className={styles.row} onClick={() => setSure(true)}>
+            <span className={styles.rowIcon}>
+              <Icon name="redo" size={18} />
+            </span>
+            <span className={styles.rowText}>
+              <span className={styles.rowTitle}>Restart test</span>
+              {tester.name && <span className={styles.rowSub}>{`${tester.name} · version ${versionOf(tester)}`}</span>}
+            </span>
+            <Icon name="chevron" size={18} className={styles.rowChevron} />
+          </button>
+        )}
+      </div>
+    </>
   );
 }

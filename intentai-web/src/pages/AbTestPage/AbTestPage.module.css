@@ -488,6 +488,41 @@
   color: #fff;
 }
 
+.hypo,
+.why {
+  display: grid;
+  gap: 0.25rem;
+  padding-block: 0.625rem;
+  border-top: 1px solid var(--divider);
+}
+
+.hypo:first-of-type,
+.why:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.hypo b {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.evidence {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.comments {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0.625rem 0 0;
+  border-top: 1px solid var(--divider);
+  list-style: none;
+  font-size: 0.875rem;
+}
+
 .pref {
   display: grid;
   gap: 0.25rem;

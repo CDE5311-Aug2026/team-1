@@ -5,6 +5,8 @@
 // While it is open the page is told (html[data-guide-open] and a 'guide' event), so what lies under it can make way.
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { staticCopy } from '../../data/expressions';
+import useTestVersion from '../../hooks/useTestVersion';
+import { paths } from '../../routes';
 import styles from './TabBar.module.css';
 
 interface TabBarProps {
@@ -65,7 +67,9 @@ function GuideIcon({ label }: { label: string }) {
 const inert = (on: boolean) => (on ? ({ inert: '' } as Record<string, string>) : {});
 
 export default function TabBar({ active, onNavigate, nodeId, pop = false }: TabBarProps) {
-  const tabs = staticCopy.tabs;
+  // Version A of the user test has no Hunt.
+  const version = useTestVersion();
+  const tabs = version === 'A' ? staticCopy.tabs.filter((t) => t.path !== paths.hunt) : staticCopy.tabs;
   const at = Math.max(
     0,
     tabs.findIndex((t) => t.path === active),

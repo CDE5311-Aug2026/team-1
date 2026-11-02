@@ -1914,3 +1914,35 @@ div.perm {
 .kraft .memoryFocus {
   scroll-margin-top: 4.5rem;
 }
+
+/* Settings › User test › Restart test: the confirm step. */
+.restartNo,
+.restartYes {
+  flex: none;
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  border-radius: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.restartNo {
+  border: 1px solid currentColor;
+  background: none;
+  color: inherit;
+}
+
+.restartYes {
+  border: 0;
+  background: #b23a3a;
+  color: #fff;
+}
+
+.restartNo:focus-visible,
+.restartYes:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

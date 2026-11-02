@@ -94,7 +94,10 @@ export async function handleHelp(request: Request, cfg: HelpConfig): Promise<Res
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
       output_config: { effort: 'low' },
-      system: page ? `${SYSTEM}\n\nThe person is on the ${page} tab.` : SYSTEM,
+      system:
+        (page ? `${SYSTEM}\n\nThe person is on the ${page} tab.` : SYSTEM) +
+        // Version A of the user test has no Hunt tab: don't send people looking for it.
+        (body.version === 'A' ? '\n\nThis copy of the app has no Hunt tab and no story hunts. Never mention them.' : ''),
       messages,
     });
     if (response.stop_reason === 'refusal')

@@ -18,11 +18,11 @@ describe('handleAbTest', () => {
   test('saves answers and returns the newest state per participant', async () => {
     const c = cfg();
     const p = await (await handleAbTest(post({ type: 'start' }), c)).json();
-    const saved = await handleAbTest(post({ type: 'save', response: { ...p, status: 'done', tasks: { A: { t1: 'alone', t2: 'bogus' } }, compare: { ease: 2, evil: '<x>' } } }), c);
+    const saved = await handleAbTest(post({ type: 'save', response: { ...p, status: 'done', tasks: { A: { t1: 'alone', t2: 'bogus' } }, compare: { fun: 2, evil: '<x>' } } }), c);
     expect(saved.status).toBe(204);
     const { responses } = await (await handleAbTest(get(), c)).json();
     expect(responses).toHaveLength(1);
-    expect(responses[0]).toMatchObject({ code: 'P01', status: 'done', tasks: { A: { t1: 'alone' } }, compare: { ease: 2 } });
+    expect(responses[0]).toMatchObject({ code: 'P01', status: 'done', tasks: { A: { t1: 'alone' } }, compare: { fun: 2 } });
     expect(responses[0].tasks.A.t2).toBeUndefined();
     expect(responses[0].compare.evil).toBeUndefined();
   });

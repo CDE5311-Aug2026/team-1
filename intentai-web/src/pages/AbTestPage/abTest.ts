@@ -1,5 +1,6 @@
-// The A/B test of the two prototype styles: A = Clean (left phone), B = Pirate (right phone).
-// What is asked, in what order, and how the answers are summed up. The page (/test) only draws it.
+// The A/B test of the real app: A = Explore (map exploration only), B = Hunt (the same app plus story hunts).
+// Only the Hunt differs, so a difference in the answers can be put down to it. What is asked, in what order,
+// and how the answers are summed up live here; the page (/test) only draws it.
 // The server (server/abtest) keeps the same answer shape.
 
 export type Version = 'A' | 'B';
@@ -20,41 +21,33 @@ export interface AbResponse {
   compare: Record<string, Score | string>;
 }
 
-const PROTOTYPE = 'https://claude.ai/artifact/Nb1Gh81rJ3kmmALscjgk5D#play-';
+export type HypothesisKey = 'H1' | 'H2' | 'H3';
 
-/** Each phone's first screen for every task, in the order they are used. */
-export const PHONES: Record<Version, { name: string; side: string; links: { title: string; task: string; href: string }[] }> = {
-  A: {
-    name: 'Clean',
-    side: 'Left',
-    links: [
-      ['Welcome', 'Task 1', '3ae89ba2b8be'],
-      ['Home · Central', 'Task 2', '137108157d56'],
-      ['Place page', 'Task 2', '74942ff720e1'],
-      ['Story cover', 'Task 3', '68817d859581'],
-      ['Passport', 'Task 4', 'cf678e772870'],
-      ['Moments', 'Task 4', '2fa4150d0bd9'],
-    ].map(([title, task, id]) => ({ title, task, href: PROTOTYPE + id })),
+/** Stated before testing. Every task, rating and compare row below is there to test one of these. */
+export const HYPOTHESES: { key: HypothesisKey; name: string; claim: string; pref: string; nonInferior?: boolean }[] = [
+  { key: 'H1', name: 'More fun', claim: 'Adding story hunts to map exploration (B) makes exploring Singapore more fun than map exploration alone (A).', pref: 'fun' },
+  { key: 'H2', name: 'Keep exploring', claim: 'With story hunts (B), people want to keep exploring and visit more places than without them (A).', pref: 'explore' },
+  {
+    key: 'H3',
+    name: 'Easy to get into',
+    claim: 'Story hunts (B) are no harder to get into than plain map exploration (A): as many tasks done alone, and not rated harder to start.',
+    pref: 'start',
+    nonInferior: true,
   },
-  B: {
-    name: 'Pirate',
-    side: 'Right',
-    links: [
-      ['Welcome', 'Task 1', 'a201cdaf9634'],
-      ['Home · Central', 'Task 2', 'cb39f85f5798'],
-      ['Place page', 'Task 2', '3dcaa03a3dd6'],
-      ['Story cover', 'Task 3', '378e29207fa0'],
-      ['Logbook', 'Task 4', '166d8761243e'],
-      ['Moments', 'Task 4', '7709ab621564'],
-    ].map(([title, task, id]) => ({ title, task, href: PROTOTYPE + id })),
-  },
+];
+
+/** Each phone runs the real app in one version; the start screen picks it (?v= preselects it). */
+export const PHONES: Record<Version, { name: string; side: string; about: string; href: string }> = {
+  A: { name: 'Explore', side: 'Left', about: 'Map exploration only. No Hunt tab.', href: '/?v=A' },
+  B: { name: 'Hunt', side: 'Right', about: 'The same app with the Hunt tab: story hunts with clues.', href: '/?v=B' },
 };
 
-export const TASKS: { key: string; name: string; say: string }[] = [
-  { key: 't1', name: 'Set up', say: 'Set up the app so it starts with places you like, near where you stay.' },
-  { key: 't2', name: 'Find a place', say: 'You want to visit a place in Outram. Where would you tap? Then: how would you get there and check in?' },
-  { key: 't3', name: 'Start a story', say: 'Start the Kampong Gelam story and get ready for its first stop.' },
-  { key: 't4', name: 'Check progress', say: 'How many stamps do you have, and what did you do today?' },
+/** The same goals on both phones, so they can be compared; how each version reaches them is what differs. */
+export const TASKS: { key: string; name: string; say: string; h: HypothesisKey[] }[] = [
+  { key: 't1', name: 'Get started', say: 'Open the app and set it up so it shows places you like.', h: ['H3'] },
+  { key: 't2', name: 'Find a place', say: 'Find a place in Outram you would like to visit, and open it.', h: ['H3'] },
+  { key: 't3', name: 'Plan an afternoon', say: 'You have a free afternoon in Kampong Gelam. Find something to do there and start it.', h: ['H1', 'H2'] },
+  { key: 't4', name: 'Look back', say: 'Show me what you have done in the app so far.', h: ['H2'] },
 ];
 
 export const OUTCOMES: { key: Outcome; label: string }[] = [
@@ -63,58 +56,42 @@ export const OUTCOMES: { key: Outcome; label: string }[] = [
   { key: 'not', label: 'Not done' },
 ];
 
-/** The 15 statements of the user test form, rated 1–5 (or N/A) for each version. Stored as i1…i15. */
-export const ITEMS = [
-  'The app was easy to use.',
-  'I could find my way around the app.',
-  'I understood what to do next.',
-  'The wording was easy to understand.',
-  'The amount of text felt manageable.',
-  'I could use the app independently.',
-  'I felt free to choose what to explore.',
-  'The experience was interesting.',
-  'I enjoyed using the app.',
-  'I learned something new about Singapore or its culture.',
-  'The app would help me choose where to visit.',
-  'I had enough information to judge what to trust.',
-  'I felt comfortable with the information I was asked to share.',
-  'Overall, I was satisfied with the experience.',
-  'I would use this app again.',
+/** Rated 1–5 (or N/A) after each phone, stored as i1…i8. Each one measures one hypothesis. */
+export const ITEMS: { text: string; h: HypothesisKey }[] = [
+  { text: 'Exploring with the app was fun.', h: 'H1' },
+  { text: 'I enjoyed using the app.', h: 'H1' },
+  { text: 'I wanted to keep exploring.', h: 'H2' },
+  { text: 'I would like to visit a place I saw in the app.', h: 'H2' },
+  { text: 'I would use this app again.', h: 'H2' },
+  { text: 'It was easy to get started.', h: 'H3' },
+  { text: 'I always knew what to do next.', h: 'H3' },
+  { text: 'I could use the app without help.', h: 'H3' },
 ];
 export const itemKey = (n: number) => 'i' + (n + 1);
 
-const PARTS = ['Setup', 'Finding places', 'Stories and puzzles', 'Viewing progress', 'None', 'Unsure'];
-export const IMPROVE = ['Navigation', 'Wording', 'Place information', 'Stories and puzzles', 'Privacy information', 'No changes needed', 'Unsure'];
 export interface Quick {
   key: string;
   text: string;
-  scale?: [string, string];
-  options?: string[];
-  max?: number;
+  h: HypothesisKey;
+  options: string[];
+  max: number;
 }
+/** Why, behind the ratings: what was fun (H1) and where people got stuck (H3). "Story hunts" shows on B only. */
+export const HUNT_OPTION = 'Story hunts';
 export const QUICK: Quick[] = [
-  { key: 'q1', text: 'Which parts interested you most?', options: PARTS, max: 2 },
-  { key: 'q2', text: 'How much did you want to keep exploring?', scale: ['Very little', 'Very much'] },
-  { key: 'q3', text: 'Where did you have difficulty?', options: PARTS, max: 2 },
-  { key: 'q4', text: 'How did the amount of text feel?', scale: ['Much too little', 'Much too much'] },
-  { key: 'q5', text: 'How much did you learn about Singapore or its culture?', scale: ['Nothing', 'A great deal'] },
-  { key: 'q6', text: 'What information would help you decide to visit a place?', options: ['Directions', 'Opening hours', 'Cost', 'Accessibility', 'Visitor experiences', 'Nothing more', 'Unsure'], max: 2 },
-  { key: 'q7', text: 'What would help you judge the information?', options: ['Source links', 'Date last checked', 'Clearer explanations', 'Visitor experiences', 'Nothing more', 'Unsure'], max: 2 },
-  { key: 'q8', text: 'What concerns did you have?', options: ['Personal information', 'Location sharing', 'Accuracy', 'Unclear instructions', 'None', 'Unsure'], max: 2 },
-  { key: 'q9', text: 'When would you use the app?', options: ['Planning a visit', 'During a visit', 'Learning about culture', 'Playing a story', 'Showing a friend', 'Unlikely to use', 'Unsure'], max: 2 },
-  { key: 'q10', text: 'Which area would you improve first?', options: IMPROVE, max: 1 },
+  { key: 'q1', text: 'Which part was the most fun?', h: 'H1', options: ['The map', 'Place pages', 'Check-ins and stamps', HUNT_OPTION, 'Moments journal', 'None'], max: 2 },
+  { key: 'q2', text: 'Where did you get stuck?', h: 'H3', options: ['Getting started', 'Finding a place', 'Knowing what to do next', 'Check-ins', HUNT_OPTION, 'Nowhere'], max: 2 },
 ];
+export const optionsFor = (q: Quick, v: Version) => (v === 'A' ? q.options.filter((o) => o !== HUNT_OPTION) : q.options);
 /** Answers that stand alone: picking one clears the others. */
-const ALONE = ['None', 'Nothing more', 'Unlikely to use', 'Unsure', 'No changes needed'];
+const ALONE = ['None', 'Nowhere'];
 
-export const PREFS: { key: string; label: string }[] = [
-  { key: 'ease', label: 'Ease of use' },
-  { key: 'interest', label: 'Interest' },
-  { key: 'enjoy', label: 'Enjoyment' },
-  { key: 'clarity', label: 'Clarity of information' },
-  { key: 'useful', label: 'Usefulness when exploring Singapore' },
-  { key: 'comfort', label: 'Comfort with information sharing' },
-  { key: 'overall', label: 'Overall experience' },
+/** After both phones: which version did better, one row per hypothesis plus overall. */
+export const PREFS: { key: string; label: string; h?: HypothesisKey }[] = [
+  { key: 'fun', label: 'More fun', h: 'H1' },
+  { key: 'explore', label: 'Made me want to explore more', h: 'H2' },
+  { key: 'start', label: 'Easier to get into', h: 'H3' },
+  { key: 'overall', label: 'Overall' },
 ];
 /** The compare scale: 1–2 favour A, 3 no preference, 4–5 favour B. */
 export const COMPARE: { value: number; label: string; name: string }[] = [
@@ -153,7 +130,7 @@ export function openCount(s: Session): number {
   if (s.step.startsWith('tasks')) return TASKS.filter((t) => !s.tasks[v]?.[t.key]).length;
   if (s.step.startsWith('rate')) return ITEMS.filter((_, n) => !answered(s.ratings[v]?.[itemKey(n)])).length;
   if (s.step.startsWith('quick')) return QUICK.filter((q) => !answered(s.quick[v]?.[q.key])).length;
-  if (s.step === 'compare') return PREFS.filter((p) => !answered(s.compare[p.key])).length + (s.compare.useAgain ? 0 : 1) + (s.compare.improve ? 0 : 1);
+  if (s.step === 'compare') return PREFS.filter((p) => !answered(s.compare[p.key])).length + (s.compare.useAgain ? 0 : 1);
   return 0;
 }
 
@@ -215,10 +192,35 @@ export function tasksDone(rows: AbResponse[], v: Version) {
   return { alone, tried, by };
 }
 
-/** Amount of text (q4) as too little / about right / too much. */
-export function textAmount(rows: AbResponse[], v: Version): [number, number, number] {
-  const x = rows.map((r) => r.quick[v]?.q4).filter((n): n is number => typeof n === 'number');
-  return [x.filter((n) => n <= 2).length, x.filter((n) => n === 3).length, x.filter((n) => n >= 4).length];
+export interface HypothesisResult {
+  pref: Preference;
+  /** Supported, Not supported or Inconclusive (too few answers yet). */
+  verdict: 'Supported' | 'Not supported' | 'Inconclusive';
+  /** Median of this hypothesis's ratings, all answers pooled, per version. */
+  rating: Record<Version, number | null>;
+  /** Share of tasks done alone, per version (null before any). */
+  alone: Record<Version, number | null>;
+}
+
+/**
+ * H1 and H2 hold when a majority prefers B on their compare row. H3 is a "no worse" claim: it holds unless a
+ * majority prefers A for getting in, or B's tasks done alone fall more than 10 points below A's.
+ */
+export function judge(h: (typeof HYPOTHESES)[number], rows: AbResponse[], min: number): HypothesisResult {
+  const paired = rows.filter((r) => Object.keys(r.compare).length > 0);
+  const pref = preference(h.pref, paired, min);
+  const keys = ITEMS.map((it, n) => (it.h === h.key ? itemKey(n) : null)).filter((k): k is string => !!k);
+  const rating = (v: Version) => median(rows.flatMap((r) => keys.map((k) => r.ratings[v]?.[k])));
+  const rate = (v: Version) => {
+    const t = tasksDone(rows, v);
+    return t.tried ? t.alone / t.tried : null;
+  };
+  const alone = { A: rate('A'), B: rate('B') };
+  let verdict: HypothesisResult['verdict'];
+  if (pref.valid < min) verdict = 'Inconclusive';
+  else if (h.nonInferior) verdict = pref.side !== 'A' && (alone.B ?? 0) >= (alone.A ?? 0) - 0.1 ? 'Supported' : 'Not supported';
+  else verdict = pref.side === 'B' ? 'Supported' : 'Not supported';
+  return { pref, verdict, rating: { A: rating('A'), B: rating('B') }, alone };
 }
 
 export function toCsv(rows: AbResponse[]): string {
@@ -229,7 +231,7 @@ export function toCsv(rows: AbResponse[]): string {
     QUICK.forEach((q) => head.push(`${v}_${q.key}`));
   }
   PREFS.forEach((p) => head.push('pref_' + p.key));
-  head.push('use_again', 'improve_first', 'comment');
+  head.push('use_again', 'comment');
   const cell = (x: unknown) => {
     const s = x == null ? '' : Array.isArray(x) ? x.join('; ') : String(x);
     return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
@@ -244,7 +246,7 @@ export function toCsv(rows: AbResponse[]): string {
         QUICK.forEach((q) => line.push(r.quick[v]?.[q.key]));
       }
       PREFS.forEach((p) => line.push(r.compare[p.key]));
-      line.push(r.compare.useAgain, r.compare.improve, r.compare.comment);
+      line.push(r.compare.useAgain, r.compare.comment);
       return line.map(cell).join(',');
     });
   return [head.join(','), ...lines].join('\n');

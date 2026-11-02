@@ -63,8 +63,8 @@ export function cleanResponse(raw: unknown): AbResponse | null {
   );
   const compare: AbResponse['compare'] = {};
   const c = r.compare && typeof r.compare === 'object' ? (r.compare as Record<string, unknown>) : {};
-  for (const k of ['ease', 'interest', 'enjoy', 'clarity', 'useful', 'comfort', 'overall']) if (isScore(c[k])) compare[k] = c[k] as number | 'na';
-  for (const k of ['useAgain', 'improve']) if (shortText(c[k])) compare[k] = c[k] as string;
+  for (const k of ['fun', 'explore', 'start', 'overall']) if (isScore(c[k])) compare[k] = c[k] as number | 'na';
+  if (shortText(c.useAgain)) compare.useAgain = c.useAgain as string;
   if (shortText(c.comment, 1000)) compare.comment = c.comment as string;
   const now = Date.now();
   return {

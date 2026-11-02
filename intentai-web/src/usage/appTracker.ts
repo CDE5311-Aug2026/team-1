@@ -1,6 +1,6 @@
 import { makeId } from '../data/domain';
 import { mySpacePrefsStore } from '../data/profile/profile';
-import { ensureUsageId, testerStore } from '../data/stores';
+import { ensureUsageId, testerStore, usageUserOf } from '../data/stores';
 import { appendLocalUsage } from './localLog';
 import type { UsageEvent } from './event';
 import { createTracker, type Tracker } from './tracker';
@@ -37,7 +37,7 @@ export const tracker: Tracker =
         now: () => Date.now(),
         send,
         uid: ensureUsageId,
-        user: () => testerStore.get().name || undefined,
+        user: () => usageUserOf(testerStore.get()),
         newId: makeId,
         doc: document,
         win: window,

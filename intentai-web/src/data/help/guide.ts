@@ -134,11 +134,24 @@ const norm = (s: string) =>
     .replace(/[^\p{L}\p{N}' -]+/gu, ' ');
 
 /** The topic that best fits a question, or null. A phrase match counts more than a single word. */
-export function matchTopic(question: string): HelpTopic | null {
+/** Version A of the user test has no Hunt: its topics go, and the overview leaves it out. */
+export function topicsFor(version: 'A' | 'B'): HelpTopic[] {
+  if (version === 'B') return TOPICS;
+  return TOPICS.filter((t) => !t.path?.startsWith('/hunt')).map((t) =>
+    t.id === 'start'
+      ? {
+          ...t,
+          a: 'FindSG helps you explore Singapore. Home suggests places near you on the map, Moments keeps your journal and stamps, and Passport holds your rank and settings. Tap the tabs at the bottom to move between them.',
+        }
+      : t,
+  );
+}
+
+export function matchTopic(question: string, topics: HelpTopic[] = TOPICS): HelpTopic | null {
   const text = ` ${norm(question)} `;
   let best: HelpTopic | null = null;
   let score = 0;
-  for (const t of TOPICS) {
+  for (const t of topics) {
     let s = 0;
     for (const w of t.words) if (text.includes(` ${w} `) || (w.length > 4 && text.includes(w))) s += w.includes(' ') ? 3 : 2;
     if (text.includes(norm(t.q).trim())) s += 10;

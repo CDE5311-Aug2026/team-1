@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { median, openCount, preference, tasksDone, textAmount, toCsv, toggleOption, versionAt, type AbResponse, type Session } from './abTest';
+import { HYPOTHESES, judge, median, openCount, optionsFor, preference, QUICK, tasksDone, toCsv, toggleOption, versionAt, type AbResponse, type Session } from './abTest';
 
 const row = (n: number, compare: AbResponse['compare'], extra: Partial<AbResponse> = {}): AbResponse => ({
   code: 'P' + String(n).padStart(2, '0'), n, first: n % 2 ? 'A' : 'B', status: 'done', startedAt: 0, updatedAt: 0,
@@ -21,11 +21,11 @@ test('median skips N/A', () => {
 });
 
 test('multiple choice keeps two, and None-style answers stand alone', () => {
-  expect(toggleOption(['Setup', 'Finding places'], 'Viewing progress')).toEqual(['Finding places', 'Viewing progress']);
-  expect(toggleOption(['Setup'], 'None')).toEqual(['None']);
-  expect(toggleOption(['None'], 'Setup')).toEqual(['Setup']);
-  expect(toggleOption(['Setup'], 'Setup')).toEqual([]);
-  expect(toggleOption(['Wording'], 'Navigation', 1)).toEqual(['Navigation']);
+  expect(toggleOption(['The map', 'Place pages'], 'Moments journal')).toEqual(['Place pages', 'Moments journal']);
+  expect(toggleOption(['The map'], 'None')).toEqual(['None']);
+  expect(toggleOption(['Nowhere'], 'Check-ins')).toEqual(['Check-ins']);
+  expect(toggleOption(['The map'], 'The map')).toEqual([]);
+  expect(toggleOption(['The map'], 'Place pages', 1)).toEqual(['Place pages']);
 });
 
 test('even participants start on B', () => {
@@ -36,18 +36,34 @@ test('even participants start on B', () => {
 test('open questions are counted per step', () => {
   const s: Session = { ...row(1, {}), step: 'tasks1', tasks: { A: { t1: 'alone', t2: 'helped' } } };
   expect(openCount(s)).toBe(2);
-  expect(openCount({ ...s, step: 'compare' })).toBe(9);
+  expect(openCount({ ...s, step: 'compare' })).toBe(5);
 });
 
-test('task, text and CSV summaries', () => {
+test('task and CSV summaries', () => {
   const rows = [
-    row(1, { ease: 1, comment: 'Liked "A", mostly' }, { tasks: { A: { t1: 'alone', t2: 'not' } }, quick: { A: { q4: 4, q1: ['Setup', 'Unsure'] } } }),
-    row(2, {}, { tasks: { A: { t1: 'alone' } }, quick: { A: { q4: 3 } } }),
+    row(1, { fun: 1, comment: 'Liked "A", mostly' }, { tasks: { A: { t1: 'alone', t2: 'not' } }, quick: { A: { q1: ['The map', 'Place pages'] } } }),
+    row(2, {}, { tasks: { A: { t1: 'alone' } } }),
   ];
   expect(tasksDone(rows, 'A')).toMatchObject({ alone: 2, tried: 3, by: { t1: { alone: 2, tried: 2 } } });
-  expect(textAmount(rows, 'A')).toEqual([0, 1, 1]);
   const csv = toCsv(rows).split('\n');
   expect(csv).toHaveLength(3);
-  expect(csv[1]).toContain('Setup; Unsure');
+  expect(csv[1]).toContain('The map; Place pages');
   expect(csv[1]).toContain('"Liked ""A"", mostly"');
+});
+
+test('version A is never asked about story hunts', () => {
+  expect(optionsFor(QUICK[0], 'A')).not.toContain('Story hunts');
+  expect(optionsFor(QUICK[0], 'B')).toContain('Story hunts');
+});
+
+test('H1 needs a majority for B; H3 only needs B to be no worse', () => {
+  const [h1, , h3] = HYPOTHESES;
+  const forB = [1, 2, 3].map((n) => row(n, { fun: 5, start: 3 }, { tasks: { A: { t1: 'alone' }, B: { t1: 'alone' } } }));
+  expect(judge(h1, forB, 3).verdict).toBe('Supported');
+  expect(judge(h1, forB, 8).verdict).toBe('Inconclusive');
+  expect(judge(h3, forB, 3).verdict).toBe('Supported');
+  const worseB = forB.map((r) => ({ ...r, tasks: { A: { t1: 'alone' }, B: { t1: 'helped' } } }));
+  expect(judge(h3, worseB, 3).verdict).toBe('Not supported');
+  const forA = [1, 2, 3].map((n) => row(n, { fun: 1 }));
+  expect(judge(h1, forA, 3).verdict).toBe('Not supported');
 });

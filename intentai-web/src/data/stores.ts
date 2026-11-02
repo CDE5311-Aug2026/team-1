@@ -37,7 +37,7 @@ import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs
 import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
 import { stopLocation } from '../features/nearby/location';
 import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeState } from './placeStories';
-import { createPersistentStore } from './persistentStore';
+import { createPersistentStore, STORAGE_PREFIX } from './persistentStore';
 import { EMPTY_SOCIAL, communitySocialStore } from './community/socialStore';
 import { EMPTY_RECAP, recapStore } from './moments/recapStore';
 import { clearLocalUsage } from '../usage/localLog';
@@ -207,10 +207,14 @@ export function ensureUsageId(): string {
   return usageIdStore.get();
 }
 
+/** User-test version: A = map exploration only, B = map exploration plus the Hunt (story quests). */
+export type TestVersion = 'A' | 'B';
 /** User test: the name typed at the start screen (a test name, not an account). Empty = not started. */
 export interface Tester {
   name: string;
   startedAt?: number;
+  /** Picked on the start screen. Missing (gate off, older data) means B, the full app. */
+  version?: TestVersion;
 }
 export const testerStore = createPersistentStore<Tester>({
   key: 'tester',
@@ -219,8 +223,15 @@ export const testerStore = createPersistentStore<Tester>({
     typeof value === 'object' &&
     value !== null &&
     typeof (value as Tester).name === 'string' &&
-    ((value as Tester).startedAt === undefined || typeof (value as Tester).startedAt === 'number'),
+    ((value as Tester).startedAt === undefined || typeof (value as Tester).startedAt === 'number') &&
+    ((value as Tester).version === undefined || (value as Tester).version === 'A' || (value as Tester).version === 'B'),
 });
+
+/** The version this phone runs. */
+export const versionOf = (tester: Tester): TestVersion => tester.version ?? 'B';
+
+/** The test name as it appears in usage data, with the version: "P01-A". */
+export const usageUserOf = (tester: Tester): string | undefined => (tester.name ? `${tester.name.slice(0, 38)}-${versionOf(tester)}` : undefined);
 
 /** Nearby Explorer: saved / visited places and exploration preferences. Never holds a location. */
 export const explorePersonalStore = createPersistentStore<ExplorePersonalData>({
@@ -285,4 +296,21 @@ export function deleteAllData() {
   // The user test goes on (the test name is not personal data); its records on this device are deleted.
   clearLocalUsage();
   generationListeners.forEach((listener) => listener());
+}
+
+/**
+ * Starts the user test again on this phone: every saved choice, visit, stamp and Hunt book is cleared, so the next person
+ * sees the start screen and onboarding as new. The usage log stays, so /admin can still read this phone.
+ */
+export function restartTest() {
+  try {
+    // Kept: the usage log (for /admin) and feedback notes still waiting to send.
+    const keep = new Set([STORAGE_PREFIX + 'usage-log', 'findsg-help-feedback']);
+    const gone = Object.keys(window.localStorage).filter((k) => !keep.has(k));
+    gone.forEach((k) => window.localStorage.removeItem(k));
+    window.sessionStorage.clear();
+  } catch {
+    // Storage blocked: the reload below still starts at the start screen if nothing was saved.
+  }
+  window.location.assign('/');
 }
