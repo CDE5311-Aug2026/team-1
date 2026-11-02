@@ -7,7 +7,9 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   min-height: 3.25rem;
-  margin: 0 calc(-1 * var(--gutter, 16px));
+  /* A home-screen app: the status gap above already holds the inset, so the bar pulls up over it; once it sticks to
+     the top, its own inset padding keeps the row clear of the clock. In a browser the inset is 0. */
+  margin: calc(-1 * env(safe-area-inset-top, 0px)) calc(-1 * var(--gutter, 16px)) 0;
   padding: calc(env(safe-area-inset-top, 0px) + 6px) var(--gutter, 16px) 10px;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);

@@ -159,6 +159,7 @@ const SHAPE_COLOR = {
 import { MapToolbar } from "./MapToolbar";
 import { PickRoute } from "./PickRoute";
 import { backdropSrc } from "./backdrop";
+import { edgeTone, paintBrowserBands } from "./edgeTone";
 import { ONEMAP_CREDIT } from "./mapCredit";
 import { lazyPage, registerPreload } from "../../pages/lazyPage";
 import { SkyControls } from "./SkyControls";
@@ -807,6 +808,19 @@ export default function DiscoveryHome() {
             : { level: "picks" },
   );
   const shownBackdrop = useLoadedImage(wantedBackdrop);
+  // Safari's bands above and below the page take the map's own paper colour, and the map fades into them.
+  const [tone, setTone] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    edgeTone(shownBackdrop, window.innerWidth, window.innerHeight).then((t) => {
+      if (!live || !t) return;
+      setTone(t);
+      paintBrowserBands(t);
+    });
+    return () => {
+      live = false;
+    };
+  }, [shownBackdrop]);
   const mapPlaces = useMemo(
     () =>
       level === "near"
@@ -929,7 +943,7 @@ export default function DiscoveryHome() {
 
   return (
     // One screen with a deck that reaches the screen edges: bleeds past the column on purpose.
-    <div className={styles.home} data-allow-bleed>
+    <div className={styles.home} data-allow-bleed style={tone ? ({ "--tone": tone } as React.CSSProperties) : undefined}>
       {/* the deck's own map; the old one fades out once the new one has loaded */}
       <AnimatePresence initial={false}>
         <motion.div

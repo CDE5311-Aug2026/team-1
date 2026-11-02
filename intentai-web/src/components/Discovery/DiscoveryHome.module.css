@@ -27,6 +27,18 @@
   pointer-events: none;
   background: #c8a87a center / cover no-repeat;
 }
+/* In a phone browser the clock and the toolbar sit on flat bands of the map's paper colour (--tone, see edgeTone.ts):
+   the map fades into them so there is no hard line. A home-screen app draws the map under the clock instead. */
+@media (display-mode: browser) and (hover: none) and (pointer: coarse) {
+  .backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, var(--tone, transparent) 0, transparent 36px),
+      linear-gradient(0deg, var(--tone, transparent) 0, transparent 44px);
+  }
+}
 
 @media (min-width: 481px) {
   .home {
@@ -37,7 +49,7 @@
 @media (hover: none) and (pointer: coarse) and (display-mode: browser) and (max-width: 480px) {
   .home {
     --guide-x: 2rem;
-    --guide-bottom: 0.625rem;
+    --guide-bottom: 1.125rem;
     padding-bottom: max(6px, calc(var(--guide-bottom) - 9px));
   }
 }

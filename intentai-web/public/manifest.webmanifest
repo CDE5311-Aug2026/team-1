@@ -1,0 +1,13 @@
+{
+  "name": "FindSG",
+  "short_name": "FindSG",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#c8a87a",
+  "theme_color": "#c8a87a",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/findsg-icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
