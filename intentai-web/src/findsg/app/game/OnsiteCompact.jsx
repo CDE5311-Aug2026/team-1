@@ -4,6 +4,7 @@
 import React, {useEffect, useRef} from 'react';
 import DiscoveryPacket from './DiscoveryPacket.jsx';
 import CaseFinale from './CaseFinale.jsx';
+import {lockScroll} from '../../../hooks/scrollLock';
 import {imageFor} from '../data.js';
 import './onsite-compact.css';
 
@@ -24,11 +25,7 @@ export default function OnsiteCompact(p) {
   const note = () => setSheet(true);
 
   // the page itself: nothing under it scrolls while it is open
-  useEffect(() => {
-    const root = document.documentElement, before = root.style.overflow;
-    root.style.overflow = 'hidden';
-    return () => {root.style.overflow = before;};
-  }, []);
+  useEffect(() => lockScroll(), []);
 
   let stage, card, body;
   if (intro) {

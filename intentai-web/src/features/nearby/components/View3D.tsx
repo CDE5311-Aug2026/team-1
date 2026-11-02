@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { earthOnline3dOrigin, view3dUrl, type View3DTarget } from '../links';
 import type { Category } from '../types';
 import { MapControls } from '../map/CityMap';
+import { lockScroll } from '../../../hooks/scrollLock';
 import { ICON_PATHS } from './icons';
 import styles from './View3D.module.css';
 
@@ -328,15 +329,14 @@ export default function View3D({
   // Full screen: fixed over the app (iframes cannot use the Fullscreen API on iPhone). Esc or the button leaves it.
   useEffect(() => {
     if (!expanded) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlock = lockScroll();
     closeFull.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setExpanded(false);
     };
     window.addEventListener('keydown', onKey);
     return () => {
-      document.body.style.overflow = prev;
+      unlock();
       window.removeEventListener('keydown', onKey);
       expandButton.current?.focus();
     };

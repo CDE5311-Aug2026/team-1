@@ -3,6 +3,7 @@
 // The page starts a one-lap race and reports it (earth-online-lite.py: the race bridge); the flag hands the stop its clues.
 import React, {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
+import {lockScroll} from '../../../hooks/scrollLock';
 import './race-sheet.css';
 
 const SRC = `${import.meta.env.BASE_URL}earth-online/sg/f1.html#at=1.2905,103.8575&f1=race&laps=1&pin=0&cards=0`;
@@ -13,8 +14,7 @@ export default function RaceSheet({reducedMotion = false, onWin, onClose}) {
   const [race, setRace] = useState(null), [finish, setFinish] = useState(null), [error, setError] = useState(false);
 
   useEffect(() => {
-    const root = document.documentElement, before = root.style.overflow;
-    root.style.overflow = 'hidden';
+    const unlock = lockScroll();
     ref.current?.focus();
     const key = e => e.key === 'Escape' && calls.current.onClose();
     const message = e => {
@@ -29,7 +29,7 @@ export default function RaceSheet({reducedMotion = false, onWin, onClose}) {
     };
     window.addEventListener('keydown', key);
     window.addEventListener('message', message);
-    return () => {root.style.overflow = before; window.removeEventListener('keydown', key); window.removeEventListener('message', message);};
+    return () => {unlock(); window.removeEventListener('keydown', key); window.removeEventListener('message', message);};
   }, []);
 
   const again = () => {setFinish(null); frame.current?.contentWindow?.postMessage({source: 'intentai', type: 'f1-again'}, '*');};

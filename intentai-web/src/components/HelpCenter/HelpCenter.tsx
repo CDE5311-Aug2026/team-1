@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { matchTopic, TOPICS, type HelpTopic } from '../../data/help/guide';
 import Icon, { type IconName } from '../../pages/OnboardingPage/v3/icons';
 import { HelpMark } from './HelpBadge';
+import { lockScroll } from '../../hooks/scrollLock';
 import { closeHelp, setHelpTab, useHelp, type HelpTab } from './helpStore';
 import styles from './HelpCenter.module.css';
 
@@ -100,15 +101,13 @@ export default function HelpCenter() {
   useEffect(() => {
     if (!open) return;
     const back = document.activeElement as HTMLElement | null;
-    const html = document.documentElement;
-    const was = html.style.overflow;
-    html.style.overflow = 'hidden';
+    const unlock = lockScroll();
     const onKey = (e: globalThis.KeyboardEvent) => e.key === 'Escape' && closeHelp();
     window.addEventListener('keydown', onKey);
     panel.current?.focus({ preventScroll: true });
     void flush();
     return () => {
-      html.style.overflow = was;
+      unlock();
       window.removeEventListener('keydown', onKey);
       back?.focus?.({ preventScroll: true });
     };

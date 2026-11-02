@@ -2,6 +2,7 @@
 // screen scrolls: you move through the story by turning pages. A slim bar above the book takes you back to the shelf.
 import { useEffect, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { lockScroll } from '../../../hooks/scrollLock';
 import { CHART_BACKDROP } from './chartBackdrop';
 import styles from './storyBook.module.css';
 
@@ -20,12 +21,10 @@ export function StoryBook({
 }) {
   // the page under the book must not scroll while it is open
   useEffect(() => {
-    const els = [document.documentElement, document.body];
-    const before = els.map((el) => el.style.overflow);
-    els.forEach((el) => (el.style.overflow = 'hidden'));
+    const unlock = lockScroll();
     document.documentElement.classList.add('hunt-reading');
     return () => {
-      els.forEach((el, i) => (el.style.overflow = before[i]));
+      unlock();
       document.documentElement.classList.remove('hunt-reading');
     };
   }, []);

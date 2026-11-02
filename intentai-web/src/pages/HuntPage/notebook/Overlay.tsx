@@ -1,6 +1,7 @@
 // A lamp-lit layer over the desk for the things you pick up: the unfolded map, the fanned cards, the projector.
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { lockScroll } from '../../../hooks/scrollLock';
 import { MATERIALS } from './Notebook';
 import styles from './props.module.css';
 
@@ -13,11 +14,10 @@ export function Overlay({ label, onClose, children, tone = 'lamp' }: { label: st
     close.current?.focus({ preventScroll: true });
     const key = (e: KeyboardEvent) => e.key === 'Escape' && last.current();
     window.addEventListener('keydown', key);
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlock = lockScroll();
     return () => {
       window.removeEventListener('keydown', key);
-      document.body.style.overflow = overflow;
+      unlock();
       back?.focus?.({ preventScroll: true });
     };
   }, []);
