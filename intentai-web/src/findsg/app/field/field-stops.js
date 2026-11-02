@@ -3,27 +3,15 @@
  * (positions in model space, the facade normal, and how large a marker the detail can carry).
  * They are interpretive miniatures after public photographs and the Earth Online replicas, not surveys. */
 import {createKit, rect, archShape, foilShape, onion, ring, frontAt, backAt, sideAt} from './field-kit.js';
+import {PI, mat, semi, crescent, towerFrames, curvedRoof, swallowRidge} from './field-stop-shapes.js';
+import {TELOK_STOPS} from './stops/telok.js';
+import {KAMPONG_STOPS} from './stops/kampong.js';
+import {BALESTIER_A_STOPS} from './stops/balestier-a.js';
+import {BALESTIER_B_STOPS} from './stops/balestier-b.js';
+import {CIVIC_A_STOPS} from './stops/civic-a.js';
+import {CIVIC_B_STOPS} from './stops/civic-b.js';
+export {curvedRoof, swallowRidge};
 
-const PI = Math.PI;
-const mat = (color, roughness = .88, extra = {}) => ({color, roughness, ...extra});
-
-function semi(r, cu, cv, n = 8) {const pts = [[cu + r, cv]]; for (let i = 1; i < n; i++) {const a = i / n * PI; pts.push([cu + Math.cos(a) * r, cv + Math.sin(a) * r]);} pts.push([cu - r, cv]); return pts;}
-/** a crescent standing in a wall frame, horns up */
-function crescent(k, m, frame, cu, cv, r, w = .012) {
-  const outer = [], inner = [];
-  for (let i = 0; i <= 12; i++) {
-    const a = PI * .18 + i / 12 * PI * 1.64;
-    outer.push([cu + Math.sin(a) * r, cv - Math.cos(a) * r]);
-    inner.push([cu + Math.sin(a) * r * .72 + r * .12, cv - Math.cos(a) * r * .78 + r * .05]);
-  }
-  const list = [];
-  for (const off of [-w, w]) for (let i = 0; i < 12; i++) list.push([frame(...outer[i], off), frame(...outer[i + 1], off), frame(...inner[i + 1], off), frame(...inner[i], off)]);
-  k.triangles(m, list);
-}
-const towerFrames = (cx, cz, hw) => [
-  (u, v, w = 0) => [cx + u, v, cz + hw + w], (u, v, w = 0) => [cx - u, v, cz - hw - w],
-  (u, v, w = 0) => [cx + hw + w, v, cz - u], (u, v, w = 0) => [cx - hw - w, v, cz + u],
-];
 
 /* ===== Nagore Dargah (1828-30), 140 Telok Ayer Street =====
  * Four fourteen-tier minarets with onion domes at the corners; between the front pair the pierced "miniature
@@ -233,21 +221,6 @@ function alAbrar(k, M) {
  * Hokkien temple to Mazu on a granite platform: the entrance hall with its three-section roof (raised centre, lower
  * sides), granite columns before red doors, then the main hall behind with a double-eaved roof. Red tiles, green
  * glazed ridges sagging to the middle and splitting into swallowtails that curl high at both ends. */
-export function curvedRoof(k, m, cx, cz, w, d, y0, h, lift = .12, gableMat = null) {
-  const rows = 6, cols = 10, list = [];
-  const P = (i, j, side) => {const x = -w / 2 + w * i / cols, sl = j / rows, ex = Math.abs(2 * x / w) ** 4; return [cx + x, y0 + h * sl ** 1.6 + lift * (1 - sl) * ex, cz + side * d / 2 * (1 - sl)];};
-  for (const side of [-1, 1]) for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) list.push([P(i, j, side), P(i + 1, j, side), P(i + 1, j + 1, side), P(i, j + 1, side)]);
-  k.triangles(m, list);
-  if (gableMat) for (const i of [0, cols]) {const ring = []; for (let j = 0; j <= rows; j++) ring.push(P(i, j, -1)); for (let j = rows - 1; j >= 0; j--) ring.push(P(i, j, 1)); const base = [P(i, 0, -1)[0], y0, cz]; k.triangles(gableMat, ring.slice(0, -1).map((v, n) => [base, v, ring[n + 1]]));}
-}
-export function swallowRidge(k, m, cx, cz, a, y, sag = -.06, curl = .5, r = .045) {
-  const pts = []; for (let i = 0; i <= 12; i++) {const x = -a + 2 * a * i / 12; pts.push([cx + x, y + sag * (1 - (x / a) ** 2), cz]);}
-  k.tube(m, pts, r, 6);
-  for (const s of [-1, 1]) for (const dz of [-1, 1]) {
-    const tail = []; for (let i = 0; i <= 7; i++) {const t = i / 7; tail.push([cx + s * (a + t * .42), y + curl * t ** 1.9, cz + dz * .05 * t]);}
-    k.tube(m, tail, t => r * (1 - t * .6), 5);
-  }
-}
 function thianHockKeng(k, M) {
   const C = {gran: mat('#a29c91', .95), pave: mat('#c6bfb2', .95), red: mat('#8e2c21', .7), tile: mat('#8a4433', .92), green: mat('#3f7b54', .55), white: mat('#e9e3d6', .9),
     dark: mat('#3a302a', .8), gold: M.gold, lantern: mat('#d8382a', .6, {emissive: '#ff4a22', emissiveIntensity: .35}), blue: mat('#3d6fd0', .6), yellow: mat('#e9c33b', .6)};
@@ -294,7 +267,8 @@ function thianHockKeng(k, M) {
   };
 }
 
-const BUILDERS = {'telok-ayer-03': nagore, 'telok-ayer-05': thianHockKeng, 'telok-ayer-07': alAbrar};
+const BUILDERS = {'telok-ayer-03': nagore, 'telok-ayer-05': thianHockKeng, 'telok-ayer-07': alAbrar,
+  ...TELOK_STOPS, ...KAMPONG_STOPS, ...BALESTIER_A_STOPS, ...BALESTIER_B_STOPS, ...CIVIC_A_STOPS, ...CIVIC_B_STOPS};
 
 /** Returns null when the stop uses a generic model kind. */
 export function buildStopModel(c, parent, stopId, M) {

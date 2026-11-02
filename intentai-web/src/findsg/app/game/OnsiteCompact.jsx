@@ -3,6 +3,7 @@
 // now. Everything else the guide says, the photo, the hint and the mode switch sits in the field note, opened from the card.
 import React, {useEffect, useRef} from 'react';
 import DiscoveryPacket from './DiscoveryPacket.jsx';
+import CaseFinale from './CaseFinale.jsx';
 import {imageFor} from '../data.js';
 import './onsite-compact.css';
 
@@ -11,7 +12,7 @@ const STEPS = [['arrival', 'Check in'], ['observe', 'Observe'], ['puzzle', 'Solv
 const pad = n => String(n).padStart(2, '0');
 
 export default function OnsiteCompact(p) {
-  const {routeId, config, story, meta, place, stop, record, game, mode, phase, intro, ending, celebrated, saved, reducedMotion, scene, sheet, setSheet,
+  const {routeId, config, story, meta, place, stop, record, game, mode, phase, intro, ending, celebrated, saved, reducedMotion, scene, sheet, setSheet, race, boostHere, raceLayer,
     onExit, onOpen, begin, arrive, observe, photo, next, journal, placeInfo, restart, changeMode, Guide, PhotoClue, cleanPlace, mapSearch, sourceName, KIND_NAMES} = p;
   const n = pad(game.stopIndex + 1), total = pad(config.stops.length);
   const reward = !intro && !ending && phase === 'reward';
@@ -39,12 +40,8 @@ export default function OnsiteCompact(p) {
       actions={<Primary onClick={begin}>Take the case</Primary>} more={`${story.guideName}’s note`} onMore={note}/>;
     body = <><h2>{story.title}</h2><Guide name={story.guideName}>{story.prologue.map(x => x.text).join(' ')}</Guide></>;
   } else if (ending) {
-    stage = <div className="ogc-casefile">
-      <header><span>Evidence</span><b className={'ogc-stamp is-closed' + (reducedMotion ? '' : ' is-landing')}>Case closed</b></header>
-      <ol>{config.stops.map((s, i) => <li key={s.id}><button onClick={() => onOpen({type: 'collected', routeId, index: i, state: game, mode})}>
-        <i>{pad(i + 1)}</i><strong>{s.reward.title.replace(/^[^·]*·\s*/, '')}</strong><b aria-hidden="true">✓</b>
-      </button></li>)}</ol>
-    </div>;
+    /* the guide you corrected: pages drop in, the cover slams shut, stamped and sealed (CaseFinale.jsx) */
+    stage = <CaseFinale routeId={routeId} story={story} meta={meta} config={config} game={game} mode={mode} onOpen={onOpen} reducedMotion={reducedMotion}/>;
     card = <Card kicker="The verdict" title={story.ending.title} lead={story.ending.reflection}
       actions={<><Primary onClick={onExit}>Choose another street</Primary><Quiet onClick={journal}>Clue bag</Quiet></>}
       more="Full story" onMore={note}/>;
@@ -84,7 +81,14 @@ export default function OnsiteCompact(p) {
         <p className="og-fine-print">{manual ? 'Look from public space only. Do not touch the building.' : 'Remote play is not a site visit.'}</p></>;
     } else {
       /* the caption on the model carries the instruction and every answer, so the card only names the task */
-      card = <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} more="Hint" onMore={note}/>;
+      /* the waterfront faces the street circuit: a night race can win this stop's clues, and a Boost Card for later */
+      card = race
+        ? <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} lead="Win the night race and the clue cards are yours, with a Boost Card for the next puzzle."
+          actions={<Primary onClick={race}>Race for the clues</Primary>} more="Hint" onMore={note}/>
+        : boostHere
+          ? <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} lead="Your race win clears this puzzle in one go."
+            actions={<><Primary onClick={boostHere}>Use the Boost Card</Primary></>} more="Hint" onMore={note}/>
+          : <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} more="Hint" onMore={note}/>;
       body = <><h2>{stop.quest.title}</h2><p className="ogc-note-lead">{stop.quest.instruction}</p>
         <Hint stop={stop} sourceName={sourceName}/>
         <button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button></>;
@@ -121,6 +125,7 @@ export default function OnsiteCompact(p) {
         <small>{saved ? 'Progress saved' : 'Not saved'}</small>
       </footer>
     </FieldNote>}
+    {raceLayer}
   </section>;
 }
 

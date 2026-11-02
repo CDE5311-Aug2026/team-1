@@ -627,6 +627,37 @@ window.SGLite = {
   zoom(k){ camera.position.sub(controls.target).multiplyScalar(k).add(controls.target); controls.update(); },
   goTo(x, y){ controls.target.set(x, controls.target.y, -y); camera.position.set(x + 420, controls.target.y + 560, -y + 760); },
 };
+// ---- FindSG Hunt night race (#f1=race&laps=1). Only the F1 build (f1.html, from scripts/sync-earth-online.mjs) keeps the F1
+// drive and circuit modules. Once the city round the circuit is built, the Marina Bay race starts on the grid. Out:
+// {type:'f1', race, lap, laps, pos, of} whenever one of them changes, {type:'f1-finish', pos, of, time, best} at the flag,
+// {type:'f1-exit'} if the drive closes itself, {type:'f1-error', why}. In: {source:'intentai', type:'f1-again'} starts over.
+// The drive's own ways out (exit, keep driving) are hidden: leaving belongs to the embedding page.
+if (LITE.q.get('f1') === 'race'){
+  const st = document.createElement('style');
+  // a phone keeps the touch LOOK button, so the top row loses its look-back twin, the camera name and the keyboard hints
+  st.textContent = '#labels, #f1ExitB, #f1LbB, #f1CamN, .f1res [data-a="exit"], .f1res [data-a="drive"] { display: none !important; }';
+  document.head.appendChild(st);
+  const laps = Math.max(1, Math.min(3, +LITE.q.get('laps') || 1));
+  let last = '', done = false, poll = 0;
+  const start = () => {
+    if (typeof SGF1 === 'undefined'){ litePost({type:'f1-error', why:'no-drive'}); return; }
+    SGF1.laps(laps);
+    if (!SGF1.enter('race')){ litePost({type:'f1-error', why:'no-circuit'}); return; }
+    document.querySelectorAll('.f1btns small').forEach(el => { el.textContent = el.textContent.replace(/\s*·.*$/, ''); });
+    done = false; last = '';
+    clearInterval(poll);
+    poll = setInterval(() => {
+      let s; try { s = SGF1.state(); } catch (e){ return; }
+      if (!s.on){ clearInterval(poll); litePost({type:'f1-exit'}); return; }
+      const of = (s.ai ? s.ai.length : 0) + 1, key = [s.race, s.lap, s.pos].join(':');
+      if (key !== last){ last = key; litePost({type:'f1', race:s.race, lap:s.lap, laps, pos:s.pos, of}); }
+      if (s.race === 'done' && !done){ done = true; litePost({type:'f1-finish', pos:s.pos, of, time:s.last, best:s.best}); }
+      if (s.race !== 'done') done = false;
+    }, 300);
+  };
+  const wait = setInterval(() => { if (LITE.ready){ clearInterval(wait); start(); } }, 250);
+  addEventListener('message', e => { const d = e.data; if (e.source === parent && d && d.source === 'intentai' && d.type === 'f1-again' && LITE.ready) start(); });
+}
 '''
 # the 3D view's box is labelled, so it needs a role (WCAG: aria-label is not allowed on a plain div)
 # #cards=0 (Explore's sheet shows the place itself): no orange selection ring across the 3D view either

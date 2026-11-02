@@ -1,0 +1,177 @@
+/* Hunt (2 Nov 2026): the night race sheet. A leather bar in the app's own look over the F1 drive (its HUD keeps its own
+   look below the bar), a briefing card while the circuit builds, and the finish card at the flag. One screen, no scroll. */
+.findsg.race-portal { background: none; min-height: 0; }
+.findsg .race-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #0d1214;
+  outline: none;
+  animation: race-sheet-in 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes race-sheet-in {
+  from { opacity: 0; transform: translateY(28px); }
+}
+.findsg .race-sheet-top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px 16px;
+  background: linear-gradient(180deg, #3d2a1b, #2a1d13);
+  border-bottom: 1px solid rgba(232, 201, 131, 0.28);
+  color: #f3e6c8;
+}
+.findsg .race-sheet-top > div { flex: 1; min-width: 0; }
+.findsg .race-sheet-top span {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e8c983;
+  white-space: nowrap;
+}
+.findsg.race-portal .race-sheet-top h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.375rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f8eedb;
+  line-height: 1.15;
+}
+.findsg .race-sheet-status {
+  flex: none;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f3e6c8;
+  padding: 6px 10px;
+  border: 1px solid rgba(232, 201, 131, 0.35);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.findsg .race-sheet-close {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 201, 131, 0.45);
+  background: rgba(0, 0, 0, 0.18);
+  color: #f3e6c8;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.findsg .race-sheet-close:focus-visible,
+.findsg .race-sheet-finish button:focus-visible { outline: 2px solid #e8c983; outline-offset: 3px; }
+
+.findsg .race-sheet-track { position: relative; flex: 1; min-height: 0; }
+.findsg .race-sheet-track iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #0d1214; }
+
+/* the briefing, on paper, while the circuit builds */
+.findsg .race-sheet-brief,
+.findsg .race-sheet-finish {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  padding: 18px 18px 16px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f7eedb, #efe1c2);
+  color: #2c2117;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(122, 82, 54, 0.25);
+}
+.findsg .race-sheet-brief { top: 50%; transform: translateY(-50%); animation: race-card-in 0.5s 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.findsg .race-sheet-finish { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); animation: race-card-up 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
+@keyframes race-card-in { from { opacity: 0; transform: translateY(-46%) scale(0.96); } }
+@keyframes race-card-up { from { opacity: 0; transform: translateY(40px); } }
+.findsg.race-portal .race-sheet h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #2c2117;
+}
+.findsg.race-portal .race-sheet-brief p,
+.findsg.race-portal .race-sheet-finish p { margin: 0; font-size: 0.9375rem; line-height: 1.45; color: #4a3a2b; }
+.findsg .race-sheet-brief ul { list-style: none; margin: 12px 0 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+.findsg .race-sheet-brief li { font-size: 0.8125rem; padding: 5px 10px; border-radius: 999px; background: rgba(122, 82, 54, 0.1); color: #4a3a2b; }
+.findsg .race-sheet-brief li b { font-family: var(--font-display); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 4px; color: #2c2117; }
+.findsg .race-sheet-lights { display: flex; gap: 7px; margin-bottom: 12px; }
+.findsg .race-sheet-lights b {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4a1d14;
+  box-shadow: inset 0 0 0 2px #2c2117;
+  animation: race-light 2.5s infinite;
+}
+.findsg .race-sheet-lights b:nth-child(2) { animation-delay: 0.25s; }
+.findsg .race-sheet-lights b:nth-child(3) { animation-delay: 0.5s; }
+.findsg .race-sheet-lights b:nth-child(4) { animation-delay: 0.75s; }
+.findsg .race-sheet-lights b:nth-child(5) { animation-delay: 1s; }
+@keyframes race-light {
+  0%, 8% { background: #4a1d14; box-shadow: inset 0 0 0 2px #2c2117; }
+  12%, 70% { background: #e5432c; box-shadow: inset 0 0 0 2px #2c2117, 0 0 10px #ff5a3a; }
+  74%, 100% { background: #4a1d14; box-shadow: inset 0 0 0 2px #2c2117; }
+}
+
+/* the flag */
+.findsg .race-sheet-finish > span {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9b2c1c;
+  margin-bottom: 4px;
+}
+.findsg .race-sheet-finish > div { display: flex; gap: 10px; margin-top: 14px; }
+.findsg .race-sheet-go {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 50px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #634530, #3a2717);
+  color: #f8eedb;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.findsg .race-sheet-go b { font-weight: 500; }
+.findsg .race-sheet-go i { font-style: normal; font-size: 1.25rem; }
+.findsg .race-sheet-again {
+  flex: none;
+  min-height: 50px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(122, 82, 54, 0.4);
+  background: transparent;
+  color: #2c2117;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.findsg .race-sheet.is-still,
+.findsg .race-sheet.is-still * { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .findsg .race-sheet, .findsg .race-sheet * { animation: none !important; }
+}
