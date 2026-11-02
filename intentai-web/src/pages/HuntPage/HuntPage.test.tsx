@@ -21,10 +21,13 @@ beforeEach(() => {
 
 test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and the field notebook on the desk', async () => {
   at('/hunt');
-  expect(screen.getByRole('heading', { level: 1, name: 'FindSG' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: 'Hunt' })).toBeInTheDocument();
   expect(screen.getByRole('tab', { name: 'Stories' })).toHaveAttribute('aria-selected', 'true');
   expect(screen.getByRole('tab', { name: 'Public' })).toHaveAttribute('aria-selected', 'false');
-  expect(screen.getByRole('button', { name: 'How to play' })).toBeInTheDocument();
+  // first visit: How to play opens by itself, once
+  expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Open a volume' }));
+  expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
   // the story shelf: five books; pick the second, take it down, open it, and its tabs are the commission, the map and the cards
   const books = within(screen.getByRole('listbox', { name: 'Story books' })).getAllByRole('option');
   expect(books).toHaveLength(5);

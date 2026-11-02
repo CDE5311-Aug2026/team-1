@@ -1318,3 +1318,8 @@
 .boardDesk .primary:focus-visible {
   outline-color: #f0a060;
 }
+
+/* the shared top bar sits flush with the desk's own gutter */
+.pageBar {
+  margin-bottom: 4px;
+}

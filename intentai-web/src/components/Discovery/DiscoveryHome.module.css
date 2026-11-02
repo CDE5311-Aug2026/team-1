@@ -497,3 +497,16 @@
 .device:not(.deviceOpen) .mapCard [role='application'] {
   filter: sepia(0.3) saturate(0.88) brightness(1.02);
 }
+
+/* Home is one fixed screen: the shared top bar sits in it without sticking or bleeding */
+.pageBar.pageBar {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  min-height: 46px;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}

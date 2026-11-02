@@ -385,3 +385,7 @@ button.entry {
   background: #7a1f12;
   color: #fbf3e2;
 }
+.tools {
+  display: inline-flex;
+  gap: 8px;
+}

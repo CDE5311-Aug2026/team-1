@@ -1,0 +1,107 @@
+/* Avatar · page name · Settings. Sticky, on a frosted strip that fades into the page below it. */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  min-height: 3.25rem;
+  margin: 0 calc(-1 * var(--gutter, 16px));
+  padding: calc(env(safe-area-inset-top, 0px) + 6px) var(--gutter, 16px) 10px;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(#000 78%, transparent);
+  mask-image: linear-gradient(#000 78%, transparent);
+}
+.dark {
+  --bar-ink: #f2e8d5;
+  --pill-bg: rgba(232, 201, 131, 0.12);
+  --pill-line: rgba(232, 201, 131, 0.38);
+  --pill-ink: #e8c983;
+  --face-line: #f2e8d5;
+  background: linear-gradient(rgba(28, 22, 16, 0.82), rgba(28, 22, 16, 0.55));
+}
+.light {
+  --bar-ink: #23211d;
+  --pill-bg: rgba(255, 255, 255, 0.82);
+  --pill-line: #dedad2;
+  --pill-ink: #23211d;
+  --face-line: #fff;
+  background: linear-gradient(rgba(240, 237, 230, 0.86), rgba(240, 237, 230, 0.45));
+}
+
+.avatar {
+  position: relative;
+  justify-self: start;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+span.avatar {
+  cursor: default;
+}
+.face {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--face-line);
+  box-sizing: border-box;
+  background: radial-gradient(circle at 35% 30%, #34508f, #1d2f5e 70%);
+  color: #fff;
+  font: 500 1.125rem/1 var(--font-display, 'Oswald', sans-serif);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.ring {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.ring svg {
+  width: 46px;
+  height: 46px;
+}
+
+.title {
+  margin: 0;
+  font: 500 1.375rem/1 var(--font-display, 'Oswald', sans-serif);
+  letter-spacing: 0.02em;
+  color: var(--bar-ink);
+  white-space: nowrap;
+}
+
+.settings {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--pill-line);
+  background: var(--pill-bg);
+  color: var(--pill-ink);
+  font: 500 0.9375rem/1 var(--font-display, 'Oswald', sans-serif);
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.settings:hover {
+  color: var(--pill-ink);
+}
+.avatar:focus-visible,
+.settings:focus-visible {
+  outline: 2px solid var(--pill-ink);
+  outline-offset: 2px;
+}

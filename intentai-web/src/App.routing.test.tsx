@@ -24,7 +24,7 @@ test('the tab bar is Home, Moments, Hunt, Mine; Hunt opens FindSG', async () => 
   const tabs = within(screen.getByRole('navigation', { name: 'Primary' })).getAllByRole('button');
   expect(tabs.map((t) => t.getAttribute('aria-label'))).toEqual(['Home', 'Moments', 'Hunt', 'Mine', 'Tabs: on Home. Unroll to switch']);
   await userEvent.click(screen.getByRole('button', { name: /^hunt$/i }));
-  expect(await screen.findByRole('heading', { level: 1, name: 'FindSG' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { level: 1, name: 'Hunt' })).toBeInTheDocument();
 });
 
 test('an unknown route redirects to Home instead of rendering blank', () => {
