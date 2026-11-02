@@ -1,5 +1,6 @@
 // Every tab's top bar, one design: the Help Center badge (the FindSG lion and its info bulb) on the left, the page's
 // name in the middle, Settings on the right. The badge unfolds this bar into the Help Center.
+import HelpHint from "../HelpCenter/HelpHint";
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { paths } from "../../routes";
@@ -53,6 +54,7 @@ export default function PageBar({
       className={`${styles.bar} ${tone === "dark" ? styles.dark : styles.light} ${game ? styles.game : ""} ${className ?? ""}`}
     >
       <HelpBadge ring={ring} onOpen={(el) => openHelp("ask", el)} />
+      <HelpHint />
       {heading ? (
         <h1 className={styles.title}>{title}</h1>
       ) : (

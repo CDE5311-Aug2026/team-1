@@ -1,0 +1,55 @@
+/* A slip of dark leather dropped over the top of the screen, under the status bar. */
+.slip {
+  position: fixed;
+  z-index: 950;
+  top: calc(env(safe-area-inset-top, 0px) + 58px);
+  left: 50%;
+  width: min(calc(100% - 32px), 420px);
+  margin-left: max(calc((100% - 32px) / -2), -210px);
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #2c231a, #241c15);
+  border: 1px solid rgba(232, 201, 131, 0.35);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
+  color: #f2e8d5;
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  color: #fff6e6;
+  background: radial-gradient(circle at 35% 30%, #d8653a, #a33d1f 70%);
+}
+.words {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.words b {
+  font: 500 0.9375rem/1.2 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.words span {
+  font: 400 0.8125rem/1.35 var(--font-family);
+  color: rgba(242, 232, 213, 0.78);
+}
+.close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(232, 201, 131, 0.12);
+  color: #e8c983;
+  cursor: pointer;
+}

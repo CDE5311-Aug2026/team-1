@@ -545,3 +545,41 @@
   text-transform: uppercase;
   cursor: pointer;
 }
+
+/* the one-time pointer under the badge: a cream slip with a notch toward the lion */
+.hint {
+  position: absolute;
+  z-index: 8;
+  top: calc(100% - 4px);
+  left: var(--gutter, 16px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #faf4e4, #ede2c8);
+  color: #2b2118;
+  box-shadow: 0 10px 20px rgba(40, 24, 8, 0.35);
+  font: 400 0.875rem/1.2 Georgia, serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transform-origin: 20px 0;
+}
+.hint::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 22px;
+  width: 12px;
+  height: 12px;
+  background: #faf4e4;
+  transform: rotate(45deg);
+}
+.hint b {
+  font: 500 0.9375rem/1 var(--font-display);
+  color: #a33d1f;
+}
+.hint svg {
+  color: #a33d1f;
+}

@@ -116,7 +116,7 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: dec
       node: (
         <>
           <div className={styles.notes}>
-            <PlaceInfo place={place} idPrefix="intro" part="details" />
+            <PlaceInfo place={place} idPrefix="intro" part="details" storyAbove={storyPages(place).length > 0} />
           </div>
           <div className={styles.sources}>
             <PlaceSources place={place} />

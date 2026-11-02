@@ -22,7 +22,7 @@ import styles from './SnapSheet.module.css';
 
 type Stage = 'view' | 'capture' | 'recognise' | 'tags' | 'result';
 type Shot = { id: number; kind: 'photo'; photo: SnapPhoto; wasNew: boolean } | { id: number; kind: 'camera'; still?: string };
-type CameraState = 'off' | 'starting' | 'on' | 'error';
+type CameraState = 'off' | 'starting' | 'on' | 'error' | 'denied';
 
 /** Timings (ms). Reduced motion: no flash, spin or pop, and the waits shrink to ~0. */
 const FLASH_MS = 380;
@@ -121,8 +121,9 @@ export default function SnapSheet({ stamps, onClose }: { stamps: readonly StampD
       streamRef.current = stream;
       setSource('camera');
       setCamera('on');
-    } catch {
-      if (mounted.current) setCamera('error');
+    } catch (err) {
+      // a refusal is told apart: the person can turn it back on
+      if (mounted.current) setCamera(err instanceof DOMException && err.name === 'NotAllowedError' ? 'denied' : 'error');
     }
   };
 
@@ -371,9 +372,11 @@ export default function SnapSheet({ stamps, onClose }: { stamps: readonly StampD
               </motion.button>
               <span className={styles.sideSpacer} />
             </div>
-            {camera === 'error' && (
+            {(camera === 'error' || camera === 'denied') && (
               <p className={styles.cameraNote} role="alert">
-                The camera isn’t available here. Pick one of your recent photos instead.
+                {camera === 'denied'
+                  ? 'Camera access is off for this site. Allow it in your browser’s site settings, or pick a recent photo below.'
+                  : 'The camera isn’t available here. Pick one of your recent photos below.'}
               </p>
             )}
             <p className={styles.trayLabel} id="snap-tray-label">

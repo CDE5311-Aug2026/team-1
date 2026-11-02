@@ -158,6 +158,6 @@ test('a refused camera says so and keeps the recent photos', async () => {
   const user = userEvent.setup();
   renderSnap();
   await user.click(screen.getByRole('button', { name: 'Use camera' }));
-  expect(await screen.findByRole('alert')).toHaveTextContent('The camera isn’t available here.');
+  expect(await screen.findByRole('alert')).toHaveTextContent('Camera access is off for this site.');
   expect(screen.getByRole('button', { name: /^Take photo of The Wall panels/ })).toBeEnabled();
 });

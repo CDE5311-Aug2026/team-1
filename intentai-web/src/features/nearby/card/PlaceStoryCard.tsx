@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 // The top of a Nearby place page as a story card, in the style of Team 1's place-story cards: kicker, heading and
 // subtitle, then (each only when the place has it) the sample clip or its photo, three key numbers, then and now,
 // the card's text, "Look for" and its sources. Every place gets the header and its photo; the rest comes from
@@ -122,11 +123,14 @@ export default function PlaceStoryCard({
           </p>
           {/* The page's h1 is the place's name in the top bar; the card's own heading sits under it. */}
           <h2 className={headerStyles.title}>
+            {/* the space goes between the phrases, outside them (inside an animated phrase it collapsed) */}
             {(card?.title ?? [place.name]).map((phrase, i) => (
-              <span key={i} className="a-blur" style={{ animationDelay: `${Math.round(5 + i * 10) / 100}s` }}>
+              <Fragment key={i}>
                 {i > 0 && ' '}
-                {phrase}
-              </span>
+                <span className="a-blur" style={{ animationDelay: `${Math.round(5 + i * 10) / 100}s` }}>
+                  {phrase}
+                </span>
+              </Fragment>
             ))}
           </h2>
           <p className={`a-up ${headerStyles.subtitle}`} style={{ animationDelay: '.2s' }}>

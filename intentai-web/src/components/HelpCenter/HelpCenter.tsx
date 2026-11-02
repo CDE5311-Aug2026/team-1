@@ -42,11 +42,11 @@ function pageOf(pathname: string) {
 /** Starter questions, the ones about this tab first. */
 function startersFor(page: string): HelpTopic[] {
   const first: Record<string, string[]> = {
-    Home: ['start', 'checkin', 'hunt'],
-    Moments: ['share', 'stamps', 'photos'],
-    Hunt: ['hunt', 'public', 'stamps'],
-    Passport: ['rank', 'privacy', 'settings'],
-    Explore: ['checkin', 'stamps', 'start'],
+    Home: ['start', 'explore', 'checkin', 'hunt'],
+    Moments: ['journal', 'share', 'photos', 'stamps'],
+    Hunt: ['hunt', 'puzzle', 'race', 'public'],
+    Passport: ['rank', 'privacy', 'settings', 'trouble'],
+    Explore: ['explore', 'checkin', 'stamps', 'start'],
   };
   const ids = first[page] ?? first.Home;
   return [...ids.map((id) => TOPICS.find((t) => t.id === id)!), ...TOPICS.filter((t) => !ids.includes(t.id))].slice(0, 4);

@@ -349,7 +349,7 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
               place: v.place,
             });
             if (!ok) {
-              showToast("This browser could not keep the photo");
+              showToast("Photo not saved: storage is full or private browsing is on");
               return false;
             }
             showToast("Added to your journal");
@@ -375,7 +375,7 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
               file: v.file,
             });
             if (!ok) {
-              showToast("This browser could not keep the change");
+              showToast("Change not saved: storage is full or private browsing is on");
               return false;
             }
             showToast("Photo updated");

@@ -26,6 +26,22 @@ interface Invalidatable {
 // One store per key, defined once in src/data/stores.ts. Re-registering a key (Vite HMR) replaces it.
 const registry = new Map<string, Invalidatable>();
 
+/** Called once when this browser first refuses to keep the app's data (private browsing, full storage). */
+let storageBlocked = false;
+const blockedListeners = new Set<() => void>();
+function reportStorageBlocked() {
+  if (storageBlocked) return;
+  storageBlocked = true;
+  blockedListeners.forEach((l) => l());
+}
+export function isStorageBlocked() {
+  return storageBlocked;
+}
+export function onStorageBlocked(listener: () => void): () => void {
+  blockedListeners.add(listener);
+  return () => blockedListeners.delete(listener);
+}
+
 export function createPersistentStore<T>({ key, fallback, isValid, repair }: StoreOptions<T>): PersistentStore<T> {
   const storageKey = STORAGE_PREFIX + key;
   const listeners = new Set<() => void>();
@@ -64,8 +80,9 @@ export function createPersistentStore<T>({ key, fallback, isValid, repair }: Sto
         window.localStorage.setItem(storageKey, JSON.stringify(value));
         storageWritable = true;
       } catch {
-        // Storage unavailable (private mode, quota): keep working in memory.
+        // Storage unavailable (private mode, quota): keep working in memory, and say so once (NetStatus).
         storageWritable = false;
+        reportStorageBlocked();
       }
       notify();
     },

@@ -142,7 +142,6 @@ export function SampleVideo({ poster, title, duration, captions, top = 18 }: Sam
             </div>
             <span className={styles.label}>
               <span className={styles.labelTitle}>{title}</span>
-              <span className={styles.labelSub}>Video · Sample clip · Captions on</span>
             </span>
           </>
         )}

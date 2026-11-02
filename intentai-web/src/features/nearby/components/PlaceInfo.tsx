@@ -53,12 +53,15 @@ export default function PlaceInfo({
   idPrefix = 'place',
   flat = false,
   part = 'all',
+  storyAbove = false,
 }: {
   place: CuratedPlace;
   idPrefix?: string;
   flat?: boolean;
   /** Home's place intro shows the actions (check in, save, share, directions) in its status card, the details lower down. */
   part?: 'all' | 'actions' | 'details';
+  /** The place's story card is shown above, so About keeps only the practical lines. */
+  storyAbove?: boolean;
 }) {
   const panel = flat ? `${styles.panel} ${styles.flatPanel}` : styles.panel;
   const personal = useExplorePersonal();
@@ -71,6 +74,8 @@ export default function PlaceInfo({
   const memberships = collectionsContaining(place.id);
   const today = localToday();
   const introIsSummary = !!place.description && place.description.en.startsWith(place.summary.replace(/…$/, ''));
+  // the place's story card is on the screen above (detail page, Home's book): its history is not told twice
+  const told = storyAbove && !!place.summary;
 
   const visit = (visited: boolean, date?: string) => {
     const result = markVisited(place.id, place.name, visited, date);
@@ -320,8 +325,9 @@ export default function PlaceInfo({
               </p>
             )}
             {/* One intro paragraph: the dataset's intro when the summary is cut from it, else the summary (the
-            dataset's own intro then folds away below). */}
-            <p className={styles.body}>{introIsSummary ? place.description!.en : place.summary}</p>
+            dataset's own intro then folds away below). A place with a story card at the top already told it there
+            (user test round 1: the same history three times), so it keeps only the practical lines. */}
+            {!told && <p className={styles.body}>{introIsSummary ? place.description!.en : place.summary}</p>}
             {place.viewFromOutside && <p className={styles.note}>Not open to visitors inside: enjoy it from the outside.</p>}
             {place.accessNotes && (
               <p className={styles.body}>
@@ -370,14 +376,8 @@ export default function PlaceInfo({
                 Culture & language
               </h2>
               <CardDeck key={place.id} cards={deck} label={`Culture and language cards for ${place.name}`} />
-              <p className={styles.sourceLine}>
-                {[
-                  place.facts.length > 0 && `Last reviewed ${place.reviewedAt} · ${place.reviewedBy}`,
-                  tip && 'Phrases written by the IntentAI team (Singapore usage)',
-                ]
-                  .filter(Boolean)
-                  .join('. ')}
-              </p>
+              {/* each card links its own sources; one plain date says how fresh they are */}
+              {place.facts.length > 0 && <p className={styles.sourceLine}>Checked {place.reviewedAt}</p>}
             </section>
           )}
 

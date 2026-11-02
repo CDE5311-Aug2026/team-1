@@ -1,6 +1,7 @@
 // One place: its story card (header, photo or sample clip, key numbers, then and now, text, "Look for"), then
 // practical info, the dataset's intro, sourced fun facts, a language tip, collection membership, Save / Visited
 // (self-reported), Directions and the 3D view (NBR 18–21, 24).
+import { placeCard } from '../../data/explore/placeCards';
 import { lazy, Suspense, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
@@ -124,7 +125,7 @@ function Detail({ place }: { place: CuratedPlace }) {
           </>
         )}
 
-        <PlaceInfo place={place} />
+        <PlaceInfo place={place} storyAbove={!!placeCard(place.id)} />
       </div>
     </AppShell>
   );

@@ -158,6 +158,8 @@ export default function View3D({
   const shown = useRef(keyOf(target));
   const [ready, setReady] = useState(false);
   const [slow, setSlow] = useState(false);
+  // a stalled 3D page can be loaded again (a new key makes a new frame)
+  const [attempt, setAttempt] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const onCardRef = useRef(onCard);
   onCardRef.current = onCard;
@@ -269,7 +271,11 @@ export default function View3D({
     if (ready) return;
     const t = window.setTimeout(() => setSlow(true), SLOW_MS);
     return () => window.clearTimeout(t);
-  }, [ready]);
+  }, [ready, attempt]);
+  const retry = () => {
+    setSlow(false);
+    setAttempt((n) => n + 1);
+  };
 
   // The pins follow the page's list and selection.
   const pinsKey = pins ? `${selectedKey ?? ''}|${pins.map((p) => `${p.key}${p.visited ? '+' : ''}`).join(',')}` : '';
@@ -343,18 +349,27 @@ export default function View3D({
   }, [expanded]);
 
   const loading = !ready && (
-    <div className={styles.loading} role="status">
-      <span className={styles.spinner} aria-hidden="true" />
+    <div className={slow ? `${styles.loading} ${styles.stalled}` : styles.loading} role="status">
+      {!slow && <span className={styles.spinner} aria-hidden="true" />}
       <span>
-        {slow ? 'Still loading. The 3D view needs WebGL and a steady connection.' : `Loading 3D… The first time downloads up to ${VIEW3D_DOWNLOAD_MB} MB.`}
+        {slow
+          ? typeof navigator !== 'undefined' && navigator.onLine === false
+            ? 'The 3D view needs a connection. You are offline.'
+            : 'The 3D view is taking too long. It needs WebGL and a steady connection.'
+          : `Loading 3D… The first time downloads up to ${VIEW3D_DOWNLOAD_MB} MB.`}
       </span>
+      {slow && (
+        <button type="button" className={styles.retry} onClick={retry}>
+          Try again
+        </button>
+      )}
     </div>
   );
 
   if (bleed) {
     return (
       <div className={styles.bleed}>
-        <iframe ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
+        <iframe key={attempt} ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
         {loading}
         {controlsTop !== undefined && (
           <MapControls
@@ -372,7 +387,7 @@ export default function View3D({
   return (
     <div className={styles.wrap}>
       <div className={expanded ? `${styles.stage} ${styles.full}` : styles.stage} style={expanded ? undefined : { height }}>
-        <iframe ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
+        <iframe key={attempt} ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
         {loading}
         {expanded && (
           <button ref={closeFull} type="button" className={styles.exitFull} onClick={() => setExpanded(false)}>

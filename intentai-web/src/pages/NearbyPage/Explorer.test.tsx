@@ -302,7 +302,7 @@ describe('Place detail', () => {
     expect(screen.queryByRole('link', { name: /Maxwell Road Food Centre/ })).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Next card' }));
     expect((await screen.findAllByRole('link', { name: /Maxwell Road Food Centre/ }))[0]).toHaveAttribute('href', expect.stringMatching(/^https:\/\/www\.roots\.gov\.sg\//));
-    expect(screen.getByText(/Last reviewed 2026-10-20/)).toBeInTheDocument();
+    expect(screen.getByText(/Checked 2026-10-20/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Directions/ })).toHaveAttribute('href', expect.stringContaining('destination=1.2'));
     expect(screen.getByRole('link', { name: /Directions/ }).getAttribute('href')).not.toContain('origin');
     expect(screen.queryByRole('link', { name: /View in 3D/ })).toBeNull();

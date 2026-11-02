@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'motion/react';
 import { useReduceMotionSetting } from './data/motion';
 import { useTextSizeSetting } from './data/textSize';
@@ -11,6 +11,9 @@ import { ADMIN_PATH, paths, patterns } from './routes';
 import PageTracker from './usage/PageTracker';
 import UserGate from './components/UserGate/UserGate';
 import HelpCenter from './components/HelpCenter/HelpCenter';
+import CrashSwitch from './components/PageError/CrashSwitch';
+import PageErrorBoundary from './components/PageError/PageError';
+import NetStatus from './components/NetStatus/NetStatus';
 
 // Every screen but Today loads on demand, so a phone opening the app downloads Today's code only (the place catalogue,
 // the community posts, the atlas and the map stay out of it). Nearby Explorer screens were already split this way.
@@ -58,6 +61,7 @@ function Lazy({ children }: { children: ReactNode }) {
 
 export default function App() {
   const [onboarding] = usePersistentStore(onboardingStore);
+  const { pathname } = useLocation();
   const reduceMotion = useReduceMotionSetting();
   useTextSizeSetting();
 
@@ -66,8 +70,12 @@ export default function App() {
     <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
       <PageTracker />
       <HelpCenter />
+      <NetStatus />
       <UserGate>
+        {/* a screen that breaks shows a note with a way on, not a blank page; another screen clears it */}
+        <PageErrorBoundary resetKey={pathname}>
         <Lazy>
+          <CrashSwitch />
           <Routes>
             <Route
               path={paths.today}
@@ -111,6 +119,7 @@ export default function App() {
             <Route path="*" element={<Navigate to={paths.today} replace />} />
           </Routes>
         </Lazy>
+        </PageErrorBoundary>
       </UserGate>
     </MotionConfig>
   );
