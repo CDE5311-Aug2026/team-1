@@ -66,6 +66,8 @@ const dist = (m: number) => (m < 1000 ? `${Math.max(50, Math.round(m / 50) * 50)
 /** Farther than this and you are not in town: no "nearest", just the stories. */
 const IN_TOWN_M = 25_000;
 const PICKED_KEY = 'hunt-nearest-picked';
+/** The prologue's search ring: 300 m, about a 5-minute walk by the rule above. */
+const AREA_M = 300;
 
 const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`;
 
@@ -78,14 +80,15 @@ export function RouteChart({
 }: {
   books: BookDef[];
   chapters: Chapter[];
-  short: { book: boolean; bottle: boolean };
+  short: { deduce: boolean; bottle: boolean };
   selected: BookId;
   onPick(id: BookId): void;
 }) {
   const routes = useMemo(() => {
     const r = {} as Record<BookId, Pin[]>;
     const one = (p: { lat: number; lng: number } | undefined, done: boolean) => (p ? [{ lat: p.lat, lng: p.lng, done }] : []);
-    r.short = [...one(SHORT_PINS.press, short.book), ...one(SHORT_PINS.mosque, short.bottle)];
+    // the second building stays off the chart until its clue is worked out
+    r.short = [...one(SHORT_PINS.press, short.deduce), ...(short.deduce ? one(SHORT_PINS.mosque, short.bottle) : [])];
     for (const c of chapters) r[c.routeId as BookId] = c.stops.filter((s) => s.pin).map((s) => ({ lat: s.pin!.lat, lng: s.pin!.lng, done: s.done }));
     return r;
   }, [chapters, short]);
@@ -140,6 +143,8 @@ export function RouteChart({
   const locate = () => void requestLocation();
 
   const pins = routes[selected] ?? [];
+  // the prologue gives only its start: a ring round it marks how far to look (about a 5-minute walk)
+  const searchArea = selected === 'short' && !short.deduce && pins.length ? { ...pins[0], m: AREA_M } : null;
   const overviewPts = useMemo(
     () => [...starts, ...(me && nearest && nearest.m! < 6000 ? [me] : [])],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,8 +152,15 @@ export function RouteChart({
   );
   const view = useMemo(() => {
     if (mode === 'all') return overviewPts.length ? frame(overviewPts, 11, 15.5, 40) : null;
+    if (searchArea) {
+      const d = (searchArea.m * 1.15) / 111_320;
+      return frame([
+        { lat: searchArea.lat + d, lng: searchArea.lng + d },
+        { lat: searchArea.lat - d, lng: searchArea.lng - d },
+      ]);
+    }
     return pins.length ? frame(pins) : null;
-  }, [mode, overviewPts, pins]);
+  }, [mode, overviewPts, pins, searchArea?.lat, searchArea?.lng]);
   const book = books.find((b) => b.id === selected)!;
   const areaOf = (id: BookId) => books.find((b) => b.id === id)?.place ?? '';
   if (!view) return null;
@@ -288,6 +300,7 @@ export function RouteChart({
   const next = pins[nextN];
   const nextM = me && next ? distanceM(me, next) : undefined;
   const path = stops.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const ring = searchArea && { ...view.at(searchArea.lat, searchArea.lng), r: view.at(searchArea.lat, searchArea.lng).y - view.at(searchArea.lat + searchArea.m / 111_320, searchArea.lng).y };
   const others = books
     .filter((b) => b.id !== selected && routes[b.id]?.length)
     .map((b) => {
@@ -325,6 +338,14 @@ export function RouteChart({
               </text>
             </g>
           ))}
+          {ring && (
+            <g className={styles.area} aria-hidden="true">
+              <circle cx={ring.x} cy={ring.y} r={ring.r} />
+              <text x={ring.x} y={ring.y - ring.r - 6}>
+                The rest is in here
+              </text>
+            </g>
+          )}
           <g key={selected} className={styles.route}>
             <path d={path} className={styles.trail} pathLength={1} />
             <path d={path} className={styles.dash} />
@@ -352,7 +373,7 @@ export function RouteChart({
         </button>
         <b>Vol. {book.roman}</b>
         <span>
-          {nextM != null && nextM < IN_TOWN_M ? `${dist(nextM)} · ${walkMin(nextM)} min` : `${book.place} · ${stops.length} stops`}
+          {nextM != null && nextM < IN_TOWN_M ? `${dist(nextM)} · ${walkMin(nextM)} min` : ring ? `${book.place} · start only` : `${book.place} · ${stops.length} stops`}
         </span>
         {next && (
           <a

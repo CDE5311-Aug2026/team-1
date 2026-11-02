@@ -44,5 +44,5 @@ export const GAME_STORIES: Record<
 >;
 export const ONSITE_ROUTES: Record<string, { stops: { id: string }[] }>;
 export function readOnsite(routeId: string, stops: { id: string }[], mode?: 'manual' | 'preview'): { completed: string[]; mode: string };
-export function readShort(mode?: 'manual' | 'preview'): { ending: boolean; book: boolean; bottle: boolean };
-export function shortCount(state: { book: boolean; bottle: boolean }): number;
+export function readShort(mode?: 'manual' | 'preview'): { ending: boolean; deduce: boolean; bottle: boolean; ticket: boolean; arrival1: boolean; arrival2: boolean };
+export function shortCount(state: { deduce: boolean; bottle: boolean }): number;

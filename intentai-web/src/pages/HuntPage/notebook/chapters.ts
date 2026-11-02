@@ -50,9 +50,13 @@ const PLAN: Record<string, { intro: string[]; stops: Record<number, string[]>; e
 };
 /** The short story Beneath the Golden Dome: its opening reel, and what its stops add. */
 export const SHORT_FILMS = {
-  opening: reel('GS-01', 'GS-02', 'GS-11', 'FX-03'),
-  stops: [reel('GS-03', 'GS-04', 'GS-05', 'GS-06'), reel('GS-10', 'GS-07')],
-  ending: reel('BR-01', 'GS-08', 'GS-12', 'FX-01'),
+  /** The story before the first step: the note in the type case, the hidden parcel, the commission. */
+  opening: reel('GS-01', 'GS-02', 'GS-11'),
+  /** Behind the shutter: the press and its small print. */
+  found: reel('GS-05', 'GS-04'),
+  /** The clue is read: out to the next building. */
+  passage: reel('GS-06', 'FX-03'),
+  ending: reel('GS-07', 'GS-10', 'GS-08', 'GS-12'),
 };
 
 export const CHAPTER_ORDER = ['telok-ayer', 'kampong-gelam', 'balestier', 'civic-f1'] as const;
@@ -156,7 +160,8 @@ export const chapters = () => CHAPTER_ORDER.map((id, i) => chapter(id, i));
 export function shortProgress() {
   const s = readShort('manual'),
     p = readShort('preview');
-  return { book: s.book || p.book, bottle: s.bottle || p.bottle, ending: s.ending || p.ending };
+  // deduce: the first stop's clue is worked out, which is also when the second building may be shown
+  return { deduce: s.deduce || p.deduce, bottle: s.bottle || p.bottle, ending: s.ending || p.ending };
 }
 export const SHORT_PINS = { press: PINS['short-press'], mosque: PINS['short-mosque'] };
 

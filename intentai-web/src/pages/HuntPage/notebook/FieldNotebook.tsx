@@ -73,7 +73,6 @@ export function FieldNotebook({
   onBoards(): void;
   onPassport(): void;
   onRoute(routeId: string): void;
-  onShort(): void;
 }) {
   // read again each time a book comes off or goes back on the shelf, so the shelf shows what was just played
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,7 +85,7 @@ export function FieldNotebook({
     session.set(SHELF_KEY, id);
   };
   const progress = useMemo(() => {
-    const p = { short: { done: Number(short.book) + Number(short.bottle), total: 2 } } as Record<BookId, ShelfProgress>;
+    const p = { short: { done: Number(short.deduce) + Number(short.bottle), total: 2 } } as Record<BookId, ShelfProgress>;
     for (const c of chs) p[c.routeId as BookId] = { done: c.solved, total: c.stops.length };
     return p;
   }, [chs, short]);

@@ -72,7 +72,7 @@ export function storyRecords(): StoryRecord[] {
     if (b.id === 'short') {
       const on = readShort('manual'),
         far = readShort('preview');
-      const done = Number(on.book || far.book) + Number(on.bottle || far.bottle);
+      const done = Number(on.deduce || far.deduce) + Number(on.bottle || far.bottle);
       const stamps: Stamp[] = [];
       // the prologue's stamps are its two buildings, stamped on site
       if ((on as { arrival1?: boolean }).arrival1) stamps.push({ story: b.id, name: '101 Jalan Sultan', at: times.short?.startedAt ?? 0 });

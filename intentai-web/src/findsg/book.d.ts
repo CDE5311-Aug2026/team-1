@@ -65,7 +65,6 @@ export function ShortScene(props: {
   onPlace?(): void;
   onReady?(): void;
 }): ReactNode;
-export function Bottle(props: { small?: boolean }): ReactNode;
 
 export interface ShortPlace {
   id: 'press' | 'mosque';
@@ -73,46 +72,62 @@ export interface ShortPlace {
   english: string;
   address: string;
   prompt: string;
+  /** What to frame in the viewfinder. */
+  frame: string;
   hint: string;
   view: string;
   fact: string;
   today: string;
   sourceIds: string[];
 }
+export interface ShortLandmark {
+  id: string;
+  label: string;
+  /** Position on the sketch, in percent. */
+  x: number;
+  y: number;
+  /** Said when it is the wrong guess (the right one has none). */
+  miss?: string;
+}
 export const SHORT_EPISODE: {
   title: string;
   hero: string;
   premise: string;
+  start: { address: string; area: string; radius: string };
   letter: string;
   access: string;
   distinction: string;
-  pages: FieldBookPage[];
   places: ShortPlace[];
+  parcel: { id: string; name: string; text: string }[];
+  mirrorLines: string[];
+  landmarks: ShortLandmark[];
+  pressAt: { x: number; y: number };
+  lastLine: { malay: string; english: string };
+  reply: string;
   sources: { id: string; label: string; url: string; note: string }[];
 };
 export function shortMap(place: ShortPlace): string;
 export function shortDirections(): string;
 
 export type ShortMode = 'manual' | 'preview';
-export interface ShortState {
-  version: 1;
-  episodeId: string;
-  mode: ShortMode;
-  ticket: boolean;
-  letter: boolean;
-  arrival1: boolean;
-  arch: boolean;
-  book: boolean;
-  travel: boolean;
-  arrival2: boolean;
-  band: boolean;
-  parcel: boolean;
-  bottle: boolean;
-  ending: boolean;
-}
-export type ShortAction = 'ticket' | 'letter' | 'checkin1' | 'arch' | 'book' | 'travel' | 'checkin2' | 'band' | 'parcel' | 'bottle' | 'ending' | 'reset';
+export type ShortStep =
+  | 'ticket'
+  | 'letter'
+  | 'arrival1'
+  | 'photo1'
+  | 'shutter'
+  | 'parcel'
+  | 'mirror'
+  | 'deduce'
+  | 'arrival2'
+  | 'photo2'
+  | 'bottle'
+  | 'ending';
+export type ShortState = { version: 2; episodeId: string; mode: ShortMode } & Record<ShortStep, boolean>;
+export type ShortAction = Exclude<ShortStep, 'arrival1' | 'arrival2'> | 'checkin1' | 'checkin2' | 'reset';
 export function readShort(mode?: ShortMode): ShortState;
 export function saveShort(state: ShortState): boolean;
 export function shortTransition(state: ShortState, action: ShortAction): ShortState;
 export function emptyShort(mode?: ShortMode): ShortState;
+export function shortCount(state: { deduce: boolean; bottle: boolean }): number;
 export function assetFor(path: string): string;

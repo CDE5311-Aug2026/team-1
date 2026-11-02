@@ -2,7 +2,7 @@
 // FindSG prototype (the short Beneath the Golden Dome, the story wheel and tickets, the four routes; each stop a tap check-in, an
 // observation and a 3D building puzzle, with its paper objects and films), re-dressed in our linen, cards and ink by
 // src/findsg/theme*.css; Public is the community challenges and the boards. The URL says which shows: ?tab=public,
-// ?board=explore|speed; FindSG keeps its own place in the hash (#home, #short/…, #story/…).
+// ?board=explore|speed; FindSG keeps its own place in the hash (#home, #story/…; an old #short/… link opens the Golden Dome book).
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
@@ -23,7 +23,19 @@ const CHART_BG = '#1d1711';
 
 /** FindSG's own place (its hash): Hunt's header shows on its home, not over a story or a stop (they have their own way back). */
 function useFindsgHome() {
-  const atHome = () => /^#?(home)?$/.test(window.location.hash);
+  const atHome = () => {
+    // an old link to the short story (#short/…): it is the Golden Dome book on the desk now
+    if (/^#short/.test(window.location.hash)) {
+      try {
+        sessionStorage.setItem('hunt-book', 'short');
+      } catch {
+        /* fine */
+      }
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      return true;
+    }
+    return /^#?(home)?$/.test(window.location.hash);
+  };
   const [home, setHome] = useState(atHome);
   // the router's own moves (a button here setting #story/…) fire no hashchange, so follow its location too
   const { hash } = useLocation();
@@ -81,7 +93,7 @@ export default function HuntPage() {
     );
 
   // the Stories tab: the field notebook on the desk; a story or a stop opens FindSG's own game
-  if (home) return <Desk tab={tab} go={go} openRoute={openRoute} openShort={() => navigate({ pathname: '/hunt', search: '', hash: '#short/kampong-gelam' })} />;
+  if (home) return <Desk tab={tab} go={go} openRoute={openRoute} />;
 
   // a story or a stop: one big notebook page on the desk
   return (
@@ -96,7 +108,7 @@ export default function HuntPage() {
 }
 
 /** Stories: the shelf of story books against the library wall; a book taken down lies open on the desk. */
-function Desk({ tab, go, openRoute, openShort }: { tab: 'story' | 'public'; go: HuntGo; openRoute(id: string): void; openShort(): void }) {
+function Desk({ tab, go, openRoute }: { tab: 'story' | 'public'; go: HuntGo; openRoute(id: string): void }) {
   const places = useExplored();
   const stops = useMemo(() => huntStops(), []);
   const navigate = useNavigate();
@@ -114,7 +126,6 @@ function Desk({ tab, go, openRoute, openShort }: { tab: 'story' | 'public'; go: 
           onBoards={() => go({ board: 'explore' })}
           onPassport={() => navigate(paths.mySpace)}
           onRoute={openRoute}
-          onShort={openShort}
         />
       </div>
     </AppShell>

@@ -125,7 +125,7 @@ export function Bookshelf({
   onOpen,
 }: {
   chapters: Chapter[];
-  short: { book: boolean; bottle: boolean };
+  short: { deduce: boolean; bottle: boolean };
   progress: Record<BookId, ShelfProgress>;
   selected: BookId;
   onSelect(id: BookId): void;

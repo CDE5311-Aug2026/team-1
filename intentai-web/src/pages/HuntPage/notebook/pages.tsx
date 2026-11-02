@@ -243,54 +243,6 @@ export function CityChart({ chapters, onOpen, onShort }: { chapters: Chapter[]; 
   );
 }
 
-// ---- the prologue: the short story ----
-export function ShortChapter({
-  progress,
-  hasFilm,
-  onFilm,
-  onPlay,
-}: {
-  progress: { book: boolean; bottle: boolean; ending: boolean };
-  hasFilm: boolean;
-  onFilm(): void;
-  onPlay(): void;
-}) {
-  const found = Number(progress.book) + Number(progress.bottle);
-  return (
-    <Page className={styles.short}>
-      <Running left="Prologue" right="KAMPONG GELAM · 1950s" />
-      <p className={styles.chNum}>PROLOGUE</p>
-      <h2 className={styles.chTitle}>Beneath the Golden Dome</h2>
-      <p className={styles.chKicker}>Two buildings, one story · about 25 min</p>
-      <div className={styles.kraftPacket}>
-        <span className={styles.kraftString} aria-hidden="true" />
-        <p>A magazine wrote about the buildings, but left out the people who kept them.</p>
-
-        {hasFilm && (
-          <button type="button" className={styles.filmTag} onClick={onFilm}>
-            <span aria-hidden="true">▶</span> Opening film
-          </button>
-        )}
-      </div>
-      <ul className={styles.shortItems}>
-        <li data-done={progress.book}>
-          <span>{progress.book ? '✕' : '○'}</span>Notes from the press
-        </li>
-        <li data-done={progress.bottle}>
-          <span>{progress.bottle ? '✕' : '○'}</span>Glass beneath the dome
-        </li>
-      </ul>
-      <button type="button" className={styles.ticketBtn} onClick={onPlay}>
-        <span className={styles.ticketStub}>
-          <small>ADMIT ONE</small>
-          <b>{found}/2</b>
-        </span>
-        <span className={styles.ticketMain}>{progress.ending ? 'Read it again' : found ? 'Carry on' : 'Tear to begin'}</span>
-      </button>
-    </Page>
-  );
-}
-
 /** A chapter's place in English: 'TELOK AYER' → 'Telok Ayer'. */
 export const placeOf = (ch: Chapter) => ch.en.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 

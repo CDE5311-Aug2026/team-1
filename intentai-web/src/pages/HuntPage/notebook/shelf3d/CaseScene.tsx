@@ -41,10 +41,10 @@ const sset = (k: string, v: string) => {
 function pinsOf(id: BookId): MapPin[] {
   if (id === 'short') {
     const sp = shortProgress();
-    return [
-      { lat: SHORT_PINS.press.lat, lng: SHORT_PINS.press.lng, done: !!sp.book, name: '101 Jalan Sultan' },
-      { lat: SHORT_PINS.mosque.lat, lng: SHORT_PINS.mosque.lng, done: !!sp.bottle, name: 'Sultan Mosque' },
-    ];
+    const pins: MapPin[] = [{ lat: SHORT_PINS.press.lat, lng: SHORT_PINS.press.lng, done: !!sp.deduce, name: '101 Jalan Sultan' }];
+    // the second building is a secret until its clue is worked out
+    if (sp.deduce) pins.push({ lat: SHORT_PINS.mosque.lat, lng: SHORT_PINS.mosque.lng, done: !!sp.bottle, name: 'Sultan Mosque' });
+    return pins;
   }
   const ch = chapters().find((c) => c.routeId === id);
   return (ch?.stops ?? []).filter((s) => s.pin).map((s) => ({ lat: s.pin!.lat, lng: s.pin!.lng, done: s.done, name: s.name }));

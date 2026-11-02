@@ -8,7 +8,6 @@ import ClueCollection,{EvidenceStrip} from './game/ClueCollection.jsx';
 import DiscoveryPacket from './game/DiscoveryPacket.jsx';
 import ArchiveDossier from './game/ArchiveDossier.jsx';
 import ArchivePaper from './game/ArchivePaper.jsx';
-import ShortStoryGame,{ShortStoryTeaser} from './short/ShortStoryGame.jsx';
 import {readShort} from './short/short-state.js';
 import BrandMark from './components/BrandMark.jsx';
 import './case-book.css';
@@ -18,7 +17,7 @@ function initialNav(){
  let saved={};try{saved=JSON.parse(localStorage.getItem('findsg-card-navigation-v1')||'{}')||{};}catch{}
  const [hashView,hashRoute]=location.hash.slice(1).split('/');
  const routeId=ROUTES[hashRoute]?hashRoute:ROUTES[saved.routeId]?saved.routeId:'kampong-gelam';
- const view=hashView==='short'?'short':hashView?(['story','field','rooms'].includes(hashView)?'story':'home'):saved.view==='short'?'short':saved.view==='story'?'story':'home';
+ const view=hashView?(['story','field','rooms'].includes(hashView)?'story':'home'):saved.view==='story'?'story':'home';
  return {view,routeId};
 }
 const two=n=>String(n).padStart(2,'0');
@@ -47,7 +46,7 @@ export default function App({top=null}={}){
  const dialog=useRef(null),returnFocus=useRef(null),lastProgress=useRef(null);
  const onProgress=useCallback(state=>{lastProgress.current=state;},[]);
  const {view,routeId}=nav;
- useEffect(()=>{const hash=view==='short'?'#short/kampong-gelam':view==='story'?`#story/${routeId}`:'#home';if(location.hash!==hash)history.replaceState(history.state,'',hash);window.dispatchEvent(new Event('findsg:view'));try{localStorage.setItem('findsg-card-navigation-v1',JSON.stringify(nav));}catch{}},[nav]);
+ useEffect(()=>{const hash=view==='story'?`#story/${routeId}`:'#home';if(location.hash!==hash)history.replaceState(history.state,'',hash);window.dispatchEvent(new Event('findsg:view'));try{localStorage.setItem('findsg-card-navigation-v1',JSON.stringify(nav));}catch{}},[nav]);
  useEffect(()=>{const change=()=>setNav(initialNav());window.addEventListener('hashchange',change);return()=>window.removeEventListener('hashchange',change);},[]);
  useEffect(()=>{const how=()=>setModal({type:'how'});window.addEventListener('findsg:how',how);return()=>window.removeEventListener('findsg:how',how);},[]);
  useEffect(()=>{document.documentElement.dataset.motion=reducedMotion?'reduced':'full';},[reducedMotion]);
@@ -55,7 +54,6 @@ export default function App({top=null}={}){
  useEffect(()=>{if(modal&&dialog.current)dialog.current.scrollTop=0;},[modal?.type,modal?.routeId,modal?.index]);
  function home(){setModal(null);setNav(q=>({...q,view:'home'}));setProgressVersion(n=>n+1);window.scrollTo({top:0,behavior:'instant'});}
  function play(id){setModal(null);setNav({view:'story',routeId:id});window.scrollTo({top:0,behavior:'instant'});}
- function playShort(){setModal(null);setNav({view:'short',routeId:'kampong-gelam'});window.scrollTo({top:0,behavior:'instant'});}
  function exportProgress(){
   const records=Object.keys(GAME_STORIES).flatMap(id=>['manual','preview'].map(mode=>({routeId:id,mode,state:readOnsite(id,ONSITE_ROUTES[id].stops,mode)})));
   const blob=new Blob([JSON.stringify({app:'FindSG',format:'onsite-3d-v1',arrivalVerification:'manual-self-report',photoVerification:'not-connected',records,shortStoryRecords:['manual','preview'].map(mode=>readShort(mode))},null,2)],{type:'application/json'});
@@ -75,7 +73,7 @@ export default function App({top=null}={}){
  return <div className="sg-app">
   <a className="skip-link" href="#main-content">Skip to the story</a>
   <header className="sg-header"><Brand onClick={home}/><div className="sg-header-tools"><button onClick={()=>setModal({type:'how'})}>How to play</button><button aria-pressed={reducedMotion} onClick={()=>setReducedMotion(!reducedMotion)}>{reducedMotion?'Motion reduced':'Reduce motion'}</button><span className="sg-preview-pill"><i/> On-site prototype</span></div></header>
-  {top}<main id="main-content">{view==='short'?<ShortStoryGame reducedMotion={reducedMotion} onExit={home}/>:view==='home'?<><ShortStoryTeaser onOpen={playShort}/><OnsiteShelf onPlay={play} onOpenArchive={id=>setModal({type:'place',routeId:id,index:0})} onOpenPaper={id=>setModal({type:'paper',routeId:id})} progressVersion={progressVersion} reducedMotion={reducedMotion}/></>:<>{routeId==='kampong-gelam'&&<ShortStoryTeaser compact onOpen={playShort}/>}<OnsiteGame routeId={routeId} reducedMotion={reducedMotion} onExit={home} onOpen={setModal} onProgress={onProgress}/></>}</main>
+  {top}<main id="main-content">{view==='home'?<><OnsiteShelf onPlay={play} onOpenArchive={id=>setModal({type:'place',routeId:id,index:0})} onOpenPaper={id=>setModal({type:'paper',routeId:id})} progressVersion={progressVersion} reducedMotion={reducedMotion}/></>:<><OnsiteGame routeId={routeId} reducedMotion={reducedMotion} onExit={home} onOpen={setModal} onProgress={onProgress}/></>}</main>
   {view==='home'&&<footer className="sg-footer"><span>FindSG. Discover Singapore, understand each other.</span><small>City history, turned into a story in your hands.</small></footer>}
   <dialog ref={dialog} className={'cb'+(type?' cb--'+type:'')+(type==='restart'?' cb--card':'')} data-material={meta?.no} aria-label={PAGE_LABEL[type]||'Story notes'} onCancel={close} onClick={e=>{if(e.target===dialog.current)close();}}>
    {modal&&<>

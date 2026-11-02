@@ -19,10 +19,10 @@ function wheelRows(records: StoryRecord[]) {
   const short = records.find((r) => r.id === 'short');
   const [press, mosque] = SHORT_EPISODE.places;
   out.short = [
-    { id: 'press', name: press.name, stamped: !!on.arrival1, stampedAt: on.arrival1 ? short?.startedAt : undefined, solved: on.book || far.book },
+    { id: 'press', name: press.name, stamped: !!on.arrival1, stampedAt: on.arrival1 ? short?.startedAt : undefined, solved: on.deduce || far.deduce },
     {
       id: 'mosque',
-      name: mosque.name,
+      name: on.deduce || far.deduce ? mosque.name : 'Stop II · still hidden',
       stamped: !!on.arrival2,
       stampedAt: on.arrival2 ? (short?.finishedAt ?? short?.startedAt) : undefined,
       solved: on.bottle || far.bottle,
