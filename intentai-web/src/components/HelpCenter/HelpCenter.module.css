@@ -5,7 +5,7 @@
   position: relative;
   justify-self: start;
   display: block;
-  width: 78px;
+  width: 63px;
   height: 46px;
   padding: 0;
   border: 0;
@@ -25,13 +25,13 @@
 .mark {
   position: relative;
   display: block;
-  width: 78px;
+  width: 63px;
   height: 46px;
 }
 .hull {
   position: absolute;
   inset: 0;
-  width: 78px;
+  width: 63px;
   height: 46px;
   overflow: visible;
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.28));

@@ -1,20 +1,18 @@
-// The Help Center's door, top left of every tab: the FindSG lion with a second, smaller circle joined to it by two
-// tangent lines, in another colour, holding an "i". Inside the open panel the same mark shows a × to close.
+// The Help Center's door, top left of every tab: a capsule. The left end is the FindSG lion's circle; from its top and
+// bottom points two level lines run right a short way and an arc of the same radius closes the end. The "i" sits in
+// the narrow band that shows past the lion, in another colour. Inside the open panel the same mark shows a × to close.
 import type { ReactNode, Ref } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import logo from '../../assets/avatar-logo.png';
 import styles from './HelpCenter.module.css';
 
-// Two circles on one line: the lion (r 21 at x 23) and the info bulb (r 13 at x 60). The outer tangents touch both
-// at ±acos((r1 − r2) / d) from the line between their centres.
-const R1 = 21;
-const R2 = 13;
-const C1 = 23;
-const C2 = 60;
-const A = Math.acos((R1 - R2) / (C2 - C1));
-const p = (c: number, r: number, s: number) => `${(c + r * Math.cos(A)).toFixed(2)} ${(23 + s * r * Math.sin(A)).toFixed(2)}`;
-export const HULL =
-  `M${p(C1, R1, -1)} L${p(C2, R2, -1)} A${R2} ${R2} 0 0 1 ${p(C2, R2, 1)} ` + `L${p(C1, R1, 1)} A${R1} ${R1} 0 1 1 ${p(C1, R1, -1)} Z`;
+const R = 21; // the lion's circle (42px with its rim), centre (23, 23)
+const C = 23;
+const RUN = 17; // how far the level lines run past the lion's centre
+const W = C + RUN + R + 2; // 63: the mark's width
+/** Middle of the band that shows past the lion: where the "i" goes. */
+const G = (C + R + C + RUN + R) / 2;
+export const HULL = `M${C} ${C - R} H${C + RUN} A${R} ${R} 0 0 1 ${C + RUN} ${C + R} H${C} A${R} ${R} 0 0 1 ${C} ${C - R} Z`;
 
 export function HelpMark({ glyph = 'info', ring }: { glyph?: 'info' | 'close'; ring?: ReactNode }) {
   const reduce = useReducedMotion();
@@ -22,7 +20,7 @@ export function HelpMark({ glyph = 'info', ring }: { glyph?: 'info' | 'close'; r
     <span className={styles.mark} aria-hidden="true">
       <motion.svg
         className={styles.hull}
-        viewBox="0 0 78 46"
+        viewBox={`0 0 ${W} 46`}
         initial={reduce ? false : { scaleX: 0.5, opacity: 0 }}
         animate={{ scaleX: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 18, delay: 0.15 }}
@@ -35,16 +33,16 @@ export function HelpMark({ glyph = 'info', ring }: { glyph?: 'info' | 'close'; r
           initial={reduce ? false : { rotate: glyph === 'close' ? -90 : 90, scale: 0.4, opacity: 0 }}
           animate={{ rotate: 0, scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 420, damping: 20 }}
-          style={{ originX: `${C2}px`, originY: '23px' }}
+          style={{ originX: `${G}px`, originY: '23px' }}
           className={styles.glyph}
         >
           {glyph === 'info' ? (
             <>
-              <circle cx={C2} cy={17.2} r={1.9} />
-              <path d={`M${C2 - 1.6} 21.4h1.6v8.2`} />
+              <circle cx={G} cy={16.4} r={1.8} />
+              <path d={`M${G} 21v8.6`} />
             </>
           ) : (
-            <path d={`M${C2 - 4.2} 18.8l8.4 8.4M${C2 + 4.2} 18.8l-8.4 8.4`} />
+            <path d={`M${G - 3.4} 19.6l6.8 6.8M${G + 3.4} 19.6l-6.8 6.8`} />
           )}
         </motion.g>
       </motion.svg>
