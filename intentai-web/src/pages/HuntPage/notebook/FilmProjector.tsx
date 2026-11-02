@@ -94,9 +94,11 @@ export function FilmPlate({ reel, title, onClose }: { reel: Film[]; title: strin
         <span className={plate.corner} aria-hidden="true" />
         <p className={plate.head}>
           <span>{title}</span>
-          <b>
-            {String(r.at + 1).padStart(2, '0')} / {String(reel.length).padStart(2, '0')}
-          </b>
+          {reel.length > 1 && (
+            <b>
+              {String(r.at + 1).padStart(2, '0')} / {String(reel.length).padStart(2, '0')}
+            </b>
+          )}
         </p>
         <Screen r={r} reel={reel} />
         <figcaption className={plate.caption} aria-live="polite">
@@ -128,9 +130,11 @@ export function FilmProjector({ reel, title, onClose }: { reel: Film[]; title: s
       <div className={styles.projector}>
         <p className={styles.projTitle}>
           <span>{title}</span>
-          <b>
-            {String(r.at + 1).padStart(2, '0')} / {String(reel.length).padStart(2, '0')}
-          </b>
+          {reel.length > 1 && (
+            <b>
+              {String(r.at + 1).padStart(2, '0')} / {String(reel.length).padStart(2, '0')}
+            </b>
+          )}
         </p>
         <Screen r={r} reel={reel} />
         <div className={styles.intertitle} aria-live="polite">

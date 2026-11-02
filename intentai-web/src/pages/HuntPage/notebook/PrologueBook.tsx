@@ -186,7 +186,7 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
       label: `Stop I · ${press.name}`,
       open: (st) => st.letter,
       seal: 'Read the letter first.',
-      render: () => <PlacePage n="Stop I" place={press} done={s.arrival1} onSite={onSite} onStamp={() => act('checkin1')} />,
+      render: () => <PlacePage n="Stop I" place={press} done={s.arrival1} onSite={onSite} onStamp={() => act('checkin1', { reel: SHORT_FILMS.arrival, title: 'No. 101' })} />,
     },
     {
       id: 'press-photo',
@@ -319,7 +319,7 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
           hint={mosque.hint}
           done={s.photo2}
           doneText="The disc in your parcel is the same dark glass."
-          footer={<Shutter id="mosque" ready={bandFramed} onSite={onSite} onShot={() => act('photo2')} />}
+          footer={<Shutter id="mosque" ready={bandFramed} onSite={onSite} onShot={() => act('photo2', { reel: SHORT_FILMS.glass, title: 'Below the gold' })} />}
         >
           {active && (
             <ShortScene

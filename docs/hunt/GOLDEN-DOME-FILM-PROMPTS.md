@@ -1,15 +1,19 @@
 # Beneath the Golden Dome — film prompts
 
-These prompts are for generating the four short films in the Golden Dome book. Each film is 2–3 clips of about 8 seconds. Until the new clips exist, the book plays the current `GS-xx` clips (see `SHORT_FILMS` in `intentai-web/src/pages/HuntPage/notebook/chapters.ts`).
+These prompts are for generating the Golden Dome's films. Each film plays once, at one turn of the story, and is one to three clips of about 8 seconds. The clips that play today are listed below; the prompts further down are for replacing them with clips made for this plot. Captions live in `CAPTION` in `intentai-web/src/pages/HuntPage/notebook/chapters.ts`, not in the video.
 
-| Film | When it plays | Book step |
-| --- | --- | --- |
-| 1. The story so far | After the player tears the field pass | `ticket` |
-| 2. At the old press | After the player opens the shutters and takes the parcel | `shutter` |
-| 3. To the next building | After the player picks the right place on the sketch | `deduce` |
-| 4. Beneath the golden dome | After the player sets the glass in the band | `bottle` |
+| Film | When it plays | Book step | Plays today |
+| --- | --- | --- | --- |
+| 1. The story so far | After the player tears the field pass | `ticket` | GS-01, GS-02 |
+| — No. 101 | After the stamp at the old press | `arrival1` | GS-03 (Ah Ning looks up at the arch) |
+| 2. At the old press | After the player opens the shutters and takes the parcel | `shutter` | GS-05 (the typesetter at the press) |
+| 3. To the next building | After the player picks the right place on the sketch | `deduce` | FX-04 (walking towards the dome) |
+| — Below the gold | After the dark band is photographed | `photo2` | FX-01 (the dark glass disc) |
+| 4. Beneath the golden dome | After the player sets the glass in the band | `bottle` | GS-10, GS-07, GS-08 |
 
-Film 3 must never name or show the second building clearly. The player has only just worked it out, and the film should feel like a walk, not a reveal.
+Rule for every film: it answers one question the player has at that moment (who, why, where now) and never shows what they have not earned yet.
+
+Film 3 plays only after the player has named the second building, so it may show the dome. It should feel like a walk towards it, not a lecture about it.
 
 ## Shared settings (paste before every prompt)
 
@@ -54,7 +58,7 @@ Plays right after the player has opened the shutters and found the parcel. Sugge
 
 ## Film 3 — To the next building
 
-The player now knows where to go. Do not show the mosque clearly or say its name. Suggested caption: *"Beneath the gold…"*
+The player now knows where to go. Show the walk; keep the mosque in the distance. Suggested caption: *"Beneath the gold…"*
 
 **3a — The walk**
 > Present day, golden hour. Following shot behind Ah Ning (never her face) walking down a five-foot way of colourful Kampong Gelam shophouses, holding a small brown-paper parcel. At the end of the street, out of focus and partly hidden by palm leaves, a hint of gold catches the sun. The camera tilts up with her gaze but cuts before the building is fully seen.
@@ -91,4 +95,5 @@ The ending, after the glass is set. Suggested captions: *"1928. The poorest gave
 1. Export each clip as `.mp4` (H.264, about 1080p) plus a `.jpg` poster frame.
 2. Put them in `intentai-web/public/hunt/films/GD/` named `GD-1a.mp4`, `GD-1a.jpg`, and so on.
 3. Add an entry per clip to `intentai-web/src/data/hunt/films.json` in the same shape as the `GS-xx` entries, with the English caption in `en`.
-4. In `chapters.ts`, point `SHORT_FILMS.opening`, `found`, `passage` and `ending` at the new ids.
+4. In `chapters.ts`, point the matching `SHORT_FILMS` reel at the new ids and give each a line in `CAPTION`.
+5. Clips no reel uses were deleted from `public/hunt/films` and `films.json`. Re-running `scripts/hunt/import-films.mjs` brings them back, so delete them again after an import.

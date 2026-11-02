@@ -98,17 +98,6 @@
     "poster": "/hunt/films/BA/BA-09.webp",
     "fiction": "fictional_character_in_researched_setting"
   },
-  "BA-10": {
-    "id": "BA-10",
-    "pack": "BA",
-    "request": "video.ba.partner_beat_requested",
-    "spoiler": "optional_character",
-    "en": "The collaboration began long before the credits.",
-    "seconds": 8,
-    "src": "/hunt/films/BA/BA-10.mp4",
-    "poster": "/hunt/films/BA/BA-10.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
   "BA-11": {
     "id": "BA-11",
     "pack": "BA",
@@ -118,83 +107,6 @@
     "seconds": 8,
     "src": "/hunt/films/BA/BA-11.mp4",
     "poster": "/hunt/films/BA/BA-11.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "BA-12": {
-    "id": "BA-12",
-    "pack": "BA",
-    "request": "video.ba.ending_shared_authorship_requested",
-    "spoiler": "ending",
-    "en": "We will make the next part together.",
-    "seconds": 8,
-    "src": "/hunt/films/BA/BA-12.mp4",
-    "poster": "/hunt/films/BA/BA-12.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "BR-01": {
-    "id": "BR-01",
-    "pack": "FXBR",
-    "request": "bridge:pre_final_question",
-    "spoiler": "none",
-    "en": "One question remains: who helped it endure?",
-    "seconds": 7,
-    "src": "/hunt/films/FXBR/BR-01.mp4",
-    "poster": "/hunt/films/FXBR/BR-01.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "BR-02": {
-    "id": "BR-02",
-    "pack": "FXBR",
-    "request": "bridge:hint_requested",
-    "spoiler": "none",
-    "en": "Look at the place before the screen.",
-    "seconds": 7,
-    "src": "/hunt/films/FXBR/BR-02.mp4",
-    "poster": "/hunt/films/FXBR/BR-02.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "BR-03": {
-    "id": "BR-03",
-    "pack": "FXBR",
-    "request": "bridge:photo_compare_pending",
-    "spoiler": "none",
-    "en": "Comparing the details you noticed.",
-    "seconds": 6,
-    "src": "/hunt/films/FXBR/BR-03.mp4",
-    "poster": "/hunt/films/FXBR/BR-03.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "BR-04": {
-    "id": "BR-04",
-    "pack": "FXBR",
-    "request": "bridge:site_inaccessible_alternative",
-    "spoiler": "none",
-    "en": "There is another way to continue.",
-    "seconds": 8,
-    "src": "/hunt/films/FXBR/BR-04.mp4",
-    "poster": "/hunt/films/FXBR/BR-04.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "BR-05": {
-    "id": "BR-05",
-    "pack": "FXBR",
-    "request": "bridge:return_to_street",
-    "spoiler": "none",
-    "en": "Now look up at the place around you.",
-    "seconds": 6,
-    "src": "/hunt/films/FXBR/BR-05.mp4",
-    "poster": "/hunt/films/FXBR/BR-05.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "BR-06": {
-    "id": "BR-06",
-    "pack": "FXBR",
-    "request": "bridge:shared_story_received",
-    "spoiler": "none",
-    "en": "Someone else has picked up the story.",
-    "seconds": 8,
-    "src": "/hunt/films/FXBR/BR-06.mp4",
-    "poster": "/hunt/films/FXBR/BR-06.webp",
     "fiction": "fictional_character_in_researched_setting"
   },
   "CV-01": {
@@ -296,28 +208,6 @@
     "poster": "/hunt/films/CV/CV-09.webp",
     "fiction": "fictional_character_in_researched_setting"
   },
-  "CV-10": {
-    "id": "CV-10",
-    "pack": "CV",
-    "request": "story.civic.relationship_extra",
-    "spoiler": "evidence",
-    "en": "First, let someone finish their story.",
-    "seconds": 8,
-    "src": "/hunt/films/CV/CV-10.mp4",
-    "poster": "/hunt/films/CV/CV-10.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "CV-11": {
-    "id": "CV-11",
-    "pack": "CV",
-    "request": "optional_race.completed",
-    "spoiler": "none",
-    "en": "Boost saved. Now, look a little closer.",
-    "seconds": 8,
-    "src": "/hunt/films/CV/CV-11.mp4",
-    "poster": "/hunt/films/CV/CV-11.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
   "CV-12": {
     "id": "CV-12",
     "pack": "CV",
@@ -338,28 +228,6 @@
     "seconds": 8,
     "src": "/hunt/films/FXBR/FX-01.mp4",
     "poster": "/hunt/films/FXBR/FX-01.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "FX-02": {
-    "id": "FX-02",
-    "pack": "FXBR",
-    "request": "reward",
-    "spoiler": "post_solve",
-    "en": "This page finally holds more than buildings.",
-    "seconds": 8,
-    "src": "/hunt/films/FXBR/FX-02.mp4",
-    "poster": "/hunt/films/FXBR/FX-02.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "FX-03": {
-    "id": "FX-03",
-    "pack": "FXBR",
-    "request": "passage",
-    "spoiler": "none",
-    "en": "Find the next line out on the street.",
-    "seconds": 8,
-    "src": "/hunt/films/FXBR/FX-03.mp4",
-    "poster": "/hunt/films/FXBR/FX-03.webp",
     "fiction": "fictional_character_in_researched_setting"
   },
   "FX-04": {
@@ -406,17 +274,6 @@
     "poster": "/hunt/films/GS/GS-03.webp",
     "fiction": "fictional_character_in_researched_setting"
   },
-  "GS-04": {
-    "id": "GS-04",
-    "pack": "GS",
-    "request": "passage",
-    "spoiler": "post_observation",
-    "en": "We kept looking at the cover. We missed the small print.",
-    "seconds": 8,
-    "src": "/hunt/films/GS/GS-04.mp4",
-    "poster": "/hunt/films/GS/GS-04.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
   "GS-05": {
     "id": "GS-05",
     "pack": "GS",
@@ -427,17 +284,6 @@
     "src": "/hunt/films/GS/GS-05.mp4",
     "poster": "/hunt/films/GS/GS-05.webp",
     "fiction": "fictional_reconstruction_not_archival"
-  },
-  "GS-06": {
-    "id": "GS-06",
-    "pack": "GS",
-    "request": "passage",
-    "spoiler": "post_observation",
-    "en": "Next, see how something ordinary was remembered.",
-    "seconds": 8,
-    "src": "/hunt/films/GS/GS-06.mp4",
-    "poster": "/hunt/films/GS/GS-06.webp",
-    "fiction": "fictional_character_in_researched_setting"
   },
   "GS-07": {
     "id": "GS-07",
@@ -461,17 +307,6 @@
     "poster": "/hunt/films/GS/GS-08.webp",
     "fiction": "fictional_character_in_researched_setting"
   },
-  "GS-09": {
-    "id": "GS-09",
-    "pack": "GS",
-    "request": "observation_retry_requested",
-    "spoiler": "none",
-    "en": "Take your time. Try another angle.",
-    "seconds": 8,
-    "src": "/hunt/films/GS/GS-09.mp4",
-    "poster": "/hunt/films/GS/GS-09.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
   "GS-10": {
     "id": "GS-10",
     "pack": "GS",
@@ -482,28 +317,6 @@
     "src": "/hunt/films/GS/GS-10.mp4",
     "poster": "/hunt/films/GS/GS-10.webp",
     "fiction": "fictional_reconstruction_not_archival"
-  },
-  "GS-11": {
-    "id": "GS-11",
-    "pack": "GS",
-    "request": "field_notebook_opened",
-    "spoiler": "premise_only",
-    "en": "The next page is out on the street.",
-    "seconds": 8,
-    "src": "/hunt/films/GS/GS-11.mp4",
-    "poster": "/hunt/films/GS/GS-11.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "GS-12": {
-    "id": "GS-12",
-    "pack": "GS",
-    "request": "ending_variant_pass_it_on",
-    "spoiler": "ending",
-    "en": "The story is complete. The next discovery is yours.",
-    "seconds": 8,
-    "src": "/hunt/films/GS/GS-12.mp4",
-    "poster": "/hunt/films/GS/GS-12.webp",
-    "fiction": "fictional_character_in_researched_setting"
   },
   "KG-01": {
     "id": "KG-01",
@@ -603,28 +416,6 @@
     "src": "/hunt/films/KG/KG-09.mp4",
     "poster": "/hunt/films/KG/KG-09.webp",
     "fiction": "fictional_character_in_researched_setting"
-  },
-  "KG-10": {
-    "id": "KG-10",
-    "pack": "KG",
-    "request": "amin_memory_optional_opened",
-    "spoiler": "optional_side_content",
-    "en": "I want to return because someone is waiting to read.",
-    "seconds": 8,
-    "src": "/hunt/films/KG/KG-10.mp4",
-    "poster": "/hunt/films/KG/KG-10.webp",
-    "fiction": "fictional_memory_in_generic_composite_1938_setting"
-  },
-  "KG-11": {
-    "id": "KG-11",
-    "pack": "KG",
-    "request": "modern_reader_story_opened",
-    "spoiler": "optional_side_content",
-    "en": "After you left, people here kept writing the story.",
-    "seconds": 8,
-    "src": "/hunt/films/KG/KG-11.mp4",
-    "poster": "/hunt/films/KG/KG-11.webp",
-    "fiction": "fictional_contemporary_character_in_researched_setting"
   },
   "KG-12": {
     "id": "KG-12",
@@ -734,17 +525,6 @@
     "seconds": 8,
     "src": "/hunt/films/TA/TA-09.mp4",
     "poster": "/hunt/films/TA/TA-09.webp",
-    "fiction": "fictional_character_in_researched_setting"
-  },
-  "TA-10": {
-    "id": "TA-10",
-    "pack": "TA",
-    "request": "video.ta.mei_afterword_requested",
-    "spoiler": "second_generation_reveal",
-    "en": "I will add my page, and keep yours.",
-    "seconds": 8,
-    "src": "/hunt/films/TA/TA-10.mp4",
-    "poster": "/hunt/films/TA/TA-10.webp",
     "fiction": "fictional_character_in_researched_setting"
   },
   "TA-11": {
