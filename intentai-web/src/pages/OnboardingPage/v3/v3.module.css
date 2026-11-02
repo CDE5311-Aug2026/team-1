@@ -166,7 +166,7 @@
 .areaDot:focus-visible,
 .locate:focus-visible,
 .resetBtn:focus-visible {
-  outline: 2px solid #23211d;
+  outline: 2px solid var(--pick-focus, #23211d);
   outline-offset: 2px;
 }
 
@@ -239,22 +239,23 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* The --pick-* properties let a host restyle the pickers (My Space's parchment editor sheet); onboarding keeps these defaults. */
 .tile {
   position: relative;
   min-height: 2.75rem;
-  border: 1.5px solid transparent;
+  border: 1.5px solid var(--pick-line, transparent);
   border-radius: 16px;
-  background: #fff;
+  background: var(--pick-surface, #fff);
   color: #23211d;
   font: inherit;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+  box-shadow: var(--pick-shadow, 0 1px 2px rgba(35, 33, 29, 0.06));
   transition: border-color 0.15s, background-color 0.15s;
 }
 
 .tile[aria-pressed='true'] {
-  border-color: #e4671f;
-  background: #fff2eb;
+  border-color: var(--pick-on-line, #e4671f);
+  background: var(--pick-on, #fff2eb);
 }
 
 .tileCheck {
@@ -271,7 +272,8 @@
 }
 
 .tileName {
-  font-weight: 700;
+  font-family: var(--pick-display, inherit);
+  font-weight: var(--pick-display-weight, 700);
   font-size: 0.875rem;
   line-height: 1.2;
 }
@@ -329,7 +331,8 @@
 }
 
 .chipName {
-  font-weight: 600;
+  font-family: var(--pick-display, inherit);
+  font-weight: var(--pick-display-weight, 600);
   font-size: 0.8125rem;
 }
 
@@ -348,7 +351,7 @@
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: #f1efe9;
+  background: var(--pick-well, #f1efe9);
   color: #3a3731;
   margin-bottom: 0.25rem;
 }
@@ -373,7 +376,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: #f1efe9;
+  background: var(--pick-well, #f1efe9);
   color: #3a3731;
 }
 
@@ -392,7 +395,7 @@
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: #f1efe9;
+  background: var(--pick-well, #f1efe9);
   font-weight: 700;
   font-size: 1rem;
   color: #3a3731;
@@ -586,8 +589,10 @@
   position: absolute;
   left: 0.75rem;
   bottom: 0.625rem;
-  font-weight: 800;
-  font-size: 1rem;
+  font-family: var(--pick-display, inherit);
+  font-weight: var(--pick-photo-weight, 800);
+  font-size: var(--pick-photo-size, 1rem);
+  letter-spacing: 0.01em;
 }
 
 .rankBadge {
@@ -618,11 +623,13 @@
   padding: 0 1rem;
   border: 0;
   border-radius: 999px;
-  background: #e4e0d8;
+  background: var(--pick-quiet, #e4e0d8);
+  box-shadow: var(--pick-ring, none);
   color: #3a3731;
   font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-family: var(--pick-display, inherit);
+  font-size: var(--pick-quiet-size, 0.8125rem);
+  font-weight: var(--pick-display-weight, 600);
   cursor: pointer;
 }
 
@@ -645,7 +652,8 @@
   gap: 0.75rem;
   padding: 0.875rem;
   border-radius: 20px;
-  background: #fff;
+  background: var(--pick-surface, #fff);
+  box-shadow: var(--pick-ring, none);
 }
 
 .timelineIcon {
@@ -667,7 +675,9 @@
 }
 
 .timelineText strong {
-  font-size: 1.0625rem;
+  font-family: var(--pick-display, inherit);
+  font-weight: var(--pick-display-weight, 700);
+  font-size: var(--pick-title-size, 1.0625rem);
 }
 
 .timelineText span {
@@ -698,7 +708,8 @@
 .timeline {
   padding: 1rem 0.875rem 0.75rem;
   border-radius: 20px;
-  background: #fff;
+  background: var(--pick-surface, #fff);
+  box-shadow: var(--pick-ring, none);
 }
 
 .range {
@@ -715,13 +726,13 @@
 .range::-webkit-slider-runnable-track {
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(90deg, #e4671f var(--pos), #ece8e1 var(--pos));
+  background: linear-gradient(90deg, #e4671f var(--pos), var(--pick-track, #ece8e1) var(--pos));
 }
 
 .range::-moz-range-track {
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(90deg, #e4671f var(--pos), #ece8e1 var(--pos));
+  background: linear-gradient(90deg, #e4671f var(--pos), var(--pick-track, #ece8e1) var(--pos));
 }
 
 .range::-webkit-slider-thumb {
@@ -743,7 +754,7 @@
 }
 
 .range:focus-visible {
-  outline: 2px solid #23211d;
+  outline: 2px solid var(--pick-focus, #23211d);
   outline-offset: 4px;
   border-radius: 8px;
 }
@@ -773,12 +784,12 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-family: var(--pick-kicker-font, var(--font-mono));
+  font-size: var(--pick-kicker-size, 0.6875rem);
+  font-weight: var(--pick-kicker-weight, 600);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #a3400a;
+  color: var(--pick-kicker, #a3400a);
 }
 
 .previewCard {
@@ -787,8 +798,8 @@
   align-items: center;
   padding: 0.625rem;
   border-radius: 20px;
-  background: #fff;
-  border: 1px solid #dedad2;
+  background: var(--pick-surface, #fff);
+  border: 1px solid var(--pick-border, #dedad2);
 }
 
 .previewPhoto {
@@ -815,8 +826,9 @@
 
 .previewTitle {
   margin: 0;
-  font-weight: 700;
-  font-size: 0.9375rem;
+  font-family: var(--pick-display, inherit);
+  font-weight: var(--pick-display-weight, 700);
+  font-size: var(--pick-title-size, 0.9375rem);
   color: #23211d;
 }
 

@@ -339,12 +339,13 @@
   border-radius: 10px;
 }
 
+.slipButton:focus,
 .slipButton:focus-visible {
   outline: none;
 }
 
 .slipButton:focus-visible::after {
-  outline: 2px solid var(--ink);
+  outline: 2px solid #7a5236;
   outline-offset: 2px;
 }
 
