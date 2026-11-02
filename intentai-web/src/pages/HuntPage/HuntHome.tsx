@@ -23,6 +23,7 @@ import Icon from "../OnboardingPage/v3/icons";
 import type { HuntGo } from "./HuntPage";
 import { HowToPlay } from "./notebook/HowToPlay";
 import PageBar from "../../components/PageBar/PageBar";
+import { PublicHall } from "./public3d/PublicHall";
 import styles from "./Hunt.module.css";
 
 /** Stops solved on site (FindSG's on-site mode; remote play does not count). */
@@ -142,7 +143,21 @@ export function HunterPass({ go }: { go: HuntGo }) {
 const days = (from: string, today: string) =>
   Math.round((Date.parse(from) - Date.parse(today)) / 86400000);
 
+/** Public: the 3D notice board and podium; the flat list where WebGL is not there. */
 export function PublicTab({
+  go,
+  openRoute,
+}: {
+  go: HuntGo;
+  openRoute(id: string): void;
+}) {
+  const explored = useExplored();
+  const [flat, setFlat] = useState(false);
+  if (flat) return <PublicFlat go={go} openRoute={openRoute} />;
+  return <PublicHall go={go} openRoute={openRoute} explored={explored} onFail={() => setFlat(true)} />;
+}
+
+function PublicFlat({
   go,
   openRoute,
 }: {

@@ -1323,3 +1323,13 @@
 .pageBar {
   margin-bottom: 4px;
 }
+
+/* Public is one screen: the desk is the viewport's height and the hall fills what the header and tabs leave */
+.publicDesk.deskHome:not(.boardDesk) {
+  display: flex;
+  flex-direction: column;
+  height: calc(100svh - var(--status-h, 0px));
+  min-height: 0;
+  padding-bottom: calc(1.125rem + env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
