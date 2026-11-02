@@ -86,7 +86,7 @@ const STOPS = [
     look('The dark band under the gold', 'From the pedestrian mall, look up at the main dome. Under the gold runs a dark band: the bottle bases.', 'The dome and the whole dark band under it, in one frame. No worshippers.', 'The dark band of bottle bases under the dome.', 'Remote: the archive photo stands in for the street.', [NHB]),
     chain('Only one missing', [
       prop('bag', 'The case bag', 'Look around. Lift the clasp.', 'open', [['open', 'Brass clasp']], {foundText: 'A letter, an invitation, a CCTV clip and the exhibit page.'}),
-      prop('compare', 'Lot against case', 'Hold to look closer. Tap each difference.', 'three', [['three', 'Three differences']], {foundText: 'The top matches; underneath does not.'}),
+      prop('compare', 'Lot against case', 'Turn both over. Tap each difference.', 'three', [['three', 'Three differences']], {foundText: 'The top matches; underneath does not.'}),
       prop('band', 'The archive band', 'Turn the band. Drop each edge into the gap.', 'lot', [['lot', 'Edge from the lot'], ['case', 'Edge from the case']],
         {misses: {case: 'A gap stays. A round edge, no hook.'}}),
     ], 'The one online is real. The one in the case went in six days ago.'),

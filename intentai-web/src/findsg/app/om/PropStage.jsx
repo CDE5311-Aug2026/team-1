@@ -3,6 +3,7 @@
  * items (`offer`) and the rules answer. A prop that comes back already solved shows its solved state. */
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {playFilm} from './films.js';
+import GlassCompare from './GlassCompare.jsx';
 import './prop-stage.css';
 
 const BASE = (import.meta.env?.BASE_URL || '/') + 'hunt/om/';
@@ -117,56 +118,19 @@ function Bag({offer, solved, enabled}) {
   </>;
 }
 
-/** Two plates under glass. Hold to bring the loupe; let go on a difference to stamp it. */
-const PLATES = {
-  lot: {src: 'props/lot_genuine.webp', x: 140, y: 40, size: 520},
-  case: {src: 'props/case_replica.webp', x: 200, y: 140, size: 400},
-};
-const DIFFS = [
-  {id: 'edge', label: 'Hook', at: {lot: [.75, .68, .14], case: [.85, .57, .12]}},
-  {id: 'bubbles', label: 'Bubbles', at: {lot: [.52, .44, .12], case: [.47, .4, .12]}},
-  {id: 'seam', label: 'Seam', at: {case: [.62, .68, .1]}},
-];
-const DECOYS = [
-  {at: {lot: [.37, .28, .13]}, says: 'The top matches the archive photo. Anyone can copy the top.'},
-  {at: {case: [.25, .2, .1]}, says: 'A reflection on the case glass.'},
-];
-function plateStyle(p) {
-  return {backgroundImage: `url(${img(p.src)})`, backgroundSize: `${80000 / p.size}% auto`,
-    backgroundPosition: `${p.x / (800 - p.size) * 100}% ${p.y / (600 - p.size) * 100}%`};
-}
+/** The lot beside the case piece, side by side in 3D: the same from above. Turn them over together and tap what
+ * differs (GlassCompare.jsx draws them; the quest decides). */
+const DIFFS = ['edge', 'bubbles', 'seam'];
 function Compare({offer, solved, enabled, note}) {
-  const [found, setFound] = useState(solved ? DIFFS.map(d => d.id) : []), [loupe, setLoupe] = useState(null);
-  const hit = (side, fx, fy, list) => list.find(d => {const a = d.at[side]; return a && Math.hypot(fx - a[0], fy - a[1]) < a[2];});
-  function look(side, e) {
-    if (!enabled || solved) return;
-    const el = e.currentTarget, box = el.getBoundingClientRect();
-    try {el.setPointerCapture?.(e.pointerId);} catch { /* a pointer the browser no longer tracks */ }
-    const at = ev => ({fx: (ev.clientX - box.left) / box.width, fy: (ev.clientY - box.top) / box.height});
-    const show = ev => {const {fx, fy} = at(ev); setLoupe({side, fx: Math.max(0, Math.min(1, fx)), fy: Math.max(0, Math.min(1, fy))});};
-    show(e);
-    const up = ev => {
-      el.removeEventListener('pointermove', show); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
-      setLoupe(null);
-      const {fx, fy} = at(ev), d = hit(side, fx, fy, DIFFS);
-      if (d && !found.includes(d.id)) {
-        const next = [...found, d.id]; setFound(next);
-        if (next.length === DIFFS.length) offer('three');
-      } else if (!d) {const decoy = hit(side, fx, fy, DECOYS); if (decoy) note(decoy.says);}
-    };
-    el.addEventListener('pointermove', show); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
-  }
-  return <div className="om-plates">
-    {['lot', 'case'].map(side => <div key={side} className="om-plate-wrap">
-      <div className="om-plate" style={plateStyle(PLATES[side])} onPointerDown={e => look(side, e)}>
-        {DIFFS.filter(d => found.includes(d.id) && d.at[side]).map(d => <span key={d.id} className="om-stamp-mark" style={{left: `${d.at[side][0] * 100}%`, top: `${d.at[side][1] * 100}%`}}><b>{d.label}</b></span>)}
-        {loupe?.side === side && <span className="om-loupe" style={{left: `${loupe.fx * 100}%`, top: `${loupe.fy * 100}%`,
-          ...plateStyle(PLATES[side]), backgroundSize: `${80000 / PLATES[side].size * 2.6}% auto`,
-          backgroundPosition: `${loupe.fx * 100}% ${loupe.fy * 100}%`}}/>}
-      </div>
-      <span className="om-plate-tag">{side === 'lot' ? 'Lot' : 'Case'}</span>
-    </div>)}
-    <div className="om-tally" aria-label={`${found.length} of 3 differences`}>{DIFFS.map((d, i) => <i key={d.id} data-on={i < found.length || undefined}/>)}</div>
+  const [found, setFound] = useState(solved ? DIFFS : []);
+  const find = id => {
+    if (!enabled || solved || found.includes(id)) return;
+    const next = [...found, id]; setFound(next);
+    if (next.length === DIFFS.length) offer('three');
+  };
+  return <div className="om-glass">
+    <GlassCompare found={found} onFind={find} onMiss={note} enabled={enabled && !solved}/>
+    <div className="om-tally" aria-label={`${found.length} of 3 differences`}>{DIFFS.map((d, i) => <i key={d} data-on={i < found.length || undefined}/>)}</div>
   </div>;
 }
 
