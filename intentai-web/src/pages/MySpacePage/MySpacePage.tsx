@@ -382,7 +382,7 @@ export default function MySpacePage() {
   return (
     <AppShell background="#edebe5">
       <div className={styles.screen}>
-        <PageBar title="Mine" tone="light" here />
+        <PageBar title="Passport" tone="light" here />
 
         <Holder profile={profile} />
 

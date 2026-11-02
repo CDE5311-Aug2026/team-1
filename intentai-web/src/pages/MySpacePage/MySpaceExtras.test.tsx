@@ -170,9 +170,9 @@ test('Anonymous page timing: switching it off stops sending; the device copy sta
   expect(readLocalUsage()).toHaveLength(2);
 });
 
-test('S1: the top bar names the page (Mine) beside your avatar; the privacy card shows size and the storage bar', async () => {
+test('S1: the top bar names the page (Passport) beside your avatar; the privacy card shows size and the storage bar', async () => {
   renderAt(paths.mySpace);
-  const h1 = screen.getByRole('heading', { level: 1, name: 'Mine' });
+  const h1 = screen.getByRole('heading', { level: 1, name: 'Passport' });
   expect(h1).toBeVisible();
   const card = screen.getByRole('link', { name: /Privacy & data/ });
   expect(card).toHaveTextContent(/on this phone only/);

@@ -5,7 +5,7 @@ import TabBar from './TabBar';
 
 test('renders all four tab labels and highlights the active one', () => {
   render(<TabBar active="/" onNavigate={vi.fn()} />);
-  ['Home', 'Moments', 'Hunt', 'Mine'].forEach((label) => {
+  ['Home', 'Moments', 'Hunt', 'Passport'].forEach((label) => {
     expect(screen.getByText(label)).toBeInTheDocument();
   });
   expect(screen.getByRole('button', { name: /^home$/i })).toHaveAttribute('aria-current', 'page');

@@ -12,10 +12,10 @@ interface Props {
   tone?: "dark" | "light";
   /** Drawn around the avatar (e.g. the rank ring). */
   ring?: ReactNode;
-  /** The avatar's own action; by default it opens Mine. */
+  /** The avatar's own action; by default it opens Passport. */
   onAvatar?: () => void;
   avatarLabel?: string;
-  /** On Mine itself the avatar is just a picture. */
+  /** On Passport itself the avatar is just a picture. */
   here?: boolean;
   className?: string;
   /** false when the page already has its own h1 (Home's is for screen readers). */
@@ -60,7 +60,7 @@ export default function PageBar({
         <Link
           to={paths.mySpace}
           className={styles.avatar}
-          aria-label={avatarLabel ?? "Mine"}
+          aria-label={avatarLabel ?? "Passport"}
         >
           {face}
         </Link>

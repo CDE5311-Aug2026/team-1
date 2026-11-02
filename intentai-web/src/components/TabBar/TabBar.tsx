@@ -48,7 +48,7 @@ function GuideIcon({ label }: { label: string }) {
           <circle cx="16" cy="17" r="0.8" />
         </>
       )}
-      {label === 'Mine' && (
+      {label === 'Passport' && (
         <>
           <path d="M8 5 H22 a2 2 0 0 1 2 2 V25 a2 2 0 0 1 -2 2 H8 Z" />
           <path d="M8 5 V27" strokeWidth="2" />
