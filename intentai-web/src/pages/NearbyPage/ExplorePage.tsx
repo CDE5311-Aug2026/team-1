@@ -283,6 +283,8 @@ export default function ExplorePage() {
           : (query || category !== 'all') && filtered.length
             ? { at: centreOf(filtered.map((p) => p.coordinates)), span: spanOf(filtered.map((p) => p.coordinates)), pin: false }
             : { at: MARINA_BAY, span: 3000, pin: false };
+  // The title names what the 3D view is around: Marina Bay only when it opens on the default.
+  const label3d = selected?.name ?? origin?.label ?? (target3d.at === MARINA_BAY ? 'Marina Bay' : null);
   // Tapping a landmark in 3D selects it here when it is one of our places (the sheet shows it, as on the map).
   const onCard3d = (key: string | null, title: string | null) => {
     const p = placeByEarthKey(key);
@@ -460,7 +462,7 @@ export default function ExplorePage() {
           <View3D
             bleed
             target={target3d}
-            title={`3D view of Singapore around ${selected?.name ?? origin?.label ?? 'Marina Bay'}`}
+            title={label3d ? `3D view of Singapore around ${label3d}` : '3D view of Singapore'}
             hideCards
             onCard={onCard3d}
             you={you}

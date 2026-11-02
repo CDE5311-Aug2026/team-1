@@ -1,11 +1,10 @@
-#!/usr/bin/env node
 // Nearby Explorer catalogue validation (PRD §10): `npm run validate:explore`.
 // Checks ids, Singapore coordinates (outline, not a bounding box), references, fact/source/review fields,
 // placeholder text, provenance, duplicates and collection counts. A collection may only claim "published"
 // with exactly 100 (an editor's pick: 10) distinct published members that a team editor has signed off.
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const CATEGORIES = ['landmark', 'food', 'nature', 'culture'];
 const PROVENANCE = ['earth-online', 'researched', 'earth-online+researched'];
@@ -241,7 +240,7 @@ export function loadCatalogue(dir = CATALOGUE_DIR) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { errors, warnings, counts } = validateCatalogue(loadCatalogue());
   for (const w of warnings) console.warn(`warning: ${w}`);
   for (const e of errors) console.error(`error: ${e}`);
