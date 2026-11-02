@@ -34,7 +34,7 @@ export interface JournalEntry {
 
 export interface Picture {
   src: string;
-  kind: "own" | "photo" | "still" | "3d";
+  kind: "own" | "photo" | "still";
   credit?: string;
 }
 

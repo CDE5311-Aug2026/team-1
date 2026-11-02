@@ -2,6 +2,7 @@
 //
 //   node scripts/explore/place-photos.mjs            # fetch photos for places that have none yet
 //   node scripts/explore/place-photos.mjs --force    # look every place up again
+//   node scripts/explore/place-photos.mjs --commons  # also try Commons photos taken at the place for those without
 //
 // For each published place: the Wikipedia article it links to, or else a Wikipedia search for "<name> Singapore"
 // whose article has coordinates within 1.2 km of the place. The article's lead image is used only if it is a
@@ -18,6 +19,7 @@ const MANIFEST = join(ROOT, 'src/data/explore/photos.json');
 const OUT = join(ROOT, 'public/nearby/photos');
 const UA = 'IntentAI-student-prototype/1.0 (NUS CDE5311; place photos with credits)';
 const force = process.argv.includes('--force');
+const commons = process.argv.includes('--commons');
 
 const places = JSON.parse(readFileSync(PLACES, 'utf8')).filter((p) => p.editorialStatus === 'published');
 const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8')) : { photos: {}, missing: [] };
@@ -83,14 +85,60 @@ async function photoFor(title) {
   };
 }
 
+/**
+ * A photo taken at the place: Commons files geotagged within 200 m, openly licensed, at least 640 px wide, whose file
+ * name carries every word of the place's name (the nearest photo alone was often of something else: a person, an
+ * insect, an event). No maps, plans, logos or diagrams.
+ */
+const STOP = new Set(['the', 'and', 'our', 'singapore', 'former', 'old', 'new']);
+async function commonsNear(place) {
+  const words = place.name.toLowerCase().replace(/\(.*?\)/g, ' ').split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !STOP.has(w));
+  if (!words.length) return undefined;
+  const near = await api('commons.wikimedia.org', {
+    action: 'query', list: 'geosearch', gsnamespace: '6', gsradius: '200', gslimit: '100',
+    gscoord: `${place.coordinates.lat}|${place.coordinates.lng}`,
+  });
+  const named = (t) => {
+    const low = t.toLowerCase();
+    return words.every((w) => low.includes(w));
+  };
+  const hits = (near.query?.geosearch ?? []).filter(
+    (h) => /\.(jpe?g|png|webp)$/i.test(h.title) && named(h.title) && !/\b(map|plan|logo|diagram|sign|board|poster|menu|plaque)\b/i.test(h.title),
+  );
+  if (!hits.length) return undefined;
+  const info = await api('commons.wikimedia.org', {
+    action: 'query', prop: 'imageinfo', titles: hits.slice(0, 40).map((h) => h.title).join('|'), iiprop: 'url|extmetadata|mime|size', iiurlwidth: '640',
+  });
+  const dist = new Map(hits.map((h) => [h.title, h.dist]));
+  const ok = (info.query?.pages ?? []).flatMap((pg) => {
+    const ii = pg.imageinfo?.[0];
+    if (!ii || !/^image\/(jpeg|png|webp)$/.test(ii.mime) || ii.width < 640 || ii.height > ii.width * 1.6) return [];
+    const meta = ii.extmetadata ?? {};
+    const license = strip(meta.LicenseShortName?.value);
+    if (!FREE.test(license)) return [];
+    return [{
+      title: pg.title, thumb: ii.thumburl, page: ii.descriptionurl, license, licenseUrl: meta.LicenseUrl?.value ?? '',
+      author: strip(meta.Artist?.value) || 'Wikimedia Commons contributor', file: pg.title.replace(/^File:/, ''),
+    }];
+  });
+  ok.sort((a, b) => dist.get(a.title) - dist.get(b.title));
+  return ok[0];
+}
+
+const save = () => {
+  manifest.missing = [...missing].sort();
+  manifest.checkedAt = new Date().toISOString().slice(0, 10);
+  writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);
+};
+
 let added = 0;
 const missing = new Set(force ? [] : manifest.missing);
 for (const place of places) {
   const slug = place.id.replace(/^curated:/, '');
-  if (!force && (manifest.photos[place.id] || missing.has(place.id))) continue;
+  if (!force && (manifest.photos[place.id] || (missing.has(place.id) && !commons))) continue;
   try {
-    const title = await articleFor(place);
-    const photo = title && (await photoFor(title));
+    const title = missing.has(place.id) ? undefined : await articleFor(place);
+    const photo = (title && (await photoFor(title))) || (commons ? await commonsNear(place) : undefined);
     if (!photo) {
       missing.add(place.id);
       console.log(`–  ${place.name}`);
@@ -113,9 +161,8 @@ for (const place of places) {
   } catch (err) {
     console.log(`!  ${place.name}: ${err.message}`);
   }
-  await sleep(900);
+  save(); // an interrupted run keeps what it found
+  await sleep(500);
 }
-manifest.missing = [...missing].sort();
-manifest.checkedAt = new Date().toISOString().slice(0, 10);
-writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);
+save();
 console.log(`\n${added} added · ${Object.keys(manifest.photos).length} with photos · ${manifest.missing.length} without`);

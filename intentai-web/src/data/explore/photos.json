@@ -1603,76 +1603,492 @@
       "source": "https://commons.wikimedia.org/wiki/File:Fountain_of_Wealth,_Suntec_City_(111152).jpg",
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-the-istana": {
+      "file": "sg-the-istana.jpg",
+      "credit": "GoAheadFan95 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Istana,_April_2024.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-ngee-ann-city": {
+      "file": "sg-ngee-ann-city.jpg",
+      "credit": "Nicolas Lannuzel · CC BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Ngee_Ann_City,_2009.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "article": "https://en.wikipedia.org/wiki/Ngee_Ann_City"
+    },
+    "curated:sg-singapore-botanic-gardens": {
+      "file": "sg-singapore-botanic-gardens.jpg",
+      "credit": "Velela · Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:Symphony_Lake,_Singapore_Botanic_Gardens_-_20041025.jpg",
+      "license": "Public domain",
+      "licenseUrl": "",
+      "article": "https://en.wikipedia.org/wiki/Singapore_Botanic_Gardens"
+    },
+    "curated:sg-zion-riverside-food-centre": {
+      "file": "sg-zion-riverside-food-centre.jpg",
+      "credit": "Kbseah · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Zion_Riverside_Food_Centre,_buskers.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-tiong-bahru-market": {
+      "file": "sg-tiong-bahru-market.jpg",
+      "credit": "Qingwu Zhou (周庆武) · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Tiong_Bahru_Market_%E4%B8%AD%E5%B3%87%E9%B2%81%E5%B8%82%E5%9C%BA_-_panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "curated:sg-raffles-lighthouse": {
+      "file": "sg-raffles-lighthouse.jpg",
+      "credit": "Jnzl's Public Domain Photos. · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Raffles_Lighthouse,_Singapore_-_20140720.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "article": "https://en.wikipedia.org/wiki/Raffles_Lighthouse"
+    },
+    "curated:sg-changi-airport-control-tower": {
+      "file": "sg-changi-airport-control-tower.jpg",
+      "credit": "AudaCity3371 · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Changi_Airport_Control_Tower_-_panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "curated:sg-ang-chee-sia-ong": {
+      "file": "sg-ang-chee-sia-ong.jpg",
+      "credit": "Bryanmackinnon. · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Ang_Chee_Sia_Ong_Temple_Bridge.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "curated:sg-ayer-rajah-food-centre": {
+      "file": "sg-ayer-rajah-food-centre.jpg",
+      "credit": "Kbseah · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Ayer_Rajah_Food_Centre_(44322).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-lee-kong-chian-natural-history": {
+      "file": "sg-lee-kong-chian-natural-history.jpg",
+      "credit": "KennethTan1971. · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Lee_Kong_Chian_Natural_History_Museum,_NUS,_Singapore.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Lee_Kong_Chian_Natural_History_Museum"
+    },
+    "curated:sg-sri-senpaga-vinayagar": {
+      "file": "sg-sri-senpaga-vinayagar.jpg",
+      "credit": "Chainwit. · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sri_Senpaga_Vinayagar_Temple,_Singapore_(2025)_-_img_18.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Sri_Senpaga_Vinayagar_Temple"
+    },
+    "curated:sg-nativity-church-hougang": {
+      "file": "sg-nativity-church-hougang.jpg",
+      "credit": "GoAheadFan95 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Church_of_the_Nativity_of_the_Blessed_Virgin_Mary,_October_2025.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-changi-chapel-museum": {
+      "file": "sg-changi-chapel-museum.jpg",
+      "credit": "Aldwin Teo · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Changi_Museum.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "article": "https://en.wikipedia.org/wiki/Changi_Chapel_and_Museum"
+    },
+    "curated:sg-central-sikh-temple": {
+      "file": "sg-central-sikh-temple.jpg",
+      "credit": "Chainwit. · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Central_Sikh_Gurdwara,_Singapore_(2025)_-_img_04.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    },
+    "curated:sg-woodlands-waterfront-park": {
+      "file": "sg-woodlands-waterfront-park.jpg",
+      "credit": "LN9267 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Woodlands_Waterfront_Park_15-05-2024(4).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-kranji-reservoir-park": {
+      "file": "sg-kranji-reservoir-park.jpg",
+      "credit": "edwin.11 · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kranji_Reservoir_Park_(3188431046).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "article": "https://en.wikipedia.org/wiki/Kranji_Reservoir_Park"
+    },
+    "curated:sg-sembawang-park": {
+      "file": "sg-sembawang-park.jpg",
+      "credit": "Jun Jie Yam · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sembawang_Tree_at_Sembawang_Park_-_October_2023.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+    },
+    "curated:sg-yishun-pond-park": {
+      "file": "sg-yishun-pond-park.jpg",
+      "credit": "Wzhkevin · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Canal_connecting_to_Yishun_Pond_at_the_south-western_end_of_Khatib_Bongsu_Park_Connector.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-hampstead-wetlands-park": {
+      "file": "sg-hampstead-wetlands-park.jpg",
+      "credit": "Wzhkevin · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hampstead_Wetlands_Park_looking_north_from_near_Baker_Street_2_-_2022-04-30.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-punggol-waterway-park": {
+      "file": "sg-punggol-waterway-park.jpg",
+      "credit": "Erwin Soo · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Punggol_Waterway_Park_2013.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "article": "https://en.wikipedia.org/wiki/Punggol_Waterway_Park"
+    },
+    "curated:sg-sengkang-riverside-park": {
+      "file": "sg-sengkang-riverside-park.jpg",
+      "credit": "Nigos · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sengkang_Riverside_Park,_16_Dec_2021_-_1.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Sengkang_Riverside_Park"
+    },
+    "curated:sg-east-coast-park": {
+      "file": "sg-east-coast-park.jpg",
+      "credit": "S5A-0043 · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:(SGP-Singapore)_East_Coast_Park_Zone_B_2026-01-25.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/East_Coast_Park"
+    },
+    "curated:sg-bedok-reservoir-park": {
+      "file": "sg-bedok-reservoir-park.jpg",
+      "credit": "chensiyuan · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:1_bedok_reservoir_panorama_2010.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Bedok_Reservoir"
+    },
+    "curated:sg-telok-blangah-hill-park": {
+      "file": "sg-telok-blangah-hill-park.jpg",
+      "credit": "yeowatzup · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Telok_Blangah_Hill_Park,_Singapore_(3297044040).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "article": "https://en.wikipedia.org/wiki/Telok_Blangah_Hill_Park"
+    },
+    "curated:sg-mount-faber-park": {
+      "file": "sg-mount-faber-park.jpg",
+      "credit": "Fry72 (Karel Frydrýšek) · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Vyhl%C3%ADdka,_Mount_Faber_Park,_Singapur.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-chesed-el-synagogue": {
+      "file": "sg-chesed-el-synagogue.jpg",
+      "credit": "Bahnfrend · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Chesed-El_Synagogue,_2023_(01).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Chesed-El_Synagogue"
+    },
+    "curated:sg-masjid-al-falah": {
+      "file": "sg-masjid-al-falah.jpg",
+      "credit": "Chainwit. · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Masjid_Al-Falah,_Singapore_(2023)_02.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Al-Falah%2C_Singapore"
+    },
+    "curated:sg-city-harvest-church": {
+      "file": "sg-city-harvest-church.jpg",
+      "credit": "Goh Wei Zhong · Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:City_Harvest_Church_Jurong_West_Building.jpg",
+      "license": "Public domain",
+      "licenseUrl": "",
+      "article": "https://en.wikipedia.org/wiki/City_Harvest_Church"
+    },
+    "curated:sg-church-of-the-holy-family": {
+      "file": "sg-church-of-the-holy-family.jpg",
+      "credit": "Chainwit. · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Church_of_the_Holy_Family,_Singapore_(2025)_-_img_02.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Church_of_the_Holy_Family%2C_Singapore"
+    },
+    "curated:sg-masjid-darul-ghufran": {
+      "file": "sg-masjid-darul-ghufran.jpg",
+      "credit": "M. Adrian Jurhami · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Darul_Ghufran_Mosque_at_Tampines.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Darul_Ghufran"
+    },
+    "curated:sg-masjid-sallim-mattar": {
+      "file": "sg-masjid-sallim-mattar.jpg",
+      "credit": "M. Adrian Jurhami · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sallim_Mattar_Mosque.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Sallim_Mattar"
+    },
+    "curated:sg-yusof-ishak-mosque": {
+      "file": "sg-yusof-ishak-mosque.jpg",
+      "credit": "Ronggy · Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:Masjid_Yusof_Ishak.jpg",
+      "license": "Public domain",
+      "licenseUrl": "",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Yusof_Ishak"
+    },
+    "curated:sg-alkaff-kampung-melayu-mosque": {
+      "file": "sg-alkaff-kampung-melayu-mosque.jpg",
+      "credit": "M. Adrian Jurhami · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Alkaff_Mosque_in_Bedok_North.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Alkaff_Kampung_Melayu"
+    },
+    "curated:sg-pasir-panjang-christ-church": {
+      "file": "sg-pasir-panjang-christ-church.jpg",
+      "credit": "Aedas · CC BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sandcrawler_CX2-1_Singapore,_2.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "article": "https://en.wikipedia.org/wiki/Queenstown%2C_Singapore"
+    },
+    "curated:sg-masjid-haji-mohd-salleh": {
+      "file": "sg-masjid-haji-mohd-salleh.jpg",
+      "credit": "Dekoelie · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Masjid_Haji_Mohd_Salleh.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Haji_Mohd_Salleh"
+    },
+    "curated:sg-our-tampines-hub": {
+      "file": "sg-our-tampines-hub.jpg",
+      "credit": "Leongyy02 · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Our_Tampines_Hub_Singapore_April_2026.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Our_Tampines_Hub"
+    },
+    "curated:sg-nus-museum": {
+      "file": "sg-nus-museum.jpg",
+      "credit": "Moheen Reeyad · Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:Figurine_of_a_Buddha_seated_in_a_lotus_position,_Headless,_NUS_Museum_(112020).jpg",
+      "license": "Public domain",
+      "licenseUrl": ""
+    },
+    "curated:sg-hong-san-see": {
+      "file": "sg-hong-san-see.jpg",
+      "credit": "Wikimedia Commons contributor · CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hong_San_See_3,_Oct_06.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "article": "https://en.wikipedia.org/wiki/Hong_San_See"
+    },
+    "curated:sg-geylang-serai-gallery": {
+      "file": "sg-geylang-serai-gallery.jpg",
+      "credit": "Jnzl's Photos · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Geylang_Fire_Station.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "article": "https://en.wikipedia.org/wiki/Paya_Lebar_Office_Centre"
+    },
+    "curated:sg-admiralty-park": {
+      "file": "sg-admiralty-park.jpg",
+      "credit": "Republic Polytechnic; originally uploaded to en.wikipedia by Office of corp comms. · Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:RepublicPolytechnic-CulturalCentre-20070205.jpg",
+      "license": "Public domain",
+      "licenseUrl": "",
+      "article": "https://en.wikipedia.org/wiki/Woodlands%2C_Singapore"
+    },
+    "curated:sg-lower-seletar-reservoir-park": {
+      "file": "sg-lower-seletar-reservoir-park.jpg",
+      "credit": "MardianaAlias · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Lower_Seletar_Dam,_Yishun.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "article": "https://en.wikipedia.org/wiki/Lower_Seletar_Reservoir"
+    },
+    "curated:sg-rifle-range-nature-park": {
+      "file": "sg-rifle-range-nature-park.jpg",
+      "credit": "Actuall7 · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Quarry_Wetland_at_Rifle_Range_Nature_Park.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "article": "https://en.wikipedia.org/wiki/Rifle_Range_Nature_Park"
+    },
+    "curated:sg-dairy-farm-nature-park": {
+      "file": "sg-dairy-farm-nature-park.jpg",
+      "credit": "Mx. Granger · CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Dairy_Farm_Nature_Park_2.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "article": "https://en.wikipedia.org/wiki/Dairy_Farm_Nature_Park"
+    },
+    "curated:sg-chek-jawa-wetlands": {
+      "file": "sg-chek-jawa-wetlands.jpg",
+      "credit": "William Cho · CC BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Chek_Jawa,_Singapore_(3940295137).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "article": "https://en.wikipedia.org/wiki/Chek_Jawa"
+    },
+    "curated:sg-kuan-im-tng-temple": {
+      "file": "sg-kuan-im-tng-temple.jpg",
+      "credit": "Basile Morin · CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Standing_Buddha_at_the_entrance_of_the_Kuan_Im_Tng_Temple.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "curated:sg-masjid-al-iman": {
+      "file": "sg-masjid-al-iman.jpg",
+      "credit": "Muhammad Adrian · CC BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Masjid_Al-Iman_at_Bukit_Panjang.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Al-Iman"
+    },
+    "curated:sg-masjid-hajjah-rahimabi-kebun-limau": {
+      "file": "sg-masjid-hajjah-rahimabi-kebun-limau.jpg",
+      "credit": "M. Adrian Jurhami · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hajjah_Rahimabi_Mosque_03.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Hajjah_Rahimabi_Kebun_Limau"
+    },
+    "curated:sg-masjid-al-khair": {
+      "file": "sg-masjid-al-khair.jpg",
+      "credit": "M. Adrian Jurhami · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Side_facade_of_Masjid_Al-Khair.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Al-Khair"
+    },
+    "curated:sg-masjid-jamiyah-ar-rabitah": {
+      "file": "sg-masjid-jamiyah-ar-rabitah.jpg",
+      "credit": "M. Adrian Jurhami · CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Jamiyah_Ar-Rabitah_Mosque_at_Tiong_Bahru.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "article": "https://en.wikipedia.org/wiki/Masjid_Jamiyah_Ar-Rabitah"
     }
   },
   "missing": [
     "curated:sg-alliance-seafood",
-    "curated:sg-ayer-rajah-food-centre",
     "curated:sg-balmoral-bakery",
     "curated:sg-bedok-chwee-kueh",
+    "curated:sg-berlin-wall-fragments-utown",
+    "curated:sg-bethany-presbyterian-church",
     "curated:sg-bukit-batok-nature-park",
     "curated:sg-burnt-ends-1200777",
+    "curated:sg-calvary-assembly-of-god-church",
+    "curated:sg-calvary-pandan-bible-presbyterian-church",
     "curated:sg-candlenut",
-    "curated:sg-central-sikh-temple",
+    "curated:sg-central-christian-church",
     "curated:sg-chang-korean-charcoal-bbq",
     "curated:sg-changi-airfreight-centre-maintenance-hangars",
-    "curated:sg-changi-airport-control-tower",
     "curated:sg-changi-airport-terminal-4",
     "curated:sg-changi-beach-park",
     "curated:sg-changi-jurassic-mile",
     "curated:sg-chey-sua-carrot-cake",
     "curated:sg-chong-pang-nasi-lemak",
+    "curated:sg-christ-methodist-church",
+    "curated:sg-church-of-st-bernadette",
+    "curated:sg-church-of-st-ignatius",
+    "curated:sg-clementi-448-market",
     "curated:sg-clementi-library",
     "curated:sg-clementi-woods",
     "curated:sg-cote",
+    "curated:sg-covenant-presbyterian-church",
     "curated:sg-daily-scoop-sunset",
     "curated:sg-duke-nus-medical-school",
+    "curated:sg-elim-church-assembly-of-god",
     "curated:sg-eurasian-heritage-gallery",
     "curated:sg-feng-zhen-lor-mee",
+    "curated:sg-fo-guang-shan-singapore",
     "curated:sg-fort-siloso-skywalk",
+    "curated:sg-galaxis",
+    "curated:sg-geylang-chinese-methodist-church",
+    "curated:sg-glory-presbyterian-church",
+    "curated:sg-grace-assembly-of-god-bukit-batok",
+    "curated:sg-grace-methodist-church",
     "curated:sg-haig-road-putu-piring",
-    "curated:sg-hampstead-wetlands-park",
+    "curated:sg-hakka-methodist-church",
+    "curated:sg-hdb-livingspace",
+    "curated:sg-hebron-bible-presbyterian-church",
+    "curated:sg-hinghwa-methodist-church",
+    "curated:sg-holy-tree-temple",
     "curated:sg-imperial-treasure-fine-teochew-cuisine-orchard",
+    "curated:sg-jade-palace",
     "curated:sg-jalan-sultan-prawn-mee",
+    "curated:sg-jin-long-si-temple",
+    "curated:sg-joo-siah-bak-koot-teh",
     "curated:sg-jurong-hill-lookout-tower",
+    "curated:sg-kampung-admiralty",
+    "curated:sg-katong-antique-house",
+    "curated:sg-keng-eng-kee",
     "curated:sg-kim-choo-kueh-chang",
     "curated:sg-king-of-laksa",
+    "curated:sg-koon-seng-road",
     "curated:sg-koon-seng-road-shophouses",
     "curated:sg-lao-fu-zi-fried-kway-teow",
+    "curated:sg-leng-kwang-baptist-church",
     "curated:sg-les-amis",
+    "curated:sg-lighthouse-evangelism-woodlands",
     "curated:sg-lorong-halus-wetland",
-    "curated:sg-mount-faber-park",
     "curated:sg-muthu-s-curry-little-india",
     "curated:sg-na-oh",
     "curated:sg-nam-sing-hokkien-fried-mee",
     "curated:sg-nanyang-technological-university",
     "curated:sg-newton-food-centre",
+    "curated:sg-no-18-zion-road-fried-kway-teow",
     "curated:sg-nus-bukit-timah-campus-faculty-of-law-former-raffles-college",
+    "curated:sg-pangium",
     "curated:sg-pasir-ris-park",
+    "curated:sg-paya-lebar-chinese-methodist-church",
+    "curated:sg-pentecost-methodist-church",
     "curated:sg-potters-garden",
     "curated:sg-putien-kitchener-road",
     "curated:sg-rajarani-thosai",
     "curated:sg-reflections-at-keppel-bay",
+    "curated:sg-roman-catholic-church-of-the-holy-trinity",
+    "curated:sg-sakya-tenphel-ling",
+    "curated:sg-san-qing-gong-taoist-cultural-centre-singapore",
+    "curated:sg-science-centre-singapore",
     "curated:sg-seletar-the-oval",
-    "curated:sg-sembawang-park",
+    "curated:sg-senja-soka-centre",
     "curated:sg-seoul-restaurant",
+    "curated:sg-seventh-day-adventist-community-church",
     "curated:sg-shisen-hanten",
+    "curated:sg-skyville-dawson",
+    "curated:sg-soh-kee-cooked-food",
+    "curated:sg-soka-youth-centre",
     "curated:sg-springleaf-prata-place",
+    "curated:sg-sri-siva-krishna",
     "curated:sg-summer-palace",
+    "curated:sg-sunset-way-rail-bridge",
     "curated:sg-tampines-eco-green",
     "curated:sg-the-intan",
-    "curated:sg-the-istana",
+    "curated:sg-the-spread-nus",
     "curated:sg-thevar",
     "curated:sg-tiong-bahru-air-raid",
     "curated:sg-tiong-bahru-estate",
-    "curated:sg-tiong-bahru-market",
+    "curated:sg-trinity-christian-centre-trinity-paya-lebar",
+    "curated:sg-tzu-chi-jing-si-hall",
+    "curated:sg-victory-family-centre",
     "curated:sg-west-coast-market-square",
     "curated:sg-windsor-nature-park",
-    "curated:sg-woodlands-waterfront-park",
     "curated:sg-xiangyee",
-    "curated:sg-yishun-pond-park",
-    "curated:sg-zai-shun-curry-fish-head",
-    "curated:sg-zion-riverside-food-centre"
+    "curated:sg-zai-shun-curry-fish-head"
   ],
-  "checkedAt": "2026-10-29"
+  "checkedAt": "2026-11-02"
 }

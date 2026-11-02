@@ -85,16 +85,13 @@ function usePhotos(): Shot[] {
   return photos;
 }
 
-/** A published place's picture: its card or Commons photo, else the EARTH ONLINE 3D view (never only a map). */
+/** A published place's picture: its card photo or a real photo of it. Never the 3D model view (owner, 2 Nov 2026:
+ *  "no building renders here"); a place without a photo shows the map around it. */
 function placePic(place: CuratedPlace | undefined): Picture | undefined {
   if (!place) return undefined;
   const p = placePicture(place);
-  if (!p.src) return undefined;
-  return {
-    src: p.src,
-    kind: p.kind === "3d" ? "3d" : "photo",
-    credit: p.credit,
-  };
+  if (!p.src || (p.kind !== "card" && p.kind !== "photo")) return undefined;
+  return { src: p.src, kind: "photo", credit: p.credit };
 }
 
 const pinOf = (place: CuratedPlace | undefined) =>
@@ -154,7 +151,7 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
           tag: place.kind,
           real: (() => {
             const pic = placePic(place);
-            return pic?.kind === "photo" ? { src: pic.src, credit: pic.credit ?? "" } : undefined;
+            return pic ? { src: pic.src, credit: pic.credit ?? "" } : undefined;
           })(),
           picture: placePic(place),
           area,
@@ -530,7 +527,6 @@ const KIND_CREDIT: Record<Picture["kind"], string> = {
   own: "Your photo",
   photo: "Photo",
   still: "From the hunt",
-  "3d": "3D view",
 };
 
 function Day({
