@@ -1,5 +1,7 @@
 # IntentAI handoff (29 Oct 2026: story walks, OneMap, place cards)
 
+> **3 Nov 2026:** start from [`CLAUDE.md`](../CLAUDE.md) (setup, rules, deploy) and [`USER-STUDY.md`](USER-STUDY.md) (the UI1 vs UI2 study at `/test`). The test counts and deploy ids below are from 29 Oct.
+
 Paste this into a new Claude Code session opened in `~/Documents/GitHub/CDE-5311-team1`:
 
 > Read docs/HANDOFF.md, then docs/MERGE-TEAM1-V3.md. Continue IntentAI from where it stands. Reply to me in Chinese and
