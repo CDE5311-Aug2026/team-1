@@ -309,11 +309,14 @@ export function restartTest() {
   window.location.assign(`/?v=${version}`);
 }
 
-/** Clears this phone's app data. Always kept: the usage log (for /admin) and feedback notes still waiting to send. */
+/**
+ * Clears this phone's app data. Always kept: the usage log (for /admin), feedback notes still waiting to send, and the
+ * study desk's own keys (which phone this is, a session in progress), which are not the participant's.
+ */
 export function clearPhone(keepTester: boolean) {
   try {
     const keep = new Set([STORAGE_PREFIX + 'usage-log', 'findsg-help-feedback', ...(keepTester ? [STORAGE_PREFIX + 'tester'] : [])]);
-    const gone = Object.keys(window.localStorage).filter((k) => !keep.has(k));
+    const gone = Object.keys(window.localStorage).filter((k) => !keep.has(k) && !k.startsWith('intentai:abtest-'));
     gone.forEach((k) => window.localStorage.removeItem(k));
     window.sessionStorage.clear();
   } catch {

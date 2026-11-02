@@ -47,8 +47,10 @@ test('/restart clears the phone and keeps its version for the next person', () =
   vi.spyOn(window, 'location', 'get').mockReturnValue({ ...window.location, assign } as Location);
   testerStore.set({ name: 'P05', version: 'A' });
   localStorage.setItem('hunt-book', '"x"');
+  localStorage.setItem('intentai:abtest-phone', '"A"');
   renderAt('/restart');
   expect(localStorage.getItem('hunt-book')).toBeNull();
+  expect(localStorage.getItem('intentai:abtest-phone')).toBe('"A"');
   expect(assign).toHaveBeenCalledWith('/?v=A');
 });
 
