@@ -76,10 +76,13 @@ function Bag({offer, solved, enabled}) {
   const clasp = useDrag({
     move: (_, dy) => setPull(Math.max(0, Math.min(70, dy))),
     end: (_, dy) => {
-      if (dy > 45 && offer('open')?.ok) {setOpen(true); window.setTimeout(() => playFilm(['OM-02'], 'Maintenance night'), 900);}
+      if (dy > 45) lift();
       setPull(0);
     },
   });
+  function lift() {
+    if (offer('open')?.ok) {setOpen(true); window.setTimeout(() => playFilm(['OM-02'], 'Maintenance night'), 900);}
+  }
   return <>
     <div className={'om-pano' + (found ? ' is-dim' : '')} onPointerDown={found ? undefined : look}
       style={{backgroundImage: `url(${img('refs/R03.webp')})`, backgroundPosition: `${pan * 100}% 50%`}}>
@@ -89,15 +92,18 @@ function Bag({offer, solved, enabled}) {
     </div>
     {found && <div className={'om-bag' + (open ? ' is-open' : '')}>
       <div className="om-bag-back"/>
+      <div className="om-bag-body"/>
+      <div className="om-bag-flap" style={{transform: open ? undefined : `translateZ(1px) rotateX(${-pull * .5}deg)`}}>
+        {/* Pull it down by hand; Enter or Space (a click with no pointer, detail 0) opens it from the keyboard. */}
+        <button className="om-clasp" onPointerDown={open ? undefined : clasp} onClick={e => {if (!open && e.detail === 0) lift();}}
+          disabled={!enabled} aria-label="Pull the brass clasp down"/>
+      </div>
+      {/* After the flap, so the papers lie on top of it once it flips open (see prop-stage.css). */}
       <div className="om-bag-items" aria-hidden={!open}>
         <figure className="om-paper om-letter"><i/><i/><i/><b>— A.</b></figure>
         <figure className="om-paper om-photo" style={{backgroundImage: `url(${img('props/invitation.webp')})`}}/>
         <button className="om-paper om-cctv" onClick={() => playFilm(['OM-02'], 'Maintenance night')} aria-label="Play the CCTV clip"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M1 0.5 L9.5 6 L1 11.5Z" fill="currentColor"/></svg><small>18:55</small></button>
         <figure className="om-paper om-photo" style={{backgroundImage: `url(${img('props/lot_genuine.webp')})`}}/>
-      </div>
-      <div className="om-bag-body"/>
-      <div className="om-bag-flap" style={{transform: open ? undefined : `rotateX(${-pull * .5}deg)`}}>
-        <button className="om-clasp" onPointerDown={open ? undefined : clasp} disabled={!enabled} aria-label="Pull the brass clasp down"/>
       </div>
     </div>}
   </>;

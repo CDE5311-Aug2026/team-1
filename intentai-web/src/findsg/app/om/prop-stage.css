@@ -44,14 +44,18 @@
 .om-bag-flap { position: absolute; left: -2px; right: -2px; top: 0; height: 104px; transform-origin: 50% 0; transition: transform .8s cubic-bezier(.3, 1.4, .5, 1);
   border-radius: 14px 14px 40px 40px; background: radial-gradient(120% 140% at 40% 10%, #5a7b52, #2e4529 70%); box-shadow: 0 8px 14px rgba(0, 0, 0, .5), inset 0 0 0 3px #1a2818; }
 .om-bag-flap::before { content: ''; position: absolute; inset: 8px; border: 1.5px dashed #a8bd9366; border-radius: 10px 10px 34px 34px; }
-.om-bag.is-open .om-bag-flap { transform: rotateX(165deg); }
+.om-bag.is-open .om-bag-flap { transform: translateZ(1px) rotateX(165deg); }
 .findsg .om-clasp { position: absolute; left: 50%; bottom: -14px; width: 40px; height: 30px; margin-left: -20px; border-radius: 6px 6px 12px 12px; background: var(--brass);
   box-shadow: inset 0 2px 1px #fff9, inset 0 -3px 3px #0005, 0 4px 8px #0008; touch-action: none; animation: om-nudge 2s ease-in-out infinite; }
+.findsg .om-clasp::before { content: ''; position: absolute; inset: -12px -14px; } /* a fingertip-sized grip */
 .findsg .om-clasp::after { content: ''; position: absolute; left: 50%; top: 8px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #5c3f12; box-shadow: inset 0 1px 2px #000; }
 .om-bag.is-open .om-clasp { animation: none; }
 @keyframes om-nudge { 50% { transform: translateY(6px); } }
-.om-bag-items { position: absolute; inset: 0; transform: translateZ(1px); pointer-events: none; }
-.om-bag.is-open .om-bag-items { pointer-events: auto; }
+/* The papers must sit under the flap while it is shut (or they hide the clasp) and over it once it flips open.
+ * Engines disagree on what decides that: Safari on iPhone goes by depth, others by page order. So: hidden while shut,
+ * and once open they come after the flap in the page and in front of it in depth (its far edge reaches about +28px). */
+.om-bag-items { position: absolute; inset: 0; transform: translateZ(-1px); pointer-events: none; visibility: hidden; }
+.om-bag.is-open .om-bag-items { transform: translateZ(32px); pointer-events: auto; visibility: visible; }
 .findsg .om-paper { position: absolute; width: 74px; height: 96px; left: 50%; top: 30px; margin-left: -37px; border-radius: 3px; background: var(--paper) center/cover;
   box-shadow: 0 6px 12px rgba(0, 0, 0, .45); transition: transform .8s cubic-bezier(.2, 1.2, .4, 1) .25s; transform: translateY(40px) scale(.7); }
 .om-bag.is-open .om-paper:nth-child(1) { transform: translate(-108px, -86px) rotate(-14deg); }
