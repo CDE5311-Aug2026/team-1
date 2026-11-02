@@ -1,9 +1,9 @@
-// Every tab's top bar, one design: your avatar on the left, the page's name in the middle, Settings on the right.
+// Every tab's top bar, one design: your avatar (the app logo until you have a photo) on the left, the page's name in the middle, Settings on the right.
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { paths } from "../../routes";
 import Icon from "../../pages/OnboardingPage/v3/icons";
-import useInitial from "../../pages/OnboardingPage/v3/useInitial";
+import logo from "../../assets/avatar-logo.png";
 import styles from "./PageBar.module.css";
 
 interface Props {
@@ -32,12 +32,12 @@ export default function PageBar({
   className,
   heading = true,
 }: Props) {
-  const initial = useInitial();
+  // no profile photo yet: everyone starts with the app's logo
   const face = (
     <>
       {ring && <span className={styles.ring}>{ring}</span>}
       <span className={styles.face} aria-hidden="true">
-        {initial}
+        <img src={logo} alt="" draggable={false} />
       </span>
     </>
   );

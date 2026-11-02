@@ -56,10 +56,15 @@ span.avatar {
   border-radius: 50%;
   border: 2px solid var(--face-line);
   box-sizing: border-box;
-  background: radial-gradient(circle at 35% 30%, #34508f, #1d2f5e 70%);
-  color: #fff;
-  font: 500 1.125rem/1 var(--font-display, 'Oswald', sans-serif);
+  background: #f8f1e6;
+  overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.12);
 }
 .ring {
   position: absolute;
