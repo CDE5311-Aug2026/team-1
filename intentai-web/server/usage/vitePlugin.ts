@@ -5,6 +5,7 @@ import { appendFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { handleCaption } from '../caption/handler.js';
 import { handleHelp } from '../help/handler.js';
+import { handleAbTest, memoryList } from '../abtest/handler.js';
 import { fileStore, redisFromEnv, type RedisLike } from './store.js';
 
 /** Help feedback on this machine: one JSON line per note (only rpush is used locally). */
@@ -56,6 +57,8 @@ export function usageApiPlugin(env: Record<string, string | undefined>): Plugin 
     apiKey: env.ANTHROPIC_API_KEY,
     redis: redisFromEnv(env) ?? fileList(env.FEEDBACK_FILE || '.data/feedback.jsonl'),
   };
+  // A/B test answers live in memory locally (cleared when the dev server restarts) unless Redis is set.
+  const abtest = { redis: redisFromEnv(env) ?? memoryList(), password: cfg.password };
   const middleware: Connect.NextHandleFunction = (req, res, next) => {
     const path = (req.url ?? '').split('?')[0];
     const handler: ((request: Request) => Promise<Response>) | null =
@@ -65,6 +68,8 @@ export function usageApiPlugin(env: Record<string, string | undefined>): Plugin 
           ? (r) => handleStats(r, cfg)
           : path === '/api/help'
             ? (r) => handleHelp(r, help)
+            : path === '/api/abtest'
+              ? (r) => handleAbTest(r, abtest)
             : path === '/api/caption' && req.method === 'POST'
               ? (r) => handleCaption(r, env.ANTHROPIC_API_KEY)
               : null;

@@ -7,7 +7,7 @@ import { usePersistentStore } from './data/persistentStore';
 import { onboardingStore } from './data/stores';
 import TodayPage from './pages/TodayPage/TodayPage';
 import { lazyPage } from './pages/lazyPage';
-import { ADMIN_PATH, paths, patterns } from './routes';
+import { ADMIN_PATH, TEST_PATH, paths, patterns } from './routes';
 import PageTracker from './usage/PageTracker';
 import UserGate from './components/UserGate/UserGate';
 import HelpCenter from './components/HelpCenter/HelpCenter';
@@ -35,6 +35,7 @@ const TopicsPage = lazyPage(() => import('./pages/OnboardingPage/TopicsPage'));
 const WelcomePage = lazyPage(() => import('./pages/OnboardingPage/WelcomePage'));
 const TodaySetupPage = lazyPage(() => import('./pages/TodaySetup/TodaySetupPage'));
 const AdminPage = lazyPage(() => import('./pages/AdminPage/AdminPage'));
+const AbTestPage = lazyPage(() => import('./pages/AbTestPage/AbTestPage'));
 const ExplorePage = lazyPage(() => import('./pages/NearbyPage/ExplorePage'));
 const LocationPage = lazyPage(() => import('./pages/NearbyPage/LocationPage'));
 const PlaceDetailPage = lazyPage(() => import('./pages/NearbyPage/PlaceDetailPage'));
@@ -116,6 +117,7 @@ export default function App() {
             <Route path={paths.onboardingResult} element={<ResultPage />} />
             <Route path={paths.todaySetup} element={<TodaySetupPage />} />
             <Route path={ADMIN_PATH} element={<AdminPage />} />
+            <Route path={TEST_PATH} element={<AbTestPage />} />
             <Route path="*" element={<Navigate to={paths.today} replace />} />
           </Routes>
         </Lazy>

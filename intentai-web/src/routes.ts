@@ -39,6 +39,9 @@ export const paths = {
 /** Usage dashboard for the team. Kept out of `paths` so the app never links to it and page loops skip it. */
 export const ADMIN_PATH = '/admin';
 
+/** A/B test desk for the two prototype styles (three phones, answers saved to /api/abtest). Unlinked like ADMIN_PATH. */
+export const TEST_PATH = '/test';
+
 /** Route patterns with params, for <Route path>. Keep in sync with the builders in `paths`. */
 export const patterns = {
   nearbyPlace: '/nearby/place/:placeKey',

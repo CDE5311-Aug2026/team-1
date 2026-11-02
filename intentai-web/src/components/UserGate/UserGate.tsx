@@ -1,11 +1,11 @@
 // User test start screen: before the app opens, the person types a test name (e.g. P01). Every timing and
 // press recorded afterwards carries it, on this device and (when connected) on the server. Turn it off for a
-// normal build with VITE_USER_GATE=0. The dashboard (/admin) is never behind it.
+// normal build with VITE_USER_GATE=0. The dashboard (/admin) and the A/B desk (/test) are never behind it.
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { usePersistentStore } from '../../data/persistentStore';
 import { testerStore } from '../../data/stores';
-import { ADMIN_PATH } from '../../routes';
+import { ADMIN_PATH, TEST_PATH } from '../../routes';
 import { isTestName } from '../../usage/event';
 import styles from './UserGate.module.css';
 
@@ -17,7 +17,7 @@ export default function UserGate({ children }: { children: ReactNode }) {
   const [draft, setDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  if (!USER_GATE_ENABLED || tester.name || pathname.startsWith(ADMIN_PATH)) return <>{children}</>;
+  if (!USER_GATE_ENABLED || tester.name || pathname.startsWith(ADMIN_PATH) || pathname.startsWith(TEST_PATH)) return <>{children}</>;
 
   const start = (e: FormEvent) => {
     e.preventDefault();
