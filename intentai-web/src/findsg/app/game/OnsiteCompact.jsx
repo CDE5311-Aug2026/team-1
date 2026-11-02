@@ -77,18 +77,19 @@ export default function OnsiteCompact(p) {
         <Hint stop={stop} sourceName={sourceName}/>
         <p className="og-fine-print">{manual ? 'Look from public space only. Do not touch the building.' : 'Remote play is not a site visit.'}</p></>;
     } else {
-      /* the caption on the model carries the instruction and every answer, so the card only names the task */
-      /* on every hunt a night race can win this stop's clues (and a Boost Card); a Boost Card in hand clears it at once */
-      card = boostHere
-        ? <Card kicker={KIND_NAMES[layer.type]} title={layer.title}
-          actions={<><Primary onClick={boostHere}>Use the Boost Card</Primary>{race && <Quiet onClick={race}>Race</Quiet>}</>} more="Hint" onMore={note}/>
-        : race
-          ? <Card kicker={KIND_NAMES[layer.type]} title={layer.title}
-            actions={<Primary onClick={race}>Race for the clues</Primary>} more="Hint" onMore={note}/>
-          : <Card kicker={KIND_NAMES[layer.type]} title={layer.title} more="Hint" onMore={note}/>;
+      /* the caption on the model carries the instruction and every answer, so the card only names the task: the
+       * puzzle in hand is the thing to do. The night race and a Boost Card are a way out for someone stuck, so they
+       * wait at the end of the hint, as quiet lines (owner, 2 Nov 2026: a big button made the race feel required). */
+      card = <Card kicker={KIND_NAMES[layer.type]} title={layer.title} more="Hint" onMore={note}/>;
+      const away = go => () => {setSheet(false); go();};
       body = <><h2>{layer.title}</h2><p className="ogc-note-lead">{layer.instruction}</p>
         <Hint stop={stop} sourceName={sourceName}/>
-        <button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button></>;
+        <button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button>
+        {(boostHere || race) && <div className="ogc-stuck">
+          <span>Still stuck?</span>
+          {boostHere && <button className="sg-text-button" onClick={away(boostHere)}>Spend your Boost Card on it</button>}
+          {race && <button className="sg-text-button" onClick={away(race)}>Win the night race for these clues</button>}
+        </div>}</>;
     }
   }
 
