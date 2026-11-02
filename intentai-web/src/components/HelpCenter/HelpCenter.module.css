@@ -56,7 +56,7 @@
 }
 .lion {
   position: absolute;
-  left: 2px;
+  left: 19px; /* the right end of the capsule; the "i" band is on its left */
   top: 2px;
   width: 42px;
   height: 42px;
@@ -75,7 +75,7 @@
 }
 .ring {
   position: absolute;
-  left: 0;
+  left: 17px;
   top: 0;
   width: 46px;
   height: 46px;

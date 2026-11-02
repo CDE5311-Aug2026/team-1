@@ -1,18 +1,19 @@
-// The Help Center's door, top left of every tab: a capsule. The left end is the FindSG lion's circle; from its top and
-// bottom points two level lines run right a short way and an arc of the same radius closes the end. The "i" sits in
-// the narrow band that shows past the lion, in another colour. Inside the open panel the same mark shows a × to close.
+// The Help Center's door, top left of every tab: a capsule. The right end is the FindSG lion's circle; from its top and
+// bottom points two level lines run left a short way and an arc of the same radius closes the end. The "i" sits in
+// the narrow band that shows before the lion, in another colour. Inside the open panel the same mark shows a × to close.
 import type { ReactNode, Ref } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import logo from '../../assets/avatar-logo.png';
 import styles from './HelpCenter.module.css';
 
-const R = 21; // the lion's circle (42px with its rim), centre (23, 23)
-const C = 23;
-const RUN = 17; // how far the level lines run past the lion's centre
-const W = C + RUN + R + 2; // 63: the mark's width
-/** Middle of the band that shows past the lion: where the "i" goes. */
-const G = (C + R + C + RUN + R) / 2;
-export const HULL = `M${C} ${C - R} H${C + RUN} A${R} ${R} 0 0 1 ${C + RUN} ${C + R} H${C} A${R} ${R} 0 0 1 ${C} ${C - R} Z`;
+const R = 21; // the lion's circle (42px with its rim)
+const RUN = 17; // how far the level lines run left of the lion's centre
+const L = 23; // centre of the closing arc on the left
+const LION = L + RUN; // 40: the lion's centre
+const W = LION + R + 2; // 63: the mark's width
+/** Middle of the band that shows before the lion: where the "i" goes. */
+const G = (L - R + LION - R) / 2;
+export const HULL = `M${LION} ${23 - R} H${L} A${R} ${R} 0 0 0 ${L} ${23 + R} H${LION} A${R} ${R} 0 0 0 ${LION} ${23 - R} Z`;
 
 export function HelpMark({ glyph = 'info', ring }: { glyph?: 'info' | 'close'; ring?: ReactNode }) {
   const reduce = useReducedMotion();
@@ -24,7 +25,7 @@ export function HelpMark({ glyph = 'info', ring }: { glyph?: 'info' | 'close'; r
         initial={reduce ? false : { scaleX: 0.5, opacity: 0 }}
         animate={{ scaleX: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 18, delay: 0.15 }}
-        style={{ originX: 0.3 }}
+        style={{ originX: 0.7 }}
       >
         <path d={HULL} className={styles.hullFill} />
         <path d={HULL} className={styles.hullEdge} />
