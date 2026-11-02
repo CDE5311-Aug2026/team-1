@@ -101,7 +101,7 @@ export default function OnsiteCompact(p) {
       /* the caption on the model carries the instruction and every answer, so the card only names the task: the
        * puzzle in hand is the thing to do. The night race and a Boost Card are a way out for someone stuck, so they
        * wait at the end of the hint, as quiet lines (owner, 2 Nov 2026: a big button made the race feel required). */
-      card = <Card kicker={KIND_NAMES[layer.kind] || KIND_NAMES[layer.type]} title={layer.title} more="Hint" onMore={note}/>;
+      card = <Card kicker={KIND_NAMES[layer.kind] || KIND_NAMES[layer.type]} title={layer.type === 'prop' ? layer.instruction : layer.title} more="Hint" onMore={note}/>;
       const away = go => () => {setSheet(false); go();};
       body = <><h2>{layer.title}</h2><p className="ogc-note-lead">{layer.instruction}</p>
         <Hint stop={stop} sourceName={sourceName}/>

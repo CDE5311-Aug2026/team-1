@@ -39,6 +39,18 @@ const BOOK_KEY = 'hunt-book';
 const SHELF_KEY = 'hunt-shelf';
 const pageKey = (id: string) => `hunt-page-${id}`;
 
+/** A route book's pages, in order (their thumb tabs). A stop's page shows the same tabs; each opens the book there. */
+export const BOOK_TABS = ['Story', 'Map', 'Clues', 'Notes', 'Record'] as const;
+
+/** Leave a stop for its book, open at one of its pages (or put it back on the shelf with null). */
+export function openBookAt(id: BookId | null, page = 0) {
+  session.set(BOOK_KEY, id);
+  if (id) {
+    session.set(SHELF_KEY, id);
+    session.set(pageKey(id), String(page));
+  }
+}
+
 /** Which book is out, kept for the visit (a stop's game sends you back to it). */
 export function useShelfBook() {
   const [book, setBookState] = useState<BookId | null>(() => bookOf(session.get(BOOK_KEY))?.id ?? null);
@@ -241,6 +253,7 @@ function Book({
         held
         fit
         coverLabel={`Open ${def.title}`}
+        play={ch ? () => onRoute(ch.routeId) : undefined}
       />
 
       {reading && ch && (

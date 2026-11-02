@@ -1333,3 +1333,62 @@
   padding-bottom: calc(1.125rem + env(safe-area-inset-bottom, 0px));
   overflow: hidden;
 }
+
+/* ---- a stop, as a page of its book (owner, 3 Nov 2026): the book's running head above, its thumb tabs on the
+   fore-edge, the page itself inset on the dark desk exactly where the book's pages lie ---- */
+.bookBar {
+  position: fixed;
+  top: var(--game-top, 0px);
+  left: 0;
+  right: 0;
+  z-index: 31;
+  color: #f2e8d5;
+}
+/* the open book's page (notebook.module.css .fit .book): its width and height, so the stop's page and tabs line up
+   with the book's exactly; the stop's page is as wide as the book's and runs to the foot of the screen */
+.bookTabs,
+.inBook {
+  --bw: min(calc(100vw - 52px), calc((100dvh - 118px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 1.62), 470px);
+  --bh: calc(var(--bw) * 1.62);
+}
+@media (min-width: 761px) {
+  .bookTabs,
+  .inBook {
+    --bh: calc(var(--bw) * 1.46);
+  }
+}
+.bookTabs.bookTabs {
+  position: fixed;
+  /* where the book's tabs sit: 7% down a page centred on the desk under the running head */
+  top: calc(var(--game-top, 0px) + 46px + (100dvh - var(--game-top, 0px) - 46px - var(--bh) - 36px) / 2 + var(--bh) * 0.07);
+  right: calc((100vw - var(--bw) - 34px) / 2);
+  z-index: 32;
+  animation: none;
+}
+.inBook :global(.ogc) {
+  top: calc(var(--game-top, 0px) + 46px);
+  left: calc((100vw - var(--bw) - 18px) / 2);
+  right: calc((100vw + 18px - var(--bw)) / 2);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  padding-bottom: 12px;
+  border-radius: 3px 8px 8px 3px;
+  box-shadow:
+    inset 18px 0 22px -16px rgba(60, 38, 16, 0.55),
+    inset 0 0 60px rgba(120, 78, 30, 0.3),
+    0 18px 36px rgba(0, 0, 0, 0.5),
+    2px 2px 0 #d4bf93,
+    4px 4px 0 #c9b286;
+}
+/* the book's bar and tabs take over: back to the shelf, and Clues on its tab */
+.inBook :global(.ogc-top) > button:first-child,
+.inBook :global(.ogc-top) > button:last-child {
+  visibility: hidden;
+}
+/* the page is the stop itself; the wrapper's own paper would show behind the running head */
+.storyPage.inBook.inBook:global(.findsg) {
+  background: none;
+  box-shadow: none;
+}
+.storyPage.inBook::before {
+  display: none;
+}

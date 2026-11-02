@@ -34,10 +34,18 @@ function useDrag(handlers) {
     el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   }, []);
 }
-/** The drop target under a point: the nearest element with data-drop that is not the thing being carried. */
+/** The drop target under a point: the element with data-drop under the finger, or, since a fingertip hides what it
+ * drops on, the nearest one whose middle is within reach. Never the thing being carried. */
+const REACH = 56;
 function dropAt(x, y, carried) {
   for (const el of document.elementsFromPoint(x, y)) if (el.dataset?.drop && !carried?.contains(el)) return el.dataset.drop;
-  return null;
+  let best = null, bestD = REACH;
+  for (const el of document.querySelectorAll('.om-stage [data-drop]')) {
+    if (carried?.contains(el)) continue;
+    const b = el.getBoundingClientRect(), d = Math.hypot(x - (b.left + b.width / 2), y - (b.top + b.height / 2));
+    if (d < bestD) {best = el.dataset.drop; bestD = d;}
+  }
+  return best;
 }
 
 export default function PropStage({layer, enabled, solved, onAction, onDone, onNote, reducedMotion}) {

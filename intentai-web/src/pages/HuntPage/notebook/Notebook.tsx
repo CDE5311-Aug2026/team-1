@@ -45,6 +45,7 @@ export function Notebook({
   coverLabel = 'Open the field notebook',
   fit = false,
   insert,
+  play,
 }: {
   pages: NotebookPage[];
   index: number;
@@ -63,6 +64,8 @@ export function Notebook({
   fit?: boolean;
   /** Something laid over the open page for a while (a film print tipped in), inside the book. */
   insert?: ReactNode;
+  /** A last thumb tab that leaves the book: back out to play the story's next stop. */
+  play?(): void;
 }) {
   const book = useRef<HTMLDivElement>(null);
   const leaves = useRef<(HTMLElement | null)[]>([]);
@@ -258,6 +261,11 @@ export function Notebook({
                 <span>{t.tab}</span>
               </button>
             ))}
+            {play && (
+              <button type="button" className={`${styles.tab} ${styles.playTab}`} style={{ '--n': tabs.length } as CSSProperties} onClick={play} data-nodrag>
+                <span>Play</span>
+              </button>
+            )}
           </nav>
         )}
       </div>

@@ -44,7 +44,7 @@ test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and 
     within(tabs)
       .getAllByRole('button')
       .map((b) => b.textContent),
-  ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record']);
+  ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record', 'Play']);
   await userEvent.click(screen.getByRole('button', { name: /Shelf$/ }));
   // every story's book has the same tabs: the prologue's too
   const shelf = await screen.findByRole('listbox', { name: 'Story books' }, { timeout: 3000 });

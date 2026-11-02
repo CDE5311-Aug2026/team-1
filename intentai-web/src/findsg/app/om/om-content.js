@@ -110,7 +110,7 @@ const STOPS = [
     look('Columns and bolts of cloth', 'Stand under the five-foot way. Frame a run of columns with the bolts of cloth across the street.', 'Columns in a row, cloth across the way. No faces, no signs.', 'Columns, and cloth across the street.', 'The shop is fictional and opens only in the app.', [NHB]),
     chain('Two in, two out', [
       prop('door', 'The green door', 'Slide the bolt.', 'open', [['open', 'Brass bolt']], {foundText: 'Master Lin: “Every piece I make has an R.”'}),
-      prop('ring', 'The cast number', 'Turn each photo until its notch locks. Then read from R, clockwise.', '0703', [['0703', '07-03'], ['0702', '07-02'], ['0307', '03-07'], ['0803', '08-03']],
+      prop('ring', 'The cast number', 'Lock each photo by its notch. Read clockwise from R.', '0703', [['0703', '07-03'], ['0702', '07-02'], ['0307', '03-07'], ['0803', '08-03']],
         {misses: {'0702': 'Lin lifts 07-02 out of the sample box. “It is here.”', '0307': 'No mould 03. Read clockwise.', '0803': 'No mould 08. One of those marks is a scratch.'},
           miss: 'No such entry in the register.', foundText: '07-03. Ordered by “Y.”, phone ending 4471.'}),
       prop('batik', 'Half a cloth', 'Lay Lin’s half on the CCTV bundle.', 'match', [['match', 'Cut edge']]),
