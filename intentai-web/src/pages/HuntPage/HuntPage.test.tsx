@@ -74,7 +74,8 @@ const solvedStop = {
   checkin: { mode: 'manual', method: 'manual-self-report', confirmedAt: '2026-11-01T07:54:10.097Z', countsAsVisit: true },
   observation: { confirmed: true, method: 'manual-self-report', confirmedAt: '2026-11-01T07:54:16.631Z', photos: [] },
   puzzle: { schema: 1, type: 'rotate-find', found: ['address-letter'], sequence: [], placed: [], selected: null, value: 0, opened: false, attempts: 1 },
-  actions: [{ type: 'find', id: 'address-letter', yaw: -2.1 }],
+  // layer I, the envelope; layer II, the strongbox set to the year on the History sheet (1824)
+  actions: [{ type: 'find', id: 'address-letter', yaw: -2.1 }, ...[1, 8, 2, 4].map((value, wheel) => ({ type: 'spin', wheel, value }))],
 };
 const saved = (mode: 'manual' | 'preview') =>
   JSON.stringify({

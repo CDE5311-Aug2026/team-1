@@ -13,7 +13,7 @@ const STEPS = [['arrival', 'Check in'], ['observe', 'Observe'], ['puzzle', 'Solv
 const pad = n => String(n).padStart(2, '0');
 
 export default function OnsiteCompact(p) {
-  const {routeId, config, story, meta, place, stop, record, game, mode, phase, intro, ending, celebrated, saved, reducedMotion, scene, sheet, setSheet, race, boostHere, raceLayer,
+  const {routeId, config, story, meta, place, stop, layer, record, game, mode, phase, intro, ending, celebrated, saved, reducedMotion, scene, sheet, setSheet, race, boostHere, raceLayer,
     onExit, onOpen, begin, arrive, observe, photo, next, journal, placeInfo, restart, changeMode, Guide, PhotoClue, cleanPlace, mapSearch, sourceName, KIND_NAMES} = p;
   const n = pad(game.stopIndex + 1), total = pad(config.stops.length);
   const reward = !intro && !ending && phase === 'reward';
@@ -45,7 +45,7 @@ export default function OnsiteCompact(p) {
     body = <><h2>{story.ending.title}</h2><Guide name={story.guideName}>{story.ending.text}</Guide></>;
   } else if (reward) {
     stage = celebrated
-      ? <div className="ogc-find"><DiscoveryPacket key={`${routeId}:${stop.id}:${mode}`} routeId={routeId} stop={stop} index={game.stopIndex} reducedMotion={reducedMotion} selected className="og-reward-packet"/></div>
+      ? <div className="ogc-find"><DiscoveryPacket key={`${routeId}:${stop.id}:${mode}`} routeId={routeId} stop={stop} index={game.stopIndex} reducedMotion={reducedMotion} selected bare className="og-reward-packet"/></div>
       : <div className="ogc-model is-awake">{scene}</div>;
     card = <Card kicker="Clue found" title={stop.reward.title} lead={stop.transition.text}
       actions={<Primary onClick={next}>{stop.transition.cta}</Primary>}
@@ -80,13 +80,13 @@ export default function OnsiteCompact(p) {
       /* the caption on the model carries the instruction and every answer, so the card only names the task */
       /* on every hunt a night race can win this stop's clues (and a Boost Card); a Boost Card in hand clears it at once */
       card = boostHere
-        ? <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} lead="Your Boost Card clears this puzzle in one go."
+        ? <Card kicker={KIND_NAMES[layer.type]} title={layer.title}
           actions={<><Primary onClick={boostHere}>Use the Boost Card</Primary>{race && <Quiet onClick={race}>Race</Quiet>}</>} more="Hint" onMore={note}/>
         : race
-          ? <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} lead="Win the night race for these clues and a Boost Card."
+          ? <Card kicker={KIND_NAMES[layer.type]} title={layer.title}
             actions={<Primary onClick={race}>Race for the clues</Primary>} more="Hint" onMore={note}/>
-          : <Card kicker={KIND_NAMES[stop.quest.type]} title={stop.quest.title} more="Hint" onMore={note}/>;
-      body = <><h2>{stop.quest.title}</h2><p className="ogc-note-lead">{stop.quest.instruction}</p>
+          : <Card kicker={KIND_NAMES[layer.type]} title={layer.title} more="Hint" onMore={note}/>;
+      body = <><h2>{layer.title}</h2><p className="ogc-note-lead">{layer.instruction}</p>
         <Hint stop={stop} sourceName={sourceName}/>
         <button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button></>;
     }

@@ -29,6 +29,9 @@ function actionCopy(action){
   case 'select':case 'collect':case 'pick':return typeof action.id==='string'?{type:action.type,id:action.id}:null;
   case 'align':case 'slide':return typeof action.value==='number'&&Number.isFinite(action.value)?{type:action.type,value:action.value}:null;
   case 'place':return typeof action.id==='string'&&typeof action.slotId==='string'?{type:'place',id:action.id,slotId:action.slotId}:null;
+  case 'spin':return Number.isInteger(action.wheel)&&Number.isInteger(action.value)?{type:'spin',wheel:action.wheel,value:action.value}:null;
+  case 'put':return typeof action.id==='string'&&Number.isInteger(action.cell)?{type:'put',id:action.id,cell:action.cell}:null;
+  case 'turn':return typeof action.id==='string'?{type:'turn',id:action.id}:null;
   default:return null;
  }
 }

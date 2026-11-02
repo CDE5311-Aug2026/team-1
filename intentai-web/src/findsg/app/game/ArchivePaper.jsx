@@ -6,7 +6,7 @@ import './archive-paper.css';
 
 /** Presentation only: the parent supplies earned clues, or requests a wholly
  * independent stationery sample. No arrival, puzzle, reward or storage writes. */
-function PaperPresentation({ paper, reducedMotion, className }) {
+function PaperPresentation({ paper, reducedMotion, className, bare = false }) {
   const root = useRef(null), controller = useRef(null);
   const id = useId();
   const [prints, setPrints] = useState(null);
@@ -76,8 +76,10 @@ function PaperPresentation({ paper, reducedMotion, className }) {
       <span className="ap-stage-label" aria-hidden="true">FINDSG · PAPER STUDY</span>
       <span className="ap-stage-measure" aria-hidden="true">01 / 02</span>
       {prints ? <PaperCrumple ref={controller} src={prints.src} backSrc={prints.backSrc} alt={`${paper.front.title}, ${paper.sample ? 'interactive sample' : 'story prop'}`} width={paperWidth} height={paperWidth * 4 / 3} sceneHeight={sceneHeight} imageFit="contain" initialAmount={.68} releaseBehavior="creased" crumpleAmount={.82} crumpleDuration={.55} releaseDuration={.5} foldCount={7} foldSharpness={.65} wrinkleDepth={.7} creaseStrength={.2} paperColor={paper.theme.paper} roughness={.94} paperTexture={.06} lightIntensity={1.8} lightAngle={-35} shadow shadowOpacity={.24} draggable returnToOrigin dragRotation={9} rotation={-3} seed={37 + paper.themeKey.length * 11} reducedMotion={reducedMotion} onStateChange={syncPresentation} className="ap-paper-object" /> : <div className="ap-preparing" role="status"><span aria-hidden="true">¶</span><p>{printFailed ? 'Paper preview unavailable for now. The full text is below.' : 'Printing both sides of the paper…'}</p></div>}
-      <div className="ap-stage-caption"><span>{back ? 'REVERSE' : 'FRONT'}</span><span>{printFailed ? 'Text available below' : shapeLabel}</span></div>
+      {bare ? prints && <span key={presentation.amount > .2 ? 'open' : 'turn'} className="ap-touch" aria-hidden="true">{presentation.amount > .2 ? 'Tap to open' : 'Swipe to turn over'}</span>
+        : <div className="ap-stage-caption"><span>{back ? 'REVERSE' : 'FRONT'}</span><span>{printFailed ? 'Text available below' : shapeLabel}</span></div>}
     </div>
+    {!bare && <>
 
     <div className="ap-controls">
       <button type="button" className="ap-unfold" disabled={!prints} onClick={() => invoke('unfold', true)} aria-describedby={`${id}-gesture`}><span>Unfold</span><span aria-hidden="true">↗︎</span></button>
@@ -88,6 +90,7 @@ function PaperPresentation({ paper, reducedMotion, className }) {
       </div>
     </div>
     <p id={`${id}-gesture`} className="ap-gesture-note">Press and hold to crumple, drag to nudge, or use the buttons above.</p>
+    </>}
     <p className="ap-render-note" role="status" aria-live="polite">{printFailed ? 'The preview could not open. The full text of both sides is below.' : reducedMotion ? 'Reduced motion is on. Unfold and turn over with the buttons.' : `${back ? 'Viewing the back' : 'Viewing the front'} · ${shapeLabel}`}</p>
 
     <div className="ap-reader" aria-label={paper.sample ? 'Full text of the interactive sample' : 'Full text of the clue found'}>
@@ -108,8 +111,8 @@ function PaperPresentation({ paper, reducedMotion, className }) {
   </section>;
 }
 
-export default function ArchivePaper({ routeId, stop, index = 0, reducedMotion = false, sample = false, className = '' }) {
+export default function ArchivePaper({ routeId, stop, index = 0, reducedMotion = false, sample = false, className = '', bare = false }) {
   const paper = useMemo(() => makePaperDocument({ routeId, stop, index, sample, routeMeta: ROUTES[routeId] || {} }), [routeId, stop, index, sample]);
   if (!paper) return null;
-  return <PaperPresentation key={`${paper.id}:${sample ? 'sample' : 'earned'}`} paper={paper} reducedMotion={reducedMotion} className={className} />;
+  return <PaperPresentation key={`${paper.id}:${sample ? 'sample' : 'earned'}`} paper={paper} reducedMotion={reducedMotion} className={className} bare={bare} />;
 }

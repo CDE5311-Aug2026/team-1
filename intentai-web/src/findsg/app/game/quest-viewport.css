@@ -45,3 +45,22 @@
 @keyframes quest-pulse{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
 @media(max-width:620px){.findsg .quest-stage{height:390px;min-height:340px}.findsg .quest-viewport{border-radius:14px}.findsg .quest-stage-top{inset:12px 10px auto;gap:6px}.findsg .quest-mechanism-name{font-size:10px;padding:7px 10px}.findsg .quest-camera-controls button{padding:5px 10px;font-size:11px}.findsg .quest-turn-controls{left:8px;right:8px}.findsg .quest-turn-controls button{width:32px;height:40px;font-size:22px;border-radius:12px}.findsg .quest-response{padding:12px 14px}.findsg .quest-response p{font-size:12px}.findsg .quest-access-controls{padding:0 14px}.findsg .quest-stage-caption{font-size:9px;bottom:10px}.findsg .quest-concept-caption{font-size:8px!important;padding-inline:10px}}
 @media(prefers-reduced-motion:reduce){.findsg .quest-loading-object,.findsg .quest-opening-label span{animation:none}}
+/* Hunt (2 Nov 2026): hands, not buttons. A brass ring on the part the view has come near and one word for the hand;
+   the layers as roman numerals in the corner; what the mechanism answers on a slip that fades. */
+.findsg .quest-touch{position:absolute;z-index:3;width:0;height:0;pointer-events:none;animation:quest-touch-in .35s ease-out both}
+.findsg .quest-touch i{position:absolute;left:-17px;top:-17px;width:34px;height:34px;border-radius:50%;border:2px solid #f3d79c;box-shadow:0 0 0 1px #4a2a1499,0 0 14px #f3c77a88;animation:quest-touch-ring 1.6s ease-in-out infinite}
+.findsg .quest-touch b{position:absolute;left:0;bottom:24px;transform:translateX(-50%);white-space:nowrap;padding:3px 8px 4px;background:#2c2117e6;color:#f3e6c8;font:400 .75rem/1 var(--font-display);letter-spacing:.12em;text-transform:uppercase;border-radius:1px;box-shadow:0 2px 6px #00000033}
+@keyframes quest-touch-in{from{opacity:0;transform:scale(.6)}}
+@keyframes quest-touch-ring{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.22);opacity:.55}}
+.findsg .quest-layer{position:absolute;z-index:3;left:12px;top:10px;display:flex;gap:6px;pointer-events:none;font:400 .8125rem/1 var(--font-display);letter-spacing:.08em;color:#4a2a1488}
+.findsg .quest-layer b{font-weight:400;min-width:1.3em;padding:3px 0 2px;text-align:center;border-bottom:1.5px solid transparent}
+.findsg .quest-layer b[data-here]{color:#2c2117;border-bottom-color:#9b2c1c}
+.findsg .quest-layer b[data-done]{color:#9b2c1c;text-decoration:line-through;text-decoration-thickness:1.5px}
+.findsg .quest-note{position:absolute;z-index:3;left:50%;bottom:12px;transform:translateX(-50%) rotate(-.6deg);max-width:calc(100% - 40px);margin:0;padding:7px 12px 8px;background:#f6eedb;color:#2c2117;font:italic 400 .875rem/1.35 var(--font-serif,Georgia,serif);text-align:center;box-shadow:0 3px 10px #3c261033,inset 0 0 0 1px #4a2a1422;pointer-events:none;animation:quest-note 2.8s ease both}
+@keyframes quest-note{0%{opacity:0;transform:translate(-50%,8px) rotate(-.6deg)}10%,78%{opacity:1;transform:translate(-50%,0) rotate(-.6deg)}100%{opacity:0}}
+.findsg .quest-turning{position:absolute;inset:0;z-index:4;display:grid;place-items:center;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,#f1e6ccee,#f1e6cc00 70%);animation:quest-turning .9s ease both}
+.findsg .quest-turning b{font:400 4.5rem/1 var(--font-display);color:#9b2c1c;border:3px solid #9b2c1c;padding:4px 22px 8px;transform:rotate(-6deg);opacity:.85}
+@keyframes quest-turning{0%{opacity:0}35%,75%{opacity:1}100%{opacity:0}}
+.findsg .quest-access-controls{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.findsg .quest-access-controls:focus-within{position:relative!important;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal}
+@media (prefers-reduced-motion:reduce){.findsg :is(.quest-touch,.quest-touch i,.quest-note,.quest-turning){animation:none}}

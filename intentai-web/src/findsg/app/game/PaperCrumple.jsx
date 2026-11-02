@@ -141,7 +141,7 @@ const PaperCrumple = forwardRef(function PaperCrumple({
     function begin(event) {
       if (!allowed() || held || event.button !== 0 || event.isPrimary === false) return;
       const point = pointFromEvent(event), hit = hitPaper(projected, point.x, point.y); if (!hit) return;
-      event.preventDefault(); button.focus({preventScroll: true}); pointerId = event.pointerId; pointer = pressOrigin = point; grip = hit; held = true;
+      event.preventDefault(); button.focus({preventScroll: true, focusVisible: false}); pointerId = event.pointerId; pointer = pressOrigin = point; grip = hit; held = true;
       try {button.setPointerCapture(pointerId);} catch {}
       values.amount.target = clamp(options.current.crumpleAmount, 0, 1); peak = Math.max(peak, values.amount.target); publish(true); wake();
     }
@@ -150,7 +150,14 @@ const PaperCrumple = forwardRef(function PaperCrumple({
       if (options.current.draggable && pressOrigin && !instant()) {values.ry.target = radians(options.current.dragRotation) * clamp((pointer.x - pressOrigin.x) / 80, -1, 1); values.rx.target = radians(options.current.dragRotation) * clamp((pointer.y - pressOrigin.y) / 80, -1, 1);}
       wake();
     }
-    function end(event) {if (event.pointerId === pointerId) release(event.type !== 'pointerup');}
+    function end(event) {
+      if (event.pointerId !== pointerId) return;
+      // Hunt: a sideways swipe across the paper turns it over, as a hand would
+      const from = pressOrigin, to = pointFromEvent(event), dx = from ? to.x - from.x : 0, dy = from ? to.y - from.y : 0;
+      const turn = event.type === 'pointerup' && Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.4;
+      release(event.type !== 'pointerup');
+      if (turn) setSide(side === 'front' ? 'back' : 'front');
+    }
     function keyDown(event) {
       if (!allowed()) return;
       if (event.code === 'Space' || event.code === 'Enter') {event.preventDefault(); if (event.repeat || held) return; keyboardHeld = held = true; values.amount.target = clamp(options.current.crumpleAmount, 0, 1); peak = Math.max(peak, values.amount.target); publish(true); wake();}

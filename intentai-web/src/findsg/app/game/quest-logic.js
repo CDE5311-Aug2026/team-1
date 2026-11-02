@@ -1,6 +1,6 @@
 /** Serializable mechanism rules. A renderer can propose actions; only these
  * rules decide progress. There is deliberately no trusted `solved` action. */
-export const QUEST_TYPES = Object.freeze(['rotate-find', 'sequence', 'align', 'slide', 'assemble']);
+export const QUEST_TYPES = Object.freeze(['rotate-find', 'sequence', 'align', 'slide', 'assemble', 'lock', 'jigsaw']);
 
 const finite = value => typeof value === 'number' && Number.isFinite(value);
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -18,12 +18,35 @@ export function assembleBlocker(quest, placed, item) {
   return itemsFor(quest).find(other => other.id !== item.id && STACK[other.anchor] < level && !placed.includes(other.id)) || null;
 }
 
+/* Hunt (2 Nov 2026): a stop can stack mechanisms (owner: "at least two layers"). A chain holds its layers in order;
+ * only the open layer takes actions, and the next one opens when it is solved. */
+const isChain = quest => quest?.type === 'chain' && Array.isArray(quest.stages) && quest.stages.length > 0;
+/** A lock's code as digits: '1831' -> [1, 8, 3, 1]. */
+export const lockCode = quest => String(quest?.code ?? '').replace(/\D/g, '').split('').map(Number);
+/** Jigsaw pieces start turned by `turn` quarter turns; they read right at 0. */
+const startTurns = quest => Object.fromEntries(itemsFor(quest).filter(item => item?.id).map(item => [item.id, ((Number.isInteger(item.turn) ? item.turn : 0) % 4 + 4) % 4]));
+
 export function createQuestState(quest) {
+  if (isChain(quest)) return {schema: 1, type: 'chain', stage: 0, stages: quest.stages.map(createQuestState)};
   return {
     schema: 1, type: quest?.type || 'rotate-find',
     found: [], sequence: [], placed: [], selected: null,
     value: 0, opened: false, attempts: 0,
+    wheels: lockCode(quest).map(() => 0), cells: {}, turns: quest?.type === 'jigsaw' ? startTurns(quest) : {},
   };
+}
+
+/** The layer that is open now: its index, its mechanism and its progress. */
+export function questStage(quest, progress) {
+  if (!isChain(quest)) return {index: 0, total: 1, quest, progress: readState(quest, progress)};
+  const state = readChain(quest, progress);
+  return {index: state.stage, total: quest.stages.length, quest: quest.stages[state.stage], progress: state.stages[state.stage]};
+}
+function readChain(quest, progress) {
+  const raw = progress?.type === 'chain' && Array.isArray(progress.stages) ? progress.stages : [];
+  const stages = quest.stages.map((stage, n) => readState(stage, raw[n]));
+  let stage = 0; while (stage < stages.length - 1 && isQuestSolved(quest.stages[stage], stages[stage])) stage += 1;
+  return {schema: 1, type: 'chain', stage, stages};
 }
 
 export function questTarget(quest) {
@@ -70,10 +93,15 @@ function readState(quest, state) {
     value: finite(state.value) ? state.value : 0,
     opened: state.opened === true,
     attempts: Number.isInteger(state.attempts) ? clamp(state.attempts, 0, 1000000) : 0,
+    wheels: fresh.wheels.map((v, n) => Number.isInteger(state.wheels?.[n]) ? ((state.wheels[n] % 10) + 10) % 10 : v),
+    cells: Object.fromEntries(ids.filter(id => Number.isInteger(state.cells?.[id]) && state.cells[id] >= 0 && state.cells[id] < ids.length).map(id => [id, state.cells[id]])),
+    turns: {...fresh.turns, ...Object.fromEntries(ids.filter(id => Number.isInteger(state.turns?.[id])).map(id => [id, ((state.turns[id] % 4) + 4) % 4]))},
   };
 }
+const jigsawRight = (quest, state) => itemsFor(quest).filter(item => state.cells[item.id] === item.cell && !state.turns[item.id]).length;
 
 export function isQuestSolved(quest, progress) {
+  if (isChain(quest)) {const state = readChain(quest, progress); return quest.stages.every((stage, n) => isQuestSolved(stage, state.stages[n]));}
   if (!QUEST_TYPES.includes(quest?.type)) return false;
   const state = readState(quest, progress), ids = unique(idsFor(quest));
   if (!ids.length) return false;
@@ -86,11 +114,22 @@ export function isQuestSolved(quest, progress) {
     case 'align': return state.opened && questValueMatches(quest, state.value);
     case 'slide': return state.opened && questValueMatches(quest, state.value) && ids.every(id => state.found.includes(id));
     case 'assemble': return ids.every(id => state.placed.includes(id));
+    case 'lock': {const code = lockCode(quest); return code.length > 0 && code.every((d, n) => state.wheels[n] === d);}
+    case 'jigsaw': return jigsawRight(quest, state) === ids.length;
     default: return false;
   }
 }
 
 export function reduceQuest(quest, progress, action) {
+  if (isChain(quest)) {
+    const chain = readChain(quest, progress), n = chain.stage, layer = quest.stages[n];
+    if (isQuestSolved(quest, chain)) return {state: chain, ok: false, message: 'This mechanism is already solved.'};
+    const result = reduceQuest(layer, chain.stages[n], action);
+    if (!result.ok) return {state: chain, ok: false, message: result.message};
+    const stages = chain.stages.map((stage, k) => k === n ? result.state : stage), next = readChain(quest, {type: 'chain', stages});
+    const opened = next.stage > n;
+    return {state: next, ok: true, message: opened ? layer.foundText || 'Something gives way. There is more underneath.' : result.message};
+  }
   const state = readState(quest, progress);
   const reject = message => ({state, ok: false, message});
   const accept = (next, message) => ({state: next, ok: true, message});
@@ -156,5 +195,39 @@ export function reduceQuest(quest, progress, action) {
     return accept(next, isQuestSolved(quest, next) ? quest.foundText || 'The last part is in place and the clue is complete.' : `${label} is in. ${ids.length - next.placed.length} to go.`);
   }
 
+  if (quest.type === 'lock' && action.type === 'spin') {
+    const code = lockCode(quest), wheel = action.wheel;
+    if (!Number.isInteger(wheel) || wheel < 0 || wheel >= code.length || !Number.isInteger(action.value)) return reject('Spin one of the number wheels.');
+    const wheels = state.wheels.slice(); wheels[wheel] = ((action.value % 10) + 10) % 10;
+    const next = {...state, wheels, attempts: state.attempts + 1};
+    return accept(next, isQuestSolved(quest, next) ? quest.foundText || 'Click. The shackle springs open.' : '');
+  }
+
+  if (quest.type === 'jigsaw' && action.type === 'pick') {
+    if (!item) return reject('Pick up one of the torn pieces.');
+    return accept({...state, selected: action.id}, '');
+  }
+  if (quest.type === 'jigsaw' && action.type === 'put') {
+    const cell = action.cell;
+    if (!item || !Number.isInteger(cell) || cell < -1 || cell >= ids.length) return reject('Lay the piece in a square of the frame.');
+    const cells = {...state.cells};
+    for (const [id, at] of Object.entries(cells)) if (at === cell && id !== action.id) delete cells[id]; // the piece there goes back to the tray
+    if (cell < 0) delete cells[action.id]; else cells[action.id] = cell;
+    const next = {...state, cells, selected: null, attempts: state.attempts + 1};
+    return accept(next, jigsawVerdict(quest, next));
+  }
+  if (quest.type === 'jigsaw' && action.type === 'turn') {
+    if (!item || !Number.isInteger(state.cells[action.id])) return reject('Turn a piece once it lies in the frame.');
+    const next = {...state, turns: {...state.turns, [action.id]: (state.turns[action.id] + 1) % 4}, attempts: state.attempts + 1};
+    return accept(next, jigsawVerdict(quest, next));
+  }
+
   return reject('That action does not work on this mechanism.');
+}
+
+/* Nothing clicks piece by piece: the page only says how close it is once every square is filled. */
+function jigsawVerdict(quest, state) {
+  const all = itemsFor(quest).length, laid = Object.keys(state.cells).length;
+  if (isQuestSolved(quest, state)) return quest.foundText || 'The torn edges meet. The page reads true.';
+  return laid < all ? '' : `${jigsawRight(quest, state)} of ${all} sit right. The edges do not meet yet.`;
 }

@@ -2,7 +2,7 @@ import {createStage} from '../native/NativeKit.js';
 import {createNativeRoomBuilder} from '../rooms/RoomWorld.js';
 import {buildFieldModel} from '../field/field-models.js';
 import {drawAlignPart, stopAlignPart} from '../field/field-stops.js';
-import {createQuestState, reduceQuest, isQuestSolved, isQuestItemFacing, questTarget} from './quest-logic.js';
+import {createQuestState, reduceQuest, isQuestSolved, isQuestItemFacing, questTarget, lockCode} from './quest-logic.js';
 import {stopAssembly, partPalette, ghostPalette} from '../field/field-parts.js';
 
 const PI = Math.PI;
@@ -180,6 +180,46 @@ function featureFrame(c, root, anchor, M) {
   return highlight;
 }
 
+/* Hunt (2 Nov 2026): what a finger can do with each kind of part, said where the part is, when the view comes near it */
+const VERBS = {collectible: 'Tap to open', detail: 'Tap', dial: 'Turn', slider: 'Slide', piece: 'Drag up', slot: 'Drop here', wheel: 'Swipe to spin', cell: 'Lay it here'};
+
+/** A torn piece of one page: the whole page is drawn (ruled lines, margin, the words in reading order, a stamp across
+ * the middle) and each piece keeps its own square of it, so edges and lines only meet when pieces sit right. */
+function pieceTexture(doc, quest, item, index) {
+  const cols = quest.cols || 2, rows = Math.ceil((quest.items || []).length / cols), S = 256;
+  const canvas = doc.createElement('canvas'); canvas.width = canvas.height = S;
+  const c = canvas.getContext('2d'); if (!c) return canvas;
+  const col = item.cell % cols, row = Math.floor(item.cell / cols), W = cols * S, H = rows * S;
+  c.translate(-col * S, -row * S);
+  c.fillStyle = '#f1e6cc'; c.fillRect(0, 0, W, H);
+  c.strokeStyle = 'rgba(70, 92, 110, .28)'; c.lineWidth = 2;
+  for (let y = 46; y < H; y += 34) {c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke();}
+  c.strokeStyle = 'rgba(155, 44, 28, .55)'; c.lineWidth = 3; c.beginPath(); c.moveTo(34, 0); c.lineTo(34, H); c.stroke();
+  // a round stamp where the pieces meet, and one ink stroke across the page
+  c.strokeStyle = 'rgba(124, 31, 18, .5)'; c.lineWidth = 6; c.beginPath(); c.arc(W / 2, H / 2, Math.min(W, H) * .2, 0, 2 * PI); c.stroke();
+  c.lineWidth = 3; c.beginPath(); c.arc(W / 2, H / 2, Math.min(W, H) * .16, 0, 2 * PI); c.stroke();
+  c.strokeStyle = 'rgba(44, 33, 23, .55)'; c.lineWidth = 4; c.beginPath(); c.moveTo(W * .12, H * .9); c.bezierCurveTo(W * .4, H * .62, W * .62, H * .98, W * .9, H * .7); c.stroke();
+  (quest.items || []).forEach(other => {
+    const x = (other.cell % cols + .5) * S, y = (Math.floor(other.cell / cols) + .5) * S, words = String(other.text || '').toUpperCase();
+    let size = 58; c.font = `600 ${size}px Oswald, 'Arial Narrow', sans-serif`;
+    while (size > 22 && c.measureText(words).width > S * .82) {size -= 2; c.font = `600 ${size}px Oswald, 'Arial Narrow', sans-serif`;}
+    c.fillStyle = '#2c2117'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(words, x, y);
+  });
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  // the torn rim of this piece
+  const g = c.createLinearGradient(0, 0, 0, 14); g.addColorStop(0, 'rgba(90, 60, 30, .35)'); g.addColorStop(1, 'rgba(90, 60, 30, 0)');
+  c.fillStyle = 'rgba(90, 60, 30, .22)';
+  for (let n = 0; n < S; n += 9) {const k = ((index + 1) * 37 + n * 13) % 7; c.fillRect(n, 0, 9, 2 + k); c.fillRect(n, S - 2 - k, 9, 2 + k); c.fillRect(0, n, 2 + k, 9); c.fillRect(S - 2 - k, n, 2 + k, 9);}
+  return canvas;
+}
+function digitTexture(doc, digit) {
+  const canvas = doc.createElement('canvas'); canvas.width = 128; canvas.height = 96;
+  const c = canvas.getContext('2d'); if (!c) return canvas;
+  c.fillStyle = '#efe3c4'; c.fillRect(0, 0, 128, 96);
+  c.fillStyle = '#2c2117'; c.font = "600 74px Oswald, 'Arial Narrow', sans-serif"; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(digit), 64, 52);
+  return canvas;
+}
+
 /** Real local scene graph, rendered by native WebGL when available and by the
  * same interactive geometry in the CPU renderer when a GPU is unavailable. */
 export function createQuestWorld(container, {
@@ -200,6 +240,7 @@ export function createQuestWorld(container, {
   let front = FRONT[modelKind] || 1.2;
   const M = makeMaterials();
   let gesture = null, cameraTween = null, dial = null, slider = null, propsRoot, reward, rewardPage, assembly = null, partColors = null, trayZ = 0;
+  let lock = null, jig = null, lastStamp = 0, settling = false, hint = null;
   let pose = {target: [0, 1.65, .3], yaw: .28, elevation: .25, distance: 10.7};
   const camera = {position: [0, 4, 10], target: pose.target.slice(), fov: 44, near: .1, far: 80};
   const cameraPresets = {};
@@ -229,22 +270,42 @@ export function createQuestWorld(container, {
   }
   function targetEligible(id) {
     if (!active || authoritativeSolved) return false;
-    if (id === '$dial' || id === '$slider') return Math.cos(pose.yaw) > .2;
+    if (id === '$dial' || id === '$slider' || id.startsWith('wheel:')) return Math.cos(pose.yaw) > .2;
+    if (id.startsWith('cell:')) return Math.cos(pose.yaw) > .1 && Boolean(state.selected) && !Number.isInteger(state.cells?.[state.selected]);
     if (id.startsWith('slot:')) return Boolean(state.selected) && !state.placed.includes(id.slice(5));
     const item = items.find(value => value.id === id); if (!item) return false;
     if (quest.type === 'rotate-find') return !state.found.includes(id) && isQuestItemFacing(item, normalizedYaw(pose.yaw));
     if (quest.type === 'slide') return state.opened && !state.found.includes(id);
     if (quest.type === 'assemble') return !state.placed.includes(id);
+    if (quest.type === 'jigsaw') return Math.cos(pose.yaw) > .1;
     return Math.cos(pose.yaw) > .2;
+  }
+  /* the one part the view has come near: in front, near the middle of the frame and not hidden behind anything */
+  function nearTarget() {
+    if (!active || authoritativeSolved || !canvas || (gesture && gesture.mode !== 'orbit') || gesture?.moved) return null;
+    const rect = canvas.getBoundingClientRect(); let best = null;
+    for (const [id, target] of targets) {
+      if (!targetEligible(id)) continue;
+      const screen = projectQuestPoint(worldPoint(target.root.world, target.center), camera, rect); if (!screen) continue;
+      const x = screen.x - rect.left, y = screen.y - rect.top;
+      if (x < 12 || y < 12 || x > rect.width - 12 || y > rect.height - 12) continue;
+      const d = Math.hypot(x - rect.width / 2, y - rect.height * .55) / Math.max(1, Math.min(rect.width, rect.height));
+      if (d < .46 && (!best || d < best.d)) best = {id, x, y, d, role: target.role, screen};
+    }
+    if (!best || pickPoint(best.screen.x, best.screen.y)?.id !== best.id) return null;
+    let verb = VERBS[best.role] || 'Tap';
+    if (best.role === 'piece' && quest.type === 'jigsaw') verb = Number.isInteger(state.cells?.[best.id]) ? 'Tap to turn' : 'Drag to the frame';
+    return {id: best.id, x: Math.round(best.x / 6) * 6, y: Math.round(best.y / 6) * 6, verb};
   }
   function status(force = false) {
     if (disposed) return;
     const visibleIds = [...targets.keys()].filter(targetEligible);
     const value = Math.round(values.value || 0), yaw = Math.round(normalizedYaw(pose.yaw) * 1000) / 1000;
     const phase = failed ? 'error' : !active ? 'locked' : authoritativeSolved ? values.unlock >= 1 ? 'solved' : 'opening' : 'ready';
-    const data = {engine: stage?.engine || 'loading', status: phase, message, yaw, visibleIds, value, selectedId: state.selected || focusId};
+    hint = phase === 'ready' ? nearTarget() : null;
+    const data = {engine: stage?.engine || 'loading', status: phase, message, yaw, visibleIds, value, selectedId: state.selected || focusId, hint};
     // Camera pose is queryable, but React need not rerender for every degree.
-    const key = JSON.stringify([phase, message, visibleIds, value, state.selected, focusId]);
+    const key = JSON.stringify([phase, message, visibleIds, value, state.selected, focusId, hint]);
     if (force || key !== snapshotKey) {snapshotKey = key; onStatus(data);}
     return data;
   }
@@ -293,11 +354,34 @@ export function createQuestWorld(container, {
       builder.transform(piece.root, {position, rotation: [0, turn, 0], scale: [scale, scale, scale]});
       builder.transform(slots.get(id).root, {visible: p < .98});
     }
+    if (lock) {
+      lock.drums.forEach((drum, n) => builder.transform(drum, {rotation: [(values['wheel:' + n] || 0) * PI / 5, 0, 0]}));
+      builder.transform(lock.lid, {rotation: [-unlock * 1.15, 0, 0]});
+      builder.transform(lock.shackle, {position: [0, lock.shackleY + unlock * .16, lock.shackleZ]});
+    }
+    if (jig) {
+      const dt = clamp((stamp - (lastStamp || stamp)) / 1000, 0, .05), k = reduced ? 1 : 1 - Math.exp(-dt * 14);
+      settling = false;
+      for (const [id, piece] of jig.pieces) {
+        const cell = state.cells?.[id], placed = Number.isInteger(cell), lifted = state.selected === id && !placed;
+        let goal;
+        if (piece.drag) goal = {p: piece.drag, rx: -jig.tilt, rz: piece.rz, s: 1};
+        else if (placed) goal = {p: jig.cellWorld(cell, .045), rx: -jig.tilt, s: 1};
+        else goal = {p: add(piece.tray, [0, lifted ? .3 : 0, lifted ? .12 : 0]), rx: -PI / 2 + (lifted ? .9 : .38), s: lifted ? .85 : jig.S};
+        let rz = -(state.turns?.[id] || 0) * PI / 2; while (rz - piece.rz > PI) rz -= 2 * PI; while (piece.rz - rz > PI) rz += 2 * PI;
+        piece.p = piece.p.map((v, n) => mix(v, goal.p[n], k)); piece.rx = mix(piece.rx, goal.rx, k); piece.rz = mix(piece.rz, rz, k); piece.s = mix(piece.s, goal.s, k);
+        if (Math.hypot(...sub(piece.p, goal.p)) > .002 || Math.abs(piece.rx - goal.rx) > .002 || Math.abs(piece.rz - rz) > .002 || Math.abs(piece.s - goal.s) > .002) settling = true;
+        builder.transform(piece.root, {position: piece.p, rotation: [piece.rx, 0, 0], scale: [piece.s, piece.s, piece.s]});
+        builder.transform(piece.inner, {rotation: [0, 0, piece.rz]});
+      }
+      for (const [n, cell] of jig.cells) builder.transform(cell, {visible: !Object.values(state.cells || {}).includes(n)});
+    }
+    lastStamp = stamp;
     if (partColors) {
       const glow = authoritativeSolved ? Math.sin(Math.min(1, unlock * 1.4) * PI) * .55 : 0;
       for (const material of partColors) {material.emissive = '#ffcf7a'; material.emissiveIntensity = glow;}
     }
-    builder.transform(reward, {visible: unlock > .005, position: quest.type === 'assemble' ? [0, .5 + unlock * .5, trayZ - .1] : [0, .6 + unlock * .58, front + .58], scale: [unlock, unlock, unlock], rotation: [-.1, Math.sin(unlock * PI) * .15, 0]});
+    builder.transform(reward, {visible: unlock > .005, position: quest.type === 'assemble' ? [0, .5 + unlock * .5, trayZ - .1] : lock || jig ? [0, 1.3 + unlock * .7, front + 1.1] : [0, .6 + unlock * .58, front + .58], scale: [unlock, unlock, unlock], rotation: [-.1, Math.sin(unlock * PI) * .15, 0]});
     builder.transform(rewardPage, {position: [0, unlock * .63, .07]});
   }
   function drawNow(stamp = now()) {
@@ -308,7 +392,7 @@ export function createQuestWorld(container, {
     raf = null; if (disposed || failed) return;
     drawNow(stamp); status();
     if (authoritativeSolved && values.unlock >= 1 && !completedSent) {completedSent = true; status(true); onComplete();}
-    if (motions.size || cameraTween) schedule();
+    if (motions.size || cameraTween || settling) schedule();
   }
   function pickPoint(clientX, clientY) {return hitQuestScene(stage.root, rayForPoint(clientX, clientY, canvas.getBoundingClientRect(), camera));}
   function emit(action) {
@@ -326,6 +410,13 @@ export function createQuestWorld(container, {
     focusId = id;
     if (role === 'detail') {values['pulse:' + id] = 1; animate('pulse:' + id, 0, 540); emit({type: 'select', id});}
     else if (role === 'collectible') emit({type: quest.type === 'rotate-find' ? 'find' : 'collect', id, ...(quest.type === 'rotate-find' ? {yaw: normalizedYaw(pose.yaw)} : {})});
+    else if (role === 'wheel') {const n = Number(id.slice(6)); emit({type: 'spin', wheel: n, value: (state.wheels[n] + 1) % 10});}
+    else if (role === 'cell') emit({type: 'put', id: state.selected, cell: Number(id.slice(5))});
+    else if (role === 'piece' && quest.type === 'jigsaw') {
+      const at = state.cells?.[id], held = state.selected && !Number.isInteger(state.cells?.[state.selected]) ? state.selected : null;
+      if (Number.isInteger(at)) emit(held && held !== id ? {type: 'put', id: held, cell: at} : {type: 'turn', id});
+      else emit({type: 'pick', id});
+    }
     else if (role === 'piece') emit({type: 'pick', id});
     else if (role === 'slot') {const held = pieces.get(state.selected); if (held) held.from = null; emit({type: 'place', id: state.selected, slotId: id.slice(5)});}
     else {message = role === 'dial' ? 'Hold the brass dial and turn it until the pointer meets the gold mark.' : 'Hold the panel by its handle and slide it along the track.'; status(true);}
@@ -368,9 +459,42 @@ export function createQuestWorld(container, {
     }
     schedule();
   }
+  /* A torn piece follows the finger on a plane facing the camera; let go over a square and it is laid there (whatever
+   * lay there goes back to the tray); let go of a laid piece away from the frame and it goes back to the tray. */
+  function dragJig(g, x, y) {
+    const piece = jig.pieces.get(g.hit.id), rect = canvas.getBoundingClientRect();
+    if (!g.dragging) {
+      g.dragging = true; focusId = g.hit.id;
+      g.plane = {point: piece.p.slice(), normal: unit(sub(camera.target, camera.position))};
+      const grabbed = rayPlane(rayForPoint(g.start[0], g.start[1], rect, camera), g.plane);
+      g.offset = grabbed ? sub(piece.p, grabbed) : [0, 0, 0];
+    }
+    const q = rayPlane(rayForPoint(x, y, rect, camera), g.plane); if (!q) return;
+    piece.drag = add(q, g.offset); schedule();
+  }
+  function dropJig(g, cancelled = false) {
+    const id = g.hit.id, piece = jig.pieces.get(id), rect = canvas.getBoundingClientRect();
+    if (!piece?.drag) return;
+    const held = projectQuestPoint(piece.drag, camera, rect); piece.drag = null;
+    if (cancelled || !held) {schedule(); return;}
+    let best = null;
+    for (const n of jig.cells.keys()) {
+      const sc = projectQuestPoint(jig.cellWorld(n), camera, rect), edge = projectQuestPoint(jig.cellWorld(n).map((v, k) => k === 0 ? v + jig.C / 2 : v), camera, rect);
+      if (!sc || !edge) continue;
+      const d = Math.hypot(held.x - sc.x, held.y - sc.y) / Math.max(24, Math.abs(edge.x - sc.x));
+      if (d < 1.15 && (!best || d < best.d)) best = {d, n};
+    }
+    if (best) emit({type: 'put', id, cell: best.n});
+    else if (Number.isInteger(state.cells?.[id])) emit({type: 'put', id, cell: -1});
+    schedule();
+  }
   function syncState(next, authoritative = true) {
     const before = state; state = next || createQuestState(quest);
     if (!gesture || gesture.mode !== 'handle') animate('value', state.value || 0, 300);
+    if (lock) (state.wheels || []).forEach((v, n) => {
+      if (gesture?.mode === 'spin' && gesture.wheel === n) return;
+      const now = values['wheel:' + n] || 0, step = ((v - now) % 10 + 15) % 10 - 5; animate('wheel:' + n, now + step, 260);
+    });
     for (const item of items) {
       animate('found:' + item.id, state.found.includes(item.id) ? 1 : 0, 650);
       animate('placed:' + item.id, state.placed.includes(item.id) ? 1 : 0, 680);
@@ -514,6 +638,77 @@ export function createQuestWorld(container, {
       });
     }
 
+    if (quest.type === 'lock') {
+      // a strongbox on the plinth in front of the building: number wheels in a brass plate, a padlock on the hasp
+      const code = lockCode(quest), n = Math.max(1, code.length), W = .44 * n + .56, H = .92, D = .78;
+      const wood = {color: '#4a3326', roughness: .8}, dark = {color: '#1d1610', roughness: .9};
+      const root = builder.group(propsRoot, [0, .02, front + 1.05]); builder.transform(root, {scale: [1.2, 1.2, 1.2]});
+      builder.box(W, H, D, wood, root, [0, H / 2, 0]);
+      for (const y of [.08, H - .08]) builder.box(W + .04, .06, D + .04, M.brass, root, [0, y, 0]);
+      for (const x of [-1, 1]) builder.box(.06, H, .06, M.brass, root, [x * W / 2, H / 2, D / 2]);
+      const lid = builder.group(root, [0, H, -D / 2]); builder.box(W + .06, .14, D + .06, wood, lid, [0, .07, D / 2]); builder.box(W + .08, .04, D + .08, M.brass, lid, [0, .15, D / 2]);
+      builder.box(.44 * n + .18, .5, .04, M.brass, root, [0, .44, D / 2 + .02]);
+      builder.box(.44 * n + .02, .3, .03, dark, root, [0, .44, D / 2 + .045]);
+      for (const x of [-1, 1]) builder.mesh(pyramid(.08, .05, .08), M.orange, root, [x * (.22 * n + .14), .44, D / 2 + .06], [0, 0, x * PI / 2]);
+      const drums = code.map((_, i) => {
+        const at = tag(builder.group(root, [(i - (n - 1) / 2) * .44, .44, D / 2 - .04]), 'wheel:' + i, 'wheel');
+        const drum = builder.group(at);
+        builder.cyl(.2, .34, M.ivory, drum, [0, 0, 0], [0, 0, PI / 2], 20);
+        for (let k = 0; k < 10; k++) {const a = k * PI / 5; builder.label('', .3, .12, drum, [0, Math.sin(a) * .205, Math.cos(a) * .205], [-a, 0, 0], {texture: digitTexture(doc, k)});}
+        for (const x of [-.18, .18]) builder.cyl(.215, .02, M.brass, drum, [x, 0, 0], [0, 0, PI / 2], 20);
+        targets.set('wheel:' + i, {root: at, center: [0, 0, .24], item: {label: `wheel ${i + 1}`}, role: 'wheel'});
+        return drum;
+      });
+      const shackleY = H + .3, shackleZ = D / 2 + .14, shackle = builder.group(root, [0, shackleY, shackleZ]);
+      const arc = []; for (let k = 0; k <= 12; k++) {const a = k * PI / 12; arc.push([Math.cos(a) * .14, Math.sin(a) * .16, 0]);}
+      builder.line([[.14, -.2, 0], ...arc, [-.14, -.2, 0]], .035, M.brass, shackle);
+      builder.box(.38, .3, .14, M.brass, root, [0, H + .12, D / 2 + .14]); builder.box(.06, .1, .02, dark, root, [0, H + .1, D / 2 + .22]);
+      lock = {root, drums, lid, shackle, shackleY, shackleZ};
+      code.forEach((_, i) => {values['wheel:' + i] = state.wheels?.[i] || 0;});
+    } else if (quest.type === 'jigsaw') {
+      // a page frame on an easel in front of the building; the torn pieces lie in a tray at its foot
+      const cols = quest.cols || 2, rows = Math.ceil(items.length / cols), C = .78, tilt = .5, B = [0, 1.25, front + 1.0];
+      const wood = {color: '#4a3326', roughness: .8}, felt = {color: '#203d33', roughness: .95};
+      const board = builder.group(propsRoot, B, [-tilt, 0, 0]);
+      builder.box(cols * C + .26, rows * C + .26, .08, wood, board, [0, 0, -.05]);
+      builder.box(cols * C + .04, rows * C + .04, .03, felt, board, [0, 0, .005]);
+      for (const side of [-1, 1]) {builder.box(cols * C + .32, .05, .1, M.brass, board, [0, side * (rows * C / 2 + .14), -.01]); builder.box(.05, rows * C + .32, .1, M.brass, board, [side * (cols * C / 2 + .14), 0, -.01]);}
+      for (const x of [-1, 1]) builder.box(.07, B[1] + .1, .07, wood, propsRoot, [x * (cols * C / 2 + .05), (B[1] + .1) / 2 - .05, B[2] - .32]);
+      const local = (cell, z = 0) => [(cell % cols - (cols - 1) / 2) * C, ((rows - 1) / 2 - Math.floor(cell / cols)) * C, z];
+      const cellWorld = (cell, z = 0) => {const [x, y, zz] = local(cell, z); return [B[0] + x, B[1] + y * Math.cos(tilt) + zz * Math.sin(tilt), B[2] - y * Math.sin(tilt) + zz * Math.cos(tilt)];};
+      const cells = new Map();
+      items.forEach((_, n) => {
+        const cell = tag(builder.group(board, local(n, .025)), 'cell:' + n, 'cell');
+        builder.box(C - .06, C - .06, .012, {color: '#2b4a3e', roughness: .9}, cell); builder.box(C - .1, .012, .014, M.brass, cell, [0, -(C / 2 - .05), .006]);
+        cells.set(n, cell); targets.set('cell:' + n, {root: cell, center: [0, 0, .02], item: {label: `square ${n + 1}`}, role: 'cell'});
+      });
+      // the tray holds the pieces smaller (they grow to size when lifted); six lie in two rows of three
+      const S = .7, gap = C * S + .1, perRow = items.length > 4 ? Math.ceil(items.length / 2) : items.length, trayRows = Math.ceil(items.length / perRow);
+      const trayZ2 = B[2] + .85 + (trayRows - 1) * gap / 2, trayW = perRow * gap + .16, trayD = trayRows * gap + .12;
+      builder.box(trayW, .05, trayD, wood, propsRoot, [0, .02, trayZ2]);
+      for (const side of [-1, 1]) {builder.box(trayW + .1, .1, .05, M.brass, propsRoot, [0, .05, trayZ2 + side * trayD / 2]); builder.box(.05, .1, trayD + .02, M.brass, propsRoot, [side * trayW / 2, .05, trayZ2]);}
+      const pieces = new Map();
+      items.forEach((item, n) => {
+        const root = tag(builder.group(propsRoot), item.id, 'piece'), inner = builder.group(root);
+        builder.box(C - .08, C - .08, .022, M.paper, inner);
+        builder.label('', C - .09, C - .09, inner, [0, 0, .013], null, {texture: pieceTexture(doc, quest, item, n)});
+        const row = Math.floor(n / perRow), col = n % perRow, inRow = Math.min(perRow, items.length - row * perRow);
+        const tray = [(col - (inRow - 1) / 2) * gap, .09, trayZ2 + (row - (trayRows - 1) / 2) * gap];
+        const cell = state.cells?.[item.id], placed = Number.isInteger(cell);
+        pieces.set(item.id, {root, inner, tray, drag: null, p: placed ? cellWorld(cell, .045) : tray.slice(), rx: placed ? -tilt : -PI / 2 + .38, rz: -(state.turns?.[item.id] || 0) * PI / 2, s: placed ? 1 : S});
+        targets.set(item.id, {root, center: [0, 0, .02], item, role: 'piece'});
+      });
+      jig = {board, cells, pieces, tilt, cellWorld, C, S, reach: Math.max(cols * C + .4, trayW), mid: [0, (B[1] + .1) / 2, (B[2] + trayZ2) / 2]};
+    }
+
+    if (quest.type === 'lock' || quest.type === 'jigsaw') {
+      // the hands' work fills the frame; the building stands behind it
+      const box = lock ? [0, .75, front + 1.3] : jig.mid, reach = lock ? 0 : jig.reach;
+      pose = {target: box, yaw: lock ? .14 : .06, elevation: lock ? .3 : .62, distance: lock ? 6.2 : Math.max(4.4, reach * 1.55)};
+      cameraPresets.overview = copyPose(pose);
+      cameraPresets.detail = {...copyPose(pose), yaw: 0, elevation: lock ? .2 : .55, distance: lock ? 4.2 : pose.distance * .82};
+    }
+
     if (quest.type === 'assemble') {
       if (assembly) front = assembly.front;
       const height = assembly?.height || 2.2;
@@ -524,13 +719,13 @@ export function createQuestWorld(container, {
 
     reward = builder.group(); rewardPage = builder.group(reward, [0, .63, .07]);
     builder.box(1.6, .88, .09, M.green, reward); builder.box(1.45, .76, .05, M.brass, reward, [0, 0, .06]);
-    builder.box(1.3, .9, .025, M.paper, rewardPage); builder.label('CLUE UNLOCKED', 1.1, .2, rewardPage, [0, .23, .02], null, {background: '#f1e6c9', color: '#244d41', fontSize: 44});
+    builder.box(1.3, .9, .025, M.paper, rewardPage); builder.label(quest.rewardLabel || 'CLUE UNLOCKED', 1.1, .2, rewardPage, [0, .23, .02], null, {background: '#f1e6c9', color: '#244d41', fontSize: 44});
     for (let n = 0; n < 4; n++) builder.box(.87 - n % 2 * .14, .012, .02, M.brass, rewardPage, [0, .02 - n * .11, .02]);
     reward.userData.questIgnorePick = true; builder.transform(reward, {visible: false});
     for (const item of items) {values['found:' + item.id] = state.found.includes(item.id) ? 1 : 0; values['placed:' + item.id] = state.placed.includes(item.id) ? 1 : 0; values['pick:' + item.id] = state.selected === item.id ? 1 : 0;}
 
     function listen(type, handler, options) {canvas.addEventListener(type, handler, options); listeners.push(() => canvas.removeEventListener(type, handler, options));}
-    function cancelGesture() {if (gesture?.mode === 'handle') {values.value = state.value; schedule();} if (gesture?.mode === 'piece' && gesture.dragging) dropPiece(gesture, true); gesture = null;}
+    function cancelGesture() {if (gesture?.mode === 'handle') {values.value = state.value; schedule();} if (gesture?.mode === 'piece' && gesture.dragging) dropPiece(gesture, true); if (gesture?.mode === 'jig' && gesture.dragging) dropJig(gesture, true); gesture = null;}
     listen('pointerdown', event => {
       if (event.button !== 0 && event.button !== 2) return;
       // Hunt: a first finger starts afresh. A lift the page never heard (an interrupted touch) must not leave a ghost
@@ -541,6 +736,9 @@ export function createQuestWorld(container, {
       if (pointers.size > 1) {cancelGesture(); const ps = [...pointers.values()]; gesture = {mode: 'pinch', span: Math.hypot(ps[0][0] - ps[1][0], ps[0][1] - ps[1][1])}; return;}
       cameraTween = null; drawNow(); const hit = pickPoint(event.clientX, event.clientY), handle = active && !authoritativeSolved && hit && ['dial', 'slider'].includes(hit.role) && targetEligible(hit.id);
       const grab = active && !authoritativeSolved && hit?.role === 'piece' && targetEligible(hit.id);
+      const spin = active && !authoritativeSolved && hit?.role === 'wheel' && targetEligible(hit.id);
+      if (spin) {gesture = {mode: 'spin', hit, wheel: Number(hit.id.slice(6)), base: values['wheel:' + Number(hit.id.slice(6))] || 0, start: [event.clientX, event.clientY], last: [event.clientX, event.clientY], moved: false, pointerId: event.pointerId}; return;}
+      if (grab && jig) {gesture = {mode: 'jig', hit, start: [event.clientX, event.clientY], last: [event.clientX, event.clientY], moved: false, pointerId: event.pointerId}; return;}
       gesture = {mode: handle ? 'handle' : grab ? 'piece' : 'orbit', hit, start: [event.clientX, event.clientY], last: [event.clientX, event.clientY], moved: false, value: values.value, pointerId: event.pointerId};
       if (handle) {
         focusId = hit.id; const target = targets.get(hit.id), center = worldPoint(target.root.world, target.center), screen = projectQuestPoint(center, camera, canvas.getBoundingClientRect());
@@ -557,7 +755,9 @@ export function createQuestWorld(container, {
         if (gesture.span && span > 3) moveCamera({distance: pose.distance * gesture.span / span}, 0); gesture.span = span; event.preventDefault(); return;
       }
       const dx = event.clientX - gesture.start[0], dy = event.clientY - gesture.start[1]; if (Math.hypot(dx, dy) > 5) gesture.moved = true;
-      if (gesture.mode === 'piece') {if (gesture.moved) dragPiece(gesture, event.clientX, event.clientY); event.preventDefault();}
+      if (gesture.mode === 'spin') {if (gesture.moved) {values['wheel:' + gesture.wheel] = gesture.base + dy / 38; motions.delete('wheel:' + gesture.wheel); schedule();} event.preventDefault();}
+      else if (gesture.mode === 'jig') {if (gesture.moved) dragJig(gesture, event.clientX, event.clientY); event.preventDefault();}
+      else if (gesture.mode === 'piece') {if (gesture.moved) dragPiece(gesture, event.clientX, event.clientY); event.preventDefault();}
       else if (gesture.mode === 'handle') {
         if (gesture.hit.role === 'dial') {const angle = Math.atan2(event.clientY - gesture.center.y, event.clientX - gesture.center.x); values.value = normalizedAngle(gesture.value + normalizedYaw(angle - gesture.startAngle) * 180 / PI);}
         else {const track = gesture.track, lengthSquared = Math.max(2000, dot([track[0], track[1], 0], [track[0], track[1], 0])); values.value = clamp(gesture.value + (dx * track[0] + dy * track[1]) / lengthSquared * 100, 0, 100);}
@@ -571,7 +771,13 @@ export function createQuestWorld(container, {
       try {if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);} catch {}
       if (single) {
         gesture = null;
-        if (finished?.mode === 'piece') {if (finished.dragging) dropPiece(finished, cancelled); else if (!cancelled) activate(finished.hit);}
+        if (finished?.mode === 'spin') {
+          if (cancelled) animate('wheel:' + finished.wheel, finished.base, 200);
+          else if (finished.moved) {const v = Math.round(values['wheel:' + finished.wheel]); animate('wheel:' + finished.wheel, v, 180); emit({type: 'spin', wheel: finished.wheel, value: ((v % 10) + 10) % 10});}
+          else activate(finished.hit);
+        }
+        else if (finished?.mode === 'jig') {if (finished.dragging) dropJig(finished, cancelled); else if (!cancelled) activate(finished.hit);}
+        else if (finished?.mode === 'piece') {if (finished.dragging) dropPiece(finished, cancelled); else if (!cancelled) activate(finished.hit);}
         else if (!cancelled && finished?.mode === 'handle') {
           if (finished.moved) emit({type: finished.hit.role === 'dial' ? 'align' : 'slide', value: Math.round(values.value * 10) / 10});
           else activate(finished.hit);
@@ -608,7 +814,8 @@ export function createQuestWorld(container, {
     drawNow(); const target = targets.get(id); if (!target) return false;
     const point = worldPoint(target.root.world, target.center), screen = projectQuestPoint(point, camera, canvas.getBoundingClientRect());
     if (!screen) return false; const hit = pickPoint(screen.x, screen.y);
-    if (hit?.id !== id) {message = 'This part is still blocked. Change the angle, or move the cover first.'; status(true); return false;}
+    // a square with a piece on it answers through the piece (a held piece swaps in, an empty hand turns it)
+    if (hit?.id !== id && !(target.role === 'cell' && jig && state.cells?.[hit?.id] === Number(id.slice(5)))) {message = 'This part is still blocked. Change the angle, or move the cover first.'; status(true); return false;}
     activate(hit); return true;
   }
   return {

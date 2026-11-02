@@ -517,6 +517,33 @@
 .findsg .ogc-find .ap-stage-caption {
   bottom: 12px;
 }
+/* the paper lies on the page itself: no frame, no ruler, one faint pencil line for the hand */
+.findsg .ogc-find .ap-stage {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.findsg .ogc-find .ap-stage::before,
+.findsg .ogc-find .ap-stage::after {
+  content: none;
+}
+.findsg .ogc-find .ap-touch {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  z-index: 2;
+  text-align: center;
+  font: 400 0.75rem/1 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(74, 42, 20, 0.5);
+  pointer-events: none;
+  animation: ap-touch 4.2s 0.6s both;
+}
+/* the pencil line says its word, then fades off the paper */
+@keyframes ap-touch { 0% { opacity: 0; } 12%, 70% { opacity: 1; } 100% { opacity: 0; } }
 .findsg .ogc-find .ap-controls {
   flex: none;
   margin-top: 8px;
