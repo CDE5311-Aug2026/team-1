@@ -31,6 +31,8 @@ import {
   collectionProgress,
 } from "../../features/nearby/catalogue";
 import { localToday } from "../../features/nearby/personal";
+import { curatedPlace } from "../../features/nearby/catalogue";
+import { areaName, realPhoto, sceneryIn } from "../../data/journal/placePhotos";
 import { showToast } from "../../hooks/useToast";
 import { useSpan } from "../../usage/useSpan";
 import { CHART_BACKDROP } from "../HuntPage/notebook/chartBackdrop";
@@ -139,9 +141,25 @@ export default function MomentsPage() {
     modal?.type === "conversation"
       ? social.saved.find((c) => c.threadId === modal.threadId)
       : undefined;
-  const recapImages = facts
-    .flatMap((f) => (f.cardId && imageOf(f.cardId) ? [imageOf(f.cardId)!] : []))
-    .slice(0, 1);
+  // the three prints on the Recap slip: card photos, else real photos of places you went
+  const recapImages = useMemo(() => {
+    const out = facts.flatMap((f) =>
+      f.cardId && imageOf(f.cardId) ? [imageOf(f.cardId)!.src] : [],
+    );
+    const areas: string[] = [];
+    for (const p of [...personal.places].reverse()) {
+      const place = p.visited ? curatedPlace(p.placeKey) : undefined;
+      const area = areaName(place);
+      if (area && !areas.includes(area)) areas.push(area);
+      const photo = place && realPhoto(place);
+      if (photo && out.length < 3 && !out.includes(photo.src))
+        out.push(photo.src);
+    }
+    // places with no photo of their own: real photos from the same areas
+    for (const f of sceneryIn(areas, new Set(out), 3 - out.length))
+      out.push(f.src);
+    return out.slice(0, 3);
+  }, [facts, personal.places]);
 
   return (
     <AppShell background={CHART_BG}>
@@ -187,13 +205,11 @@ export default function MomentsPage() {
           disabled={facts.length === 0}
         >
           <span className={styles.recapStack} aria-hidden="true">
-            <i />
-            <i />
-            {recapImages[0] ? (
-              <img src={recapImages[0].src} alt="" />
-            ) : (
-              <i className={styles.recapTop} />
-            )}
+            {/* photos on top, plain prints underneath when there are fewer than three */}
+            {[0, 1, 2].map((i) => {
+              const src = recapImages[i - (3 - recapImages.length)];
+              return src ? <img key={i} src={src} alt="" /> : <i key={i} />;
+            })}
           </span>
           <span className={styles.recapCopy}>
             <strong>Recap</strong>

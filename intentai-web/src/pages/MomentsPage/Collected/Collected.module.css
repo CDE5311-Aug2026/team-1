@@ -11,7 +11,7 @@
   margin-bottom: 4px;
   color: var(--cream-soft);
   font:
-    italic 400 0.875rem/1 'IM Fell English',
+    italic 400 0.875rem/1 "IM Fell English",
     Georgia,
     serif;
 }
@@ -19,8 +19,7 @@
 .heading h2 {
   margin: 0;
   color: var(--cream);
-  font:
-    400 1.375rem/1.1 var(--font-display);
+  font: 400 1.375rem/1.1 var(--font-display);
   letter-spacing: 0.02em;
 }
 
@@ -60,8 +59,7 @@
   border-radius: 4px 4px 0 0;
   background: none;
   color: rgba(226, 206, 168, 0.5);
-  font:
-    400 1rem/1 var(--font-display);
+  font: 400 1rem/1 var(--font-display);
   letter-spacing: 0.02em;
   white-space: nowrap;
   cursor: pointer;
@@ -78,14 +76,20 @@
 
 /* the ink stroke: 3px, a little skewed, as if drawn with a nib */
 .filter::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 10px;
   right: 10px;
   bottom: 0;
   height: 3px;
   border-radius: 2px 3px 2px 1px;
-  background: linear-gradient(90deg, rgba(232, 131, 58, 0.5), #e8833a 20%, #e8833a 80%, rgba(232, 131, 58, 0.6));
+  background: linear-gradient(
+    90deg,
+    rgba(232, 131, 58, 0.5),
+    #e8833a 20%,
+    #e8833a 80%,
+    rgba(232, 131, 58, 0.6)
+  );
   transform: skewX(-12deg) scaleX(0);
   transform-origin: left center;
   transition: transform 0.3s cubic-bezier(0.5, 1.4, 0.4, 1);
@@ -181,16 +185,29 @@
 
 /* a strip of tape holding it to the chart */
 .tile::before {
-  content: '';
+  content: "";
   position: absolute;
   z-index: 2;
   top: -8px;
   left: calc(50% - 26px);
   width: 52px;
   height: 17px;
-  background: linear-gradient(180deg, rgba(246, 238, 214, 0.78), rgba(226, 214, 182, 0.7));
+  background: linear-gradient(
+    180deg,
+    rgba(246, 238, 214, 0.78),
+    rgba(226, 214, 182, 0.7)
+  );
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  clip-path: polygon(3% 0, 97% 6%, 100% 30%, 96% 55%, 100% 100%, 2% 94%, 0 60%, 4% 35%);
+  clip-path: polygon(
+    3% 0,
+    97% 6%,
+    100% 30%,
+    96% 55%,
+    100% 100%,
+    2% 94%,
+    0 60%,
+    4% 35%
+  );
   rotate: -3deg;
   pointer-events: none;
 }
@@ -254,8 +271,7 @@ button.tile:focus-visible,
 .caption strong {
   display: block;
   overflow: hidden;
-  font:
-    400 0.9375rem/1.15 var(--font-display);
+  font: 400 0.9375rem/1.15 var(--font-display);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -312,8 +328,7 @@ button.tile:focus-visible,
   border-radius: 50%;
   background: var(--red-ink);
   color: var(--cream);
-  font:
-    400 1rem/1 var(--font-display);
+  font: 400 1rem/1 var(--font-display);
   box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.3);
 }
 
@@ -347,7 +362,7 @@ button.tile:focus-visible,
 .tipText {
   display: block;
   font:
-    italic 400 1rem/1.3 'IM Fell English',
+    italic 400 1rem/1.3 "IM Fell English",
     Georgia,
     serif;
 }
@@ -393,8 +408,7 @@ button.tile:focus-visible,
   overflow: hidden;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  font:
-    400 1rem/1.25 var(--font-display);
+  font: 400 1rem/1.25 var(--font-display);
 }
 
 .noteSummary {
@@ -422,7 +436,7 @@ button.tile:focus-visible,
 }
 
 .phrase::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   bottom: 0;
@@ -466,7 +480,7 @@ button.tile:focus-visible,
   overflow: hidden;
   color: var(--ink-soft);
   font:
-    italic 400 0.8125rem/1.2 'IM Fell English',
+    italic 400 0.8125rem/1.2 "IM Fell English",
     Georgia,
     serif;
 }
@@ -477,13 +491,13 @@ button.tile:focus-visible,
 }
 
 .tagLocal::before {
-  content: '✓ ';
+  content: "✓ ";
   font-style: normal;
 }
 
 .word {
   font:
-    400 1.375rem/1.1 'IM Fell English',
+    400 1.375rem/1.1 "IM Fell English",
     Georgia,
     serif;
   overflow-wrap: anywhere;
@@ -534,7 +548,7 @@ button.tile:focus-visible,
 }
 
 .empty::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 7px;
   border: 1px dashed rgba(44, 33, 23, 0.28);
@@ -556,8 +570,7 @@ button.tile:focus-visible,
 
 .emptyTitle {
   color: var(--ink);
-  font:
-    400 1.25rem/1.2 var(--font-display) !important;
+  font: 400 1.25rem/1.2 var(--font-display) !important;
 }
 
 .emptyActions {
@@ -577,8 +590,7 @@ button.tile:focus-visible,
   border-radius: 3px;
   background: var(--ink);
   color: var(--cream);
-  font:
-    400 1rem/1 var(--font-display);
+  font: 400 1rem/1 var(--font-display);
   text-decoration: none;
   box-shadow: 0 3px 8px rgba(44, 33, 23, 0.35);
 }
@@ -609,7 +621,7 @@ button.tile:focus-visible,
   display: flex;
   align-items: center;
   font:
-    italic 400 0.8125rem/1 'IM Fell English',
+    italic 400 0.8125rem/1 "IM Fell English",
     Georgia,
     serif;
   cursor: pointer;
@@ -643,4 +655,10 @@ button.tile:focus-visible,
 /* on a phrase slip the source line is the only mark: no icon, so it fits on one line */
 .phrase .phraseIcon {
   display: none;
+}
+
+/* no filter row: room for the first slip's tape under the heading */
+.heading + .masonry,
+.heading + .empty {
+  margin-top: 22px;
 }

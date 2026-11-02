@@ -2,7 +2,7 @@
 // Sources: places marked visited in Nearby, Home story check-ins, Hunt stamps and finished stories, and photos.
 // Places and Home stamps only keep a date; Hunt stamps and photos also keep a time.
 
-export type EntryKind = 'visit' | 'checkin' | 'stamp' | 'finish' | 'photo';
+export type EntryKind = "visit" | "checkin" | "stamp" | "finish" | "photo";
 
 export interface JournalEntry {
   id: string;
@@ -18,6 +18,10 @@ export interface JournalEntry {
   image?: string;
   /** Set for the visitor's own photos. */
   photoId?: string;
+  /** A real photo of the place (Commons or a card photo), for the travelogue. */
+  real?: { src: string; credit: string };
+  /** The URA planning area the place is in. */
+  area?: string;
 }
 
 export interface JournalDay {
@@ -31,12 +35,18 @@ export interface JournalDay {
   to?: number;
 }
 
-const KIND_ORDER: Record<EntryKind, number> = { visit: 0, checkin: 1, stamp: 2, finish: 3, photo: 4 };
+const KIND_ORDER: Record<EntryKind, number> = {
+  visit: 0,
+  checkin: 1,
+  stamp: 2,
+  finish: 3,
+  photo: 4,
+};
 
 /** The local calendar day of a time. */
 export function dayOfTime(at: number): string {
   const d = new Date(at);
-  const p = (n: number) => String(n).padStart(2, '0');
+  const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
@@ -54,12 +64,20 @@ export function buildDays(entries: readonly JournalEntry[]): JournalDay[] {
       // in the order the day went: timed entries by time; untimed ones (date-only sources) first, by kind
       const sorted = [...list].sort((a, b) => {
         if (a.at !== undefined && b.at !== undefined) return a.at - b.at;
-        if (a.at === undefined && b.at === undefined) return KIND_ORDER[a.kind] - KIND_ORDER[b.kind];
+        if (a.at === undefined && b.at === undefined)
+          return KIND_ORDER[a.kind] - KIND_ORDER[b.kind];
         return a.at === undefined ? -1 : 1;
       });
-      const photos = sorted.filter((e) => e.kind === 'photo');
+      const photos = sorted.filter((e) => e.kind === "photo");
       const cover = photos[photos.length - 1] ?? sorted.find((e) => e.image);
-      const places = new Set(sorted.filter((e) => e.kind === 'visit' || e.kind === 'checkin' || e.kind === 'stamp').map((e) => e.title));
+      const places = new Set(
+        sorted
+          .filter(
+            (e) =>
+              e.kind === "visit" || e.kind === "checkin" || e.kind === "stamp",
+          )
+          .map((e) => e.title),
+      );
       const times = sorted.flatMap((e) => (e.at !== undefined ? [e.at] : []));
       return {
         day,
@@ -67,7 +85,9 @@ export function buildDays(entries: readonly JournalEntry[]): JournalDay[] {
         cover,
         stats: {
           places: places.size,
-          stamps: sorted.filter((e) => e.kind === 'stamp' || e.kind === 'checkin').length,
+          stamps: sorted.filter(
+            (e) => e.kind === "stamp" || e.kind === "checkin",
+          ).length,
           photos: photos.length,
         },
         from: times.length ? Math.min(...times) : undefined,
@@ -78,16 +98,23 @@ export function buildDays(entries: readonly JournalEntry[]): JournalDay[] {
 
 /** "09:40" in 24-hour time. */
 export function clockOf(at: number): string {
-  return new Date(at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return new Date(at).toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 /** Big day number, short month and weekday for a YYYY-MM-DD day. */
-export function dayParts(day: string): { num: string; month: string; weekday: string } {
-  const [y, m, d] = day.split('-').map(Number);
+export function dayParts(day: string): {
+  num: string;
+  month: string;
+  weekday: string;
+} {
+  const [y, m, d] = day.split("-").map(Number);
   const date = new Date(y, m - 1, d);
   return {
     num: String(d),
-    month: date.toLocaleDateString('en-GB', { month: 'short' }),
-    weekday: date.toLocaleDateString('en-GB', { weekday: 'short' }),
+    month: date.toLocaleDateString("en-GB", { month: "short" }),
+    weekday: date.toLocaleDateString("en-GB", { weekday: "short" }),
   };
 }

@@ -1,3 +1,4 @@
+import { motion, useReducedMotion, type PanInfo } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   buildDays,
@@ -15,6 +16,12 @@ import {
   onPhotosChanged,
   type JournalPhoto,
 } from "../../../data/journal/photos";
+import {
+  areaName,
+  placeNamed,
+  realPhoto,
+} from "../../../data/journal/placePhotos";
+import { framesOf, type Frame } from "../../../data/journal/travelogue";
 import { usePersistentStore } from "../../../data/persistentStore";
 import { placeStoriesStore } from "../../../data/stores";
 import { storyPlace } from "../../../data/stories/places";
@@ -26,6 +33,7 @@ import { chapter } from "../../HuntPage/notebook/chapters";
 import { storyRecords, took } from "../../HuntPage/notebook/record";
 import Icon from "../../OnboardingPage/v3/icons";
 import Sheet from "../Sheet/Sheet";
+import Travelogue from "../Travelogue/Travelogue";
 import styles from "./Journal.module.css";
 
 const ICON: Record<EntryKind, Parameters<typeof Icon>[0]["name"]> = {
@@ -36,6 +44,8 @@ const ICON: Record<EntryKind, Parameters<typeof Icon>[0]["name"]> = {
   photo: "camera",
 };
 const SHOWN = 4;
+/** Entries shown per day before "Show all". */
+const ENTRIES = 4;
 
 /** Photos from the device store, with an object URL each (revoked when the list changes or the page leaves). */
 function usePhotos(): (JournalPhoto & { url: string })[] {
@@ -87,6 +97,7 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
     null,
   );
   const [viewing, setViewing] = useState<string | null>(null);
+  const [sharing, setSharing] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
 
   const days = useMemo(() => {
@@ -102,6 +113,8 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
           title: place.name,
           note: place.summary,
           tag: place.kind,
+          real: realPhoto(place),
+          area: areaName(place),
         });
     }
     for (const [id, s] of Object.entries(stories)) {
@@ -116,10 +129,15 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
           note: place.location,
           tag: "Check-in",
           image: place.hero.src,
+          real: {
+            src: place.hero.src,
+            credit: place.hero.credit.replace(/^Photos?: /, ""),
+          },
         });
     }
     for (const r of records) {
       for (const st of r.stamps) {
+        const at = placeNamed(st.name);
         if (st.at > 0)
           out.push({
             id: `s-${r.id}-${st.name}`,
@@ -130,6 +148,8 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
             note: `${r.title} · ${r.place}`,
             tag: "Hunt stamp",
             image: huntImage(r.id),
+            real: at ? realPhoto(at) : undefined,
+            area: areaName(at),
           });
       }
       if (r.finished && r.finishedAt) {
@@ -174,6 +194,7 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
   const today = localToday();
   const shown = all ? days : days.slice(0, SHOWN);
   const photo = viewing ? photos.find((p) => p.id === viewing) : undefined;
+  const sharingDay = sharing ? days.find((d) => d.day === sharing) : undefined;
 
   return (
     <section className={styles.journal} aria-labelledby="journal-title">
@@ -216,7 +237,14 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
           onView={setViewing}
         />
       ) : (
-        shown.map((d) => <Day key={d.day} day={d} onView={setViewing} />)
+        shown.map((d) => (
+          <Day
+            key={d.day}
+            day={d}
+            onView={setViewing}
+            onShare={d.entries.length ? () => setSharing(d.day) : undefined}
+          />
+        ))
       )}
       {days.length > SHOWN && (
         <button
@@ -239,66 +267,187 @@ export default function Journal({ onSnap }: { onSnap?: () => void } = {}) {
         />
       )}
       {photo && <PhotoSheet photo={photo} onClose={() => setViewing(null)} />}
+      {sharingDay && (
+        <Travelogue day={sharingDay} onClose={() => setSharing(null)} />
+      )}
     </section>
+  );
+}
+
+const FAN = [
+  { x: 0, y: 0, r: -3 },
+  { x: 16, y: -6, r: 5 },
+  { x: -14, y: -10, r: -9 },
+  { x: 22, y: -14, r: 10 },
+  { x: -6, y: -18, r: -14 },
+];
+
+/**
+ * The day's pictures as a fan of prints in 3D: swipe the top one away to see the next (it slides to the back), tap it
+ * to make the day's travelogue.
+ */
+function PhotoStack({
+  frames,
+  label,
+  onOpen,
+}: {
+  frames: Frame[];
+  label: string;
+  onOpen: () => void;
+}) {
+  const reduce = useReducedMotion();
+  const cards = frames.slice(0, 5);
+  const [order, setOrder] = useState(() => cards.map((_, i) => i));
+  const n = cards.length;
+  // a drag that ends on the card must not also open the studio
+  const dragged = useRef(0);
+  const fling = (_: unknown, info: PanInfo) => {
+    dragged.current = Date.now();
+    if (Math.abs(info.offset.x) > 60 || Math.abs(info.velocity.x) > 450)
+      setOrder((o) => [...o.slice(1), o[0]]);
+  };
+  const open = () => {
+    if (Date.now() - dragged.current > 300) onOpen();
+  };
+  return (
+    <div className={styles.stack} role="group" aria-label={label}>
+      {cards.map((f, i) => {
+        const depth = order.indexOf(i);
+        const fan = FAN[depth];
+        const top = depth === 0;
+        return (
+          <motion.button
+            key={f.id}
+            type="button"
+            className={styles.polaroid}
+            style={{ zIndex: n - depth, touchAction: "pan-y" }}
+            tabIndex={top ? 0 : -1}
+            aria-hidden={!top}
+            aria-label={
+              top ? `${f.title}. Make a travelogue of this day` : undefined
+            }
+            initial={
+              reduce
+                ? false
+                : { x: 0, y: 30, rotate: 0, scale: 0.9, opacity: 0 }
+            }
+            animate={{
+              x: fan.x,
+              y: fan.y,
+              rotate: fan.r,
+              scale: 1 - depth * 0.045,
+              opacity: 1,
+              rotateY: top ? 0 : depth % 2 ? -8 : 8,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 220,
+              damping: 22,
+              delay: reduce ? 0 : depth * 0.06,
+            }}
+            drag={top && n > 1 ? "x" : false}
+            dragSnapToOrigin
+            dragElastic={0.7}
+            whileDrag={{ scale: 1.04, rotate: 0, cursor: "grabbing" }}
+            onDragStart={() => (dragged.current = Date.now())}
+            onDragEnd={fling}
+            onTap={top ? open : undefined}
+          >
+            <img src={f.src} alt="" draggable={false} />
+            <span>{f.title}</span>
+          </motion.button>
+        );
+      })}
+      {n > 1 && (
+        <span className={styles.count} aria-hidden="true">
+          {order[0] + 1}/{n}
+        </span>
+      )}
+    </div>
   );
 }
 
 function Day({
   day,
   onView,
+  onShare,
 }: {
   day: JournalDay;
   onView: (id: string) => void;
+  onShare?: () => void;
 }) {
+  const reduce = useReducedMotion();
   const { num, month, weekday } = dayParts(day.day);
-  const cover = day.cover;
+  const [open, setOpen] = useState(false);
+  const frames = useMemo(() => {
+    const real = framesOf(day, 5);
+    if (real.length || !day.cover?.image) return real;
+    return [
+      {
+        id: day.cover.id,
+        src: day.cover.image,
+        title: day.cover.title,
+        own: false,
+      },
+    ];
+  }, [day]);
+  const areas = [
+    ...new Set(day.entries.flatMap((e) => (e.area ? [e.area] : []))),
+  ];
   const tally = [
     [day.stats.places, "place", "places"],
     [day.stats.stamps, "stamp", "stamps"],
     [day.stats.photos, "photo", "photos"],
   ] as const;
+  const shown = open ? day.entries : day.entries.slice(0, ENTRIES);
   return (
     <article className={styles.day}>
       <div className={styles.top}>
-        <p className={styles.date}>
-          <b>{num}</b>
-          <span>{month}</span>
-          <small>{weekday}</small>
-        </p>
-        {(cover?.image || day.entries.length > 0) && (
-          <div className={styles.prints}>
-            <dl
-              className={`${styles.tally} ${cover?.image ? "" : styles.tallyAlone}`}
-            >
-              {(tally.some(([n]) => n > 0)
-                ? tally.filter(([n]) => n > 0)
-                : tally.slice(0, 1)
-              ).map(([n, one, many]) => (
-                <div key={one}>
-                  <dt>{n}</dt>
-                  <dd>{n === 1 ? one : many}</dd>
-                </div>
+        <div className={styles.side}>
+          <p className={styles.date}>
+            <b>{num}</b>
+            <span>{month}</span>
+            <small>{weekday}</small>
+          </p>
+          {areas.length > 0 && (
+            <p className={styles.areas}>
+              {areas.slice(0, 3).map((a) => (
+                <span key={a}>{a}</span>
               ))}
+            </p>
+          )}
+          {day.entries.length > 0 && (
+            <dl className={styles.tally}>
+              {tally
+                .filter(([n]) => n > 0)
+                .map(([n, one, many]) => (
+                  <div key={one}>
+                    <dt>{n}</dt>
+                    <dd>{n === 1 ? one : many}</dd>
+                  </div>
+                ))}
             </dl>
-            {cover?.image &&
-              (cover.photoId ? (
-                <button
-                  type="button"
-                  className={styles.print}
-                  onClick={() => onView(cover.photoId!)}
-                  aria-label={`Open photo: ${cover.title}`}
-                >
-                  <img src={cover.image} alt="" />
-                </button>
-              ) : (
-                <span className={styles.print}>
-                  <img src={cover.image} alt="" />
-                </span>
-              ))}
-          </div>
+          )}
+          {onShare && (
+            <button
+              type="button"
+              className={styles.shareDay}
+              onClick={onShare}
+              aria-label={`Share ${weekday} ${num} ${month} as a travelogue`}
+            >
+              <Icon name="share" size={20} />
+            </button>
+          )}
+        </div>
+        {frames.length > 0 && (
+          <PhotoStack
+            frames={frames}
+            label={`Pictures from ${weekday} ${num} ${month}`}
+            onOpen={onShare ?? (() => undefined)}
+          />
         )}
       </div>
-      <ul className={styles.log}>
+      <ol className={styles.log}>
         {day.entries.length === 0 && (
           <li className={styles.entry}>
             <span className={styles.icon}>
@@ -310,12 +459,13 @@ function Day({
             </span>
           </li>
         )}
-        {day.entries.map((e) => {
+        {shown.map((e, i) => {
+          const thumb = e.kind === "photo" ? e.image : e.real?.src;
           const inner = (
             <>
               <span className={styles.icon}>
-                {e.kind === "photo" && e.image ? (
-                  <img src={e.image} alt="" />
+                {thumb ? (
+                  <img src={thumb} alt="" loading="lazy" />
                 ) : (
                   <Icon name={ICON[e.kind]} size={18} />
                 )}
@@ -323,15 +473,28 @@ function Day({
               <span className={styles.body}>
                 <b>{e.title}</b>
                 {e.note && <span>{e.note}</span>}
-                <i className={styles.tag}>{e.tag}</i>
               </span>
-              {e.at !== undefined && (
-                <time className={styles.when}>{clockOf(e.at)}</time>
-              )}
+              <span className={styles.meta}>
+                <i className={styles.tag}>{e.tag}</i>
+                {e.at !== undefined && (
+                  <time className={styles.when}>{clockOf(e.at)}</time>
+                )}
+              </span>
             </>
           );
           return (
-            <li key={e.id}>
+            <motion.li
+              key={e.id}
+              initial={reduce ? false : { opacity: 0, x: -14 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "0px 0px -24px 0px" }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 26,
+                delay: (i % ENTRIES) * 0.05,
+              }}
+            >
               {e.photoId ? (
                 <button
                   type="button"
@@ -343,10 +506,25 @@ function Day({
               ) : (
                 <div className={styles.entry}>{inner}</div>
               )}
-            </li>
+            </motion.li>
           );
         })}
-      </ul>
+      </ol>
+      {day.entries.length > ENTRIES && (
+        <button
+          type="button"
+          className={styles.more}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+        >
+          {open ? "Show less" : `Show all ${day.entries.length}`}
+          <Icon
+            name="chevron"
+            size={16}
+            style={{ transform: `rotate(${open ? -90 : 90}deg)` }}
+          />
+        </button>
+      )}
       {day.from !== undefined && day.to !== undefined && (
         <p className={styles.span}>
           <Icon name="clock" size={14} />
