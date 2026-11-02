@@ -7,7 +7,8 @@
   gap: 10px;
   max-width: var(--content-max);
   margin: 0 auto;
-  /* where AppShell puts the tab guide's roll (its left edge, its bottom): the deck sits beside it, level with its foot */
+  /* where AppShell puts the tab scroll (its inset from the right edge, its bottom): the deck sits beside it, level with
+     its foot */
   --guide-x: var(--gutter);
   --guide-bottom: 1.75rem;
   padding: calc(var(--status-h) + 4px) var(--gutter) calc(var(--guide-bottom) - 9px);
@@ -418,19 +419,19 @@
   color: rgba(59, 38, 20, 0.62);
 }
 
-/* The deck sits beside the tab guide's roll (rod 26px + its tag 44px, overlapping 8px, and a 6px gap) and reaches
-   past the right gutter, as cover art does. */
+/* The deck sits beside the rolled-up tab scroll (two 20px rollers, their knobs 4px wider, and an 8px gap) and reaches
+   past the left gutter, as cover art does. */
 .deckBox {
   position: relative;
   flex: 0 0 auto;
   height: clamp(176px, 26vh, 222px);
-  margin: 0 calc(-1 * var(--gutter)) 0 calc(var(--guide-x) - var(--gutter) + 68px);
+  margin: 0 calc(var(--guide-x) - var(--gutter) + 52px) 0 calc(-1 * var(--gutter));
   transition:
     transform 0.5s cubic-bezier(0.55, 0.1, 0.25, 1),
     opacity 0.4s;
 }
 
-/* The guide unrolled across the bottom: the deck (stacked by CoverFlow3D) rises clear of the paper and steps back. */
+/* The scroll unrolled across the bottom: the deck (stacked by CoverFlow3D) rises clear of the paper and steps back. */
 :global(html[data-guide-open]) .deckBox {
   transform: translateY(-22px) scale(0.94);
   transform-origin: 50% 0;

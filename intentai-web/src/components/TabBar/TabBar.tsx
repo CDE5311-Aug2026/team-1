@@ -1,6 +1,7 @@
-// The app's four tabs as a field guide: a small parchment roll tucked in the bottom-left corner, tagged with the tab
-// you are on, so pages keep the whole width (Home sets its deck beside it). Tap it and the guide unrolls to the right
-// across the bottom: four icons, one word each. Pick one (or tap outside, or press Escape) and it rolls back up.
+// The app's four tabs as a hand scroll: two rollers tied together in the bottom-right corner (under the thumb), a wax
+// seal on the ribbon showing the tab you are on, so pages keep the whole width (Home sets its deck beside it). Tap it
+// and the left roller rolls out across the bottom while the right one stays put; both turn and thin as the paper comes
+// off them: four icons, one word each. Pick one (or tap a roller, outside, or press Escape) and it rolls back up.
 // While it is open the page is told (html[data-guide-open] and a 'guide' event), so what lies under it can make way.
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { staticCopy } from '../../data/expressions';
@@ -128,26 +129,29 @@ export default function TabBar({ active, onNavigate, nodeId, pop = false }: TabB
         </div>
       </div>
 
+      {/* the left roller: it travels out to the left as the paper unrolls (a tap on it toggles too) */}
+      <span className={`${styles.roller} ${styles.rollerL}`} onClick={() => setOpen(!open)} aria-hidden="true">
+        <span className={styles.core} />
+        <span className={styles.paper} />
+        <span className={styles.curl} />
+      </span>
+      {/* the right roller stays in the corner, under the thumb: the guide's one button */}
       <button
         ref={roll}
         type="button"
-        className={styles.roll}
+        className={`${styles.roller} ${styles.rollerR}`}
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-controls="field-guide"
         aria-label={open ? 'Roll up the tabs' : `Tabs: on ${current.label}. Unroll to switch`}
       >
-        <span className={styles.cap} aria-hidden="true" />
-        <span className={styles.rod} aria-hidden="true" />
-        <span className={styles.cap} aria-hidden="true" />
-        <span className={styles.tag} aria-hidden="true">
-          <span className={styles.tagIcon}>
-            <GuideIcon label={current.label} />
-          </span>
-          <span className={styles.chev}>›</span>
-        </span>
-        <span className={styles.close} aria-hidden="true">
-          ‹
+        <span className={styles.core} aria-hidden="true" />
+        <span className={styles.paper} aria-hidden="true" />
+        <span className={styles.curl} aria-hidden="true" />
+        {/* rolled up, a ribbon ties the two rollers and its wax seal shows the tab you are on */}
+        <span className={styles.ribbon} aria-hidden="true" />
+        <span className={styles.seal} aria-hidden="true">
+          <GuideIcon label={current.label} />
         </span>
       </button>
     </nav>
