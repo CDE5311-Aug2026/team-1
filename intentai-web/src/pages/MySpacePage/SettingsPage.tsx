@@ -29,7 +29,8 @@ import { paths } from '../../routes';
 import Icon, { type IconName } from '../OnboardingPage/v3/icons';
 import FieldEditor from './v3/FieldEditor';
 import MemorySection from './v3/MemorySection';
-import { SubHeader, Switch } from './v3/Parts';
+import { Kraft, SubHeader, Switch } from './v3/Parts';
+import book from './v3/Booklet.module.css';
 import styles from './v3/MySpace.module.css';
 
 type NotifyKey = keyof MySpacePrefs['notify'];
@@ -41,8 +42,8 @@ const km = (m: number) => `${m / 1000} km`;
 const NOTIFY: { key: NotifyKey; icon: IconName; title: string; sub: string }[] = [
   { key: 'localAnswers', icon: 'chat', title: 'Local answers', sub: 'When a local answers your question' },
   { key: 'recaps', icon: 'cards', title: 'Recap reminders', sub: 'A 1-minute recap of your cards' },
-  { key: 'occasions', icon: 'calendar', title: 'Occasions', sub: 'Needs Flag occasions in My Space' },
-  { key: 'nearYou', icon: 'pin', title: 'Questions near you', sub: 'Only while Answer as a local is on' },
+  { key: 'occasions', icon: 'calendar', title: 'Occasions', sub: '' },
+  { key: 'nearYou', icon: 'pin', title: 'Questions near you', sub: '' },
 ];
 
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { id: T; label: string }[]; onChange: (v: T) => void }) {
@@ -93,10 +94,10 @@ export default function SettingsPage() {
   const topics = canonicalPrefs(culture.categories).categories.map(categoryLabel).join(', ');
 
   return (
-    <AppShell background="#edebe5">
-      <div className={styles.screen}>
-        <SubHeader />
-        <h1 className={styles.pageTitle}>Settings</h1>
+    <AppShell background="#c8a87a" chrome="status">
+      <Kraft />
+      <div className={`${styles.screen} ${book.screen} ${styles.kraft}`}>
+        <SubHeader title="Settings" />
 
         <h2 className={styles.kicker}>Notifications</h2>
         <div className={styles.card}>
@@ -109,13 +110,15 @@ export default function SettingsPage() {
                 </span>
                 <span className={styles.rowText}>
                   <span className={styles.rowTitle}>{n.title}</span>
-                  <span className={needs ? `${styles.rowSub} ${styles.blockedHint}` : styles.rowSub} id={`hint-${n.key}`}>
-                    {needs ?? (n.key === 'occasions' ? 'Flag occasions is on' : n.key === 'nearYou' ? 'Answer as a local is on' : n.sub)}
-                  </span>
+                  {(needs ?? n.sub) && (
+                    <span className={needs ? `${styles.rowSub} ${styles.blockedHint}` : styles.rowSub} id={`hint-${n.key}`}>
+                      {needs ?? n.sub}
+                    </span>
+                  )}
                 </span>
                 <Switch
                   label={n.title}
-                  describedBy={`hint-${n.key}`}
+                  describedBy={needs ?? n.sub ? `hint-${n.key}` : undefined}
                   checked={!needs && prefs.notify[n.key]}
                   disabled={!!needs}
                   onBlocked={() => showToast(needs!)}
@@ -282,22 +285,17 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <h2 className={styles.kicker}>Onboarding</h2>
-        <div className={styles.card}>
+        <h2 className={styles.kicker}>More</h2>
+        <nav className={styles.card} aria-label="More">
           <Link to={`${paths.welcome}?step=1`} className={styles.row}>
             <span className={styles.rowIcon}>
               <Icon name="redo" size={18} />
             </span>
             <span className={styles.rowText}>
               <span className={styles.rowTitle}>Redo onboarding</span>
-              <span className={styles.rowSub}>Your answers are kept; change any of them. Leave any time with ✕.</span>
             </span>
             <Icon name="chevron" size={18} className={styles.rowChevron} />
           </Link>
-        </div>
-
-        <h2 className={styles.kicker}>More</h2>
-        <nav className={styles.card} aria-label="More">
           <Link to={paths.mySpacePrivacy} className={styles.row}>
             <span className={styles.rowIcon}>
               <Icon name="shield" size={18} />
@@ -328,7 +326,6 @@ export default function SettingsPage() {
             <Icon name="chevron" size={18} className={styles.rowChevron} />
           </button>
         </nav>
-        <p className={styles.footerNote}>FindSG · beta</p>
       </div>
       {editing && <FieldEditor field={editing} profile={profile} onClose={() => setEditing(null)} />}
     </AppShell>

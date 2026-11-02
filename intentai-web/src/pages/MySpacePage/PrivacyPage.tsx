@@ -22,7 +22,8 @@ import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import { tracker } from '../../usage/appTracker';
 import Icon from '../OnboardingPage/v3/icons';
-import { SubHeader, Switch } from './v3/Parts';
+import { Kraft, SubHeader, Switch } from './v3/Parts';
+import book from './v3/Booklet.module.css';
 import StorageBar, { AREA_LOOK } from './v3/StorageBar';
 import styles from './v3/MySpace.module.css';
 
@@ -141,10 +142,10 @@ export default function PrivacyPage() {
   };
 
   return (
-    <AppShell background="#edebe5">
-      <div className={styles.screen}>
-        <SubHeader />
-        <h1 className={styles.srOnly}>Privacy & data</h1>
+    <AppShell background="#c8a87a" chrome="status">
+      <Kraft />
+      <div className={`${styles.screen} ${book.screen} ${styles.kraft}`}>
+        <SubHeader title="Privacy & data" back={paths.mySpace} />
         <section className={styles.hero}>
           <span className={styles.heroShield} aria-hidden="true">
             <Icon name="lock" size={30} />

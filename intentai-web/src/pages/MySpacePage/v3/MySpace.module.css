@@ -1500,3 +1500,417 @@ div.perm {
   flex-direction: column;
   gap: 0.5rem;
 }
+
+/* ---------- Settings, Privacy, Licences on Passport's kraft (2 Nov 2026) ----------
+   The pages a gear or a Passport line opens wear the Passport's materials: kraft paper behind, Oswald headings ruled
+   like "On file", every group in the stitched leather of the Passport's ledger, brass beads and switches, and a paper
+   slip wherever text is read rather than set. */
+
+.barBack.barBack {
+  justify-self: start;
+}
+
+.kraft {
+  --leather-line: rgba(240, 214, 170, 0.14);
+  --cream-soft: rgba(242, 232, 213, 0.72);
+}
+
+.kraft .kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0.625rem 0 0;
+  font: 500 1.125rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--ink);
+}
+
+.kraft .kicker::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid rgba(44, 33, 23, 0.3);
+  box-shadow: 0 2px 0 -1px rgba(44, 33, 23, 0.12);
+}
+
+.kraft .sectionHead {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.kraft .sectionHead .kicker {
+  flex: 1;
+  margin: 0;
+}
+
+.kraft .total {
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+/* the stitched leather of the Passport's ledger */
+.kraft .card,
+.kraft .hero,
+.kraft .exportBtn {
+  position: relative;
+  border-radius: 22px;
+  color: var(--cream);
+  background:
+    radial-gradient(120% 80% at 30% 0%, rgba(255, 225, 180, 0.16), transparent 60%),
+    linear-gradient(180deg, #634530 0%, #47301f 55%, #3a2717 100%);
+  box-shadow:
+    0 12px 24px rgba(40, 24, 10, 0.34),
+    inset 0 1px 0 rgba(255, 225, 180, 0.2);
+}
+
+.kraft .card {
+  padding: 0.375rem 0.5rem;
+}
+
+.kraft .card::before,
+.kraft .hero::before,
+.kraft .exportBtn::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1.5px dashed rgba(240, 214, 170, 0.4);
+  border-radius: 17px;
+  pointer-events: none;
+}
+
+.kraft .row,
+.kraft .switchRow,
+.kraft .storeRow,
+.kraft .rowPad,
+.kraft .licenceList li,
+.kraft .memoryActions {
+  border-top-color: var(--leather-line);
+}
+
+.kraft .row,
+.kraft .switchRow,
+.kraft .storeRow {
+  min-height: 3.75rem;
+  padding: 0.5rem;
+}
+
+.kraft .rowPad {
+  padding: 0.75rem 0.5rem;
+}
+
+/* brass beads in place of the tinted squares */
+.kraft .rowIcon,
+.kraft .permIcon,
+.kraft .storeIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  color: var(--brass);
+  background: rgba(20, 12, 6, 0.35);
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 201, 131, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  font: 500 1rem/1 var(--font-display);
+}
+
+.kraft .storeIcon {
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 240, 210, 0.45), inset 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.kraft .rowTitle {
+  font: 500 1.0625rem/1.15 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.kraft .rowSub,
+.kraft .rowValue,
+.kraft .memorySource,
+.kraft .memoryEmpty,
+.kraft .deleteText,
+.kraft .licenceList {
+  color: var(--cream-soft);
+}
+
+.kraft .rowValue,
+.kraft .size {
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.03em;
+  color: var(--brass);
+}
+
+.kraft .blockedHint {
+  color: #f2a974;
+}
+
+.kraft .rowChevron {
+  color: rgba(232, 201, 131, 0.7);
+}
+
+/* the shared switch, in brass and leather (as on the Passport) */
+.kraft .switch {
+  background: rgba(20, 12, 6, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.kraft .switch[aria-checked='true'] {
+  background: linear-gradient(180deg, #ef7a32, #d45a17);
+  box-shadow: inset 0 0 0 1px rgba(255, 210, 160, 0.4);
+}
+
+.kraft .knob {
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+}
+
+/* a two-way choice: a brass plate slides between two engraved words */
+.kraft .segmented {
+  background: rgba(20, 12, 6, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.kraft .segment {
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--cream-soft);
+}
+
+.kraft .segment[aria-checked='true'] {
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+  color: var(--ink);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* a brass bead running on a thread, so it never reads as a switch */
+.kraft .motionPreview {
+  width: 3.5rem;
+  background: linear-gradient(rgba(232, 201, 131, 0.4), rgba(232, 201, 131, 0.4)) center / 100% 1px no-repeat;
+}
+
+.kraft .motionDot {
+  background: var(--brass);
+}
+
+/* a notched brass rule with a brass knob */
+.kraft .range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.kraft .range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(232, 201, 131, 0.4);
+}
+
+.kraft .range::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(232, 201, 131, 0.4);
+}
+
+.kraft .range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  margin-top: calc(2px - 0.6875rem);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.kraft .range::-moz-range-thumb {
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.kraft .rangeTicks {
+  font: 500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--cream-soft);
+}
+
+/* text that is read sits on a paper slip, as the Passport's "On file" */
+.kraft .textPreview,
+.kraft .memoryItem,
+.kraft .perm,
+.kraft .hold {
+  border: 0;
+  border-radius: 10px;
+  color: var(--ink);
+  background:
+    radial-gradient(120% 80% at 30% 0%, rgba(255, 252, 240, 0.85), transparent 60%),
+    linear-gradient(170deg, #f7efdc, #efe2c4);
+  box-shadow:
+    0 0 0 1px rgba(120, 78, 30, 0.2),
+    0 6px 12px rgba(30, 18, 8, 0.25);
+}
+
+.kraft .textPreview {
+  font-family: var(--font-serif, Georgia, serif);
+}
+
+.kraft .memoryText,
+.kraft .perm .rowSub {
+  color: var(--ink);
+}
+
+.kraft .memoryItem .memorySource,
+.kraft .perm .rowSub {
+  color: var(--ink-soft);
+}
+
+.kraft .memoryForget {
+  color: var(--ink-soft);
+}
+
+.kraft .memoryForget:hover {
+  background: rgba(120, 78, 30, 0.12);
+}
+
+.kraft .memoryInput {
+  border: 0;
+  background: rgba(20, 12, 6, 0.4);
+  color: var(--cream);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.kraft .memoryInput::placeholder {
+  color: rgba(242, 232, 213, 0.5);
+}
+
+.kraft .memoryAddButton,
+.kraft .memoryGhost,
+.kraft .clear {
+  border: 0;
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+  color: var(--ink);
+}
+
+.kraft .memoryGhost,
+.kraft .clear {
+  background: rgba(20, 12, 6, 0.35);
+  color: var(--brass);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.4);
+}
+
+.kraft .memoryAddButton:disabled {
+  background: rgba(232, 201, 131, 0.25);
+  color: var(--cream-soft);
+}
+
+.kraft .memoryDanger {
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  background: var(--red-ink);
+}
+
+.kraft .memoryFocus .card {
+  box-shadow:
+    0 0 0 2px var(--brass),
+    0 12px 24px rgba(40, 24, 10, 0.34);
+}
+
+.kraft .inlineLink,
+.kraft .licenceList a {
+  color: var(--brass);
+}
+
+.kraft .creditSubject {
+  color: var(--cream);
+}
+
+.kraft .licenceTerms {
+  color: var(--ink-soft);
+}
+
+/* Privacy: the hero is the ledger's cover, the permissions are slips */
+.kraft .hero::before {
+  border-radius: 17px;
+}
+
+.kraft .heroShield {
+  color: var(--brass);
+  border-color: rgba(232, 201, 131, 0.45);
+}
+
+.kraft .heroTitle {
+  font: 500 1.25rem/1.15 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.kraft .heroText {
+  color: var(--cream-soft);
+}
+
+.kraft .perm .permIcon {
+  color: var(--ink);
+  background: rgba(120, 78, 30, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(120, 78, 30, 0.3);
+}
+
+.kraft .permOn,
+.kraft .permOff {
+  font: 500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: none;
+  padding: 0.25rem 0.4375rem;
+  border-radius: 4px;
+}
+
+.kraft .permOn {
+  color: #2f6b3a;
+  box-shadow: inset 0 0 0 1.5px rgba(47, 107, 58, 0.6);
+}
+
+.kraft .permOff {
+  color: var(--ink-soft);
+  box-shadow: inset 0 0 0 1.5px rgba(92, 74, 54, 0.4);
+}
+
+.kraft .card .permOff {
+  color: var(--cream-soft);
+  box-shadow: inset 0 0 0 1.5px rgba(242, 232, 213, 0.35);
+}
+
+.kraft .hold {
+  margin: 0.25rem 0.5rem 0.5rem;
+  color: var(--red-ink);
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  box-shadow: inset 0 0 0 1.5px var(--red-ink), 0 6px 12px rgba(30, 18, 8, 0.25);
+}
+
+.kraft .holdFill {
+  background: rgba(155, 44, 28, 0.22);
+}
+
+.kraft .deleteText {
+  padding: 0.75rem 0.5rem 0.5rem;
+}
+
+.kraft .bar {
+  margin: 0.75rem 0.5rem 0.375rem;
+}
+
+.kraft .row:focus-visible,
+.kraft .switch:focus-visible,
+.kraft .segment:focus-visible,
+.kraft .clear:focus-visible,
+.kraft .exportBtn:focus-visible,
+.kraft .range:focus-visible {
+  outline: 2px solid var(--brass);
+}
+
+/* Passport's "Manage" lands on Memory below the sticky bar */
+.kraft .memoryFocus {
+  scroll-margin-top: 4.5rem;
+}

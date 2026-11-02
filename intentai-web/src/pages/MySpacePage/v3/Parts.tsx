@@ -1,7 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
-import logo from '../../../assets/brand/findsg-logo.png';
+import { useLocation, useNavigate } from 'react-router-dom';
+import bar from '../../../components/PageBar/PageBar.module.css';
 import { paths } from '../../../routes';
 import Icon from '../../OnboardingPage/v3/icons';
+import book from './Booklet.module.css';
 import styles from './MySpace.module.css';
 
 /**
@@ -39,17 +40,22 @@ export function Switch({
   );
 }
 
-/** S2 / S3 header: back (to My Space unless `back` says otherwise) and the logo. */
-export function SubHeader({ back = paths.mySpace }: { back?: string } = {}) {
+/** The bar of a page opened from somewhere (Settings, Privacy, Licences): back, the title, nothing else. Back returns
+ * to wherever the page was opened from (Hunt, Today, Passport...); a page opened straight from a link goes to `back`. */
+export function SubHeader({ title, back = paths.today }: { title: string; back?: string }) {
   const navigate = useNavigate();
+  const { key } = useLocation();
   return (
-    <header className={styles.subHeader}>
-      <button type="button" className={styles.square} aria-label="Back" onClick={() => navigate(back)}>
-        <Icon name="back" size={22} />
+    <header className={`${bar.bar} ${bar.light} ${book.bar}`}>
+      <button type="button" className={`${bar.settings} ${styles.barBack}`} aria-label="Back" onClick={() => (key === 'default' ? navigate(back) : navigate(-1))}>
+        <Icon name="back" size={20} />
       </button>
-      <Link to={paths.today} aria-label="Home" className={styles.logoLink}>
-        <img src={logo} alt="" width={40} height={40} />
-      </Link>
+      <h1 className={bar.title}>{title}</h1>
     </header>
   );
+}
+
+/** Passport's kraft paper behind a page that belongs to it. */
+export function Kraft() {
+  return <span className={book.backdrop} style={{ backgroundImage: `url(${import.meta.env.BASE_URL}home/paper.webp)` }} aria-hidden="true" />;
 }

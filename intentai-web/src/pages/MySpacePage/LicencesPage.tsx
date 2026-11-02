@@ -11,7 +11,8 @@ import { HOME_PLACES } from '../../data/homePlaces';
 import { curatedPlace } from '../../features/nearby/catalogue';
 import { THUMB_CREDIT } from '../../features/nearby/thumbs';
 import { paths } from '../../routes';
-import { SubHeader } from './v3/Parts';
+import { Kraft, SubHeader } from './v3/Parts';
+import book from './v3/Booklet.module.css';
 import styles from './v3/MySpace.module.css';
 
 export const TERMS = 'IntentAI is a student prototype for a user test. Your data stays on this phone.';
@@ -95,10 +96,10 @@ function Item({ c }: { c: Credit }): ReactNode {
 
 export default function LicencesPage() {
   return (
-    <AppShell background="#edebe5">
-      <div className={styles.screen}>
-        <SubHeader back={paths.mySpaceSettings} />
-        <h1 className={styles.pageTitle}>Terms &amp; licences</h1>
+    <AppShell background="#c8a87a" chrome="status">
+      <Kraft />
+      <div className={`${styles.screen} ${book.screen} ${styles.kraft}`}>
+        <SubHeader title="Terms & licences" back={paths.mySpaceSettings} />
         <p className={styles.licenceTerms}>{TERMS}</p>
         {creditGroups().map((g) => (
           <section key={g.title} className={styles.licenceSection} aria-labelledby={`licences-${g.title.toLowerCase().replace(/\s+/g, '-')}`}>

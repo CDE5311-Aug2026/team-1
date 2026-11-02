@@ -233,3 +233,12 @@ test('Settings › Redo onboarding opens question 1', async () => {
   await userEvent.click(screen.getByRole('link', { name: /Redo onboarding/ }));
   expect(screen.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuenow', '1');
 });
+
+test('Settings is a page you open and close: no tab scroll, and Back returns to where it was opened', async () => {
+  renderAt(paths.today);
+  await userEvent.click(await screen.findByRole('link', { name: 'Settings' }));
+  expect(currentPath()).toBe(paths.mySpaceSettings);
+  expect(screen.queryByRole('navigation', { name: 'Primary' })).toBeNull();
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(currentPath()).toBe(paths.today);
+});
