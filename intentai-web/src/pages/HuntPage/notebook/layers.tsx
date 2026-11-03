@@ -1,7 +1,9 @@
 // What every story's book opens over the desk, the same for the prologue and the four routes: the unfolded map, the
 // clue cards fanned out, the chest's ending and a film. The game's Clues button opens the very same clue cards
 // (ClueLibrary), so a story has one place for its clues, whether you are reading the book or out on the street.
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { sendStop, type FindSGStop } from '../../../findsg';
+import { DecodeShelf } from './DecodeShelf';
 import { chapter, shortChapter, type Chapter, type ChapterStop, type Film } from './chapters';
 import { CardFan } from './CardBox';
 import { FilmProjector } from './FilmProjector';
@@ -20,12 +22,15 @@ export function ChapterLayers({
   layer,
   setLayer,
   onGo,
+  extra,
 }: {
   ch: Chapter;
   layer: Layer | null;
   setLayer(next: Layer | null): void;
   /** A stop picked on the map or on a card. */
   onGo(stop: ChapterStop): void;
+  /** Under the clue cards (in a story: the decode cards and the night race). */
+  extra?: ReactNode;
 }) {
   const film = (reel: Film[], title: string, back?: Layer) => reel.length > 0 && setLayer({ kind: 'film', reel, title, back });
   // a stop already found shows its clue card; any other goes out to play it
@@ -41,6 +46,7 @@ export function ChapterLayers({
         onClose={() => setLayer(null)}
         onFilm={(reel, title) => film(reel, title, layer)}
         onGo={go}
+        extra={extra}
       />
     );
   if (layer.kind === 'ending') return <EndingScroll ch={ch} onClose={() => setLayer(null)} onFilm={() => film(ch.endingFilms, ch.ending.title, layer)} />;
@@ -54,6 +60,20 @@ export function ClueLibrary({ routeId, onClose }: { routeId: string; onClose(): 
   const set = (next: Layer | null) => (next ? setLayer(next) : onClose());
   // out on the street already: a card's "go" just puts the cards away
   return <ChapterLayers ch={ch} layer={layer} setLayer={set} onGo={onClose} />;
+}
+
+/** A story's Map or Clues tab, opened over the stop being played. Under the clue cards lie the decode cards and the
+ * night race that wins them (owner, 3 Nov 2026); both act on the stop through the game's own commands. */
+export function PlayLayer({ routeId, kind, stop, onClose }: { routeId: string; kind: 'map' | 'clues'; stop: FindSGStop | null; onClose(): void }) {
+  const [ch] = useState(() => chapter(routeId));
+  const [layer, setLayer] = useState<Layer | null>(kind === 'map' ? { kind: 'map' } : { kind: 'cards' });
+  const set = (next: Layer | null) => (next ? setLayer(next) : onClose());
+  const away = (type: 'race' | 'decode') => () => {
+    onClose();
+    sendStop(type);
+  };
+  const extra = kind === 'clues' && stop ? <DecodeShelf stop={stop} onRace={away('race')} onDecode={away('decode')} /> : undefined;
+  return <ChapterLayers ch={ch} layer={layer} setLayer={set} onGo={onClose} extra={extra} />;
 }
 
 export function EndingScroll({ ch, onClose, onFilm }: { ch: Chapter; onClose(): void; onFilm(): void }) {

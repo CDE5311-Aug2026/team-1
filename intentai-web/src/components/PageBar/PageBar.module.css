@@ -97,8 +97,32 @@ span.avatar {
   white-space: nowrap;
 }
 
+.titles {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+/* Hunt: the open story's name under the page's */
+.subtitle {
+  margin: 0;
+  max-width: 52vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: italic 400 0.875rem/1.1 'IM Fell English', Georgia, serif;
+  color: var(--pill-ink);
+}
+.right {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .settings {
   justify-self: end;
+  padding: 0;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;

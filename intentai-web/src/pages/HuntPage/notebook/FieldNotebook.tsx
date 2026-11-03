@@ -4,8 +4,6 @@
 // page.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { DisplayCase } from './Cabinet';
-import { NotesPage, RecordPage } from './BackPages';
-import { recordOf, routeRows } from './record';
 import { BookCover, bookOf, Bookshelf, type BookId, type ShelfProgress } from './Bookshelf';
 import { chapters as readChapters, shortProgress, type Chapter } from './chapters';
 import { ChapterLayers, type Layer } from './layers';
@@ -40,7 +38,7 @@ const SHELF_KEY = 'hunt-shelf';
 const pageKey = (id: string) => `hunt-page-${id}`;
 
 /** A route book's pages, in order (their thumb tabs). A stop's page shows the same tabs; each opens the book there. */
-export const BOOK_TABS = ['Story', 'Map', 'Clues', 'Notes', 'Record'] as const;
+export const BOOK_TABS = ['Story', 'Map', 'Clues'] as const;
 
 /** Leave a stop for its book, open at one of its pages (or put it back on the shelf with null). */
 export function openBookAt(id: BookId | null, page = 0) {
@@ -203,6 +201,14 @@ function Book({
   }, [id]);
 
   const ch = chs.find((c) => c.routeId === id);
+  // owner's sketch (3 Nov 2026): a story's book opens on the story itself, the page you play; once the cover has
+  // swung open, the book turns to it (its Map and Clues are tabs on that page)
+  useEffect(() => {
+    if (!open || !ch) return;
+    const t = setTimeout(() => onRoute(ch.routeId), 650);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, ch?.routeId]);
   const pages: NotebookPage[] = ch
     ? [
         {
@@ -222,18 +228,6 @@ function Book({
           tab: 'Clues',
           label: `Vol. ${def.roman} · The clue cards`,
           render: () => <ChapterCardsPage ch={ch} onCards={() => setLayer({ kind: 'cards' })} onChest={() => setLayer({ kind: 'ending' })} />,
-        },
-        {
-          id: `${ch.routeId}-notes`,
-          tab: 'Notes',
-          label: `Vol. ${def.roman} · Field notes`,
-          render: () => <NotesPage story={id} stops={ch.stops.map((st) => ({ id: st.id, name: st.name }))} />,
-        },
-        {
-          id: `${ch.routeId}-record`,
-          tab: 'Record',
-          label: `Vol. ${def.roman} · The record`,
-          render: () => <RecordPage record={recordOf(id)} rows={routeRows(ch.routeId, ch.stops)} />,
         },
       ]
     : [];

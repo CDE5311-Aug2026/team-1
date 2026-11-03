@@ -13,7 +13,9 @@ import {readOnsite,saveOnsite,emitOnsiteEvent} from './onsite-storage.js';
 import './story-game.css';
 import './onsite-game.css';
 import OnsiteCompact from './OnsiteCompact.jsx';
-import {canRace,readBoost,writeBoost,solveActions} from './race-boost.js';
+import {canRace,readCards,writeCards,decodeStop} from './race-boost.js';
+import {publishStop} from './stop-bridge.js';
+import {clearFinish} from './case-record.js';
 import {questStage} from './quest-logic.js';
 const QuestViewport=lazy(()=>import('./QuestViewport.jsx'));
 const RaceSheet=lazy(()=>import('./RaceSheet.jsx'));
@@ -47,7 +49,7 @@ function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
  const config=ONSITE_ROUTES[routeId],story=GAME_STORIES[routeId],base=findStory(routeId),meta=ROUTES[routeId];
  const [game,setGame]=useState(()=>readOnsite(routeId,config.stops)),[saved,setSaved]=useState(true),[showReference,setShowReference]=useState(false),[celebrated,setCelebrated]=useState(false),[sceneKey,setSceneKey]=useState(0),[uiFeedback,setUiFeedback]=useState('');
  const current=useRef(game);current.current=game;
- const compact=useCompact(),[sheet,setSheet]=useState(false),[raceOpen,setRaceOpen]=useState(false),[boost,setBoost]=useState(()=>readBoost(routeId,game.mode));
+ const compact=useCompact(),[sheet,setSheet]=useState(false),[raceOpen,setRaceOpen]=useState(false),[cards,setCards]=useState(()=>readCards(routeId,game.mode));
  const stop=config.stops[Math.min(game.stopIndex,config.stops.length-1)],place=base.stops[game.stopIndex]||base.stops.at(-1),record=game.stops[stop.id],mode=game.mode;
  // Hunt: a stop can have layers; the page names the one that is open now
  const layer=questStage(stop.quest,record?.puzzle).quest;
@@ -55,32 +57,40 @@ function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
  const stageIndex=STEPS.findIndex(([id])=>id===phase),isDone=game.completed.includes(stop.id),sceneRef=useRef(null);
  useEffect(()=>{setSaved(saveOnsite(game));onProgress?.(game);},[game,onProgress]);
  useEffect(()=>{setShowReference(false);setUiFeedback('');setCelebrated(false);setSheet(false);setRaceOpen(false);},[routeId,stop.id,mode]);
- useEffect(()=>{setBoost(readBoost(routeId,mode));},[routeId,mode]);
+ useEffect(()=>{setCards(readCards(routeId,mode));},[routeId,mode]);
  // Hunt: the find replaces the model once its unlock has played; a stop reopened already solved shows it straight away
  useEffect(()=>{if(phase!=='reward'||celebrated)return;const t=setTimeout(()=>setCelebrated(true),2600);return()=>clearTimeout(t);},[phase,celebrated]);
  const commit=useCallback((next,event)=>{current.current=next;setGame(next);if(event)emitOnsiteEvent(event,next,config.stops[next.stopIndex]?.id||stop.id);},[config.stops,stop.id]);
  const act=useCallback(action=>{const result=operateOnsite(current.current,stop.id,action,config.stops);commit(result.state,result.ok?'puzzle-action':'puzzle-retry');setUiFeedback(result.message||'');return result;},[commit,config.stops,stop.id]);
  const completed=useCallback(()=>setCelebrated(true),[]);
  const begin=()=>commit(beginOnsite(current.current),'story-started');
- // Hunt: the night race and the Boost Card solve a stop through the same actions a player would take by hand
- const solveHere=useCallback(()=>{let q=current.current;for(const a of solveActions(stop.quest)){const r=operateOnsite(q,stop.id,a,config.stops);if(!r.ok)break;q=r.state;}commit(q,'puzzle-action');setUiFeedback('');},[commit,config.stops,stop]);
- const raceWon=useCallback(()=>{solveHere();if(readBoost(routeId,mode)!=='ready'){writeBoost(routeId,mode,'ready');setBoost('ready');}},[solveHere,routeId,mode]);
- const useBoostCard=()=>{solveHere();writeBoost(routeId,mode,'used');setBoost('used');};
+ // Hunt (3 Nov 2026, owner): the night race wins a decode card; a card completes the stop (check-in, look, mechanism)
+ // through the same moves a player would make, and its check-in is never counted as a visit
+ const raceWon=useCallback(()=>{const n=readCards(routeId,mode)+1;writeCards(routeId,mode,n);setCards(n);},[routeId,mode]);
+ const decodeOpen=!intro&&!ending&&['arrival','observe','puzzle'].includes(phase);
+ const decode=()=>{const have=readCards(routeId,mode);if(!decodeOpen||have<1)return;const q=decodeStop(current.current,stop,config.stops);if(q===current.current)return;commit(q,'decode-card');writeCards(routeId,mode,have-1);setCards(have-1);setUiFeedback('');};
  const puzzleOpen=!intro&&!ending&&phase==='puzzle';
  const race=puzzleOpen&&canRace(stop)?()=>setRaceOpen(true):null;
- const boostHere=puzzleOpen&&boost==='ready'?useBoostCard:null;
- const raceLayer=raceOpen&&<Suspense fallback={null}><RaceSheet title={stop.quest.title} gift={boost!=='ready'} reducedMotion={reducedMotion} onWin={raceWon} onClose={()=>setRaceOpen(false)}/></Suspense>;
+ const boostHere=puzzleOpen&&cards>0?decode:null;
+ const raceLayer=raceOpen&&<Suspense fallback={null}><RaceSheet reducedMotion={reducedMotion} onWin={raceWon} onClose={()=>setRaceOpen(false)}/></Suspense>;
  function changeMode(next){commit(readOnsite(routeId,config.stops,next),'mode-changed');}
  // Hunt: remote play has no street to stand on, so the phone page starts it with one tap (check-in and observation together)
  function arrive(nextMode,andObserve=false){let q=nextMode===current.current.mode?current.current:readOnsite(routeId,config.stops,nextMode);q=beginOnsite(q);const id=config.stops[q.stopIndex].id,at=new Date().toISOString();q=checkInOnsite(q,id,config.stops,{mode:nextMode,confirmedAt:at});if(andObserve)q=observeOnsite(q,id,config.stops,{confirmedAt:at});commit(q,andObserve?'observation-confirmed':'checkin');}
  function observe(){commit(observeOnsite(current.current,stop.id,config.stops,{confirmedAt:new Date().toISOString()}),'observation-confirmed');setUiFeedback('The mechanism is awake. Try it in the model.');}
  function photo(metadata){commit(addOnsitePhoto(current.current,stop.id,metadata,config.stops),'observation-photo-added');}
  function next(){commit(advanceOnsite(current.current,config.stops),'next-place');setCelebrated(false);setUiFeedback('');}
+ // the book's side tabs: say where the stop stands, and take their commands
+ const view=intro?'intro':ending?'ending':phase;
+ useEffect(()=>{publishStop({routeId,mode,phase:view,stopName:stop.name||cleanPlace(place.name),cards,canDecode:decodeOpen&&cards>0});},[routeId,mode,view,stop,place,cards,decodeOpen]);
+ useEffect(()=>()=>publishStop(null),[]);
+ const command=useRef(null);
+ command.current={race:()=>{if(!ending)setRaceOpen(true);},decode,mode:()=>changeMode(mode==='manual'?'preview':'manual'),checkin:()=>{if(view==='arrival')arrive(mode,mode!=='manual');}};
+ useEffect(()=>{const on=e=>command.current[e.detail?.type]?.();window.addEventListener('findsg:command',on);return()=>window.removeEventListener('findsg:command',on);},[]);
  const journal=()=>onOpen({type:'journal',routeId,state:current.current,mode});
  const placeInfo=()=>onOpen({type:'place',routeId,index:game.stopIndex,state:current.current,mode});
- const restart=()=>onOpen({type:'restart',routeId,state:current.current,mode,onConfirm:()=>{commit(normalizeOnsite(null,routeId,config.stops,mode),'restart');writeBoost(routeId,mode,'none');setBoost('none');onOpen(null);}});
+ const restart=()=>onOpen({type:'restart',routeId,state:current.current,mode,onConfirm:()=>{commit(normalizeOnsite(null,routeId,config.stops,mode),'restart');writeCards(routeId,mode,0);setCards(0);clearFinish(routeId,mode);onOpen(null);}});
  const scene=<SceneBoundary key={`${routeId}:${stop.id}:${mode}:${sceneKey}`} onRetry={()=>setSceneKey(v=>v+1)}><Suspense fallback={<div className="og-scene-loading"><span/><strong>Turning the street corner into a mechanism…</strong></div>}><QuestViewport routeId={routeId} stopId={stop.id} modelKind={stop.modelKind} quest={stop.quest} progress={record.puzzle} enabled={!intro&&Boolean(record.checkin&&record.observation.confirmed)&&!ending} reducedMotion={reducedMotion} onAction={act} onComplete={completed}/></Suspense></SceneBoundary>;
- if(compact)return <OnsiteCompact {...{routeId,config,story,meta,place,stop,layer,record,game,mode,phase,intro,ending,celebrated,saved,reducedMotion,scene,sheet,setSheet,race,boostHere,raceLayer,onExit,onOpen,begin,arrive,observe,photo,next,journal,placeInfo,restart,changeMode,Guide,PhotoClue,cleanPlace,mapSearch,sourceName,KIND_NAMES}}/>;
+ if(compact)return <OnsiteCompact {...{routeId,config,story,meta,place,stop,layer,record,game,mode,phase,intro,ending,celebrated,saved,reducedMotion,scene,sheet,setSheet,raceLayer,onExit,onOpen,begin,arrive,observe,photo,next,journal,placeInfo,restart,changeMode,Guide,PhotoClue,cleanPlace,mapSearch,sourceName,KIND_NAMES}}/>;
  return <section className="og-player" aria-label={`On-site 3D exploration: ${story.title}`}>
   <div className="og-topbar"><button className="sg-back" onClick={onExit}>← Book</button><div className="og-route-name"><small>{meta.en}</small><strong>{story.title}</strong></div><div className="og-top-actions"><button onClick={()=>onOpen({type:'route',routeId,state:current.current,mode})}>Map ↗︎</button><button onClick={journal}>Clues <b>{game.completed.length}</b></button></div></div>
   <div className="og-title-row"><div><span className="og-eyebrow">{ending?'FINAL CHAPTER':`CHAPTER ${String(game.stopIndex+1).padStart(2,'0')} / ${String(config.stops.length).padStart(2,'0')}`}<i/> {ending?'Story complete':KIND_NAMES[layer.type]}</span><h1>{ending?story.ending.title:cleanPlace(place.name)}</h1>{/* Hunt: the English name only when it adds to the title */}{(ending||place.english_name!==cleanPlace(place.name))&&<p>{ending?story.ending.reflection:place.english_name}</p>}</div><div className="og-mode"><span>{mode==='manual'?'On site':'Remote play'}</span><button onClick={()=>changeMode(mode==='manual'?'preview':'manual')}>{mode==='manual'?'Switch to remote':'Switch to on site'}</button><small>{mode==='manual'?'Manual check-in · no location check':'Separate progress · not a site visit'}</small></div></div>
@@ -98,7 +108,7 @@ function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
     :ending?<><h2>{story.ending.title}</h2><Guide name={story.guideName}>{story.ending.text}</Guide><div className="og-ending-stamps">{config.stops.map((s,i)=><button key={s.id} onClick={()=>onOpen({type:'collected',routeId,index:i,state:game,mode})}><span>{String(i+1).padStart(2,'0')}</span><strong>{s.reward.title}</strong><b>✓</b></button>)}</div><button className="sg-primary" onClick={onExit}>Choose another street <span>→</span></button><button className="sg-text-button" onClick={journal}>Open the full clue bag ↗︎</button></>
     :phase==='arrival'?<><h2>Start this stop<br/>right here.</h2><Guide name={story.guideName}>{stop.sceneLine}</Guide><div className="og-destination"><span>Real place</span><strong>{place.name}</strong><p>{place.address}</p><a href={mapSearch(place)} target="_blank" rel="noreferrer">View on map ↗︎</a></div><button className="sg-primary" onClick={()=>arrive(mode)}>{mode==='manual'?'I am here · check in':'Play this stop remotely'} <span>{mode==='manual'?'✓':'↗︎'}</span></button><button className="og-preview-button" onClick={()=>mode==='manual'?arrive('preview'):changeMode('manual')}>{mode==='manual'?'Switch to remote play':'Back to on-site progress'} <span>↗︎</span></button><p className="og-fine-print">You confirm check-in yourself. Remote play keeps separate progress.</p></>
     :phase==='observe'?<><h2>{stop.observation.title}</h2><div className="og-stamped"><span>✓</span><div><strong>{mode==='manual'?'Checked in':'Remote play started'}</strong><small>{mode==='manual'?'Now look up and find the clue in the building.':'Use the reference to try the same mechanism.'}</small></div></div><p className="og-observe-copy">{stop.observation.instruction}</p><PhotoClue key={`${stop.id}:${mode}`} target={{...stop.observation,routeId,stopId:stop.id}} onPhoto={photo} preview={mode==='preview'}/><button className="og-reference-toggle" aria-expanded={showReference} onClick={()=>setShowReference(v=>!v)}>{showReference?'Hide the hint −':'Show what to look for ＋'}</button>{showReference&&<div className="og-reference"><strong>{stop.observation.detailToFind}</strong><p>{stop.observation.referenceNote}</p><div>{(stop.observation.sourceUrls||[]).slice(0,2).map(url=><a key={url} href={url} target="_blank" rel="noreferrer">{sourceName(url)} ↗︎</a>)}</div></div>}<button className="sg-primary" onClick={observe}>{mode==='manual'?'I have looked · wake the mechanism':'I have read it · start the mechanism'} <span>✦</span></button><p className="og-fine-print">{mode==='manual'?'Observe from public space only. Do not touch the building.':'Remote confirmation is not a site observation or an AI check.'}</p></>
-    :phase==='puzzle'?<><h2>{layer.title}</h2><div className="og-active-task"><span>Current goal</span><p>{layer.instruction}</p></div><div className="og-real-connection"><span>Clue from the site</span><strong>{stop.observation.detailToFind}</strong><button onClick={()=>setShowReference(v=>!v)}>{showReference?'Hide the hint ↑':'Show the observation hint ↗︎'}</button>{showReference&&<p>{stop.observation.referenceNote}</p>}</div>{race&&<button className="sg-primary" onClick={race}>Race for the clues →</button>}{boostHere&&<button className="sg-primary" onClick={boostHere}>Use the Boost Card →</button>}{uiFeedback&&<div className="og-action-feedback" role="status">{uiFeedback}</div>}<button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button></>
+    :phase==='puzzle'?<><h2>{layer.title}</h2><div className="og-active-task"><span>Current goal</span><p>{layer.instruction}</p></div><div className="og-real-connection"><span>Clue from the site</span><strong>{stop.observation.detailToFind}</strong><button onClick={()=>setShowReference(v=>!v)}>{showReference?'Hide the hint ↑':'Show the observation hint ↗︎'}</button>{showReference&&<p>{stop.observation.referenceNote}</p>}</div>{race&&<button className="sg-primary" onClick={race}>Race for the clues →</button>}{boostHere&&<button className="sg-primary" onClick={boostHere}>Use a decode card →</button>}{uiFeedback&&<div className="og-action-feedback" role="status">{uiFeedback}</div>}<button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button></>
     :<><div className={'og-reward-seal '+(celebrated?'animate':'')} aria-hidden="true">✦</div><h2>You found<br/>{stop.reward.title}</h2><p className="og-found-copy">{stop.quest.foundText||stop.reward.text}</p><DiscoveryPacket key={`${routeId}:${stop.id}:${mode}`} routeId={routeId} stop={stop} index={game.stopIndex} reducedMotion={reducedMotion} selected={celebrated} className="og-reward-packet"/><div className="og-next-place"><span>{game.stopIndex===config.stops.length-1?'Put the whole route together':'Why does this clue lead to the next stop?'}</span><p>{stop.transition.text}</p></div><button className="sg-primary" onClick={next}>{game.stopIndex===config.stops.length-1?'Read the full story':stop.transition.cta} <span>→</span></button><button className="sg-text-button" onClick={journal}>Clues · {game.completed.length} found</button></>}
    </aside>
   </div>

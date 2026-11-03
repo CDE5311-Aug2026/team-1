@@ -1334,16 +1334,8 @@
   overflow: hidden;
 }
 
-/* ---- a stop, as a page of its book (owner, 3 Nov 2026): the book's running head above, its thumb tabs on the
+/* ---- a stop, as a page of its book (owner, 3 Nov 2026): the bar above names the story, the thumb tabs sit on the
    fore-edge, the page itself inset on the dark desk exactly where the book's pages lie ---- */
-.bookBar {
-  position: fixed;
-  top: var(--game-top, 0px);
-  left: 0;
-  right: 0;
-  z-index: 31;
-  color: #f2e8d5;
-}
 /* the open book's page (notebook.module.css .fit .book): its width and height, so the stop's page and tabs line up
    with the book's exactly; the stop's page is as wide as the book's and runs to the foot of the screen */
 .bookTabs,
@@ -1364,13 +1356,13 @@
 .bookTabs.bookTabs {
   position: fixed;
   /* where the book's tabs sit: 7% down a page centred on the desk under the running head */
-  top: calc(var(--game-top, 0px) + 46px + (100dvh - var(--game-top, 0px) - 46px - var(--bh) - 36px) / 2 + var(--bh) * 0.07);
+  top: calc(var(--game-top, 0px) + 8px + var(--bh) * 0.07);
   right: calc((100vw - var(--bw) - 34px) / 2);
   z-index: 32;
   animation: none;
 }
 .inBook :global(.ogc) {
-  top: calc(var(--game-top, 0px) + 46px);
+  top: calc(var(--game-top, 0px) + 8px);
   left: calc((100vw - var(--bw) - 18px) / 2);
   right: calc((100vw + 18px - var(--bw)) / 2);
   bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);

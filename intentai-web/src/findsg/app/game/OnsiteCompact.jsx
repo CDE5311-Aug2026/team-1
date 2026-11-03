@@ -2,10 +2,12 @@
 // scroll through is a failure). The model is the page's mounted plate; under it a paper card says what to do now.
 // 3 Nov 2026 (owner): no word said twice, numbers kept to the corner, no row of buttons. You act on the book itself:
 // break the seal, tap the plate, turn the page by its glowing corner; the card opens the field note, which keeps the
-// guide's words, the photo, the hint, the films and the mode switch.
+// guide's words, the photo, the hint and the films.
+// 3 Nov 2026 (owner's sketch): the book's side tabs carry Map, Clues (with the decode cards and the night race), the
+// Remote / On site switch and Check in; the page keeps two folded corners, back (bottom left) and next (bottom right).
 import React, {useEffect, useRef, useState} from 'react';
 import DiscoveryPacket from './DiscoveryPacket.jsx';
-import CaseFinale from './CaseFinale.jsx';
+import {ClosedBanner, ClosedAward, ClosedRecord, toShelf} from './CaseClosed.jsx';
 import {lockScroll} from '../../../hooks/scrollLock';
 import {imageFor} from '../data.js';
 import './onsite-compact.css';
@@ -22,7 +24,7 @@ const STEPS = [['arrival', 'Check in'], ['observe', 'Observe'], ['puzzle', 'Solv
 const pad = n => String(n).padStart(2, '0');
 
 export default function OnsiteCompact(p) {
-  const {routeId, config, story, meta, place, stop, layer, record, game, mode, phase, intro, ending, celebrated, saved, reducedMotion, scene, sheet, setSheet, race, boostHere, raceLayer,
+  const {routeId, config, story, meta, place, stop, layer, record, game, mode, phase, intro, ending, celebrated, saved, reducedMotion, scene, sheet, setSheet, raceLayer,
     onExit, onOpen, begin, arrive, observe, photo, next, journal, placeInfo, restart, changeMode, Guide, PhotoClue, cleanPlace, mapSearch, sourceName, KIND_NAMES} = p;
   const n = pad(game.stopIndex + 1), total = pad(config.stops.length);
   const reward = !intro && !ending && phase === 'reward';
@@ -45,18 +47,20 @@ export default function OnsiteCompact(p) {
     return () => window.clearTimeout(t);
   }, [films, ending, mode]);
   const takeCase = () => {begin(); if (films) playFilm([films.intro]);};
-  const checkIn = () => arrive(mode, !manual);
   /** The film of this beat, again: kept in the field note, so the page has one thing to tap for each act. */
   const again = id => id && <button className="sg-text-button ogc-note-film" onClick={() => {setSheet(false); playFilm([id]);}}>▶︎ Watch the film again</button>;
 
   /* The page turns to what comes next: its folded corner (tap it, or swipe the card to the left) does what the old
    * red button did, and its pencilled caption says where it leads. A puzzle has no corner: solving it turns the page. */
   const turn = intro ? {go: takeCase, label: 'Take the case'}
-    : ending ? {go: onExit, label: 'Choose another street'}
     : reward ? {go: next, label: stop.transition.cta}
-    : phase === 'arrival' ? {go: checkIn, label: manual ? 'I’m here · check in' : 'Start remotely'}
     : phase === 'observe' ? {go: observe, label: manual ? 'Seen it · wake the model' : 'Studied it · start'}
     : null;
+
+  /* the corner at the bottom left turns back: to the clue found at the stop before (the story's ending turns back to the
+   * last one). The opening page has nothing behind it. */
+  const behind = game.completed.map(id => config.stops.findIndex(s => s.id === id)).filter(i => i >= 0 && (ending || i < game.stopIndex));
+  const back = !intro && behind.length ? () => onOpen({type: 'collected', routeId, index: Math.max(...behind), state: game, mode}) : null;
 
   let stage, card, body;
   if (intro) {
@@ -68,9 +72,9 @@ export default function OnsiteCompact(p) {
     card = <Card kicker="The commission" title={`You are the ${role.toLowerCase()}`} lead={story.mission} onOpen={note} label={`${story.guideName}’s note`}/>;
     body = <><h2>{story.title}</h2><Guide name={story.guideName}>{story.prologue.map(x => x.text).join(' ')}</Guide>{films && again(films.intro)}</>;
   } else if (ending) {
-    /* the guide you corrected: pages drop in, the cover slams shut, stamped and sealed (CaseFinale.jsx) */
-    stage = <CaseFinale routeId={routeId} story={story} meta={meta} config={config} game={game} mode={mode} onOpen={onOpen} reducedMotion={reducedMotion}/>;
-    card = <Card kicker="The verdict" title={story.ending.title} lead={story.ending.reflection} onOpen={note} label="The full story"/>;
+    /* the closed case (CaseClosed.jsx): the medal on the plate, the record under it and the way back to the shelf */
+    stage = <ClosedAward meta={meta} config={config} mode={mode} reducedMotion={reducedMotion}/>;
+    card = <ClosedRecord game={game} config={config} onShelf={() => toShelf(onExit)}/>;
     body = <><h2>{story.ending.title}</h2><Guide name={story.guideName}>{story.ending.text}</Guide>
       {films ? again(films.ending) : <button className="sg-text-button" onClick={() => {setSheet(false); journal();}}>Open the clues</button>}</>;
   } else if (reward) {
@@ -84,8 +88,8 @@ export default function OnsiteCompact(p) {
   } else {
     stage = <div className={'ogc-model ' + (record.checkin ? 'is-awake' : 'is-sleeping')}>
       {scene}
-      {/* the seal on a sleeping building is what you break to check in */}
-      {!record.checkin && <button className="ogc-stamp is-sealed ogc-glow" onClick={checkIn} aria-label={turn?.label}>Sealed</button>}
+      {/* the building sleeps under its seal until you check in (the Check in tab breaks it) */}
+      {!record.checkin && <span className="ogc-stamp is-sealed" aria-hidden="true">Sealed</span>}
     </div>;
     if (phase === 'arrival') {
       card = <Card kicker={manual ? 'Go to' : 'Remote lead'} title={stop.at || place.address}
@@ -101,20 +105,13 @@ export default function OnsiteCompact(p) {
         <p className="og-fine-print">{manual ? 'Look from public space only. Do not touch the building.' : 'Remote play is not a site visit.'}</p></>;
     } else {
       /* the caption on the model carries the instruction and every answer, so the card only names the task: the
-       * puzzle in hand is the thing to do. The night race and a Boost Card are a way out for someone stuck, so they
-       * wait at the end of the hint, as quiet lines (owner, 2 Nov 2026: a big button made the race feel required). */
+       * puzzle in hand is the thing to do. Someone stuck finds the night race and the decode cards under the Clues tab. */
       const task = layer.type === 'prop' ? layer.instruction : layer.title, kind = KIND_NAMES[layer.kind] || KIND_NAMES[layer.type];
       // a task that already starts with its kind's name ("Look around. Lift the clasp.") does not say it twice
       card = <Card kicker={kind && !task.toLowerCase().startsWith(kind.toLowerCase()) ? kind : 'The puzzle'} title={task} onOpen={note} label="Hint"/>;
-      const away = go => () => {setSheet(false); go();};
       body = <><h2>{layer.title}</h2><p className="ogc-note-lead">{layer.instruction}</p>
         <Hint stop={stop} sourceName={sourceName}/>
-        <button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button>
-        {(boostHere || race) && <div className="ogc-stuck">
-          <span>Still stuck?</span>
-          {boostHere && <button className="sg-text-button" onClick={away(boostHere)}>Spend your Boost Card on it</button>}
-          {race && <button className="sg-text-button" onClick={away(race)}>Win the night race for these clues</button>}
-        </div>}</>;
+        <button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button></>;
     }
   }
 
@@ -127,28 +124,24 @@ export default function OnsiteCompact(p) {
       <ol className="ogc-pips" aria-label="Progress at this stop">
         {STEPS.map(([id, label], i) => <li key={id} className={i < step ? 'done' : i === step ? 'active' : ''}><span>{label}{i < step ? ', done' : i === step ? ', now' : ''}</span></li>)}
       </ol>
-      {/* before you check in, the stamp turns over to the other way to play */}
-      {phase === 'arrival' && !reward
-        ? <button className={'ogc-mode is-' + mode} onClick={() => manual ? arrive('preview', true) : changeMode('manual')} aria-label={manual ? 'On site. Switch to remote play' : 'Remote. Switch to on site'}>{manual ? 'On site' : 'Remote'}</button>
-        : <span className={'ogc-mode is-' + mode}>{manual ? 'On site' : 'Remote'}</span>}
     </div>
   </div>;
 
-  return <section className={'ogc' + (sheet ? ' has-sheet' : '') + (turn ? ' has-turn' : '')} data-phase={intro ? 'intro' : ending ? 'ending' : phase} aria-label={`${story.title}, stop ${n} of ${total}`}>
+  return <section className={'ogc' + (sheet ? ' has-sheet' : '') + (turn ? ' has-turn' : '') + (back ? ' has-back' : '')} data-phase={intro ? 'intro' : ending ? 'ending' : phase} aria-label={`${story.title}, stop ${n} of ${total}`}>
     <header className="ogc-top">
       <button onClick={onExit} aria-label="Back to the book">‹ Book</button>
       <button className="ogc-chapter" onClick={route}>Route</button>
       <button onClick={journal}>Clues <b>{game.completed.length}</b></button>
     </header>
-    {intro || ending ? <h1 className="ogc-story-title">{story.title}</h1> : head}
+    {ending ? <ClosedBanner story={story} onOpen={note}/> : intro ? <h1 className="ogc-story-title">{story.title}</h1> : head}
     <div className="ogc-stage">{stage}</div>
-    {card && React.cloneElement(card, {onSwipe: turn?.go})}
+    {card && (ending ? card : React.cloneElement(card, {onSwipe: turn?.go, onSwipeBack: back}))}
+    {back && <PageTurn key={`back:${game.stopIndex}`} go={back} label="Turn back" side="back" reducedMotion={reducedMotion}/>}
     {turn && <PageTurn key={`${phase}:${stop.id}:${intro}:${ending}`} {...turn} reducedMotion={reducedMotion}/>}
     {sheet && <FieldNote onClose={() => setSheet(false)}>
       <span className="ogc-note-kicker">{ending ? 'Case closed' : intro ? 'The commission' : `Field note · stop ${n}`}</span>
       {body}
       <footer className="ogc-note-foot">
-        <button onClick={() => changeMode(manual ? 'preview' : 'manual')}>{manual ? 'Switch to remote play' : 'Switch to on site'}</button>
         <button onClick={placeInfo}>Place file</button>
         <button onClick={restart}>Start over</button>
         <small>{saved ? 'Progress saved' : 'Not saved'}</small>
@@ -160,7 +153,7 @@ export default function OnsiteCompact(p) {
 
 /** The page's folded bottom corner, with where it leads pencilled beside it. It glows after a moment, like a game's
  * cursor, for anyone who has not tried it yet; tapping it curls the corner and turns the page. */
-function PageTurn({go, label, reducedMotion}) {
+function PageTurn({go, label, side = 'next', reducedMotion}) {
   const [turning, setTurning] = useState(false);
   const fire = () => {
     if (turning) return;
@@ -168,8 +161,8 @@ function PageTurn({go, label, reducedMotion}) {
     setTurning(true);
     window.setTimeout(go, 280);
   };
-  return <button className={'ogc-turn' + (turning ? ' is-turning' : '')} onClick={fire} aria-label={label}>
-    <em aria-hidden="true">{label}</em><i aria-hidden="true"/>
+  return <button className={'ogc-turn is-' + side + (turning ? ' is-turning' : '')} onClick={fire} aria-label={label}>
+    {side === 'next' && <em aria-hidden="true">{label}</em>}<i aria-hidden="true"/>
   </button>;
 }
 
@@ -183,7 +176,7 @@ function Hint({stop, sourceName}) {
 
 /** The paper card: the whole card opens the field note (a small folded tab says so); swiping it to the left turns
  * the page. `said` is a line in the guide's hand. */
-export function Card({kicker, title, lead, said, onOpen, label, onSwipe}) {
+export function Card({kicker, title, lead, said, onOpen, label, onSwipe, onSwipeBack}) {
   const from = useRef(null);
   const down = e => {from.current = {x: e.clientX, y: e.clientY};};
   const up = e => {
@@ -191,6 +184,7 @@ export function Card({kicker, title, lead, said, onOpen, label, onSwipe}) {
     if (!f) return;
     const dx = e.clientX - f.x, dy = e.clientY - f.y;
     if (onSwipe && dx < -50 && Math.abs(dy) < 40) {e.preventDefault(); onSwipe(); return;}
+    if (onSwipeBack && dx > 50 && Math.abs(dy) < 40) {e.preventDefault(); onSwipeBack(); return;}
     if (Math.hypot(dx, dy) < 10) onOpen?.();
   };
   const key = e => {if (e.key === 'Enter' || e.key === ' ') {e.preventDefault(); onOpen?.();}};

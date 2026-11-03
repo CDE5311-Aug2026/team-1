@@ -1,0 +1,91 @@
+/* the closed case (CaseClosed.jsx): verdict under a wax seal, the medal on the plate, a ledger line and the shelf */
+.findsg .ogc > .ogc-closed { grid-row: 2; grid-column: 1; }
+.findsg section.ogc .ogc-closed {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.findsg .ogc-closed-seal {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 47% 53% 50% 48%;
+  background: radial-gradient(circle at 35% 30%, #c4402c, #8e2316 60%, #6c190f);
+  box-shadow: 0 2px 3px rgba(60, 20, 10, 0.45), inset 0 0 0 4px rgba(0, 0, 0, 0.12), inset 0 0 0 6px rgba(255, 200, 170, 0.12);
+  color: #f6dfc4;
+  font: 700 1.5rem/1 var(--font-display);
+  font-style: normal;
+  transform: rotate(-8deg);
+  animation: ogc-seal 0.55s 0.25s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes ogc-seal {
+  from { transform: rotate(-8deg) scale(1.9); opacity: 0; }
+  to { transform: rotate(-8deg) scale(1); opacity: 1; }
+}
+.findsg section.ogc .ogc-closed h1 {
+  margin: 0;
+  font: 400 1.5rem/1.1 var(--font-display);
+  color: #2b1d10;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.findsg .ogc-stage > .ogc-award { background: #f1e6cc; }
+
+/* the record: one ledger line, then the shelf */
+.findsg .ogc .ogc-record {
+  display: grid;
+  gap: 12px;
+  cursor: default;
+}
+.findsg .ogc-record dl {
+  display: flex;
+  justify-content: space-around;
+  margin: 0;
+  padding: 2px 0 10px;
+  border-bottom: 1px dashed rgba(60, 38, 16, 0.35);
+}
+.findsg .ogc-record dl > div { display: grid; justify-items: center; gap: 3px; }
+.findsg .ogc-record dt {
+  font: 400 0.625rem/1 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(43, 29, 16, 0.6);
+}
+.findsg .ogc-record dd {
+  margin: 0;
+  font: 400 1.25rem/1 var(--font-display);
+  color: #2b1d10;
+}
+/* a rubber-stamped label you press */
+.findsg .ogc .ogc-shelf {
+  justify-self: center;
+  padding: 9px 22px 8px;
+  border: 2px solid #8e2316;
+  border-radius: 3px;
+  background: rgba(244, 234, 210, 0.6);
+  color: #8e2316;
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: rotate(-1.5deg);
+  box-shadow: inset 0 0 0 1px rgba(142, 35, 22, 0.25);
+  cursor: pointer;
+}
+.findsg .ogc .ogc-shelf:active { transform: rotate(-1.5deg) scale(0.96); }
+.findsg .ogc .ogc-shelf:focus-visible,
+.findsg section.ogc .ogc-closed:focus-visible { outline: 2px solid #8e2316; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .findsg .ogc-closed-seal { animation: none; }
+}

@@ -3,7 +3,7 @@
 // observation and a 3D building puzzle, with its paper objects and films), re-dressed in our linen, cards and ink by
 // src/findsg/theme*.css; Public is the community challenges and the boards. The URL says which shows: ?tab=public,
 // ?board=explore|speed; FindSG keeps its own place in the hash (#home, #story/…; an old #short/… link opens the Golden Dome book).
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import PageBar from '../../components/PageBar/PageBar';
@@ -14,13 +14,12 @@ import { FindSGApp } from '../../findsg';
 import { Board } from './Board';
 import { huntStops, HuntHeader, HuntTabs, PublicTab, useExplored } from './HuntHome';
 import { CHART_BACKDROP } from './notebook/chartBackdrop';
-import { BOOK_TABS, FieldNotebook, openBookAt, useShelfBook } from './notebook/FieldNotebook';
+import { FieldNotebook, openBookAt, useShelfBook } from './notebook/FieldNotebook';
 import { bookOf } from './notebook/Bookshelf';
-import nb from './notebook/notebook.module.css';
-import sb from './notebook/storyBook.module.css';
 import { FilmHost } from './notebook/FilmProjector';
 import { ClueLibrary } from './notebook/layers';
 import { MATERIALS } from './notebook/Notebook';
+import { PlayTabs } from './notebook/PlayTabs';
 import { grain, wood } from './notebook/textures';
 import styles from './Hunt.module.css';
 
@@ -104,48 +103,46 @@ export default function HuntPage() {
   // the Stories tab: the field notebook on the desk; a story or a stop opens FindSG's own game
   if (home) return <Desk tab={tab} go={go} openRoute={openRoute} />;
 
-  // a story or a stop: a page of the same book, with the book's running head and thumb tabs (owner, 3 Nov 2026:
-  // every story looks like its book once opened; the Clues tab stays where it is on the book)
-  const book = bookOf(/^#story\/([\w-]+)/.exec(location.hash)?.[1] ?? null);
-  const toBook = (page: number | null) => {
-    openBookAt(page == null ? null : (book?.id ?? null), page ?? 0);
+  // a story or a stop: a page of its book, with the book's thumb tabs (owner, 3 Nov 2026: every story looks like its
+  // book once opened; its Map and Clues open over the page you play)
+  const routeId = /^#story\/([\w-]+)/.exec(location.hash)?.[1] ?? '';
+  const book = bookOf(routeId || null);
+  // back to the shelf: the book goes back where it was
+  const toShelf = () => {
+    openBookAt(null);
     navigate({ pathname: '/hunt', search: '', hash: '' });
   };
   return (
+    <>
+      <ShelfListener onShelf={toShelf} />
     <AppShell background={CHART_BG}>
       <div className={`${styles.screen} ${styles.desk}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
-        {/* the header stays while you play: Help and Settings are one tap away in a story too */}
-        <PageBar title="Hunt" tone="dark" className={styles.pageBar} game />
-        {book && (
-          <>
-            <header className={`${sb.bar} ${styles.bookBar}`}>
-              <button type="button" className={sb.back} onClick={() => toBook(null)}>
-                <span aria-hidden="true">‹</span> Shelf
-              </button>
-              <p className={sb.running}>
-                <small>Volume {book.roman}</small>
-                <span>{book.title}</span>
-              </p>
-            </header>
-            <nav className={`${nb.tabs} ${styles.bookTabs}`} style={MATERIALS} aria-label="Chapters">
-              {BOOK_TABS.map((t, i) => (
-                <button key={t} type="button" className={nb.tab} style={{ '--n': i } as CSSProperties} onClick={() => toBook(i)}>
-                  <span>{t}</span>
-                </button>
-              ))}
-              <button type="button" className={`${nb.tab} ${nb.playTab}`} aria-current="page" style={{ '--n': BOOK_TABS.length } as CSSProperties}>
-                <span>Play</span>
-              </button>
-            </nav>
-          </>
-        )}
+        {/* one bar (owner's sketch, 3 Nov 2026): Hunt, the story's name under it, and Back beside Settings */}
+        <PageBar title="Hunt" subtitle={book?.title} onBack={book ? toShelf : undefined} backLabel="Back to the shelf" tone="dark" className={styles.pageBar} game />
+        {book && <PlayTabs routeId={routeId} className={styles.bookTabs} />}
         <div className={`findsg hunt ${styles.stories} ${styles.storyPage} ${book ? styles.inBook : ''}`} style={{ ...MATERIALS, '--hunt-grain': grain } as CSSProperties}>
           <FindSGApp clues={(routeId, onClose) => <ClueLibrary routeId={routeId} onClose={onClose} />} />
         </div>
         <FilmHost />
       </div>
     </AppShell>
+    </>
   );
+}
+
+/** A closed case's "Back to the shelf" (FindSG asks with findsg:shelf; the book takes it). */
+function ShelfListener({ onShelf }: { onShelf(): void }) {
+  const go = useRef(onShelf);
+  go.current = onShelf;
+  useEffect(() => {
+    const on = (e: Event) => {
+      e.preventDefault();
+      go.current();
+    };
+    window.addEventListener('findsg:shelf', on);
+    return () => window.removeEventListener('findsg:shelf', on);
+  }, []);
+  return null;
 }
 
 /** Stories: the shelf of story books against the library wall; a book taken down lies open on the desk. */

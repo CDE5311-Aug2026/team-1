@@ -221,17 +221,17 @@ export function MapArt({ chapter, focus, onPick }: { chapter: Chapter; focus?: s
             onKeyDown={onPick ? (e) => (e.key === 'Enter' || e.key === ' ') && onPick(s) : undefined}
           >
             <circle r="16" fill="transparent" />
+            {/* owner's sketch (3 Nov 2026): every stop's progress reads at a glance, ✓ found and ✗ still to find; the
+                next one's ✗ is in red ink, ringed */}
             {s.done ? (
               <g className={styles.xMark} filter="url(#rough)">
-                <path d="M-7,-7 L7,7 M7,-7 L-7,7" stroke="#9b2c1c" strokeWidth="3.2" strokeLinecap="round" />
-              </g>
-            ) : isNext ? (
-              <g>
-                <circle r="9" fill="rgba(155,44,28,.08)" stroke="#9b2c1c" strokeWidth="1.4" className={styles.nextRing} />
-                <circle r="2.4" fill="#9b2c1c" />
+                <path d="M-7,0 L-2.5,5.5 L7.5,-6.5" fill="none" stroke="#2f5a34" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
               </g>
             ) : (
-              <circle r="5" fill="#efe2c4" stroke="rgba(60,40,20,.6)" strokeWidth="1.1" strokeDasharray="2 1.5" />
+              <g filter="url(#rough)">
+                {isNext && <circle r="11" fill="rgba(155,44,28,.08)" stroke="#9b2c1c" strokeWidth="1.4" className={styles.nextRing} />}
+                <path d="M-5,-5 L5,5 M5,-5 L-5,5" stroke={isNext ? '#9b2c1c' : 'rgba(60,40,20,.55)'} strokeWidth={isNext ? 2.8 : 2} strokeLinecap="round" />
+              </g>
             )}
             <text x={left ? -12 : 12} y="-7" textAnchor={left ? 'end' : 'start'} className={styles.mapNum}>
               {s.n}
@@ -334,7 +334,7 @@ export function UnfoldedMap({ chapter, onClose, onGo }: { chapter: Chapter; onCl
                 ‹
               </button>
               <small>
-                Stop {pick.n} · {pick.done ? 'marked ✕' : pick.id === chapter.stops.find((s) => !s.done)?.id ? 'next' : 'not visited'}
+                Stop {pick.n} · {pick.done ? 'found ✓' : pick.id === chapter.stops.find((s) => !s.done)?.id ? 'next ✗' : 'to find ✗'}
               </small>
               <button
                 type="button"
@@ -355,10 +355,10 @@ export function UnfoldedMap({ chapter, onClose, onGo }: { chapter: Chapter; onCl
           </div>
         ) : (
           <p className={styles.mapHint}>
-            Tap a place on the map · a red ✕ is a clue you found
+            Tap a place on the map · ✓ found · ✗ still to find
             <br />
             <span>
-              {chapter.solved} / {chapter.stops.length} marked
+              {chapter.solved} / {chapter.stops.length} found
             </span>
           </p>
         )}

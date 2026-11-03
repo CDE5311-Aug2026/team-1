@@ -1,7 +1,7 @@
 // The clue cards. On the page: a small wooden card box with a brass label; tap and its lid lifts on the hinge and the
 // cards rise. Then the deck fans out across the table: found cards face up, the rest face down. Drag along the fan to
 // look through it, tap a card to draw it: it comes forward and turns over to its story and its film.
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type ReactNode } from 'react';
 import { goLabel, type Chapter, type ChapterStop, type Film } from './chapters';
 import { Overlay } from './Overlay';
 import styles from './props.module.css';
@@ -76,6 +76,7 @@ export function CardFan({
   onFilm,
   onGo,
   focus,
+  extra,
 }: {
   chapter: Chapter;
   onClose(): void;
@@ -83,6 +84,8 @@ export function CardFan({
   onGo(stop: ChapterStop): void;
   /** A stop whose card is drawn from the pile straight away. */
   focus?: string;
+  /** Laid under the fan while no card is drawn (in a story: the decode cards and the night race). */
+  extra?: ReactNode;
 }) {
   const cards = chapter.stops;
   const n = cards.length;
@@ -118,7 +121,7 @@ export function CardFan({
   return (
     <Overlay label={`${chapter.area} clue cards`} onClose={drawn != null ? () => setDrawn(null) : onClose}>
       <p className={styles.fanTitle}>
-        <small>Vol. {chapter.roman} · Clue cards</small>
+        <small>Clue cards</small>
         {chapter.goal}
       </p>
       <div
@@ -148,6 +151,7 @@ export function CardFan({
         })}
       </div>
       <p className={styles.fanHint}>{drawn == null ? 'Slide along the fan · tap a card to draw it' : ''}</p>
+      {drawn == null && extra}
 
       {card && (
         <div className={styles.drawn} key={card.id}>

@@ -164,34 +164,6 @@
   overflow: hidden;
   clip-path: inset(50%);
 }
-.findsg .ogc .ogc-mode {
-  margin: 1px 1px 0 0;
-  padding: 3px 6px 2px;
-  border: 1.5px solid currentColor;
-  border-radius: 3px;
-  background: none;
-  color: var(--ogc-red);
-  font: 500 0.625rem/1 var(--font-display);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transform: rotate(-4deg);
-  opacity: 0.88;
-}
-.findsg .ogc .ogc-mode.is-preview {
-  color: var(--ogc-soft);
-}
-/* before check-in the stamp turns over; it is a stamp, so its target is padded out rather than drawn bigger */
-.findsg .ogc button.ogc-mode {
-  position: relative;
-  cursor: pointer;
-}
-.findsg .ogc button.ogc-mode::before {
-  content: '';
-  position: absolute;
-  inset: -12px -8px;
-}
-
 /* ---- the stage: a plate mounted on the page with photo corners ---- */
 /* fixed rows, so a page without the steps (the last page) keeps its picture and card in place */
 /* one column: the page corner shares the card's cell, so nothing may wander into a second column */
@@ -202,6 +174,7 @@
 .findsg .ogc > .ogc-card { grid-row: 4; margin-top: 12px; }
 /* the corner of the page lies over the card's corner */
 .findsg .ogc > .ogc-turn { grid-row: 4; grid-column: 1; align-self: end; justify-self: end; }
+.findsg .ogc > .ogc-turn.is-back { justify-self: start; }
 .findsg .ogc-stage {
   position: relative;
   min-height: 0;
@@ -278,18 +251,12 @@
   bottom: 16px;
   transform: rotate(-8deg);
 }
-/* the seal on a sleeping building: break it to check in */
-.findsg .ogc button.ogc-stamp.is-sealed {
-  min-height: 34px;
+/* the seal on a sleeping building: the Check in tab breaks it */
+.findsg .ogc .ogc-stamp.is-sealed {
   padding: 6px 12px 5px;
   background: rgba(244, 234, 210, 0.86);
   mix-blend-mode: normal;
   opacity: 1;
-  pointer-events: auto;
-  cursor: pointer;
-}
-.findsg .ogc button.ogc-stamp.is-sealed:active {
-  transform: rotate(-8deg) scale(0.94);
 }
 .findsg .ogc-stamp.is-file {
   right: 14px;
@@ -759,7 +726,7 @@
 .findsg .ogc-card:active {
   transform: translateY(1px);
 }
-.findsg .ogc.has-turn .ogc-card {
+.findsg .ogc:is(.has-turn, .has-back) .ogc-card {
   padding-bottom: 48px;
 }
 .findsg .ogc-card-title {
@@ -872,6 +839,26 @@
 }
 .findsg .ogc-turn.is-turning em {
   opacity: 0;
+}
+/* the corner at the bottom left turns back: the same dog-ear, mirrored, and quiet (only the way on glows) */
+.findsg .ogc .ogc-turn.is-back {
+  padding: 0 16px 0 0;
+}
+.findsg .ogc-turn.is-back i {
+  background: linear-gradient(45deg, #d6c49b 0 49%, transparent 50%);
+  transform-origin: 0 100%;
+}
+.findsg .ogc-turn.is-back i::before {
+  background: linear-gradient(45deg, transparent 0 50%, #fffaf0 50%, #e8d9b6 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+  filter: drop-shadow(2px -2px 3px rgba(60, 38, 16, 0.35));
+  animation: none;
+}
+.findsg .ogc-turn.is-back:active i {
+  transform: scale(1.5) rotate(6deg);
+}
+.findsg .ogc-turn.is-back.is-turning i {
+  transform: scale(9) rotate(12deg);
 }
 /* the things on the plate you can tap glow the same way once you have had a moment to look */
 .findsg .ogc .ogc-glow {
@@ -1078,9 +1065,6 @@
 }
 
 /* the way out for someone stuck: at the end of the hint, never on the card (owner, 2 Nov 2026) */
-.ogc-stuck { margin-top: 18px; padding-top: 12px; border-top: 1px dashed color-mix(in srgb, currentColor 30%, transparent); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-.ogc-stuck > span { font-family: var(--font-display); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; opacity: .6; }
-.ogc-stuck .sg-text-button { align-self: flex-start; margin: 0; text-align: left; }
 
 /* Only One Missing: the round projector button (a film of this beat) */
 .findsg .ogc-note-film { margin-top: 14px; }

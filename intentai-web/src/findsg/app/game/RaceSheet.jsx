@@ -8,9 +8,8 @@ import './race-sheet.css';
 
 const SRC = `${import.meta.env.BASE_URL}earth-online/sg/f1.html#at=1.2905,103.8575&f1=race&laps=1&pin=0&cards=0`;
 
-/** `title` names the puzzle the race stands in for; `gift` says a win also hands over a Boost Card. */
-export default function RaceSheet({title, gift = true, reducedMotion = false, onWin, onClose}) {
-  const [boost] = useState(gift); // as it was when the race opened (the win itself hands the card over)
+/** One lap wins one decode card (3 Nov 2026): the card completes any stop of this story. */
+export default function RaceSheet({reducedMotion = false, onWin, onClose}) {
   const frame = useRef(null), ref = useRef(null), won = useRef(false);
   const calls = useRef({onWin, onClose}); calls.current = {onWin, onClose};
   const [race, setRace] = useState(null), [finish, setFinish] = useState(null), [error, setError] = useState(false);
@@ -34,7 +33,8 @@ export default function RaceSheet({title, gift = true, reducedMotion = false, on
     return () => {unlock(); window.removeEventListener('keydown', key); window.removeEventListener('message', message);};
   }, []);
 
-  const again = () => {setFinish(null); frame.current?.contentWindow?.postMessage({source: 'intentai', type: 'f1-again'}, '*');};
+  // each lap finished wins its own card
+  const again = () => {won.current = false; setFinish(null); frame.current?.contentWindow?.postMessage({source: 'intentai', type: 'f1-again'}, '*');};
   const time = t => t ? `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, '0')}` : '–';
   const status = !race ? 'Loading' : race.race === 'grid' || race.race === 'lights' ? 'On the grid' : race.race === 'done' ? 'Chequered flag' : `Lap ${race.lap}/${race.laps}${race.pos ? ` · P${race.pos}` : ''}`;
 
@@ -50,14 +50,14 @@ export default function RaceSheet({title, gift = true, reducedMotion = false, on
       {!race && <div className="race-sheet-brief" role="status">
         <i className="race-sheet-lights" aria-hidden="true"><b/><b/><b/><b/><b/></i>
         <h3>{error ? 'The circuit did not load' : 'Lights out soon'}</h3>
-        <p>{error ? 'Close the race and solve the puzzle by hand instead.' : `One lap of the street circuit against ten cars. Cross the line and this stop's clues are yours${boost ? ', with a Boost Card for a later puzzle' : ''}.`}</p>
+        <p>{error ? 'Close the race and play the stop by hand instead.' : 'One lap of the street circuit against ten cars. Cross the line to win a decode card: it completes any stop of this story for you.'}</p>
         {!error && <ul><li><b>Steer</b>drag the pad</li><li><b>Pedals</b>slide one thumb; lower is harder</li></ul>}
       </div>}
       {finish && <div className="race-sheet-finish" role="status">
         <span>Chequered flag · P{finish.pos} of {finish.of} · {time(finish.time)}</span>
-        <h3>Clues unlocked</h3>
-        <p>{title ? `${title}: solved.` : 'This puzzle is solved.'}{boost ? ' A Boost Card is with your clues.' : ''}</p>
-        <div><button className="race-sheet-go" onClick={onClose}><b>Take the clues</b><i aria-hidden="true">→</i></button><button className="race-sheet-again" onClick={again}>Race again</button></div>
+        <h3>Decode card won</h3>
+        <p>It waits with your clues. Spend it on any stop to complete it.</p>
+        <div><button className="race-sheet-go" onClick={onClose}><b>Take the card</b><i aria-hidden="true">→</i></button><button className="race-sheet-again" onClick={again}>Race again</button></div>
       </div>}
     </div>
   </div></div>, document.body);

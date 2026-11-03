@@ -25,8 +25,7 @@ import { ChapterCardsPage, ChapterMapPage } from './pages';
 import { FilmPlate } from './FilmProjector';
 import { Notebook, type NotebookPage } from './Notebook';
 import { RubberStamp } from './RubberStamp';
-import { markStory, recordOf } from './record';
-import { NotesPage, RecordPage } from './BackPages';
+import { markStory } from './record';
 import p from './bookPage.module.css';
 import { AreaSketch, MirrorStick, ParcelContents, photoOf, PrintedLine, Shutter, ShutterReveal } from './goldenDome';
 
@@ -105,8 +104,6 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
   };
   const onSite = mode === 'manual';
   const [press, mosque] = EP.places;
-  // the second building is a secret until the clue is worked out
-  const second = s.deduce ? mosque.name : 'Still hidden';
   const [archFramed, setArchFramed] = useState(s.photo1);
   const [bandFramed, setBandFramed] = useState(s.photo2);
 
@@ -411,7 +408,7 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
       ? { id: l.id, tab: l.tab, label: `${l.label} (sealed)`, render: () => <Sealed what={l.label} how={l.seal} /> }
       : { id: l.id, tab: l.tab, label: l.label, render: l.render },
   );
-  // the back of the book is always there to write in and to look up, whatever is still sealed
+  // the back of the book is always there to look up, whatever is still sealed
   pages.push(
     {
       id: 'map',
@@ -424,34 +421,6 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
       tab: 'Clues',
       label: 'The clue cards',
       render: () => <ChapterCardsPage ch={ch} onCards={() => setLayer({ kind: 'cards' })} onChest={() => setLayer({ kind: 'ending' })} />,
-    },
-    {
-      id: 'notes',
-      tab: 'Notes',
-      label: 'Field notes',
-      render: () => (
-        <NotesPage
-          story="short"
-          stops={[
-            { id: 'press', name: press.name },
-            { id: 'mosque', name: second },
-          ]}
-        />
-      ),
-    },
-    {
-      id: 'record',
-      tab: 'Record',
-      label: 'The record',
-      render: () => (
-        <RecordPage
-          record={recordOf('short')}
-          rows={[
-            { id: 'press', name: press.name, stamped: onSite && !!s.arrival1, solved: s.deduce },
-            { id: 'mosque', name: second, stamped: onSite && !!s.arrival2, solved: s.bottle },
-          ]}
-        />
-      ),
     },
   );
   const at = Math.min(index, pages.length - 1);

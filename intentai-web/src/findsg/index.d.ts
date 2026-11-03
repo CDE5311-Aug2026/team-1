@@ -50,3 +50,19 @@ export const ONSITE_ROUTES: Record<string, { stops: { id: string; reward: { titl
 export function readOnsite(routeId: string, stops: { id: string }[], mode?: 'manual' | 'preview'): { completed: string[]; mode: string };
 export function readShort(mode?: 'manual' | 'preview'): { ending: boolean; deduce: boolean; bottle: boolean; ticket: boolean; arrival1: boolean; arrival2: boolean };
 export function shortCount(state: { deduce: boolean; bottle: boolean }): number;
+
+/** Where the open stop stands, as the game reports it to the book's side tabs (event 'findsg:stop'). */
+export interface FindSGStop {
+  routeId: string;
+  mode: 'manual' | 'preview';
+  /** 'intro' | 'arrival' | 'observe' | 'puzzle' | 'reward' | 'ending' */
+  phase: string;
+  stopName: string;
+  /** Decode cards in hand for this story and mode. */
+  cards: number;
+  /** A card can complete the stop now. */
+  canDecode: boolean;
+}
+export function currentStop(): FindSGStop | null;
+/** A side tab's command to the open stop. */
+export function sendStop(type: 'race' | 'decode' | 'mode' | 'checkin'): void;

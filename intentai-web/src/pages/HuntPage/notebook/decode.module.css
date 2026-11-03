@@ -1,0 +1,143 @@
+/* The decode cards and the night race ticket, laid under the clue fan: two small objects on the desk. */
+.shelf {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.objects {
+  display: flex;
+  gap: 22px;
+  align-items: flex-end;
+}
+.card,
+.ticket {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  width: 64px;
+  height: 88px;
+  padding: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+.card small,
+.ticket small {
+  font: 500 0.5625rem/1 var(--font-display, 'Oswald', sans-serif);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+/* a decode card: dark lacquer, brass edge, a cipher wheel */
+.card {
+  border: 2px solid #b8913e;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.12), transparent 50%),
+    linear-gradient(160deg, #23383a, #142224);
+  color: #e3c47a;
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 3px #142224,
+    inset 0 0 0 4px rgba(184, 145, 62, 0.55);
+  transform: rotate(-4deg);
+}
+.wheel {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  background:
+    radial-gradient(circle, currentColor 0 3px, transparent 3.5px),
+    repeating-conic-gradient(currentColor 0 6deg, transparent 6deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 0 4px, transparent 4.5px 8px, #000 8.5px);
+  mask: radial-gradient(circle, #000 0 4px, transparent 4.5px 8px, #000 8.5px);
+}
+.count {
+  position: absolute;
+  top: -9px;
+  right: -11px;
+  min-width: 24px;
+  padding: 4px 5px 3px;
+  border-radius: 999px;
+  background: #9b2c1c;
+  color: #fff4dc;
+  font: 500 0.75rem/1 var(--font-display, 'Oswald', sans-serif);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+}
+.empty {
+  border: 2px dashed rgba(232, 201, 131, 0.45);
+  background: rgba(20, 34, 36, 0.35);
+  color: rgba(232, 201, 131, 0.45);
+  box-shadow: none;
+  cursor: default;
+}
+.armed {
+  transform: rotate(0deg) translateY(-8px) scale(1.06);
+  box-shadow:
+    0 0 0 3px rgba(240, 186, 70, 0.6),
+    0 0 24px 6px rgba(240, 186, 70, 0.55),
+    inset 0 0 0 3px #142224,
+    inset 0 0 0 4px rgba(184, 145, 62, 0.55);
+}
+.nudge {
+  animation: nudge 0.45s;
+}
+@keyframes nudge {
+  25% {
+    transform: rotate(-4deg) translateX(-5px);
+  }
+  75% {
+    transform: rotate(-4deg) translateX(5px);
+  }
+}
+/* the night race ticket: chequered flag on cream card */
+.ticket {
+  border: 1.5px solid rgba(60, 40, 20, 0.55);
+  background: #f2e6c8;
+  color: #2b1d10;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  transform: rotate(5deg);
+}
+.flag {
+  width: 36px;
+  height: 26px;
+  border: 1px solid #2b1d10;
+  background: repeating-conic-gradient(#2b1d10 0 25%, #f2e6c8 0 50%) 0 0 / 12px 12px;
+  transform: skewY(-8deg);
+}
+.ticket:active {
+  transform: rotate(5deg) scale(0.95);
+}
+/* like the page's corners: what you can use now glows after a moment */
+.glow {
+  animation: glow 1.8s 1s ease-in-out infinite;
+}
+@keyframes glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(240, 186, 70, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(240, 186, 70, 0.9));
+  }
+}
+.caption {
+  margin: 0;
+  min-height: 1.2em;
+  font: italic 400 0.875rem/1.2 'IM Fell English', Georgia, serif;
+  color: rgba(240, 222, 186, 0.85);
+  text-align: center;
+}
+.card:focus-visible,
+.ticket:focus-visible {
+  outline: 2px solid #e8c983;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .nudge {
+    animation: none;
+  }
+}

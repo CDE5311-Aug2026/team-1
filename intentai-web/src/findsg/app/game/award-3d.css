@@ -1,0 +1,113 @@
+/* Award3D — brass medal on aged paper. Every class is prefixed .aw3- */
+
+.aw3-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  container-type: size;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+.aw3-root .aw3-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  cursor: grab;
+  outline: none;
+}
+
+.aw3-root .aw3-canvas:active {
+  cursor: grabbing;
+}
+
+/* ---- flat fallback (no WebGL) ---------------------------------- */
+
+.aw3-flat {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.aw3-flat-coin {
+  --aw3-ink: #4a2c0c;
+  position: relative;
+  box-sizing: border-box;
+  width: min(74cqw, 74cqh);
+  height: min(74cqw, 74cqh);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2%;
+  color: var(--aw3-ink);
+  font-family: Oswald, 'Arial Narrow', Arial, sans-serif;
+  font-weight: 600;
+  text-align: center;
+  background:
+    radial-gradient(circle at 40% 34%, #f0cf7a 0%, #d2a446 48%, #9c6f24 100%);
+  box-shadow:
+    inset 0 0 0 min(2.2cqw, 2.2cqh) #c2933c,
+    inset 0 0 0 min(2.6cqw, 2.6cqh) #8d6320,
+    inset 0 0 0 min(3.6cqw, 3.6cqh) #e4bf68,
+    inset 0 min(1.2cqw, 1.2cqh) min(3cqw, 3cqh) rgba(255, 240, 200, 0.45),
+    0 1px 0 #7a5418;
+}
+
+.aw3-flat-coin::before {
+  content: '';
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(74, 44, 12, 0.7);
+  pointer-events: none;
+}
+
+.aw3-flat-brand {
+  font-size: min(6.4cqw, 6.4cqh);
+  letter-spacing: 0.24em;
+  margin-right: -0.24em;
+}
+
+.aw3-flat-check {
+  width: 36%;
+  height: auto;
+}
+
+.aw3-flat-check path {
+  fill: none;
+  stroke: var(--aw3-ink);
+  stroke-width: 11;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.aw3-flat-case {
+  font-size: min(10cqw, 10cqh);
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.aw3-flat-area {
+  max-width: 64%;
+  font-size: min(4.8cqw, 4.8cqh);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.aw3-flat-shadow {
+  width: min(56cqw, 56cqh);
+  height: min(6cqw, 6cqh);
+  margin-top: min(3cqw, 3cqh);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(58, 36, 12, 0.42), rgba(58, 36, 12, 0));
+}

@@ -9,3 +9,4 @@ export { GAME_STORIES } from './app/game/game-content.js';
 export { ONSITE_ROUTES } from './app/game/onsite-content.js';
 export { readOnsite } from './app/game/onsite-storage.js';
 export { readShort, shortCount } from './app/short/short-state.js';
+export { currentStop, sendStop } from './app/game/stop-bridge.js';

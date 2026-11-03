@@ -21,6 +21,11 @@ interface Props {
   /** Hunt's game screens (a stop, the story reader) are full-screen layers: the bar stays over them and tells them
    *  where it ends (--game-top), so the game starts below it. */
   game?: boolean;
+  /** A second line under the title (Hunt: the open story's name). */
+  subtitle?: string;
+  /** A round back button beside Settings (Hunt: from a story back to the shelf). */
+  onBack?: () => void;
+  backLabel?: string;
 }
 
 export default function PageBar({
@@ -30,6 +35,9 @@ export default function PageBar({
   className,
   heading = true,
   game = false,
+  subtitle,
+  onBack,
+  backLabel = "Back",
 }: Props) {
   const bar = useRef<HTMLElement>(null);
   useLayoutEffect(() => {
@@ -55,21 +63,33 @@ export default function PageBar({
     >
       <HelpBadge ring={ring} onOpen={(el) => openHelp("ask", el)} />
       <HelpHint />
-      {heading ? (
-        <h1 className={styles.title}>{title}</h1>
-      ) : (
-        <span className={styles.title} aria-hidden="true">
-          {title}
-        </span>
-      )}
-      <Link
-        to={paths.mySpaceSettings}
-        className={styles.settings}
-        aria-label="Settings"
-        title="Settings"
-      >
-        <Icon name="gear" size={20} />
-      </Link>
+      <div className={styles.titles}>
+        {heading ? (
+          <h1 className={styles.title}>{title}</h1>
+        ) : (
+          <span className={styles.title} aria-hidden="true">
+            {title}
+          </span>
+        )}
+        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+      </div>
+      <div className={styles.right}>
+        {onBack && (
+          <button type="button" className={styles.settings} onClick={onBack} aria-label={backLabel} title={backLabel}>
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
+        <Link
+          to={paths.mySpaceSettings}
+          className={styles.settings}
+          aria-label="Settings"
+          title="Settings"
+        >
+          <Icon name="gear" size={20} />
+        </Link>
+      </div>
     </header>
   );
 }

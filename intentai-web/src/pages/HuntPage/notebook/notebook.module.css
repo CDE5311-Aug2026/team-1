@@ -336,6 +336,53 @@
   background:
     var(--grain), linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent 30%), #9b2c1c;
 }
+/* a story's decode cards, counted on the Clues tab's edge */
+.tabCount {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  display: grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: #e3c47a;
+  color: #2b1d10;
+  font: 500 0.625rem/1 var(--font-display);
+  writing-mode: horizontal-tb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+/* how you play, in blue ink, set apart from the book's own tabs */
+.wayTab {
+  background:
+    var(--grain), linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent 30%), hsl(calc(208 + var(--n) * 6) 42% calc(30% + var(--n) * 5%));
+}
+.tab:not(.wayTab) + .wayTab {
+  margin-top: 10px;
+}
+/* Check in waits for you: it glows, like the page's corners */
+.checkTab {
+  animation: checkGlow 1.8s 1s ease-in-out infinite;
+}
+@keyframes checkGlow {
+  0%,
+  100% {
+    box-shadow:
+      2px 2px 3px rgba(0, 0, 0, 0.35),
+      inset -1px 0 0 rgba(255, 255, 255, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(240, 186, 70, 0.6),
+      0 0 16px 4px rgba(240, 186, 70, 0.6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .checkTab {
+    animation: none;
+  }
+}
 .tab:focus-visible {
   outline: 2px solid #e8c983;
   outline-offset: 2px;
