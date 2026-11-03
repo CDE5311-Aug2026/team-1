@@ -1,0 +1,131 @@
+/* The stop's map with you on it (Nearby.jsx): a Google map pasted into the card, your dot, the distance in its corner. */
+.findsg .nb-map {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #e4dccb;
+  box-shadow:
+    0 0 0 1px rgba(60, 40, 20, 0.35),
+    0 0 0 4px #fbf6ea,
+    0 0 0 5px rgba(60, 40, 20, 0.18),
+    0 6px 12px -6px rgba(40, 24, 10, 0.55);
+}
+.findsg .nb-map.is-card { height: 112px; }
+.findsg .nb-map.is-sheet { height: 210px; }
+.findsg .nb-tiles {
+  position: absolute;
+  inset: 0;
+  filter: sepia(0.25) saturate(0.85) contrast(0.97);
+}
+.findsg .nb-tiles img {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  max-width: none;
+  user-select: none;
+}
+/* the stop: a red pin, its point on the place */
+.findsg .nb-pin {
+  position: absolute;
+  z-index: 2;
+  width: 26px;
+  height: 34px;
+  margin: -33px 0 0 -13px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+.findsg .nb-attr {
+  position: absolute;
+  z-index: 2;
+  left: 4px;
+  bottom: 2px;
+  font: 400 0.5625rem/1.2 system-ui, sans-serif;
+  color: rgba(40, 30, 20, 0.75);
+  pointer-events: none;
+}
+.findsg .nb-walk-area {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+/* you: a blue dot with a soft pulse; at the map's edge when the stop is further than it shows */
+.findsg .nb-you {
+  position: absolute;
+  z-index: 2;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2.5px solid #fff;
+  border-radius: 50%;
+  background: #2f7de1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.findsg .nb-you::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  background: rgba(47, 125, 225, 0.28);
+  animation: nb-pulse 2s ease-out infinite;
+}
+@keyframes nb-pulse { from { transform: scale(0.4); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+/* the distance: a brass tag in the top right corner */
+.findsg .nb-corner {
+  position: absolute;
+  z-index: 3;
+  top: 8px;
+  right: 8px;
+}
+.findsg .nb-corner b,
+.findsg .nb-locate {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(60, 40, 20, 0.45);
+  border-radius: 3px;
+  background: linear-gradient(180deg, #f6e3b0, #d9b768);
+  color: #2b1d10;
+  font: 500 1rem/1 var(--font-display, 'Oswald', sans-serif);
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 5px rgba(40, 24, 10, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.findsg .nb-map.is-here .nb-corner b {
+  background: linear-gradient(180deg, #cfe9c6, #8cc47f);
+  text-transform: uppercase;
+}
+.findsg .nb-locate {
+  width: 40px;
+  padding: 0;
+  cursor: pointer;
+}
+.findsg .nb-locate svg { width: 20px; height: 20px; }
+.findsg .nb-locate:disabled { opacity: 0.6; }
+.findsg .nb-locate.is-glow { animation: nb-glow 1.8s 1s ease-in-out infinite; }
+@keyframes nb-glow {
+  50% { box-shadow: 0 0 0 3px rgba(240, 186, 70, 0.55), 0 0 16px 4px rgba(240, 186, 70, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
+}
+.findsg .nb-walk {
+  position: absolute;
+  z-index: 2;
+  right: 8px;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(251, 246, 234, 0.92);
+  color: #2b1d10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+.findsg .nb-walk svg { width: 14px; height: 14px; }
+.findsg .nb-locate:focus-visible,
+.findsg .nb-walk-area:focus-visible { outline: 2px solid #9b2c1c; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .findsg .nb-you::after,
+  .findsg .nb-locate.is-glow { animation: none; }
+}

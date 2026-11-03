@@ -10,6 +10,9 @@ import DiscoveryPacket from './DiscoveryPacket.jsx';
 import {ClosedBanner, ClosedAward, ClosedRecord, toShelf} from './CaseClosed.jsx';
 import {RealmCard, RealmStamp, realmOf} from './Realm.jsx';
 import {mapWalk} from '../field/field-storage.js';
+import {DistanceMap} from './Nearby.jsx';
+import {CameraIcon} from './ArrivalCamera.jsx';
+import {pinOf, photoOf} from './stop-photos.js';
 import {lockScroll} from '../../../hooks/scrollLock';
 import {imageFor} from '../data.js';
 import './onsite-compact.css';
@@ -27,7 +30,7 @@ const pad = n => String(n).padStart(2, '0');
 
 export default function OnsiteCompact(p) {
   const {routeId, config, story, meta, place, stop, layer, record, game, mode, phase, intro, ending, celebrated, saved, reducedMotion, scene, sheet, setSheet, raceLayer,
-    onExit, onOpen, begin, arrive, observe, photo, next, journal, placeInfo, restart, changeMode, Guide, PhotoClue, cleanPlace, mapSearch, sourceName, KIND_NAMES} = p;
+    onExit, onOpen, begin, arrive, observe, photo, next, journal, placeInfo, restart, changeMode, shoot, shot, Guide, PhotoClue, cleanPlace, mapSearch, sourceName, KIND_NAMES} = p;
   const n = pad(game.stopIndex + 1), total = pad(config.stops.length);
   const reward = !intro && !ending && phase === 'reward';
   const manual = mode === 'manual';
@@ -48,6 +51,11 @@ export default function OnsiteCompact(p) {
     const t = window.setTimeout(() => once(`om-film:${mode}:ending`, () => playFilm([films.ending])), 2400);
     return () => window.clearTimeout(t);
   }, [films, ending, mode]);
+  // on site, the camera's photos of this stop are loaded ahead, so the shot is there the moment you take it
+  useEffect(() => {
+    if (!manual || intro || ending) return;
+    for (const k of ['place', 'detail']) {const ph = photoOf(stop.id, k); if (ph) new Image().src = ph.src;}
+  }, [manual, intro, ending, stop.id]);
   const takeCase = () => {begin(); if (films) playFilm([films.intro]);};
   /** The film of this beat, again: kept in the field note, so the page has one thing to tap for each act. */
   const again = id => id && <button className="sg-text-button ogc-note-film" onClick={() => {setSheet(false); playFilm([id]);}}>▶︎ Watch the film again</button>;
@@ -56,7 +64,7 @@ export default function OnsiteCompact(p) {
    * red button did, and its pencilled caption says where it leads. A puzzle has no corner: solving it turns the page. */
   const turn = intro ? {go: takeCase, label: 'Take the case'}
     : reward ? {go: next, label: stop.transition.cta}
-    : phase === 'observe' ? {go: observe, label: manual ? 'Seen it · wake the model' : 'Studied it · start'}
+    : phase === 'observe' && !manual ? {go: observe, label: 'Studied it · start'}
     : null;
 
   /* the corner at the bottom left turns back: to the clue found at the stop before (the story's ending turns back to the
@@ -98,19 +106,28 @@ export default function OnsiteCompact(p) {
       {/* the building sleeps under its seal until you check in (the Check in tab breaks it) */}
       {!record.checkin && <span className="ogc-stamp is-sealed" aria-hidden="true">Sealed</span>}
     </div>;
+    const pin = pinOf(stop.id), walk = mapWalk(place);
+    const camera = kind => ({icon: <CameraIcon/>, label: kind === 'place' ? `Check in at ${name}: photograph it` : `Photograph ${stop.observation.title}`, go: () => {setSheet(false); shoot(kind);}});
     if (phase === 'arrival') {
-      card = <Card kicker={manual ? 'Go to' : 'Remote lead'} title={stop.at || place.address}
-        said={{by: story.guideName, text: stop.sceneLine}} onOpen={note} label="Field note"
-        link={manual ? {href: mapWalk(place), label: 'Walk there in Google Maps'} : null}/>;
-      body = <><h2>{place.name}</h2>
-        <div className="og-destination"><span>Address</span><strong>{place.address}</strong><a href={mapSearch(place)} target="_blank" rel="noreferrer">Open the map ↗︎</a></div>
-        <p className="og-fine-print">{manual ? 'At the place, tap the camera tab and photograph it: an AI check confirms you are there. No location is read.' : 'Remote play keeps its own progress.'}</p></>;
+      /* on site: where it is, how far you are, and the camera. Remote: one button starts the stop. */
+      card = manual
+        ? <Card kicker="Go to" title={stop.at || place.address} onOpen={note} label="Map" act={camera('place')}>
+          {pin && <DistanceMap pin={pin} name={name} walk={walk}/>}
+        </Card>
+        : <Card kicker="Remote" title={stop.at || place.address} lead={stop.sceneLine} onOpen={note} label="Field note"
+          act={{icon: <Play/>, label: `Start ${name} remotely`, go: () => arrive(mode, true)}}/>;
+      body = manual
+        ? <><h2>{name}</h2>{pin && <DistanceMap pin={pin} name={name} walk={walk} size="sheet"/>}<Shoot {...camera('place')}/></>
+        : <><h2>{name}</h2><p className="ogc-note-lead">{stop.sceneLine}</p><Shoot icon={<Play/>} label={`Start ${name} remotely`} go={() => {setSheet(false); arrive(mode, true);}}/></>;
     } else if (phase === 'observe') {
-      card = <Card kicker="Look for" title={stop.observation.title} lead={stop.observation.detailToFind} onOpen={note} label="Photo and hint"/>;
-      body = <><h2>{stop.observation.title}</h2><p className="ogc-note-lead">{stop.observation.instruction}</p>
-        <PhotoClue key={`${stop.id}:${mode}`} target={{...stop.observation, routeId, stopId: stop.id}} onPhoto={photo} preview={!manual}/>
-        <Hint stop={stop} sourceName={sourceName}/>
-        <p className="og-fine-print">{manual ? 'Look from public space only. Do not touch the building.' : 'Remote play is not a site visit.'}</p></>;
+      const o = stop.observation;
+      card = <Card kicker="Look for" title={o.title} lead={manual ? null : o.detailToFind} onOpen={note} label="Field note" act={manual ? camera('detail') : null}/>;
+      /* remote: the real photo stands in for the street */
+      const real = !manual && (photoOf(stop.id, 'detail') || shot?.('detail'));
+      body = <><h2>{o.title}</h2><p className="ogc-note-lead">{o.instruction}</p>
+        {manual ? <Shoot {...camera('detail')}/> : real && <figure className="ogc-real"><img src={real.src} alt={o.title}/>
+          {real.credit && <figcaption>{real.url ? <a href={real.url} target="_blank" rel="noreferrer">{real.credit}</a> : real.credit}</figcaption>}</figure>}
+        <Sources stop={stop} sourceName={sourceName}/></>;
     } else {
       /* the caption on the model carries the instruction and every answer, so the card only names the task: the
        * puzzle in hand is the thing to do. Someone stuck finds the night race and the decode cards under the Clues tab. */
@@ -118,8 +135,7 @@ export default function OnsiteCompact(p) {
       // a task that already starts with its kind's name ("Look around. Lift the clasp.") does not say it twice
       card = <Card kicker={kind && !task.toLowerCase().startsWith(kind.toLowerCase()) ? kind : 'The puzzle'} title={task} onOpen={note} label="Hint"/>;
       body = <><h2>{layer.title}</h2><p className="ogc-note-lead">{layer.instruction}</p>
-        <Hint stop={stop} sourceName={sourceName}/>
-        <button className="sg-text-button" onClick={placeInfo}>Open the place file ↗︎</button></>;
+        <Sources stop={stop} sourceName={sourceName}/></>;
     }
   }
 
@@ -150,11 +166,11 @@ export default function OnsiteCompact(p) {
     {sheet && <FieldNote onClose={() => setSheet(false)}>
       <span className="ogc-note-kicker">{ending ? 'Case closed' : intro ? 'The commission' : `Field note · stop ${n}`}</span>
       {body}
-      <footer className="ogc-note-foot">
+      {(intro || ending) && <footer className="ogc-note-foot">
         <button onClick={placeInfo}>Place file</button>
         <button onClick={restart}>Start over</button>
         <small>{saved ? 'Progress saved' : 'Not saved'}</small>
-      </footer>
+      </footer>}
     </FieldNote>}
     <RealmCard key={realmId} realm={realm} id={realmId}/>
     {raceLayer}
@@ -176,36 +192,43 @@ function PageTurn({go, label, side = 'next', reducedMotion}) {
   </button>;
 }
 
-/** What to look for, the play hint and its sources, as one pasted-in slip. */
-function Hint({stop, sourceName}) {
-  const o = stop.observation;
-  return <div className="og-reference"><strong>{o.detailToFind}</strong><p>{o.referenceNote}</p>
-    <div>{(o.sourceUrls || []).slice(0, 2).map(url => <a key={url} href={url} target="_blank" rel="noreferrer">{sourceName(url)} ↗︎</a>)}</div>
-    {o.credits?.length > 0 && <p className="ogc-credits">Photos {o.credits.filter((c, i, all) => all.findIndex(d => d.text === c.text) === i).map(c => <a key={c.url} href={c.url} target="_blank" rel="noreferrer">{c.text}</a>)}</p>}</div>;
+const Play = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>;
+
+/** The field note's one button: the camera on site, play when remote. */
+function Shoot({icon, label, go}) {
+  return <button className="ogc-shoot" onClick={go} aria-label={label}><span>{icon}</span></button>;
+}
+
+/** Where the facts on the note come from: the source names, linked. */
+function Sources({stop, sourceName}) {
+  const urls = (stop.observation.sourceUrls || []).slice(0, 2);
+  return urls.length > 0 && <p className="ogc-sources">{urls.map(url => <a key={url} href={url} target="_blank" rel="noreferrer">{sourceName(url)} ↗︎</a>)}</p>;
 }
 
 /** The paper card: the whole card opens the field note (a small folded tab says so); swiping it to the left turns
  * the page. `said` is a line in the guide's hand. */
-export function Card({kicker, title, lead, said, onOpen, label, onSwipe, onSwipeBack, link}) {
+export function Card({kicker, title, lead, said, onOpen, label, onSwipe, onSwipeBack, link, act, children}) {
   const from = useRef(null);
   const down = e => {from.current = {x: e.clientX, y: e.clientY};};
   const up = e => {
     const f = from.current; from.current = null;
-    if (!f) return;
+    if (!f || e.target.closest?.('a, button')) return;
     const dx = e.clientX - f.x, dy = e.clientY - f.y;
     if (onSwipe && dx < -50 && Math.abs(dy) < 40) {e.preventDefault(); onSwipe(); return;}
     if (onSwipeBack && dx > 50 && Math.abs(dy) < 40) {e.preventDefault(); onSwipeBack(); return;}
     if (Math.hypot(dx, dy) < 10) onOpen?.();
   };
-  const key = e => {if (e.key === 'Enter' || e.key === ' ') {e.preventDefault(); onOpen?.();}};
+  const key = e => {if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {e.preventDefault(); onOpen?.();}};
   return <article className="ogc-card" role="button" tabIndex={0} aria-label={`${kicker}: ${title}. ${label}`}
     onPointerDown={down} onPointerUp={up} onPointerCancel={() => {from.current = null;}} onKeyDown={key}>
     <header><span>{kicker}</span><i className="ogc-card-tab" aria-hidden="true"/></header>
-    <div className="ogc-card-title"><h2>{title}</h2></div>
+    <div className="ogc-card-title"><h2>{title}</h2>
+      {act && <button className="ogc-act" onClick={act.go} aria-label={act.label}>{act.icon}</button>}</div>
     {said && <p className="ogc-said">{said.text}<span>— {said.by}</span></p>}
     {lead && <p className="ogc-lead">{lead}</p>}
     {link && <a className="ogc-walk" href={link.href} target="_blank" rel="noreferrer"
       onPointerDown={e => e.stopPropagation()} onPointerUp={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>{link.label} ↗︎</a>}
+    {children && <div className="ogc-card-more">{children}</div>}
   </article>;
 }
 

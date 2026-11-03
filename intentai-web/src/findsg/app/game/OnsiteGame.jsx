@@ -1,5 +1,6 @@
 import React,{lazy,Suspense,useCallback,useEffect,useRef,useState} from 'react';
-import {ROUTES,findStory,assetFor,gameSceneImageFor,sourceName} from '../data.js';
+import {ROUTES,findStory,assetFor,gameSceneImageFor,sourceName,imageFor} from '../data.js';
+import {photoOf} from './stop-photos.js';
 import {mapSearch} from '../field/field-storage.js';
 import {GAME_STORIES} from './game-content.js';
 import {ONSITE_ROUTES} from './onsite-content.js';
@@ -73,9 +74,11 @@ function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
  const puzzleOpen=!intro&&!ending&&phase==='puzzle';
  const race=puzzleOpen&&canRace(stop)?()=>setRaceOpen(true):null;
  const boostHere=puzzleOpen&&cards>0?decode:null;
- const [cameraOpen,setCameraOpen]=useState(false);
+ // on site the camera is how you play: 'place' checks you in, 'detail' photographs what to look for (ArrivalCamera.jsx, a demo)
+ const [camera,setCamera]=useState(null);
+ const shot=kind=>photoOf(stop.id,kind)||{src:imageFor(routeId),credit:'Concept art, not a photo'};
  const raceLayer=<>{raceOpen&&<Suspense fallback={null}><RaceSheet reducedMotion={reducedMotion} onWin={raceWon} onClose={()=>setRaceOpen(false)}/></Suspense>}
-  {cameraOpen&&!intro&&!ending&&phase==='arrival'&&<Suspense fallback={null}><ArrivalCamera place={{name:stop.name||cleanPlace(place.name),address:place.address,look:[stop.observation?.title,stop.observation?.detailToFind].filter(Boolean).join('. ')}} reducedMotion={reducedMotion} onClose={()=>setCameraOpen(false)} onArrive={method=>{setCameraOpen(false);arrive('manual',false,method);}}/></Suspense>}</>;
+  {camera&&!intro&&!ending&&((camera==='place'&&phase==='arrival')||(camera==='detail'&&phase==='observe'))&&<Suspense fallback={null}><ArrivalCamera kind={camera} title={camera==='place'?stop.name||cleanPlace(place.name):stop.observation.title} photo={shot(camera)} reducedMotion={reducedMotion} onClose={()=>setCamera(null)} onDone={method=>{const k=camera;setCamera(null);if(k==='place')arrive('manual',false,method);else observe();}}/></Suspense>}</>;
  function changeMode(next){commit(readOnsite(routeId,config.stops,next),'mode-changed');}
  // Hunt: remote play has no street to stand on, so the phone page starts it with one tap (check-in and observation together)
  function arrive(nextMode,andObserve=false,method){let q=nextMode===current.current.mode?current.current:readOnsite(routeId,config.stops,nextMode);q=beginOnsite(q);const id=config.stops[q.stopIndex].id,at=new Date().toISOString();q=checkInOnsite(q,id,config.stops,{mode:nextMode,confirmedAt:at,method});if(andObserve)q=observeOnsite(q,id,config.stops,{confirmedAt:at});commit(q,andObserve?'observation-confirmed':'checkin');}
@@ -87,13 +90,13 @@ function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
  useEffect(()=>{publishStop({routeId,mode,phase:view,stopName:stop.name||cleanPlace(place.name),cards,canDecode:decodeOpen&&cards>0});},[routeId,mode,view,stop,place,cards,decodeOpen]);
  useEffect(()=>()=>publishStop(null),[]);
  const command=useRef(null);
- command.current={race:()=>{if(!ending)setRaceOpen(true);},decode,mode:()=>changeMode(mode==='manual'?'preview':'manual'),checkin:()=>{if(view!=='arrival')return;if(mode==='manual')setCameraOpen(true);else arrive(mode,true);}};
+ command.current={race:()=>{if(!ending)setRaceOpen(true);},decode,mode:()=>changeMode(mode==='manual'?'preview':'manual'),checkin:()=>{if(view!=='arrival')return;if(mode==='manual')setCamera('place');else arrive(mode,true);}};
  useEffect(()=>{const on=e=>command.current[e.detail?.type]?.();window.addEventListener('findsg:command',on);return()=>window.removeEventListener('findsg:command',on);},[]);
  const journal=()=>onOpen({type:'journal',routeId,state:current.current,mode});
  const placeInfo=()=>onOpen({type:'place',routeId,index:game.stopIndex,state:current.current,mode});
  const restart=()=>onOpen({type:'restart',routeId,state:current.current,mode,onConfirm:()=>{commit(normalizeOnsite(null,routeId,config.stops,mode),'restart');writeCards(routeId,mode,0);setCards(0);clearFinish(routeId,mode);onOpen(null);}});
  const scene=<SceneBoundary key={`${routeId}:${stop.id}:${mode}:${sceneKey}`} onRetry={()=>setSceneKey(v=>v+1)}><Suspense fallback={<div className="og-scene-loading"><span/><strong>Turning the street corner into a mechanism…</strong></div>}><QuestViewport routeId={routeId} stopId={stop.id} modelKind={stop.modelKind} quest={stop.quest} progress={record.puzzle} enabled={!intro&&Boolean(record.checkin&&record.observation.confirmed)&&!ending} reducedMotion={reducedMotion} onAction={act} onComplete={completed}/></Suspense></SceneBoundary>;
- if(compact)return <OnsiteCompact {...{routeId,config,story,meta,place,stop,layer,record,game,mode,phase,intro,ending,celebrated,saved,reducedMotion,scene,sheet,setSheet,raceLayer,onExit,onOpen,begin,arrive,observe,photo,next,journal,placeInfo,restart,changeMode,Guide,PhotoClue,cleanPlace,mapSearch,sourceName,KIND_NAMES}}/>;
+ if(compact)return <OnsiteCompact {...{routeId,config,story,meta,place,stop,layer,record,game,mode,phase,intro,ending,celebrated,saved,reducedMotion,scene,sheet,setSheet,raceLayer,onExit,onOpen,begin,arrive,observe,photo,next,journal,placeInfo,restart,changeMode,shoot:setCamera,shot,Guide,PhotoClue,cleanPlace,mapSearch,sourceName,KIND_NAMES}}/>;
  return <section className="og-player" aria-label={`On-site 3D exploration: ${story.title}`}>
   <div className="og-topbar"><button className="sg-back" onClick={onExit}>← Book</button><div className="og-route-name"><small>{meta.en}</small><strong>{story.title}</strong></div><div className="og-top-actions"><button onClick={()=>onOpen({type:'route',routeId,state:current.current,mode})}>Map ↗︎</button><button onClick={journal}>Clues <b>{game.completed.length}</b></button></div></div>
   <div className="og-title-row"><div><span className="og-eyebrow">{ending?'FINAL CHAPTER':`CHAPTER ${String(game.stopIndex+1).padStart(2,'0')} / ${String(config.stops.length).padStart(2,'0')}`}<i/> {ending?'Story complete':KIND_NAMES[layer.type]}</span><h1>{ending?story.ending.title:cleanPlace(place.name)}</h1>{/* Hunt: the English name only when it adds to the title */}{(ending||place.english_name!==cleanPlace(place.name))&&<p>{ending?story.ending.reflection:place.english_name}</p>}</div><div className="og-mode"><span>{mode==='manual'?'On site':'Remote play'}</span><button onClick={()=>changeMode(mode==='manual'?'preview':'manual')}>{mode==='manual'?'Switch to remote':'Switch to on site'}</button><small>{mode==='manual'?'Manual check-in · no location check':'Separate progress · not a site visit'}</small></div></div>

@@ -49,7 +49,7 @@ function photoCopy(raw){
 /* Hunt: how a check-in was made. On site it is a photo the AI confirmed (photo-ai), a photo the AI could not check or
  * did not match but the player stood by (photo-unchecked, photo-insisted), or the player's word; a decode card is kept
  * as one. Remote play is always online-preview. */
-const CHECKIN_METHODS=['decode-card','photo-ai','photo-unchecked','photo-insisted'];
+const CHECKIN_METHODS=['decode-card','photo-ai','photo-unchecked','photo-insisted','photo-demo'];
 function checkinMethod(method,mode){
  if(method==='decode-card')return method;
  if(mode!=='manual')return 'online-preview';

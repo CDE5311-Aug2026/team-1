@@ -1095,3 +1095,85 @@
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11zm0-8.6a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8z'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11zm0-8.6a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
+
+/* ---- on site (3 Nov 2026, owner): one camera button, the map with your distance, few words ---- */
+.findsg .ogc-card-title { align-items: center; }
+.findsg .ogc-act,
+.findsg .ogc-shoot > span {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #fff4dc;
+  cursor: pointer;
+  background: radial-gradient(circle at 38% 30%, #d4553b, #9b2c1c 60%, #6e1c10);
+  box-shadow:
+    0 0 0 3px #d9c08a,
+    0 0 0 4px rgba(60, 40, 20, 0.45),
+    0 6px 12px -2px rgba(60, 24, 10, 0.55),
+    inset 0 2px 2px rgba(255, 255, 255, 0.35),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.3);
+  animation: ogc-act 1.9s 1.2s ease-in-out infinite;
+}
+.findsg .ogc-act svg { width: 28px; height: 28px; }
+.findsg .ogc-act:active,
+.findsg .ogc-shoot:active > span { transform: translateY(1px) scale(0.96); }
+@keyframes ogc-act {
+  50% {
+    box-shadow:
+      0 0 0 3px #d9c08a,
+      0 0 0 4px rgba(60, 40, 20, 0.45),
+      0 0 18px 6px rgba(240, 186, 70, 0.75),
+      inset 0 2px 2px rgba(255, 255, 255, 0.35),
+      inset 0 -3px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+.findsg .ogc-card-more { margin-top: 10px; }
+/* the note's single button, centred under the map */
+.findsg .ogc-shoot {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  margin: 18px 0 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.findsg .ogc-shoot > span { width: 76px; height: 76px; }
+.findsg .ogc-shoot svg { width: 36px; height: 36px; }
+.findsg .ogc-sheet .nb-map { margin-top: 12px; }
+/* remote: the real photo, pasted in, with its credit */
+.findsg .ogc-real {
+  position: relative;
+  margin: 14px 0 0;
+  padding: 6px 6px 22px;
+  background: #fbf6ea;
+  box-shadow: 0 0 0 1px rgba(60, 40, 20, 0.25), 0 6px 12px -6px rgba(40, 24, 10, 0.5);
+  transform: rotate(-0.6deg);
+}
+.findsg .ogc-real img { display: block; width: 100%; max-height: 220px; object-fit: cover; }
+.findsg .ogc-real figcaption {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  font: 400 0.6875rem/1.2 var(--ogc-fell);
+  color: var(--ogc-soft);
+}
+.findsg .ogc-real figcaption a { color: inherit; }
+.findsg .ogc-sources {
+  margin: 12px 0 0;
+  text-align: right;
+  font: 500 0.6875rem/1.4 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.findsg .ogc-sources a { margin-left: 12px; color: var(--ogc-red); text-decoration: none; }
+@media (prefers-reduced-motion: reduce) {
+  .findsg .ogc-act,
+  .findsg .ogc-shoot > span { animation: none; }
+}
