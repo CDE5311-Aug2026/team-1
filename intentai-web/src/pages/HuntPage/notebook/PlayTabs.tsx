@@ -34,12 +34,16 @@ export function PlayTabs({ routeId, className = '' }: { routeId: string; classNa
   }, [stop?.phase]);
   const onStep = useCallback((i: number) => setTourAt(i), []);
   const showing = (target: string) => tour && TOUR.slice(0, tourAt + 1).some((s) => s.target.includes(`"${target}"`));
+  // the tour starts over each time (its first step lights the Map)
+  useEffect(() => {
+    if (!tour) setTourAt(-1);
+  }, [tour]);
   const atStop = (stop && stop.phase !== 'intro' && stop.phase !== 'ending') || showing('mode');
   const n = (i: number) => ({ '--n': i }) as CSSProperties;
   return (
     <>
       <nav className={`${nb.tabs} ${className}`} style={MATERIALS} aria-label="Story book">
-        <button type="button" className={nb.tab} style={n(0)} aria-current="page" data-tour="story">
+        <button type="button" className={nb.tab} style={n(0)} aria-current="page" data-tour="story" onClick={() => setTour(true)} aria-label="Story. Show how the book works">
           <span>Story</span>
         </button>
         <button type="button" className={nb.tab} style={n(1)} onClick={() => setOpen('map')} data-tour="map">

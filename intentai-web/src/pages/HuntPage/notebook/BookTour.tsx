@@ -1,6 +1,7 @@
 // The quick tour (owner, 3 Nov 2026): the first time a story opens, before its case is taken, each thing on the book is
 // lit in turn with one line on what it does. Tap anywhere for the next; Skip ends it. What only turns up later (the way
-// you play, Check in, the corner that turns back) is shown as an example while the tour points at it.
+// you play, Check in, the corner that turns back) is shown as an example while the tour points at it. The Story tab
+// plays it again.
 import { useEffect, useLayoutEffect, useState, type CSSProperties } from 'react';
 import styles from './tour.module.css';
 
@@ -28,7 +29,7 @@ export const TOUR: Step[] = [
   { target: '[data-tour="checkin"]', title: 'Check in', text: 'Glows while a stop waits. Tap it once you are there.' },
   { target: 'section.ogc .ogc-card', title: 'The card', text: 'Tap it for the guide’s note and a hint.' },
   { target: 'section.ogc .ogc-turn.is-next', title: 'Next', text: 'The folded corner turns the page. Or swipe the card left.' },
-  { target: 'section.ogc .ogc-turn.is-next', title: 'Back', text: 'The bottom left corner turns back to the last clue you found.', ghost: 'back' },
+  { target: 'section.ogc .ogc-card', title: 'Back', text: 'The bottom left corner turns back to the last clue you found.', ghost: 'back' },
 ];
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -39,20 +40,26 @@ function measure(step: Step): Box | null {
   if (!el) return null;
   const r = el.getBoundingClientRect();
   if (step.ghost === 'back') {
-    const card = document.querySelector('section.ogc .ogc-card')?.getBoundingClientRect();
-    if (!card) return null;
     // a square dog-ear in the card's bottom left (the next corner's box also holds its pencilled caption)
     const size = Math.min(r.height, 64);
-    return { left: card.left, top: card.bottom - size, width: size, height: size };
+    return { left: r.left, top: r.bottom - size, width: size, height: size };
   }
   return { left: r.left, top: r.top, width: r.width, height: r.height };
 }
 
+/** The steps this page can show: the example tabs always, the page's own parts only where they are (a puzzle has no
+ * corner to turn), so a tour replayed mid-story skips what is not there. Indices are into TOUR. */
+function stepsHere() {
+  return TOUR.map((_, k) => k).filter((k) => /data-tour="(mode|checkin)"/.test(TOUR[k].target) || !!document.querySelector(TOUR[k].target));
+}
+
 export function BookTour({ onStep, onDone }: { onStep(i: number): void; onDone(): void }) {
-  const [i, setI] = useState(0);
+  const [steps] = useState(stepsHere);
+  const [at, setAt] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
-  const step = TOUR[i];
-  useEffect(() => onStep(i), [i, onStep]);
+  const k = steps[at] ?? 0;
+  const step = TOUR[k];
+  useEffect(() => onStep(k), [k, onStep]);
   useLayoutEffect(() => {
     let raf = 0;
     const read = () => setBox(measure(step));
@@ -70,7 +77,7 @@ export function BookTour({ onStep, onDone }: { onStep(i: number): void; onDone()
     markSeen();
     onDone();
   };
-  const next = () => (i + 1 < TOUR.length ? setI(i + 1) : finish());
+  const next = () => (at + 1 < steps.length ? setAt(at + 1) : finish());
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.key === 'Escape') finish();
@@ -105,7 +112,7 @@ export function BookTour({ onStep, onDone }: { onStep(i: number): void; onDone()
       tip = { left: 16, right: 16, top: box.top + box.height + pad + 14 };
     }
   }
-  const last = i === TOUR.length - 1;
+  const last = at === steps.length - 1;
   return (
     <div className={styles.tour} role="dialog" aria-modal="true" aria-label="How the book works" onClick={next}>
       {hole && (
@@ -114,8 +121,8 @@ export function BookTour({ onStep, onDone }: { onStep(i: number): void; onDone()
         </div>
       )}
       <div className={styles.tip} data-side={side} style={tip} aria-live="polite">
-        <span className={styles.count} aria-label={`Step ${i + 1} of ${TOUR.length}`}>
-          {i + 1}/{TOUR.length}
+        <span className={styles.count} aria-label={`Step ${at + 1} of ${steps.length}`}>
+          {at + 1}/{steps.length}
         </span>
         <strong>{step.title}</strong>
         <p>{step.text}</p>
