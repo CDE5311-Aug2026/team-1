@@ -24,6 +24,7 @@
 .findsg .om-check:disabled { opacity: .45; }
 .findsg .om-check:active { transform: translateY(2px); }
 .om-pin { position: absolute; right: -11px; top: -11px; width: 24px; height: 24px; border-radius: 50%; background: var(--brass); box-shadow: 0 3px 6px rgba(0, 0, 0, .5), inset 0 1px 1px #fff8; touch-action: none; }
+.om-pin::before { content: ''; position: absolute; inset: -14px; border-radius: 50%; }
 .om-pin::after { content: '⟳'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px; color: #4a3410; }
 
 /* ── bag ── */
@@ -91,7 +92,7 @@
 .om-brass-slider { position: absolute; left: 14%; right: 14%; top: 66%; width: 72%; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px; background: #0006; box-shadow: inset 0 1px 2px #000; }
 .om-brass-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--brass); box-shadow: 0 2px 6px #000a; }
 .om-brass-slider::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--brass-flat); border: 0; }
-.om-tray { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; display: flex; justify-content: center; align-items: center; gap: 46px;
+.om-tray { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; display: flex; justify-content: center; align-items: flex-start; padding-top: 6px; gap: 46px;
   background: linear-gradient(#0000, #00000055); }
 .om-shard { position: relative; width: 62px; height: 52px; touch-action: none; cursor: grab; transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); }
 .om-shard i { position: absolute; inset: 0; background: linear-gradient(140deg, #a7d37f, #4d7a35 55%, #2a4a1d); box-shadow: inset 2px 2px 3px #fff8; }
@@ -178,6 +179,10 @@
 .om-drum b { font-size: 24px; line-height: 1; text-align: center; animation: om-roll .18s ease-out; }
 @keyframes om-roll { from { transform: translateY(-8px); opacity: .3; } }
 .findsg .om-drum button { width: 100%; }
+/* faint chevrons: a drum turns up and down */
+.om-drum button::after { content: ''; display: block; margin: 0 auto; width: 0; height: 0; border: 4px solid transparent; opacity: .45; }
+.om-drum button:first-child::after { border-bottom-color: #2a1d08; border-top-width: 0; }
+.om-drum button:last-child::after { border-top-color: #2a1d08; border-bottom-width: 0; }
 .om-drum-sep { font-size: 22px; color: #e6d7b0; }
 .om-ringwrap .om-check { position: absolute; right: 12px; bottom: 12px; }
 
@@ -190,6 +195,7 @@
 .om-swatch.is-right { left: 0; top: 50%; margin-top: -86px; background-position: 81% 49%; }
 .om-swatch.is-left { left: calc(50% - 112px); top: calc(14% + 31% - 86px); background-position: 12% 49%; box-shadow: 0 12px 18px #0009; touch-action: none; cursor: grab;
   transition: box-shadow .4s; }
+.om-swatch-ghost { position: absolute; width: 112px; height: 172px; left: calc(50% - 112px); top: calc(14% + 31% - 86px); border: 1.5px dashed #f0b54a99; border-radius: 3px; pointer-events: none; }
 .om-swatch.is-left.is-snapped { box-shadow: 4px 0 0 -2px var(--amber), 0 0 24px #f0b54a88; transition: transform .25s ease-out, box-shadow .4s; }
 
 /* ── stone frames ── */
@@ -251,8 +257,12 @@
 .om-register { position: absolute; left: 8%; right: 8%; top: 6%; height: 15%; display: flex; align-items: center; justify-content: space-around; background: var(--paper);
   color: var(--ink); font-size: 17px; letter-spacing: .06em; box-shadow: 0 6px 12px #0008; clip-path: polygon(0 6%, 4% 0, 9% 7%, 15% 1%, 22% 6%, 30% 0, 100% 3%, 98% 100%, 0 96%); }
 .om-register b { color: #8a2f22; font-size: 22px; }
+/* the opened pack's top flap folds up toward the register: keep the name on top, except under a card being carried */
+.om-register { z-index: 3; }
+.om-pack:has(.is-carried) { z-index: 4; }
 .om-register.is-matched { box-shadow: 0 0 0 3px var(--amber); background: linear-gradient(#fff4d6, #f3dfaa); }
-.om-pack { position: absolute; left: 50%; top: 30%; width: 220px; height: 200px; margin-left: -110px; perspective: 700px; }
+.om-k-pack { container-type: size; }
+.om-pack { position: absolute; left: 50%; top: 27%; height: min(200px, calc(70cqh - 32px)); aspect-ratio: 11 / 10; translate: -50% 0; perspective: 700px; }
 .om-cloth { position: absolute; inset: 22px; background: #efe8d8; border-radius: 8px; box-shadow: 0 16px 24px #000a; }
 .om-flap { position: absolute; inset: 22px; background: linear-gradient(135deg, #f7f1e3, #ddd2bb); transition: transform 1s cubic-bezier(.4, 1.3, .5, 1); box-shadow: 0 2px 6px #0005; }
 .om-flap.f0 { clip-path: polygon(0 0, 100% 0, 50% 52%); transform-origin: 50% 0; }

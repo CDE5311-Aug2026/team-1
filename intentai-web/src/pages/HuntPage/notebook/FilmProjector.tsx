@@ -12,16 +12,34 @@ function useReel(reel: Film[]) {
   const [at, setAt] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
+  const [muted, setMuted] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = video.current;
     if (!v) return;
     setEnded(false);
+    v.muted = muted;
+    // a phone may refuse sound without a tap (iOS after a drag): play muted, with a speaker to turn it on
     v.play().then(
       () => setPlaying(true),
-      () => setPlaying(false),
+      () => {
+        v.muted = true;
+        setMuted(true);
+        v.play().then(
+          () => setPlaying(true),
+          () => setPlaying(false),
+        );
+      },
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [at]);
+  function unmute() {
+    const v = video.current;
+    if (!v) return;
+    v.muted = false;
+    setMuted(false);
+    if (v.paused) void v.play();
+  }
   function toggle() {
     const v = video.current;
     if (!v) return;
@@ -34,14 +52,15 @@ function useReel(reel: Film[]) {
       }
       return;
     }
-    if (v.paused) void v.play();
+    if (muted) unmute();
+    else if (v.paused) void v.play();
     else v.pause();
   }
-  return { at, setAt, playing, setPlaying, ended, setEnded, video, toggle, film: reel[at] };
+  return { at, setAt, playing, setPlaying, ended, setEnded, video, toggle, muted, unmute, film: reel[at] };
 }
 
 function Screen({ r, reel }: { r: ReturnType<typeof useReel>; reel: Film[] }) {
-  const { film, at, setAt, setEnded, setPlaying, playing, ended, toggle, video } = r;
+  const { film, at, setAt, setEnded, setPlaying, playing, ended, toggle, video, muted, unmute } = r;
   return (
     <div className={`${styles.screen} ${film.tall ? styles.tall : ''}`} style={{ ['--film-grain' as string]: filmGrain }}>
       <span className={styles.sprockets} aria-hidden="true" />
@@ -64,6 +83,14 @@ function Screen({ r, reel }: { r: ReturnType<typeof useReel>; reel: Film[] }) {
       {!playing && (
         <button type="button" className={styles.playBtn} onClick={toggle} aria-label={ended ? 'Play again' : 'Play'}>
           <span aria-hidden="true">{ended ? '↻' : '▶'}</span>
+        </button>
+      )}
+      {muted && playing && (
+        <button type="button" className={styles.soundBtn} onClick={unmute} aria-label="Turn the sound on">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9h4l5-4v14l-5-4H4z" />
+            <path d="M17 9l4 6M21 9l-4 6" />
+          </svg>
         </button>
       )}
     </div>

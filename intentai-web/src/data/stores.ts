@@ -306,7 +306,11 @@ export function restartTest() {
   // The phone keeps its version (left phone A, right phone B), so the start screen opens with it picked.
   const version = versionOf(testerStore.get());
   clearPhone(false);
-  window.location.assign(`/?v=${version}`);
+  // Another tab still open on the app may save once more as it hears the clear; clear again after it has stopped.
+  window.setTimeout(() => {
+    clearPhone(false);
+    window.location.assign(`/?v=${version}`);
+  }, 500);
 }
 
 /**
@@ -315,6 +319,8 @@ export function restartTest() {
  */
 export function clearPhone(keepTester: boolean) {
   try {
+    // Tell the phone's other tabs first, so they stop saving before their data goes (see the listener below).
+    window.localStorage.setItem(PHONE_CLEARED, String(Date.now()));
     const keep = new Set([STORAGE_PREFIX + 'usage-log', 'findsg-help-feedback', ...(keepTester ? [STORAGE_PREFIX + 'tester'] : [])]);
     const gone = Object.keys(window.localStorage).filter((k) => !keep.has(k) && !k.startsWith('intentai:abtest-'));
     gone.forEach((k) => window.localStorage.removeItem(k));
@@ -322,4 +328,20 @@ export function clearPhone(keepTester: boolean) {
   } catch {
     // Storage blocked: the reload that follows still starts at the start screen if nothing was saved.
   }
+}
+
+const PHONE_CLEARED = 'intentai:phone-cleared';
+
+// A tab left open on the app holds the last person's game in memory and would save it back after the phone is cleared.
+// When another tab clears the phone, this one stops saving and starts again from the start screen.
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key !== PHONE_CLEARED || !event.newValue) return;
+    try {
+      Storage.prototype.setItem = () => {};
+    } catch {
+      // cannot stop saving: the clearing tab clears once more before it reloads
+    }
+    window.location.replace('/');
+  });
 }

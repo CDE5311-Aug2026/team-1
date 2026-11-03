@@ -1448,6 +1448,29 @@
   font-size: 1.375rem;
   cursor: pointer;
 }
+.soundBtn {
+  position: absolute;
+  right: 22px;
+  bottom: 10px;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(240, 226, 196, 0.8);
+  border-radius: 50%;
+  background: rgba(10, 7, 4, 0.55);
+  cursor: pointer;
+}
+.soundBtn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #f0e2c4;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
 .intertitle {
   margin: 14px 0 0;
   padding: 14px 16px;

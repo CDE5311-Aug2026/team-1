@@ -87,7 +87,7 @@ const STOPS = [
     chain('Only one missing', [
       prop('bag', 'The case bag', 'Look around. Lift the clasp.', 'open', [['open', 'Brass clasp']], {foundText: 'A letter, an invitation, a CCTV clip and the exhibit page.'}),
       prop('compare', 'Lot against case', 'Turn both over. Tap each difference.', 'three', [['three', 'Three differences']], {foundText: 'The top matches; underneath does not.'}),
-      prop('band', 'The archive band', 'Turn the band. Drop each edge into the gap.', 'lot', [['lot', 'Edge from the lot'], ['case', 'Edge from the case']],
+      prop('band', 'The archive band', 'Swipe the band round. Fit an edge in the gap.', 'lot', [['lot', 'Edge from the lot'], ['case', 'Edge from the case']],
         {misses: {case: 'A gap stays. A round edge, no hook.'}}),
     ], 'The one online is real. The one in the case went in six days ago.'),
     g[0].discovery, {text: 'The case piece carries a mould maker’s scratches. Which maker?', cta: 'On to Baghdad Street'}),
@@ -113,7 +113,7 @@ const STOPS = [
       prop('ring', 'The cast number', 'Lock each photo by its notch. Read clockwise from R.', '0703', [['0703', '07-03'], ['0702', '07-02'], ['0307', '03-07'], ['0803', '08-03']],
         {misses: {'0702': 'Lin lifts 07-02 out of the sample box. “It is here.”', '0307': 'No mould 03. Read clockwise.', '0803': 'No mould 08. One of those marks is a scratch.'},
           miss: 'No such entry in the register.', foundText: '07-03. Ordered by “Y.”, phone ending 4471.'}),
-      prop('batik', 'Half a cloth', 'Lay Lin’s half on the CCTV bundle.', 'match', [['match', 'Cut edge']]),
+      prop('batik', 'Half a cloth', 'Fit Lin’s half beside the CCTV half.', 'match', [['match', 'Cut edge']]),
     ], 'In two, out two. Y. is Sam.'),
     g[2].discovery, {text: 'Lin: “This boat, two flags. Muscat Street, in a stone frame.”', cta: 'On to Muscat Street'}),
 

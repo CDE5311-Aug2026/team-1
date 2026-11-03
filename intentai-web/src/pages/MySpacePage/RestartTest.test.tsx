@@ -39,10 +39,10 @@ test('Restart test asks once, then clears the phone but keeps the usage log', as
   expect(localStorage.getItem('hunt-book')).toBeNull();
   expect(localStorage.getItem(`${STORAGE_PREFIX}tester`)).toBeNull();
   expect(localStorage.getItem(`${STORAGE_PREFIX}usage-log`)).toBe('[]');
-  expect(assign).toHaveBeenCalledWith('/?v=B');
+  await vi.waitFor(() => expect(assign).toHaveBeenCalledWith('/?v=B'));
 });
 
-test('/restart clears the phone and keeps its version for the next person', () => {
+test('/restart clears the phone and keeps its version for the next person', async () => {
   const assign = vi.fn();
   vi.spyOn(window, 'location', 'get').mockReturnValue({ ...window.location, assign } as Location);
   testerStore.set({ name: 'P05', version: 'A' });
@@ -51,7 +51,24 @@ test('/restart clears the phone and keeps its version for the next person', () =
   renderAt('/restart');
   expect(localStorage.getItem('hunt-book')).toBeNull();
   expect(localStorage.getItem('intentai:abtest-phone')).toBe('"A"');
-  expect(assign).toHaveBeenCalledWith('/?v=A');
+  // a game still open in another tab saves its progress back; the second clear removes it
+  localStorage.setItem('findsg-onsite-v1:only-one-missing:preview', '{}');
+  await vi.waitFor(() => expect(assign).toHaveBeenCalledWith('/?v=A'));
+  expect(localStorage.getItem('findsg-onsite-v1:only-one-missing:preview')).toBeNull();
+});
+
+test('a tab left open stops saving and starts over when another tab clears the phone', () => {
+  const replace = vi.fn();
+  vi.spyOn(window, 'location', 'get').mockReturnValue({ ...window.location, replace } as Location);
+  const setItem = Storage.prototype.setItem;
+  try {
+    window.dispatchEvent(new StorageEvent('storage', { key: 'intentai:phone-cleared', newValue: '1' }));
+    localStorage.setItem('findsg-onsite-v1:only-one-missing:preview', '{}');
+    expect(localStorage.getItem('findsg-onsite-v1:only-one-missing:preview')).toBeNull();
+    expect(replace).toHaveBeenCalledWith('/');
+  } finally {
+    Storage.prototype.setItem = setItem;
+  }
 });
 
 test('/t4 clears the phone but keeps the test name, then a fresh load writes the prepared profile', async () => {

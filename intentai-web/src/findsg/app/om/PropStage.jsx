@@ -139,7 +139,7 @@ const TILES = 24;
 function Band({offer, solved, enabled, note}) {
   const [turn, setTurn] = useState(solved ? 180 : 40), [light, setLight] = useState(.3), [fitted, setFitted] = useState(solved ? 'lot' : null);
   const [carry, setCarry] = useState(null), from = useRef(0), gap = useRef(null);
-  const spin = useDrag({start: () => {from.current = turn;}, move: dx => setTurn(from.current + dx * .6)});
+  const spin = useDrag({start: () => {from.current = turn;}, move: dx => setTurn(from.current + dx * 1.1)});
   const facing = Math.abs((((turn - 180) % 360) + 540) % 360 - 180) < 28;
   const shadow = Math.round(8 + light * 8);
   const grab = id => ({
@@ -354,8 +354,9 @@ function Drum({value, onUp, onDown, label, disabled}) {
 /** Lin's half of the batik offcut, laid on the CCTV still of Sam's bundle: move it, turn it by its pin. */
 function Batik({offer, solved, enabled}) {
   const [pos, setPos] = useState(solved ? {x: 0, y: 0, r: 0} : {x: -42, y: 64, r: -22}), [snap, setSnap] = useState(solved);
-  const {move, turn} = useMoveTurn(pos, setPos, p => {if (Math.abs(p.x) < 14 && Math.abs(p.y) < 14 && Math.abs(p.r) < 8 && offer('match')?.ok) {setPos({x: 0, y: 0, r: 0}); setSnap(true);}});
+  const {move, turn} = useMoveTurn(pos, setPos, p => {if (Math.abs(p.x) < 30 && Math.abs(p.y) < 30 && offer('match')?.ok) {setPos({x: 0, y: 0, r: 0}); setSnap(true);}});
   return <div className="om-batik">
+    {!snap && <span className="om-swatch-ghost" aria-hidden="true"/>}
     <div className="om-cctv-still"><span className="om-swatch is-right" style={{backgroundImage: `url(${img('props/batik_match.webp')})`}}/><small>18:55</small></div>
     <span className={'om-swatch is-left' + (snap ? ' is-snapped' : '')} style={{backgroundImage: `url(${img('props/batik_match.webp')})`, transform: `translate(${pos.x}px, ${pos.y}px) rotate(${pos.r}deg)`}}
       onPointerDown={enabled && !snap ? move : undefined} aria-label="Lin's half of the cloth">
@@ -393,7 +394,7 @@ function LampRow({offer, solved, enabled}) {
 /** Hardcore B: the certificate fragment over the boat frame; when its border lines meet the wall's, it turns over. */
 function Overlay({offer, solved, enabled}) {
   const [pos, setPos] = useState(solved ? {x: 0, y: 0, r: 0} : {x: 54, y: 78, r: 16}), [flip, setFlip] = useState(solved);
-  const {move, turn} = useMoveTurn(pos, setPos, p => {if (Math.abs(p.x) < 12 && Math.abs(p.y) < 12 && Math.abs(p.r) < 7 && offer('aligned')?.ok) {setPos({x: 0, y: 0, r: 0}); window.setTimeout(() => setFlip(true), 500);}});
+  const {move, turn} = useMoveTurn(pos, setPos, p => {if (Math.abs(p.x) < 22 && Math.abs(p.y) < 22 && Math.abs(p.r) < 14 && offer('aligned')?.ok) {setPos({x: 0, y: 0, r: 0}); window.setTimeout(() => setFlip(true), 500);}});
   return <div className="om-overlay">
     <div className="om-wall"><Frame motif="ship" className="om-frame is-big"/><Frame motif="pot" className={'om-frame is-big is-next' + (flip ? ' is-shown' : '')}/></div>
     <span className={'om-fragment' + (flip ? ' is-flipped' : '')} style={{transform: `translate(${pos.x}px, ${pos.y}px) rotate(${pos.r}deg)`}} onPointerDown={enabled && !flip ? move : undefined} aria-label="Certificate fragment">
