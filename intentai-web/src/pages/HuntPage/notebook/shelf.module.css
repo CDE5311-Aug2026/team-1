@@ -283,6 +283,43 @@
   text-shadow:
     0 1px 0 rgba(0, 0, 0, 0.5),
     0 -0.5px 0 rgba(255, 236, 190, 0.25);
+  /* the hinge groove by the spine, and cloth rubbed pale along the edges (the 3D shelf paints the same, coverTexture.ts) */
+  background: linear-gradient(
+    90deg,
+    transparent 2.6cqw,
+    rgba(0, 0, 0, 0.34) 2.6cqw 3.7cqw,
+    rgba(255, 240, 215, 0.08) 3.7cqw 4.3cqw,
+    transparent 4.3cqw
+  );
+  box-shadow:
+    inset 0 0 0 0.5cqw rgba(255, 232, 196, 0.07),
+    inset 0 0 3cqw rgba(255, 232, 196, 0.06);
+}
+/* the panel pressed into the cloth inside the gold frame, with a blind-tooled rule round it. (Inside the board, cqw
+   is measured on its content box, as the frame's is, so these sit with the frame at any size.) */
+.board::before {
+  content: '';
+  position: absolute;
+  inset: 9cqw 9cqw 9cqw 11cqw;
+  z-index: -1;
+  background:
+    radial-gradient(80% 60% at 45% 40%, rgba(255, 240, 210, 0.06), transparent 70%),
+    rgba(0, 0, 0, 0.16);
+  box-shadow:
+    inset 1.6cqw 1.6cqw 2cqw rgba(0, 0, 0, 0.5),
+    inset -1cqw -1cqw 1.2cqw rgba(255, 236, 200, 0.16);
+  outline: 0.6cqw solid rgba(0, 0, 0, 0.22);
+  outline-offset: 5cqw;
+}
+/* brass corners on the fore-edge */
+.board::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(225deg, #f4dc9c, #c9a05a 26%, #8d6b2f 47%, rgba(40, 24, 8, 0.6) 49%, transparent 51%) right top / 11% 7.5% no-repeat,
+    linear-gradient(315deg, #e9cd8c, #b88f49 26%, #7d5e27 47%, rgba(40, 24, 8, 0.6) 49%, transparent 51%) right bottom / 11% 7.5% no-repeat;
 }
 .frame {
   position: absolute;
@@ -335,7 +372,8 @@
   letter-spacing: 0.01em;
   text-wrap: balance;
   color: transparent;
-  background: linear-gradient(180deg, var(--gold-hi, #f3dda0), var(--gold, #d9b76c) 55%, #a9813c);
+  /* gold leaf with a burnished band across it */
+  background: linear-gradient(170deg, var(--gold-hi, #f6e2a6), var(--gold, #dcb966) 32%, #f1d690 48%, #c49b4e 70%, #a9813c);
   -webkit-background-clip: text;
   background-clip: text;
   text-shadow: none;

@@ -1,13 +1,14 @@
-// The story shelf in real 3D: five cloth-bound books standing face-out on a walnut shelf under a warm lamp. The covers
-// are foil-stamped (they catch the light as you swipe along), the page blocks show their edges, and each book has a
-// silk ribbon: green when its story is finished, red while it is not. Swipe to look along the shelf; tap a book to
+// The story shelf in real 3D: five cloth-bound books standing face-out on a walnut shelf under a warm lamp. Each is
+// built like a real one: thick boards overhanging a gilt-topped, speckle-edged page block, a rounded spine with raised
+// bands, brass corners on the fore-edge, and a debossed, foil-stamped front (it catches the light as you swipe along;
+// the books sway a little with the swipe). Each has a silk ribbon: green when its story is finished, red while it is not. Swipe to look along the shelf; tap a book to
 // bring it to the middle; tap it again and it slides off the shelf towards you and opens.
 // If WebGL is unavailable, `onFail` is called and the flat shelf is used instead.
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import type { BookDef, BookId, ShelfProgress } from '../Bookshelf';
-import { paintBaize, paintCover, paintPages, paintSpine, paintWood } from './coverTexture';
+import { paintBaize, paintCover, paintPages, paintSpine, paintWeave, paintWood, SPINE_BANDS } from './coverTexture';
 import { createStage, type Stage } from './look';
 import styles from './shelf3d.module.css';
 
@@ -16,6 +17,11 @@ const BH = 1.46;
 const BT = 0.17; // thickness
 const GAP = 1.42; // book centre to centre
 const LEAN = -0.06; // books lean back against the wall a touch
+const BOARD = 0.034; // board thickness
+const OVER = 0.03; // how far the boards overhang the pages
+const BOW = 0.036; // how far the rounded spine bulges past the boards
+const HB = BH + 0.03; // board height
+const WB = BW + 0.03; // board width
 
 const reduced = () => document.documentElement.classList.contains('reduce-motion') || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
@@ -52,15 +58,18 @@ export function ShelfScene({
     let stage: Stage;
     try {
       // the same painted finish as the display case, lighter, so the lettering on the covers stays crisp
-      stage = createStage(el, styles.canvas, { fov: 26, paint: 0.35, bloom: 0.22 });
+      // (the paint pass is kept light here: the tooling and lettering on the covers want to stay sharp)
+      stage = createStage(el, styles.canvas, { fov: 26, paint: 0.18, bloom: 0.2 });
     } catch {
       onFail();
       return;
     }
     let disposed = false;
     const { renderer, scene, camera } = stage;
-    renderer.toneMappingExposure = 0.95;
+    renderer.toneMappingExposure = 0.98;
     scene.environmentIntensity = 0.22;
+    // metal (foil, brass, gilt) gets the room's reflections in full, so it reads as polished rather than painted
+    const env = scene.environment;
 
     const look = new THREE.Vector3(0, BH * 0.52, 0);
     const maxAniso = renderer.capabilities.getMaxAnisotropy();
@@ -76,17 +85,20 @@ export function ShelfScene({
     };
 
     // ---- lamp and room light ----
-    scene.add(new THREE.HemisphereLight(0xfff1dc, 0x2a1a10, 0.28));
-    const lamp = new THREE.SpotLight(0xffd3a0, 42, 14, 0.62, 0.9, 1.4);
+    scene.add(new THREE.HemisphereLight(0xfff1dc, 0x2a1a10, 0.24));
+    const lamp = new THREE.SpotLight(0xffcf96, 50, 14, 0.62, 0.9, 1.4);
     lamp.position.set(-2.4, 4, 2.2);
     lamp.castShadow = true;
     lamp.shadow.mapSize.set(1024, 1024);
     lamp.shadow.bias = -0.0004;
     lamp.shadow.radius = 6;
     scene.add(lamp, lamp.target);
-    const rim = new THREE.DirectionalLight(0xbfd2ff, 0.35);
-    rim.position.set(3, 2, -1);
-    scene.add(rim);
+    // a rim from behind and above picks out the board edges, the gilt top and the bands; a faint cool fill from the right
+    const rim = new THREE.DirectionalLight(0xffe4c2, 0.7);
+    rim.position.set(2.2, 3.2, -1.6);
+    const fill = new THREE.DirectionalLight(0xbfd2ff, 0.18);
+    fill.position.set(3, 1, 3);
+    scene.add(rim, rim.target, fill, fill.target);
 
     // ---- the shelf: back panel, plank with a lip, brass plate ----
     const span = (books.length - 1) * GAP + BW * 3.2;
@@ -132,8 +144,10 @@ export function ShelfScene({
     scene.add(plate);
 
     // ---- books ----
-    const paper = new THREE.MeshStandardMaterial({ map: tex(paintPages(false)), roughness: 0.92 });
-    const paperTop = new THREE.MeshStandardMaterial({ map: tex(paintPages(true)), roughness: 0.92 });
+    const gilt = new THREE.MeshStandardMaterial({ map: tex(paintPages('top')), metalness: 0.85, roughness: 0.34, envMap: env, envMapIntensity: 0.9 });
+    const fore = new THREE.MeshStandardMaterial({ map: tex(paintPages('fore')), roughness: 0.9 });
+    const weave = tex(paintWeave(), false, [6, 9]);
+    const brassMat = new THREE.MeshStandardMaterial({ color: '#c9a05a', metalness: 1, roughness: 0.3, envMap: env, envMapIntensity: 1.3 });
     const rigs: BookRig[] = [];
     const ribbonGeo = (() => {
       const s = new THREE.Shape();
@@ -153,42 +167,80 @@ export function ShelfScene({
       g.computeVertexNormals();
       return g;
     })();
+    // shared by every book: boards, page block, rounded spine (a half cylinder squashed to the spine's bow), its bands,
+    // and the brass corner (a bevelled triangle over the board's corner)
+    const boardGeo = new RoundedBoxGeometry(WB, HB, BOARD, 3, 0.01);
+    const blockGeo = new THREE.BoxGeometry(BW - OVER / 2, HB - OVER * 2, BT - BOARD * 2);
+    const spineGeo = new THREE.CylinderGeometry(BT / 2, BT / 2, HB, 20, 1, false, Math.PI, Math.PI);
+    const bandGeo = new THREE.TorusGeometry(BT / 2, 0.011, 8, 20, Math.PI).rotateX(Math.PI / 2).rotateY(-Math.PI / 2);
+    const cornerGeo = (() => {
+      const s = 0.078,
+        o = 0.004;
+      const sh = new THREE.Shape();
+      sh.moveTo(o, o);
+      sh.lineTo(-s, o);
+      sh.quadraticCurveTo(-s * 0.45, -s * 0.18, o, -s);
+      sh.closePath();
+      const d = BOARD + 0.004;
+      return new THREE.ExtrudeGeometry(sh, { depth: d, bevelEnabled: true, bevelThickness: 0.0025, bevelSize: 0.0025, bevelSegments: 2, curveSegments: 6 }).translate(0, 0, -d / 2);
+    })();
     const RED = new THREE.Color('#a3291a'),
       GREEN = new THREE.Color('#3f7a45');
 
     books.forEach((b, i) => {
       const group = new THREE.Group();
-      const cloth = new THREE.MeshStandardMaterial({ color: b.tone, roughness: 0.86 });
-      const spineMat = new THREE.MeshStandardMaterial({ map: tex(paintSpine(b, i)), roughness: 0.82 });
+      const cloth = new THREE.MeshStandardMaterial({ color: b.tone, roughness: 0.86, bumpMap: weave, bumpScale: 0.5 });
+      const spineMat = new THREE.MeshStandardMaterial({ map: tex(paintSpine(b, i)), roughness: 0.8, bumpMap: weave, bumpScale: 0.5 });
       // the front board gets its painted cover once fonts and drawings are ready
-      const frontMat = new THREE.MeshStandardMaterial({ color: b.tone, roughness: 0.85 });
-      const boardGeo = new RoundedBoxGeometry(BW + 0.03, BH + 0.03, 0.022, 2, 0.008);
+      const frontMat = new THREE.MeshStandardMaterial({ color: b.tone, roughness: 0.85, envMap: env, envMapIntensity: 0.55 });
+      const zb = BT / 2 - BOARD / 2;
       const front = new THREE.Mesh(boardGeo, [cloth, cloth, cloth, cloth, frontMat, cloth]);
-      front.position.z = BT / 2 - 0.011;
+      front.position.z = zb;
       const backBoard = new THREE.Mesh(boardGeo, cloth);
-      backBoard.position.z = -BT / 2 + 0.011;
-      // the spine wraps the left edge; its outer face (-x) carries the bands and numeral
-      const spine = new THREE.Mesh(new RoundedBoxGeometry(0.03, BH + 0.03, BT, 3, 0.012), [cloth, spineMat, cloth, cloth, cloth, cloth]);
-      spine.position.x = -(BW + 0.03) / 2;
-      const block = new THREE.Mesh(new THREE.BoxGeometry(BW - 0.01, BH - 0.01, BT - 0.04), [paper, cloth, paperTop, paperTop, paper, paper]);
-      block.position.x = 0.01;
+      backBoard.position.z = -zb;
+      // the spine wraps the left edge, bowed out; caps are cloth
+      const spine = new THREE.Mesh(spineGeo, [spineMat, cloth, cloth]);
+      spine.position.x = -WB / 2;
+      spine.scale.x = BOW / (BT / 2);
+      group.add(spine);
+      for (const f of SPINE_BANDS) {
+        const band = new THREE.Mesh(bandGeo, spineMat);
+        band.position.set(-WB / 2, (0.5 - f) * HB, 0);
+        band.scale.x = (BOW + 0.004) / (BT / 2);
+        band.castShadow = true;
+        group.add(band);
+      }
+      // the page block sits back from the boards' edges and against the spine
+      const block = new THREE.Mesh(blockGeo, [fore, cloth, gilt, gilt, fore, fore]);
+      block.position.x = -WB / 2 + (BW - OVER / 2) / 2 + 0.004;
       for (const m of [front, backBoard, spine, block]) {
         m.castShadow = true;
         m.receiveShadow = true;
         group.add(m);
       }
+      // brass corners on the fore-edge of both boards
+      for (const z of [zb, -zb])
+        for (const sy of [1, -1]) {
+          const corner = new THREE.Mesh(cornerGeo, brassMat);
+          corner.position.set(WB / 2, (sy * HB) / 2, z);
+          corner.scale.y = sy;
+          corner.castShadow = true;
+          group.add(corner);
+        }
       const ribbonMat = new THREE.MeshPhysicalMaterial({ color: RED, roughness: 0.42, sheen: 0.35, sheenColor: new THREE.Color('#ffd9c8'), sheenRoughness: 0.5, side: THREE.DoubleSide });
       const ribbon = new THREE.Mesh(ribbonGeo, ribbonMat);
-      ribbon.position.set(0.26, BH / 2 + 0.07, BT / 2 + 0.004);
+      // just a tail over the top edge, clear of the lettering
+      ribbon.position.set(0.3, HB / 2 + 0.05, BT / 2 + 0.004);
+      ribbon.scale.y = 0.4;
       ribbon.castShadow = true;
       group.add(ribbon);
       // the ribbon comes out of the pages at the top
       const tuck = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.09), ribbonMat);
       tuck.rotation.x = -Math.PI / 2 + 0.3;
-      tuck.position.set(0.26, BH / 2 + 0.02, BT / 2 - 0.03);
+      tuck.position.set(0.3, HB / 2 - OVER + 0.02, BT / 2 - BOARD - 0.02);
       group.add(tuck);
 
-      const home = new THREE.Vector3(i * GAP, BH / 2 + 0.002, 0);
+      const home = new THREE.Vector3(i * GAP, HB / 2 + 0.002, 0);
       group.position.copy(home);
       group.rotation.x = LEAN;
       group.userData.id = b.id;
@@ -207,19 +259,19 @@ export function ShelfScene({
           rough.width = foil.width;
           rough.height = foil.height;
           const rc = rough.getContext('2d')!;
-          rc.fillStyle = '#d9d9d9';
+          rc.fillStyle = '#dcdcdc';
           rc.fillRect(0, 0, rough.width, rough.height);
           rc.globalCompositeOperation = 'multiply';
           rc.filter = 'invert(1)';
           rc.drawImage(foil, 0, 0);
           rc.globalCompositeOperation = 'lighter';
           rc.filter = 'none';
-          rc.globalAlpha = 0.28;
+          rc.globalAlpha = 0.22;
           rc.drawImage(foil, 0, 0);
           frontMat.roughnessMap = tex(rough, false);
           frontMat.roughness = 1;
           frontMat.bumpMap = tex(bump, false);
-          frontMat.bumpScale = 1.2;
+          frontMat.bumpScale = 1.6;
           frontMat.needsUpdate = true;
           kick();
         })
@@ -255,6 +307,9 @@ export function ShelfScene({
     const ndc = new THREE.Vector2();
     let drag: { x: number; camX: number; moved: boolean; id: number; t: number } | null = null;
     let velocity = 0;
+    // the books sway a little against a swipe, then settle (not with reduced motion)
+    let sway = 0;
+    let swayTo = 0;
     const worldPerPx = () => (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z * camera.aspect) / el.clientWidth;
     const hit = (e: PointerEvent) => {
       const r = el.getBoundingClientRect();
@@ -280,6 +335,7 @@ export function ShelfScene({
       drag.moved = true;
       const nx = THREE.MathUtils.clamp(drag.camX - dx * worldPerPx(), -0.4, (books.length - 1) * GAP + 0.4);
       velocity = nx - camX;
+      if (!reduced()) swayTo = THREE.MathUtils.clamp(velocity * 2.2, -0.16, 0.16);
       camX = camTo = nx;
       kick();
     };
@@ -366,10 +422,18 @@ export function ShelfScene({
       camera.lookAt(look);
       lamp.position.x = camX - 2.4;
       lamp.target.position.set(camX + 0.3, 0.5, 0);
+      // a swipe tilts the books the other way, like a hand brushing along the shelf; they spring back
+      swayTo *= Math.exp(-dt * (drag ? 6 : 10));
+      sway += (swayTo - sway) * (1 - Math.exp(-dt * 12));
+      if (Math.abs(sway) > 0.0005 || Math.abs(swayTo) > 0.0005) busy = true;
+      else sway = swayTo = 0;
       // the chosen book stands a little proud of the others
       const sel = latest.current.selected;
       for (const r of rigs) {
         if (pulling?.rig === r) continue;
+        const k = 1 + ((r.home.x / GAP) % 2) * 0.25;
+        r.group.rotation.y = -sway * k;
+        r.group.rotation.z = sway * 0.12 * k;
         const want = r.id === sel ? 0.12 : 0;
         const dz = want - (r.group.position.z - r.home.z);
         if (Math.abs(dz) > 0.0005) {

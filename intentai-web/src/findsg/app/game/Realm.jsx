@@ -38,16 +38,22 @@ export function RealmStamp({realm}) {
   </span>;
 }
 
-/** The card a page opens with; `id` names the page (route, mode, stop, phase), so each shows once a visit. */
+/** The card a page opens with; `id` names the page (route, mode, stop, phase), so each shows once a visit. REAL is a
+ * green field ticket over a street plan, punched for its string; VIRTUAL is an ink-blue blueprint of the phone. */
 export function RealmCard({realm, id}) {
   const [open, setOpen] = useState(() => !!realm && !seen(id));
   useEffect(() => {setOpen(!!realm && !seen(id));}, [id, realm]);
   if (!open || !realm) return null;
   const close = () => {markSeen(id); setOpen(false);};
-  return <button className={'realm-card is-' + realm.kind} onClick={close} aria-label={`${realm.kind === 'real' ? 'Real world' : 'Virtual'}: ${realm.title}. ${realm.line} Tap to begin.`}>
-    <span className="realm-kind">{realm.kind === 'real' ? <Pin/> : <Phone/>}{realm.kind === 'real' ? 'Real world' : 'Virtual'}</span>
-    <strong>{realm.title}</strong>
-    <p>{realm.line}</p>
-    <em>Tap to begin</em>
+  const real = realm.kind === 'real';
+  return <button className={'realm-card is-' + realm.kind} onClick={close} aria-label={`${real ? 'Real world' : 'Virtual'}: ${realm.title}. ${realm.line} Tap to begin.`}>
+    <span className="realm-ticket" aria-hidden="true">
+      {real ? <i className="realm-hole"/> : <><i className="realm-reg"/><i className="realm-reg"/><i className="realm-reg"/><i className="realm-reg"/></>}
+      <span className="realm-kind">{real ? 'Real world' : 'Virtual'}</span>
+      <span className="realm-emblem">{real ? <Pin/> : <Phone/>}</span>
+      <strong>{realm.title}</strong>
+      <span className="realm-line">{realm.line}</span>
+      <span className="realm-stub"><em>Tap to begin</em></span>
+    </span>
   </button>;
 }

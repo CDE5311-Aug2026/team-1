@@ -1,172 +1,474 @@
-/* the check-in camera (ArrivalCamera.jsx): a dark viewfinder over the page, the photo scanned, then a stamp */
+/* the check-in camera (ArrivalCamera.jsx): a field camera in a leather body over a dark desk. The viewfinder has a
+ * rangefinder patch, thirds and breathing brackets; a shot flashes and closes the blades, the print develops while the
+ * scan runs, and the answer is an inked rubber stamp. */
 .findsg .ac {
+  --ac-brass: linear-gradient(145deg, #f3d996, #b8913e 45%, #7a5a22 75%, #d9b96a);
+  --ac-paper: #f1e5c7;
+  --ac-green: #2f5a34;
+  --ac-red: #9b2c1c;
   position: fixed;
   inset: 0;
   z-index: 1300;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto auto auto;
-  gap: 14px;
-  padding: calc(env(safe-area-inset-top, 0px) + 14px) 18px calc(env(safe-area-inset-bottom, 0px) + 16px);
-  background: #120d09;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(232, 201, 131, 0.12), transparent 60%),
+    radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.7), transparent 60%),
+    #17110c;
   color: #f4ead2;
+  animation: ac-in 0.3s ease both;
 }
+@keyframes ac-in { from { opacity: 0; transform: translateY(10px); } }
+
+/* ---- header: a green ticket, the place, a brass knob to close ---- */
 .findsg .ac-top {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   column-gap: 12px;
+  row-gap: 4px;
 }
 .findsg .ac-realm {
   grid-column: 1;
   justify-self: start;
-  padding: 3px 8px 2px;
-  border-radius: 2px;
-  background: #2f5a34;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px 3px 9px;
+  background:
+    radial-gradient(circle at 0 50%, #17110c 4px, transparent 4.5px),
+    radial-gradient(circle at 100% 50%, #17110c 4px, transparent 4.5px),
+    linear-gradient(180deg, #3f7344, var(--ac-green));
+  color: #f4ead2;
   font: 500 0.6875rem/1.2 var(--font-display);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
+.findsg .ac-realm svg { width: 12px; height: 12px; }
+.findsg section.ogc .ac-top strong,
 .findsg .ac-top strong {
   grid-column: 1;
-  font: 400 1.5rem/1.1 var(--font-display);
+  font: 400 1.625rem/1.05 var(--font-display);
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
 }
 .findsg .ac-close {
   grid-column: 2;
   grid-row: 1 / span 2;
-  width: 44px;
-  height: 44px;
-  border: 1px solid rgba(244, 234, 210, 0.4);
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background: none;
-  color: inherit;
-  font: 300 1.75rem/1 var(--font-display);
+  background:
+    repeating-conic-gradient(rgba(0, 0, 0, 0.18) 0 4deg, transparent 4deg 10deg),
+    var(--ac-brass);
+  color: #3a2810;
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.55),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6);
   cursor: pointer;
 }
+.findsg .ac-close span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f6e2a8, #c69c4a 70%);
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.35);
+  font: 400 1.375rem/1 var(--font-display);
+}
+
+/* ---- the camera body: pebbled leather, stitched, with brass screws ---- */
+.findsg .ac-body {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  padding: 18px 16px;
+  border-radius: 14px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 30% 0%, #3a2c22, #1e1612 70%);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+/* the stitching */
+.findsg .ac-body::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1.5px dashed rgba(214, 180, 120, 0.35);
+  border-radius: 10px;
+  pointer-events: none;
+}
+.findsg .ac-screw {
+  position: absolute;
+  z-index: 2;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background:
+    linear-gradient(35deg, transparent 44%, rgba(60, 40, 10, 0.85) 44% 56%, transparent 56%),
+    radial-gradient(circle at 35% 30%, #f6e2a8, #a07a32 75%);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
+}
+.findsg .ac-screw:nth-of-type(1) { left: 5px; top: 5px; }
+.findsg .ac-screw:nth-of-type(2) { right: 5px; top: 5px; transform: rotate(70deg); }
+.findsg .ac-screw:nth-of-type(3) { left: 5px; bottom: 5px; transform: rotate(130deg); }
+.findsg .ac-screw:nth-of-type(4) { right: 5px; bottom: 5px; transform: rotate(20deg); }
+/* the lamp: green ready, amber while checking, then the answer's colour */
+.findsg .ac-lamp {
+  position: absolute;
+  z-index: 3;
+  top: 6px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: #7fd17a;
+  box-shadow: 0 0 6px 2px rgba(127, 209, 122, 0.7), inset 0 -1px 1px rgba(0, 0, 0, 0.3);
+}
+.findsg .ac[data-state='checking'] .ac-lamp {
+  background: #f2b84b;
+  box-shadow: 0 0 8px 3px rgba(242, 184, 75, 0.8);
+  animation: ac-blink 0.6s steps(2) infinite;
+}
+.findsg .ac:is([data-state='not-here'], [data-state='unsure']) .ac-lamp {
+  background: #f08a6e;
+  box-shadow: 0 0 8px 3px rgba(240, 138, 110, 0.7);
+}
+@keyframes ac-blink { 50% { opacity: 0.25; } }
+
+/* ---- the viewfinder ---- */
 .findsg .ac-frame {
   position: relative;
   min-height: 0;
   overflow: hidden;
   border-radius: 6px;
-  background: radial-gradient(ellipse at 50% 40%, #2a221a, #0c0806 75%);
+  background: radial-gradient(ellipse at 50% 42%, #3a3128, #120d09 72%);
+  box-shadow:
+    inset 0 0 0 2px #0b0806,
+    inset 0 0 40px 10px rgba(0, 0, 0, 0.75),
+    0 0 0 3px #4a3a28,
+    0 0 0 4px rgba(0, 0, 0, 0.6);
 }
-.findsg .ac-frame > img {
+.findsg .ac-print {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: ac-develop 1.8s ease-out both;
+}
+/* the print comes up out of the developer: pale sepia to full colour */
+@keyframes ac-develop {
+  0% { filter: sepia(1) brightness(1.9) contrast(0.35) blur(3px); opacity: 0.2; }
+  45% { filter: sepia(0.9) brightness(1.3) contrast(0.7) blur(1px); opacity: 1; }
+  100% { filter: none; }
 }
 .findsg .ac-empty {
   position: absolute;
   inset: 0;
   display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 14px;
-  padding: 24px;
+  place-items: center;
+  padding: 0;
   border: 0;
   background: none;
-  color: rgba(244, 234, 210, 0.82);
-  font: italic 400 1.0625rem/1.35 'IM Fell English', Georgia, serif;
-  text-align: center;
   cursor: pointer;
 }
-.findsg .ac-empty svg { width: 64px; height: 64px; color: #e8c983; }
-/* viewfinder corners */
-.findsg .ac-corner {
+/* the rangefinder patch: a faint gold double image in the middle */
+.findsg .ac-patch {
+  width: 34%;
+  aspect-ratio: 1.5;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 46% 50%, rgba(240, 212, 138, 0.18) 0 18%, transparent 19%),
+    radial-gradient(circle at 54% 50%, rgba(240, 212, 138, 0.12) 0 18%, transparent 19%),
+    rgba(240, 212, 138, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(240, 212, 138, 0.45);
+  animation: ac-patch 3.2s ease-in-out infinite;
+}
+@keyframes ac-patch { 50% { box-shadow: inset 0 0 0 1px rgba(240, 212, 138, 0.8), 0 0 14px rgba(240, 212, 138, 0.25); } }
+/* rule of thirds */
+.findsg .ac-grid {
   position: absolute;
-  width: 26px;
-  height: 26px;
-  border: 0 solid #e8c983;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent calc(33.33% - 0.5px), rgba(244, 234, 210, 0.16) calc(33.33% - 0.5px) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px) calc(66.66% - 0.5px), rgba(244, 234, 210, 0.16) calc(66.66% - 0.5px) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px)),
+    linear-gradient(180deg, transparent calc(33.33% - 0.5px), rgba(244, 234, 210, 0.16) calc(33.33% - 0.5px) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px) calc(66.66% - 0.5px), rgba(244, 234, 210, 0.16) calc(66.66% - 0.5px) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px));
   pointer-events: none;
 }
-.findsg .ac-corner:nth-of-type(1) { left: 12px; top: 12px; border-width: 3px 0 0 3px; }
-.findsg .ac-corner:nth-of-type(2) { right: 12px; top: 12px; border-width: 3px 3px 0 0; }
-.findsg .ac-corner:nth-of-type(3) { left: 12px; bottom: 12px; border-width: 0 0 3px 3px; }
-.findsg .ac-corner:nth-of-type(4) { right: 12px; bottom: 12px; border-width: 0 3px 3px 0; }
+.findsg .ac:not([data-state='ready']) .ac-grid { opacity: 0.4; }
+/* the focus brackets breathe while the camera waits */
+.findsg .ac-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 0 solid #e8c983;
+  filter: drop-shadow(0 0 3px rgba(232, 201, 131, 0.5));
+  pointer-events: none;
+  animation: ac-breathe 2.4s ease-in-out infinite;
+}
+.findsg .ac-corner:nth-of-type(1) { left: 12px; top: 12px; border-width: 2.5px 0 0 2.5px; --dx: 5px; --dy: 5px; }
+.findsg .ac-corner:nth-of-type(2) { right: 12px; top: 12px; border-width: 2.5px 2.5px 0 0; --dx: -5px; --dy: 5px; }
+.findsg .ac-corner:nth-of-type(3) { left: 12px; bottom: 12px; border-width: 0 0 2.5px 2.5px; --dx: 5px; --dy: -5px; }
+.findsg .ac-corner:nth-of-type(4) { right: 12px; bottom: 12px; border-width: 0 2.5px 2.5px 0; --dx: -5px; --dy: -5px; }
+@keyframes ac-breathe { 50% { transform: translate(var(--dx), var(--dy)); } }
+.findsg .ac:not([data-state='ready']) .ac-corner { animation: none; }
+.findsg .ac:is([data-state='here'], [data-state='offline']) .ac-corner { border-color: #8fd18a; filter: drop-shadow(0 0 4px rgba(143, 209, 138, 0.7)); }
+.findsg .ac:is([data-state='not-here'], [data-state='unsure']) .ac-corner { border-color: #f08a6e; filter: none; }
+
 .findsg .ac-scan {
   position: absolute;
   left: 0;
   right: 0;
-  height: 30%;
-  background: linear-gradient(180deg, transparent, rgba(232, 201, 131, 0.45) 85%, #f0d48a 100%);
-  animation: ac-scan 1.3s ease-in-out infinite alternate;
+  height: 26%;
+  background: linear-gradient(180deg, transparent, rgba(232, 201, 131, 0.35) 85%, #f6dc96 100%);
+  mix-blend-mode: screen;
+  animation: ac-scan 1.2s ease-in-out infinite alternate;
   pointer-events: none;
 }
-@keyframes ac-scan { from { top: -30%; } to { top: 100%; } }
-.findsg .ac-stamp {
+@keyframes ac-scan { from { top: -26%; } to { top: 100%; } }
+/* the shot: a white flash, then the blades close and open */
+.findsg .ac-flash {
   position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #fffaf0;
+  opacity: 0;
+  pointer-events: none;
+  animation: ac-flash 0.5s ease-out both;
+}
+@keyframes ac-flash { 10% { opacity: 1; } 100% { opacity: 0; } }
+.findsg .ac-iris {
+  position: absolute;
+  z-index: 4;
   left: 50%;
   top: 50%;
-  padding: 10px 18px 8px;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 100vmax #0b0806;
+  pointer-events: none;
+  animation: ac-iris 0.55s 0.12s cubic-bezier(0.6, 0, 0.3, 1) both;
+}
+.findsg .ac-iris::after {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 10deg, rgba(90, 70, 40, 0.5) 0 2deg, transparent 2deg 60deg);
+}
+@keyframes ac-iris {
+  0% { width: 180%; height: 180%; margin: -90%; }
+  45% { width: 0; height: 0; margin: 0; }
+  100% { width: 180%; height: 180%; margin: -90%; opacity: 0; }
+}
+
+/* the answer: an inked rubber stamp, uneven where the ink was thin */
+.findsg .ac-stamp {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 50%;
+  padding: 6px;
   border: 3px solid currentColor;
-  border-radius: 4px;
-  background: rgba(18, 13, 9, 0.55);
+  border-radius: 6px;
   font: 500 1.75rem/1 var(--font-display);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  transform: translate(-50%, -50%) rotate(-7deg);
-  animation: ac-stamp 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  white-space: nowrap;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='120'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.9'/%3E%3C/filter%3E%3Crect width='220' height='120' filter='url(%23i)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='120'%3E%3Cfilter id='i'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.9'/%3E%3C/filter%3E%3Crect width='220' height='120' filter='url(%23i)'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  animation: ac-stamp 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.findsg .ac-stamp > span {
+  display: block;
+  padding: 9px 16px 7px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  background: rgba(18, 13, 9, 0.35);
 }
 .findsg .ac-stamp.is-here,
-.findsg .ac-stamp.is-offline { color: #8fd18a; }
+.findsg .ac-stamp.is-offline { color: #9be096; }
 .findsg .ac-stamp.is-not-here,
-.findsg .ac-stamp.is-unsure { color: #f08a6e; }
-@keyframes ac-stamp { from { opacity: 0; transform: translate(-50%, -50%) rotate(-7deg) scale(1.8); } }
+.findsg .ac-stamp.is-unsure { color: #ff9a7c; }
+@keyframes ac-stamp { from { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(1.9); } }
+
+/* ---- under the camera: a paper slip (what to frame), or the answer ---- */
+.findsg .ac-slip {
+  justify-self: center;
+  max-width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 16px 8px;
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.06), transparent 8%, transparent 92%, rgba(0, 0, 0, 0.06)),
+    var(--ac-paper);
+  color: #2b1d10;
+  font: italic 400 1rem/1.25 'IM Fell English', Georgia, serif;
+  transform: rotate(-1deg);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+.findsg .ac-slip b {
+  flex: none;
+  font: 500 0.6875rem/1 var(--font-display);
+  font-style: normal;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ac-red);
+}
 .findsg .ac-line {
   margin: 0;
-  min-height: 2.7em;
+  min-height: 2.6em;
   font: 400 1.0625rem/1.35 'IM Fell English', Georgia, serif;
   text-align: center;
+  color: rgba(244, 234, 210, 0.92);
 }
-.findsg .ac-line b { font: 500 1rem/1 var(--font-display); letter-spacing: 0.06em; text-transform: uppercase; }
+.findsg .ac-line.is-good { color: #cdeec9; }
+.findsg .ac-line.is-bad { color: #ffd2c4; }
+.findsg .ac-dots {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 8px 1px 0;
+  border-radius: 50%;
+  background: #f2b84b;
+  box-shadow: 0 0 6px #f2b84b;
+  animation: ac-blink 0.6s steps(2) infinite;
+}
+
+/* ---- the shutter: a knurled metal ring round a red button ---- */
 .findsg .ac-actions {
   display: grid;
   justify-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .findsg .ac-shutter {
   display: grid;
   place-items: center;
-  width: 76px;
-  height: 76px;
-  border: 4px solid #f4ead2;
-  border-radius: 50%;
-  background: #9b2c1c;
-  color: #f4ead2;
-  box-shadow: 0 0 0 4px #120d09, 0 0 0 6px rgba(244, 234, 210, 0.35);
-  cursor: pointer;
-}
-.findsg .ac-shutter svg { width: 34px; height: 34px; }
-.findsg .ac-shutter:disabled { opacity: 0.45; }
-.findsg .ac-go {
-  min-width: 220px;
-  padding: 15px 24px 13px;
+  width: 84px;
+  height: 84px;
+  padding: 0;
   border: 0;
-  border-radius: 4px;
-  background: #2f5a34;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(rgba(0, 0, 0, 0.32) 0 3deg, rgba(255, 255, 255, 0.18) 3deg 6deg),
+    linear-gradient(160deg, #e9e4da, #8d877c 50%, #4b4740 80%, #b9b2a5);
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+.findsg .ac-shutter-button {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #d0533a, #9b2c1c 60%, #6e1c10);
+  color: #f8ecd4;
+  box-shadow:
+    0 0 0 3px #2a2520,
+    inset 0 2px 3px rgba(255, 220, 200, 0.45),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.45);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.findsg .ac-shutter svg { width: 28px; height: 28px; }
+.findsg .ac-shutter:active .ac-shutter-button {
+  transform: translateY(2px) scale(0.95);
+  box-shadow:
+    0 0 0 3px #2a2520,
+    inset 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+.findsg .ac-shutter:disabled { opacity: 0.5; cursor: default; }
+/* while it waits for you, the button glows */
+.findsg .ac-shutter.is-ready .ac-shutter-button { animation: ac-ready 1.8s 0.8s ease-in-out infinite; }
+@keyframes ac-ready {
+  50% {
+    box-shadow:
+      0 0 0 3px #2a2520,
+      0 0 20px 6px rgba(240, 120, 80, 0.55),
+      inset 0 2px 3px rgba(255, 220, 200, 0.45),
+      inset 0 -3px 5px rgba(0, 0, 0, 0.45);
+  }
+}
+/* go on: a green enamel plate with a brass rim */
+.findsg .ac-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 230px;
+  justify-content: center;
+  padding: 15px 26px 13px;
+  border: 0;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #3f7344, #2a5030);
   color: #f4ead2;
   font: 500 1.0625rem/1 var(--font-display);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  box-shadow:
+    0 0 0 2px #b8913e,
+    0 0 0 3px rgba(0, 0, 0, 0.5),
+    0 6px 14px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
   cursor: pointer;
   animation: ac-glow 1.8s 0.8s ease-in-out infinite;
 }
-@keyframes ac-glow { 50% { box-shadow: 0 0 22px 4px rgba(143, 209, 138, 0.55); } }
+.findsg .ac-go span { font-size: 1.25rem; }
+.findsg .ac-go:active { transform: translateY(1px); }
+@keyframes ac-glow {
+  50% {
+    box-shadow:
+      0 0 0 2px #e3c47a,
+      0 0 0 3px rgba(0, 0, 0, 0.5),
+      0 0 24px 6px rgba(143, 209, 138, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+}
 .findsg .ac-anyway {
+  padding: 4px 8px;
   border: 0;
   background: none;
-  color: rgba(244, 234, 210, 0.7);
+  color: rgba(244, 234, 210, 0.72);
   font: italic 400 0.9375rem/1.2 'IM Fell English', Georgia, serif;
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 .findsg .ac-fine {
-  font: italic 400 0.8125rem/1.3 'IM Fell English', Georgia, serif;
-  color: rgba(244, 234, 210, 0.55);
+  font: italic 400 0.75rem/1.3 'IM Fell English', Georgia, serif;
+  color: rgba(244, 234, 210, 0.5);
   text-align: center;
 }
 .findsg .ac :focus-visible { outline: 2px solid #e8c983; outline-offset: 3px; }
+
 @media (prefers-reduced-motion: reduce) {
-  .findsg .ac-scan,
-  .findsg .ac-stamp,
-  .findsg .ac-go { animation: none; }
+  .findsg .ac,
+  .findsg .ac * { animation: none !important; transition: none !important; }
+}
+.findsg .ac.is-still,
+.findsg .ac.is-still * { animation: none !important; }
+/* without motion the blades and flash are not drawn (still, they would cover the print) */
+.findsg .ac.is-still :is(.ac-flash, .ac-iris) { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .findsg .ac :is(.ac-flash, .ac-iris) { display: none; }
 }

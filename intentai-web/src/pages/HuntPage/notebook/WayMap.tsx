@@ -6,7 +6,8 @@ import { chapter, type ChapterStop } from './chapters';
 import { Overlay } from './Overlay';
 import styles from './waymap.module.css';
 
-const spot = (s: ChapterStop) => (s.pin && !s.pin.approx ? `${s.pin.lat},${s.pin.lng}` : `${s.name}, ${s.address}`);
+// the stop's own coordinates (an approximate pin is still on the right street); its name only when there are none
+const spot = (s: ChapterStop) => (s.pin ? `${s.pin.lat},${s.pin.lng}` : `${s.name}, Singapore`);
 const embed = (s: ChapterStop) => `https://maps.google.com/maps?q=${encodeURIComponent(spot(s))}&z=17&output=embed`;
 export const walkTo = (s: ChapterStop) => `https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=${encodeURIComponent(spot(s))}`;
 
