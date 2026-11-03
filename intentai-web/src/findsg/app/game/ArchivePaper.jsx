@@ -76,7 +76,7 @@ function PaperPresentation({ paper, reducedMotion, className, bare = false }) {
       <span className="ap-stage-label" aria-hidden="true">FINDSG · PAPER STUDY</span>
       <span className="ap-stage-measure" aria-hidden="true">01 / 02</span>
       {prints ? <PaperCrumple ref={controller} src={prints.src} backSrc={prints.backSrc} alt={`${paper.front.title}, ${paper.sample ? 'interactive sample' : 'story prop'}`} width={paperWidth} height={paperWidth * 4 / 3} sceneHeight={sceneHeight} imageFit="contain" initialAmount={.68} releaseBehavior="creased" crumpleAmount={.82} crumpleDuration={.55} releaseDuration={.5} foldCount={7} foldSharpness={.65} wrinkleDepth={.7} creaseStrength={.2} paperColor={paper.theme.paper} roughness={.94} paperTexture={.06} lightIntensity={1.8} lightAngle={-35} shadow shadowOpacity={.24} draggable returnToOrigin dragRotation={9} rotation={-3} seed={37 + paper.themeKey.length * 11} reducedMotion={reducedMotion} onStateChange={syncPresentation} className="ap-paper-object" /> : <div className="ap-preparing" role="status"><span aria-hidden="true">¶</span><p>{printFailed ? 'Paper preview unavailable for now. The full text is below.' : 'Printing both sides of the paper…'}</p></div>}
-      {bare ? prints && <span key={presentation.amount > .2 ? 'open' : 'turn'} className="ap-touch" aria-hidden="true">{presentation.amount > .2 ? 'Tap to open' : 'Swipe to turn over'}</span>
+      {bare ? prints && <span key={presentation.amount > .2 ? 'open' : 'turn'} className={`ap-touch is-${presentation.amount > .2 ? 'open' : 'turn'}`} aria-hidden="true"/>
         : <div className="ap-stage-caption"><span>{back ? 'REVERSE' : 'FRONT'}</span><span>{printFailed ? 'Text available below' : shapeLabel}</span></div>}
     </div>
     {!bare && <>

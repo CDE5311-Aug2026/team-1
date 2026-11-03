@@ -547,22 +547,53 @@
 .findsg .ogc-find .ap-stage::after {
   content: none;
 }
+/* the paper lies on the page with no caption: a warm glow under the crumpled ball says "tap", and once it is open a
+   fingertip of light slides across it to say "turn me over", then both fade */
+.findsg .ogc-find .ap-stage .paper-crumple {
+  z-index: 1;
+}
 .findsg .ogc-find .ap-touch {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 6px;
-  z-index: 2;
-  text-align: center;
-  font: 400 0.75rem/1 var(--font-display);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(74, 42, 20, 0.5);
   pointer-events: none;
-  animation: ap-touch 4.2s 0.6s both;
 }
-/* the pencil line says its word, then fades off the paper */
-@keyframes ap-touch { 0% { opacity: 0; } 12%, 70% { opacity: 1; } 100% { opacity: 0; } }
+.findsg .ogc-find .ap-touch.is-open {
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: 62%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240, 186, 70, 0.55), rgba(240, 186, 70, 0.18) 45%, transparent 70%);
+  transform: translate(-50%, -50%);
+  animation: ap-glow 2.2s 0.8s ease-in-out infinite both;
+}
+@keyframes ap-glow {
+  0%, 100% { opacity: 0.15; transform: translate(-50%, -50%) scale(0.85); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+}
+.findsg .ogc-find .ap-touch.is-turn {
+  left: 50%;
+  bottom: 22%;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 190, 0.95), rgba(240, 186, 70, 0.6) 45%, transparent 72%);
+  box-shadow: 0 0 16px 6px rgba(240, 186, 70, 0.4);
+  opacity: 0;
+  animation: ap-swipe 1.6s 0.9s ease-in-out 3 both;
+}
+@keyframes ap-swipe {
+  0% { opacity: 0; transform: translateX(70px); }
+  20% { opacity: 1; transform: translateX(70px); }
+  75% { opacity: 1; transform: translateX(-70px); }
+  100% { opacity: 0; transform: translateX(-70px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .findsg .ogc-find .ap-touch { animation: none; }
+  .findsg .ogc-find .ap-touch.is-turn { display: none; }
+}
 .findsg .ogc-find .ap-controls {
   flex: none;
   margin-top: 8px;
