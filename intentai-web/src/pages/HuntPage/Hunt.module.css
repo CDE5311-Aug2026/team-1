@@ -1357,6 +1357,10 @@
     --bh: calc(var(--bw) * 1.46);
   }
 }
+/* the field note lies over the whole page, tabs and all */
+:global(body:has(.ogc-sheet)) .bookTabs.bookTabs {
+  visibility: hidden;
+}
 .bookTabs.bookTabs {
   position: fixed;
   /* where the book's tabs sit: 7% down a page centred on the desk under the running head */
@@ -1379,10 +1383,11 @@
     2px 2px 0 #d4bf93,
     4px 4px 0 #c9b286;
 }
-/* the book's bar and tabs take over: back to the shelf, and Clues on its tab */
-.inBook :global(.ogc-top) > button:first-child,
-.inBook :global(.ogc-top) > button:last-child {
-  visibility: hidden;
+/* the book's bar and tabs take over (back to the shelf, Clues and Map on their tabs), and its running head already
+   names the story, so the page does not say it again */
+.inBook.inBook :global(section.ogc > .ogc-top),
+.inBook.inBook :global(section.ogc > h1.ogc-story-title) {
+  display: none;
 }
 /* the page is the stop itself; the wrapper's own paper would show behind the running head */
 .storyPage.inBook.inBook:global(.findsg) {

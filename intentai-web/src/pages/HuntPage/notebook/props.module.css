@@ -336,18 +336,6 @@
   transform: translate(18px, 50px) rotate(30deg);
   opacity: 0;
 }
-.envHint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -6px;
-  text-align: center;
-  font:
-    400 0.8125rem/1 'IM Fell English',
-    Georgia,
-    serif;
-  color: rgba(60, 40, 20, 0.7);
-}
 
 /* ---------- treasure map ---------- */
 .mapArt {

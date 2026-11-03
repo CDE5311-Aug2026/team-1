@@ -321,7 +321,7 @@
 }
 /* the case in a sentence, as the commission puts it */
 .chKicker {
-  margin: 0;
+  margin: 8px 0 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -350,20 +350,9 @@
 .setOutRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-top: auto;
   padding-right: 34px;
-}
-.progressInk {
-  font: 500 0.75rem/1 var(--font-display);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #5a4632;
-}
-.progressInk b {
-  /* Oswald's lining figures: IM Fell's old-style 0 reads as a circle */
-  font: 500 1.375rem/1 var(--font-display);
-  color: var(--red);
 }
 /* a rubber stamp to set out */
 .setOut {
@@ -414,6 +403,32 @@
     10px 14px 18px rgba(40, 25, 10, 0.35);
   transition: transform 0.3s;
 }
+/* no caption asks for a tap: the packet glows, softly, like the wax seal on the letter page */
+.mapPacket::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 3px;
+  animation: packetGlow 2.2s 1.2s ease-in-out infinite;
+}
+@keyframes packetGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(240, 186, 70, 0);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(240, 186, 70, 0.55),
+      0 0 18px 4px rgba(240, 186, 70, 0.45);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mapPacket::after {
+    animation: none;
+  }
+}
 .mapPacket:hover {
   transform: rotate(0.5deg) translateY(-3px);
 }
@@ -432,12 +447,6 @@
     linear-gradient(90deg, transparent calc(89% - 1.5px), #8a6a42 calc(89% - 1.5px), #b08c5c 89%, #7a5a34 calc(89% + 1.5px), transparent calc(89% + 1.5px)),
     linear-gradient(0deg, transparent calc(14% - 1.5px), #8a6a42 calc(14% - 1.5px), #b08c5c 14%, #7a5a34 calc(14% + 1.5px), transparent calc(14% + 1.5px));
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
-}
-.unfoldHint {
-  margin: 14px 0 0;
-  text-align: center;
-  font: italic 400 0.75rem/1.3 var(--fell);
-  color: #6a5640;
 }
 /* the next lead: an index card clipped in under the map */
 .lead {

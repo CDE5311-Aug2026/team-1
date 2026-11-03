@@ -1,7 +1,8 @@
 // Hunt (2 Nov 2026): the last page of a story. The guide you have been correcting lies open on the desk; the eight
 // corrected pages drop into it one by one, the heavy leather cover swings shut with a thud and a puff of paper dust,
 // the CASE CLOSED stamp comes down on it and a wax seal fixes the ribbon. Tap the cover to open the guide again and
-// reread any page. Reduced motion shows the closed, stamped book at once.
+// reread any page; once shut, the cover glows until you do. The book's running head names the story, so the cover
+// carries the case number. Reduced motion shows the closed, stamped book at once.
 import React, {useEffect, useState} from 'react';
 import './case-finale.css';
 
@@ -29,7 +30,7 @@ export default function CaseFinale({routeId, story, meta, config, game, mode, on
       <div className="cf-board" aria-hidden="true"/>
       <div className="cf-block" aria-hidden="true"/>
       <section className="cf-page" aria-label="The corrected guide" aria-hidden={!shown}>
-        <header><span>{story.title}</span><b>{pad(total)} / {pad(total)}</b></header>
+        <header><span>Corrected pages</span><b>{pad(total)} / {pad(total)}</b></header>
         <ol>{config.stops.map((s, i) => <li key={s.id} style={{'--i': i, '--tilt': `${((i * 37) % 9) - 4}deg`}}>
           <button onClick={() => read(i)} tabIndex={shown && settled ? 0 : -1}>
             <i>{pad(i + 1)}</i><strong>{s.reward.title.replace(/^[^·]*·\s*/, '')}</strong><b aria-hidden="true">✓</b>
@@ -40,8 +41,8 @@ export default function CaseFinale({routeId, story, meta, config, game, mode, on
         aria-label={open ? 'Close the guide' : 'Open the guide'} aria-expanded={open}>
         <span className="cf-cover-front" aria-hidden="true">
           <i className="cf-corner"/><i className="cf-corner"/>
-          <small>FindSG · Case {meta?.no}</small>
-          <strong>{story.title}</strong>
+          <small>FindSG</small>
+          <strong>Case {meta?.no}</strong>
           <em>{total} pages corrected</em>
           <b className="cf-stamp">Case closed</b>
         </span>
@@ -49,7 +50,6 @@ export default function CaseFinale({routeId, story, meta, config, game, mode, on
       </button>
       <span className="cf-ribbon" aria-hidden="true"><i className="cf-seal">✦</i></span>
     </div>
-    {settled && !open && <span className="cf-hint" aria-hidden="true">Tap to open</span>}
     <span className="cf-dust" aria-hidden="true">{Array.from({length: 10}, (_, i) => <i key={i} style={{'--i': i}}/>)}</span>
   </div>;
 }

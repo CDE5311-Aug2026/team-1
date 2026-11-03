@@ -247,14 +247,14 @@ export function CityChart({ chapters, onOpen, onShort }: { chapters: Chapter[]; 
 export const placeOf = (ch: Chapter) => ch.en.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
 // ---- a route chapter: three pages ----
-// Every page carries the same running head as the back pages: the volume and what the page is on the left, the place on
-// the right; the top bar already names the book, so the pages do not repeat it.
+// Every page carries the same running head as the back pages: what the page is on the left, the place on the right. The
+// top bar already names the volume and the book, so the pages say neither again. The letter page keeps its count of
+// stops in the corner instead of the place, which the envelope is already addressed to.
 export function ChapterLetterPage({ ch, onRead, onSetOut }: { ch: Chapter; onRead(): void; onSetOut(): void }) {
   return (
     <Page className={styles.letterPage}>
-      <Running left={`Vol. ${ch.roman} · The case`} right={placeOf(ch)} />
-      <h2 className={styles.chTitle}>{ch.title}</h2>
-      <p className={styles.chKicker}>{ch.logline || `${ch.stops.length} stops`}</p>
+      <Running left="The case" right={`${ch.solved} / ${ch.stops.length} stops`} />
+      <p className={styles.chKicker}>{ch.logline}</p>
       <SealedLetter
         id={ch.routeId}
         initial={ch.guide.slice(0, 1)}
@@ -276,9 +276,6 @@ export function ChapterLetterPage({ ch, onRead, onSetOut }: { ch: Chapter; onRea
         onRead={onRead}
       />
       <div className={styles.setOutRow}>
-        <span className={styles.progressInk}>
-          <b>{ch.solved}</b> / {ch.stops.length} stops
-        </span>
         <button type="button" className={styles.setOut} onClick={onSetOut}>
           <span>{ch.solved ? (ch.complete ? 'Walk it again' : 'Keep looking') : 'Set out'}</span>
         </button>
@@ -291,19 +288,19 @@ export function ChapterMapPage({ ch, onUnfold }: { ch: Chapter; onUnfold(): void
   const next = ch.stops.find((s) => !s.done);
   return (
     <Page className={styles.mapPage}>
-      <Running left={`Vol. ${ch.roman} · The map`} right={placeOf(ch)} />
+      <Running left="The map" right="" />
       <button type="button" className={styles.mapPacket} onClick={onUnfold} aria-label={`Unfold the ${placeOf(ch)} treasure map`}>
         <MapCover chapter={ch} />
         <span className={styles.packetTwine} aria-hidden="true" />
       </button>
-      <p className={styles.unfoldHint}>Tap the packet to unfold the map</p>
-      {/* the full stop list lives on the record page; here, only the lead you follow next */}
+      {/* the full stop list lives on the record page; here, only the lead you follow next. The packet already carries the
+          place and the count, and a clue that only repeats the book's title is left off. */}
       <div className={styles.lead}>
-        <span className={styles.leadNo}>{next ? `Stop ${next.n} of ${ch.stops.length}` : `All ${ch.stops.length} marked`}</span>
+        <span className={styles.leadNo}>{next ? `Next · Stop ${next.n}` : 'All marked'}</span>
         {next ? (
           <>
             <b className={styles.leadName}>{next.name}</b>
-            <span className={styles.leadClue}>{next.title}</span>
+            {next.title.toLowerCase() !== ch.title.toLowerCase() && <span className={styles.leadClue}>{next.title}</span>}
           </>
         ) : (
           <b className={styles.leadName}>Every cross is inked in.</b>
@@ -316,7 +313,7 @@ export function ChapterMapPage({ ch, onUnfold }: { ch: Chapter; onUnfold(): void
 export function ChapterCardsPage({ ch, onCards, onChest }: { ch: Chapter; onCards(): void; onChest(): void }) {
   return (
     <Page className={styles.cardsPage}>
-      <Running left={`Vol. ${ch.roman} · The clues`} right={placeOf(ch)} />
+      <Running left="The clues" right={placeOf(ch)} />
       <div className={styles.boxSpot}>
         <CardBox chapter={ch} onOpen={onCards} />
       </div>

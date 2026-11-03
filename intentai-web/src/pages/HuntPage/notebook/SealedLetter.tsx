@@ -1,4 +1,4 @@
-// The commission: a kraft envelope closed with a wax seal. Tap the seal: it cracks in two, the flap swings up on its
+// The commission: a kraft envelope closed with a wax seal, which pulses until it is pressed (no caption says so). Tap the seal: it cracks in two, the flap swings up on its
 // crease, and the letter slides out. Tap the letter to read it (and see the film clipped to it).
 import { useState, type ReactNode } from 'react';
 import styles from './props.module.css';
@@ -72,7 +72,6 @@ export function SealedLetter({
           </span>
         </button>
       )}
-      {!open && !breaking && <span className={styles.envHint}>Press the seal to open the letter</span>}
     </div>
   );
 }
