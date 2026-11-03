@@ -1,0 +1,113 @@
+/* the quick tour (BookTour.tsx): the desk goes dark but for one lit thing, with a slip of paper saying what it does */
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+/* no hole yet: the whole desk dims */
+.tour:not(:has(.hole)) {
+  background: rgba(14, 9, 5, 0.66);
+}
+.hole {
+  position: fixed;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 9999px rgba(14, 9, 5, 0.66),
+    0 0 0 2px rgba(240, 186, 70, 0.95),
+    0 0 22px 6px rgba(240, 186, 70, 0.55);
+  transition:
+    left 0.3s ease,
+    top 0.3s ease,
+    width 0.3s ease,
+    height 0.3s ease;
+  animation: tourGlow 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes tourGlow {
+  50% {
+    box-shadow:
+      0 0 0 9999px rgba(14, 9, 5, 0.66),
+      0 0 0 2px rgba(240, 186, 70, 0.6),
+      0 0 32px 10px rgba(240, 186, 70, 0.75);
+  }
+}
+/* the corner that turns back, as an example: the next corner's dog-ear, mirrored */
+.ghostBack {
+  position: absolute;
+  inset: 6px;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+  background: linear-gradient(45deg, #e8d9b4 0 46%, #b9a173 46% 50%, transparent 50%), rgba(0, 0, 0, 0.25);
+}
+.tip {
+  position: fixed;
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px 12px;
+  border-radius: 4px;
+  background: #f4ead2;
+  color: #2b1d10;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(60, 38, 16, 0.2);
+  cursor: default;
+  animation: tipIn 0.25s ease both;
+}
+@keyframes tipIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.tip strong {
+  padding-right: 36px;
+  font: 400 1.25rem/1.1 var(--font-display, 'Oswald', sans-serif);
+}
+.tip p {
+  margin: 0;
+  font: 400 1rem/1.35 'IM Fell English', Georgia, serif;
+}
+.count {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font: 400 0.75rem/1 var(--font-display, 'Oswald', sans-serif);
+  letter-spacing: 0.12em;
+  color: #9b2c1c;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.actions button {
+  padding: 7px 14px 6px;
+  border-radius: 3px;
+  font: 400 0.8125rem/1 var(--font-display, 'Oswald', sans-serif);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.skip {
+  border: 0;
+  background: none;
+  color: rgba(43, 29, 16, 0.6);
+}
+.next {
+  border: 1.5px solid #9b2c1c;
+  background: #9b2c1c;
+  color: #f8ecd4;
+}
+.actions button:focus-visible {
+  outline: 2px solid #9b2c1c;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hole,
+  .tip {
+    animation: none;
+    transition: none;
+  }
+}
