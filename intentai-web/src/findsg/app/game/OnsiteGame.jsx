@@ -19,6 +19,7 @@ import {clearFinish} from './case-record.js';
 import {questStage} from './quest-logic.js';
 const QuestViewport=lazy(()=>import('./QuestViewport.jsx'));
 const RaceSheet=lazy(()=>import('./RaceSheet.jsx'));
+const ArrivalCamera=lazy(()=>import('./ArrivalCamera.jsx'));
 const KIND_NAMES={'rotate-find':'Rotate and find','sequence':'Tap in order','align':'Turn to align','slide':'Slide to reveal','assemble':'Piece it together','lock':'Combination lock','jigsaw':'Torn page','prop':'Handle it',
  bag:'Look around',compare:'Spot the difference',band:'Fit the edge',catalogue:'Turn the cards',pinmap:'Pin it',door:'Slide the bolt',ring:'Hardcore · read the ring',batik:'Match the cut',lamprow:'Carry the lamp',overlay:'Hardcore · lay it over',letters:'Password',facade:'Match the photo',pack:'Untie the pack',lanelamps:'Hold to light',envelope:'Seal it'};
 const STEPS=[['arrival','Check in'],['observe','Observe'],['puzzle','Solve'],['reward','Collect']];
@@ -72,10 +73,12 @@ function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
  const puzzleOpen=!intro&&!ending&&phase==='puzzle';
  const race=puzzleOpen&&canRace(stop)?()=>setRaceOpen(true):null;
  const boostHere=puzzleOpen&&cards>0?decode:null;
- const raceLayer=raceOpen&&<Suspense fallback={null}><RaceSheet reducedMotion={reducedMotion} onWin={raceWon} onClose={()=>setRaceOpen(false)}/></Suspense>;
+ const [cameraOpen,setCameraOpen]=useState(false);
+ const raceLayer=<>{raceOpen&&<Suspense fallback={null}><RaceSheet reducedMotion={reducedMotion} onWin={raceWon} onClose={()=>setRaceOpen(false)}/></Suspense>}
+  {cameraOpen&&!intro&&!ending&&phase==='arrival'&&<Suspense fallback={null}><ArrivalCamera place={{name:stop.name||cleanPlace(place.name),address:place.address,look:[stop.observation?.title,stop.observation?.detailToFind].filter(Boolean).join('. ')}} reducedMotion={reducedMotion} onClose={()=>setCameraOpen(false)} onArrive={method=>{setCameraOpen(false);arrive('manual',false,method);}}/></Suspense>}</>;
  function changeMode(next){commit(readOnsite(routeId,config.stops,next),'mode-changed');}
  // Hunt: remote play has no street to stand on, so the phone page starts it with one tap (check-in and observation together)
- function arrive(nextMode,andObserve=false){let q=nextMode===current.current.mode?current.current:readOnsite(routeId,config.stops,nextMode);q=beginOnsite(q);const id=config.stops[q.stopIndex].id,at=new Date().toISOString();q=checkInOnsite(q,id,config.stops,{mode:nextMode,confirmedAt:at});if(andObserve)q=observeOnsite(q,id,config.stops,{confirmedAt:at});commit(q,andObserve?'observation-confirmed':'checkin');}
+ function arrive(nextMode,andObserve=false,method){let q=nextMode===current.current.mode?current.current:readOnsite(routeId,config.stops,nextMode);q=beginOnsite(q);const id=config.stops[q.stopIndex].id,at=new Date().toISOString();q=checkInOnsite(q,id,config.stops,{mode:nextMode,confirmedAt:at,method});if(andObserve)q=observeOnsite(q,id,config.stops,{confirmedAt:at});commit(q,andObserve?'observation-confirmed':'checkin');}
  function observe(){commit(observeOnsite(current.current,stop.id,config.stops,{confirmedAt:new Date().toISOString()}),'observation-confirmed');setUiFeedback('The mechanism is awake. Try it in the model.');}
  function photo(metadata){commit(addOnsitePhoto(current.current,stop.id,metadata,config.stops),'observation-photo-added');}
  function next(){commit(advanceOnsite(current.current,config.stops),'next-place');setCelebrated(false);setUiFeedback('');}
@@ -84,7 +87,7 @@ function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
  useEffect(()=>{publishStop({routeId,mode,phase:view,stopName:stop.name||cleanPlace(place.name),cards,canDecode:decodeOpen&&cards>0});},[routeId,mode,view,stop,place,cards,decodeOpen]);
  useEffect(()=>()=>publishStop(null),[]);
  const command=useRef(null);
- command.current={race:()=>{if(!ending)setRaceOpen(true);},decode,mode:()=>changeMode(mode==='manual'?'preview':'manual'),checkin:()=>{if(view==='arrival')arrive(mode,mode!=='manual');}};
+ command.current={race:()=>{if(!ending)setRaceOpen(true);},decode,mode:()=>changeMode(mode==='manual'?'preview':'manual'),checkin:()=>{if(view!=='arrival')return;if(mode==='manual')setCameraOpen(true);else arrive(mode,true);}};
  useEffect(()=>{const on=e=>command.current[e.detail?.type]?.();window.addEventListener('findsg:command',on);return()=>window.removeEventListener('findsg:command',on);},[]);
  const journal=()=>onOpen({type:'journal',routeId,state:current.current,mode});
  const placeInfo=()=>onOpen({type:'place',routeId,index:game.stopIndex,state:current.current,mode});

@@ -8,6 +8,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import DiscoveryPacket from './DiscoveryPacket.jsx';
 import {ClosedBanner, ClosedAward, ClosedRecord, toShelf} from './CaseClosed.jsx';
+import {RealmCard, RealmStamp, realmOf} from './Realm.jsx';
+import {mapWalk} from '../field/field-storage.js';
 import {lockScroll} from '../../../hooks/scrollLock';
 import {imageFor} from '../data.js';
 import './onsite-compact.css';
@@ -62,6 +64,11 @@ export default function OnsiteCompact(p) {
   const behind = game.completed.map(id => config.stops.findIndex(s => s.id === id)).filter(i => i >= 0 && (ending || i < game.stopIndex));
   const back = !intro && behind.length ? () => onOpen({type: 'collected', routeId, index: Math.max(...behind), state: game, mode}) : null;
 
+  // real or virtual: the page opens on a card saying which, and keeps a stamp in its corner (Realm.jsx)
+  const view = intro ? 'intro' : ending ? 'ending' : phase;
+  const realm = realmOf({view, mode, place: name, stop});
+  const realmId = `${routeId}:${mode}:${stop.id}:${view}`;
+
   let stage, card, body;
   if (intro) {
     /* the commission's plate is the case file itself: tap it to take the case */
@@ -93,10 +100,11 @@ export default function OnsiteCompact(p) {
     </div>;
     if (phase === 'arrival') {
       card = <Card kicker={manual ? 'Go to' : 'Remote lead'} title={stop.at || place.address}
-        said={{by: story.guideName, text: stop.sceneLine}} onOpen={note} label="Field note"/>;
+        said={{by: story.guideName, text: stop.sceneLine}} onOpen={note} label="Field note"
+        link={manual ? {href: mapWalk(place), label: 'Walk there in Google Maps'} : null}/>;
       body = <><h2>{place.name}</h2>
         <div className="og-destination"><span>Address</span><strong>{place.address}</strong><a href={mapSearch(place)} target="_blank" rel="noreferrer">Open the map ↗︎</a></div>
-        <p className="og-fine-print">Check-in is on your word. No location is read. Remote play keeps its own progress.</p></>;
+        <p className="og-fine-print">{manual ? 'At the place, tap the camera tab and photograph it: an AI check confirms you are there. No location is read.' : 'Remote play keeps its own progress.'}</p></>;
     } else if (phase === 'observe') {
       card = <Card kicker="Look for" title={stop.observation.title} lead={stop.observation.detailToFind} onOpen={note} label="Photo and hint"/>;
       body = <><h2>{stop.observation.title}</h2><p className="ogc-note-lead">{stop.observation.instruction}</p>
@@ -124,6 +132,7 @@ export default function OnsiteCompact(p) {
       <ol className="ogc-pips" aria-label="Progress at this stop">
         {STEPS.map(([id, label], i) => <li key={id} className={i < step ? 'done' : i === step ? 'active' : ''}><span>{label}{i < step ? ', done' : i === step ? ', now' : ''}</span></li>)}
       </ol>
+      <RealmStamp realm={realm}/>
     </div>
   </div>;
 
@@ -147,6 +156,7 @@ export default function OnsiteCompact(p) {
         <small>{saved ? 'Progress saved' : 'Not saved'}</small>
       </footer>
     </FieldNote>}
+    <RealmCard key={realmId} realm={realm} id={realmId}/>
     {raceLayer}
   </section>;
 }
@@ -176,7 +186,7 @@ function Hint({stop, sourceName}) {
 
 /** The paper card: the whole card opens the field note (a small folded tab says so); swiping it to the left turns
  * the page. `said` is a line in the guide's hand. */
-export function Card({kicker, title, lead, said, onOpen, label, onSwipe, onSwipeBack}) {
+export function Card({kicker, title, lead, said, onOpen, label, onSwipe, onSwipeBack, link}) {
   const from = useRef(null);
   const down = e => {from.current = {x: e.clientX, y: e.clientY};};
   const up = e => {
@@ -194,6 +204,8 @@ export function Card({kicker, title, lead, said, onOpen, label, onSwipe, onSwipe
     <div className="ogc-card-title"><h2>{title}</h2></div>
     {said && <p className="ogc-said">{said.text}<span>— {said.by}</span></p>}
     {lead && <p className="ogc-lead">{lead}</p>}
+    {link && <a className="ogc-walk" href={link.href} target="_blank" rel="noreferrer"
+      onPointerDown={e => e.stopPropagation()} onPointerUp={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>{link.label} ↗︎</a>}
   </article>;
 }
 

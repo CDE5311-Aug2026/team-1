@@ -10,6 +10,7 @@ import { FilmProjector } from './FilmProjector';
 import { Overlay } from './Overlay';
 import styles from './props.module.css';
 import { UnfoldedMap } from './TreasureMap';
+import { WayMap } from './WayMap';
 
 export type Layer =
   | { kind: 'map' }
@@ -73,6 +74,8 @@ export function PlayLayer({ routeId, kind, stop, onClose }: { routeId: string; k
     sendStop(type);
   };
   const extra = kind === 'clues' && stop ? <DecodeShelf stop={stop} onRace={away('race')} onDecode={away('decode')} /> : undefined;
+  // the Map tab of a story being played is the way there (WayMap.tsx), not the drawn map
+  if (kind === 'map') return <WayMap routeId={routeId} onClose={onClose} />;
   return <ChapterLayers ch={ch} layer={layer} setLayer={set} onGo={onClose} extra={extra} />;
 }
 

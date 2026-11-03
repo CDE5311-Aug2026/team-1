@@ -23,10 +23,10 @@ function markSeen() {
 
 type Step = { target: string; title: string; text: string; ghost?: 'back' };
 export const TOUR: Step[] = [
-  { target: '[data-tour="map"]', title: 'Map', text: 'Every stop of the story: ✓ found, ✗ still to find.' },
+  { target: '[data-tour="map"]', title: 'Map', text: 'Every stop, ✓ found or ✗ still to find, with walking directions in Google Maps.' },
   { target: '[data-tour="clues"]', title: 'Clues', text: 'What you have found, plus decode cards: one completes a stop for you. Win them in the night race.' },
-  { target: '[data-tour="mode"]', title: 'On site · Remote', text: 'Play at the real place, or from home. Tap to switch.' },
-  { target: '[data-tour="checkin"]', title: 'Check in', text: 'Glows while a stop waits. Tap it once you are there.' },
+  { target: '[data-tour="mode"]', title: 'Real or virtual', text: 'On site, REAL pages send you to the place and VIRTUAL ones are played on your phone. Remote makes it all virtual. Each page opens saying which.' },
+  { target: '[data-tour="checkin"]', title: 'Camera · check in', text: 'At the place, photograph it. AI checks you are there, then the stop opens.' },
   { target: 'section.ogc .ogc-card', title: 'The card', text: 'Tap it for the guide’s note and a hint.' },
   { target: 'section.ogc .ogc-turn.is-next', title: 'Next', text: 'The folded corner turns the page. Or swipe the card left.' },
   { target: 'section.ogc .ogc-card', title: 'Back', text: 'The bottom left corner turns back to the last clue you found.', ghost: 'back' },

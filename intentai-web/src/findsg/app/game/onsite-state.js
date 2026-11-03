@@ -46,11 +46,21 @@ function photoCopy(raw){
  return {id,name,type,size:raw.size,lastModified,addedAt:iso(raw.addedAt),storage:'metadata-only',verified:false};
 }
 
+/* Hunt: how a check-in was made. On site it is a photo the AI confirmed (photo-ai), a photo the AI could not check or
+ * did not match but the player stood by (photo-unchecked, photo-insisted), or the player's word; a decode card is kept
+ * as one. Remote play is always online-preview. */
+const CHECKIN_METHODS=['decode-card','photo-ai','photo-unchecked','photo-insisted'];
+function checkinMethod(method,mode){
+ if(method==='decode-card')return method;
+ if(mode!=='manual')return 'online-preview';
+ return CHECKIN_METHODS.includes(method)?method:'manual-self-report';
+}
+
 function cleanRecord(raw,stop,mode){
  const record=emptyRecord(stop.quest);
  if(!isRecord(raw)||!isRecord(raw.checkin)||raw.checkin.mode!==mode)return record;
  /* Hunt: a decode card's check-in is kept as one, and is never counted as a visit to the place */
- const decoded=raw.checkin.method==='decode-card';record.checkin={mode,method:decoded?'decode-card':mode==='manual'?'manual-self-report':'online-preview',confirmedAt:iso(raw.checkin.confirmedAt),countsAsVisit:mode==='manual'&&!decoded};
+ const decoded=raw.checkin.method==='decode-card';record.checkin={mode,method:checkinMethod(raw.checkin.method,mode),confirmedAt:iso(raw.checkin.confirmedAt),countsAsVisit:mode==='manual'&&!decoded};
  const observation=isRecord(raw.observation)?raw.observation:{};
  if(observation.confirmed===true){
   record.observation.confirmed=true;
@@ -115,7 +125,7 @@ export function checkInOnsite(state,stopId,stops,options={}){
  if(mode!==next.mode)return {...next,feedback:'On-site and remote progress are saved separately. Switch mode first, then start this stop.'};
  if(record.checkin)return next;
  const decoded=options.method==='decode-card';
- return updateRecord(next,stopId,{...record,checkin:{mode,method:decoded?'decode-card':mode==='manual'?'manual-self-report':'online-preview',confirmedAt:iso(options.confirmedAt),countsAsVisit:mode==='manual'&&!decoded}},{started:true,feedback:''});
+ return updateRecord(next,stopId,{...record,checkin:{mode,method:checkinMethod(options.method,mode),confirmedAt:iso(options.confirmedAt),countsAsVisit:mode==='manual'&&!decoded}},{started:true,feedback:''});
 }
 
 export function observeOnsite(state,stopId,stops,options={}){

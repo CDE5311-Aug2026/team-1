@@ -1,0 +1,153 @@
+/* the way there (WayMap.tsx): a sheet of paper with a live map pasted in, and the stops in a ledger */
+.way {
+  display: grid;
+  grid-template-rows: auto minmax(160px, 1fr) auto auto minmax(0, auto);
+  gap: 10px;
+  width: min(100vw - 32px, 460px);
+  height: min(100dvh - 120px, 760px);
+  padding: 16px 16px 12px;
+  border-radius: 4px;
+  background: #f4ead2;
+  color: #2b1d10;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+.head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  row-gap: 4px;
+}
+.real {
+  justify-self: start;
+  padding: 3px 8px 2px;
+  border-radius: 2px;
+  background: #2f5a34;
+  color: #f4ead2;
+  font: 500 0.625rem/1.2 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.head h2 {
+  grid-column: 1;
+  margin: 0;
+  font: 400 1.5rem/1.1 var(--font-display);
+}
+.count {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  font: 400 0.8125rem/1 var(--font-display);
+  letter-spacing: 0.12em;
+  color: #9b2c1c;
+}
+.map {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #ddd2b8;
+  box-shadow: inset 0 0 0 1px rgba(60, 38, 16, 0.25);
+}
+.map iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.walk {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 16px 11px;
+  border-radius: 4px;
+  background: #2f5a34;
+  color: #f4ead2;
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+.done {
+  margin: 0;
+  padding: 10px 0 8px;
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.06em;
+  color: #2f5a34;
+  text-align: center;
+}
+.hint {
+  margin: -2px 0 0;
+  font: italic 400 0.9375rem/1.2 'IM Fell English', Georgia, serif;
+  color: rgba(43, 29, 16, 0.7);
+  text-align: center;
+}
+.stops {
+  min-height: 0;
+  max-height: 32dvh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  border-top: 1px dashed rgba(60, 38, 16, 0.35);
+}
+.stops button {
+  display: grid;
+  grid-template-columns: 26px 1fr 22px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(60, 38, 16, 0.12);
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.stops i {
+  font: 400 0.75rem/1 var(--font-display);
+  font-style: normal;
+  color: rgba(43, 29, 16, 0.55);
+}
+.stops span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.stops b {
+  font: 400 1rem/1.15 var(--font-display);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stops small {
+  font: 400 0.8125rem/1.2 'IM Fell English', Georgia, serif;
+  color: rgba(43, 29, 16, 0.65);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stops em {
+  font: 700 1.125rem/1 var(--font-display);
+  font-style: normal;
+  color: rgba(43, 29, 16, 0.4);
+  text-align: center;
+}
+.isDone em {
+  color: #2f5a34;
+}
+.isNext em {
+  color: #9b2c1c;
+}
+.on {
+  background: rgba(47, 90, 52, 0.1) !important;
+  box-shadow: inset 3px 0 0 #2f5a34;
+}
+.stops button:focus-visible,
+.walk:focus-visible {
+  outline: 2px solid #9b2c1c;
+  outline-offset: 2px;
+}

@@ -361,7 +361,25 @@
 .tab:not(.wayTab) + .wayTab {
   margin-top: 10px;
 }
-/* Check in waits for you: it glows, like the page's corners */
+/* a way tab's sign: a pin on site, a phone remote; the camera that checks you in */
+.tabIcon {
+  display: block;
+  width: 15px;
+  height: 15px;
+  margin: 0 0 5px;
+  writing-mode: horizontal-tb;
+}
+/* Check in waits for you: the camera, bigger than the other tabs, glowing like the page's corners */
+.checkTab {
+  width: 40px;
+  min-height: 92px;
+  padding-left: 9px;
+}
+.checkTab .tabIcon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 7px;
+}
 .checkTab {
   animation: checkGlow 1.8s 1s ease-in-out infinite;
 }

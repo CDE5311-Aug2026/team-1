@@ -1,0 +1,72 @@
+/* real or virtual (Realm.jsx): green for the street, ink blue for the phone */
+.findsg .realm-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px 1px 4px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  font: 500 0.625rem/1.3 var(--font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: rotate(-3deg);
+}
+.findsg .realm-stamp svg { width: 12px; height: 12px; }
+.findsg .realm-stamp.is-real { color: #2f5a34; }
+.findsg .realm-stamp.is-virtual { color: #2d4a7a; }
+
+.findsg .realm-card {
+  position: absolute;
+  inset: -2px;
+  z-index: 40;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 28px 26px;
+  border: 0;
+  border-radius: 4px;
+  color: #f4ead2;
+  text-align: center;
+  cursor: pointer;
+  animation: realm-in 0.35s ease both;
+}
+.findsg .realm-card.is-real { background: radial-gradient(ellipse at 50% 35%, #3d6e41, #1f3b22 80%); }
+.findsg .realm-card.is-virtual { background: radial-gradient(ellipse at 50% 35%, #3a5a8c, #1b2c4a 80%); }
+@keyframes realm-in { from { opacity: 0; } }
+.findsg .realm-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 5px 10px;
+  border: 2px solid rgba(244, 234, 210, 0.85);
+  border-radius: 3px;
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.findsg .realm-kind svg { width: 22px; height: 22px; }
+.findsg section.ogc .realm-card strong {
+  font: 400 2rem/1.1 var(--font-display);
+}
+.findsg .realm-card p {
+  max-width: 30ch;
+  margin: 0;
+  font: 400 1.0625rem/1.4 'IM Fell English', Georgia, serif;
+  color: rgba(244, 234, 210, 0.9);
+}
+.findsg .realm-card em {
+  margin-top: 10px;
+  font: 400 0.8125rem/1 var(--font-display);
+  font-style: normal;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(244, 234, 210, 0.7);
+  animation: realm-pulse 1.6s 1s ease-in-out infinite;
+}
+@keyframes realm-pulse { 50% { color: #f4ead2; text-shadow: 0 0 12px rgba(244, 234, 210, 0.8); } }
+.findsg .realm-card:focus-visible { outline: 3px solid #e8c983; outline-offset: -6px; }
+@media (prefers-reduced-motion: reduce) {
+  .findsg .realm-card,
+  .findsg .realm-card em { animation: none; }
+}

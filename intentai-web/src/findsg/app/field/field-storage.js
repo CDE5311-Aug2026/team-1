@@ -12,5 +12,7 @@ export function storeField(state){
  try{localStorage.setItem(key,JSON.stringify(state));return true;}
  catch{return false;}
 }
+/** Hunt: walking directions to a place in Google Maps, from wherever the phone is. */
+export function mapWalk(place){return 'https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(place.english_name+' '+place.address);}
 export function mapSearch(place){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(place.english_name+' '+place.address);}
 export function walkTo(place,from){return 'https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(place.english_name+' '+place.address)+(from?'&origin='+encodeURIComponent(from.english_name+' '+from.address):'');}

@@ -20,6 +20,20 @@ export function useStop(): FindSGStop | null {
   return stop;
 }
 
+const ICONS = {
+  camera: 'M4 8h3l1.6-2.2h6.8L17 8h3v11H4z M12 9.6a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2z',
+  play: 'M8 5.5v13l10.5-6.5z',
+  pin: 'M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z M12 7.6a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z',
+  phone: 'M8.8 2.8h6.4a1.8 1.8 0 0 1 1.8 1.8v14.8a1.8 1.8 0 0 1-1.8 1.8H8.8A1.8 1.8 0 0 1 7 19.4V4.6a1.8 1.8 0 0 1 1.8-1.8z M10.5 18h3',
+};
+function TabIcon({ name }: { name: keyof typeof ICONS }) {
+  return (
+    <svg className={nb.tabIcon} viewBox="0 0 24 24" aria-hidden="true">
+      <path d={ICONS[name]} fill={name === 'play' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function PlayTabs({ routeId, className = '' }: { routeId: string; className?: string }) {
   const found = useStop();
   const stop = found?.routeId === routeId ? found : null;
@@ -66,11 +80,20 @@ export function PlayTabs({ routeId, className = '' }: { routeId: string; classNa
             data-tour="mode"
             aria-label={stop?.mode === 'manual' ? 'On site. Switch to remote play' : 'Remote. Switch to on site'}
           >
+            <TabIcon name={stop?.mode === 'manual' ? 'pin' : 'phone'} />
             <span>{stop?.mode === 'manual' ? 'On site' : 'Remote'}</span>
           </button>
         )}
         {(stop?.phase === 'arrival' || showing('checkin')) && (
-          <button type="button" className={`${nb.tab} ${nb.wayTab} ${nb.checkTab}`} style={n(1)} onClick={() => sendStop('checkin')} data-tour="checkin">
+          <button
+            type="button"
+            className={`${nb.tab} ${nb.wayTab} ${nb.checkTab}`}
+            style={n(1)}
+            onClick={() => sendStop('checkin')}
+            data-tour="checkin"
+            aria-label={stop?.mode === 'manual' || !stop ? 'Check in: photograph the place' : 'Start this stop remotely'}
+          >
+            <TabIcon name={stop?.mode === 'manual' || !stop ? 'camera' : 'play'} />
             <span>{stop?.mode === 'manual' || !stop ? 'Check in' : 'Start'}</span>
           </button>
         )}
