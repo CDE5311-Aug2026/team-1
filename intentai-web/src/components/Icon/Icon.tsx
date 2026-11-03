@@ -14,8 +14,7 @@ import iconThink from '../../assets/icon-think.svg';
 import iconWave from '../../assets/icon-wave.svg';
 import iconWifi from '../../assets/icon-wifi.svg';
 import iconWork from '../../assets/icon-work.svg';
-import tabAsk from '../../assets/tab-ask.svg';
-import tabCommunity from '../../assets/tab-community.svg';
+import tabHunt from '../../assets/tab-hunt.svg';
 import tabMoments from '../../assets/tab-moments.svg';
 import tabMySpace from '../../assets/tab-my-space.svg';
 import tabToday from '../../assets/tab-today.svg';
@@ -37,8 +36,7 @@ const ICONS: Record<IconName, string> = {
   grim: iconGrim,
   metro: iconMetro,
   'tab-today': tabToday,
-  'tab-ask': tabAsk,
-  'tab-community': tabCommunity,
+  'tab-hunt': tabHunt,
   'tab-moments': tabMoments,
   'tab-my-space': tabMySpace,
 };

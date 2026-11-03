@@ -18,7 +18,10 @@ test('place detail → 3D: the area loads, the card opens, cards link back, leav
   const external: string[] = [];
   page.on('request', (r) => {
     const u = new URL(r.url());
-    if (u.hostname !== '127.0.0.1' && u.hostname !== 'localhost') external.push(u.hostname);
+    if (u.hostname === '127.0.0.1' || u.hostname === 'localhost') return;
+    // the 2D map's OneMap tiles carry only zoom / x / y (see explore.spec.ts)
+    if (u.hostname === 'www.onemap.gov.sg' && /^\/maps\/tiles\/Default\/\d+\/\d+\/\d+\.png$/.test(u.pathname) && !u.search) return;
+    external.push(r.url());
   });
   await page.goto(paths.nearbyPlace('curated:sg-merlion-park'));
   await page.getByRole('button', { name: '3D' }).click();

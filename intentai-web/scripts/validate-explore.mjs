@@ -1,11 +1,10 @@
-#!/usr/bin/env node
 // Nearby Explorer catalogue validation (PRD §10): `npm run validate:explore`.
 // Checks ids, Singapore coordinates (outline, not a bounding box), references, fact/source/review fields,
 // placeholder text, provenance, duplicates and collection counts. A collection may only claim "published"
 // with exactly 100 (an editor's pick: 10) distinct published members that a team editor has signed off.
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const CATEGORIES = ['landmark', 'food', 'nature', 'culture'];
 const PROVENANCE = ['earth-online', 'researched', 'earth-online+researched'];
@@ -14,7 +13,10 @@ const CONTEXTS = ['Hawker centre', 'MRT · bus', 'Kopitiam', 'School', 'Office',
 const PLACEHOLDER = /\b(todo|tbd|lorem|ipsum|placeholder|xxx+|fixme)\b|\?\?\?/i;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 // Real Singapore places the simplified 1:10m outline leaves out (reviewed one by one).
-const OFFSHORE = new Map([['curated:sg-raffles-lighthouse', 'Pulau Satumu, Singapore’s southernmost island']]);
+const OFFSHORE = new Map([
+  ['curated:sg-raffles-lighthouse', 'Pulau Satumu, Singapore’s southernmost island'],
+  ['curated:sg-sisters-islands-marine-park', 'Sisters’ Islands, south of Sentosa'],
+]);
 const words = (s) => (s.trim() ? s.trim().split(/\s+/).length : 0);
 
 function inRing([lng, lat], ring) {
@@ -138,7 +140,8 @@ export function validateCatalogue({ places, areas, regions, collections, outline
     if (!Array.isArray(p.facts) || p.facts.length > 3) errors.push(`${at}: 0–3 facts`);
     for (const f of p.facts ?? []) {
       const n = words(f.text ?? '');
-      if (n < 40 || n > 80) errors.push(`${at} ${f.id}: fact must be 40–80 words (has ${n})`);
+      // 20 words minimum: the Singapore Culture Atlas facts are short, sourced one-liners (no padding).
+      if (n < 20 || n > 80) errors.push(`${at} ${f.id}: fact must be 20–80 words (has ${n})`);
       if (PLACEHOLDER.test(f.text ?? '')) errors.push(`${at} ${f.id}: placeholder text`);
       if (!Array.isArray(f.sources) || f.sources.length === 0) errors.push(`${at} ${f.id}: a fact needs at least one source`);
       for (const s of f.sources ?? []) {
@@ -237,7 +240,7 @@ export function loadCatalogue(dir = CATALOGUE_DIR) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { errors, warnings, counts } = validateCatalogue(loadCatalogue());
   for (const w of warnings) console.warn(`warning: ${w}`);
   for (const e of errors) console.error(`error: ${e}`);

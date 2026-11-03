@@ -1,0 +1,39 @@
+/* One open page over the next while it turns (PaperPages.tsx). The book sets --pp-paper to its paper (opaque, so the
+   page underneath only shows where the open one has peeled away) and --pp-flap to the paper's back. */
+.pages {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  touch-action: pan-y;
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--pp-paper, #f1e6cc);
+  box-shadow: var(--pp-shadow, none);
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.flapHost {
+  inset: 0;
+  z-index: 5;
+  --flap-paper: var(--pp-flap, #ecdfc2);
+}
+
+/* the page just turned to lies flat at once */
+.pages[data-settled] .page > * {
+  animation: none !important;
+}

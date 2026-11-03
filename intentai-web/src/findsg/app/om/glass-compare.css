@@ -1,0 +1,20 @@
+/* Only One Missing: the lot and the case piece side by side on green felt. The canvas is the whole UI. */
+.gc-root {
+  position: absolute; inset: 0; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+  background: radial-gradient(120% 90% at 50% 30%, #2f4a35 0%, #1c2f22 70%, #142219 100%);
+  -webkit-tap-highlight-color: transparent;
+}
+.gc-host { position: absolute; inset: 0; }
+.gc-canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; outline: none; }
+.gc-canvas.is-grabbing { cursor: grabbing; }
+.gc-root.is-idle .gc-canvas { cursor: default; }
+.gc-label {
+  position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap;
+  padding: 3px 9px 2px; border-top: 1px solid rgba(214, 178, 99, .7);
+  font: 500 12px/1 var(--font-display, 'Oswald', 'Arial Narrow', sans-serif); letter-spacing: .22em; text-indent: .22em;
+  color: #eadfbf; text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
+}
+.gc-fallback {
+  position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center;
+  font: 500 14px/1.3 var(--font-display, 'Oswald', 'Arial Narrow', sans-serif); letter-spacing: .08em; color: #d9cfb3;
+}

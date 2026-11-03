@@ -1,0 +1,94 @@
+/* A torn page: a cream note taped on the kraft paper, the app's Oswald title, two ways on. */
+.page {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  background: #c8a87a;
+  overflow: hidden;
+}
+.paper {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+.note {
+  position: relative;
+  width: min(100%, 340px);
+  padding: 30px 22px 22px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #faf4e4, #ede2c8);
+  color: #2b2118;
+  box-shadow:
+    0 18px 34px rgba(40, 24, 8, 0.4),
+    0 2px 4px rgba(40, 24, 8, 0.25);
+  transform: rotate(-1.2deg);
+  clip-path: polygon(0 -30px, 100% -30px, 100% 96%, 94% 100%, 86% 97%, 76% 100%, 64% 97%, 52% 100%, 40% 97%, 28% 100%, 16% 97%, 6% 100%, 0 97%);
+}
+.tape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 72px;
+  height: 20px;
+  margin-left: -36px;
+  background: rgba(236, 226, 196, 0.8);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transform: rotate(3deg);
+}
+.kicker {
+  margin: 0 0 6px;
+  font: 500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #a33d1f;
+}
+.title {
+  margin: 0 0 10px;
+  font: 500 1.75rem/1.1 var(--font-display);
+  color: #2b2118;
+}
+.body {
+  margin: 0 0 20px;
+  font: 400 1rem/1.45 Georgia, 'Times New Roman', serif;
+  color: #5c4a36;
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.primary,
+.secondary {
+  display: grid;
+  place-items: center;
+  min-height: 46px;
+  border-radius: 4px;
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  cursor: pointer;
+}
+.primary {
+  border: 0;
+  background: #a33d1f;
+  color: #fbf3e2;
+}
+.secondary {
+  border: 1.5px solid rgba(92, 74, 54, 0.45);
+  color: #5c4a36;
+}
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid #e4671f;
+  outline-offset: 2px;
+}
+.small {
+  margin: 14px 0 0;
+  font: italic 400 0.8125rem/1.3 Georgia, serif;
+  color: #7a6852;
+  text-align: center;
+}

@@ -49,6 +49,24 @@
   pointer-events: none;
 }
 
+.stalled {
+  flex-direction: column;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  pointer-events: auto;
+}
+.retry {
+  min-height: 40px;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: #a33d1f;
+  color: #fbf3e2;
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
 .spinner {
   flex: none;
   width: 14px;

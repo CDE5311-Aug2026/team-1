@@ -1,0 +1,1992 @@
+{
+  "schema_version": "1.0",
+  "title": "FindSG · Gameplay & Props",
+  "language": "en",
+  "created_at": "2026-10-29",
+  "prototype_label": "Prototype rule",
+  "source_file": "story-data.json",
+  "source_sha256": "900ab925e64558a634dacc6a94648637349b72ba77b651e43017b3355f657846",
+  "scope": "New gameplay data. The order, historical material and sources of the 30 original stops across the four routes are kept; this file defines interactions, ability cards and next-stop tasks.",
+  "default_route_id": "telok-ayer",
+  "shared_rules": {
+    "fact_and_fiction": "History cards keep their existing sources; the family letters, Ah Ming, Mariam, the Time Camera, the City Timer and all ability cards are story elements or prototype rules.",
+    "reward_types": "History and story cards are for understanding and collecting; ability cards give specific help at the next level and never add to or rewrite historical fact.",
+    "card_grant": "Each route grants one ability card ×1 the first time its featured level is completed in a run; pressing the success button again does not grant another.",
+    "card_use": "Used once only, on its designated next-stop task. Once used it shows “Used” and the effect lasts until that level ends; retrying after a wrong answer costs no extra card.",
+    "manual_path": "Every ability effect has a manual path that needs no card; you can finish everything without ability cards. Current interactions support text hints, buttons and keyboard controls.",
+    "failure": "No time penalties, lost cards or paid revives; a mistake only brings up an evidence hint, and you can try again.",
+    "explanation": "For core questions you choose first, then explain yourself in one sentence and check it against the reference explanation; there is no free-text AI scoring, and no claim that the system has verified your understanding.",
+    "accessibility": "The current featured gameplay and next-stop tasks offer text labels and button/keyboard controls, never relying on colour, sound or timed reactions alone; alternatives for parts of the full routes not yet built are in the level plans.",
+    "visit_status": "Stop order is route design; finishing a preview or collecting ability cards does not log a real GPS visit. Existing access restrictions still apply.",
+    "reset": "Restarting a route clears that run's simulated progress and ability cards so you can play it again; historical material stays the same.",
+    "scope_labels": {
+      "representative_prototype": "Current featured gameplay",
+      "next_task_prototype": "Next-stop ability card task",
+      "level_design": "Level design for the full route"
+    },
+    "source_rule": "Source links support historical facts only; prototype rules, game values and fictional props make no claim to a historical basis."
+  },
+  "integration_notes": {
+    "lookup": "routes link to stories in story-data.json by route_id; every source_card_ids entry points to existing cards in the same story.",
+    "card_effect_type": "next_task.card_effect is a string; effect_type is highlight/eliminate/juxtapose/auto_arrange; highlight_terms is always an array; eliminate_option_id is an empty string when nothing is eliminated.",
+    "f1_override": "This gameplay layer upgrades the old render-only F1 screen into a three-segment on-screen driving prototype. When showing it, use this file's driving titles, controls and feedback in place of the old render-only hints; the original stops and historical material stay.",
+    "completion": "Finishing all three driving segments earns the Boost Card; answering the destination question correctly leads to the fountain. The Boost Card only sorts the file pages — it does not answer the final history question.",
+    "not_a_deployment": "This file only supplies data for a local HTML preview; nothing has been published and no Site has been created."
+  },
+  "routes": [
+    {
+      "route_id": "telok-ayer",
+      "story_id": "telok-ayer-letter-to-the-sea",
+      "title": "Letters to the Shore",
+      "prototype_label": "Prototype rule · ability cards take effect at the next level",
+      "core_loop": "See the building's outline → recover evidence for the family letter → earn the Observation Card → highlight keywords at the next stop → explain the letter's wish in your own words.",
+      "stop_count": 8,
+      "focus_stop_id": "telok-ayer-04",
+      "next_stop_id": "telok-ayer-05",
+      "ability": {
+        "id": "telok-ayer-observation",
+        "title": "Observation Card",
+        "symbol": "◎",
+        "effect": "Highlights “voyage” and “Mazu” in the Thian Hock Keng evidence, helping you find the first generation's wish.",
+        "grant_rule": "At Stop 4, fill both shape slots in turn — square for the base, octagon for the upper tier — to claim the Observation Card ×1.",
+        "one_use": true,
+        "quantity": 1,
+        "grant_stop_id": "telok-ayer-04",
+        "use_stop_id": "telok-ayer-05",
+        "grant_puzzle_id": "telok-ayer-representative-puzzle",
+        "grant_event": "representative_puzzle_solved",
+        "use_feedback": "Observation Card used: two keywords light up. It's up to you how they connect to “arrive safely”.",
+        "unchanged_core": "You still choose how the wish matches the history, and read or say one sentence of explanation.",
+        "type": "ability",
+        "label": "Prototype ability card",
+        "is_fiction": true,
+        "source_urls": [],
+        "max_quantity_per_run": 1,
+        "grant_is_idempotent": true,
+        "equal_reward_for_accessibility_mode": true,
+        "use_task_id": "telok-ayer-next-task",
+        "used_effect_persists_on_retry": true
+      },
+      "representative_puzzle": {
+        "stop_id": "telok-ayer-04",
+        "puzzle_id": "telok-ayer-representative-puzzle",
+        "kind": "shape_choice",
+        "title": "Put the square and octagon back together",
+        "action": "Tap the “Base” shape slot and choose the square, then tap the “Upper tier” slot and choose the octagon, and confirm the two-tier combination.",
+        "rules": [
+          "Both shape slots need a choice: square for the base, octagon for the upper tier. The right combination clears the level.",
+          "You can zoom in on the digital diagram; no need to walk around the building or make out all eight sides from the street.",
+          "A wrong choice just prompts you to compare the two tiers again; no evidence or reward is lost."
+        ],
+        "options": [
+          {
+            "id": "square-base-octagon-upper",
+            "label": "Square base + octagonal upper tier",
+            "detail": "An octagonal tier set on a square base"
+          },
+          {
+            "id": "circle-base-square-upper",
+            "label": "Round base + square upper tier",
+            "detail": "A square tier set on a round base"
+          },
+          {
+            "id": "octagon-base-circle-upper",
+            "label": "Octagonal base + round upper tier",
+            "detail": "A round tier set on an octagonal base"
+          }
+        ],
+        "correct_answer": "square-base-octagon-upper",
+        "success": "The outline fits. Observation Card ×1 goes into your deck, and the wish for a safe voyage points to Thian Hock Keng.",
+        "retry": "Retry as often as you like; no history cards are lost and this run's progress stays.",
+        "accessibility": "Both shape slots and every candidate shape have text labels and can be chosen one by one with buttons or keyboard; no dragging, and no counting eight sides on site.",
+        "reward_ability_id": "telok-ayer-observation",
+        "source_card_ids": [
+          "telok-ayer-04-fact",
+          "telok-ayer-preview-detail"
+        ],
+        "source_urls": [
+          "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+          "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+          "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+          "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/"
+        ],
+        "mechanic_status": "prototype_rule",
+        "requires_staff": false,
+        "requires_purchase": false,
+        "requires_building_entry": false,
+        "timer_enabled": false,
+        "actions": [
+          "Tap the base shape slot and choose the square.",
+          "Tap the upper tier shape slot and choose the octagon.",
+          "Confirm the two-tier combination and claim the Observation Card ×1."
+        ]
+      },
+      "gameplay_steps": [
+        {
+          "order": 1,
+          "title": "Choose the base shape",
+          "action": "Tap the base shape slot at Stop 4 and choose the square.",
+          "feedback": "The base slot shows the chosen shape, with its text label alongside.",
+          "stop_id": "telok-ayer-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 2,
+          "title": "Choose the upper shape",
+          "action": "Tap the upper tier shape slot, choose the octagon, then confirm the two-tier combination.",
+          "feedback": "With both right, the matching evidence appears; if one is wrong, go back to that slot and choose again.",
+          "stop_id": "telok-ayer-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 3,
+          "title": "Claim the ability",
+          "action": "Add the Observation Card ×1 to your deck.",
+          "feedback": "The card shows where it can be used: Thian Hock Keng.",
+          "stop_id": "telok-ayer-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 4,
+          "title": "Read the next page",
+          "action": "Go to the Stop 5 preview and open the voyage, local life and fictional family letter papers one by one.",
+          "feedback": "Evidence and fictional props carry different labels.",
+          "stop_id": "telok-ayer-05",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 5,
+          "title": "Choose your help",
+          "action": "Use the Observation Card to highlight “voyage” and “Mazu”, or find the keywords yourself.",
+          "feedback": "The highlight lasts until the level ends; it never ticks the answer for you.",
+          "stop_id": "telok-ayer-05",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 6,
+          "title": "Explain the wish",
+          "action": "Choose “Voyage and Mazu” and say in one sentence why it matches arriving safely.",
+          "feedback": "The first generation's page is back in the family letter, and the letter-writing clue on the next page opens.",
+          "stop_id": "telok-ayer-05",
+          "mechanic_status": "prototype_rule"
+        }
+      ],
+      "next_task": {
+        "id": "telok-ayer-next-task",
+        "stop_id": "telok-ayer-05",
+        "title": "Put the wish to land safely back in the letter",
+        "setup": "At Thian Hock Keng you open the next page. The letter says only “May you arrive safely”; tucked beside it are three slips of paper of different kinds.",
+        "manual_items": [
+          {
+            "id": "voyage",
+            "label": "Voyage evidence",
+            "text": "Thian Hock Keng is where Hokkien migrants prayed to Mazu for a safe voyage.",
+            "is_fiction": false
+          },
+          {
+            "id": "learning",
+            "label": "Local life",
+            "text": "Thian Hock Keng also hosted clan association and education activities.",
+            "is_fiction": false
+          },
+          {
+            "id": "wish",
+            "label": "Fictional family letter",
+            "text": "“May you arrive safely.” This line belongs to the story's fictional family letter; it is not a quotation from a real migrant's letter.",
+            "is_fiction": true
+          }
+        ],
+        "manual_rule": "Tap each slip to open it. You can read everything without an ability card and go back any time; no timer, no points lost.",
+        "question": "Which evidence should the first generation's “arrive safely” connect to first?",
+        "options": [
+          {
+            "id": "voyage-matsu",
+            "label": "Voyage and Mazu",
+            "detail": "Link the wish to land safely with the journey by sea."
+          },
+          {
+            "id": "learning-writing",
+            "label": "Education and letter-writing",
+            "detail": "File this page under the later chapter about learning to write letters."
+          },
+          {
+            "id": "building-shape",
+            "label": "Square and octagon",
+            "detail": "Treat this page only as a record of the last stop's building outline."
+          }
+        ],
+        "correct_answer": "voyage-matsu",
+        "success": "The wish is back in place. You turn to the next page and the handwriting has changed: someone wanted to finish the letter themselves.",
+        "explanation_prompt": "Why did you decide this way? Put your reason into one sentence first, then check it against the reference explanation.",
+        "explanation": "“Arrive safely” matches prayers for a safe voyage; the Mazu worship at Thian Hock Keng gives it a historical basis. The education clue belongs to a later chapter of life, and the letter's people and words are story inventions.",
+        "explanation_mode": "self_check_no_ai_score",
+        "explanation_is_auto_scored": false,
+        "card_effect": "Highlights “voyage” and “Mazu”; all three slips stay fully readable, and the answer is still yours to choose.",
+        "effect_type": "highlight",
+        "highlight_terms": [
+          "voyage",
+          "Mazu"
+        ],
+        "eliminate_option_id": "",
+        "source_card_ids": [
+          "telok-ayer-05-fact"
+        ],
+        "source_urls": [
+          "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+          "https://thianhockkeng.com.sg/site/contactus2/",
+          "https://chinatown.sg/visit/thian-hock-keng-temple/"
+        ],
+        "failure_feedback": "One piece of evidence still doesn't fit. Compare the fact cards and story props again; what you've read and any active ability stay.",
+        "retry": "Choose again as often as you like; a used card is never charged twice, and the hint lasts until the level ends.",
+        "accessibility": "All evidence and options have text labels and can be tapped or chosen by keyboard one by one; no dragging, on-site photos, listening tests or timed moves.",
+        "reward": "This chapter's story fragment and a hint for the next stop; using the card and solving it yourself earn the same reward.",
+        "core_reasoning_is_required": true,
+        "card_does_not_answer_question": true,
+        "mechanic_status": "prototype_rule",
+        "field_verified": false,
+        "records_real_visit": false,
+        "ability_id": "telok-ayer-observation",
+        "place_name": "Thian Hock Keng",
+        "manual_items_required": 3,
+        "ability_use_label": "Use the Observation Card",
+        "manual_label": "Compare the evidence myself",
+        "effect_feedback": "Observation Card used: two keywords light up. It's up to you how they connect to “arrive safely”.",
+        "effect_target_item_ids": [
+          "voyage"
+        ],
+        "auto_complete_manual_items": false,
+        "after_success_target": "next_story_chapter"
+      },
+      "level_plan": [
+        {
+          "order": 1,
+          "stop_id": "telok-ayer-01",
+          "name": "Fuk Tak Chi Museum",
+          "address": "76 Telok Ayer Street, Singapore 048464",
+          "title": "Where did the shore go?",
+          "action": "Compare the digital old-shoreline diagram with today's street, and choose why the address remains but the sea is out of sight.",
+          "rules": "The diagram is a sourced historical illustration, not precise navigation; if the museum is closed you can still finish with the cards.",
+          "success": "Choose “The shoreline moved, but the old address still remembers it”.",
+          "retry": "Look at the map legend again and choose once more; you don't need to find the small print on site.",
+          "accessibility": "A text description of the old geography replaces the map overlay.",
+          "reward": "History card “A Seaside Without a Sea” and the first page of the fictional family letter.",
+          "next_use": "The five home-county names on the first page become the community clue for the next stop.",
+          "source_card_ids": [
+            "telok-ayer-01-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/places/places-landing/places/historic-sites/fuk-tak-chi",
+            "https://www.roots.gov.sg/places/places-landing/Places/museums/fuk-tak-chi-museum",
+            "https://chinatown.sg/visit/fuk-tak-chi-museum/"
+          ],
+          "historical_fact": "Founded in 1824 by Hakka and Cantonese migrants as a small shrine that also served as a community mutual-aid centre; converted into a museum in 1998.",
+          "access_note": "The Chinatown Singapore directory lists it as open daily 10:00–22:00, free; confirm actual evening entry with the operator before launch. The NHB historical marker address is No. 80 outside the museum (048466), while the museum itself is No. 76 (048464) — don't mix them up. When it is closed, a public-street exterior level is provided.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 2,
+          "stop_id": "telok-ayer-02",
+          "name": "Ying Fo Fui Kun",
+          "address": "98 Telok Ayer Street, Singapore 048474",
+          "title": "Five home counties, one network",
+          "action": "Group Meixian, Xingning, Wuhua, Pingyuan and Jiaoling onto the same clan association link card.",
+          "rules": "The five counties come from the association's own sources; we don't claim the names are carved on the outer wall. One community can link to several county names.",
+          "success": "All five county names link to Ying Fo Fui Kun's network of fellow townsfolk.",
+          "retry": "Matched items stay; only re-match the names that are still unplaced.",
+          "accessibility": "Tap “Add to the home-town network” for each item; no dragging needed.",
+          "reward": "History card “How Five Counties Became One Network”.",
+          "next_use": "Opens a cross-language annotation; at the next stop, look for a memorial building.",
+          "source_card_ids": [
+            "telok-ayer-02-fact"
+          ],
+          "source_urls": [
+            "https://www.yingfofuikun.org.sg/about/",
+            "https://www.yingfofuikun.org.sg/contact/"
+          ],
+          "historical_fact": "Founded in 1822 to serve Hakka migrants from five counties in Guangdong; the association still stands on its original Telok Ayer site.",
+          "access_note": "The official website lists Mon–Fri 08:00–16:00, tel. 6533 6726; office hours don't mean visitors can walk in at any time, so contact them first for group or indoor visits. The main route is completed from outside.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 3,
+          "stop_id": "telok-ayer-03",
+          "name": "Nagore Dargah Indian Muslim Heritage Centre",
+          "address": "140 Telok Ayer Street, Singapore 068604",
+          "title": "A memorial, not a tomb",
+          "action": "Match the twin-tower outline, then compare two claims: “commemorates a saint” and “a saint is buried here”.",
+          "rules": "Confirming the exterior and making the historical judgement are separate; the second relies on the NHB fact card.",
+          "success": "Choose “memorial building” and explain that no saint's remains are buried here.",
+          "retry": "The hint sends you back to the fact card; a religious site is never dressed up as a secret burial chamber.",
+          "accessibility": "The outline can be given as a text description, and the judgement can be made just by reading the card.",
+          "reward": "A Fun Fact card and the fictional thirty-six signatures.",
+          "next_use": "The signatures lead the family letter to the next stop's private mutual-aid society.",
+          "source_card_ids": [
+            "telok-ayer-03-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/MUSE/articles/Former-Nagore-Dargah",
+            "https://ndimhc.mimbar.sg/"
+          ],
+          "historical_fact": "A memorial to a saint built by the South Indian Chulia community; no saint's remains are buried here. Since 2011 it has housed the Indian Muslim Heritage Centre.",
+          "access_note": "The operator's page lists Mon–Fri 10:00–17:30, Sat 09:00–13:00, closed Sun, tel. 6227 5090; current ticket prices are unverified. The same page mentions an October 2026 restoration fundraiser — this doesn't mean it is closed, nor does it guarantee full access during restoration. The main route uses the exterior; going inside is optional.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 4,
+          "stop_id": "telok-ayer-04",
+          "name": "Former Keng Teck Whay Building / Singapore Yu Huang Gong",
+          "address": "150 Telok Ayer Street, Singapore 068608",
+          "title": "Square and octagon",
+          "action": "Tap the base shape slot and choose the square, then tap the upper tier slot and choose the octagon, and confirm.",
+          "rules": "Both shape slots need a choice; 1831 is when Keng Teck Whay was founded and is not used to date the existing building.",
+          "success": "Square for the base, octagon for the upper tier — both right together.",
+          "retry": "The base and upper tier labels stay; just choose again.",
+          "accessibility": "Slots and shapes all carry text labels, with button and keyboard selection; no counting on site required.",
+          "reward": "Observation Card ×1 and “The Mutual Aid of Thirty-Six”.",
+          "next_use": "At Stop 5, highlights “voyage” and “Mazu” to help you understand the wish to land safely.",
+          "source_card_ids": [
+            "telok-ayer-04-fact",
+            "telok-ayer-preview-detail"
+          ],
+          "source_urls": [
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+            "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+            "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+            "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/"
+          ],
+          "historical_fact": "Keng Teck Whay was founded in 1831 by 36 Peranakan Chinese merchants as a private mutual-aid society; its original building later became Yu Huang Gong.",
+          "access_note": "The Chinatown Singapore directory lists daily 09:00–17:00, free; confirm with the venue before launch. It is now an active place of worship, so use only the public exterior and areas open to visitors. 1831 is the year the society was founded, not the year the current building was completed.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "representative_prototype",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 5,
+          "stop_id": "telok-ayer-05",
+          "name": "Thian Hock Keng",
+          "address": "158 Telok Ayer Street, Singapore 068613",
+          "title": "The wish to land safely in the family letter",
+          "action": "Open the three slips and choose the evidence that matches the wish; the Observation Card can help.",
+          "rules": "The card only highlights keywords; it never chooses for you or hides the original text.",
+          "success": "Choose Voyage and Mazu, and check your one-sentence explanation.",
+          "retry": "After a mistake the highlight and reading progress stay; choose again as often as you like.",
+          "accessibility": "Text highlights come with a “keyword list” too, so colour is never the only cue.",
+          "reward": "Story fragment “A Different Hand”.",
+          "next_use": "The new handwriting points to the education chapter at Chong Wen Ge.",
+          "source_card_ids": [
+            "telok-ayer-05-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+            "https://thianhockkeng.com.sg/site/contactus2/",
+            "https://chinatown.sg/visit/thian-hock-keng-temple/"
+          ],
+          "historical_fact": "Where Hokkien migrants prayed to Mazu for safe voyages; the present large temple was built in 1839–1842 and also hosted clan association and education activities.",
+          "access_note": "The temple's website currently lists daily 07:30–17:00, last entry 16:45; use this rather than the Chinatown directory's 17:30. The Chinatown directory lists it as free. Respect worship and on-site photography rules.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "next_task_prototype",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 6,
+          "stop_id": "telok-ayer-06",
+          "name": "Chong Wen Ge",
+          "address": "168 Telok Ayer Street, Singapore 068619",
+          "title": "Two dates in schooling",
+          "action": "Match 1849 to the building of Chong Wen Ge, and 1915 to the neighbouring Chong Hock Pavilion opening Chong Hock Girls' School.",
+          "rules": "Keep the two place names and two events apart; don't merge neighbouring buildings into one school.",
+          "success": "1849 — Chong Wen Ge; 1915 — Chong Hock Girls' School opens at the neighbouring Chong Hock Pavilion.",
+          "retry": "The hint says whether the event type or the place name is wrong, without clearing all your answers.",
+          "accessibility": "Pair them with a dropdown or buttons; no need to move a timeline.",
+          "reward": "“Who Could Write Their Own Letters” and the fictional second generation's signature.",
+          "next_use": "Builds a way to tell apart dates of different events, for use at the next stop.",
+          "source_card_ids": [
+            "telok-ayer-06-fact"
+          ],
+          "source_urls": [
+            "https://www.shhk.com.sg/newsroom/shhk-family-day-2021/",
+            "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+            "https://moehc.moe.edu.sg/explore/beginnings-of-education-1819-to-1958/learning-in-the-19th-and-early-20th-century/",
+            "https://culturepaedia.singaporeccc.org.sg/communities/contributions-to-education-by-hokkien-community-in-singapore/"
+          ],
+          "historical_fact": "Tan Kim Seng led its building in 1849, with donations from the Hokkien, Hakka and Teochew communities; the neighbouring Chong Hock Pavilion opened Chong Hock Girls' School in 1915.",
+          "access_note": "The Singapore Hokkien Huay Kuan's official list confirms the No. 168 address. Current visitor hours and ticketing for the whole heritage space are unverified; a café's opening hours are not the monument's general opening hours. The core uses the exterior; confirm indoor access separately. Label Chong Wen Ge, Chong Hock Pavilion and Chong Hock Girls' School separately.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 7,
+          "stop_id": "telok-ayer-07",
+          "name": "Al-Abrar Mosque",
+          "address": "192 Telok Ayer Street, Singapore 068635",
+          "title": "Beginnings and completion",
+          "action": "Put 1827 with the founding and 1855 with the completion of the permanent building.",
+          "rules": "If the on-site plaque can't be read, use the existing sourced date cards; the two years don't contradict each other.",
+          "success": "Both date cards correctly matched to their two kinds of event.",
+          "retry": "Reread the event titles and swap them; you don't need to enter the mosque.",
+          "accessibility": "Dates and events are written out in full and can be chosen in order.",
+          "reward": "“One Place, Two Beginnings”.",
+          "next_use": "Use the same method to judge 1889 and 1925 at the final stop.",
+          "source_card_ids": [
+            "telok-ayer-07-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/al-abrar-mosque",
+            "https://www.muis.gov.sg/community/mosque/mosque-directory/al-abrar/"
+          ],
+          "historical_fact": "Began as a thatched hut in 1827 and became a permanent building in 1855, serving the South Indian Chulia community; its narrow façade has two minaret-like features.",
+          "access_note": "MUIS confirms the address and phone 6220 6306 but lists no general visiting hours. The main route is done from the public street; don't block worshippers' paths, never turn religious rites into game tasks, and ask on site before going in.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 8,
+          "stop_id": "telok-ayer-08",
+          "name": "Telok Ayer Chinese Methodist Church",
+          "address": "235 Telok Ayer Street, Singapore 068656",
+          "title": "Delivering the letter across the years",
+          "action": "First tell the 1889 founding of the congregation from the 1925 completion of the building, then return the three generations' fictional letters to their chapters.",
+          "rules": "Historical dates and fictional handwriting are labelled separately; the fictional 1942 refugee's lines are never treated as testimony.",
+          "success": "Once the events are sorted correctly, choose a theme for your personal keepsake; the theme has no single right answer.",
+          "retry": "Fact sorting can be redone, and the ending theme can be changed any time.",
+          "accessibility": "Lists replace dragging and animation, and the full ending can be read as text.",
+          "reward": "Ending card “The Letter Finally Arrives”.",
+          "next_use": "Saves a story-preview keepsake; no on-site visit record is created.",
+          "source_card_ids": [
+            "telok-ayer-08-fact"
+          ],
+          "source_urls": [
+            "https://www.tacmc.org.sg/our-heritage/history/",
+            "https://www.cac-singapore.org.sg/church/telok-ayer-chinese-methodist-church/",
+            "https://biblioasia.nlb.gov.sg/all-sections/vol-14-issue-1-apr-jun-2018-chinese-renaissance-architecture/"
+          ],
+          "historical_fact": "The congregation began in 1889 and the present building was completed in 1925; a Chinese pavilion sits atop a Western building, and it sheltered about 300 people during the Second World War.",
+          "access_note": "Still an active church; general visitor entry hours and heritage tours are unverified. The final level can be completed by observing from the public street — no need to enter the sanctuary. Never present game NPC lines as real refugees' testimony.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        }
+      ],
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/places/historic-sites/fuk-tak-chi",
+        "https://www.roots.gov.sg/places/places-landing/Places/museums/fuk-tak-chi-museum",
+        "https://chinatown.sg/visit/fuk-tak-chi-museum/",
+        "https://www.yingfofuikun.org.sg/about/",
+        "https://www.yingfofuikun.org.sg/contact/",
+        "https://www.roots.gov.sg/MUSE/articles/Former-Nagore-Dargah",
+        "https://ndimhc.mimbar.sg/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/058-ktw/",
+        "https://www.roots.gov.sg/stories-landing/stories/telok-ayer/story",
+        "https://www.roots.gov.sg/-/media/Roots/Images/resources/muse/issues/029-muse-v8-issue1.pdf",
+        "https://chinatown.sg/visit/temple-of-heavenly-jade-emperor/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/thian-hock-keng",
+        "https://thianhockkeng.com.sg/site/contactus2/",
+        "https://chinatown.sg/visit/thian-hock-keng-temple/",
+        "https://www.shhk.com.sg/newsroom/shhk-family-day-2021/",
+        "https://moehc.moe.edu.sg/explore/beginnings-of-education-1819-to-1958/learning-in-the-19th-and-early-20th-century/",
+        "https://culturepaedia.singaporeccc.org.sg/communities/contributions-to-education-by-hokkien-community-in-singapore/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/al-abrar-mosque",
+        "https://www.muis.gov.sg/community/mosque/mosque-directory/al-abrar/",
+        "https://www.tacmc.org.sg/our-heritage/history/",
+        "https://www.cac-singapore.org.sg/church/telok-ayer-chinese-methodist-church/",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-14-issue-1-apr-jun-2018-chinese-renaissance-architecture/"
+      ],
+      "fiction_note": "The family letters, characters, seals, ledger pages, annotations, time windows, AI judgements and level passwords are all fiction created for this project; we don't claim that real venues hold these objects or ever passed this letter along together. Only each stop's historical_fact and its sources are researched history; no real religious site is cast as a secret society, curse or criminal group.",
+      "source_data_unchanged": true,
+      "field_verified": false,
+      "records_real_visit": false
+    },
+    {
+      "route_id": "kampong-gelam",
+      "story_id": "kampong-gelam-unprinted-edition",
+      "title": "The Last Edition",
+      "prototype_label": "Prototype rule · ability cards take effect at the next level",
+      "core_loop": "Set the fictional printing plate → test-print and proofread → earn the Proofing Card → strike one mismatch from the subscription list → explain education and community support.",
+      "stop_count": 7,
+      "focus_stop_id": "kampong-gelam-04",
+      "next_stop_id": "kampong-gelam-05",
+      "ability": {
+        "id": "kampong-gelam-proofread",
+        "title": "Proofing Card",
+        "symbol": "✓",
+        "effect": "Strikes one mismatched relationship from the fictional subscription list at the next stop, leaving two links for you to judge.",
+        "grant_rule": "At Stop 4, put the 111, JALAN and SULTAN blocks in the right order, choose the mirrored plate and make a successful test print to claim the Proofing Card ×1.",
+        "one_use": true,
+        "quantity": 1,
+        "grant_stop_id": "kampong-gelam-04",
+        "use_stop_id": "kampong-gelam-05",
+        "grant_puzzle_id": "kampong-gelam-representative-puzzle",
+        "grant_event": "representative_puzzle_solved",
+        "use_feedback": "Proofing Card used: the line that mistook the printing house for the school's founder has been struck out. Keep comparing the remaining two.",
+        "unchanged_core": "You still need to identify the historical fact that charity supported the school, and to sort out the fictional subscription links.",
+        "type": "ability",
+        "label": "Prototype ability card",
+        "is_fiction": true,
+        "source_urls": [],
+        "max_quantity_per_run": 1,
+        "grant_is_idempotent": true,
+        "equal_reward_for_accessibility_mode": true,
+        "use_task_id": "kampong-gelam-next-task",
+        "used_effect_persists_on_retry": true
+      },
+      "representative_puzzle": {
+        "stop_id": "kampong-gelam-04",
+        "puzzle_id": "kampong-gelam-representative-puzzle",
+        "kind": "print_orientation_choice",
+        "title": "Make the paper read the right way",
+        "action": "Arrange the 111, JALAN and SULTAN blocks in address order, choose the mirrored plate, then tap Test print and check that the paper reads 111 JALAN SULTAN the right way round.",
+        "rules": [
+          "Order the three address blocks and choose the plate direction, then tap Test print.",
+          "The correct print reads 111 JALAN SULTAN; a mirrored plate gives right-reading paper.",
+          "The fictional plate uses only these three Latin-script and numeral blocks; real religious scripture is never flipped, altered or translated.",
+          "No countdown; after a failed test print, adjust the order or direction and try again."
+        ],
+        "options": [
+          {
+            "id": "mirrored-type-upright-paper",
+            "label": "Mirrored type → right-reading print",
+            "detail": "The plate and the paper face opposite ways"
+          },
+          {
+            "id": "upright-type-mirrored-paper",
+            "label": "Right-reading type → mirrored print",
+            "detail": "The printed address comes out flipped left to right"
+          },
+          {
+            "id": "rotated-type-upside-down-paper",
+            "label": "Upside-down type → upside-down print",
+            "detail": "The printed address comes out upside down"
+          }
+        ],
+        "correct_answer": "mirrored-type-upright-paper",
+        "success": "The print reads the right way. Proofing Card ×1 goes into your deck, and the address carries the next page to Madrasah Alsagoff.",
+        "retry": "Retry as often as you like; no history cards are lost and this run's progress stays.",
+        "accessibility": "The three address blocks and the plate directions all have text labels and can be tapped or keyed one by one; no dragging, timed reactions or reading tiny mirrored letters.",
+        "reward_ability_id": "kampong-gelam-proofread",
+        "source_card_ids": [
+          "kampong-gelam-04-fact",
+          "kampong-gelam-preview-detail"
+        ],
+        "source_urls": [
+          "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+          "https://www.thesultan.com.sg/about",
+          "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story"
+        ],
+        "mechanic_status": "prototype_rule",
+        "requires_staff": false,
+        "requires_purchase": false,
+        "requires_building_entry": false,
+        "timer_enabled": false,
+        "actions": [
+          "Arrange the 111, JALAN and SULTAN blocks in turn.",
+          "Choose the mirrored plate so the paper reads the right way.",
+          "Tap Test print; with order and direction both right, claim the Proofing Card ×1."
+        ]
+      },
+      "gameplay_steps": [
+        {
+          "order": 1,
+          "title": "Set the three address blocks",
+          "action": "Place the 111, JALAN and SULTAN blocks on the forme in that order.",
+          "feedback": "The forme shows the address order block by block; fix any mistakes by rearranging.",
+          "stop_id": "kampong-gelam-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 2,
+          "title": "Choose mirrored and test-print",
+          "action": "Choose the mirrored plate, then tap Test print and check that the paper reads 111 JALAN SULTAN the right way round.",
+          "feedback": "Only correct order and direction together complete it; a mistake prompts you to reset the type or adjust the plate.",
+          "stop_id": "kampong-gelam-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 3,
+          "title": "Claim the ability",
+          "action": "Claim the Proofing Card ×1.",
+          "feedback": "The card shows that one mismatched subscription link can be struck out at the next stop.",
+          "stop_id": "kampong-gelam-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 4,
+          "title": "Unpack the papers",
+          "action": "Go to the Stop 5 preview and read the school, charitable support and fictional subscription list separately.",
+          "feedback": "The 1912 school history and the fictional newsletter are clearly kept apart.",
+          "stop_id": "kampong-gelam-05",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 5,
+          "title": "Proofread the links",
+          "action": "Use the Proofing Card to strike out one mismatch, or compare all three yourself.",
+          "feedback": "Struck-out options can’t be chosen; the rest of the evidence stays.",
+          "stop_id": "kampong-gelam-05",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 6,
+          "title": "Connect the network",
+          "action": "Choose the link of charitable support to the school, and say in one sentence where fact ends and fiction begins.",
+          "feedback": "The school report is back in place. The next chapter follows where other communities came from.",
+          "stop_id": "kampong-gelam-05",
+          "mechanic_status": "prototype_rule"
+        }
+      ],
+      "next_task": {
+        "id": "kampong-gelam-next-task",
+        "stop_id": "kampong-gelam-05",
+        "title": "Give the subscription slip its proper link",
+        "setup": "Ah Ming hands you a fictional subscription slip. Outside Madrasah Alsagoff, check it against the school’s real records — a printing house nearby is no reason to fold two histories into one.",
+        "manual_items": [
+          {
+            "id": "school",
+            "label": "School record",
+            "text": "Madrasah Alsagoff Al-Arabiah was founded in 1912.",
+            "is_fiction": false
+          },
+          {
+            "id": "support",
+            "label": "Community support",
+            "text": "The school is linked to the Alsagoff family from Hadhramaut and their charitable support.",
+            "is_fiction": false
+          },
+          {
+            "id": "subscription",
+            "label": "Fictional subscription slip",
+            "text": "“Please pass this edition to the readers.” The slip and Ah Ming are story props; this level makes no claim that the school ever subscribed to the paper.",
+            "is_fiction": true
+          }
+        ],
+        "manual_rule": "Tap each slip to open it. You can read everything without an ability card and go back any time; no timer, no points lost.",
+        "question": "Which link respects the school’s real records and still holds this fictional slip?",
+        "options": [
+          {
+            "id": "support-school-readers",
+            "label": "Charitable support → school → this level’s readers",
+            "detail": "The first part comes from historical records; the readers and the subscription are story."
+          },
+          {
+            "id": "printer-founded-school",
+            "label": "Printing house → founded the school → subscribers",
+            "detail": "Treats the old printing house nearby as the school’s founder too."
+          },
+          {
+            "id": "single-origin",
+            "label": "Same community → every building on the street",
+            "detail": "Gives different buildings the same origin just because they share a neighbourhood."
+          }
+        ],
+        "correct_answer": "support-school-readers",
+        "success": "The link holds. Ah Ming leaves the school report in its own year; the next edition tells of another path of migration.",
+        "explanation_prompt": "Why did you decide this way? Put your reason into one sentence first, then check it against the reference explanation.",
+        "explanation": "The records support a link between the Alsagoff family’s charity and the school; they do not show that the old printing house founded it. The paper’s subscription and readers are fiction and cannot be used to rewrite the school’s history.",
+        "explanation_mode": "self_check_no_ai_score",
+        "explanation_is_auto_scored": false,
+        "card_effect": "Strikes out the mismatch “Printing house → founded the school → subscribers”; you still make the historical call between the remaining two.",
+        "effect_type": "eliminate",
+        "highlight_terms": [],
+        "eliminate_option_id": "printer-founded-school",
+        "source_card_ids": [
+          "kampong-gelam-04-fact",
+          "kampong-gelam-05-fact"
+        ],
+        "source_urls": [
+          "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+          "https://www.thesultan.com.sg/about",
+          "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story",
+          "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+          "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf"
+        ],
+        "failure_feedback": "One piece of evidence still doesn't fit. Compare the fact cards and story props again; what you've read and any active ability stay.",
+        "retry": "Choose again as often as you like; a used card is never charged twice, and the hint lasts until the level ends.",
+        "accessibility": "All evidence and options have text labels and can be tapped or chosen by keyboard one by one; no dragging, on-site photos, listening tests or timed moves.",
+        "reward": "This chapter's story fragment and a hint for the next stop; using the card and solving it yourself earn the same reward.",
+        "core_reasoning_is_required": true,
+        "card_does_not_answer_question": true,
+        "mechanic_status": "prototype_rule",
+        "field_verified": false,
+        "records_real_visit": false,
+        "ability_id": "kampong-gelam-proofread",
+        "place_name": "Madrasah Alsagoff Al-Arabiah",
+        "manual_items_required": 3,
+        "ability_use_label": "Use the Proofing Card",
+        "manual_label": "Compare the evidence myself",
+        "effect_feedback": "Proofing Card used: the line that mistook the printing house for the school's founder has been struck out. Keep comparing the remaining two.",
+        "effect_target_item_ids": [],
+        "auto_complete_manual_items": false,
+        "after_success_target": "next_story_chapter"
+      },
+      "level_plan": [
+        {
+          "order": 1,
+          "stop_id": "kampong-gelam-01",
+          "name": "Bussorah Street · former Kampong Kaji stretch",
+          "address": "Bussorah Street near Sultan Mosque, Singapore; NHB reference point 1.301617, 103.859600",
+          "title": "Three needs on a street of waiting ships",
+          "action": "Link waiting for ships, lodging and preparing for the journey to the pilgrims’ life network of Kampong Kaji.",
+          "rules": "The three are needs side by side — don’t invent a fixed order of steps, and don’t reduce the Hajj to a festival.",
+          "success": "All three are linked to the same network of daily life.",
+          "retry": "Unlinked cards stay selectable; your choices are kept.",
+          "accessibility": "Tap each card to add it to the network; each has a text description.",
+          "reward": "Fact card on the pilgrims’ transit street, and a fictional ship ticket.",
+          "next_use": "The first edition opens with journeys and lodging.",
+          "source_card_ids": [
+            "kampong-gelam-01-fact"
+          ],
+          "source_urls": [
+            "https://artsandculture.google.com/asset/bussorah-street-former-kampong-kaji/sgFPVzW1m5FRaA?hl=en"
+          ],
+          "historical_fact": "A stretch near Sultan Mosque was once called Kampong Kaji, where pilgrims from the region waited for ships, lodged and prepared for the journey.",
+          "access_note": "Observed from the public street; prayers, events and crowds may affect where you can stop. Exact standing spots still to be surveyed.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 2,
+          "stop_id": "kampong-gelam-02",
+          "name": "Gedung Kuning",
+          "address": "73 Sultan Gate, Singapore 198497",
+          "title": "The many homecomings of Gedung Kuning",
+          "action": "Put three records in order: bought, sold, bought back.",
+          "rules": "Uses only the existing record of the 1912 purchase; no unverified dates are added.",
+          "success": "The order is bought — sold — bought back.",
+          "retry": "Swap any two cards. Hints point to the events, not the colour of the walls.",
+          "accessibility": "Use the Move up / Move down buttons instead of dragging.",
+          "reward": "People and life card ‘A House That Kept Coming Home’.",
+          "next_use": "The next edition turns from homes to schools and shared spaces.",
+          "source_card_ids": [
+            "kampong-gelam-02-fact"
+          ],
+          "source_urls": [
+            "https://artsandculture.google.com/asset/gedung-kuning/RQF-rhKfBmntEg?hl=en",
+            "https://www.gedungkuning.sg/"
+          ],
+          "historical_fact": "Gedung Kuning was long a family home. Javanese merchant Haji Yusoff bought it in 1912; it was later sold, then bought back.",
+          "access_note": "Now a dining and events space. The main route finishes at an accessible spot outside; no purchase or entry needed.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 3,
+          "stop_id": "kampong-gelam-03",
+          "name": "Aliwal Arts Centre · former Chong Cheng School and Chong Pun Girls’ School",
+          "address": "28 Aliwal Street, Singapore 199918; historical records also refer to the old address as Nos. 30–32",
+          "title": "What did the two wings share?",
+          "action": "On the simplified plan, switch between the boys’ and girls’ school records, then mark the shared hall.",
+          "rules": "One player can view both records. The plan is a concept sketch, not a surveyed floor plan you can enter.",
+          "success": "Both wings are linked to the shared hall.",
+          "retry": "Re-read both records as often as you like; no second player needed.",
+          "accessibility": "Match three text labels: Boys’ school / Girls’ school / Hall.",
+          "reward": "‘Two Wings, One Hall’ and half of a fictional school magazine.",
+          "next_use": "The half magazine leads to the next stop: how words were printed.",
+          "source_card_ids": [
+            "kampong-gelam-03-fact"
+          ],
+          "source_urls": [
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00085/",
+            "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf?la=en"
+          ],
+          "historical_fact": "This building once housed two Chinese schools — boys in one wing, girls in the other, sharing a hall. The facade records the year it was built and its donors.",
+          "access_note": "Based on the exterior and official images; entry to studios, the hall or event spaces is not assumed. How legible the year and inscription are on site is still to be checked.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 4,
+          "stop_id": "kampong-gelam-04",
+          "name": "The Sultan · former Al-Ahmadiah and HARMY Press",
+          "address": "101 Jalan Sultan, Singapore 199002",
+          "title": "Set the type, test-print, proofread",
+          "action": "Arrange the 111, JALAN and SULTAN blocks, choose the mirrored plate, then tap Test print.",
+          "rules": "Address order, mirrored plate and test print are all live steps. The props are a newly made layout and do not alter any real scripture.",
+          "success": "The blocks are in the right order, and the mirrored plate prints a readable 111 JALAN SULTAN.",
+          "retry": "Test-print a new choice at once; no countdown, no penalty.",
+          "accessibility": "The block order and plate direction all have text labels; complete each with buttons or the keyboard.",
+          "reward": "Proofing Card ×1 and a printing-craft card.",
+          "next_use": "At Stop 5, strike out one mismatched link in the fictional subscription.",
+          "source_card_ids": [
+            "kampong-gelam-04-fact"
+          ],
+          "source_urls": [
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+            "https://www.thesultan.com.sg/about",
+            "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story"
+          ],
+          "historical_fact": "No. 101 was once the Al-Ahmadiah and HARMY Press and is now The Sultan hotel; the old building is a remnant of Kampong Gelam’s publishing network.",
+          "access_note": "The hotel is a working business. The game triggers outside the building in publicly accessible areas; no entry to guest floors or use of hotel facilities required.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "representative_prototype",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 5,
+          "stop_id": "kampong-gelam-05",
+          "name": "Madrasah Alsagoff Al-Arabiah",
+          "address": "111 Jalan Sultan, Singapore 199006",
+          "title": "The subscription mismatch",
+          "action": "Read the school, the charitable support and the fictional slip; you may use the Proofing Card to remove one option.",
+          "rules": "Real school history and the fictional newspaper link are kept apart; after the strike-out you still choose the answer yourself.",
+          "success": "Choose charitable support — school — this level’s fictional readers, and check the explanation.",
+          "retry": "The struck-out mismatch stays removed; compare the remaining two as often as you like.",
+          "accessibility": "Struck-out items are labelled “Removed by proofing”, not just crossed out or recoloured.",
+          "reward": "‘Education and Community Support’ and a fictional school report.",
+          "next_use": "Carry the differences between communities on to Malabar Mosque.",
+          "source_card_ids": [
+            "kampong-gelam-05-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+            "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf"
+          ],
+          "historical_fact": "The school was founded in 1912 and is linked to the Alsagoff family from Hadhramaut, Yemen, and their charitable support.",
+          "access_note": "Still a place of learning. Complete it only from a suitable spot on the public road — don’t enter the grounds, photograph students or engage staff and pupils.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "next_task_prototype",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 6,
+          "stop_id": "kampong-gelam-06",
+          "name": "Malabar Mosque",
+          "address": "471 Victoria Street, Singapore 198370",
+          "title": "One street, many roads here",
+          "action": "Link Javanese merchants, a Hadhrami family and the Kerala community to the three building records you already have.",
+          "rules": "Use only the sources from Stops 2, 5 and 6 — don’t guess identity from appearances. Keep 1963 and the fictional 1938 characters apart.",
+          "success": "All three sources are matched to the right records.",
+          "retry": "Only wrong matches are reset; you can go back to the digital cards from earlier stops.",
+          "accessibility": "A list match replaces the map; the location sketch doesn’t fake precise coordinates.",
+          "reward": "‘One Neighbourhood, Many Paths of Migration’.",
+          "next_use": "Builds separate community threads for the final report.",
+          "source_card_ids": [
+            "kampong-gelam-02-fact",
+            "kampong-gelam-05-fact",
+            "kampong-gelam-06-fact"
+          ],
+          "source_urls": [
+            "https://artsandculture.google.com/asset/gedung-kuning/RQF-rhKfBmntEg?hl=en",
+            "https://www.gedungkuning.sg/",
+            "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+            "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf",
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00665/"
+          ],
+          "historical_fact": "The mosque was championed by the Malabar Muslim community from Kerala and opened in 1963; the blue walls and golden dome were added later.",
+          "access_note": "The main route finishes outside from the public road, keeping entrances clear; no entry to prayer spaces required. Today’s blue exterior cannot be passed off as how it looked in 1938.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 7,
+          "stop_id": "kampong-gelam-07",
+          "name": "Istana Kampong Gelam · Malay Heritage Centre",
+          "address": "85 Sultan Gate, Singapore 198501",
+          "title": "Seven pages, one paper",
+          "action": "Read the records on the former palace and the heritage centre, collect the 7th report card, then sort facts and the fictional characters’ feelings into separate columns.",
+          "rules": "The 2026 reopening keeps its real date; Ah Ming’s 1938 identity is story; the headline adds no new facts.",
+          "success": "Reports from all seven stops are in, facts and feelings in separate columns; then choose the front-page headline.",
+          "retry": "Any column can be moved back and re-sorted; cards you’ve read stay read.",
+          "accessibility": "Choose a column card by card; the front page can be read in full as text.",
+          "reward": "Collection deck ‘My Kampong Gelam Neighbourhood Paper’.",
+          "next_use": "Saves your personal front-page preview; no real museum visit is recorded.",
+          "source_card_ids": [
+            "kampong-gelam-07-fact"
+          ],
+          "source_urls": [
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/070-iskg/",
+            "https://www.pmo.gov.sg/newsroom/pm-lawrence-wong-at-the-malay-heritage-centres-reopening-festival-apr-2026/"
+          ],
+          "historical_fact": "The former palace is now the Malay Heritage Centre, which reopened on 25 April 2026.",
+          "access_note": "The final chapter can be finished at a lawful, publicly accessible spot outside. Gallery tickets and same-day opening hours to be checked separately; a digital ending is offered when closed. Reopening doesn’t mean every space is always open.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        }
+      ],
+      "source_urls": [
+        "https://artsandculture.google.com/asset/bussorah-street-former-kampong-kaji/sgFPVzW1m5FRaA?hl=en",
+        "https://artsandculture.google.com/asset/gedung-kuning/RQF-rhKfBmntEg?hl=en",
+        "https://www.gedungkuning.sg/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00085/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf?la=en",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00075/",
+        "https://www.thesultan.com.sg/about",
+        "https://www.roots.gov.sg/stories-landing/stories/dichetak-oleh-a-walk-through-kampong-gelam/story",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/alsagoff-arab-school",
+        "https://www.roots.gov.sg/-/media/Roots/Files/kampong-glam-heritage-trail/kampongglamtrail3-brochure.pdf",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/kpgl-00665/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/070-iskg/",
+        "https://www.pmo.gov.sg/newsroom/pm-lawrence-wong-at-the-malay-heritage-centres-reopening-festival-apr-2026/"
+      ],
+      "fiction_note": "Ah Ming, the time travel, the blank paper, the mission dialogue and the layout codes are all fiction. 1938 is the fictional character’s year of departure, not a claim that every building on the route existed then. Each fact card states its own date; the 3D print room is an artistic reconstruction.",
+      "source_data_unchanged": true,
+      "field_verified": false,
+      "records_real_visit": false
+    },
+    {
+      "route_id": "balestier",
+      "story_id": "balestier-lost-credits",
+      "title": "The Last Screening: The Deleted Credits",
+      "prototype_label": "Prototype rule · ability cards take effect at the next level",
+      "core_loop": "Compare two rows of shophouses → restore the shared developer’s credit → earn the Editing Card → set water and passers-by side by side → explain a deal no one paid for.",
+      "stop_count": 7,
+      "focus_stop_id": "balestier-04",
+      "next_stop_id": "balestier-05",
+      "ability": {
+        "id": "balestier-edit",
+        "title": "Editing Card",
+        "symbol": "✂",
+        "effect": "At the water kiosk, place the “free water” and “passers-by” evidence side by side so you can see one relationship in daily life.",
+        "grant_rule": "At Stop 4, open the 1926 and 1928 records first, then pick the shared developer, Sim Cheng Neo, from the candidate credits to earn Editing Card ×1.",
+        "one_use": true,
+        "quantity": 1,
+        "grant_stop_id": "balestier-04",
+        "use_stop_id": "balestier-05",
+        "grant_puzzle_id": "balestier-representative-puzzle",
+        "grant_event": "representative_puzzle_solved",
+        "use_feedback": "Editing Card used: water and passers-by now share one frame. What the blank bill means is still yours to decide.",
+        "unchanged_core": "You still have to tell gift, sale and loan apart, and must not treat the fictional bill as a real charity record.",
+        "type": "ability",
+        "label": "Prototype ability card",
+        "is_fiction": true,
+        "source_urls": [],
+        "max_quantity_per_run": 1,
+        "grant_is_idempotent": true,
+        "equal_reward_for_accessibility_mode": true,
+        "use_task_id": "balestier-next-task",
+        "used_effect_persists_on_retry": true
+      },
+      "representative_puzzle": {
+        "stop_id": "balestier-04",
+        "puzzle_id": "balestier-representative-puzzle",
+        "kind": "credit_choice",
+        "title": "Two rows of shophouses — whose name belongs in the credits?",
+        "action": "Tap to open the 1926 and 1928 records, read the building name, developer and designer, then choose the developer both rows share.",
+        "rules": [
+          "Both records must be opened before you can submit the shared developer. The correct credit is Sim Cheng Neo.",
+          "Kwan Yow Luen is the designer at Stop 4; Sim Kwong Ho is the building name at Stop 2.",
+          "The answer comes from the sourced fact cards at Stops 2 and 4; no need to read small ornaments high up.",
+          "The pieced-together credits belong to fictional end credits; no claim that these people worked on a real film together."
+        ],
+        "options": [
+          {
+            "id": "sim-cheng-neo",
+            "label": "Sim Cheng Neo",
+            "detail": "The name in both shophouse development records"
+          },
+          {
+            "id": "kwan-yow-luen",
+            "label": "Kwan Yow Luen",
+            "detail": "The name in the 1928 shophouse design record"
+          },
+          {
+            "id": "sim-kwong-ho",
+            "label": "Sim Kwong Ho",
+            "detail": "The words on the 1926 shophouse facade"
+          }
+        ],
+        "correct_answer": "sim-cheng-neo",
+        "success": "“Built by: Sim Cheng Neo” is back in place. Editing Card ×1 joins your deck, and a bill with a blank amount points to the water kiosk.",
+        "retry": "Retry as often as you like; no history cards are lost and this run's progress stays.",
+        "accessibility": "Both records open with buttons or the keyboard and show as text; no dragging film frames or watching animations.",
+        "reward_ability_id": "balestier-edit",
+        "source_card_ids": [
+          "balestier-02-fact",
+          "balestier-04-fact"
+        ],
+        "source_urls": [
+          "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+          "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+          "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/"
+        ],
+        "mechanic_status": "prototype_rule",
+        "requires_staff": false,
+        "requires_purchase": false,
+        "requires_building_entry": false,
+        "timer_enabled": false,
+        "actions": [
+          "Tap to open the 1926 shophouse record.",
+          "Tap to open the 1928 shophouse record.",
+          "With both records open, choose the shared developer, Sim Cheng Neo."
+        ]
+      },
+      "gameplay_steps": [
+        {
+          "order": 1,
+          "title": "Open both records",
+          "action": "Tap to open the records for the 1926 shophouses at Stop 2 and the 1928 shophouses at Stop 4.",
+          "feedback": "Once open, both records show the building name, developer and designer for you to compare.",
+          "stop_id": "balestier-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 2,
+          "title": "Restore the shared credit",
+          "action": "After reading both records, choose Sim Cheng Neo from the candidate credits and confirm.",
+          "feedback": "The shared developer is back in place. If a record is unopened, read it first; wrong picks can be changed.",
+          "stop_id": "balestier-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 3,
+          "title": "Claim the ability",
+          "action": "Collect Editing Card ×1.",
+          "feedback": "A new story prop appears: a bill with the amount left blank.",
+          "stop_id": "balestier-04",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 4,
+          "title": "Read the water evidence",
+          "action": "Go to the Stop 5 preview and open the free water, passers-by and fictional bill.",
+          "feedback": "Sources and props are labelled separately; no need to drink anything on site.",
+          "stop_id": "balestier-05",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 5,
+          "title": "Side-by-side shot",
+          "action": "Use the Editing Card to set the water and passers-by evidence side by side, or view them one by one yourself.",
+          "feedback": "Both pieces of evidence appear together; the relationship isn’t chosen for you.",
+          "stop_id": "balestier-05",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 6,
+          "title": "Judge the relationship",
+          "action": "Choose free giving and mutual help, and explain which fact card supports it.",
+          "feedback": "The water-giver returns to the credits, and the Time Camera reveals the next chapter.",
+          "stop_id": "balestier-05",
+          "mechanic_status": "prototype_rule"
+        }
+      ],
+      "next_task": {
+        "id": "balestier-next-task",
+        "stop_id": "balestier-05",
+        "title": "Why does this bill have no amount?",
+        "setup": "Following the credits, you reach the Boon Teck Road Water Kiosk. Mariam’s fictional bill has no amount on it — first, look at the real story of the water here.",
+        "manual_items": [
+          {
+            "id": "supply",
+            "label": "Water evidence",
+            "text": "NHB records say the kiosk long gave out free water and herbal tea.",
+            "is_fiction": false
+          },
+          {
+            "id": "passersby",
+            "label": "Who it served",
+            "text": "The water here was for passers-by. Whether the urn is full today doesn’t change this recorded history.",
+            "is_fiction": false
+          },
+          {
+            "id": "blank-bill",
+            "label": "Fictional bill",
+            "text": "The bill with a blank amount is a story prop. It invites you to understand the gift of water; it is not a real receipt.",
+            "is_fiction": true
+          }
+        ],
+        "manual_rule": "Tap each slip to open it. You can read everything without an ability card and go back any time; no timer, no points lost.",
+        "question": "Which relationship explains the fictional blank bill and also fits the kiosk’s records?",
+        "options": [
+          {
+            "id": "free-giving",
+            "label": "Free giving and mutual help",
+            "detail": "Sees the water as care given to passers-by."
+          },
+          {
+            "id": "sale",
+            "label": "Sold, then settled",
+            "detail": "Reads the blank amount as a price not yet filled in."
+          },
+          {
+            "id": "loan",
+            "label": "Lent, then returned",
+            "detail": "Treats the water as a loan to be repaid later."
+          }
+        ],
+        "correct_answer": "free-giving",
+        "success": "The water-giver’s name rejoins the credits. The camera rolls on — a building finished in 1991 will change how you read the whole reel.",
+        "explanation_prompt": "Why did you decide this way? Put your reason into one sentence first, then check it against the reference explanation.",
+        "explanation": "The records say water was given free to passers-by, so giving and mutual help fit the evidence. The blank amount is only a prop to guide this story; a fictional bill cannot prove history on its own.",
+        "explanation_mode": "self_check_no_ai_score",
+        "explanation_is_auto_scored": false,
+        "card_effect": "Automatically sets “Water evidence” and “Who it served” side by side — no switching between cards. The relationship is still yours to choose.",
+        "effect_type": "juxtapose",
+        "highlight_terms": [
+          "free",
+          "passers-by"
+        ],
+        "eliminate_option_id": "",
+        "source_card_ids": [
+          "balestier-05-fact"
+        ],
+        "source_urls": [
+          "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+          "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf"
+        ],
+        "failure_feedback": "One piece of evidence still doesn't fit. Compare the fact cards and story props again; what you've read and any active ability stay.",
+        "retry": "Choose again as often as you like; a used card is never charged twice, and the hint lasts until the level ends.",
+        "accessibility": "All evidence and options have text labels and can be tapped or chosen by keyboard one by one; no dragging, on-site photos, listening tests or timed moves.",
+        "reward": "This chapter's story fragment and a hint for the next stop; using the card and solving it yourself earn the same reward.",
+        "core_reasoning_is_required": true,
+        "card_does_not_answer_question": true,
+        "mechanic_status": "prototype_rule",
+        "field_verified": false,
+        "records_real_visit": false,
+        "ability_id": "balestier-edit",
+        "place_name": "Boon Teck Road Water Kiosk",
+        "manual_items_required": 3,
+        "ability_use_label": "Use the Editing Card",
+        "manual_label": "Compare the evidence myself",
+        "effect_feedback": "Editing Card used: water and passers-by now share one frame. What the blank bill means is still yours to decide.",
+        "effect_target_item_ids": [
+          "supply",
+          "passersby"
+        ],
+        "auto_complete_manual_items": false,
+        "after_success_target": "next_story_chapter"
+      },
+      "level_plan": [
+        {
+          "order": 1,
+          "stop_id": "balestier-01",
+          "name": "Goh Chor Tua Pek Kong Temple and the old opera stage",
+          "address": "249 Balestier Road, Singapore",
+          "title": "Audience and stage",
+          "action": "In the concept sketch, pick out the stage and the viewing space, then match them to 1847 and 1906.",
+          "rules": "1847 is the temple’s founding; 1906 is the permanent stage. No need to go on stage or wait for a show.",
+          "success": "The spaces are right, and the two dates are kept apart.",
+          "retry": "Revisit the sourced sketch anytime; blocked views won’t stop you finishing.",
+          "accessibility": "A text description of how the temple and the separate stage relate.",
+          "reward": "Credit: ‘Labourers and Audiences’.",
+          "next_use": "Opens the story of who built the buildings on the next stretch of street.",
+          "source_card_ids": [
+            "balestier-01-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Goh-Chor-Tua-Pek-Kong-Temple",
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00163/"
+          ],
+          "historical_fact": "Founded in 1847 by Hokkien labourers from the sugar-cane plantations; the permanent stage beside it was built by Tan Boo Liat in 1906.",
+          "access_note": "Designed around what can be seen from the public street by day; current visitor hours are not fully confirmed. Keep walkways clear during worship and performances; finishing must never require entering a religious space.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 2,
+          "stop_id": "balestier-02",
+          "name": "Sim Kwong Ho Shophouses",
+          "address": "292–312 Balestier Road, at the junction with Kim Keat Road, Singapore",
+          "title": "First, sort out three names",
+          "action": "Place Sim Kwong Ho, Sim Cheng Neo and Westerhout & Oman as building name, developer and designer.",
+          "rules": "Answers rely on existing URA sources, not on squinting at small lettering high on the facade.",
+          "success": "All three names match the right roles.",
+          "retry": "Correct placements stay; only move the mismatched names.",
+          "accessibility": "Match with name buttons and a role drop-down.",
+          "reward": "Credit ‘The Builders’ and the 1926 fact card.",
+          "next_use": "Stop 4 uses this card again to find the shared developer.",
+          "source_card_ids": [
+            "balestier-02-fact"
+          ],
+          "source_urls": [
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/"
+          ],
+          "historical_fact": "Sim Cheng Neo developed these shophouses in 1926; the building name comes from the words Sim Kwong Ho on the corner facade.",
+          "access_note": "Uses only the street facade and public walkways — no entry to upstairs homes or the back of shops. The facade name, corner sightlines and safe standing spots need checking on site.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 3,
+          "stop_id": "balestier-03",
+          "name": "Lam Yeo Coffee Powder Factory",
+          "address": "328 Balestier Road, Singapore 329760",
+          "title": "From newspapers to coffee",
+          "action": "Order three events — newspaper work, selling coffee on the street in 1959, opening a shop in 1960 — and choose the keyword “Nanyang”.",
+          "rules": "No newspaper job dates are added; no buying, smelling or asking staff required.",
+          "success": "The order is right, and the link between Lam Yeo and Nanyang is spotted.",
+          "retry": "Wrong date cards can be reordered; the story you’ve read stays.",
+          "accessibility": "Move up / Move down buttons and a text ordering choice.",
+          "reward": "Credit ‘The Breadwinners’.",
+          "next_use": "Lets the credits include how people made a living, not just building names.",
+          "source_card_ids": [
+            "balestier-03-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/stories-landing/stories/street-corner-heritage-galleries-balestier",
+            "https://www.roots.gov.sg/places/places-landing/trails/balestier-food-trail"
+          ],
+          "historical_fact": "The founder was once an assistant editor at the Nanyang Siang Pau, sold coffee on the street in 1959 and opened a shop with his wife in 1960; Lam Yeo means Nanyang.",
+          "access_note": "The operator’s website could not be read this round, so full current hours are unconfirmed. If the shop is shut you can still finish with the address, shopfront and digital record; don’t assume this coffee-powder retailer is a café where you can sit and drink.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 4,
+          "stop_id": "balestier-04",
+          "name": "Kwan Yow Luen Shophouses",
+          "address": "412–418 Balestier Road, with focus on the corner at No. 412, Singapore",
+          "title": "The shared developer, restored",
+          "action": "Open the 1926 and 1928 records first, then choose the developer both rows share.",
+          "rules": "Both records must be opened first. The building name and designer can’t stand in for the developer, and the fictional credits don’t pose as a real film’s cast list.",
+          "success": "Both records are open and Sim Cheng Neo is correctly chosen.",
+          "retry": "Shows the “Developer” field on both cards and lets you choose again.",
+          "accessibility": "Opening files and choosing names both work with buttons or the keyboard; the written material never depends on animation.",
+          "reward": "Editing Card ×1 and the credit “The Builders”.",
+          "next_use": "Stop 5 lays the water-supply and passer-by evidence side by side.",
+          "source_card_ids": [
+            "balestier-02-fact",
+            "balestier-04-fact"
+          ],
+          "source_urls": [
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+            "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/"
+          ],
+          "historical_fact": "Developed by Sim Cheng Neo in 1928 and designed by Kwan Yow Luen, this row of shophouses once appeared in a P. Ramlee film.",
+          "access_note": "Observe from the public exterior only; do not enter shops or homes. How much of the door guardians and ornament is actually visible has not been surveyed on site, so the level must keep its archive fallback mode.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "representative_prototype",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 5,
+          "stop_id": "balestier-05",
+          "name": "Boon Teck Road Water Kiosk",
+          "address": "Junction of Boon Teck Road and Balestier Road; associated institution at 1A Boon Teck Road, Singapore",
+          "title": "The Entry With No Payment",
+          "action": "Read the water-supply, passer-by and fictional blank-bill pages; you can use the Editing Card to set the evidence side by side.",
+          "rules": "Whether the buckets are full that day does not affect the level; there is no need to drink the water or touch the fixtures.",
+          "success": "Choose free giving and mutual help, and explain what the records show.",
+          "retry": "The side-by-side effect stays on; choosing again does not spend another card.",
+          "accessibility": "Cards can switch to a vertical text list; the full comparison works without animation.",
+          "reward": "The credit “The Water Giver”.",
+          "next_use": "The credits gain a relationship of everyday care for strangers.",
+          "source_card_ids": [
+            "balestier-05-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+            "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf"
+          ],
+          "historical_fact": "The related charitable halls merged in 1950 and long offered free water and herbal tea to passers-by; NHB records that the water kiosk was kept at this junction.",
+          "access_note": "The kiosk's current appearance, any small shift in position and its water supply still need checking on site. Do not touch, move or occupy the fixtures; the level can be completed without entering the charitable hall. If the fixture is not in place, switch to a junction geolocation plus archive task.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "next_task_prototype",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 6,
+          "stop_id": "balestier-06",
+          "name": "Maha Sasanaramsi Burmese Buddhist Temple",
+          "address": "14 Tai Gin Road, Singapore 327873",
+          "title": "This Reel Holds More Than One Era",
+          "action": "Match 1878, 1921 and 1991 to the original temple, the Buddha statue at the old temple and the completion of the present site, then find the event later than 1967.",
+          "rules": "The years come from the existing fact cards; 1991 must not be written up as a scene filmed before 1967.",
+          "success": "All three pairs match, and you point out that the 1991 building at the present site overturns the single-old-reel assumption.",
+          "retry": "Show the event titles first, then try the dates; you do not need to enter the main hall.",
+          "accessibility": "A three-row table replaces dragging along a timeline.",
+          "reward": "The credit “A Community on the Move” and the Time Camera plot reveal.",
+          "next_use": "The finale places each shot by its real year, while keeping the fictional time-travel note.",
+          "source_card_ids": [
+            "balestier-06-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Maha-Sasanaramsi-Burmese-Buddhist-Temple",
+            "https://www.bbt.org.sg/contact/"
+          ],
+          "historical_fact": "The original temple was set up on Kinta Road in 1878, and the temple at the present site was completed in 1991; the marble Buddha was already enshrined at the old temple in 1921.",
+          "access_note": "When checked, the temple website listed daily hours of 07:00–18:00, which may change for festivals and events; tel. 6251 1717, admin@bbt.org.sg. Religious practice comes first and entering is not required to finish; if closed or unsuitable to visit, use the public-area exterior and the digital archive.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 7,
+          "stop_id": "balestier-07",
+          "name": "Former Malay Film Productions Studio",
+          "address": "8 Jalan Ampas, Singapore; public street outside the former studio",
+          "title": "Credits for a Street",
+          "action": "First collect the seventh studio fact card, then link each of the seven character credits to evidence you already hold.",
+          "rules": "Keep the 1947 restart of production and the 1967 closure apart; the studio only needs confirming from the public road, with no need to go in.",
+          "success": "All seven credits have a sourced match, and no fictional edit changes a historical year.",
+          "retry": "You can rearrange freely; evidence cards already earned are never removed.",
+          "accessibility": "A seven-line list of credits replaces film playback or drag-and-drop editing.",
+          "reward": "Ending keepsake: “The Credits I Wrote for This Street”.",
+          "next_use": "Saves your creation alongside the historical record; a preview never counts as an on-site completion.",
+          "source_card_ids": [
+            "balestier-07-fact"
+          ],
+          "source_urls": [
+            "https://www.nlb.gov.sg/main/article-detail?cmsuuid=5fbdda52-038b-447c-b383-1ec74609166e",
+            "https://biblioasia.nlb.gov.sg/all-sections/vol-11-issue-1-apr-jun-2015-golden-age-of-malay-cinema/",
+            "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Former-Malay-Film-Productions-Studio",
+            "https://www.nhb.gov.sg/-/media/nhb/images/nhb2017/what-we-do/grants/0-minor-and-major-project-grant/heritage-trails---a-practical-guide-to-action.pdf"
+          ],
+          "historical_fact": "The Jalan Ampas studio resumed production in 1947, bringing together Chinese producers, Indian directors and Malay actors; it closed in 1967.",
+          "access_note": "No current public access arrangement has been obtained. Only an exterior stop on the public street is planned: do not assume the studio interior can be visited, and do not ask players to contact a caretaker, knock or pass the gate. Whether the pavement suits 2–4 people pausing must be surveyed; if not, finish the finale at a safe public spot nearby.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        }
+      ],
+      "source_urls": [
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Goh-Chor-Tua-Pek-Kong-Temple",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00163/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd/",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00012/",
+        "https://www.roots.gov.sg/stories-landing/stories/street-corner-heritage-galleries-balestier",
+        "https://www.roots.gov.sg/places/places-landing/trails/balestier-food-trail",
+        "https://www.ura.gov.sg/conservation/find-a-building/conservation-portal/blstrd-00021/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Boon-Teck-Road-Water-Kiosk-and-Thong-Teck-Sian-Tong-Lian-Sin-Sia",
+        "https://www.roots.gov.sg/~/media/Roots/Files/balestier-heritage-trail/nhb17_balestier_trailbooklet_web_2017.pdf",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-historical-landmarks-of-balestier/Maha-Sasanaramsi-Burmese-Buddhist-Temple",
+        "https://www.bbt.org.sg/contact/",
+        "https://www.nlb.gov.sg/main/article-detail?cmsuuid=5fbdda52-038b-447c-b383-1ec74609166e",
+        "https://biblioasia.nlb.gov.sg/all-sections/vol-11-issue-1-apr-jun-2015-golden-age-of-malay-cinema/",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/balestier-heritage-trail-faith-film-and-food/Former-Malay-Film-Productions-Studio",
+        "https://www.nhb.gov.sg/-/media/nhb/images/nhb2017/what-we-do/grants/0-minor-and-major-project-grant/heritage-trails---a-practical-guide-to-action.pdf"
+      ],
+      "fiction_note": "Mariam, the Time Camera, the plea footage, the missing credits, all character dialogue and all fictional props are invented. There is no evidence that the seven places took part in one event; we do not claim to have found a real lost film, nor attribute any case or crime to real historical figures. Numbers, subtitles and route hints on the game screen are not real inscriptions on site. Public exteriors and historical facts ground the story, but artistic 3D reconstructions are not exact historical restorations.",
+      "source_data_unchanged": true,
+      "field_verified": false,
+      "records_real_visit": false
+    },
+    {
+      "route_id": "civic-f1",
+      "story_id": "civic-f1-lost-zero",
+      "title": "The Missing Years: Recovering the City's 25 Years",
+      "prototype_label": "Prototype rule · ability cards take effect at the next level",
+      "core_loop": "Complete three driving rhythms → earn the Boost Card → use three clues to find the fountain → auto-arrange the files → explain the two events behind the 25 years yourself.",
+      "stop_count": 8,
+      "focus_stop_id": "civic-f1-07",
+      "next_stop_id": "civic-f1-08",
+      "ability": {
+        "id": "civic-f1-boost",
+        "title": "Boost Card",
+        "symbol": "⚡",
+        "effect": "At Tan Kim Seng Fountain, sort the three file pages in one go — the donor, the 1857 donation and the 1882 memorial fountain — saving three manual placements.",
+        "grant_rule": "At Stop 7, complete the three driving segments in turn — accelerate, brake, exit the corner — to collect Boost Card ×1. There is no countdown; keyboard and buttons earn the same reward.",
+        "one_use": true,
+        "quantity": 1,
+        "grant_stop_id": "civic-f1-07",
+        "use_stop_id": "civic-f1-08",
+        "grant_puzzle_id": "civic-f1-driving-rhythm",
+        "grant_event": "driving_rhythm_completed",
+        "use_feedback": "Boost Card used: the three file pages slot into place. 1857 and 1882 light up together; the 25 years are still yours to explain.",
+        "unchanged_core": "It will not choose the 25 years for you, nor skip telling the donation apart from the memorial.",
+        "type": "ability",
+        "label": "Prototype ability card",
+        "is_fiction": true,
+        "source_urls": [],
+        "max_quantity_per_run": 1,
+        "grant_is_idempotent": true,
+        "equal_reward_for_accessibility_mode": true,
+        "use_task_id": "civic-f1-next-task",
+        "used_effect_persists_on_retry": true
+      },
+      "representative_puzzle": {
+        "stop_id": "civic-f1-07",
+        "puzzle_id": "civic-f1-driving-rhythm",
+        "kind": "three_stage_driving_rhythm",
+        "title": "Three Drives for One Boost Card",
+        "action": "Control the virtual speed with the on-screen Accelerate, Brake and Confirm buttons; confirm each segment once you reach its target range.",
+        "rules": [
+          "Complete the virtual speed ranges 60–90, 30–50 and 70–100 in order; boundary values count as a pass.",
+          "Virtual speed is only a game scale — not real road advice or real F1 telemetry.",
+          "Adjust each segment as often as you like before confirming; confirming outside the range only gives a hint, and finished segments are kept.",
+          "Finishing all three segments first awards Boost Card ×1; then use WATER, DONOR, FOUNTAIN and the Tan Kim Seng character card to choose the next stop.",
+          "No countdown, crash penalty, real-world racing or leaderboard; everything happens on your phone or computer screen."
+        ],
+        "options": [],
+        "correct_answer": "complete-all-three-segments",
+        "success": "Three rhythms done. Boost Card ×1 is in your deck; the water, donor and fountain clues are all here.",
+        "retry": "Retry as often as you like; no history cards are lost and this run's progress stays.",
+        "accessibility": "Adjust the virtual speed step by step with buttons or the keyboard, and confirm once you reach the target range. No countdown, no long presses, no split-second timing.",
+        "reward_ability_id": "civic-f1-boost",
+        "source_card_ids": [
+          "civic-f1-05-fact",
+          "civic-f1-preview-detail"
+        ],
+        "source_urls": [
+          "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+          "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+          "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+          "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+          "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge",
+          "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+          "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+          "https://singaporegp.sg/en/event-info/circuit-park-map/",
+          "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+          "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+          "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+          "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+          "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html"
+        ],
+        "mechanic_status": "prototype_rule",
+        "requires_staff": false,
+        "requires_purchase": false,
+        "requires_building_entry": false,
+        "timer_enabled": false,
+        "controls": {
+          "initial_speed": 0,
+          "min_speed": 0,
+          "max_speed": 100,
+          "adjustment_step": 10,
+          "unit": "Virtual speed scale",
+          "confirm_mode": "manual",
+          "hold_required": false,
+          "speed_is_real_world_guidance": false,
+          "buttons": [
+            "Accelerate",
+            "Brake",
+            "Confirm segment"
+          ],
+          "keyboard_equivalent": true
+        },
+        "segments": [
+          {
+            "id": "straight",
+            "order": 1,
+            "title": "Straight-line acceleration",
+            "action": "accelerate",
+            "target_min": 60,
+            "target_max": 90,
+            "inclusive": true,
+            "clue_card_id": "civic-f1-preview-water",
+            "clue_label": "WATER",
+            "success": "Straight done. WATER collected.",
+            "too_low": "Not yet 60 — keep accelerating, then confirm.",
+            "too_high": "Over 90 — tap the brake to get back in range."
+          },
+          {
+            "id": "corner",
+            "order": 2,
+            "title": "Braking into the corner",
+            "action": "brake",
+            "target_min": 30,
+            "target_max": 50,
+            "inclusive": true,
+            "clue_card_id": "civic-f1-preview-donor",
+            "clue_label": "DONOR",
+            "success": "Corner approach done. DONOR collected.",
+            "too_low": "Below 30 — tap accelerate, then confirm.",
+            "too_high": "Still above 50 — keep braking."
+          },
+          {
+            "id": "exit",
+            "order": 3,
+            "title": "Powering out of the corner",
+            "action": "accelerate",
+            "target_min": 70,
+            "target_max": 100,
+            "inclusive": true,
+            "clue_card_id": "civic-f1-preview-fountain",
+            "clue_label": "FOUNTAIN",
+            "success": "All three segments done. FOUNTAIN and Boost Card ×1 collected.",
+            "too_low": "Not yet 70 — keep accelerating, then confirm.",
+            "too_high": "Get back into the 70–100 range before confirming."
+          }
+        ],
+        "speed_carries_between_segments": true,
+        "completed_segments_persist": true,
+        "grant_event": "driving_rhythm_completed",
+        "same_run_replay_grants_again": false,
+        "destination_choice": {
+          "question": "After the three driving segments, connect the three clues with the Tan Kim Seng character card and choose the next stop.",
+          "options": [
+            {
+              "id": "tan-kim-seng-fountain",
+              "label": "Tan Kim Seng Fountain",
+              "detail": "Tan Kim Seng Fountain"
+            },
+            {
+              "id": "victoria-clock-tower",
+              "label": "Victoria clock tower",
+              "detail": "Victoria Theatre & Concert Hall"
+            },
+            {
+              "id": "bronze-elephant",
+              "label": "Bronze Elephant",
+              "detail": "Bronze Elephant outside The Arts House"
+            }
+          ],
+          "correct_answer": "tan-kim-seng-fountain",
+          "source_card_ids": [
+            "civic-f1-05-fact",
+            "civic-f1-preview-detail",
+            "civic-f1-preview-water",
+            "civic-f1-preview-donor",
+            "civic-f1-preview-fountain"
+          ],
+          "failure_does_not_remove_ability": true
+        },
+        "accessible_mode": {
+          "id": "keyboard-or-button",
+          "title": "Buttons and keyboard",
+          "actions": [
+            "Accelerate step by step to 60–90 and confirm",
+            "Brake step by step to 30–50 and confirm",
+            "Accelerate step by step to 70–100 and confirm"
+          ],
+          "requires_precise_timing": false,
+          "same_ability_reward": true,
+          "description": "Buttons and keyboard run the same three-segment drive; the virtual speed is shown as text, with no countdown and nothing you must hold down."
+        },
+        "fiction_note": "The three track segments, the virtual speed and the WATER / DONOR / FOUNTAIN captions are prototype rules and story props — not a replica of the official circuit, real driving advice or real F1 race records.",
+        "actions": [
+          "Bring the virtual speed to 60–90, then confirm.",
+          "Slow to 30–50, then confirm.",
+          "Speed up to 70–100, then confirm."
+        ]
+      },
+      "gameplay_steps": [
+        {
+          "order": 1,
+          "title": "Straight-line acceleration",
+          "action": "Bring the virtual speed to 60–90, then confirm.",
+          "feedback": "Segment one lights up and you get the fictional caption WATER; if you're out of range, keep adjusting.",
+          "stop_id": "civic-f1-07",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 2,
+          "title": "Braking into the corner",
+          "action": "Slow to 30–50, then confirm.",
+          "feedback": "Segment two lights up and you get the fictional caption DONOR; segment one's progress is kept.",
+          "stop_id": "civic-f1-07",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 3,
+          "title": "Powering out of the corner",
+          "action": "Speed up to 70–100, then confirm.",
+          "feedback": "Segment three lights up and you get the fictional caption FOUNTAIN.",
+          "stop_id": "civic-f1-07",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 4,
+          "title": "Collect the card and read the clues",
+          "action": "Collect Boost Card ×1 and, with the Tan Kim Seng character card, choose “Tan Kim Seng Fountain”.",
+          "feedback": "A correct destination reveals Stop 8; a wrong choice can be changed, and you won't lose the Boost Card.",
+          "stop_id": "civic-f1-07",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 5,
+          "title": "Sort the three file pages",
+          "action": "Enter the fountain chapter and use the Boost Card to place all three pages automatically, or tap to place them one by one.",
+          "feedback": "The person, the 1857 donation and the 1882 memorial fountain sit side by side; either way you can carry on.",
+          "stop_id": "civic-f1-08",
+          "mechanic_status": "prototype_rule"
+        },
+        {
+          "order": 6,
+          "title": "Explain the 25 years",
+          "action": "Choose the answer that links the 25 years to the donation and the later memorial, then read the one-line explanation to check your understanding.",
+          "feedback": "The timer resets and the City Timekeeper ending appears; this record is never treated as an on-site visit.",
+          "stop_id": "civic-f1-08",
+          "mechanic_status": "prototype_rule"
+        }
+      ],
+      "next_task": {
+        "id": "civic-f1-next-task",
+        "stop_id": "civic-f1-08",
+        "title": "Sort Fast, Solve the 25 Years Yourself",
+        "setup": "At Tan Kim Seng Fountain you open three scattered file pages. You can place them one by one, or use the Boost Card you just earned to put the person, the donation and the memorial back in place at once.",
+        "manual_items": [
+          {
+            "id": "donor",
+            "label": "The donor",
+            "text": "Person file: Tan Kim Seng, the public water-supply donor in this puzzle.",
+            "is_fiction": false
+          },
+          {
+            "id": "donation",
+            "label": "1857 · Donation",
+            "text": "In 1857 Tan Kim Seng donated $13,000 to improve the public water supply.",
+            "is_fiction": false
+          },
+          {
+            "id": "memorial",
+            "label": "1882 · Memorial fountain",
+            "text": "A fountain commemorating Tan Kim Seng was put up in 1882.",
+            "is_fiction": false
+          }
+        ],
+        "manual_rule": "Tap each slip to open it. You can read everything without an ability card and go back any time; no timer, no points lost.",
+        "question": "How many years lie between the two dates? Which two kinds of event does the gap mark?",
+        "options": [
+          {
+            "id": "25-years",
+            "label": "25 years: the donation and the memorial fountain that came later",
+            "detail": "1882 − 1857 = 25; the two years mark different events."
+          },
+          {
+            "id": "25-years-construction",
+            "label": "25 years: how long the fountain took to build",
+            "detail": "Treats the two years as the start and end of one construction job."
+          },
+          {
+            "id": "same-event",
+            "label": "0 years: both dates describe the same thing",
+            "detail": "Merges the year of the donation with the year the memorial was put up."
+          }
+        ],
+        "correct_answer": "25-years",
+        "success": "The timer recovers its 25 years. The donation and the memorial each return to their true year, and the City Timekeeper ending card unfolds.",
+        "explanation_prompt": "Why did you decide this way? Put your reason into one sentence first, then check it against the reference explanation.",
+        "explanation": "1857 was the donation to improve the public water supply; 1882 was when the memorial fountain was put up — 25 years apart. The gap cannot be read as 25 years of construction; the dates are historical fact, the City Timer's fault is fiction.",
+        "explanation_mode": "self_check_no_ai_score",
+        "explanation_is_auto_scored": false,
+        "card_effect": "Automatically sorts the three file pages and marks them placed, saving three manual taps; the core question and its explanation stay fully in your hands.",
+        "effect_type": "auto_arrange",
+        "highlight_terms": [
+          "1857",
+          "1882"
+        ],
+        "eliminate_option_id": "",
+        "source_card_ids": [
+          "civic-f1-05-fact",
+          "civic-f1-preview-detail",
+          "civic-f1-08-fact"
+        ],
+        "source_urls": [
+          "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+          "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+          "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+          "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+          "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge",
+          "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/"
+        ],
+        "failure_feedback": "One piece of evidence still doesn't fit. Compare the fact cards and story props again; what you've read and any active ability stay.",
+        "retry": "Choose again as often as you like; a used card is never charged twice, and the hint lasts until the level ends.",
+        "accessibility": "All evidence and options have text labels and can be tapped or chosen by keyboard one by one; no dragging, on-site photos, listening tests or timed moves.",
+        "reward": "This chapter's story fragment and a hint for the next stop; using the card and solving it yourself earn the same reward.",
+        "core_reasoning_is_required": true,
+        "card_does_not_answer_question": true,
+        "mechanic_status": "prototype_rule",
+        "field_verified": false,
+        "records_real_visit": false,
+        "ability_id": "civic-f1-boost",
+        "place_name": "Tan Kim Seng Fountain: The Missing 25 Years",
+        "manual_items_required": 3,
+        "ability_use_label": "Use Boost Card",
+        "manual_label": "Sort the evidence myself",
+        "effect_feedback": "Boost Card used: the three file pages slot into place. 1857 and 1882 light up together; the 25 years are still yours to explain.",
+        "effect_target_item_ids": [
+          "donor",
+          "donation",
+          "memorial"
+        ],
+        "auto_complete_manual_items": true,
+        "after_success_target": "ending"
+      },
+      "level_plan": [
+        {
+          "order": 1,
+          "stop_id": "civic-f1-01",
+          "name": "Gate of Hope",
+          "address": "Victoria Street side of CHIJMES, 30 Victoria Street, Singapore 187996",
+          "title": "The Gate's Name and Where Care Began",
+          "action": "Read the two date cards: put 1854 at the start of care, and 1996 at the naming of the Gate of Hope.",
+          "rules": "Material about real infants and their care stays plain and factual; it must never become a scare or a door-opening task.",
+          "success": "Both kinds of dated event are matched correctly.",
+          "retry": "Shows the event titles; you can match again. No need to enter the grounds.",
+          "accessibility": "The text version of the records is enough to finish; you don't need to see the sign on the gate.",
+          "reward": "Care fact card and fictional calibration fragment A.",
+          "next_use": "Sets up a way to tell commemoration apart from the time of an event, for later stops.",
+          "source_card_ids": [
+            "civic-f1-01-fact"
+          ],
+          "source_urls": [
+            "https://chijmes.com.sg/heritage/",
+            "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/former-convent-of-the-holy-infant-jesus-chapel-and-caldwell-house-now-chijmes"
+          ],
+          "historical_fact": "From 1854 the convent cared for abandoned baby girls; in 1996 this gate was named the Gate of Hope.",
+          "access_note": "Use only the open street-side walkway and visible signage; the CHIJMES Hall wedding venue and other indoor spaces are not required stops. Private events and site hoardings take priority.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 2,
+          "stop_id": "civic-f1-02",
+          "name": "The Family Side of the Former Hill Street Police Station",
+          "address": "140 Hill Street, Singapore 179369",
+          "title": "A Police Station Was Also a Home",
+          "action": "Compare the records on the old station and choose the description that covers both police work and family life.",
+          "rules": "No need to enter the government offices; no window counts, room counts or other unlisted data are added.",
+          "success": "Choose police work + family life.",
+          "retry": "Reread the evidence about the quarters and the children's playground, then choose again.",
+          "accessibility": "Full-text choice; nothing depends on colour or recognising the façade.",
+          "reward": "“The Station Was Also a Home” and calibration fragment B.",
+          "next_use": "A public building does more than its exterior suggests — groundwork for gifts and public contributions.",
+          "source_card_ids": [
+            "civic-f1-02-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Hill-Street-Police-Station"
+          ],
+          "historical_fact": "Completed in 1934, the building housed not only police facilities but also quarters for officers and their families, with a children's playground.",
+          "access_note": "Now used as government offices. View the exterior only, follow security and visitor rules, and do not enter office areas or treat any office entrance as a game zone.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 3,
+          "stop_id": "civic-f1-03",
+          "name": "The Siamese Bronze Elephant outside The Arts House (Old Parliament House)",
+          "address": "Outside The Arts House, 1 Old Parliament Lane, Singapore 179429",
+          "title": "Which Scripts Does the Gift Cross?",
+          "action": "Use the existing info cards to identify English, Siamese (Thai), Jawi and Chinese, and tell apart the events of 1871, 1872 and 1919.",
+          "rules": "You don't need to read four languages, and the visit, the installation and the relocation must not be squashed into one year.",
+          "success": "Pick all four scripts correctly and put the three events in place.",
+          "retry": "You can view each script's text label and the explanation of each event.",
+          "accessibility": "No need to circle the plinth looking for the original lettering, and no need to type in foreign scripts.",
+          "reward": "Gift history card and a fictional language calibration card.",
+          "next_use": "The difference between a gift and a memorial carries through to the finale.",
+          "source_card_ids": [
+            "civic-f1-03-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/Collection-Landing/listing/1071116?taigerlist=collections",
+            "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Parliament-House",
+            "https://www.singaporeartmuseum.sg/-/media/SAM/Files/Exhibitions/The-Gift/The-Gift-of-Entanglement_-June-Yap.pdf"
+          ],
+          "historical_fact": "The bronze elephant commemorates King Chulalongkorn (Rama V)'s 1871 visit; it was set up in front of the Town Hall in 1872 and moved to today's Arts House in 1919.",
+          "access_note": "Use only the open public paths outside The Arts House; do not enter the chamber or performance spaces. During ceremonies, events or hoardings, use the remote info card instead.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 4,
+          "stop_id": "civic-f1-04",
+          "name": "The Benchmark Story at Cavenagh Bridge",
+          "address": "Public riverside path at the northern end of Cavenagh Bridge, near Asian Civilisations Museum, Empress Place, Singapore",
+          "title": "What the Arrow and the Line Do",
+          "action": "Compare the redrawn generic symbol with the NHB fact card, and choose its role: recording a known height reference.",
+          "rules": "You may skip looking for the original carving; do not search under the bridge, on the riverbank or beyond the railings.",
+          "success": "Choose benchmark / height reference.",
+          "retry": "The symbol comes with a written explanation; you can choose again.",
+          "accessibility": "Read the text version of what surveyors used it for; you don't need to find the mark on site.",
+          "reward": "Benchmark card and calibration fragment C.",
+          "next_use": "Treat calibration as understanding your reference point, not as racing to finish first.",
+          "source_card_ids": [
+            "civic-f1-04-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/stories-landing/stories/all-around-us/Story",
+            "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+            "https://www.nparks.gov.sg/docs/default-source/parks-docs/shared/monument-trail.pdf?sfvrsn=e0a5424e_1"
+          ],
+          "historical_fact": "NHB records that the north abutment keeps a survey benchmark from around 1882, marked with a broad arrow and a line to show a known height reference.",
+          "access_note": "The location in the records is verified, but whether the original mark can be clearly seen from the public walkway in 2026 has not been checked on site. The geo point is the safe bridgehead walkway, not the mark itself; finding the mark is never required to pass.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 5,
+          "stop_id": "civic-f1-05",
+          "name": "Dalhousie Obelisk",
+          "address": "Empress Place, near Asian Civilisations Museum and Victoria Theatre & Concert Hall, Singapore",
+          "title": "The People Behind the Obelisk",
+          "action": "Identify Tan Kim Seng among the existing records on merchants and public contributions, and keep the public water-supply clue.",
+          "rules": "1850 is the year of the commemorated visit; no question asks about unverified details of the obelisk's relocation.",
+          "success": "The character card links to the local merchants' fundraising and the public-contribution clues.",
+          "retry": "You can reread the person's details; no need to guess names from the inscription on site.",
+          "accessibility": "Name buttons show both Chinese and English; no need to scan the monument.",
+          "reward": "Tan Kim Seng character card.",
+          "next_use": "Together with Stop 7's WATER, DONOR and FOUNTAIN, it points to the fountain.",
+          "source_card_ids": [
+            "civic-f1-05-fact"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+            "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+            "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ"
+          ],
+          "historical_fact": "The obelisk marks the Governor-General's visit in 1850; local merchants including Tan Kim Seng raised the funds and used it to voice their support for free trade.",
+          "access_note": "Stop on the public walkway to observe; do not climb the plinth, and museum entry or gallery opening is not a condition for visiting the obelisk. During event controls you may skip the on-site part.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 6,
+          "stop_id": "civic-f1-06",
+          "name": "The Victoria Clock Tower and the Old Name That Never Left",
+          "address": "9 Empress Place, Singapore 179556",
+          "title": "The Old Name Is Still on the Wall",
+          "action": "Match the old name Memorial Hall with the 1979 renaming to Concert Hall, and identify the clock tower that joins the two buildings.",
+          "rules": "No need to climb the tower, enter the halls or wait for the chimes; an old name on the wall does not mean the old institution's title is still in use.",
+          "success": "Old name, current name and the renaming are correctly told apart.",
+          "retry": "Keep comparing with the digital records; no need to read the lettering high up.",
+          "accessibility": "A text comparison table replaces building photos.",
+          "reward": "Public time card and the fictional simulator start card.",
+          "next_use": "Starts the three-segment screen drive at the next stop.",
+          "source_card_ids": [
+            "civic-f1-06-fact"
+          ],
+          "source_urls": [
+            "https://www.sg101.gov.sg/resources/archives/heritage-victoria-theatre-and-victoria-concert-hall/",
+            "https://www.roots.gov.sg/-/media/Roots/Files/Civic-District-Heritage-Trail/Civic-District-Trail_Booklet.pdf"
+          ],
+          "historical_fact": "The Memorial Hall was renamed Victoria Concert Hall in 1979, yet the old name remains on its outer wall; the central clock tower joins the two buildings.",
+          "access_note": "Clock-tower climbs and interior tours are separate activities that need booking, and are not part of this free exterior route. Event closures on public roads, squares and building forecourts take priority.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "level_design",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 7,
+          "stop_id": "civic-f1-07",
+          "name": "Waterfront Public Walkway: Virtual Racing Unlocks the Next Stop",
+          "address": "Candidate standing area on an open public pedestrian path at the southern end of Esplanade Park, near Queen Elizabeth Walk and Jubilee Bridge, Singapore; exact pin pending site check",
+          "title": "Three Drives, One Boost Card",
+          "action": "Confirm in turn: accelerate to 60–90, brake to 30–50, exit the corner at 70–100; then read the clues and choose the fountain.",
+          "rules": "It's all a virtual speed scale; buttons and keyboard both adjust step by step. You never walk or race on a real road, and there is no countdown penalty.",
+          "success": "All three segments reach their range, then Tan Kim Seng Fountain is chosen correctly; the card is already awarded once the three segments are done.",
+          "retry": "Only the current segment is retried; passed segments and the card are kept, and no second card is awarded in the same run.",
+          "accessibility": "Buttons and keyboard run the same three-segment drive; adjust step by step by the speed shown in text, then confirm. No countdown, same reward.",
+          "reward": "Boost Card ×1 and the WATER / DONOR / FOUNTAIN clues.",
+          "next_use": "At Stop 8, places all three file pages at once, saving three manual sorts.",
+          "source_card_ids": [
+            "civic-f1-05-fact",
+            "civic-f1-07-fact",
+            "civic-f1-preview-detail"
+          ],
+          "source_urls": [
+            "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+            "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+            "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+            "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+            "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+            "https://singaporegp.sg/en/event-info/circuit-park-map/",
+            "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+            "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+            "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+            "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+            "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html",
+            "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+            "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge"
+          ],
+          "historical_fact": "The 2026 Singapore Grand Prix runs from 9 to 11 October; the official Connaught Grandstand information links Esplanade Bridge with Turn 14.",
+          "access_note": "The walkway is only for viewing from afar and triggering the virtual game; the real track roads, grandstands, paddock and service lanes are never game destinations. In the race guide, Jubilee is Gate 6 and must not be treated as a ticket-free entrance during race week. During the race, set-up, take-down or other hoardings, this on-site trigger is switched off and a remote unlock is offered from a legitimate resting spot; players without tickets are never led towards the gates. The exact waiting area and location tolerance must be confirmed on site, so no precise coordinates are given yet.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "representative_prototype",
+          "field_verified": false,
+          "records_real_visit": false
+        },
+        {
+          "order": 8,
+          "stop_id": "civic-f1-08",
+          "name": "Tan Kim Seng Fountain: The Missing 25 Years",
+          "address": "Esplanade Park, along Connaught Drive near Stamford Road, Singapore",
+          "title": "Sort Faster — the Judgement Is Still Yours",
+          "action": "Place the three pages by hand or with the Boost Card, then decide what the 25 years between 1857 and 1882 mean.",
+          "rules": "Boosting does not skip the history question; the 25 years are not a construction period, and the fictional timer fault never enters the historical record.",
+          "success": "Choose the answer linking the 25 years to the donation and the later memorial, and check the explanation.",
+          "retry": "Sorted files stay in place and you can choose again as often as you like; no second card is deducted.",
+          "accessibility": "The three file pages and the calculation are all in full text, with item-by-item keyboard support.",
+          "reward": "Ending keepsake: “City Timekeeper”.",
+          "next_use": "Saves the fact-and-fiction comparison; no real race result or on-site visit is recorded.",
+          "source_card_ids": [
+            "civic-f1-08-fact",
+            "civic-f1-preview-detail"
+          ],
+          "source_urls": [
+            "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+            "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+            "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge",
+            "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+            "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+            "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour"
+          ],
+          "historical_fact": "In 1857 Tan Kim Seng donated $13,000 to improve the public water supply; the fountain in his memory was put up in 1882.",
+          "access_note": "Esplanade Park is usually open 24 hours, but race and event closures still take priority. There are no physical prizes, staff or stickers to scan on the monument; if redemption is added later, it must be at a clearly permitted venue.",
+          "mechanic_status": "prototype_rule",
+          "preview_scope": "next_task_prototype",
+          "field_verified": false,
+          "records_real_visit": false
+        }
+      ],
+      "source_urls": [
+        "https://chijmes.com.sg/heritage/",
+        "https://www.roots.gov.sg/places/places-landing/Places/national-monuments/former-convent-of-the-holy-infant-jesus-chapel-and-caldwell-house-now-chijmes",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Hill-Street-Police-Station",
+        "https://www.roots.gov.sg/Collection-Landing/listing/1071116?taigerlist=collections",
+        "https://www.roots.gov.sg/places/places-landing/Places/landmarks/Civic-District-Heritage-Trail/Former-Parliament-House",
+        "https://www.singaporeartmuseum.sg/-/media/SAM/Files/Exhibitions/The-Gift/The-Gift-of-Entanglement_-June-Yap.pdf",
+        "https://www.roots.gov.sg/stories-landing/stories/all-around-us/Story",
+        "https://www.nparks.gov.sg/visit/parks/civic-district-heritage-walk-tour",
+        "https://www.nparks.gov.sg/docs/default-source/parks-docs/shared/monument-trail.pdf?sfvrsn=e0a5424e_1",
+        "https://www.roots.gov.sg/-/media/Roots/Files/singapore-river-walk/nhb_singpaore-river-walk_2018.pdf",
+        "https://artsandculture.google.com/asset/tan-kim-seng-fountain-at-its-current-location-on-the-esplanade/MgEpC3eZG3r0CQ",
+        "https://www.sg101.gov.sg/resources/archives/heritage-victoria-theatre-and-victoria-concert-hall/",
+        "https://www.roots.gov.sg/-/media/Roots/Files/Civic-District-Heritage-Trail/Civic-District-Trail_Booklet.pdf",
+        "https://www.nparks.gov.sg/visit/parks/park-detail/esplanade-park/",
+        "https://www.esplanade.com/visit/venues-and-spaces/spaces/waterfront-canopy",
+        "https://singaporegp.sg/en/event-info/circuit-park-map/",
+        "https://storage.singaporegp.sg/web/2026/circuit-park-map/circuit-park-map.jpg?1015=",
+        "https://singaporegp.sg/en/tickets/general-tickets/grandstands/connaught-grandstand/",
+        "https://singaporegp.sg/en/event-info/eventguide/general/getting-here/getting-out/",
+        "https://singaporegp.sg/en/faq/ticketing/purchases-and-orders/",
+        "https://www.lta.gov.sg/content/ltagov/en/newsroom/2026/9/news-releases/road-closure-and-transport-arrangements-f1-spore-grand-prix-26.html",
+        "https://www.roots.gov.sg/-/media/Roots/Files/tiong-bahru-heritage-trail/nhb_tiong-bahru-heritage-trail_2018.pdf?hash=CEE127E71F15924212FACAB38A03F59D2492C132&la=en",
+        "https://www.roots.gov.sg/places/places-landing/Places/surveyed-sites/Kim-Seng-Bridge"
+      ],
+      "fiction_note": "The file restorer, every year turning into 2026, the calibration cards, the three English words in the race and the timer fault are all original fiction. Real people are not given unevidenced private conversations or secret actions. Historical facts follow each stop's source_urls. The existing 3D game has not been consulted or connected, so we do not assume its track year, assets, code, interfaces or completion callbacks are compatible with this plan.",
+      "source_data_unchanged": true,
+      "field_verified": false,
+      "records_real_visit": false
+    }
+  ]
+}

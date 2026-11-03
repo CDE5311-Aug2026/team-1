@@ -1,0 +1,1948 @@
+/* My Space v3 (Figma S1–S4). */
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  /* The shared content column on every screen size (v2 rule: every page uses Today's column). */
+  margin: 0 auto;
+  padding-top: 0.5rem;
+  color: #23211d;
+}
+
+.header,
+.subHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3rem;
+}
+
+.subHeader {
+  justify-content: flex-start;
+  gap: 0.75rem;
+}
+
+.logoLink {
+  display: inline-flex;
+  border-radius: 12px;
+}
+
+.square {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 14px;
+  border: 1px solid #dedad2;
+  background: #fff;
+  color: #23211d;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.pageTitle {
+  margin: 0.25rem 0 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.square:focus-visible,
+.logoLink:focus-visible,
+.row:focus-visible,
+.knowsButton:focus-visible,
+.switch:focus-visible,
+.segment:focus-visible,
+.perm:focus-visible,
+.clear:focus-visible,
+.exportBtn:focus-visible,
+.hold:focus-visible,
+.rank:focus-visible,
+.save:focus-visible,
+.cancel:focus-visible,
+.trash:focus-visible {
+  outline: 2px solid #23211d;
+  outline-offset: 2px;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .holder,
+  .knows,
+  .card,
+  .perm,
+  .hero,
+  .square,
+  .exportBtn,
+  .hold,
+  .sheetPanel {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+/* ---------- Holder ---------- */
+
+.holder {
+  padding: 0.875rem 1rem 0.75rem;
+  border-radius: 24px;
+  background:
+    repeating-radial-gradient(circle at 90% 10%, rgba(228, 103, 31, 0.05) 0 1px, transparent 1px 7px),
+    linear-gradient(160deg, #fbf3e8, #f6ead9);
+  box-shadow: 0 10px 24px rgba(35, 33, 29, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.holderHead {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #a3400a;
+}
+
+.holderHead > :last-child {
+  color: #4d473f;
+}
+
+.holderRule {
+  flex: 1;
+  border-top: 1px dashed #d8b89f;
+}
+
+.holderBody {
+  display: flex;
+  gap: 0.875rem;
+  margin-top: 0.75rem;
+}
+
+.holderPhoto {
+  flex: none;
+  width: 5.25rem;
+  height: 6.5rem;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(45deg, rgba(31, 58, 138, 0.06) 0 2px, transparent 2px 6px),
+    #dfe6f4;
+  border: 1px solid #c9d3ea;
+}
+
+.holderPhoto span {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #1f3a8a;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.375rem;
+}
+
+.holderMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.holderName {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.holderInitial {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.rank {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  border: 1.5px solid #f0b48c;
+  background: #fff2eb;
+  color: #a3400a;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.stats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.375rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  padding: 0.375rem 0.25rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid #ece2d4;
+}
+
+.stat dt {
+  font-size: 0.75rem;
+  color: #4d4a44;
+}
+
+.stat dd {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.holderMrz {
+  margin: 0.625rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #4d473f;
+}
+
+/* ---------- What the app knows ---------- */
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.kicker {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4d473f;
+}
+
+.sectionHead .kicker {
+  margin: 0;
+}
+
+.kickerAside {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: #3a3731;
+}
+
+.knowsGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.knows {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+  min-width: 0;
+}
+
+.knowsTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+}
+
+.knowsLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4d473f;
+}
+
+.visual {
+  height: 4.25rem;
+  display: flex;
+  align-items: center;
+}
+
+/* The whole tile is the edit button (stretched), except the eye above it. */
+.knowsButton {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 24px;
+}
+
+.knowsButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+}
+
+.knowsButton:focus-visible {
+  outline: none;
+}
+
+.knowsButton:focus-visible::after {
+  outline: 2px solid #23211d;
+  outline-offset: 2px;
+}
+
+.knowsValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.knowsUse {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: #4d4a44;
+}
+
+.route {
+  display: flex;
+  align-items: center;
+}
+
+.arc {
+  width: 3rem;
+  height: 1.5rem;
+  margin: 0 -0.25rem;
+  align-self: flex-start;
+}
+
+.miniTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.miniIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #fff2eb;
+  color: #e4671f;
+}
+
+.miniTrack {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.miniTrack::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 2px solid rgba(120, 78, 30, 0.2);
+}
+
+.miniStop,
+.miniStopOn {
+  position: relative;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: #cdb894;
+}
+
+.miniStopOn {
+  width: 1rem;
+  height: 1rem;
+  background: #e4671f;
+}
+
+.roleVisual {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.roleBox {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: #fff2eb;
+  color: #e4671f;
+}
+
+.roleLines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.roleLines span {
+  height: 0.375rem;
+  border-radius: 3px;
+  background: rgba(120, 78, 30, 0.16);
+}
+
+.roleLines span:nth-child(2) {
+  width: 75%;
+}
+
+.roleLines span:nth-child(3) {
+  width: 55%;
+  background: #f6d5c0;
+}
+
+.langVisual {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.langBig {
+  min-width: 3rem;
+  height: 2.75rem;
+  padding: 0 0.375rem;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #23211d;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.bubble {
+  padding: 0.375rem 0.75rem;
+  border-radius: 14px 14px 14px 4px;
+  background: #fff2eb;
+  color: #a3400a;
+  font-weight: 700;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 6rem;
+}
+
+.miniMap {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #4d7ea2;
+}
+
+.miniMap img {
+  position: absolute;
+  max-width: none;
+}
+
+.miniPin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -1.625rem 0 0 -0.8125rem;
+  color: #e4671f;
+}
+
+.miniPin svg {
+  fill: #fff;
+}
+
+.stack {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.stackCard {
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  width: 3.25rem;
+  height: 3.75rem;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  background: #ddd;
+}
+
+.stackCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stackRank {
+  position: absolute;
+  left: 0.125rem;
+  top: 0.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: #fff;
+  color: #23211d;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+.stackRankOn {
+  background: #e4671f;
+  color: #fff;
+}
+
+/* ---------- Cards, rows, switches ---------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+  overflow: hidden;
+}
+
+.row,
+.switchRow,
+.storeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.5rem;
+  padding: 0.625rem 0.875rem;
+  border: 0;
+  border-top: 1px solid #efebe4;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.row {
+  cursor: pointer;
+}
+
+.card > :first-child,
+.card > .bar + .storeRow {
+  border-top: 0;
+}
+
+.rowIcon {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #fff2eb;
+  color: #e4671f;
+  font-weight: 800;
+  font-size: 0.875rem;
+}
+
+.rowIconBlue {
+  background: #e6ecfb;
+  color: #1f3a8a;
+}
+
+.rowText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.rowTitle {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.rowSub {
+  font-size: 0.75rem;
+  color: #4d4a44;
+}
+
+.rowValue {
+  font-size: 0.875rem;
+  color: #3a3731;
+  white-space: nowrap;
+}
+
+.rowChevron {
+  flex: none;
+  color: #8f8a82;
+}
+
+.rowPad {
+  padding: 0.75rem 0.875rem;
+  border-top: 1px solid #efebe4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.inlineHead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.inlineHead .rowTitle {
+  flex: 1;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #4d4a44;
+}
+
+.switch {
+  position: relative;
+  flex: none;
+  width: 3.25rem;
+  height: 1.875rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d6d0c5;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  inset: -0.4375rem 0;
+}
+
+.switch[aria-checked='true'] {
+  background: #e4671f;
+}
+
+.knob {
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.switch[aria-checked='true'] .knob {
+  transform: translateX(1.375rem);
+}
+
+.segmented {
+  display: flex;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: #f1efe9;
+}
+
+.segment {
+  flex: 1;
+  min-height: 2.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #3a3731;
+  cursor: pointer;
+}
+
+.segment[aria-checked='true'] {
+  background: #23211d;
+  color: #fff;
+}
+
+.motionPreview {
+  width: 3rem;
+  height: 2rem;
+  border-radius: 10px;
+  background: #f1efe9;
+  display: flex;
+  align-items: center;
+  padding: 0 0.25rem;
+}
+
+.motionDot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #e4671f;
+}
+
+.footerNote {
+  margin: 0.5rem 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #5f5b54;
+}
+
+.credits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  max-height: 50vh;
+  overflow: auto;
+}
+
+.credits li {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #efebe4;
+}
+
+.credits a {
+  color: #a3400a;
+}
+
+.creditSubject {
+  font-weight: 600;
+  color: #23211d;
+}
+/* ---------- Privacy (S3) ---------- */
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 24px;
+  background: #23211d;
+  color: #fff;
+}
+
+.heroShield {
+  flex: none;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1.5px dashed rgba(255, 255, 255, 0.35);
+  color: #f3b07f;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.heroText {
+  margin: 0.375rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #e8e3da;
+}
+
+.permGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.permGrid > li {
+  display: flex;
+}
+
+.perm {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border-radius: 20px;
+  border: 1px solid #f2c7a9;
+  background: #fff;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+button.perm {
+  cursor: pointer;
+}
+
+div.perm {
+  border-color: #e3ded5;
+}
+
+.permTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  margin-bottom: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.permIcon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #fff2eb;
+  color: #e4671f;
+}
+
+.permOn,
+.permOff {
+  padding: 0.1875rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.permOn {
+  background: #e3f3e7;
+  color: #1d6b35;
+}
+
+.permOff {
+  background: #efece6;
+  color: #4d4a44;
+}
+
+.total {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.bar {
+  display: flex;
+  gap: 3px;
+  height: 0.75rem;
+  margin: 0.875rem 0.875rem 0.375rem;
+}
+
+.bar span {
+  border-radius: 6px;
+  min-width: 0.375rem;
+}
+
+.storeIcon {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.size {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.clear {
+  min-height: 2.75rem;
+  min-width: 3.75rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #dedad2;
+  background: #fff;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #23211d;
+  cursor: pointer;
+}
+
+.clearSpacer {
+  width: 3.75rem;
+  flex: none;
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border-radius: 24px;
+  border: 0;
+  background: #fff;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+}
+
+.deleteText {
+  margin: 0;
+  padding: 0.875rem 0.875rem 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #3a3731;
+}
+
+.hold {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0.875rem 0.875rem;
+  min-height: 3.25rem;
+  border-radius: 16px;
+  border: 1.5px solid #b3261e;
+  background: #fff5f4;
+  color: #8c1d16;
+  font: inherit;
+  font-weight: 800;
+  font-size: 0.9375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hold > :not(.holdFill) {
+  position: relative;
+}
+
+.holdFill {
+  position: absolute;
+  inset: 0;
+  background: #f6c9c5;
+  transform-origin: left center;
+}
+
+/* ---------- Sheet (S4): a parchment leaf, the leather ledger's brass and stitching (2 Nov 2026) ---------- */
+
+.sheet {
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  width: 100%;
+  max-width: 34rem;
+  max-height: 92svh;
+  background: transparent;
+  overflow: visible;
+}
+
+.sheet::backdrop {
+  background: rgba(30, 18, 8, 0.5);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.sheetPanel {
+  --leaf: #f1e5c9;
+  /* the onboarding pickers inside, on paper (see v3.module.css) */
+  --pick-surface: #fdf7e9;
+  --pick-line: rgba(120, 78, 30, 0.18);
+  --pick-shadow: 0 2px 6px rgba(60, 38, 16, 0.1);
+  --pick-ring: 0 0 0 1px rgba(120, 78, 30, 0.18);
+  --pick-on: #fae2c8;
+  --pick-on-line: #c4532a;
+  --pick-border: rgba(120, 78, 30, 0.22);
+  --pick-display: var(--font-display);
+  --pick-display-weight: 500;
+  --pick-kicker-font: var(--font-display);
+  --pick-kicker-size: 0.8125rem;
+  --pick-kicker-weight: 500;
+  --pick-kicker: #9b2c1c;
+  --pick-title-size: 1.0625rem;
+  --pick-focus: #7a5236;
+  --pick-track: rgba(120, 78, 30, 0.16);
+  --pick-well: #f1e3c6;
+  --pick-quiet: rgba(255, 251, 240, 0.6);
+  --pick-quiet-size: 0.9375rem;
+  --pick-photo-weight: 500;
+  --pick-photo-size: 1.1875rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  max-height: 92svh;
+  overflow: auto;
+  padding: 0.5rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  border-radius: 26px 26px 0 0;
+  background:
+    radial-gradient(120% 50% at 30% 0%, rgba(255, 252, 240, 0.9), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(120, 78, 30, 0.035) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg, #f8f0dc, var(--leaf));
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 -12px 30px rgba(30, 18, 8, 0.35);
+  color: #2c2117;
+  box-sizing: border-box;
+}
+
+/* the stitching just under the top edge */
+.sheetPanel::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 14px;
+  right: 14px;
+  height: 0;
+  border-top: 1.5px dashed rgba(120, 78, 30, 0.3);
+  pointer-events: none;
+}
+
+.grabber {
+  align-self: center;
+  width: 2.5rem;
+  height: 0.3125rem;
+  margin-top: 0.375rem;
+  border-radius: 3px;
+  background: rgba(92, 74, 54, 0.35);
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* the ledger's brass bead */
+.sheetIcon {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #e8c983;
+  background: radial-gradient(120% 80% at 30% 0%, rgba(255, 225, 180, 0.2), transparent 60%), linear-gradient(180deg, #634530, #3a2717);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(232, 201, 131, 0.55),
+    0 3px 8px rgba(60, 38, 16, 0.3);
+}
+
+.sheetTitle {
+  margin: 0;
+  font: 500 1.5rem/1.05 var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+.sheetSub {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  color: #5c4a36;
+}
+
+.sheetBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sheetHint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #5c4a36;
+}
+
+.sheetFooter {
+  display: flex;
+  gap: 0.5rem;
+  position: sticky;
+  bottom: calc(-1rem - env(safe-area-inset-bottom, 0px));
+  margin: 0 -1rem calc(-1rem - env(safe-area-inset-bottom, 0px));
+  padding: 0.625rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(241, 229, 201, 0.6), var(--leaf) 30%);
+  border-top: 1px solid rgba(120, 78, 30, 0.18);
+}
+
+.trash,
+.cancel,
+.save {
+  min-height: 3.25rem;
+  border-radius: 16px;
+  font: 500 1.0625rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.trash {
+  flex: none;
+  width: 3.25rem;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid rgba(155, 44, 28, 0.45);
+  background: transparent;
+  color: #9b2c1c;
+}
+
+.cancel {
+  flex: 1;
+  border: 1.5px solid rgba(120, 78, 30, 0.35);
+  background: rgba(255, 252, 240, 0.5);
+  color: #2c2117;
+}
+
+/* Save: a strip of the ledger's leather with cream lettering */
+.save {
+  flex: 1;
+  border: 0;
+  width: 100%;
+  color: #f2e8d5;
+  background: radial-gradient(120% 80% at 30% 0%, rgba(255, 225, 180, 0.18), transparent 60%), linear-gradient(180deg, #634530, #3a2717);
+  box-shadow:
+    inset 0 0 0 4px #4a3220,
+    inset 0 0 0 5.5px rgba(240, 214, 170, 0.35),
+    0 6px 14px rgba(60, 38, 16, 0.35);
+}
+
+.save:disabled {
+  color: rgba(92, 74, 54, 0.7);
+  background: rgba(120, 78, 30, 0.14);
+  box-shadow: none;
+  cursor: default;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .trash,
+  .cancel,
+  .save {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+@media (max-width: 359px) {
+  .knowsGrid,
+  .permGrid {
+    gap: 0.5rem;
+  }
+
+  .knows {
+    padding: 0.625rem;
+  }
+
+  .holderPhoto {
+    width: 4.25rem;
+    height: 5.5rem;
+  }
+
+  .stackCard {
+    width: 2.75rem;
+    height: 3.25rem;
+  }
+}
+
+/* ---------- Memory ---------- */
+
+.memoryFocus .card {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.memoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 12px 8px;
+  list-style: none;
+}
+
+.memoryItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 6px 10px 14px;
+  border-radius: 16px;
+  background: #f6f3ee;
+}
+
+.memoryText {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  color: #23211d;
+}
+
+.memorySource {
+  font-size: 0.6875rem;
+  color: #5e5a53;
+}
+
+.memoryForget {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #4d4a44;
+  cursor: pointer;
+}
+
+.memoryForget:hover {
+  background: #ebe6de;
+}
+
+.memoryEmpty {
+  padding: 10px 4px;
+  font-size: 0.8125rem;
+  color: #4d4a44;
+}
+
+.memoryAdd {
+  display: flex;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.memoryInput {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #ddd6cb;
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.memoryAddButton,
+.memoryDanger {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #23211d;
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.memoryAddButton:disabled {
+  background: #cfc9bf;
+  color: #4d4a44;
+  cursor: default;
+}
+
+.memoryDanger {
+  background: #b3261e;
+}
+
+.memoryActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid #efeae2;
+}
+
+.memoryGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #f1ede6;
+  color: #23211d;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.memoryGhost:disabled {
+  color: #6b665e;
+  cursor: default;
+}
+
+.memoryInput:focus-visible,
+.memoryAddButton:focus-visible,
+.memoryGhost:focus-visible,
+.memoryDanger:focus-visible,
+.memoryForget:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.inlineLink {
+  color: #a3400a;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+#memory {
+  scroll-margin-top: 16px;
+}
+
+/* ---------- Ported from PR #5: header title, dependent switches, sliders, privacy summary, licences ---------- */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.brandTitle {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* A switch whose dependency is off: dimmed, still focusable (aria-disabled) so its hint is announced. */
+.switch[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.blockedHint {
+  color: #8c3a0c;
+}
+
+.sliderHead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sliderHead .rowTitle {
+  flex: 1;
+}
+
+.range {
+  width: 100%;
+  min-height: 2.75rem;
+  margin: 0;
+  accent-color: #e4671f;
+  cursor: pointer;
+}
+
+.range:focus-visible {
+  outline: 2px solid #23211d;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.rangeTicks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: #5f5b54;
+}
+
+.textPreview {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: #f6f4ef;
+  line-height: 1.45;
+  color: #23211d;
+}
+
+.privacyCard {
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+
+.privacyCard > .row {
+  border-top: 0;
+}
+
+.privacyCard .bar {
+  margin-top: 0;
+  margin-bottom: 0.875rem;
+}
+
+.privacyCard:focus-visible {
+  outline: 2px solid #23211d;
+  outline-offset: 2px;
+}
+
+.licenceTerms {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #3a3731;
+}
+
+.licenceList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8125rem;
+}
+
+.licenceList li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.625rem 0.875rem;
+  border-top: 1px solid #efebe4;
+  overflow-wrap: anywhere;
+}
+
+.licenceList li:first-child {
+  border-top: 0;
+}
+
+.licenceList a {
+  color: #a3400a;
+  /* Each credit link is a full-height tap target. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+}
+
+.licenceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ---------- Settings, Privacy, Licences on Passport's kraft (2 Nov 2026) ----------
+   The pages a gear or a Passport line opens wear the Passport's materials: kraft paper behind, Oswald headings ruled
+   like "On file", every group in the stitched leather of the Passport's ledger, brass beads and switches, and a paper
+   slip wherever text is read rather than set. */
+
+.barBack.barBack {
+  justify-self: start;
+}
+
+.kraft {
+  --leather-line: rgba(240, 214, 170, 0.14);
+  --cream-soft: rgba(242, 232, 213, 0.72);
+}
+
+.kraft .kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0.625rem 0 0;
+  font: 500 1.125rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--ink);
+}
+
+.kraft .kicker::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid rgba(44, 33, 23, 0.3);
+  box-shadow: 0 2px 0 -1px rgba(44, 33, 23, 0.12);
+}
+
+.kraft .sectionHead {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.kraft .sectionHead .kicker {
+  flex: 1;
+  margin: 0;
+}
+
+.kraft .total {
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+/* the stitched leather of the Passport's ledger */
+.kraft .card,
+.kraft .hero,
+.kraft .exportBtn {
+  position: relative;
+  border-radius: 22px;
+  color: var(--cream);
+  background:
+    radial-gradient(120% 80% at 30% 0%, rgba(255, 225, 180, 0.16), transparent 60%),
+    linear-gradient(180deg, #634530 0%, #47301f 55%, #3a2717 100%);
+  box-shadow:
+    0 12px 24px rgba(40, 24, 10, 0.34),
+    inset 0 1px 0 rgba(255, 225, 180, 0.2);
+}
+
+.kraft .card {
+  padding: 0.375rem 0.5rem;
+}
+
+.kraft .card::before,
+.kraft .hero::before,
+.kraft .exportBtn::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1.5px dashed rgba(240, 214, 170, 0.4);
+  border-radius: 17px;
+  pointer-events: none;
+}
+
+.kraft .row,
+.kraft .switchRow,
+.kraft .storeRow,
+.kraft .rowPad,
+.kraft .licenceList li,
+.kraft .memoryActions {
+  border-top-color: var(--leather-line);
+}
+
+.kraft .row,
+.kraft .switchRow,
+.kraft .storeRow {
+  min-height: 3.75rem;
+  padding: 0.5rem;
+}
+
+.kraft .rowPad {
+  padding: 0.75rem 0.5rem;
+}
+
+/* brass beads in place of the tinted squares */
+.kraft .rowIcon,
+.kraft .permIcon,
+.kraft .storeIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  color: var(--brass);
+  background: rgba(20, 12, 6, 0.35);
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 201, 131, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  font: 500 1rem/1 var(--font-display);
+}
+
+.kraft .storeIcon {
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 240, 210, 0.45), inset 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.kraft .rowTitle {
+  font: 500 1.0625rem/1.15 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.kraft .rowSub,
+.kraft .rowValue,
+.kraft .memorySource,
+.kraft .memoryEmpty,
+.kraft .deleteText,
+.kraft .licenceList {
+  color: var(--cream-soft);
+}
+
+.kraft .rowValue,
+.kraft .size {
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.03em;
+  color: var(--brass);
+}
+
+.kraft .blockedHint {
+  color: #f2a974;
+}
+
+.kraft .rowChevron {
+  color: rgba(232, 201, 131, 0.7);
+}
+
+/* the shared switch, in brass and leather (as on the Passport) */
+.kraft .switch {
+  background: rgba(20, 12, 6, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.kraft .switch[aria-checked='true'] {
+  background: linear-gradient(180deg, #ef7a32, #d45a17);
+  box-shadow: inset 0 0 0 1px rgba(255, 210, 160, 0.4);
+}
+
+.kraft .knob {
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+}
+
+/* a two-way choice: a brass plate slides between two engraved words */
+.kraft .segmented {
+  background: rgba(20, 12, 6, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.kraft .segment {
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--cream-soft);
+}
+
+.kraft .segment[aria-checked='true'] {
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+  color: var(--ink);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* a brass bead running on a thread, so it never reads as a switch */
+.kraft .motionPreview {
+  width: 3.5rem;
+  background: linear-gradient(rgba(232, 201, 131, 0.4), rgba(232, 201, 131, 0.4)) center / 100% 1px no-repeat;
+}
+
+.kraft .motionDot {
+  background: var(--brass);
+}
+
+/* a notched brass rule with a brass knob */
+.kraft .range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.kraft .range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(232, 201, 131, 0.4);
+}
+
+.kraft .range::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(232, 201, 131, 0.4);
+}
+
+.kraft .range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  margin-top: calc(2px - 0.6875rem);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.kraft .range::-moz-range-thumb {
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.kraft .rangeTicks {
+  font: 500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--cream-soft);
+}
+
+/* text that is read sits on a paper slip, as the Passport's "On file" */
+.kraft .textPreview,
+.kraft .memoryItem,
+.kraft .perm,
+.kraft .hold {
+  border: 0;
+  border-radius: 10px;
+  color: var(--ink);
+  background:
+    radial-gradient(120% 80% at 30% 0%, rgba(255, 252, 240, 0.85), transparent 60%),
+    linear-gradient(170deg, #f7efdc, #efe2c4);
+  box-shadow:
+    0 0 0 1px rgba(120, 78, 30, 0.2),
+    0 6px 12px rgba(30, 18, 8, 0.25);
+}
+
+.kraft .textPreview {
+  font-family: var(--font-serif, Georgia, serif);
+}
+
+.kraft .memoryText,
+.kraft .perm .rowSub {
+  color: var(--ink);
+}
+
+.kraft .memoryItem .memorySource,
+.kraft .perm .rowSub {
+  color: var(--ink-soft);
+}
+
+.kraft .memoryForget {
+  color: var(--ink-soft);
+}
+
+.kraft .memoryForget:hover {
+  background: rgba(120, 78, 30, 0.12);
+}
+
+.kraft .memoryInput {
+  border: 0;
+  background: rgba(20, 12, 6, 0.4);
+  color: var(--cream);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.kraft .memoryInput::placeholder {
+  color: rgba(242, 232, 213, 0.5);
+}
+
+.kraft .memoryAddButton,
+.kraft .memoryGhost,
+.kraft .clear {
+  border: 0;
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+  color: var(--ink);
+}
+
+.kraft .memoryGhost,
+.kraft .clear {
+  background: rgba(20, 12, 6, 0.35);
+  color: var(--brass);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.4);
+}
+
+.kraft .memoryAddButton:disabled {
+  background: rgba(232, 201, 131, 0.25);
+  color: var(--cream-soft);
+}
+
+.kraft .memoryDanger {
+  font: 500 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  background: var(--red-ink);
+}
+
+.kraft .memoryFocus .card {
+  box-shadow:
+    0 0 0 2px var(--brass),
+    0 12px 24px rgba(40, 24, 10, 0.34);
+}
+
+.kraft .inlineLink,
+.kraft .licenceList a {
+  color: var(--brass);
+}
+
+.kraft .creditSubject {
+  color: var(--cream);
+}
+
+.kraft .licenceTerms {
+  color: var(--ink-soft);
+}
+
+/* Privacy: the hero is the ledger's cover, the permissions are slips */
+.kraft .hero::before {
+  border-radius: 17px;
+}
+
+.kraft .heroShield {
+  color: var(--brass);
+  border-color: rgba(232, 201, 131, 0.45);
+}
+
+.kraft .heroTitle {
+  font: 500 1.25rem/1.15 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.kraft .heroText {
+  color: var(--cream-soft);
+}
+
+.kraft .perm .permIcon {
+  color: var(--ink);
+  background: rgba(120, 78, 30, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(120, 78, 30, 0.3);
+}
+
+.kraft .permOn,
+.kraft .permOff {
+  font: 500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: none;
+  padding: 0.25rem 0.4375rem;
+  border-radius: 4px;
+}
+
+.kraft .permOn {
+  color: #2f6b3a;
+  box-shadow: inset 0 0 0 1.5px rgba(47, 107, 58, 0.6);
+}
+
+.kraft .permOff {
+  color: var(--ink-soft);
+  box-shadow: inset 0 0 0 1.5px rgba(92, 74, 54, 0.4);
+}
+
+.kraft .card .permOff {
+  color: var(--cream-soft);
+  box-shadow: inset 0 0 0 1.5px rgba(242, 232, 213, 0.35);
+}
+
+.kraft .hold {
+  margin: 0.25rem 0.5rem 0.5rem;
+  color: var(--red-ink);
+  font: 500 1rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  box-shadow: inset 0 0 0 1.5px var(--red-ink), 0 6px 12px rgba(30, 18, 8, 0.25);
+}
+
+.kraft .holdFill {
+  background: rgba(155, 44, 28, 0.22);
+}
+
+.kraft .deleteText {
+  padding: 0.75rem 0.5rem 0.5rem;
+}
+
+.kraft .bar {
+  margin: 0.75rem 0.5rem 0.375rem;
+}
+
+.kraft .row:focus-visible,
+.kraft .switch:focus-visible,
+.kraft .segment:focus-visible,
+.kraft .clear:focus-visible,
+.kraft .exportBtn:focus-visible,
+.kraft .range:focus-visible {
+  outline: 2px solid var(--brass);
+}
+
+/* Passport's "Manage" lands on Memory below the sticky bar */
+.kraft .memoryFocus {
+  scroll-margin-top: 4.5rem;
+}
+
+/* Settings › User test › Restart test: the confirm step. */
+.restartNo,
+.restartYes {
+  flex: none;
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  border-radius: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.restartNo {
+  border: 1px solid currentColor;
+  background: none;
+  color: inherit;
+}
+
+.restartYes {
+  border: 0;
+  background: #b23a3a;
+  color: #fff;
+}
+
+.restartNo:focus-visible,
+.restartYes:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

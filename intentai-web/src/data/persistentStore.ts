@@ -15,6 +15,8 @@ interface StoreOptions<T> {
   key: string;
   fallback: T;
   isValid: (value: unknown) => value is T;
+  /** Salvages a stored value that fails `isValid` (an older shape, one damaged field); null falls back. */
+  repair?: (value: unknown) => T | null;
 }
 
 interface Invalidatable {
@@ -24,7 +26,23 @@ interface Invalidatable {
 // One store per key, defined once in src/data/stores.ts. Re-registering a key (Vite HMR) replaces it.
 const registry = new Map<string, Invalidatable>();
 
-export function createPersistentStore<T>({ key, fallback, isValid }: StoreOptions<T>): PersistentStore<T> {
+/** Called once when this browser first refuses to keep the app's data (private browsing, full storage). */
+let storageBlocked = false;
+const blockedListeners = new Set<() => void>();
+function reportStorageBlocked() {
+  if (storageBlocked) return;
+  storageBlocked = true;
+  blockedListeners.forEach((l) => l());
+}
+export function isStorageBlocked() {
+  return storageBlocked;
+}
+export function onStorageBlocked(listener: () => void): () => void {
+  blockedListeners.add(listener);
+  return () => blockedListeners.delete(listener);
+}
+
+export function createPersistentStore<T>({ key, fallback, isValid, repair }: StoreOptions<T>): PersistentStore<T> {
   const storageKey = STORAGE_PREFIX + key;
   const listeners = new Set<() => void>();
   let cached: { value: T } | null = null;
@@ -36,6 +54,8 @@ export function createPersistentStore<T>({ key, fallback, isValid }: StoreOption
       if (raw !== null) {
         const parsed: unknown = JSON.parse(raw);
         if (isValid(parsed)) return parsed;
+        const repaired = repair?.(parsed);
+        if (repaired) return repaired;
       }
     } catch {
       // Corrupt JSON or storage unavailable: use the fallback, leave storage untouched.
@@ -60,8 +80,9 @@ export function createPersistentStore<T>({ key, fallback, isValid }: StoreOption
         window.localStorage.setItem(storageKey, JSON.stringify(value));
         storageWritable = true;
       } catch {
-        // Storage unavailable (private mode, quota): keep working in memory.
+        // Storage unavailable (private mode, quota): keep working in memory, and say so once (NetStatus).
         storageWritable = false;
+        reportStorageBlocked();
       }
       notify();
     },

@@ -6,6 +6,7 @@ import { testerStore } from '../../data/stores';
 import { clearLocalUsage, fromExport, mergeEvents, readLocalUsage, toExport } from '../../usage/localLog';
 import Analysis from './Analysis';
 import styles from './AdminPage.module.css';
+import { PASSWORD_KEY, readPassword, writePassword } from './password';
 
 /** Where the dashboard's events come from: the server (password), this device's own log, or exported files. */
 type Source = 'device' | 'files' | 'server';
@@ -15,12 +16,7 @@ const SOURCES: { id: Source; label: string }[] = [
   { id: 'server', label: 'Server' },
 ];
 
-/**
- * Team-only usage dashboard (v2 class user test). Not linked from the app and never tracked.
- * The password lives in sessionStorage for this tab only: a deliberate exception to the stores
- * convention, since it is not app data and must not outlive the tab.
- */
-export const PASSWORD_KEY = 'intentai:admin-password';
+export { PASSWORD_KEY };
 
 type SortKey = 'name' | 'people' | 'visits' | 'totalMs' | 'avgPerVisitMs' | 'avgPerPersonMs';
 
@@ -38,23 +34,6 @@ const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'avgPerVisitMs', label: 'Avg per visit' },
   { key: 'avgPerPersonMs', label: 'Avg per person' },
 ];
-
-function readPassword(): string {
-  try {
-    return sessionStorage.getItem(PASSWORD_KEY) ?? '';
-  } catch {
-    return '';
-  }
-}
-
-function writePassword(value: string | null) {
-  try {
-    if (value === null) sessionStorage.removeItem(PASSWORD_KEY);
-    else sessionStorage.setItem(PASSWORD_KEY, value);
-  } catch {
-    // Private mode: the password just isn't remembered.
-  }
-}
 
 function downloadCsv(events: UsageEvent[]) {
   const url = URL.createObjectURL(new Blob([toCsv(events)], { type: 'text/csv' }));
@@ -89,6 +68,7 @@ function downloadJson(events: UsageEvent[], who: string) {
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
+/** Team-only usage dashboard (v2 class user test). Not linked from the app and never tracked. */
 export default function AdminPage() {
   const [password, setPassword] = useState(readPassword);
   const [draft, setDraft] = useState('');

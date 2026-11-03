@@ -1,0 +1,1149 @@
+{
+ "routes": [
+  {
+   "id": "clementi-community",
+   "title": "Clementi · A neighbourhood in one meal",
+   "subtitle": "Market, Teochew temple and a multi-ethnic table",
+   "duration": "About 2–3 hours",
+   "note": "At the two hawker centres, pick one small portion at each; no need for two full meals. Visit the mosque only under its visitor rules. The route uses real road crossings. The order is an editor's suggestion, not live map routing."
+  },
+  {
+   "id": "sunset-way",
+   "title": "Sunset Way · Old flavours and the riverbank",
+   "subtitle": "Old-style bakery, Ulu Pandan waterway, neighbourhood ice cream",
+   "duration": "About 2–3 hours",
+   "note": "Check first that the waterway section is open. The old railway bridge is saved separately; don't cross the river on the bridge deck. If the connector is temporarily closed, keep just the bakery and ice cream stops."
+  },
+  {
+   "id": "nus-rainy-day",
+   "title": "NUS · Half a day at two museums",
+   "subtitle": "Asian art and Southeast Asian natural history",
+   "duration": "About 3.5–4.5 hours",
+   "note": "Take a bus from Clementi to the University Cultural Centre area, then walk between the museums. Days when both are open are usually Tuesday to Saturday; check public holidays and any gallery updates."
+  },
+  {
+   "id": "telok-ayer",
+   "title": "Telok Ayer · The faiths of one street",
+   "subtitle": "Migrant landing history in a single walk",
+   "duration": "About 2–3 hours",
+   "note": "Cultural institutions on the same street have different visitor rules; only places with finished cards are shown below. Check booking and religious etiquette for each."
+  },
+  {
+   "id": "katong",
+   "title": "Katong · Into everyday Peranakan life",
+   "subtitle": "Shophouses, home collections and distinctive tables",
+   "duration": "About half a day",
+   "note": "Private home collections and historic houses must be booked in advance. The shophouses in the photos are still lived in; stay on public roads."
+  }
+ ],
+ "stations": [
+  {
+   "id": "pasir-ris",
+   "name_en": "Pasir Ris",
+   "theme": "Mangroves and everyday coast"
+  },
+  {
+   "id": "tampines",
+   "name_en": "Tampines",
+   "theme": "The community centre as a city living room"
+  },
+  {
+   "id": "simei",
+   "name_en": "Simei",
+   "theme": "Community gardens and everyday east"
+  },
+  {
+   "id": "tanah-merah",
+   "name_en": "Tanah Merah",
+   "theme": "Low-rise homes and slow green-corridor walks"
+  },
+  {
+   "id": "bedok",
+   "name_en": "Bedok",
+   "theme": "Getting to know a mature town through breakfast"
+  },
+  {
+   "id": "kembangan",
+   "name_en": "Kembangan",
+   "theme": "Seeing the neighbourhood along the Siglap park connector"
+  },
+  {
+   "id": "eunos",
+   "name_en": "Eunos",
+   "theme": "Malay community and town memory"
+  },
+  {
+   "id": "paya-lebar",
+   "name_en": "Paya Lebar",
+   "theme": "Malay culture in Geylang Serai"
+  },
+  {
+   "id": "aljunied",
+   "name_en": "Aljunied",
+   "theme": "Geylang shophouses and folk religion"
+  },
+  {
+   "id": "kallang",
+   "name_en": "Kallang",
+   "theme": "River, labour and urban change"
+  },
+  {
+   "id": "lavender",
+   "name_en": "Lavender",
+   "theme": "Crafts and food on Jalan Besar"
+  },
+  {
+   "id": "bugis",
+   "name_en": "Bugis",
+   "theme": "Faith and lanes of Kampong Glam"
+  },
+  {
+   "id": "city-hall",
+   "name_en": "City Hall",
+   "theme": "The national story in civic buildings"
+  },
+  {
+   "id": "raffles-place",
+   "name_en": "Raffles Place",
+   "theme": "River-mouth trade and city finance"
+  },
+  {
+   "id": "tanjong-pagar",
+   "name_en": "Tanjong Pagar",
+   "theme": "A multi-ethnic port-city district"
+  },
+  {
+   "id": "outram-park",
+   "name_en": "Outram Park",
+   "theme": "Old family homes and Peranakan memory"
+  },
+  {
+   "id": "tiong-bahru",
+   "name_en": "Tiong Bahru",
+   "theme": "Pre-war flats and the wet market"
+  },
+  {
+   "id": "redhill",
+   "name_en": "Redhill",
+   "theme": "Breakfast and trails in an HDB town"
+  },
+  {
+   "id": "queenstown",
+   "name_en": "Queenstown",
+   "theme": "Where Singapore's satellite towns began"
+  },
+  {
+   "id": "commonwealth",
+   "name_en": "Commonwealth",
+   "theme": "HDB hills and community faith"
+  },
+  {
+   "id": "buona-vista",
+   "name_en": "Buona Vista",
+   "theme": "Rail Corridor and innovation district"
+  },
+  {
+   "id": "dover",
+   "name_en": "Dover",
+   "theme": "Waterway, campus and urban nature"
+  },
+  {
+   "id": "clementi",
+   "name_en": "Clementi",
+   "theme": "A neighbourhood ramble from market to old railway"
+  },
+  {
+   "id": "jurong-east",
+   "name_en": "Jurong East",
+   "theme": "From industrial new town to regional centre"
+  },
+  {
+   "id": "chinese-garden",
+   "name_en": "Chinese Garden",
+   "theme": "Garden language and lake ecology"
+  },
+  {
+   "id": "lakeside",
+   "name_en": "Lakeside",
+   "theme": "Lakeside wetlands and Singapore horticulture"
+  },
+  {
+   "id": "boon-lay",
+   "name_en": "Boon Lay",
+   "theme": "Western hawker food and industrial-town life"
+  },
+  {
+   "id": "pioneer",
+   "name_en": "Pioneer",
+   "theme": "Grassroots sport and the link to the university town"
+  },
+  {
+   "id": "joo-koon",
+   "name_en": "Joo Koon",
+   "theme": "Making and discovery in an industrial estate"
+  },
+  {
+   "id": "gul-circle",
+   "name_en": "Gul Circle",
+   "theme": "Watching a manufacturing district"
+  },
+  {
+   "id": "tuas-crescent",
+   "name_en": "Tuas Crescent",
+   "theme": "Public streets of a logistics city"
+  },
+  {
+   "id": "tuas-west-road",
+   "name_en": "Tuas West Road",
+   "theme": "Industrial skyline at the western tip"
+  },
+  {
+   "id": "tuas-link",
+   "name_en": "Tuas Link",
+   "theme": "Harbour edge and lighthouse"
+  },
+  {
+   "id": "expo",
+   "name_en": "Expo",
+   "theme": "Big exhibitions and urban water views"
+  },
+  {
+   "id": "changi-airport",
+   "name_en": "Changi Airport",
+   "theme": "The airport as a public garden"
+  },
+  {
+   "id": "bukit-batok",
+   "name_en": "Bukit Batok",
+   "theme": "Town parks left by quarries"
+  },
+  {
+   "id": "bukit-gombak",
+   "name_en": "Bukit Gombak",
+   "theme": "Little Guilin's rock face and reflections"
+  },
+  {
+   "id": "choa-chu-kang",
+   "name_en": "Choa Chu Kang",
+   "theme": "New-town parks and gardening"
+  },
+  {
+   "id": "yew-tee",
+   "name_en": "Yew Tee",
+   "theme": "Northern housing and woodland links"
+  },
+  {
+   "id": "kranji",
+   "name_en": "Kranji",
+   "theme": "War memory and the way to the wetlands"
+  },
+  {
+   "id": "marsiling",
+   "name_en": "Marsiling",
+   "theme": "Old flats, hills and the strait"
+  },
+  {
+   "id": "woodlands",
+   "name_en": "Woodlands",
+   "theme": "Public spaces of a border town"
+  },
+  {
+   "id": "admiralty",
+   "name_en": "Admiralty",
+   "theme": "An experiment in vertical kampong living"
+  },
+  {
+   "id": "sembawang",
+   "name_en": "Sembawang",
+   "theme": "Streets left by the naval base"
+  },
+  {
+   "id": "canberra",
+   "name_en": "Canberra",
+   "theme": "Colonial houses and new communities"
+  },
+  {
+   "id": "yishun",
+   "name_en": "Yishun",
+   "theme": "From rubber plantations to city life"
+  },
+  {
+   "id": "khatib",
+   "name_en": "Khatib",
+   "theme": "Reservoir shores and city leisure"
+  },
+  {
+   "id": "yio-chu-kang",
+   "name_en": "Yio Chu Kang",
+   "theme": "Sport, green corridors and neighbourhood"
+  },
+  {
+   "id": "ang-mo-kio",
+   "name_en": "Ang Mo Kio",
+   "theme": "HDB new town and hill park"
+  },
+  {
+   "id": "bishan",
+   "name_en": "Bishan",
+   "theme": "New-town architecture and a renaturalised river"
+  },
+  {
+   "id": "braddell",
+   "name_en": "Braddell",
+   "theme": "Coffee and markets in a mature HDB estate"
+  },
+  {
+   "id": "toa-payoh",
+   "name_en": "Toa Payoh",
+   "theme": "Public housing history and the dragon playground"
+  },
+  {
+   "id": "novena",
+   "name_en": "Novena",
+   "theme": "Religious buildings and a medical district"
+  },
+  {
+   "id": "newton",
+   "name_en": "Newton",
+   "theme": "Hawker culture and a city transport hub"
+  },
+  {
+   "id": "orchard",
+   "name_en": "Orchard",
+   "theme": "Historic hillsides behind the shopping street"
+  },
+  {
+   "id": "somerset",
+   "name_en": "Somerset",
+   "theme": "Emerald Hill shophouses and youth spaces"
+  },
+  {
+   "id": "dhoby-ghaut",
+   "name_en": "Dhoby Ghaut",
+   "theme": "A laundry place name and an arts park"
+  },
+  {
+   "id": "marina-bay",
+   "name_en": "Marina Bay",
+   "theme": "A cityscape made by land reclamation"
+  },
+  {
+   "id": "marina-south-pier",
+   "name_en": "Marina South Pier",
+   "theme": "From the city to the southern islands"
+  },
+  {
+   "id": "harbourfront",
+   "name_en": "HarbourFront",
+   "theme": "Port, hills and the gateway to the islands"
+  },
+  {
+   "id": "chinatown",
+   "name_en": "Chinatown",
+   "theme": "Chinese migrants and many faiths side by side"
+  },
+  {
+   "id": "clarke-quay",
+   "name_en": "Clarke Quay",
+   "theme": "Riverside warehouses and migrant trade"
+  },
+  {
+   "id": "little-india",
+   "name_en": "Little India",
+   "theme": "Indian community markets and faith"
+  },
+  {
+   "id": "farrer-park",
+   "name_en": "Farrer Park",
+   "theme": "South Asian faith and neighbourhood tables"
+  },
+  {
+   "id": "boon-keng",
+   "name_en": "Boon Keng",
+   "theme": "Riverside flats and hawkers"
+  },
+  {
+   "id": "potong-pasir",
+   "name_en": "Potong Pasir",
+   "theme": "Faith and riverbank in a small town"
+  },
+  {
+   "id": "woodleigh",
+   "name_en": "Woodleigh",
+   "theme": "Bidadari's history and ecology"
+  },
+  {
+   "id": "serangoon",
+   "name_en": "Serangoon",
+   "theme": "Daily life and community on the north-east corridor"
+  },
+  {
+   "id": "kovan",
+   "name_en": "Kovan",
+   "theme": "Flavours of a Teochew migrant area"
+  },
+  {
+   "id": "hougang",
+   "name_en": "Hougang",
+   "theme": "Teochew community, church and river"
+  },
+  {
+   "id": "buangkok",
+   "name_en": "Buangkok",
+   "theme": "From new estates to kampong memory"
+  },
+  {
+   "id": "sengkang",
+   "name_en": "Sengkang",
+   "theme": "New-town public spaces and the way to the wetlands"
+  },
+  {
+   "id": "punggol",
+   "name_en": "Punggol",
+   "theme": "Waterway, bridges and new-town life"
+  },
+  {
+   "id": "punggol-coast",
+   "name_en": "Punggol Coast",
+   "theme": "Digital district and coastal history"
+  },
+  {
+   "id": "bras-basah",
+   "name_en": "Bras Basah",
+   "theme": "Museums and a multi-faith district"
+  },
+  {
+   "id": "esplanade",
+   "name_en": "Esplanade",
+   "theme": "Performing arts and bayfront public space"
+  },
+  {
+   "id": "promenade",
+   "name_en": "Promenade",
+   "theme": "Modern architecture and the waterfront city"
+  },
+  {
+   "id": "nicoll-highway",
+   "name_en": "Nicoll Highway",
+   "theme": "Golden Mile and the edge of Kampong Glam"
+  },
+  {
+   "id": "stadium",
+   "name_en": "Stadium",
+   "theme": "How sport organises a city"
+  },
+  {
+   "id": "mountbatten",
+   "name_en": "Mountbatten",
+   "theme": "Old airport and riverside memory"
+  },
+  {
+   "id": "dakota",
+   "name_en": "Dakota",
+   "theme": "Famous old flavours and old HDB stories"
+  },
+  {
+   "id": "macpherson",
+   "name_en": "MacPherson",
+   "theme": "Community food on the industrial edge"
+  },
+  {
+   "id": "tai-seng",
+   "name_en": "Tai Seng",
+   "theme": "Manufacturing change and factory canteens"
+  },
+  {
+   "id": "bartley",
+   "name_en": "Bartley",
+   "theme": "Community faith and low-rise streets"
+  },
+  {
+   "id": "lorong-chuan",
+   "name_en": "Lorong Chuan",
+   "theme": "Museum clues in a residential area"
+  },
+  {
+   "id": "marymount",
+   "name_en": "Marymount",
+   "theme": "Reservoir gateway and community life"
+  },
+  {
+   "id": "caldecott",
+   "name_en": "Caldecott",
+   "theme": "Broadcasting hill and the way to the reservoir"
+  },
+  {
+   "id": "botanic-gardens",
+   "name_en": "Botanic Gardens",
+   "theme": "Botany, horticulture and a World Heritage Site"
+  },
+  {
+   "id": "farrer-road",
+   "name_en": "Farrer Road",
+   "theme": "Hawker food and old cemetery memory"
+  },
+  {
+   "id": "holland-village",
+   "name_en": "Holland Village",
+   "theme": "Local streets and cross-cultural tables"
+  },
+  {
+   "id": "one-north",
+   "name_en": "one-north",
+   "theme": "Research parks and colonial barracks"
+  },
+  {
+   "id": "kent-ridge",
+   "name_en": "Kent Ridge",
+   "theme": "University, nature and wartime memory"
+  },
+  {
+   "id": "haw-par-villa",
+   "name_en": "Haw Par Villa",
+   "theme": "Chinese myths in 3D"
+  },
+  {
+   "id": "pasir-panjang",
+   "name_en": "Pasir Panjang",
+   "theme": "Port memory and hilltop battle history"
+  },
+  {
+   "id": "labrador-park",
+   "name_en": "Labrador Park",
+   "theme": "Forts, mangroves and the coast"
+  },
+  {
+   "id": "telok-blangah",
+   "name_en": "Telok Blangah",
+   "theme": "Elevated green walks and hillside flats"
+  },
+  {
+   "id": "keppel",
+   "name_en": "Keppel",
+   "theme": "Port land in urban transformation"
+  },
+  {
+   "id": "cantonment",
+   "name_en": "Cantonment",
+   "theme": "Railway heritage and contemporary art"
+  },
+  {
+   "id": "prince-edward-road",
+   "name_en": "Prince Edward Road",
+   "theme": "Chinese clan associations and harbour faith"
+  },
+  {
+   "id": "bayfront",
+   "name_en": "Bayfront",
+   "theme": "Supertrees, plants and contemporary exhibitions"
+  },
+  {
+   "id": "bukit-panjang",
+   "name_en": "Bukit Panjang",
+   "theme": "Ponds and HDB green corridors"
+  },
+  {
+   "id": "cashew",
+   "name_en": "Cashew",
+   "theme": "Towards the edge of the nature reserve"
+  },
+  {
+   "id": "hillview",
+   "name_en": "Hillview",
+   "theme": "Railway and old factory conversions"
+  },
+  {
+   "id": "hume",
+   "name_en": "Hume",
+   "theme": "Wartime surrender site and old quarry"
+  },
+  {
+   "id": "beauty-world",
+   "name_en": "Beauty World",
+   "theme": "Bukit Timah's old shopping district and hills"
+  },
+  {
+   "id": "king-albert-park",
+   "name_en": "King Albert Park",
+   "theme": "Railway architecture and ecological links"
+  },
+  {
+   "id": "sixth-avenue",
+   "name_en": "Sixth Avenue",
+   "theme": "Green corridors, cafés and low-rise streets"
+  },
+  {
+   "id": "tan-kah-kee",
+   "name_en": "Tan Kah Kee",
+   "theme": "Education philanthropy and the edge of a tropical campus"
+  },
+  {
+   "id": "stevens",
+   "name_en": "Stevens",
+   "theme": "Campuses, embassies and the Botanic Gardens' extension"
+  },
+  {
+   "id": "rochor",
+   "name_en": "Rochor",
+   "theme": "Old shopping district and shophouse design"
+  },
+  {
+   "id": "downtown",
+   "name_en": "Downtown",
+   "theme": "Public art and green space in the financial district"
+  },
+  {
+   "id": "telok-ayer",
+   "name_en": "Telok Ayer",
+   "theme": "A multi-faith street on the early landing shore"
+  },
+  {
+   "id": "fort-canning",
+   "name_en": "Fort Canning",
+   "theme": "Dynasties and colonial history on the hill"
+  },
+  {
+   "id": "bencoolen",
+   "name_en": "Bencoolen",
+   "theme": "Arts schools and public museums"
+  },
+  {
+   "id": "jalan-besar",
+   "name_en": "Jalan Besar",
+   "theme": "Craft lanes and faith"
+  },
+  {
+   "id": "bendemeer",
+   "name_en": "Bendemeer",
+   "theme": "Industrial lanes and neighbourhood canteens"
+  },
+  {
+   "id": "geylang-bahru",
+   "name_en": "Geylang Bahru",
+   "theme": "Riverside flats and markets"
+  },
+  {
+   "id": "mattar",
+   "name_en": "Mattar",
+   "theme": "Community religion and everyday flavours"
+  },
+  {
+   "id": "ubi",
+   "name_en": "Ubi",
+   "theme": "Reading an industrial estate as city culture"
+  },
+  {
+   "id": "kaki-bukit",
+   "name_en": "Kaki Bukit",
+   "theme": "Where industrial streets meet housing"
+  },
+  {
+   "id": "bedok-north",
+   "name_en": "Bedok North",
+   "theme": "River green corridor and neighbourhood breakfast"
+  },
+  {
+   "id": "bedok-reservoir",
+   "name_en": "Bedok Reservoir",
+   "theme": "Reservoir, water storage and city sport"
+  },
+  {
+   "id": "tampines-west",
+   "name_en": "Tampines West",
+   "theme": "New-town public spaces and temples"
+  },
+  {
+   "id": "tampines-east",
+   "name_en": "Tampines East",
+   "theme": "Eco park and old-street life"
+  },
+  {
+   "id": "upper-changi",
+   "name_en": "Upper Changi",
+   "theme": "University architecture and the city's edge"
+  },
+  {
+   "id": "woodlands-north",
+   "name_en": "Woodlands North",
+   "theme": "The city's edge on the strait"
+  },
+  {
+   "id": "woodlands-south",
+   "name_en": "Woodlands South",
+   "theme": "Modern mosque and new-town green space"
+  },
+  {
+   "id": "springleaf",
+   "name_en": "Springleaf",
+   "theme": "Riverside forest and village memory"
+  },
+  {
+   "id": "lentor",
+   "name_en": "Lentor",
+   "theme": "Forest edge and a new town"
+  },
+  {
+   "id": "mayflower",
+   "name_en": "Mayflower",
+   "theme": "Old Ang Mo Kio community and breakfast"
+  },
+  {
+   "id": "bright-hill",
+   "name_en": "Bright Hill",
+   "theme": "Monastery architecture and forest trails"
+  },
+  {
+   "id": "upper-thomson",
+   "name_en": "Upper Thomson",
+   "theme": "Café street and freshwater ecology"
+  },
+  {
+   "id": "napier",
+   "name_en": "Napier",
+   "theme": "Botanic Gardens' south gate and colonial buildings"
+  },
+  {
+   "id": "orchard-boulevard",
+   "name_en": "Orchard Boulevard",
+   "theme": "Art and embassies at the edge of old streets"
+  },
+  {
+   "id": "great-world",
+   "name_en": "Great World",
+   "theme": "River valley entertainment history and riverside life"
+  },
+  {
+   "id": "havelock",
+   "name_en": "Havelock",
+   "theme": "Old river valley community and street snacks"
+  },
+  {
+   "id": "maxwell",
+   "name_en": "Maxwell",
+   "theme": "Hawker food, urban planning and old temples"
+  },
+  {
+   "id": "shenton-way",
+   "name_en": "Shenton Way",
+   "theme": "Chinese culture in the business district"
+  },
+  {
+   "id": "gardens-by-the-bay",
+   "name_en": "Gardens by the Bay",
+   "theme": "Barrage and urban horticulture"
+  },
+  {
+   "id": "tanjong-rhu",
+   "name_en": "Tanjong Rhu",
+   "theme": "Water sports and a shipbuilding place name"
+  },
+  {
+   "id": "katong-park",
+   "name_en": "Katong Park",
+   "theme": "A park left by a shifting coastline"
+  },
+  {
+   "id": "tanjong-katong",
+   "name_en": "Tanjong Katong",
+   "theme": "Eurasian families and eastern lanes"
+  },
+  {
+   "id": "marine-parade",
+   "name_en": "Marine Parade",
+   "theme": "Peranakan shophouses and Katong tables"
+  },
+  {
+   "id": "marine-terrace",
+   "name_en": "Marine Terrace",
+   "theme": "Eastern neighbourhoods and religious buildings"
+  },
+  {
+   "id": "siglap",
+   "name_en": "Siglap",
+   "theme": "Old villages and East Coast life"
+  },
+  {
+   "id": "bayshore",
+   "name_en": "Bayshore",
+   "theme": "From housing to the coast"
+  },
+  {
+   "id": "south-view",
+   "name_en": "South View",
+   "theme": "Everyday wet market and school streets"
+  },
+  {
+   "id": "keat-hong",
+   "name_en": "Keat Hong",
+   "theme": "HDB community and pocket parks"
+  },
+  {
+   "id": "teck-whye",
+   "name_en": "Teck Whye",
+   "theme": "Religion and neighbours side by side"
+  },
+  {
+   "id": "phoenix",
+   "name_en": "Phoenix",
+   "theme": "Low-rise streets and green corridors"
+  },
+  {
+   "id": "petir",
+   "name_en": "Petir",
+   "theme": "Ponds and neighbourhood trails"
+  },
+  {
+   "id": "pending",
+   "name_en": "Pending",
+   "theme": "Everyday community life in Bukit Panjang"
+  },
+  {
+   "id": "bangkit",
+   "name_en": "Bangkit",
+   "theme": "Community market and breakfast"
+  },
+  {
+   "id": "fajar",
+   "name_en": "Fajar",
+   "theme": "Town greenery and neighbourhood tables"
+  },
+  {
+   "id": "segar",
+   "name_en": "Segar",
+   "theme": "Edge of the nature park"
+  },
+  {
+   "id": "jelapang",
+   "name_en": "Jelapang",
+   "theme": "Walking a new town at the foot of the hills"
+  },
+  {
+   "id": "senja",
+   "name_en": "Senja",
+   "theme": "A new-generation hawker centre"
+  },
+  {
+   "id": "compassvale",
+   "name_en": "Compassvale",
+   "theme": "A young new town by the river"
+  },
+  {
+   "id": "rumbia",
+   "name_en": "Rumbia",
+   "theme": "From HDB blocks to green space"
+  },
+  {
+   "id": "bakau",
+   "name_en": "Bakau",
+   "theme": "North-east community walk"
+  },
+  {
+   "id": "kangkar",
+   "name_en": "Kangkar",
+   "theme": "Riverbank and the Kangkar place name"
+  },
+  {
+   "id": "ranggung",
+   "name_en": "Ranggung",
+   "theme": "HDB public art and gardens"
+  },
+  {
+   "id": "cheng-lim",
+   "name_en": "Cheng Lim",
+   "theme": "Medical campus and community garden"
+  },
+  {
+   "id": "farmway",
+   "name_en": "Farmway",
+   "theme": "Riverside wetlands and sport"
+  },
+  {
+   "id": "kupang",
+   "name_en": "Kupang",
+   "theme": "Walking life in a waterside estate"
+  },
+  {
+   "id": "thanggam",
+   "name_en": "Thanggam",
+   "theme": "Food street and kampong memory"
+  },
+  {
+   "id": "fernvale",
+   "name_en": "Fernvale",
+   "theme": "Community hawker food and neighbourhood garden"
+  },
+  {
+   "id": "layar",
+   "name_en": "Layar",
+   "theme": "Shared green space among HDB blocks"
+  },
+  {
+   "id": "tongkang",
+   "name_en": "Tongkang",
+   "theme": "From residential area to waterway"
+  },
+  {
+   "id": "renjong",
+   "name_en": "Renjong",
+   "theme": "Everyday spaces of a north-east new town"
+  },
+  {
+   "id": "cove",
+   "name_en": "Cove",
+   "theme": "Slow walks by waterway and housing"
+  },
+  {
+   "id": "meridian",
+   "name_en": "Meridian",
+   "theme": "Walking observations in Punggol HDB estates"
+  },
+  {
+   "id": "coral-edge",
+   "name_en": "Coral Edge",
+   "theme": "Riverside hawker food and community"
+  },
+  {
+   "id": "riviera",
+   "name_en": "Riviera",
+   "theme": "Riverside promenade and dining"
+  },
+  {
+   "id": "kadaloor",
+   "name_en": "Kadaloor",
+   "theme": "A new community along the river"
+  },
+  {
+   "id": "oasis",
+   "name_en": "Oasis",
+   "theme": "Waterway gardens and neighbourhood life"
+  },
+  {
+   "id": "damai",
+   "name_en": "Damai",
+   "theme": "Leisure spaces by the waterway"
+  },
+  {
+   "id": "sam-kee",
+   "name_en": "Sam Kee",
+   "theme": "Sport and waterway parks"
+  },
+  {
+   "id": "teck-lee",
+   "name_en": "Teck Lee",
+   "theme": "Digital district and the way to the coast"
+  },
+  {
+   "id": "punggol-point",
+   "name_en": "Punggol Point",
+   "theme": "Seaside jetty and historical memory"
+  },
+  {
+   "id": "samudera",
+   "name_en": "Samudera",
+   "theme": "Coastal promenade and tables"
+  },
+  {
+   "id": "nibong",
+   "name_en": "Nibong",
+   "theme": "River mouth and scenery far from the city centre"
+  },
+  {
+   "id": "sumang",
+   "name_en": "Sumang",
+   "theme": "Waterway homes and bridges"
+  },
+  {
+   "id": "soo-teck",
+   "name_en": "Soo Teck",
+   "theme": "Green corridor links through housing"
+  }
+ ],
+ "collections": [
+  "Michelin",
+  "Local history",
+  "Chinese food",
+  "Religious architecture",
+  "Hawker centres",
+  "Michelin Bib Gourmand",
+  "Fine dining",
+  "Small museums",
+  "Black Pearl",
+  "Chinese culture",
+  "Neighbourhood parks",
+  "Slow Clementi",
+  "Indian culture",
+  "Michelin-starred",
+  "Islamic",
+  "Industrial heritage",
+  "Wetlands",
+  "Rainy-day options",
+  "Michelin Selected",
+  "Malay culture",
+  "Family outings",
+  "Hindu",
+  "Heritage shophouses",
+  "HDB life",
+  "Birdwatching",
+  "Malay food",
+  "Indian food",
+  "Peranakan food",
+  "Coastal walks",
+  "WWII memory",
+  "Buddhist",
+  "Peranakan",
+  "Architecture",
+  "Urban water",
+  "Urban ecology",
+  "City views",
+  "Architectural details",
+  "Community life",
+  "HDB estate culture",
+  "Nature reserves",
+  "Nature parks",
+  "Traditional kueh & pastries",
+  "Park connectors",
+  "Forest trails",
+  "Reservoirs",
+  "Seafood",
+  "Teochew culture",
+  "Offshore islands",
+  "Booking required",
+  "Around NUS",
+  "Public art",
+  "Military history",
+  "Southern Ridges",
+  "Urban regeneration",
+  "Christian",
+  "Singaporean food",
+  "Eurasian",
+  "Riverside walks",
+  "Coasts & mangroves",
+  "Coastal ecology",
+  "Zi char",
+  "Kampong life",
+  "Conservation",
+  "Cantonese food",
+  "Quarry landscapes",
+  "Food culture",
+  "Cycling",
+  "Public buildings",
+  "Farm visits",
+  "Heritage buildings",
+  "Historic districts",
+  "Urban planning",
+  "Home collections",
+  "Hidden spots",
+  "Minority communities",
+  "Accessible walks",
+  "Japanese food",
+  "Local life",
+  "Local fusion food",
+  "Airport city",
+  "Forest hikes",
+  "Water engineering",
+  "French food",
+  "Hainanese",
+  "Port city",
+  "Dempsey",
+  "Community history",
+  "Old neighbourhood shops",
+  "Hokkien migrants",
+  "Migration history",
+  "Sky gardens",
+  "Nature education",
+  "Reservoirs & water culture",
+  "Taoist",
+  "Late-night neighbourhood food",
+  "Food & land",
+  "Chinese gardens",
+  "Themed gardens",
+  "Countryside",
+  "Asian art",
+  "Armenian",
+  "Family walks",
+  "Farming history",
+  "Ice cream",
+  "Nordic food",
+  "South Asian food",
+  "Prata & dosa",
+  "Sustainable city",
+  "Kopitiams & cafés",
+  "Fish head curry",
+  "Kerala",
+  "Gardening",
+  "Local-born communities",
+  "Sentosa",
+  "City change",
+  "Cityscapes",
+  "City walks",
+  "City life",
+  "Interfaith spaces",
+  "Women's history",
+  "Clan associations",
+  "Indoor culture",
+  "Indoor gardens",
+  "Quiet nature",
+  "Craft collections",
+  "Greek food",
+  "Architecture photography",
+  "Contemporary art",
+  "Film & TV",
+  "Slow walks",
+  "Cultural experiences",
+  "Cultural buildings",
+  "Sri Lankan food",
+  "Chinese Singaporean culture",
+  "Japanese gardens",
+  "Sunsets",
+  "Landscape design",
+  "Local desserts",
+  "Village remains",
+  "Nasi lemak",
+  "Folk religion",
+  "Satay",
+  "Thai culture",
+  "Thai food",
+  "Naval base history",
+  "Naval base memories",
+  "Marine conservation",
+  "Teochew food",
+  "Australian food",
+  "Rainforest",
+  "Jewish",
+  "Unusual experiences",
+  "Biodiversity",
+  "Therapeutic gardens",
+  "Neighbourhood shops",
+  "Neighbourhood walks",
+  "Community culture",
+  "Community memory",
+  "Myths & legends",
+  "Vegetarian",
+  "Archipelago culture",
+  "Bak kut teh",
+  "Conservation history",
+  "Natural history museums",
+  "Aviation history",
+  "Aviation communities",
+  "Plane spotting",
+  "Festivals",
+  "Garden dining",
+  "British food",
+  "Portuguese heritage",
+  "Language & culture",
+  "Transnational revolution history",
+  "Chitty Melaka",
+  "Border city",
+  "Neighbourhood dining",
+  "Picnic lawns",
+  "Railway heritage",
+  "Sikh",
+  "Ceylon Tamil",
+  "Reading spaces",
+  "Pottery",
+  "Korean food",
+  "Music",
+  "Malay Archipelago food",
+  "Black-and-white houses"
+ ]
+}

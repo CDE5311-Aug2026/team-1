@@ -27,8 +27,25 @@ button {
   font-family: inherit;
 }
 
+/* Titles in the condensed display type. Zero specificity: letters, notes and paper props that set their own type keep it. */
+:where(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
 /* Unstyled links (source lines) take the surrounding text colour, not browser blue; the underline marks them. */
 a {
   color: inherit;
   text-underline-offset: 2px;
+}
+
+/* App setting "Reduce motion" (src/data/motion.ts): stop CSS animations and transitions everywhere. */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
 }

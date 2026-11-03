@@ -1,0 +1,17 @@
+.findsg-brand-mark {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: var(--findsg-mark-size, 1em);
+  height: var(--findsg-mark-size, 1em);
+  vertical-align: middle;
+  background-color: currentColor;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-position: center;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+  mask-mode: alpha;
+  pointer-events: none;
+  user-select: none;
+}

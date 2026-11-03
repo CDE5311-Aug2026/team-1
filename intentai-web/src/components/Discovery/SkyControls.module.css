@@ -1,0 +1,71 @@
+/* the sky keys sit at the top right of the live 3D view; their choices open as one row under them */
+.keys {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.key,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 12px 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(35, 33, 29, 0.72);
+  color: #fff;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
+  cursor: pointer;
+}
+
+.key[aria-expanded='true'] {
+  background: #fff;
+  color: var(--text-primary);
+}
+
+.row {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.chip[aria-checked='true'] {
+  background: #fff;
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .row {
+    animation: rise 0.18s ease-out;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}

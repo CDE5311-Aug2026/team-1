@@ -24,7 +24,7 @@ export default function NearbyLinks({ links, label = 'In Nearby' }: { links: rea
           const name = l.kind === 'place' && l.why === 'try' ? `Try it: ${l.label}` : l.label;
           return (
             <li key={`${l.kind}:${l.id}`}>
-              <Link className={styles.chip} to={nearbyHref(l)} aria-label={`${name}${done ? ', checked in' : ''} (opens Nearby)`}>
+              <Link className={styles.chip} to={nearbyHref(l)} aria-label={`${name}${done ? ', checked in' : ''} (shows it on the Home map)`}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d={l.kind === 'place' ? PIN : l.kind === 'list' ? LIST : AREA} />
                 </svg>

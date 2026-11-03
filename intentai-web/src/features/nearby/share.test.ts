@@ -20,7 +20,7 @@ test('a short checklist lists every place, ticked or not, with the count and a l
   expect(lines[0]).toBe(`${hawkers.title} (${hawkers.titleZh}): I have checked in at 2 of ${members(hawkers).length}.`);
   expect(lines).toContain(`✓ ${a.name}`);
   expect(lines.filter((l) => l.startsWith('○ '))).toHaveLength(members(hawkers).length - 2);
-  expect(c.url).toBe(`${window.location.origin}/nearby?list=sg-hawker-centres`);
+  expect(c.url).toBe(`${window.location.origin}/?lvl=pick&k=list%3Asg-hawker-centres`);
   // nothing about where or when: no dates, no coordinates
   expect(c.text).not.toMatch(/2026|103\.|1\.2/);
 });
@@ -38,7 +38,7 @@ test('a place shares its name, kind and area, and "I checked in here" only when 
   expect(placeShare(p, visit([])).text).not.toContain('checked in');
   const s = placeShare(p, visit([p.id]));
   expect(s.text).toContain('I checked in here.');
-  expect(s.url).toBe(`${window.location.origin}/nearby/place/${encodeURIComponent(p.id)}`);
+  expect(s.url).toBe(`${window.location.origin}/?lvl=places&r=central&a=dt&p=${encodeURIComponent(p.id)}`);
   expect(s.text).not.toMatch(/\d\.\d{3}/);
 });
 

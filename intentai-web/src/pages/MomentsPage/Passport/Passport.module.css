@@ -1,0 +1,373 @@
+/* M1 "My places": a parchment page of the passport, bound on the left in dark leather (as Hunt's story page). */
+.section {
+  margin: 0 0 26px;
+}
+
+.book {
+  position: relative;
+  height: 330px;
+  margin-left: 6px;
+  overflow: hidden;
+  border-radius: 3px 8px 8px 3px;
+  color: var(--ink);
+  /* the paper without its long fibres, so the stamps read clearly */
+  background: radial-gradient(120% 70% at 55% 30%, rgba(255, 249, 230, 0.5), transparent 65%), var(--stains), var(--grain), var(--paper-color);
+  box-shadow:
+    inset 16px 0 20px -14px rgba(60, 38, 16, 0.5),
+    inset 0 0 50px rgba(120, 78, 30, 0.3),
+    0 18px 36px rgba(0, 0, 0, 0.5),
+    2px 2px 0 #d4bf93,
+    4px 4px 0 #c9b286;
+  rotate: -0.5deg;
+}
+
+/* the leather binding */
+.spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 9px;
+  background: linear-gradient(90deg, #170d08, #3f2316 55%, #2a160d);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 24px;
+  margin: 12px 16px 0 24px;
+  white-space: nowrap;
+}
+
+.heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font:
+    400 1.125rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+/* the rank ring: opens the rank sheet */
+.rank {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: -3px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 250, 240, 0.6);
+  color: #a8481f;
+  cursor: pointer;
+}
+.rank svg:first-child {
+  position: absolute;
+  inset: 0;
+}
+.rank::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+}
+
+/* a ruled line in faded ink */
+.rule {
+  flex: 1;
+  min-width: 0;
+  height: 0;
+  border-top: 1px solid rgba(44, 33, 23, 0.3);
+  box-shadow: 0 2px 0 -1px rgba(44, 33, 23, 0.12);
+}
+
+.count {
+  padding: 4px 0;
+  color: var(--red-ink);
+  font:
+    italic 400 0.9375rem/1 'IM Fell English',
+    Georgia,
+    serif;
+  text-decoration: none;
+}
+
+.count:focus-visible,
+.link:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 136px 136px;
+  gap: 8px 6px;
+  margin: 10px 12px 0 18px;
+  padding: 0;
+  list-style: none;
+  touch-action: pan-y;
+}
+
+.cell {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* stamps pressed by hand: never quite straight */
+.cell:nth-child(1) .place {
+  rotate: -3deg;
+}
+.cell:nth-child(2) .place {
+  rotate: 2.5deg;
+}
+.cell:nth-child(3) .place {
+  rotate: 1.5deg;
+}
+.cell:nth-child(4) .place {
+  rotate: -2deg;
+}
+
+.place {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 4px 0 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.place:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.stampCard,
+.stampRound {
+  position: relative;
+  display: block;
+  height: 104px;
+  flex: none;
+}
+
+.stampCard {
+  width: min(150px, 100%);
+}
+
+.stampRound {
+  width: 104px;
+}
+
+/* TODAY: a small red-ink tab */
+.today {
+  position: absolute;
+  top: -5px;
+  right: -3px;
+  padding: 0 5px;
+  border-radius: 2px;
+  background: var(--red-ink);
+  color: var(--cream);
+  font:
+    400 10px/17px var(--font-display);
+  letter-spacing: 0.08em;
+  rotate: 4deg;
+  box-shadow: 0 1px 2px rgba(44, 33, 23, 0.35);
+}
+
+.cardDots {
+  display: flex;
+  gap: 4px;
+  height: 18px;
+  margin-top: 6px;
+}
+
+.cardDot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  border: 1px solid rgba(44, 33, 23, 0.3);
+  border-radius: 50%;
+}
+
+.cardDot img {
+  width: 10px;
+  height: 10px;
+  opacity: 0.45;
+  filter: sepia(0.6);
+}
+
+.dotOpen {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+
+.dotDark {
+  background: var(--red-ink);
+  border-color: var(--red-ink);
+}
+
+.dotOpen img,
+.dotDark img {
+  opacity: 1;
+  filter: brightness(0) invert(1);
+}
+
+.outline {
+  gap: 7px;
+  padding-top: 10px;
+}
+
+/* a place not stamped yet: a faint pencilled ring with an old photo inside */
+.emptyStamp {
+  position: relative;
+  display: block;
+  width: 84px;
+  height: 84px;
+  box-sizing: border-box;
+  border: 1.5px dashed rgba(44, 33, 23, 0.38);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.emptyPhoto {
+  position: absolute;
+  inset: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  border-radius: 50%;
+  object-fit: cover;
+  opacity: 0.32;
+  filter: grayscale(1) sepia(0.7);
+  mix-blend-mode: multiply;
+}
+
+.lock {
+  position: absolute;
+  left: calc(50% - 9px);
+  top: calc(50% - 9px);
+  filter: sepia(0.6) brightness(0.7);
+}
+
+.outlineName {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-soft);
+  font:
+    400 0.9375rem/1.1 var(--font-display);
+}
+
+/* ---- under the page, on the chart ---- */
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin-top: 14px;
+}
+
+.footer > p {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--cream-soft);
+  font:
+    italic 400 0.875rem/1.3 'IM Fell English',
+    Georgia,
+    serif;
+}
+
+.footer > p img {
+  flex: none;
+}
+
+.link {
+  color: #f0a060;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.pager button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(232, 201, 131, 0.35);
+  border-radius: 10px;
+  background: rgba(20, 12, 6, 0.45);
+  color: var(--brass);
+  cursor: pointer;
+}
+
+.pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pager button:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dots i {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(232, 201, 131, 0.35);
+}
+
+.dots i.dotOn {
+  width: 16px;
+  height: 4px;
+  border-radius: 3px 5px 4px 2px;
+  background: var(--orange);
+  transform: skewX(-12deg);
+}
+
+@media (max-width: 350px) {
+  .footer > p {
+    font-size: 0.8125rem;
+  }
+  .stampRound {
+    width: 96px;
+    height: 96px;
+  }
+  .stampCard {
+    height: 96px;
+  }
+}

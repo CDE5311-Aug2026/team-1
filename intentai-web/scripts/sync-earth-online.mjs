@@ -7,6 +7,8 @@
 //      kept: roads, buildings, landmarks and their cards, time of day / sun and sky, weather, sound, language, sharp ground.
 //   2. scripts/earth-online-lite.py turns that build into public/earth-online/sg/lite.html (nearby-only loading, phone limits,
 //      only the time bar and the cards on screen, postMessage bridge).
+//   2b. the same again with the F1 drive and the Marina Bay circuit kept (F1_KEEP) gives f1.html: the Hunt's night race at the
+//      Esplanade stop opens it with #f1=race (earth-online-lite.py: the race bridge).
 //   3. <earth_online>/site/sgdata/* is copied next to it. vendor/ (three.js r128, MIT) is committed, not synced.
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
@@ -34,6 +36,9 @@ export const LITE_SKIP = [
   'sgreal/app/cityswitch.js',
 ];
 
+/** kept in f1.html: the Hunt's night race on the Marina Bay Street Circuit */
+export const F1_KEEP = ['lm20/f1d/f1d.js', 'lm20/f1track/f1track.js'];
+
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(process.argv[2] ?? '');
 const srcDir = join(repo, 'src');
@@ -45,18 +50,20 @@ if (!process.argv[2] || !statSync(join(srcDir, 'city-brush-v16.html'), { throwIf
 }
 
 const tmp = mkdtempSync(join(tmpdir(), 'earth-online-'));
-const built = join(tmp, 'sg.lite0.html');
-execFileSync('python3', ['sgreal/patch17.py', 'city-brush-v16.html', built], {
-  cwd: srcDir,
-  env: { ...process.env, CITY: 'sg', SKIP_MODS: LITE_SKIP.join(',') },
-  stdio: ['ignore', 'ignore', 'inherit'],
-});
-if (!/<meta name="citybrush-map" content="sg">/.test(readFileSync(built, 'utf8').slice(0, 400))) {
-  console.error('the build is not the Singapore City Brush page');
-  process.exit(1);
-}
 mkdirSync(join(out, 'sgdata'), { recursive: true });
-execFileSync('python3', [join(here, 'earth-online-lite.py'), built, join(out, 'lite.html')], { stdio: ['ignore', 'ignore', 'inherit'] });
+for (const [name, skip] of [['lite.html', LITE_SKIP], ['f1.html', LITE_SKIP.filter((m) => !F1_KEEP.includes(m))]]) {
+  const built = join(tmp, name.replace('.html', '.0.html'));
+  execFileSync('python3', ['sgreal/patch17.py', 'city-brush-v16.html', built], {
+    cwd: srcDir,
+    env: { ...process.env, CITY: 'sg', SKIP_MODS: skip.join(',') },
+    stdio: ['ignore', 'ignore', 'inherit'],
+  });
+  if (!/<meta name="citybrush-map" content="sg">/.test(readFileSync(built, 'utf8').slice(0, 400))) {
+    console.error('the build is not the Singapore City Brush page');
+    process.exit(1);
+  }
+  execFileSync('python3', [join(here, 'earth-online-lite.py'), built, join(out, name)], { stdio: ['ignore', 'ignore', 'inherit'] });
+}
 rmSync(tmp, { recursive: true, force: true });
 // The full page (driving, navigation, …) is not bundled any more.
 rmSync(join(out, 'index.html'), { force: true });

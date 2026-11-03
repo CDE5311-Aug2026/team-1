@@ -1,0 +1,1028 @@
+/* The case book (2 Nov 2026): FindSG's dialogs as pages of the detective's book, matched to the stop page and the
+   Hunt desk. Parchment, a leather spine on the left, brown-black ink, red ink for what matters; Oswald for titles,
+   labels and buttons, IM Fell for the story's words. On a phone (≤760px) every page is the whole screen and never
+   scrolls; on a wide screen it is one page lying open on the dark desk. */
+
+.findsg dialog.cb {
+  --cb-ink: #2c2117;
+  --cb-soft: #5a4632;
+  --cb-faint: #8a7155;
+  --cb-red: #9b2c1c;
+  --cb-red-deep: #8a2414;
+  --cb-line: rgba(90, 60, 25, 0.26);
+  --cb-sheet: #f6ecd6;
+  --cb-manila: #e2cfa6;
+  --cb-pad-l: 26px;
+  --cb-pad-r: 18px;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  color: var(--cb-ink);
+  color-scheme: light;
+  font: 17px/1.4 var(--serif, 'IM Fell English', Georgia, serif);
+  background:
+    radial-gradient(120% 70% at 55% 30%, rgba(255, 249, 230, 0.5), transparent 65%),
+    var(--stains, none), var(--fibres, none), var(--grain, none), #eadcbd;
+  box-shadow:
+    inset 16px 0 20px -14px rgba(60, 38, 16, 0.5),
+    inset 0 0 50px rgba(120, 78, 30, 0.3);
+  transform-origin: 0 50%;
+}
+.findsg dialog.cb[open] {
+  display: flex;
+  flex-direction: column;
+  animation: cb-open 0.72s cubic-bezier(0.3, 0.05, 0.15, 1) both;
+}
+/* the leather spine */
+.findsg dialog.cb::before {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  background: linear-gradient(90deg, #170d08, #3f2316 45%, #2a160d);
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.findsg dialog.cb::backdrop {
+  background: radial-gradient(ellipse at 50% 40%, rgba(29, 23, 17, 0.72), rgba(14, 9, 5, 0.9));
+  animation: cb-fade 0.4s ease both;
+}
+.findsg dialog.cb *,
+.findsg dialog.cb *::before,
+.findsg dialog.cb *::after {
+  box-sizing: border-box;
+}
+.findsg dialog.cb button {
+  font-family: var(--font-display);
+  cursor: pointer;
+}
+.findsg dialog.cb :is(h2, h3, h4, p, li) {
+  margin: 0;
+}
+.findsg dialog.cb .cb-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.findsg dialog.cb .cb-page:focus {
+  outline: none;
+}
+
+/* the bar: back, what this page is, close (the stop page's own header, in the same voice) */
+.findsg dialog.cb .cb-bar {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 54px;
+  padding: env(safe-area-inset-top, 0px) 8px 0 calc(var(--cb-pad-l) - 6px);
+  border-bottom: 1px solid var(--cb-line);
+}
+.findsg dialog.cb .cb-back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  color: var(--cb-ink);
+  font: 400 17px/1 var(--font-display);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.findsg dialog.cb .cb-back > span {
+  font-size: 24px;
+  line-height: 0.6;
+  margin-top: -3px;
+}
+.findsg dialog.cb .cb-label {
+  justify-self: center;
+  font: 400 14px/1 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cb-soft);
+  white-space: nowrap;
+}
+.findsg dialog.cb .cb-label b {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--cb-red);
+  font-size: 17px;
+  margin-left: 4px;
+}
+.findsg dialog.cb .cb-close {
+  justify-self: end;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--cb-ink);
+  font-size: 19px;
+}
+.findsg dialog.cb :is(.cb-close, .cb-back):hover {
+  color: var(--cb-red);
+}
+.findsg dialog.cb :is(button, a):focus-visible {
+  outline: 2px solid var(--cb-red);
+  outline-offset: 2px;
+}
+
+/* the page itself: one screen, turned like a page when you go from one to the next */
+/* a place file or an evidence card: turned like paper (PaperPages); each page is the book's own parchment */
+.findsg dialog.cb .cb-pages {
+  --pp-paper: radial-gradient(120% 70% at 55% 30%, rgba(255, 249, 230, 0.5), transparent 65%), var(--stains, none), var(--fibres, none), var(--grain, none), #eadcbd;
+  --pp-shadow: inset 16px 0 20px -14px rgba(60, 38, 16, 0.5), inset 0 0 50px rgba(120, 78, 30, 0.3);
+  --pp-flap: var(--fibres, none), var(--grain, none), linear-gradient(90deg, #d8c59c, #efe2c4 30%);
+}
+.findsg dialog.cb .cb-pages > div > .cb-page {
+  height: 100%;
+}
+.findsg dialog.cb .cb-page {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 18px var(--cb-pad-r) calc(16px + env(safe-area-inset-bottom, 0px)) var(--cb-pad-l);
+  overflow: hidden;
+  animation: cb-turn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.findsg dialog.cb .cb-title {
+  font: 400 27px/1.12 var(--font-display);
+  letter-spacing: 0.005em;
+  color: var(--cb-ink);
+  text-wrap: balance;
+}
+.findsg dialog.cb .cb-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+.findsg dialog.cb .cb-mode {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 400 13px/1 var(--font-display);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #3f6b3c;
+}
+.findsg dialog.cb .cb-mode::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.findsg dialog.cb .cb-mode.is-preview {
+  color: var(--cb-soft);
+}
+.findsg dialog.cb .cb-fine {
+  font: italic 15px/1.35 var(--serif);
+  color: var(--cb-faint);
+}
+
+/* buttons: the stop page's red action, and a quiet ink outline */
+.findsg dialog.cb .cb-primary {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ad3a24, #8a2414);
+  color: #fbf3e2;
+  font: 400 19px/1 var(--font-display);
+  letter-spacing: 0.02em;
+  text-align: left;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 210, 180, 0.35),
+    0 6px 14px -6px rgba(138, 36, 20, 0.7);
+}
+.findsg dialog.cb .cb-primary > span {
+  color: #fbe3d2;
+  font-size: 22px;
+}
+.findsg dialog.cb .cb-primary:hover {
+  filter: brightness(1.06);
+}
+.findsg dialog.cb .cb-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 16px;
+  border: 1.5px solid rgba(60, 38, 16, 0.32);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--cb-ink);
+  font: 400 18px/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+/* ---------- How to play: a case brief in three moves ---------- */
+.findsg dialog.cb--how .cb-page {
+  justify-content: space-between;
+  gap: 16px;
+}
+.findsg dialog.cb .cb-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 560px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 0;
+  position: relative;
+}
+.findsg dialog.cb .cb-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  padding: 14px 0;
+}
+/* the route between the moves, drawn in red ink from seal to seal */
+.findsg dialog.cb .cb-step + .cb-step::before {
+  content: '';
+  position: absolute;
+  left: 41px;
+  bottom: calc(50% + 46px);
+  height: calc(100% - 92px);
+  border-left: 2px dashed rgba(155, 44, 28, 0.55);
+}
+.findsg dialog.cb .cb-step {
+  flex: 1 1 0;
+  min-height: 0;
+}
+.findsg dialog.cb .cb-step-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fbf3e2, #f1e3c4);
+  border: 1.5px solid rgba(90, 60, 25, 0.35);
+  box-shadow:
+    0 0 0 5px rgba(234, 220, 189, 0.9),
+    0 0 0 6px rgba(90, 60, 25, 0.18),
+    0 8px 16px -8px rgba(60, 38, 16, 0.5);
+}
+.findsg dialog.cb .cb-step-icon svg {
+  width: 46px;
+  height: 46px;
+  fill: none;
+  stroke: var(--cb-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.findsg dialog.cb .cb-step--keep .cb-step-icon svg path:last-child {
+  fill: var(--cb-red);
+  stroke: var(--cb-red);
+}
+.findsg dialog.cb .cb-step--go .cb-step-icon svg circle {
+  fill: var(--cb-red);
+  stroke: var(--cb-red);
+}
+.findsg dialog.cb .cb-step--look .cb-step-icon svg circle {
+  stroke: var(--cb-red);
+}
+.findsg dialog.cb .cb-step > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: baseline;
+}
+.findsg dialog.cb .cb-step b {
+  font: 500 30px/1 var(--font-display);
+  color: var(--cb-red);
+}
+.findsg dialog.cb .cb-step h3 {
+  font: 400 23px/1.1 var(--font-display);
+  letter-spacing: 0.01em;
+  color: var(--cb-ink);
+}
+.findsg dialog.cb .cb-step p {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  font: 17px/1.32 var(--serif);
+  color: var(--cb-soft);
+}
+.findsg dialog.cb--how .cb-fine {
+  text-align: center;
+}
+
+/* ---------- The route: the stops strung on a dashed line, a wax seal at each ---------- */
+.findsg dialog.cb .cb-route {
+  list-style: none;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 14px 0 0;
+  padding: 0;
+}
+.findsg dialog.cb .cb-route li {
+  position: relative;
+  flex: 1 1 0;
+  max-height: 84px;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+/* the dashed road from seal to seal: each row draws its half above and below its own seal */
+.findsg dialog.cb .cb-route li::before,
+.findsg dialog.cb .cb-route li::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  height: 50%;
+  border-left: 2px dashed rgba(90, 60, 25, 0.35);
+  pointer-events: none;
+}
+.findsg dialog.cb .cb-route li::before {
+  top: 0;
+}
+.findsg dialog.cb .cb-route li::after {
+  bottom: 0;
+}
+.findsg dialog.cb .cb-route li:first-child::before,
+.findsg dialog.cb .cb-route li:last-child::after {
+  display: none;
+}
+.findsg dialog.cb .cb-route li.is-done::after,
+.findsg dialog.cb .cb-route li.is-done + li::before {
+  border-left: 2px solid var(--cb-ink);
+}
+.findsg dialog.cb .cb-route button {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(90, 60, 25, 0.12);
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+.findsg dialog.cb .cb-route li:last-child button {
+  border-bottom: 0;
+}
+.findsg dialog.cb .cb-seal {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(90, 60, 25, 0.45);
+  background: #efe2c4;
+  color: var(--cb-soft);
+  font: 400 16px/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.findsg dialog.cb .cb-route .is-done .cb-seal {
+  border-color: var(--cb-ink);
+  background: var(--cb-ink);
+  color: #f2e8d5;
+  font-size: 18px;
+}
+.findsg dialog.cb .cb-route .is-here .cb-seal {
+  border: 0;
+  background: radial-gradient(circle at 36% 30%, #c8502f, #8a2414 70%);
+  color: #fbf3e2;
+  box-shadow: 0 0 0 4px rgba(155, 44, 28, 0.16), 0 3px 6px rgba(90, 20, 10, 0.4);
+}
+.findsg dialog.cb .cb-route-text {
+  min-width: 0;
+}
+.findsg dialog.cb .cb-route-text strong {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 400 18px/1.25 var(--font-display);
+  letter-spacing: 0.01em;
+  color: var(--cb-ink);
+}
+.findsg dialog.cb .cb-route-text small {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: italic 15px/1.3 var(--serif);
+  color: var(--cb-soft);
+}
+.findsg dialog.cb .cb-route .is-here small {
+  font: 400 12px/1.5 var(--font-display);
+  font-style: normal;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cb-red);
+}
+.findsg dialog.cb .cb-route i {
+  font: 400 24px/1 var(--font-display);
+  font-style: normal;
+  color: var(--cb-faint);
+}
+.findsg dialog.cb .cb-route button:hover strong {
+  color: var(--cb-red);
+}
+
+/* ---------- Evidence seals: one per stop, pressed red when the clue is found ---------- */
+.findsg dialog.cb .cb-strip {
+  list-style: none;
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+.findsg dialog.cb .cb-strip li {
+  flex: 0 1 36px;
+  min-width: 0;
+}
+.findsg dialog.cb .cb-strip li > :is(button, span) {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 36px;
+  padding: 0;
+  border-radius: 50%;
+  font: 400 14px/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.findsg dialog.cb .cb-strip .is-missing > span {
+  border: 1.5px dashed rgba(90, 60, 25, 0.4);
+  color: rgba(90, 60, 25, 0.55);
+}
+.findsg dialog.cb .cb-strip .is-found > :is(button, span) {
+  border: 0;
+  background: radial-gradient(circle at 36% 30%, #c8502f, #8a2414 70%);
+  color: #fbf3e2;
+  box-shadow: inset 0 0 0 3px rgba(255, 220, 190, 0.18), 0 2px 4px rgba(90, 20, 10, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.findsg dialog.cb .cb-strip .is-active > button {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 0 0 2px #eadcbd, 0 0 0 4px var(--cb-ink), 0 4px 8px rgba(90, 20, 10, 0.4);
+}
+
+/* ---------- The clue bag ---------- */
+.findsg dialog.cb--journal .cb-page {
+  gap: 12px;
+}
+.findsg dialog.cb .cb-bag {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+.findsg dialog.cb .cb-bag-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+.findsg dialog.cb .cb-bag-stack {
+  max-width: none;
+  margin: 0 -6px;
+  width: auto;
+}
+.findsg dialog.cb .cb-bag-note > :is(small, h3, p) {
+  display: none;
+}
+.findsg dialog.cb .cb-foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--cb-line);
+  font: 400 13px/1.3 var(--font-display);
+  letter-spacing: 0.06em;
+  color: var(--cb-faint);
+}
+.findsg dialog.cb .cb-foot button {
+  min-height: 32px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--cb-red);
+  font: 400 14px/1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+/* empty: the seals still to find, and an empty case file */
+.findsg dialog.cb .cb-empty {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+.findsg dialog.cb .cb-empty .cb-strip {
+  justify-content: center;
+  max-width: 100%;
+  margin-bottom: 12px;
+}
+.findsg dialog.cb .cb-empty .cb-strip li {
+  flex: 0 1 32px;
+  width: 32px;
+}
+.findsg dialog.cb .cb-empty-folder {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  width: min(250px, 70%);
+  aspect-ratio: 1.3;
+  margin: 10px 0 6px;
+  border: 1px solid #a88a5a;
+  border-radius: 4px 10px 6px 4px;
+  background:
+    repeating-linear-gradient(4deg, rgba(143, 117, 70, 0.05) 0 1px, transparent 1px 7px),
+    linear-gradient(160deg, #e6d2a4, #d3b982);
+  box-shadow: 0 14px 24px -12px rgba(60, 38, 16, 0.55), inset 0 1px rgba(255, 245, 220, 0.6);
+  transform: rotate(-2deg);
+}
+.findsg dialog.cb .cb-empty-folder::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  left: 14px;
+  width: 42%;
+  height: 20px;
+  border: 1px solid #a88a5a;
+  border-bottom: 0;
+  border-radius: 8px 12px 0 0;
+  background: #e2cd9c;
+}
+.findsg dialog.cb .cb-empty-folder span {
+  font: 400 13px/1 var(--font-display);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #6b5232;
+}
+.findsg dialog.cb .cb-empty-folder b {
+  font: 400 52px/1 var(--font-display);
+  color: #5a4632;
+}
+.findsg dialog.cb .cb-empty-folder i {
+  position: absolute;
+  right: 14px;
+  bottom: 16px;
+  padding: 4px 10px;
+  border: 2px solid rgba(155, 44, 28, 0.7);
+  outline: 1px solid rgba(155, 44, 28, 0.4);
+  outline-offset: 2px;
+  color: rgba(155, 44, 28, 0.8);
+  font: 400 15px/1 var(--font-display);
+  font-style: normal;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transform: rotate(-9deg);
+}
+.findsg dialog.cb .cb-empty h3 {
+  font: 400 24px/1.1 var(--font-display);
+  color: var(--cb-ink);
+}
+.findsg dialog.cb .cb-empty p {
+  max-width: 290px;
+  font: 17px/1.35 var(--serif);
+  color: var(--cb-soft);
+}
+.findsg dialog.cb .cb-empty .cb-primary {
+  margin-top: auto;
+}
+
+/* ---------- Evidence: one clue card, turned over in your hand ---------- */
+.findsg dialog.cb .cb-evidence {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.findsg dialog.cb .cb-where {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 0 0 auto;
+  font: 400 14px/1.3 var(--font-display);
+  letter-spacing: 0.06em;
+  color: var(--cb-soft);
+}
+.findsg dialog.cb .cb-where > span {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.findsg dialog.cb .cb-where button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--cb-red);
+  font: 400 16px/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.findsg dialog.cb .cb-where button b {
+  font-weight: 400;
+  font-size: 20px;
+}
+.findsg dialog.cb .cb-packet {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.findsg dialog.cb .cb-packet .dp-view-switch {
+  flex: 0 0 auto;
+  display: inline-flex;
+  margin: 0;
+  padding: 3px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(90, 60, 25, 0.1);
+  box-shadow: inset 0 1px 2px rgba(60, 38, 16, 0.15);
+}
+.findsg dialog.cb .cb-packet .dp-view-switch button {
+  min-width: 92px;
+  min-height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cb-soft);
+  font: 400 15px/1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.findsg dialog.cb .cb-packet .dp-view-switch button[aria-pressed='true'] {
+  background: var(--cb-ink);
+  color: #f3e6c8;
+  box-shadow: 0 2px 4px rgba(20, 12, 4, 0.3);
+}
+.findsg dialog.cb .cb-packet .dp-discovery {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+/* the card is as big as the page allows, never taller than it */
+.findsg dialog.cb .cb-packet .holo-card {
+  width: min(100%, calc((100dvh - 360px) * 0.715), 380px);
+  max-width: none;
+  margin: 0 auto;
+}
+.findsg dialog.cb .cb-packet .dp-art-note {
+  flex: 0 0 auto;
+  margin: 0;
+  font: italic 15px/1.3 var(--serif);
+  color: var(--cb-faint);
+  text-align: center;
+}
+.findsg dialog.cb .cb-evidence > .cb-strip {
+  justify-content: center;
+  padding-top: 4px;
+}
+/* the paper, inside the evidence page or the paper study: the object and its controls, nothing printed twice */
+.findsg dialog.cb :is(.cb-packet, .cb-page) .findsg-archive-paper {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+.findsg dialog.cb .cb-packet .findsg-archive-paper .ap-heading,
+.findsg dialog.cb .findsg-archive-paper :is(.ap-stage-label, .ap-stage-measure, .ap-gesture-note, .ap-eyebrow, .ap-folio) {
+  display: none;
+}
+.findsg dialog.cb .findsg-archive-paper .ap-heading h3 {
+  font: 400 24px/1.15 var(--font-display);
+  color: var(--cb-ink);
+}
+.findsg dialog.cb .findsg-archive-paper .ap-heading {
+  margin: 0 0 10px;
+}
+.findsg dialog.cb .findsg-archive-paper .ap-stage {
+  flex: 1 1 auto;
+  min-height: 260px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25), 0 10px 20px -12px rgba(20, 12, 4, 0.6);
+}
+.findsg dialog.cb .findsg-archive-paper .ap-controls {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+.findsg dialog.cb .findsg-archive-paper .ap-secondary-controls {
+  display: contents;
+}
+.findsg dialog.cb .findsg-archive-paper .ap-controls button {
+  min-height: 46px;
+  padding: 4px 6px;
+  border: 1.5px solid rgba(60, 38, 16, 0.25);
+  border-radius: 12px;
+  background: rgba(255, 250, 238, 0.4);
+  color: var(--cb-ink);
+  font: 400 14px/1.1 var(--font-display);
+  letter-spacing: 0.02em;
+  flex-direction: column;
+  gap: 2px;
+}
+.findsg dialog.cb .findsg-archive-paper .ap-controls button > span[aria-hidden] {
+  color: var(--cb-red);
+}
+.findsg dialog.cb .findsg-archive-paper .ap-controls .ap-unfold {
+  flex-direction: row;
+  justify-content: space-between;
+  border: 0;
+  background: linear-gradient(180deg, #ad3a24, #8a2414);
+  color: #fbf3e2;
+  font-size: 16px;
+  padding: 0 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 210, 180, 0.35), 0 6px 14px -6px rgba(138, 36, 20, 0.7);
+}
+.findsg dialog.cb .findsg-archive-paper .ap-controls .ap-unfold > span:last-child {
+  color: #fbe3d2;
+}
+/* the paper's text and its status line stay for screen readers; on the page you read it on the paper itself */
+.findsg dialog.cb .findsg-archive-paper .ap-render-note,
+.findsg dialog.cb .findsg-archive-paper .ap-reader {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Start over: a small card on the page, not a page of its own ---------- */
+.findsg dialog.cb.cb--card {
+  inset: 0;
+  width: min(400px, calc(100vw - 32px));
+  height: fit-content;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  border-radius: 4px 14px 14px 4px;
+  box-shadow:
+    inset 16px 0 20px -14px rgba(60, 38, 16, 0.5),
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    2px 2px 0 #d4bf93,
+    4px 4px 0 #c9b286;
+}
+.findsg dialog.cb--restart .cb-page {
+  gap: 14px;
+  padding: 26px 22px 22px 30px;
+}
+.findsg dialog.cb--restart p {
+  font: 18px/1.38 var(--serif);
+  color: var(--cb-soft);
+}
+.findsg dialog.cb--restart em {
+  color: var(--cb-ink);
+}
+.findsg dialog.cb .cb-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+.findsg dialog.cb .cb-actions .cb-primary {
+  padding: 0 16px;
+  font-size: 18px;
+}
+
+/* ---------- Paper study ---------- */
+.findsg dialog.cb--paper .cb-page {
+  gap: 0;
+}
+
+/* ---------- motion: a heavy book falls open; pages turn ---------- */
+@keyframes cb-open {
+  0% {
+    opacity: 0;
+    transform: perspective(1600px) rotateY(-62deg) translateX(-3%);
+  }
+  18% {
+    opacity: 1;
+  }
+  78% {
+    transform: perspective(1600px) rotateY(2.5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cb-turn {
+  from {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cb-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes cb-card {
+  from {
+    opacity: 0;
+    transform: translateY(14px) rotate(-1deg);
+  }
+}
+.findsg dialog.cb.cb--card[open] {
+  animation: cb-card 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+:root[data-motion='reduced'] .findsg dialog.cb,
+:root[data-motion='reduced'] .findsg dialog.cb .cb-page,
+:root[data-motion='reduced'] .findsg dialog.cb::backdrop {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .findsg dialog.cb,
+  .findsg dialog.cb .cb-page,
+  .findsg dialog.cb::backdrop {
+    animation: none !important;
+  }
+}
+
+/* small phones: tighter, still one screen */
+@media (max-width: 760px) and (max-height: 720px) {
+  .findsg dialog.cb .cb-title {
+    font-size: 24px;
+  }
+  .findsg dialog.cb .cb-step {
+    grid-template-columns: 64px minmax(0, 1fr);
+    padding: 8px 0;
+  }
+  .findsg dialog.cb .cb-step-icon {
+    width: 64px;
+    height: 64px;
+  }
+  .findsg dialog.cb .cb-step-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+  .findsg dialog.cb .cb-step + .cb-step::before {
+    left: 31px;
+  }
+  .findsg dialog.cb .cb-step p {
+    font-size: 16px;
+  }
+}
+
+/* ---------- a wide screen: one page lying open on the dark desk ---------- */
+@media (min-width: 761px) {
+  .findsg dialog.cb:not(.cb--card) {
+    --cb-pad-l: 40px;
+    --cb-pad-r: 32px;
+    width: min(960px, calc(100vw - 64px));
+    height: min(820px, calc(100dvh - 48px));
+    margin: auto;
+    border-radius: 4px 12px 12px 4px;
+    box-shadow:
+      inset 16px 0 20px -14px rgba(60, 38, 16, 0.5),
+      inset 0 0 50px rgba(120, 78, 30, 0.3),
+      0 30px 80px rgba(0, 0, 0, 0.6),
+      2px 2px 0 #d4bf93,
+      4px 4px 0 #c9b286;
+  }
+  .findsg dialog.cb::before {
+    width: 14px;
+  }
+  .findsg dialog.cb .cb-page {
+    padding-top: 26px;
+    padding-bottom: 26px;
+  }
+  .findsg dialog.cb .cb-title {
+    font-size: 34px;
+  }
+  .findsg dialog.cb--how:not(.cb--card),
+  .findsg dialog.cb--route:not(.cb--card) {
+    width: min(620px, calc(100vw - 64px));
+  }
+  .findsg dialog.cb--how .cb-page {
+    padding-inline: 56px 48px;
+  }
+  /* the clue bag: the stack on the left, the chosen clue's note on the right */
+  .findsg dialog.cb .cb-bag-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 34px;
+  }
+  .findsg dialog.cb .cb-bag-note > :is(small, h3, p) {
+    display: block;
+  }
+  .findsg dialog.cb .cb-bag-note {
+    display: grid;
+    gap: 10px;
+    padding: 24px 24px 22px;
+    background: var(--cb-sheet);
+    border: 1px solid rgba(90, 60, 25, 0.25);
+    box-shadow: 0 1px 2px rgba(60, 38, 16, 0.14), 0 14px 24px -14px rgba(60, 38, 16, 0.45);
+    transform: rotate(0.6deg);
+  }
+  .findsg dialog.cb .cb-bag-note small {
+    font: 400 13px/1 var(--font-display);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cb-red);
+  }
+  .findsg dialog.cb .cb-bag-note h3 {
+    font: 400 26px/1.15 var(--font-display);
+    color: var(--cb-ink);
+  }
+  .findsg dialog.cb .cb-bag-note p {
+    font: 18px/1.4 var(--serif);
+    color: var(--cb-soft);
+    margin-bottom: 8px;
+  }
+  .findsg dialog.cb .cb-packet .holo-card {
+    width: min(100%, calc((min(820px, 100dvh - 48px) - 330px) * 0.715), 360px);
+  }
+}

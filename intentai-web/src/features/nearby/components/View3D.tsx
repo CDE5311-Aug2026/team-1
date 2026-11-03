@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { earthOnline3dOrigin, view3dUrl, type View3DTarget } from '../links';
 import type { Category } from '../types';
 import { MapControls } from '../map/CityMap';
+import { lockScroll } from '../../../hooks/scrollLock';
 import { ICON_PATHS } from './icons';
 import styles from './View3D.module.css';
 
@@ -39,6 +40,38 @@ export interface View3DProps {
   onRecenter?: () => void;
   /** px of the view the page covers (search bar, sheet): the 3D view centres in the rest, as the 2D map does. */
   insets?: { top?: number; bottom?: number; left?: number; right?: number };
+  /** Areas drawn over the city (Home's planning areas): tinted, outlined, optionally numbered. A tap calls onZone. */
+  zones?: View3DZone[];
+  onZone?: (id: string) => void;
+  /** Home's map card: daytime, no city labels, room for the whole island. */
+  overview?: boolean;
+  /** The sky: time of day ('now', 'cycle' for day and night playing on, or an hour 0..24) and weather. Unset: the page's own. */
+  sky?: View3DSky;
+}
+
+export type View3DWeather = 'auto' | 'clear' | 'cloudy' | 'haze' | 'rain' | 'storm';
+export interface View3DSky {
+  time: 'now' | 'cycle' | number;
+  wx: View3DWeather;
+}
+
+export interface View3DZone {
+  id: string;
+  /** Outer rings in map metres (projection.ts frame). */
+  rings: readonly (readonly (readonly [number, number])[])[];
+  fill: string;
+  /** Fill opacity 0–1. */
+  fa: number;
+  line: string;
+  /** Outline opacity 0–1. */
+  la: number;
+  sel?: boolean;
+  /** Label point in map metres; num/name label it (a numbered badge). */
+  at: [number, number];
+  num?: number;
+  name?: string;
+  label?: string;
+  kind?: 'Region' | 'Area';
 }
 
 export interface View3DPin {
@@ -60,6 +93,7 @@ type LiteMessage =
   | { source: 'earth-online-lite'; type: 'ready' }
   | { source: 'earth-online-lite'; type: 'card'; key: string | null; title?: string | null }
   | { source: 'earth-online-lite'; type: 'pick'; key: string }
+  | { source: 'earth-online-lite'; type: 'zone'; id: string }
   | { source: 'earth-online-lite'; type: 'view'; at: [number, number]; span: number };
 
 function isLiteMessage(d: unknown): d is LiteMessage {
@@ -67,9 +101,16 @@ function isLiteMessage(d: unknown): d is LiteMessage {
   const m = d as Record<string, unknown>;
   return (
     m.source === 'earth-online-lite' &&
-    (m.type === 'ready' || (m.type === 'card' && (m.key === null || typeof m.key === 'string')) || (m.type === 'pick' && typeof m.key === 'string') ||
-      (m.type === 'view' && Array.isArray(m.at) && m.at.length === 2 && m.at.every((v) => typeof v === 'number' && Number.isFinite(v)) &&
-        typeof m.span === 'number' && Number.isFinite(m.span)))
+    (m.type === 'ready' ||
+      (m.type === 'card' && (m.key === null || typeof m.key === 'string')) ||
+      (m.type === 'pick' && typeof m.key === 'string') ||
+      (m.type === 'zone' && typeof m.id === 'string') ||
+      (m.type === 'view' &&
+        Array.isArray(m.at) &&
+        m.at.length === 2 &&
+        m.at.every((v) => typeof v === 'number' && Number.isFinite(v)) &&
+        typeof m.span === 'number' &&
+        Number.isFinite(m.span)))
   );
 }
 
@@ -83,20 +124,42 @@ function reducedMotion(): boolean {
   }
 }
 
-export default function View3D({ target, title, height = 360, onCard, bleed = false, hideCards = false, you = null, flyId = 0, pins, selectedKey = null, onPick, onView, controlsTop, onRecenter, insets }: View3DProps) {
+export default function View3D({
+  target,
+  title,
+  height = 360,
+  onCard,
+  bleed = false,
+  hideCards = false,
+  you = null,
+  flyId = 0,
+  pins,
+  selectedKey = null,
+  onPick,
+  onView,
+  controlsTop,
+  onRecenter,
+  insets,
+  zones,
+  onZone,
+  overview = false,
+  sky,
+}: View3DProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const closeFull = useRef<HTMLButtonElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
   // The address is fixed when the view opens; later targets go to the page as messages (no reload nearby).
   // The 3D page speaks the app's language (English unless the page is marked Chinese).
   const [src] = useState(() =>
-    view3dUrl(target, { still: reducedMotion(), hideCards, lang: /^zh/i.test(document.documentElement.lang) ? 'zh' : 'en' }),
+    view3dUrl(target, { still: reducedMotion(), hideCards, overview, lang: /^zh/i.test(document.documentElement.lang) ? 'zh' : 'en' }),
   );
   // The landmark whose card the 3D page has open: a target with that card needs no message (no second flight).
   const openCard = useRef<string | null>(null);
   const shown = useRef(keyOf(target));
   const [ready, setReady] = useState(false);
   const [slow, setSlow] = useState(false);
+  // a stalled 3D page can be loaded again (a new key makes a new frame)
+  const [attempt, setAttempt] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const onCardRef = useRef(onCard);
   onCardRef.current = onCard;
@@ -126,6 +189,18 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
       earthOnline3dOrigin(),
     );
   };
+  const zonesRef = useRef(zones);
+  zonesRef.current = zones;
+  const onZoneRef = useRef(onZone);
+  onZoneRef.current = onZone;
+  const zonesSent = useRef<string | null>(null);
+  const postZones = (key: string) => {
+    const z = zonesRef.current;
+    if (!z || zonesSent.current === key) return;
+    zonesSent.current = key;
+    frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'zones', zones: z }, earthOnline3dOrigin());
+  };
+  const zonesKeyRef = useRef('');
   const insetsRef = useRef(insets);
   insetsRef.current = insets;
   const insetsSent = useRef<string | null>(null);
@@ -134,7 +209,21 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     const k = i ? `${i.top ?? 0},${i.bottom ?? 0},${i.left ?? 0},${i.right ?? 0}` : null;
     if (k === insetsSent.current) return;
     insetsSent.current = k;
-    if (i) frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'insets', top: i.top ?? 0, bottom: i.bottom ?? 0, left: i.left ?? 0, right: i.right ?? 0 }, earthOnline3dOrigin());
+    if (i)
+      frame.current?.contentWindow?.postMessage(
+        { source: 'intentai', type: 'insets', top: i.top ?? 0, bottom: i.bottom ?? 0, left: i.left ?? 0, right: i.right ?? 0 },
+        earthOnline3dOrigin(),
+      );
+  };
+  // the sky last sent (a reloaded page starts from its own again)
+  const skyRef = useRef(sky);
+  skyRef.current = sky;
+  const skySent = useRef<string | null>(null);
+  const postSky = () => {
+    const k = skyRef.current ? `${skyRef.current.time}|${skyRef.current.wx}` : null;
+    if (!k || k === skySent.current) return;
+    skySent.current = k;
+    frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'sky', time: skyRef.current!.time, wx: skyRef.current!.wx }, earthOnline3dOrigin());
   };
   // a dot was sent to this page (so "no position" has something to remove)
   const youSent = useRef<string | null>(null);
@@ -143,10 +232,7 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     const k = y ? `${y.lat},${y.lng},${y.accuracyM ?? ''}` : null;
     if (k === youSent.current) return; // nothing new (and no dot to remove)
     youSent.current = k;
-    frame.current?.contentWindow?.postMessage(
-      { source: 'intentai', type: 'you', at: y ? [y.lat, y.lng] : null, acc: y?.accuracyM },
-      earthOnline3dOrigin(),
-    );
+    frame.current?.contentWindow?.postMessage({ source: 'intentai', type: 'you', at: y ? [y.lat, y.lng] : null, acc: y?.accuracyM }, earthOnline3dOrigin());
   };
 
   useEffect(() => {
@@ -161,6 +247,12 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
         postYou();
         pinsSent.current = null;
         postPins(pinsKeyRef.current);
+        zonesSent.current = null;
+        postZones(zonesKeyRef.current);
+        skySent.current = null;
+        postSky();
+      } else if (e.data.type === 'zone') {
+        onZoneRef.current?.(e.data.id);
       } else if (e.data.type === 'pick') {
         onPickRef.current?.(e.data.key);
       } else if (e.data.type === 'view') {
@@ -179,7 +271,11 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     if (ready) return;
     const t = window.setTimeout(() => setSlow(true), SLOW_MS);
     return () => window.clearTimeout(t);
-  }, [ready]);
+  }, [ready, attempt]);
+  const retry = () => {
+    setSlow(false);
+    setAttempt((n) => n + 1);
+  };
 
   // The pins follow the page's list and selection.
   const pinsKey = pins ? `${selectedKey ?? ''}|${pins.map((p) => `${p.key}${p.visited ? '+' : ''}`).join(',')}` : '';
@@ -189,11 +285,25 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
     // pins are read through pinsKey
   }, [ready, pinsKey]);
 
+  // Zones follow the page's level and selection.
+  const zonesKey = zones ? zones.map((z) => `${z.id}:${z.fill}${z.fa}${z.line}${z.la}${z.sel ? 1 : 0}${z.num ?? ''}${z.name ?? ''}`).join('|') : '';
+  zonesKeyRef.current = zonesKey;
+  useEffect(() => {
+    if (ready) postZones(zonesKey);
+    // zones are read through zonesKey
+  }, [ready, zonesKey]);
+
   const insetsKey = insets ? `${insets.top ?? 0},${insets.bottom ?? 0},${insets.left ?? 0},${insets.right ?? 0}` : '';
   useEffect(() => {
     if (ready) postInsets();
     // insets are read through insetsKey
   }, [ready, insetsKey]);
+
+  const skyKey = sky ? `${sky.time}|${sky.wx}` : '';
+  useEffect(() => {
+    if (ready) postSky();
+    // sky is read through skyKey
+  }, [ready, skyKey]);
 
   // Your dot moves (or goes) with the position.
   const youKey = you ? `${you.lat.toFixed(5)},${you.lng.toFixed(5)}:${Math.round(you.accuracyM ?? 0)}` : '';
@@ -225,33 +335,41 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
   // Full screen: fixed over the app (iframes cannot use the Fullscreen API on iPhone). Esc or the button leaves it.
   useEffect(() => {
     if (!expanded) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlock = lockScroll();
     closeFull.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setExpanded(false);
     };
     window.addEventListener('keydown', onKey);
     return () => {
-      document.body.style.overflow = prev;
+      unlock();
       window.removeEventListener('keydown', onKey);
       expandButton.current?.focus();
     };
   }, [expanded]);
 
   const loading = !ready && (
-    <div className={styles.loading} role="status">
-      <span className={styles.spinner} aria-hidden="true" />
+    <div className={slow ? `${styles.loading} ${styles.stalled}` : styles.loading} role="status">
+      {!slow && <span className={styles.spinner} aria-hidden="true" />}
       <span>
-        {slow ? 'Still loading. The 3D view needs WebGL and a steady connection.' : `Loading 3D… The first time downloads up to ${VIEW3D_DOWNLOAD_MB} MB.`}
+        {slow
+          ? typeof navigator !== 'undefined' && navigator.onLine === false
+            ? 'The 3D view needs a connection. You are offline.'
+            : 'The 3D view is taking too long. It needs WebGL and a steady connection.'
+          : `Loading 3D… The first time downloads up to ${VIEW3D_DOWNLOAD_MB} MB.`}
       </span>
+      {slow && (
+        <button type="button" className={styles.retry} onClick={retry}>
+          Try again
+        </button>
+      )}
     </div>
   );
 
   if (bleed) {
     return (
       <div className={styles.bleed}>
-        <iframe ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
+        <iframe key={attempt} ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
         {loading}
         {controlsTop !== undefined && (
           <MapControls
@@ -269,7 +387,7 @@ export default function View3D({ target, title, height = 360, onCard, bleed = fa
   return (
     <div className={styles.wrap}>
       <div className={expanded ? `${styles.stage} ${styles.full}` : styles.stage} style={expanded ? undefined : { height }}>
-        <iframe ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
+        <iframe key={attempt} ref={frame} className={styles.frame} src={src} title={title} allow="autoplay" />
         {loading}
         {expanded && (
           <button ref={closeFull} type="button" className={styles.exitFull} onClick={() => setExpanded(false)}>

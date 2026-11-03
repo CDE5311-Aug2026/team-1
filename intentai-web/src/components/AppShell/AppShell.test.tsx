@@ -26,7 +26,7 @@ test('marks the tab matching the current path as current', () => {
   expect(screen.getByRole('button', { name: 'Moments' })).toHaveAttribute('aria-current', 'page');
 });
 
-test('non-tab routes keep Today current', () => {
+test('non-tab routes keep Home current', () => {
   renderAt('/nearby');
   expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });
@@ -51,12 +51,12 @@ test('clicking a tab navigates', async () => {
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
       <Routes>
         <Route path="/" element={<AppShell>home</AppShell>} />
-        <Route path="/ask" element={<p>ask page</p>} />
+        <Route path="/hunt" element={<p>hunt page</p>} />
       </Routes>
     </MemoryRouter>,
   );
-  await userEvent.click(screen.getByRole('button', { name: 'Ask' }));
-  expect(screen.getByText('ask page')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Hunt' }));
+  expect(screen.getByText('hunt page')).toBeInTheDocument();
 });
 
 test('only matches a tab on a whole path segment', () => {

@@ -2,26 +2,27 @@
 export const paths = {
   today: '/',
   holiday: '/holidays/deepavali',
-  ask: '/ask',
-  community: '/community',
-  question: (id: string) => `/community/${encodeURIComponent(id)}`,
   moments: '/moments',
+  /** Hunt: the treasure-hunt game (spec to come; placeholder for now). */
+  hunt: '/hunt',
   /** Nearby Explore (map / list). */
   nearby: '/nearby',
-  /** Legacy heads-up phrase screen (Figma 11:1414), reached from the nine-setting selector. */
-  phrases: '/nearby/phrases',
-  /** Nine language settings ("Phrases for a setting", Figma 11:1571). */
-  places: '/nearby/places',
   nearbyLocation: '/nearby/location',
   collections: '/nearby/collections',
   collection: (id: string) => `/nearby/collections/${encodeURIComponent(id)}`,
   saved: '/nearby/saved',
+  /** Tour routes from the Singapore Culture Atlas: the editor's routes and "make a route from a station". */
+  routes: '/nearby/routes',
+  route: (id: string) => `/nearby/routes/${encodeURIComponent(id)}`,
+  /** A route generated from a station; the query (station, budget, mode, theme, date) makes it shareable. */
+  routePlan: (search: string) => `/nearby/routes/plan${search ? `?${search}` : ''}`,
   nearbyPlace: (key: string) => `/nearby/place/${encodeURIComponent(key)}`,
-  /** Home place page (carousel "Open", Deepavali Berlin Wall row). */
-  homePlace: (id: string) => `/place/${encodeURIComponent(id)}`,
-  /** Culture card of a Home place (food, monument, festival, history). */
-  placeCard: (id: string, facet: string) => `/place/${encodeURIComponent(id)}/${encodeURIComponent(facet)}`,
   mySpace: '/my-space',
+  /** Figma S2 / S3. */
+  mySpaceSettings: '/my-space/settings',
+  mySpacePrivacy: '/my-space/privacy',
+  /** Terms & licences: photo credits, map attribution (from Settings). */
+  licences: '/my-space/licences',
   notices: '/my-space/notices',
   noticeDetails: '/my-space/notices/details',
   noticeEdit: '/my-space/notices/details/edit',
@@ -38,25 +39,16 @@ export const paths = {
 /** Usage dashboard for the team. Kept out of `paths` so the app never links to it and page loops skip it. */
 export const ADMIN_PATH = '/admin';
 
+/** User study desk: UI1 (/ui1) vs UI2 on two phones, answers saved to /api/abtest. Unlinked like ADMIN_PATH. */
+export const TEST_PATH = '/test';
+
 /** Route patterns with params, for <Route path>. Keep in sync with the builders in `paths`. */
 export const patterns = {
-  question: '/community/:questionId',
-  homePlace: '/place/:placeId',
-  placeCard: '/place/:placeId/:facet',
   nearbyPlace: '/nearby/place/:placeKey',
   collection: '/nearby/collections/:collectionId',
+  routePlan: '/nearby/routes/plan',
+  route: '/nearby/routes/:routeId',
 } as const;
 
 /** Static paths for smoke tests (routes with params are covered with seeded ids in e2e/routes.ts). */
 export const ALL_STATIC_PATHS: string[] = Object.values(paths).filter((p) => typeof p === 'string') as string[];
-
-/** Router state that pre-fills Ask: the question is asked on arrival (Nearby → "Ask IntentAI"). */
-export interface AskHandoff {
-  prompt: string;
-  context?: string;
-}
-
-/** Router state that opens Community's "Ask a local" dialog with a draft (Moments → "Not sure"). */
-export interface CommunityHandoff {
-  askLocal: string;
-}

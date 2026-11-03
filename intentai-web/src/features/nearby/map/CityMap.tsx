@@ -1,9 +1,12 @@
 // 2D Singapore map drawn from the EARTH ONLINE dataset's ground image (OpenStreetMap land cover), in the
-// same metric frame as the 3D model. Pan (drag / arrow keys), zoom (wheel, pinch, + / −), recenter,
-// selectable pins with clustering, a radius overlay and an optional precise "you" dot.
-// No third-party map service is contacted. Every place shown here is also in the list beside it.
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+// same metric frame as the 3D model. Zoomed in to street level, OneMap's basemap (Singapore Land Authority) fades
+// in on top: buildings, house numbers, MRT exits and street names, loaded as image tiles from onemap.gov.sg (no
+// location or other data is sent; without a connection the ground picture stays). Pan (drag / arrow keys), zoom
+// (wheel, pinch, + / −), recenter, selectable pins with clustering, a radius overlay and an optional precise
+// "you" dot. Every place shown here is also in the list beside it.
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
 import groundUrl from '../../../assets/nearby/sg-ground.webp';
+import oneMapLogo from '../../../assets/nearby/onemap-logo.png';
 import { CATEGORY_INFO } from '../domain';
 import { Icon } from '../components/icons';
 import type { Category, LatLng } from '../types';
@@ -15,9 +18,14 @@ import {
   fitView,
   fromScreen,
   scaleForRadius,
+  spread,
+  tileZoom,
+  TILES_FROM,
+  TILES_FULL,
   toLatLng,
   toScreen,
   toXY,
+  viewTiles,
   type View,
   type XY,
 } from './projection';
@@ -29,6 +37,8 @@ export interface MapPin {
   location: LatLng;
   category: Category;
   visited?: boolean;
+  /** Short text drawn instead of the category icon (a route stop's number). */
+  label?: string;
 }
 
 /** Zoom in, zoom out and recenter: the 2D map's buttons, also used over the 3D view so both look and work the same. */
@@ -38,6 +48,7 @@ export function MapControls({
   onRecenter,
   recenterLabel = 'Recenter map',
   bleed = false,
+  boxRef,
 }: {
   top?: number;
   /** k > 1 zooms in. */
@@ -46,9 +57,11 @@ export function MapControls({
   recenterLabel?: string;
   /** Outside a full-bleed CityMap (the 3D view): the full-bleed look anyway. */
   bleed?: boolean;
+  /** The buttons' box (CityMap keeps pins out from under it). */
+  boxRef?: Ref<HTMLDivElement>;
 }) {
   return (
-    <div className={bleed ? `${styles.controls} ${styles.controlsBleed}` : styles.controls} style={top !== undefined ? { top } : undefined}>
+    <div ref={boxRef} className={bleed ? `${styles.controls} ${styles.controlsBleed}` : styles.controls} style={top !== undefined ? { top } : undefined}>
       <button type="button" className={styles.control} onClick={() => onZoom(1.6)} aria-label="Zoom in">
         <Icon name="plus" />
       </button>
@@ -70,6 +83,19 @@ export interface MapFocus {
   points?: LatLng[];
   center?: LatLng;
   radiusM?: number;
+}
+
+/** RGBA, alpha 0–1. */
+export type Rgba = readonly [number, number, number, number];
+
+/** A filled outline on the map (Home's URA planning areas). Colour changes fade over AREA_FADE_MS. */
+export interface MapArea {
+  id: string;
+  /** Outer rings in map metres (projection.ts frame). */
+  rings: readonly (readonly (readonly [number, number])[])[];
+  fill: Rgba;
+  stroke: Rgba;
+  lineWidth: number;
 }
 
 export interface MapLabel {
@@ -105,11 +131,69 @@ interface CityMapProps {
   controlsTop?: number;
   /** Pins are shown but not selectable (e.g. the single place on its own detail page). */
   readOnly?: boolean;
+  /** 'hidden': the page shows the map credit itself (e.g. behind an info button); default 'inline'. */
+  attribution?: 'inline' | 'hidden';
+  /** A dashed line through these points, in order (a route's suggested order; not road routing). */
+  path?: LatLng[];
+  /** false: every pin is drawn on its own (numbered route stops); default true. */
+  clusterPins?: boolean;
+  /** Filled outlines drawn on the ground (fills under the roads, outlines over them). */
+  areas?: readonly MapArea[];
 }
+
+/** The map credit (OSM licence): shown on the map, or by a page that hides it behind its own control. */
+export const MAP_ATTRIBUTION = 'EARTH ONLINE map · © OpenStreetMap contributors';
+
+/** OneMap's required logo and attribution (its basemap terms), with links as OneMap's own sample gives them. */
+export function OneMapCredit({ className }: { className?: string }) {
+  return (
+    <span className={`${styles.oneMap} ${className ?? ''}`}>
+      <img src={oneMapLogo} alt="" width={14} height={14} />
+      <a href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">
+        OneMap
+      </a>{' '}
+      © contributors |{' '}
+      <a href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">
+        Singapore Land Authority
+      </a>
+    </span>
+  );
+}
+
+/** Both credits, for pages that show the map's credit themselves (Home's chip, the Community map's info). */
+export function MapCredits({ className }: { className?: string }) {
+  return (
+    <span className={className}>
+      {MAP_ATTRIBUTION}
+      <br />
+      <OneMapCredit />
+    </span>
+  );
+}
+
+/** How opaque OneMap's tiles are at this scale: 0 below TILES_FROM, 1 from TILES_FULL. */
+export function tileOpacity(scale: number): number {
+  return Math.min(1, Math.max(0, (scale - TILES_FROM) / (TILES_FULL - TILES_FROM)));
+}
+
+/** Fade a tile in once it has loaded; hide one that failed (offline, or outside OneMap's coverage). */
+const tileLoaded = (e: { currentTarget: HTMLImageElement }) => {
+  e.currentTarget.dataset.loaded = '';
+};
+const tileFailed = (e: { currentTarget: HTMLImageElement }) => {
+  e.currentTarget.dataset.failed = '';
+};
+
+/** How long an area's colour takes to change. */
+export const AREA_FADE_MS = 420;
+const mix = (a: Rgba, b: Rgba, k: number): Rgba => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k, a[3] + (b[3] - a[3]) * k];
+const rgba = (c: Rgba) => `rgba(${Math.round(c[0])}, ${Math.round(c[1])}, ${Math.round(c[2])}, ${c[3].toFixed(3)})`;
 
 const KEY_PAN_PX = 60;
 /** Pins closer than this merge, so 30–34 px targets never overlap (WCAG 2.5.8). */
 const CLUSTER_PX = 38;
+/** Half the largest unselected target (a 34 px cluster plus its 4 px touch ring). */
+const TARGET_HALF_PX = 21;
 const SETTLE_MS = 400;
 const GLIDE_MS = 480;
 function prefersReducedMotion(): boolean {
@@ -245,9 +329,19 @@ export default function CityMap({
   bleed = false,
   insets,
   controlsTop,
+  attribution = 'inline',
+  path,
+  clusterPins = true,
+  areas,
 }: CityMapProps) {
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
+  /** The zoom / recenter buttons' box in map px; a pin under it could be neither seen nor tapped. */
+  type Box = { l: number; r: number; t: number; b: number };
+  /** Plus any other floating control over the map that marks itself `data-map-obstacle` (Home's 3D, locate and
+   *  count buttons, the search pill) inside the map's frame (`data-map-bounds` / `data-map-frame`). */
+  const [controlsBoxes, setControlsBoxes] = useState<Box[]>([]);
   const [width, setWidth] = useState(350);
   const [boxHeight, setBoxHeight] = useState(fixedHeight ?? 300);
   const height = fixedHeight ?? boxHeight;
@@ -278,6 +372,21 @@ export default function CityMap({
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  // Where the zoom / recenter buttons sit over the map (they move only with the map's size and the insets).
+  useLayoutEffect(() => {
+    const el = boxRef.current;
+    const box = el?.getBoundingClientRect();
+    if (!el || !box) return setControlsBoxes([]);
+    const frame = el.closest('[data-map-bounds]') ?? el.closest('[data-map-frame]');
+    const obstacles = [controlsRef.current, ...Array.from(frame?.querySelectorAll<HTMLElement>('[data-map-obstacle]') ?? [])];
+    setControlsBoxes(
+      obstacles.flatMap((o) => {
+        const c = o?.getBoundingClientRect();
+        return c && c.width > 0 ? [{ l: c.left - box.left, r: c.right - box.left, t: c.top - box.top, b: c.bottom - box.top }] : [];
+      }),
+    );
+  }, [width, height, controlsTop, insetTop]);
 
   // Apply focus (initial view, recenter, new search area) within the uncovered part of the map: the focus point
   // sits in the middle of the area between the top and bottom insets.
@@ -394,13 +503,50 @@ export default function CityMap({
     canvas.height = Math.round(height * dpr);
   }, [width, height]);
 
+  // Area colours ease from what is drawn now to the new targets (instant under reduced motion).
+  const areaShown = useRef(new Map<string, { fill: Rgba; stroke: Rgba; lineWidth: number }>());
+  const [areaTick, setAreaTick] = useState(0);
+  useEffect(() => {
+    if (!areas || IS_JSDOM) return undefined;
+    const from = new Map(areaShown.current);
+    const instant = prefersReducedMotion() || from.size === 0;
+    const start = performance.now();
+    let frame = 0;
+    const step = (now: number) => {
+      const t = instant ? 1 : Math.min(1, (now - start) / AREA_FADE_MS);
+      const k = 1 - (1 - t) ** 3; // ease-out
+      const next = new Map<string, { fill: Rgba; stroke: Rgba; lineWidth: number }>();
+      for (const a of areas) {
+        const f = from.get(a.id) ?? { fill: [a.fill[0], a.fill[1], a.fill[2], 0] as Rgba, stroke: [a.stroke[0], a.stroke[1], a.stroke[2], 0] as Rgba, lineWidth: a.lineWidth };
+        next.set(a.id, { fill: mix(f.fill, a.fill, k), stroke: mix(f.stroke, a.stroke, k), lineWidth: f.lineWidth + (a.lineWidth - f.lineWidth) * k });
+      }
+      areaShown.current = next;
+      setAreaTick((n) => n + 1);
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [areas]);
+
   // Draw the ground image and roads for the current view, at most once per animation frame.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || IS_JSDOM) return undefined;
     const frame = requestAnimationFrame(() => draw(canvas));
     return () => cancelAnimationFrame(frame);
-  }, [view, width, height, groundReady, roads]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [view, width, height, groundReady, roads, areaTick]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const traceArea = (ctx: CanvasRenderingContext2D, a: MapArea) => {
+    ctx.beginPath();
+    for (const ring of a.rings) {
+      ring.forEach(([x, y], i) => {
+        const p = toScreen({ x, y }, fullView);
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+    }
+  };
 
   const draw = (canvas: HTMLCanvasElement) => {
     const ctx = canvas.getContext('2d');
@@ -417,8 +563,27 @@ export default function CityMap({
     ctx.drawImage(img, topLeft.x, topLeft.y, size, size);
     // Level of detail: expressways and main roads first; smaller roads as you zoom in.
     const s = view.scale;
+    const shownAreas = (areas ?? []).flatMap((a) => {
+      const c = areaShown.current.get(a.id);
+      return c ? [{ a, c }] : [];
+    });
+    for (const { a, c } of shownAreas) {
+      if (c.fill[3] <= 0.005) continue;
+      traceArea(ctx, a);
+      ctx.fillStyle = rgba(c.fill);
+      ctx.fill('evenodd');
+    }
     if (roads.minor && s >= MINOR_SCALE) drawRoads(ctx, roads.minor, fullView, () => true);
     if (roads.major) drawRoads(ctx, roads.major, fullView, (c) => c <= 3 || (c <= 5 && s >= 0.012) || s >= 0.025);
+    // Outlines over the roads; the thickest (the selected area) last, so it is never covered by a neighbour's.
+    ctx.lineJoin = 'round';
+    for (const { a, c } of [...shownAreas].sort((x, y) => x.c.lineWidth - y.c.lineWidth)) {
+      if (c.stroke[3] <= 0.005 || c.lineWidth <= 0) continue;
+      traceArea(ctx, a);
+      ctx.strokeStyle = rgba(c.stroke);
+      ctx.lineWidth = c.lineWidth;
+      ctx.stroke();
+    }
   };
 
   const settle = useCallback(
@@ -554,10 +719,17 @@ export default function CityMap({
     // The selected pin is never hidden inside a cluster. Output stays in key order so a focused pin's
     // button keeps its place in the DOM (focus is not lost when it becomes selected).
     const selectedPin = visible.find((p) => p.key === selectedKey);
-    const rest = cluster(visible.filter((p) => p !== selectedPin), (p) => p.s, CLUSTER_PX);
-    const all = selectedPin ? [...rest, { id: selectedPin.key, x: selectedPin.s.x, y: selectedPin.s.y, items: [selectedPin] }] : rest;
+    const others = visible.filter((p) => p !== selectedPin);
+    // Unclustered pins (numbered route stops) are nudged apart instead, so stops a few metres apart stay tappable.
+    const rest = clusterPins ? cluster(others, (p) => p.s, CLUSTER_PX) : spread(others, (p) => p.s, CLUSTER_PX);
+    // A pin or cluster under the zoom buttons is hidden (it could not be tapped, and its target would be covered:
+    // WCAG 2.5.8); panning brings it out. The selected pin always shows.
+    const clear = rest.filter((c) =>
+      controlsBoxes.every((k) => c.x + TARGET_HALF_PX <= k.l || c.x - TARGET_HALF_PX >= k.r || c.y + TARGET_HALF_PX <= k.t || c.y - TARGET_HALF_PX >= k.b),
+    );
+    const all = selectedPin ? [...clear, { id: selectedPin.key, x: selectedPin.s.x, y: selectedPin.s.y, items: [selectedPin] }] : clear;
     return all.sort((a, b) => (a.items[0].key < b.items[0].key ? -1 : a.items[0].key > b.items[0].key ? 1 : 0));
-  }, [pins, view, width, height, selectedKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pins, view, width, height, selectedKey, controlsBoxes, clusterPins]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openCluster = (items: { pin: MapPin }[]) => {
     const pts = items.map((i) => toXY(i.pin.location));
@@ -569,6 +741,21 @@ export default function CityMap({
     ? { c: toScreen(toXY(circle.center), fullView), r: circle.radiusM * view.scale }
     : null;
   const youPt = you ? toScreen(toXY(you), fullView) : null;
+  // OneMap tiles at the zoom that matches the screen, over the parent zoom's tiles (shown while the sharper ones load).
+  const tilesAlpha = tileOpacity(view.scale);
+  const tileLayers = useMemo(() => {
+    if (tilesAlpha <= 0) return [];
+    const dpr = typeof window === 'undefined' ? 1 : Math.min(2, window.devicePixelRatio || 1);
+    const z = tileZoom(view.scale, dpr);
+    return [z - 1, z].map((zz) => ({ z: zz, tiles: viewTiles(fullView, zz) }));
+  }, [tilesAlpha > 0, view, width, height]); // eslint-disable-line react-hooks/exhaustive-deps
+  const pathPoints =
+    path && path.length > 1
+      ? path
+          .map((p) => toScreen(toXY(p), fullView))
+          .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+          .join(' ')
+      : null;
   const showLabels = view.scale < 0.03;
   // Area names never sit under a pin or on another name (a clean overview, like a maps app).
   const placedLabels = useMemo(() => {
@@ -611,7 +798,27 @@ export default function CityMap({
         data-center={`${view.center.x.toFixed(1)},${view.center.y.toFixed(1)}`}
       >
         <canvas ref={canvasRef} className={styles.canvas} style={{ width, height }} aria-hidden="true" />
+        {tileLayers.length > 0 && (
+          <div className={styles.tiles} style={{ width, height, opacity: tilesAlpha }} aria-hidden="true" data-testid="map-tiles">
+            {tileLayers.map((layer) =>
+              layer.tiles.map((t) => (
+                <img
+                  key={t.key}
+                  src={t.url}
+                  alt=""
+                  draggable={false}
+                  decoding="async"
+                  className={styles.tile}
+                  style={{ left: t.left, top: t.top, width: t.width, height: t.height }}
+                  onLoad={tileLoaded}
+                  onError={tileFailed}
+                />
+              )),
+            )}
+          </div>
+        )}
         <svg className={styles.overlay} width={width} height={height} aria-hidden="true">
+          {pathPoints && <polyline points={pathPoints} className={styles.path} data-testid="map-path" />}
           {circleGeom && (
             <circle cx={circleGeom.c.x} cy={circleGeom.c.y} r={circleGeom.r} className={styles.radius} />
           )}
@@ -653,7 +860,7 @@ export default function CityMap({
                 role="img"
                 aria-label={`${pin.name}, ${CATEGORY_INFO[pin.category].label}`}
               >
-                <Icon name={pin.category} size={selected ? 20 : 16} />
+                {pin.label ? <span className={styles.pinLabel}>{pin.label}</span> : <Icon name={pin.category} size={selected ? 20 : 16} />}
               </span>
             );
           }
@@ -668,22 +875,27 @@ export default function CityMap({
               onClick={() => !dragged.current && onSelect(pin.key)}
               data-pin={pin.key}
             >
-              <Icon name={pin.category} size={selected ? 20 : 16} />
+              {pin.label ? <span className={styles.pinLabel}>{pin.label}</span> : <Icon name={pin.category} size={selected ? 20 : 16} />}
               {pin.visited && <span className={styles.visitedTick} aria-hidden="true">✓</span>}
             </button>
           );
         })}
       </div>
       <MapControls
+        boxRef={controlsRef}
         top={controlsTop !== undefined ? controlsTop : insetTop ? insetTop + 8 : undefined}
         onZoom={(k) => zoomAt(k)}
         onRecenter={onRecenter}
         recenterLabel={recenterLabel}
       />
       {circle && !bleed && <p className={styles.radiusNote}>{circle.label}</p>}
-      <p className={styles.attribution} style={insetBottom ? { bottom: insetBottom } : undefined}>
-        EARTH ONLINE map · © OpenStreetMap contributors
-      </p>
+      {attribution === 'inline' && (
+        <p className={styles.attribution} style={insetBottom ? { bottom: insetBottom } : undefined}>
+          {tilesAlpha < 1 && MAP_ATTRIBUTION}
+          {tilesAlpha > 0 && tilesAlpha < 1 && <br />}
+          {tilesAlpha > 0 && <OneMapCredit />}
+        </p>
+      )}
     </div>
   );
 }

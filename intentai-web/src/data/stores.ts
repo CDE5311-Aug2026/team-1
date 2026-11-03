@@ -16,6 +16,9 @@ import {
   isReportList,
   isSavedIds,
   isSettings,
+  isTipList,
+  isInsightList,
+  isAskThreadList,
   makeId,
   type Lookup,
   type Notices,
@@ -25,13 +28,18 @@ import {
   type Question,
   type Report,
   type Settings,
+  type Tip,
+  type Insight,
+  type AskThread,
 } from './domain';
 import { dismissToast } from '../hooks/useToast';
 import { DEFAULT_PREFS, isCulturePrefs, type CulturePrefs } from './culturePrefs';
 import { DEFAULT_EXPLORE_PERSONAL, isExplorePersonalData, type ExplorePersonalData } from '../features/nearby/domain';
 import { stopLocation } from '../features/nearby/location';
 import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeState } from './placeStories';
-import { createPersistentStore } from './persistentStore';
+import { createPersistentStore, STORAGE_PREFIX } from './persistentStore';
+import { EMPTY_SOCIAL, communitySocialStore } from './community/socialStore';
+import { EMPTY_RECAP, recapStore } from './moments/recapStore';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -151,6 +159,41 @@ export function setCheckedIn(id: string, on: boolean) {
 export function setStamped(id: string, isoDate: string) {
   updatePlace(id, (s) => ({ ...s, stamped: true, stampedOn: isoDate }));
 }
+/** "Reduce motion" (Ask ⋯ settings, My Space settings): stops the app's animations even when the system allows them. */
+export const reduceMotionStore = createPersistentStore<boolean>({
+  key: 'reduce-motion',
+  fallback: false,
+  isValid: (value): value is boolean => typeof value === 'boolean',
+});
+
+/** Ask chat history (ZIP prototype History). Each record keeps what is needed to rebuild the answers. */
+export const askThreadsStore = createPersistentStore<AskThread[]>({
+  key: 'ask-threads',
+  fallback: [],
+  isValid: isAskThreadList,
+});
+
+/** Ask answers saved with "Save insight" (shown in Moments). */
+export const insightsStore = createPersistentStore<Insight[]>({
+  key: 'insights',
+  fallback: [],
+  isValid: isInsightList,
+});
+
+/** Local answers added to culture cards (Community → card → Ask). */
+export const tipsStore = createPersistentStore<Tip[]>({
+  key: 'tips',
+  fallback: [],
+  isValid: isTipList,
+});
+
+/** Culture-card (Today article) ids the user has opened: Read more on Today, or Open on an Ask source card. Ask's
+ * "Recommended for you" says which one a pick comes from. */
+export const openedCardsStore = createPersistentStore<string[]>({
+  key: 'opened-cards',
+  fallback: [],
+  isValid: isSavedIds,
+});
 
 /** Anonymous random id sent with usage timings (time only, never content). Empty until first needed. */
 export const usageIdStore = createPersistentStore<string>({
@@ -164,10 +207,14 @@ export function ensureUsageId(): string {
   return usageIdStore.get();
 }
 
+/** User-test version: A = map exploration only, B = map exploration plus the Hunt (story quests). */
+export type TestVersion = 'A' | 'B';
 /** User test: the name typed at the start screen (a test name, not an account). Empty = not started. */
 export interface Tester {
   name: string;
   startedAt?: number;
+  /** Picked on the start screen. Missing (gate off, older data) means B, the full app. */
+  version?: TestVersion;
 }
 export const testerStore = createPersistentStore<Tester>({
   key: 'tester',
@@ -176,8 +223,15 @@ export const testerStore = createPersistentStore<Tester>({
     typeof value === 'object' &&
     value !== null &&
     typeof (value as Tester).name === 'string' &&
-    ((value as Tester).startedAt === undefined || typeof (value as Tester).startedAt === 'number'),
+    ((value as Tester).startedAt === undefined || typeof (value as Tester).startedAt === 'number') &&
+    ((value as Tester).version === undefined || (value as Tester).version === 'A' || (value as Tester).version === 'B'),
 });
+
+/** The version this phone runs. */
+export const versionOf = (tester: Tester): TestVersion => tester.version ?? 'B';
+
+/** The test name as it appears in usage data, with the version: "P01-A". */
+export const usageUserOf = (tester: Tester): string | undefined => (tester.name ? `${tester.name.slice(0, 38)}-${versionOf(tester)}` : undefined);
 
 /** Nearby Explorer: saved / visited places and exploration preferences. Never holds a location. */
 export const explorePersonalStore = createPersistentStore<ExplorePersonalData>({
@@ -230,8 +284,64 @@ export function deleteAllData() {
   } catch {
     /* storage unavailable */
   }
+  openedCardsStore.set([]);
+  tipsStore.set([]);
+  insightsStore.set([]);
+  askThreadsStore.set([]);
+  reduceMotionStore.set(false);
+  // v3 page stores (their own files; Profile / My Space resets itself through onDataDeleted below).
+  communitySocialStore.set(EMPTY_SOCIAL);
+  recapStore.set(EMPTY_RECAP);
   usageIdStore.set('');
   // The user test goes on (the test name is not personal data); its records on this device are deleted.
   clearLocalUsage();
   generationListeners.forEach((listener) => listener());
+}
+
+/**
+ * Starts the user test again on this phone: every saved choice, visit, stamp and Hunt book is cleared, so the next person
+ * sees the start screen and onboarding as new. The usage log stays, so /admin can still read this phone.
+ */
+export function restartTest() {
+  // The phone keeps its version (left phone A, right phone B), so the start screen opens with it picked.
+  const version = versionOf(testerStore.get());
+  clearPhone(false);
+  // Another tab still open on the app may save once more as it hears the clear; clear again after it has stopped.
+  window.setTimeout(() => {
+    clearPhone(false);
+    window.location.assign(`/?v=${version}`);
+  }, 500);
+}
+
+/**
+ * Clears this phone's app data. Always kept: the usage log (for /admin), feedback notes still waiting to send, and the
+ * study desk's own keys (which phone this is, a session in progress), which are not the participant's.
+ */
+export function clearPhone(keepTester: boolean) {
+  try {
+    // Tell the phone's other tabs first, so they stop saving before their data goes (see the listener below).
+    window.localStorage.setItem(PHONE_CLEARED, String(Date.now()));
+    const keep = new Set([STORAGE_PREFIX + 'usage-log', 'findsg-help-feedback', ...(keepTester ? [STORAGE_PREFIX + 'tester'] : [])]);
+    const gone = Object.keys(window.localStorage).filter((k) => !keep.has(k) && !k.startsWith('intentai:abtest-'));
+    gone.forEach((k) => window.localStorage.removeItem(k));
+    window.sessionStorage.clear();
+  } catch {
+    // Storage blocked: the reload that follows still starts at the start screen if nothing was saved.
+  }
+}
+
+const PHONE_CLEARED = 'intentai:phone-cleared';
+
+// A tab left open on the app holds the last person's game in memory and would save it back after the phone is cleared.
+// When another tab clears the phone, this one stops saving and starts again from the start screen.
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key !== PHONE_CLEARED || !event.newValue) return;
+    try {
+      Storage.prototype.setItem = () => {};
+    } catch {
+      // cannot stop saving: the clearing tab clears once more before it reloads
+    }
+    window.location.replace('/');
+  });
 }

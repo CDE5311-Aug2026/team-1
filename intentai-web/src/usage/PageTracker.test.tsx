@@ -42,26 +42,17 @@ test('one page span per route, stopped on navigation; the redirect from / is not
   const t = realTracker();
   renderAt('/', t);
   t.advance(2000);
-  act(() => go('/ask'));
+  act(() => go('/hunt'));
   t.advance(3000);
   act(() => go('/admin'));
   t.advance(9000);
   act(() => go('/moments'));
   t.advance(1000);
-  act(() => go('/ask'));
+  act(() => go('/hunt'));
   expect(t.sent.map(({ name, ms }) => ({ name, ms }))).toEqual([
     { name: 'Welcome', ms: 2000 },
-    { name: 'Ask', ms: 3000 },
+    { name: 'Hunt', ms: 3000 },
     { name: 'Moments', ms: 1000 },
   ]);
 });
 
-test('moving from one question to another is a new visit with the same name', () => {
-  const t = realTracker();
-  renderAt('/community/a', t);
-  t.advance(1000);
-  act(() => go('/community/b'));
-  t.advance(1000);
-  act(() => go('/ask'));
-  expect(t.sent.map((e) => e.name)).toEqual(['Community question', 'Community question']);
-});

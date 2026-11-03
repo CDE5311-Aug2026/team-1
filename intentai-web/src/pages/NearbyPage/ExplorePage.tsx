@@ -35,9 +35,8 @@ import { view3dTarget, type View3DTarget } from '../../features/nearby/links';
 import { fixInSingapore, locationStatusText, useLocationFlow } from '../../features/nearby/components/LocationFlow';
 import styles from '../../features/nearby/components/Nearby.module.css';
 import x from './Explore.module.css';
-import { staticCopy } from '../../data/expressions';
 import { usePersistentStore } from '../../data/persistentStore';
-import { placeStore } from '../../data/stores';
+import { mySpacePrefsStore } from '../../data/profile/profile';
 import { CATEGORY_INFO } from '../../features/nearby/domain';
 import { distanceM, formatDistance } from '../../features/nearby/geo';
 import { parsePlaceKey } from '../../features/nearby/identity';
@@ -52,7 +51,6 @@ import {
   type Origin,
 } from '../../features/nearby/ranking';
 import {
-  DEFAULT_RADIUS_M,
   QUERY_MAX,
   QUERY_MIN,
   RADII_M,
@@ -130,7 +128,7 @@ export default function ExplorePage() {
 
   const rawView = params.get('view');
   const view = rawView === 'list' ? 'list' : rawView === '3d' ? '3d' : 'map';
-  // 2D ⇄ 3D keeps what you were looking at: the 2D map's last view opens the 3D view (and the 3D view's, the map).
+  // 2D ⇄︎ 3D keeps what you were looking at: the 2D map's last view opens the 3D view (and the 3D view's, the map).
   // `carry` holds that view for one focus id; any later focus (recenter, search, a list, My location) replaces it.
   const view2d = useRef<{ center: LatLng; radiusM: number } | null>(null);
   const view3d = useRef<{ center: LatLng; radiusM: number } | null>(null);
@@ -154,7 +152,8 @@ export default function ExplorePage() {
   const [cardTitle, setCardTitle] = useState<string | null>(null);
   useEffect(() => setCardTitle(null), [view]);
   const wide = useWideLayout();
-  const [place] = usePersistentStore(placeStore);
+  // My Space › Settings › Nearby radius: the radius used when the URL names none.
+  const [{ radiusM: defaultRadius }] = usePersistentStore(mySpacePrefsStore);
   // The sheet: the List view is the full sheet; otherwise peek or half (a selected place opens it to half).
   const [mapDetent, setMapDetent] = useState<Exclude<Detent, 'full'>>(params.get('sel') ? 'half' : 'peek');
   const detent: Detent = view === 'list' ? 'full' : mapDetent;
@@ -167,7 +166,7 @@ export default function ExplorePage() {
   const selectedArea = areaById(params.get('area') ?? undefined);
   const area = selectedArea && !selectedArea.overview && selectedArea.country === COUNTRY ? selectedArea : undefined;
   const radiusParam = Number(params.get('radius'));
-  const radius: RadiusM = isRadius(radiusParam) ? radiusParam : DEFAULT_RADIUS_M;
+  const radius: RadiusM = isRadius(radiusParam) ? radiusParam : defaultRadius;
   const sort = params.get('sort') === 'nearest' ? 'nearest' : 'recommended';
   const selectedKey = parsePlaceKey(params.get('sel'));
   // ?list=<id>: one editor's pick (or the big collection) on its own, as a checklist
@@ -266,7 +265,6 @@ export default function ExplorePage() {
     }
   };
   // Picked on the phrase settings (Today's "Near you" card names it); its phrases stay one tap away.
-  const phrasePlace = place === 'Hawker centre' ? staticCopy.nearYou.place : place;
   // 3D: the selected place (its landmark card when the dataset has a model), else the area / location / map centre.
   // Your position shows as a blue dot in the 3D page (sent by message); an approximate one gets a pin instead.
   const selectedPlace = selected ? curatedPlace(selected.key) : undefined;
@@ -285,6 +283,8 @@ export default function ExplorePage() {
           : (query || category !== 'all') && filtered.length
             ? { at: centreOf(filtered.map((p) => p.coordinates)), span: spanOf(filtered.map((p) => p.coordinates)), pin: false }
             : { at: MARINA_BAY, span: 3000, pin: false };
+  // The title names what the 3D view is around: Marina Bay only when it opens on the default.
+  const label3d = selected?.name ?? origin?.label ?? (target3d.at === MARINA_BAY ? 'Marina Bay' : null);
   // Tapping a landmark in 3D selects it here when it is one of our places (the sheet shows it, as on the map).
   const onCard3d = (key: string | null, title: string | null) => {
     const p = placeByEarthKey(key);
@@ -350,7 +350,7 @@ export default function ExplorePage() {
     if (entryIdx > 0) navigate(entryIdx - 1 - historyIdx());
     else navigate(paths.today);
   };
-  // 3D on and off: going back to the map undoes the step into 3D (so Back is not filled with 3D ⇄ map toggles)
+  // 3D on and off: going back to the map undoes the step into 3D (so Back is not filled with 3D ⇄︎ map toggles)
   const entered3d = useRef<number | null>(null);
   const enter3d = () => {
     entered3d.current = historyIdx() + 1;
@@ -427,6 +427,9 @@ export default function ExplorePage() {
           <h1 className={x.title}>Nearby</h1>
         </div>
         <nav className={x.sections} aria-label="Nearby sections">
+          <Link className={x.sectionLink} to={paths.routes}>
+            Routes
+          </Link>
           <Link className={x.sectionLink} to={paths.collections}>
             Collections
           </Link>
@@ -452,14 +455,14 @@ export default function ExplorePage() {
 
   return (
     // No app tab bar here: the map is a full screen of its own; Back (in the search bar) returns to where you came from.
-    <AppShell background="var(--bg-screen-b)" layout="fill" chrome="status">
+    <AppShell background="var(--bg-screen-b)" layout="fill">
       {/* The map (or the 3D view, the same page around it: search, lists, sheet and map buttons) fills the screen. */}
       <div className={x.stage} data-allow-bleed>
         {view === '3d' ? (
           <View3D
             bleed
             target={target3d}
-            title={`3D view of Singapore around ${selected?.name ?? origin?.label ?? 'Marina Bay'}`}
+            title={label3d ? `3D view of Singapore around ${label3d}` : '3D view of Singapore'}
             hideCards
             onCard={onCard3d}
             you={you}
@@ -568,8 +571,8 @@ export default function ExplorePage() {
         )}
       </div>
 
-      {/* Map buttons: 2D ⇄ 3D and your location (zoom and recenter are on the map itself). */}
-      {/* 2D ⇄ 3D, as in a maps app: the button names the view it switches to (Esc also leaves 3D) */}
+      {/* Map buttons: 2D ⇄︎ 3D and your location (zoom and recenter are on the map itself). */}
+      {/* 2D ⇄︎ 3D, as in a maps app: the button names the view it switches to (Esc also leaves 3D) */}
       <div className={x.side} role="group" aria-label="Map view">
         <button type="button" className={x.sideButton} onClick={() => (view === '3d' ? leave3dNow() : enter3d())}>
           {view === '3d' ? '2D' : '3D'}
@@ -624,18 +627,6 @@ export default function ExplorePage() {
             </PlaceCard>
           </section>
         )}
-        {!selected && !activeList && (
-          <Link className={x.phraseRow} to={paths.phrases}>
-            <span className={x.phraseIcon}>
-              <Icon name="chat" />
-            </span>
-            <span className={x.phraseText}>
-              <span className={x.phraseTitle}>Local phrases</span>
-              <span className={x.phraseSub}>{phrasePlace}</span>
-            </span>
-            <Icon name="chevron" size={16} />
-          </Link>
-        )}
 
         {!activeList && (origin || query || category !== 'all') && (
           <div className={x.filters}>
@@ -644,7 +635,7 @@ export default function ExplorePage() {
                 className={x.pill}
                 aria-label="Radius"
                 value={radius}
-                onChange={(e) => patch({ radius: e.target.value === String(DEFAULT_RADIUS_M) ? null : e.target.value })}
+                onChange={(e) => patch({ radius: e.target.value === String(defaultRadius) ? null : e.target.value })}
               >
                 {RADII_M.map((r) => (
                   <option key={r} value={r}>

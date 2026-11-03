@@ -1,0 +1,87 @@
+/* Sticky notes in faded paper colours: a glue strip at the top a shade darker, the bottom corner curling off the page
+   (its shadow falls further), and a hand-lettered look. Picked up, the shadow drops and spreads. */
+.note {
+  --paper: #f4dc8a;
+  --glue: rgba(160, 120, 30, 0.12);
+  position: relative;
+  list-style: none;
+  padding: 16px 12px 14px;
+  min-height: 92px;
+  background: linear-gradient(180deg, var(--glue) 0 14px, transparent 14px), linear-gradient(160deg, rgba(255, 255, 255, 0.35), transparent 40%), var(--paper);
+  color: #3a2814;
+  border-radius: 2px 2px 3px 18px / 2px 2px 3px 6px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transform-style: preserve-3d;
+  box-shadow:
+    0 1px 1px rgba(60, 35, 10, 0.18),
+    0 6px 10px -6px rgba(60, 35, 10, 0.45),
+    8px 12px 14px -10px rgba(60, 35, 10, 0.35);
+  transition: box-shadow 0.25s ease;
+}
+
+.note:focus-visible {
+  outline: 2px solid #b9502a;
+  outline-offset: 3px;
+}
+
+/* the curl: the corner lifts and catches the light */
+.note::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 26px;
+  height: 22px;
+  border-radius: 0 0 3px 0;
+  background: linear-gradient(135deg, transparent 45%, rgba(0, 0, 0, 0.08) 50%, rgba(255, 255, 255, 0.45) 62%, transparent 75%);
+  pointer-events: none;
+}
+
+.note[data-lifted] {
+  cursor: grabbing;
+  box-shadow:
+    0 2px 2px rgba(60, 35, 10, 0.12),
+    0 26px 30px -14px rgba(60, 35, 10, 0.55),
+    18px 30px 34px -18px rgba(60, 35, 10, 0.4);
+}
+
+.note[data-tone='rose'] {
+  --paper: #efbfaa;
+  --glue: rgba(150, 60, 30, 0.1);
+}
+
+.note[data-tone='sage'] {
+  --paper: #cddbb2;
+  --glue: rgba(60, 100, 40, 0.1);
+}
+
+.note[data-tone='sky'] {
+  --paper: #c4d8e2;
+  --glue: rgba(40, 80, 110, 0.1);
+}
+
+/* a photo print: white border, a strip of tape */
+.note[data-tone='print'] {
+  --paper: #fffcf4;
+  --glue: transparent;
+  padding: 7px 7px 26px;
+  border-radius: 1px;
+}
+
+.note[data-tape]::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  z-index: 2;
+  width: 70px;
+  height: 19px;
+  margin-left: -35px;
+  transform: rotate(-3deg);
+  background: rgba(222, 200, 150, 0.8);
+  box-shadow: 0 1px 2px rgba(60, 35, 15, 0.15);
+  clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 52%);
+}

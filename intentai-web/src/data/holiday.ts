@@ -2,7 +2,7 @@
 // Detail content leads with the survey's top Holidays choice, "Meaning and origins of each festival",
 // layered per the survey's length preference: quick facts first, then the deeper read.
 
-import deepavaliPhoto from '../assets/holiday/deepavali.jpg';
+import deepavaliPhoto from '../assets/holiday/deepavali.webp';
 import type { ArticleImage } from './articleImages';
 
 export interface Holiday {
@@ -33,7 +33,7 @@ export const todaysHoliday: Holiday = {
   also: {
     when: 'Also Mon 9 Nov · Near you',
     title: 'The Berlin Wall fell 37 years ago',
-    placeId: 'berlin-wall-fragments',
+    placeId: 'curated:sg-berlin-wall-fragments-utown',
   },
   detailHeading: 'Meaning and origins',
   facts: [

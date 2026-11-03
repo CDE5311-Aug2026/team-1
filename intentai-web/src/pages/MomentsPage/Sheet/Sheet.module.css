@@ -1,0 +1,143 @@
+/* Moments' sheets: parchment pages slid up over the chart (Recap and Snap: the chart itself, full screen). */
+.sheet,
+.full {
+  box-sizing: border-box;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink, #2c2117);
+  font-family: var(--font-family);
+  overflow: visible;
+}
+
+.sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet::backdrop,
+.full::backdrop {
+  background: rgba(14, 9, 5, 0.62);
+}
+
+.sheet > .panel {
+  box-sizing: border-box;
+  width: min(100%, 30rem);
+  max-height: 92dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.5rem 1.125rem calc(1.125rem + env(safe-area-inset-bottom));
+  border-radius: 6px 6px 0 0;
+  /* a parchment page slid up over the chart */
+  background: var(--paper, #eadcbd);
+  box-shadow:
+    0 -14px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 50px rgba(120, 78, 30, 0.28),
+    inset 0 1px 0 rgba(255, 249, 230, 0.6);
+  animation: rise 320ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.full {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.full > .panel {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  color: var(--cream, #f2e8d5);
+  background: var(--desk-bg, #1d1711);
+  animation: fade 220ms ease-out;
+}
+
+.handle {
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 0.5rem;
+  border-radius: 2px;
+  background: rgba(44, 33, 23, 0.28);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.srHead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.title {
+  flex: 1;
+  margin: 0;
+  color: var(--ink, #2c2117);
+  font:
+    400 1.5rem/1.15 var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -0.5rem;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+.close img {
+  filter: sepia(1) saturate(0.6) brightness(0.75);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--orange, #e8833a);
+  outline-offset: 2px;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet > .panel,
+  .full > .panel {
+    animation: none;
+  }
+}
+
+:global(html.reduce-motion) .sheet > .panel,
+:global(html.reduce-motion) .full > .panel {
+  animation: none;
+}

@@ -31,14 +31,18 @@ const fromFrame = (data: unknown, source: Window | null = frame()!.contentWindow
   });
 
 describe('Explore in 3D', () => {
-  test('nothing loads until the user picks 3D; then Marina Bay by default, without a pin', async () => {
+  test('nothing loads until the user picks 3D; then it opens over the 2D view, without a pin', async () => {
     renderAt('/nearby');
     expect(frame()).toBeNull();
+    // the 2D map reports its view once it rests (250 ms); 3D then opens there, not at Marina Bay
+    await act(() => new Promise((r) => setTimeout(r, 300)));
     await userEvent.click(screen.getByRole('button', { name: '3D' }));
     expect(screen.getByTestId('where')).toHaveTextContent('view=3d');
     const f = frame()!;
-    expect(f).toHaveAttribute('title', '3D view of Singapore around Marina Bay');
-    expect(f.getAttribute('src')).toBe('/earth-online/sg/lite.html#at=1.28680%2C103.85450&pin=0&span=3000&cards=0');
+    expect(f).toHaveAttribute('title', '3D view of Singapore');
+    const src = f.getAttribute('src')!;
+    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&pin=0&span=\d+&cards=0$/);
+    expect(src).not.toContain('at=1.28680%2C103.85450');
     expect(screen.getByText(/Loading 3D… The first time downloads up to 19 MB/)).toBeInTheDocument();
     // as in a maps app, the button now offers the other view
     expect(screen.queryByRole('button', { name: '3D' })).toBeNull();
@@ -184,7 +188,7 @@ describe('Place detail in 3D', () => {
   });
 
   test('a place without a model pins its point', async () => {
-    renderAt('/nearby/place/curated:sg-maxwell-food-centre');
+    renderAt('/nearby/place/curated:sg-the-spread-nus');
     await userEvent.click(screen.getByRole('button', { name: '3D' }));
     const src = frame()!.getAttribute('src')!;
     expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&cards=0$/);

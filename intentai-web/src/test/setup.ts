@@ -1,10 +1,14 @@
 import '@testing-library/jest-dom';
-import { beforeEach } from 'vitest';
+import { beforeAll, beforeEach } from 'vitest';
 import { STORAGE_PREFIX, resetPersistentStores } from '../data/persistentStore';
 import { dismissToast } from '../hooks/useToast';
 import { resetLocationForTests } from '../features/nearby/location';
+import { preloadPages } from '../pages/lazyPage';
 import { matchMediaShim, resetMedia } from './media';
 import { ResizeObserverMock, resetResizeObservers } from './resizeObserver';
+
+// Screens load on demand in the app (pages/lazyPage.ts); tests that render <App> get them all up front.
+beforeAll(() => preloadPages(), 60_000);
 
 // jsdom has <dialog> but not its modal methods.
 if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
@@ -14,6 +18,27 @@ if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.sho
   HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
     this.removeAttribute('open');
   };
+}
+
+// jsdom has no canvas: drawing code (FindSG's paper and 3D scenes) gets no context and falls back, without jsdom's
+// "Not implemented" noise.
+if (typeof HTMLCanvasElement !== 'undefined') HTMLCanvasElement.prototype.getContext = (() => null) as unknown as HTMLCanvasElement['getContext'];
+
+// jsdom has no IntersectionObserver (motion's useInView, React Bits CountUp / BlurText). Report everything as in view,
+// so animations finish and their final text is what the tests read.
+if (typeof window !== 'undefined' && typeof window.IntersectionObserver === 'undefined') {
+  class IntersectionObserverShim {
+    constructor(private callback: IntersectionObserverCallback) {}
+    observe(target: Element) {
+      this.callback([{ isIntersecting: true, target, intersectionRatio: 1 } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+    }
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+  (window as unknown as { IntersectionObserver: typeof IntersectionObserverShim }).IntersectionObserver = IntersectionObserverShim;
 }
 
 // jsdom has no PointerEvent; without it fireEvent.pointer* drops clientX / clientY (drag tests need them).

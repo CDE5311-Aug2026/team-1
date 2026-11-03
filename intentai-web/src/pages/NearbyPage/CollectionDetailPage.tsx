@@ -30,7 +30,7 @@ export default function CollectionDetailPage() {
 
   if (!c) {
     return (
-      <AppShell background="var(--bg-screen-b)" chrome="status">
+      <AppShell background="var(--bg-screen-b)">
         <div className={styles.screen}>
           <BackHeader title="Collection not found" fallback={paths.collections} />
           <p className={styles.empty}>This collection does not exist.</p>
@@ -76,7 +76,7 @@ export default function CollectionDetailPage() {
   const ordered = origin && params.get('sort') === 'nearest' ? byDistance(items) : items;
 
   return (
-    <AppShell background="var(--bg-screen-b)" chrome="status">
+    <AppShell background="var(--bg-screen-b)">
       <div className={styles.screen}>
         <BackHeader
           title={title}

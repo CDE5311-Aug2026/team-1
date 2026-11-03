@@ -48,50 +48,10 @@ async function open(page: Page, path: string) {
   await page.evaluate(() => document.fonts.ready.then(() => true));
 }
 
-test('heads-up phrase screen matches Figma frame geometry at 390x844', async ({ page }) => {
-  await open(page, paths.phrases);
-  await expectFrames(page, NEARBY);
-  await expect(page.getByText(/\d+ m$/)).toHaveCount(0);
-  await page.screenshot({ path: 'test-results/nearby-phrases-390.png' });
-});
 
-test('Place list matches Figma frame geometry at 390x844', async ({ page }) => {
-  await open(page, paths.places);
-  await expectFrames(page, PLACES);
-  await page.screenshot({ path: 'test-results/nearby-places-390.png' });
-});
 
 // Port of v0 "Nearby manual place selection" — now reached from Explore → "Phrases for a setting".
-test('Nearby manual phrase-setting selection works', async ({ page }) => {
-  await open(page, paths.today);
-  // The Home map's "places to explore" chip.
-  await page.getByRole('button', { name: /places to explore$/ }).click();
-  await expect(page).toHaveURL(/\/nearby$/); // Explore opens even with location off
-  // the sheet's first row: the phrases for the picked setting; Change leads to the nine settings
-  await page.getByRole('link', { name: /Local phrases/ }).click();
-  await expect(page).toHaveURL(/\/nearby\/phrases$/);
-  await page.getByRole('button', { name: 'Change' }).click();
-  await expect(page).toHaveURL(/\/nearby\/places$/);
-  await expect(page.getByRole('switch', { name: 'Use my location' })).toHaveAttribute('aria-checked', 'false');
-  await page.getByRole('button', { name: /^Office/ }).click();
-  await page.getByRole('button', { name: 'Show 4 phrases for Office' }).click();
-  await expect(page).toHaveURL(/\/nearby\/phrases$/);
-  await expect(page.locator('[data-node-id="11:1733"]')).toContainText('Office');
-  await expect(page.getByRole('heading', { level: 2, name: 'Can or not?' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Change' }).click();
-  await expect(page.getByRole('button', { name: /^Office/ })).toHaveAttribute('aria-pressed', 'true');
-});
-
-test('Got it saves the phrase to Moments; Ask IntentAI opens Ask', async ({ page }) => {
-  await open(page, paths.phrases);
-  await page.getByRole('button', { name: 'Got it' }).click();
-  // The seed lookups already include chope.
-  await expect(page.getByRole('status')).toHaveText('Chope is already in Moments');
-  await page.getByRole('button', { name: 'Ask IntentAI' }).click();
-  await expect(page).toHaveURL(/\/ask$/);
-  await expect(page.getByRole('article', { name: /IntentAI answer: What does chope mean\?/ })).toBeVisible();
-});
 
 test.describe('with geolocation permission', () => {
   test.use({ permissions: ['geolocation'], geolocation: { latitude: 1.2803, longitude: 103.8447, accuracy: 20 } });

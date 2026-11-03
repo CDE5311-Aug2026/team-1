@@ -1,0 +1,406 @@
+/* M5 Recap, full screen on the chart: a stack of parchment cards, each photo taped on as a print. */
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  box-sizing: border-box;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  overflow: hidden;
+  color: var(--cream);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(232, 201, 131, 0.35);
+  border-radius: 14px;
+  background: rgba(20, 12, 6, 0.45);
+  color: var(--brass);
+  cursor: pointer;
+}
+
+.mascot {
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+.counter {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: rgba(20, 12, 6, 0.45);
+  color: var(--cream);
+  font:
+    400 0.8125rem/1 var(--font-display);
+}
+
+.counter svg {
+  position: absolute;
+  inset: 0;
+}
+
+/* progress: one hairline, sorted cards inked in */
+.segments {
+  display: flex;
+  gap: 5px;
+  margin: 16px 0 0;
+}
+
+.segments i {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(226, 196, 140, 0.2);
+}
+
+.segments i.segKnew {
+  background: var(--orange);
+}
+
+.segments i.segAgain {
+  background: rgba(242, 232, 213, 0.55);
+}
+
+.stack {
+  position: relative;
+  flex: 1;
+  min-height: 430px;
+  margin: 28px 0 20px;
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(312px, 100%);
+  height: 420px;
+  margin-left: max(-156px, -50%);
+  perspective: 1200px;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.flipper {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  transform-style: preserve-3d;
+  cursor: inherit;
+}
+
+.flipper:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 4px;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.5),
+    inset 0 0 40px rgba(120, 78, 30, 0.28);
+  backface-visibility: hidden;
+}
+
+.back {
+  transform: rotateY(180deg);
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 22px;
+}
+
+/* a ruled border on the answer side, like a library card */
+.back::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(155, 44, 28, 0.25);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* the photo: a print with a cream border, taped at the top */
+.photo,
+.photoPaper {
+  display: block;
+  width: calc(100% - 32px);
+  height: 44%;
+  flex: none;
+  box-sizing: border-box;
+  margin: 18px 16px 0;
+  border: 6px solid var(--print);
+  border-bottom-width: 14px;
+  border-radius: 2px;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(44, 33, 23, 0.35);
+  rotate: -1deg;
+  filter: sepia(0.15);
+}
+
+.photoPaper {
+  background: repeating-linear-gradient(45deg, rgba(120, 78, 30, 0.08) 0 2px, transparent 2px 9px), #d7c39b;
+}
+
+.front::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  left: calc(50% - 30px);
+  width: 60px;
+  height: 18px;
+  background: linear-gradient(180deg, rgba(246, 238, 214, 0.8), rgba(226, 214, 182, 0.72));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  clip-path: polygon(3% 0, 97% 6%, 100% 30%, 96% 55%, 100% 100%, 2% 94%, 0 60%, 4% 35%);
+  rotate: 3deg;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: calc(100% - 24px);
+  color: var(--red-ink);
+  font:
+    italic 400 0.9375rem/1.2 'IM Fell English',
+    Georgia,
+    serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip img {
+  opacity: 0.75;
+  filter: sepia(0.8);
+}
+
+.front .chip {
+  margin: 14px 20px 0;
+}
+
+.back .chip {
+  position: relative;
+  align-self: flex-start;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 4px 20px 16px;
+}
+
+.question {
+  font:
+    400 1.5rem/1.2 var(--font-display);
+}
+
+.hint {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  color: var(--ink-soft);
+  font:
+    italic 400 0.875rem/1.2 'IM Fell English',
+    Georgia,
+    serif;
+}
+
+.hint img {
+  opacity: 0.7;
+  filter: sepia(0.8);
+}
+
+.answer {
+  position: relative;
+  color: var(--red-ink);
+  font:
+    400 2.25rem/1.05 var(--font-display);
+}
+
+.backText {
+  position: relative;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 25px;
+}
+
+.back .hint {
+  margin-top: 8px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.again,
+.knew,
+.flip {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.again,
+.knew {
+  width: 62px;
+  height: 62px;
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.45),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.14);
+}
+
+/* see it again: a parchment disc */
+.again {
+  background: var(--paper);
+}
+
+/* knew it: orange ink */
+.knew {
+  background: var(--orange);
+}
+
+.flip {
+  width: 50px;
+  height: 50px;
+  border: 1px solid rgba(232, 201, 131, 0.35);
+  background: rgba(20, 12, 6, 0.55);
+}
+
+.again:focus-visible,
+.knew:focus-visible,
+.flip:focus-visible,
+.close:focus-visible,
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
+}
+
+/* ---- the score ---- */
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.scoreRing {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 168px;
+  height: 168px;
+}
+
+.scoreRing svg {
+  position: absolute;
+  inset: 0;
+}
+
+.scoreValue {
+  color: var(--cream);
+  font:
+    400 3rem/1 var(--font-display);
+}
+
+.scoreTitle {
+  margin: 22px 0 6px;
+  color: var(--cream);
+  font:
+    400 1.75rem/1.15 var(--font-display);
+}
+
+.scoreLine {
+  max-width: 280px;
+  margin: 0;
+  color: var(--cream-soft);
+  font:
+    italic 400 1rem/1.35 'IM Fell English',
+    Georgia,
+    serif;
+}
+
+.scoreActions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  margin-top: 28px;
+}
+
+.primary,
+.secondary {
+  flex: 1;
+  min-height: 50px;
+  border-radius: 3px;
+  font:
+    400 1.125rem/1 var(--font-display);
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--orange);
+  color: #2c1608;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.secondary {
+  border: 1px solid rgba(232, 201, 131, 0.4);
+  background: rgba(20, 12, 6, 0.45);
+  color: var(--cream);
+}
+
+@media (max-height: 700px) {
+  .stack {
+    min-height: 360px;
+  }
+  .card {
+    height: 350px;
+  }
+}

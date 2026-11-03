@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import mascotLogo from '../../assets/mascot-logo.png';
+import mascotLogo from '../../assets/brand/findsg-logo.png';
 import { paths } from '../../routes';
 import styles from './HomeLink.module.css';
 

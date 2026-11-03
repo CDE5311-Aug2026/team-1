@@ -1,0 +1,664 @@
+/* M1 "Collected", pinned to the chart: parchment slips and taped prints, a compact ink-underlined filter switch. */
+.section {
+  margin: 0;
+}
+
+.heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+  color: var(--cream-soft);
+  font:
+    italic 400 0.875rem/1 "IM Fell English",
+    Georgia,
+    serif;
+}
+
+.heading h2 {
+  margin: 0;
+  color: var(--cream);
+  font: 400 1.375rem/1.1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+/* ---- filters: serif labels on the chart's legend, one hairline, a small orange stroke under the chosen one ---- */
+.filters {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  width: 100%;
+  height: 38px;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid rgba(226, 196, 140, 0.22);
+  scrollbar-width: none;
+  /* fade the row out at its right edge when it scrolls */
+  mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.filter {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.3em;
+  flex: none;
+  height: 37px;
+  padding: 11px 10px 0;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 4px 4px 0 0;
+  background: none;
+  color: rgba(226, 206, 168, 0.5);
+  font: 400 1rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.25s;
+}
+
+.filter:first-child {
+  padding-left: 2px;
+}
+
+.filter:hover {
+  color: rgba(242, 232, 213, 0.8);
+}
+
+/* the ink stroke: 3px, a little skewed, as if drawn with a nib */
+.filter::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 3px;
+  border-radius: 2px 3px 2px 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(232, 131, 58, 0.5),
+    #e8833a 20%,
+    #e8833a 80%,
+    rgba(232, 131, 58, 0.6)
+  );
+  transform: skewX(-12deg) scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(0.5, 1.4, 0.4, 1);
+}
+
+.filter:first-child::after {
+  left: 2px;
+}
+
+.filter:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: -2px;
+}
+
+.filterLabel {
+  display: block;
+}
+
+.filterCount {
+  font-family: var(--font-family);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+.active {
+  color: var(--cream);
+}
+
+.active::after {
+  transform: skewX(-12deg) scaleX(1);
+}
+
+.active .filterCount {
+  color: var(--orange);
+  opacity: 1;
+}
+
+/* ---- the scrapbook ---- */
+.masonry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.column:nth-child(2) {
+  padding-top: 10px;
+}
+
+.tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow: var(--paper-shadow);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* placed by hand */
+.column:nth-child(1) li:nth-child(odd) .tile {
+  rotate: -0.9deg;
+}
+.column:nth-child(1) li:nth-child(even) .tile {
+  rotate: 0.6deg;
+}
+.column:nth-child(2) li:nth-child(odd) .tile {
+  rotate: 0.8deg;
+}
+.column:nth-child(2) li:nth-child(even) .tile {
+  rotate: -0.5deg;
+}
+
+/* a strip of tape holding it to the chart */
+.tile::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -8px;
+  left: calc(50% - 26px);
+  width: 52px;
+  height: 17px;
+  background: linear-gradient(
+    180deg,
+    rgba(246, 238, 214, 0.78),
+    rgba(226, 214, 182, 0.7)
+  );
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  clip-path: polygon(
+    3% 0,
+    97% 6%,
+    100% 30%,
+    96% 55%,
+    100% 100%,
+    2% 94%,
+    0 60%,
+    4% 35%
+  );
+  rotate: -3deg;
+  pointer-events: none;
+}
+
+.column:nth-child(2) .tile::before {
+  rotate: 4deg;
+}
+
+button.tile:focus-visible,
+.phraseOpen:focus-visible,
+.notSure:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
+}
+
+/* a culture card's photo: a print with a cream border and its caption written underneath */
+.photo {
+  background: var(--print);
+  box-shadow:
+    0 12px 22px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(44, 33, 23, 0.08);
+  isolation: isolate;
+}
+
+.photoImg {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: calc(100% - 14px);
+  height: calc(100% - 58px);
+  object-fit: cover;
+  filter: sepia(0.18) saturate(0.9);
+}
+
+.shade {
+  display: none;
+}
+
+.orb {
+  position: absolute;
+  z-index: 1;
+  left: 13px;
+  top: 13px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(246, 239, 223, 0.94);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.caption {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  display: block;
+}
+
+.caption strong {
+  display: block;
+  overflow: hidden;
+  font: 400 0.9375rem/1.15 var(--font-display);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caption small {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paperCard {
+  min-height: 150px;
+}
+
+.paperCard .caption {
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+}
+
+.paperCard .caption strong {
+  white-space: normal;
+  font-size: 1.0625rem;
+}
+
+/* a local's tip: a parchment slip with a wax-red initial */
+.tip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 150px;
+  padding: 16px 12px 12px;
+}
+
+.tipTop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--red-ink);
+  color: var(--cream);
+  font: 400 1rem/1 var(--font-display);
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+}
+
+.localCheck {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #4d6b34;
+  box-shadow: 0 0 0 2px var(--paper-color);
+}
+
+.smallTopic {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--ink-faint);
+  border-radius: 50%;
+}
+
+.smallTopic img {
+  opacity: 0.7;
+  filter: sepia(0.6);
+}
+
+.tipText {
+  display: block;
+  font:
+    italic 400 1rem/1.3 "IM Fell English",
+    Georgia,
+    serif;
+}
+
+.byline {
+  display: block;
+  margin-top: auto;
+  padding-top: 11px;
+  color: var(--red-ink);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 14px;
+}
+
+/* a saved answer or conversation */
+.note {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px 12px 12px;
+}
+
+.icons {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.askAvatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 249, 230, 0.6);
+  box-shadow: inset 0 0 0 1px var(--ink-faint);
+}
+
+.noteTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  font: 400 1rem/1.25 var(--font-display);
+}
+
+.noteSummary {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  margin-top: 6px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.source {
+  margin-top: 10px;
+  color: var(--red-ink);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 14px;
+}
+
+/* a phrase: an index slip with a red margin rule */
+.phrase {
+  cursor: default;
+}
+
+.phrase::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 9px;
+  border-left: 1px solid rgba(155, 44, 28, 0.28);
+  pointer-events: none;
+}
+
+.phraseOpen {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 16px 12px 14px 18px;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.phraseIcon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.phraseIcon img {
+  width: 15px;
+  height: 15px;
+  opacity: 0.65;
+  filter: sepia(0.7);
+}
+
+.tag {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font:
+    italic 400 0.8125rem/1.2 "IM Fell English",
+    Georgia,
+    serif;
+}
+
+/* confirmed by a local: a red-ink mark */
+.tagLocal {
+  color: var(--red-ink);
+}
+
+.tagLocal::before {
+  content: "✓ ";
+  font-style: normal;
+}
+
+.word {
+  font:
+    400 1.375rem/1.1 "IM Fell English",
+    Georgia,
+    serif;
+  overflow-wrap: anywhere;
+}
+
+.meaning {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  margin-top: 6px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  line-height: 17px;
+}
+
+.notSure {
+  display: block;
+  width: calc(100% - 24px);
+  min-height: 36px;
+  margin: 0 12px 10px;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--ink-faint);
+  background: none;
+  color: var(--red-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* ---- empty: a blank slip on the chart ---- */
+.empty {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 26px 18px 22px;
+  border-radius: 3px;
+  color: var(--ink-soft);
+  background: var(--paper);
+  box-shadow: var(--paper-shadow);
+  text-align: center;
+  rotate: -0.6deg;
+}
+
+.empty::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px dashed rgba(44, 33, 23, 0.28);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.empty p {
+  max-width: 260px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.emptyIcon {
+  filter: sepia(1) brightness(0.45);
+  opacity: 0.6;
+}
+
+.emptyTitle {
+  color: var(--ink);
+  font: 400 1.25rem/1.2 var(--font-display) !important;
+}
+
+.emptyActions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.emptyActions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--cream);
+  font: 400 1rem/1 var(--font-display);
+  text-decoration: none;
+  box-shadow: 0 3px 8px rgba(44, 33, 23, 0.35);
+}
+
+.emptyActions a + a {
+  border: 1px solid var(--ink-faint);
+  background: transparent;
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.emptyActions a:focus-visible,
+.credits a:focus-visible,
+.credits summary:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.credits {
+  margin-top: 16px;
+  color: var(--cream-soft);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.credits summary {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  font:
+    italic 400 0.8125rem/1 "IM Fell English",
+    Georgia,
+    serif;
+  cursor: pointer;
+}
+
+.credits ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.credits a {
+  color: var(--cream-soft);
+}
+
+@media (max-width: 350px) {
+  .word {
+    font-size: 1.1875rem;
+  }
+  .tipText {
+    font-size: 0.875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter,
+  .filter::after {
+    transition: none;
+  }
+}
+
+/* on a phrase slip the source line is the only mark: no icon, so it fits on one line */
+.phrase .phraseIcon {
+  display: none;
+}
+
+/* no filter row: room for the first slip's tape under the heading */
+.heading + .masonry,
+.heading + .empty {
+  margin-top: 22px;
+}

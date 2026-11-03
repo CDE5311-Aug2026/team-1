@@ -28,13 +28,15 @@ test('the app opens only after a test name is typed; the dashboard is never behi
     </MemoryRouter>,
   );
   expect(screen.getByRole('heading', { name: 'Type your test name to start' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
+  await userEvent.click(screen.getByRole('radio', { name: 'A' }));
   await userEvent.type(screen.getByLabelText('Test name'), '<b>');
   await userEvent.click(screen.getByRole('button', { name: 'Start' }));
   expect(screen.getByRole('alert')).toHaveTextContent(/1–40 letters or numbers/);
   await userEvent.clear(screen.getByLabelText('Test name'));
   await userEvent.type(screen.getByLabelText('Test name'), '  P01 ');
   await userEvent.click(screen.getByRole('button', { name: 'Start' }));
-  expect(testerStore.get().name).toBe('P01');
+  expect(testerStore.get()).toMatchObject({ name: 'P01', version: 'A' });
   expect(screen.queryByRole('heading', { name: 'Type your test name to start' })).not.toBeInTheDocument();
   unmount();
 

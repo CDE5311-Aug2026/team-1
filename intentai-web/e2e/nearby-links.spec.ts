@@ -1,0 +1,28 @@
+import { expect, test } from '@playwright/test';
+import { paths } from '../src/routes';
+
+// Nearby is part of the app, not a separate site: its pages keep the app's tabs, and a check-in there is the same
+// data Home, Moments (My Places) and My Space read.
+
+test('Nearby pages keep the app tabs, so Home and Mine are one tap away', async ({ page }) => {
+  for (const url of [paths.nearby, paths.nearbyPlace('curated:sg-marina-bay-sands'), paths.saved, paths.collections]) {
+    await page.goto(url);
+    const nav = page.getByRole('navigation', { name: 'Primary' });
+    await expect(nav.getByRole('button', { name: 'Home' })).toBeVisible();
+    await expect(nav.getByRole('button', { name: 'Mine' })).toBeVisible();
+  }
+  await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Mine' }).click();
+  await expect(page).toHaveURL(/\/my-space$/);
+});
+
+test('a check-in in an area without cards gets a stamp in Moments and counts in My Space', async ({ page }) => {
+  await page.goto(paths.nearbyPlace('curated:sg-marina-bay-sands'));
+  await page.getByRole('button', { name: 'Check in' }).click();
+  await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Moments' }).click();
+  await expect(page.getByRole('button', { name: /Marina Bay, checked in, no cards here yet/ })).toBeVisible();
+  await page.getByRole('button', { name: /Marina Bay, checked in/ }).click();
+  await expect(page.getByRole('link', { name: /Marina Bay Sands/ })).toBeVisible();
+  await page.goto(paths.mySpace);
+  await expect(page.getByText('Stamps').locator('..')).toContainText('1');
+});
+

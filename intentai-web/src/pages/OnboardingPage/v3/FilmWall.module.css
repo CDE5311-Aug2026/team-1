@@ -1,0 +1,190 @@
+/* Strips of old film on a light table: dark celluloid with sprocket holes down both edges, frame numbers in orange,
+   prints a little faded; the one you point at lifts off in full colour. */
+.wall {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  perspective: 1100px;
+  perspective-origin: 50% 40%;
+  touch-action: pan-y;
+  -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 40%, #000 45%, transparent 100%), linear-gradient(to top, transparent 0, #000 34%);
+  -webkit-mask-composite: source-in;
+  mask-image: radial-gradient(ellipse 85% 80% at 50% 40%, #000 45%, transparent 100%), linear-gradient(to top, transparent 0, #000 34%);
+  mask-composite: intersect;
+}
+
+.plane {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  gap: 14px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.strip {
+  position: relative;
+  width: calc(var(--tile-w) + 26px);
+  transform-style: preserve-3d;
+  /* the celluloid, a little see-through at the edges */
+  background: linear-gradient(90deg, #120c08, #241912 12%, #1d140e 88%, #120c08);
+  box-shadow:
+    0 30px 50px -20px rgba(40, 22, 8, 0.55),
+    inset 0 0 0 1px rgba(255, 220, 170, 0.06);
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cell {
+  position: relative;
+  height: calc(var(--tile-h) + var(--gap));
+  flex: none;
+  transform-style: preserve-3d;
+}
+
+/* sprocket holes down both edges: rounded windows onto the table */
+.cell::before,
+.cell::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 7px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='13'%3E%3Crect x='0.5' y='3' width='6' height='7' rx='1.6' fill='%23e8dcc6'/%3E%3C/svg%3E");
+  background-size: 7px 13px;
+  opacity: 0.85;
+}
+
+.cell::before {
+  left: 3px;
+}
+
+.cell::after {
+  right: 3px;
+}
+
+/* the frame number printed on the film between frames */
+.edge {
+  position: absolute;
+  left: 15px;
+  top: 3px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #e08a3c;
+  opacity: 0.8;
+}
+
+.frame {
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  top: calc(var(--gap) - 6px);
+  height: var(--tile-h);
+  display: block;
+  border-radius: 2px;
+  overflow: hidden;
+  background: #2b2018;
+  transform: translateZ(0);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* faded prints; the old photos stay black and white, warmed */
+  filter: sepia(0.55) saturate(0.75) contrast(1.06) brightness(0.92);
+  transition: filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.cell[data-old] .frame img {
+  filter: grayscale(1) sepia(0.45) contrast(1.12) brightness(0.95);
+}
+
+/* grain and a vignette over every print */
+.frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(30, 15, 5, 0.45)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.12 0 0 0 0 0.05 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23g)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+
+.tag {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 12px 5px 4px;
+  background: linear-gradient(transparent, rgba(20, 10, 4, 0.82));
+  color: #fbf1df;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.3s,
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tag b {
+  flex: none;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 700;
+  color: #f2a865;
+}
+
+.cell[data-active] .frame {
+  transform: translateZ(70px) scale(1.12);
+  box-shadow:
+    0 26px 44px -14px rgba(20, 10, 2, 0.75),
+    0 0 0 3px #f6eedb;
+}
+
+.cell[data-active] .frame img {
+  filter: none;
+}
+
+.cell[data-active][data-old] .frame img {
+  filter: grayscale(1) sepia(0.25) contrast(1.1);
+}
+
+.cell[data-active] .frame::after {
+  opacity: 0.35;
+}
+
+.cell[data-active] .tag {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plane,
+  .track {
+    will-change: auto;
+  }
+}

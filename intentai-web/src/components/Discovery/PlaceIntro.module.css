@@ -1,0 +1,292 @@
+/* A place's intro as one page of an explorer's notebook (owner, 31 Oct 2026): cream dot-grid paper with the pages
+   underneath showing at the edge, a leather strap down the side, ink in brown and rust, a serif hand for names and
+   stories, a typewriter for labels. Nothing in it is a card in a card: entries follow one another on the page. */
+.notebook {
+  /* the app's colours, in ink */
+  --accent: #b9502a;
+  --surface: transparent;
+  --chip-bg: rgba(120, 85, 45, 0.1);
+  --border: rgba(90, 60, 30, 0.22);
+  --border-strong: rgba(70, 45, 20, 0.45);
+  --divider: rgba(90, 60, 30, 0.18);
+  --text-primary: #2f2014;
+  --text-secondary: #6b5640;
+  --text-ink-2: #3a2a1a;
+  --tint-warm-2: transparent;
+  --story-orange-text: #a8481f;
+  --serif: 'Iowan Old Style', 'Charter', 'Palatino Linotype', Palatino, Georgia, serif;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px 18px 18px 6px;
+  background: #f6eedb;
+  color: var(--text-primary);
+  overflow: hidden;
+  /* the pages below this one, then the shadow on the desk */
+  box-shadow:
+    1px 2px 0 -1px #eadfc6,
+    2px 4px 0 -2px #e2d4b6,
+    3px 6px 0 -3px #d8c8a6,
+    0 16px 26px -14px rgba(60, 34, 14, 0.6);
+}
+
+.bookWrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- the field note's heading ------------------------------------------------------------------------------------ */
+.head {
+  /* fills the sheet (data-fill): the heading at the top, the key numbers at the foot, the rest spread between */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.head > * {
+  flex: none;
+}
+
+.headTop {
+  display: flow-root;
+}
+
+.kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8481f;
+}
+
+.name {
+  margin: 4px 0 0;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+  color: #2a1a0e;
+}
+
+/* a long title in a smaller hand, so it keeps to two or three lines */
+.name[data-long] {
+  font-size: 1.0625rem;
+  line-height: 1.2;
+}
+
+.sub {
+  margin: 3px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: #6b5640;
+}
+
+/* the stamp: a rubber stamp in green ink, a little crooked, the ink uneven */
+.stamp {
+  float: right;
+  shape-outside: circle(50%);
+  width: 66px;
+  height: 66px;
+  margin: -2px -8px 2px 6px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  position: relative;
+  transform: rotate(-11deg);
+  color: #2f6b4f;
+  border: 3px solid currentColor;
+  font-family: var(--font-mono);
+  text-align: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 2.1'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 2.1'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  -webkit-mask-size: 120px;
+  mask-size: 120px;
+}
+
+.stamp::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1.5px dashed currentColor;
+  border-radius: 50%;
+}
+
+.stamp small {
+  font-size: 0.4375rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stamp b {
+  font-family: var(--serif);
+  font-size: 0.9375rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+/* not yet: an empty ring in pencil, waiting */
+.stamp[data-in='false'] {
+  color: rgba(90, 65, 40, 0.42);
+  border-width: 1.5px;
+  border-style: dashed;
+  transform: rotate(-6deg);
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.stamp[data-in='false']::after {
+  border-style: dotted;
+}
+
+/* the planning area's tally, in one line */
+/* the strip under every page: which deck this place belongs to, and its progress */
+.deck {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 30px 8px 10px;
+  border-top: 1px dashed rgba(90, 60, 30, 0.3);
+  background: #e8d9b8;
+}
+
+.deckKind {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8481f;
+}
+
+.deck .areaName {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.areaName {
+  flex: none;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.areaNum {
+  flex: none;
+  font-size: 0.6875rem;
+  color: #6b5640;
+}
+
+.areaNum strong {
+  color: #2f2014;
+}
+
+/* a pencil track with the ink filled in */
+.bar {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 24px;
+  height: 7px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(90deg, rgba(90, 60, 30, 0.22) 0 6px, transparent 6px 9px);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  min-width: 7px;
+  border-radius: 4px;
+  background: #b9502a;
+}
+
+.bar span[data-status='done'] {
+  background: #2f6b4f;
+}
+
+.actions {
+  margin: 0;
+}
+
+/* --- the visit notes ---------------------------------------------------------------------------------------------- */
+.notes {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes section {
+  padding: 16px 0 4px;
+  border: 0;
+  border-top: 1px dashed rgba(90, 60, 30, 0.35);
+  border-radius: 0;
+  background: none;
+}
+
+.notes h2 {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8481f;
+}
+
+.notes p {
+  font-family: var(--serif);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.sources {
+  margin-top: 14px;
+  font-size: 0.75rem;
+  color: #6b5640;
+}
+
+.sources > :global(*) {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.end {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: rgba(90, 60, 30, 0.45);
+  letter-spacing: 0.6em;
+}
+
+/* check in: rust ink; checked in: green ink, as the stamp (the first button only: Save has its own look) */
+.actions button[aria-pressed]:first-child {
+  background: #b9502a;
+  color: #fff8ec;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 190, 0.3),
+    0 6px 12px -8px rgba(90, 40, 15, 0.8);
+}
+
+.actions button[aria-pressed='true']:first-child {
+  background: transparent;
+  color: #2f6b4f;
+  box-shadow: inset 0 0 0 1.5px rgba(47, 107, 79, 0.65);
+}
+
+/* close, in the strip under the pages once the 3D view has turned away with the first page */

@@ -1,16 +1,8 @@
 import { beforeEach, expect, test } from 'vitest';
-import {
-  BERLIN_THUMB,
-  FACETS,
-  HOME_PLACES,
-  PINNED_COUNT,
-  formatHomeDistance,
-  homePlace,
-  searchHomePlaces,
-  visiblePins,
-} from './homePlaces';
+import { ALL_HOME_PLACES, BERLIN_THUMB, FACETS, HOME_PLACES, PINNED_COUNT, formatHomeDistance, searchHomePlaces, visiblePins } from './homePlaces';
 import placesJson from './explore/places.sg.json';
 import areasJson from './explore/areas.json';
+import { areaOfPlace } from './ura/ura';
 import { resetPersistentStores } from './persistentStore';
 
 beforeEach(() => {
@@ -18,10 +10,9 @@ beforeEach(() => {
   resetPersistentStores();
 });
 
-test('five places in card order', () => {
+test('four places in card order (story cards removed 31 Oct)', () => {
   expect(HOME_PLACES.map((p) => p.id)).toEqual([
-    'berlin-wall-fragments',
-    'chinatown',
+    'curated:sg-berlin-wall-fragments-utown',
     'curated:sg-national-university-of-singapore',
     'curated:sg-haw-par-villa',
     'curated:sg-holland-village',
@@ -30,29 +21,24 @@ test('five places in card order', () => {
   expect(PINNED_COUNT).toBe(4);
 });
 
-test('the two story places carry fixed labels', () => {
+test("the Berlin Wall keeps Team 1's photo", () => {
   const berlin = HOME_PLACES[0];
   expect(berlin.name).toBe('Berlin Wall Fragments');
-  expect(berlin.area).toBe('NUS University Town');
-  expect(berlin.distance).toBe('200 m');
-  const chinatown = homePlace('chinatown')!;
-  expect(chinatown.area).toBe('Chinatown & Tanjong Pagar');
-  expect(chinatown.distance).toBe('8.4 km');
-  expect(chinatown.point).toEqual({ lat: 1.28361, lng: 103.84417 });
+  expect(berlin.credit).toBe('Photo supplied by the IntentAI team');
+  expect(berlin.distance).toMatch(/ m$/);
 });
 
-test('cards and pins flags', () => {
-  expect(HOME_PLACES.filter((p) => p.hasCards).map((p) => p.id)).toEqual(['berlin-wall-fragments', 'chinatown']);
-  expect(HOME_PLACES.filter((p) => !p.pinAlways).map((p) => p.id)).toEqual(['chinatown']);
+test('no Home place has story cards; the four are always pinned', () => {
+  expect(ALL_HOME_PLACES.filter((p) => p.hasCards)).toEqual([]);
+  expect(HOME_PLACES.every((p) => p.pinAlways)).toBe(true);
 });
 
 test('visiblePins adds the selected place only when it is not always pinned', () => {
-  const a = visiblePins('berlin-wall-fragments');
-  expect(a).toHaveLength(4);
-  expect(a.map((p) => p.id)).not.toContain('chinatown');
-  const b = visiblePins('chinatown');
+  expect(visiblePins('curated:sg-berlin-wall-fragments-utown')).toHaveLength(4);
+  const other = ALL_HOME_PLACES[HOME_PLACES.length].id;
+  const b = visiblePins(other);
   expect(b).toHaveLength(5);
-  expect(b.map((p) => p.id)).toContain('chinatown');
+  expect(b.map((p) => p.id)).toContain(other);
 });
 
 test('formatHomeDistance rounds to 50 m below 1 km, else one decimal km', () => {
@@ -62,8 +48,8 @@ test('formatHomeDistance rounds to 50 m below 1 km, else one decimal km', () => 
   expect(formatHomeDistance(8400)).toBe('8.4 km');
 });
 
-test('places 3 to 5 have computed distance labels', () => {
-  for (const p of HOME_PLACES.slice(2)) {
+test('every Home place has a computed distance label', () => {
+  for (const p of HOME_PLACES) {
     expect(p.distance).toMatch(/^\d+ m$|^\d+\.\d km$/);
     expect(p.distance.startsWith('Approx.')).toBe(false);
   }
@@ -83,43 +69,55 @@ test('BERLIN_THUMB is a non-empty url string', () => {
   expect(BERLIN_THUMB.length).toBeGreaterThan(0);
 });
 
-test('literal places 3 to 5 match the Nearby catalogue', () => {
+test('the literal Home places match the Nearby catalogue', () => {
   const areas = (areasJson as { areas: { id: string; name: string }[] }).areas;
   const places = placesJson as { id: string; name: string; areaId: string; coordinates: { lat: number; lng: number } }[];
-  for (const p of HOME_PLACES.slice(2)) {
+  for (const p of HOME_PLACES) {
     const raw = places.find((r) => r.id === p.id)!;
     expect(p.name).toBe(raw.name);
     expect(p.point).toEqual({ lat: raw.coordinates.lat, lng: raw.coordinates.lng });
-    expect(p.area).toBe(areas.find((a) => a.id === raw.areaId)!.name);
+    // the card names the URA planning area; Nearby's locality name stays searchable
+    expect(p.area).toBe(areaOfPlace(p.id)!.name);
+    expect(p.aliases).toContain(areas.find((a) => a.id === raw.areaId)!.name);
   }
 });
 
 const ids = (r: ReturnType<typeof searchHomePlaces>) => [r.withCards.map((p) => p.id), r.others.map((p) => p.id)];
 
-test('search: empty query lists the two card places, then the three Cards-soon places', () => {
+test('search: an empty query lists the four Home places', () => {
   expect(ids(searchHomePlaces('  '))).toEqual([
-    ['berlin-wall-fragments', 'chinatown'],
-    ['curated:sg-national-university-of-singapore', 'curated:sg-haw-par-villa', 'curated:sg-holland-village'],
+    [],
+    ['curated:sg-berlin-wall-fragments-utown', 'curated:sg-national-university-of-singapore', 'curated:sg-haw-par-villa', 'curated:sg-holland-village'],
   ]);
 });
 
 test('search: the Cards-soon places answer to their short names', () => {
   const nus = 'curated:sg-national-university-of-singapore';
-  expect(ids(searchHomePlaces('UTown'))).toEqual([[], [nus]]);
-  expect(ids(searchHomePlaces('utown'))).toEqual([[], [nus]]);
-  expect(ids(searchHomePlaces('NUS'))[1]).toEqual([nus]);
+  expect(ids(searchHomePlaces('UTown'))[1]).toContain(nus);
+  expect(ids(searchHomePlaces('utown'))[1]).toContain(nus);
+  expect(ids(searchHomePlaces('NUS'))[1]).toContain(nus);
   expect(ids(searchHomePlaces('tiger balm'))).toEqual([[], ['curated:sg-haw-par-villa']]);
+  // typing searches every real place, not only the five on Home
+  expect(ids(searchHomePlaces('marina bay sands'))[1]).toContain('curated:sg-marina-bay-sands');
   expect(ids(searchHomePlaces('holland road'))).toEqual([[], ['curated:sg-holland-village']]);
 });
 
 test('search: case-insensitive on name, area and aliases', () => {
-  expect(ids(searchHomePlaces('tembusu'))).toEqual([['berlin-wall-fragments'], []]);
-  expect(ids(searchHomePlaces('BERLIN'))).toEqual([['berlin-wall-fragments'], []]);
-  expect(ids(searchHomePlaces('pagoda street'))).toEqual([['chinatown'], []]);
-  expect(ids(searchHomePlaces('tanjong'))).toEqual([['chinatown'], []]);
+  expect(ids(searchHomePlaces('tembusu'))).toEqual([[], ['curated:sg-berlin-wall-fragments-utown']]);
+  expect(ids(searchHomePlaces('BERLIN'))[1]).toContain('curated:sg-berlin-wall-fragments-utown');
+  expect(ids(searchHomePlaces('pagoda street'))[1]).toContain('curated:sg-pagoda-street-trengganu-street');
   expect(ids(searchHomePlaces('haw par'))).toEqual([[], ['curated:sg-haw-par-villa']]);
-  // "Queenstown & Holland" is the area of all three Cards-soon places.
-  expect(ids(searchHomePlaces('queenstown'))[1]).toHaveLength(3);
-  expect(ids(searchHomePlaces('University Town'))).toEqual([['berlin-wall-fragments'], []]);
+  expect(ids(searchHomePlaces('queenstown'))[1].length).toBeGreaterThanOrEqual(3);
   expect(ids(searchHomePlaces('zzz'))).toEqual([[], []]);
+});
+
+test('the Berlin Wall is in Queenstown, as its deck says (NUS University Town lies in URA Queenstown)', () => {
+  const berlin = ALL_HOME_PLACES.find((p) => p.id === 'curated:sg-berlin-wall-fragments-utown')!;
+  expect(berlin.area).toBe('Queenstown');
+  expect(berlin.kind).toBe('Monument');
+  expect(ids(searchHomePlaces('kent ridge'))[1]).toContain(berlin.id);
+});
+
+test('the Berlin Wall shows once on Home', () => {
+  expect(ALL_HOME_PLACES.filter((p) => /Berlin Wall/.test(p.name)).map((p) => p.id)).toEqual(['curated:sg-berlin-wall-fragments-utown']);
 });

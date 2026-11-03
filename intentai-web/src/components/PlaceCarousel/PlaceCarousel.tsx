@@ -1,8 +1,11 @@
 import { useEffect, useRef, type KeyboardEvent, type MouseEvent } from 'react';
 import { FACETS, openedCount, type HomePlace, type PlaceStories } from '../../data/homePlaces';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
-import { showToast } from '../../hooks/useToast';
 import styles from './PlaceCarousel.module.css';
+import { useMouseDrag } from './useMouseDrag';
+
+/** Cards on each side of the centred one that load their photo. */
+const PHOTO_WINDOW = 4;
 
 /** A photo moves this fraction of its card's distance from the centre, against the card's motion. */
 export const PARALLAX = 0.25;
@@ -33,6 +36,7 @@ const cardCentre = (card: HTMLElement) => card.offsetLeft + card.offsetWidth / 2
 export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivate, onOpen }: Props) {
   const reduced = useReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
+  useMouseDrag(trackRef);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const photoRefs = useRef<(HTMLDivElement | null)[]>([]);
   /** scrollLeft we are scrolling to for an outside selection; settles are ignored while set. */
@@ -52,10 +56,16 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
     const track = trackRef.current;
     if (!track) return;
     const centre = track.scrollLeft + track.clientWidth / 2;
+    // Only cards near the centre move. A transform on every photo gives each of the ~300 cards its own graphics
+    // layer, which runs iPhone Safari out of memory and reloads the page.
+    const [first, second] = cardRefs.current;
+    const pitch = first && second ? second.offsetLeft - first.offsetLeft : (first?.offsetWidth ?? 0);
+    const near = first && pitch > 0 ? Math.round((centre - cardCentre(first)) / pitch) : 0;
     cardRefs.current.forEach((card, i) => {
       const photo = photoRefs.current[i];
       if (!card || !photo) return;
-      if (latest.current.reduced || track.clientWidth === 0) {
+      if (latest.current.reduced || track.clientWidth === 0 || Math.abs(i - near) > PHOTO_WINDOW + 1) {
+        if (photo.style.transform) photo.style.transform = '';
         photo.style.transform = '';
         return;
       }
@@ -172,11 +182,6 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
     onOpen(id);
   };
 
-  const soon = (e: MouseEvent, name: string) => {
-    e.stopPropagation();
-    showToast(`Culture cards for ${name} are coming soon`);
-  };
-
   return (
     <section
       className={styles.root}
@@ -216,7 +221,10 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
                 className={place.photo ? styles.photo : `${styles.photo} ${styles.noPhoto}`}
                 data-parallax=""
               >
-                {place.photo && <img src={place.photo} alt={place.photoAlt} draggable={false} />}
+                {/* Only the cards near the centre load their photo: 175 decoded photos crash iPhone Safari. */}
+                {place.photo && Math.abs(i - selectedIndex) <= PHOTO_WINDOW && (
+                  <img src={place.photo} alt={place.photoAlt} draggable={false} loading="lazy" decoding="async" />
+                )}
               </div>
               <div className={styles.content}>
                 <span className={styles.chip}>
@@ -227,6 +235,8 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
                   <h3 className={styles.name}>{place.name}</h3>
                   <p className={styles.area}>{place.area}</p>
                   <div className={styles.footer}>
+                    {place.hasCards ? (
+                      <>
                     <span className={styles.bar} aria-hidden="true">
                       {FACETS.map((f, k) => (
                         <span key={f} className={styles.segment} data-filled={k < opened ? 'true' : 'false'} />
@@ -235,6 +245,10 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
                     <span className={styles.count}>
                       {opened} of {FACETS.length} opened
                     </span>
+                      </>
+                    ) : (
+                      <span className={styles.count}>Open it in Nearby</span>
+                    )}
                     {/* Only the card in the centre offers its action. */}
                     {isSelected &&
                       (place.hasCards ? (
@@ -243,9 +257,9 @@ export function PlaceCarousel({ places, selectedId, stories, onSelect, onActivat
                           <ArrowIcon />
                         </button>
                       ) : (
-                        <button type="button" className={styles.soon} aria-disabled="true" onClick={(e) => soon(e, place.name)}>
-                          <LockIcon />
-                          Cards soon
+                        <button type="button" className={`press ${styles.open}`} onClick={(e) => open(e, place.id)} aria-label={`Open ${place.name} in Nearby`}>
+                          Nearby
+                          <ArrowIcon />
                         </button>
                       ))}
                   </div>
@@ -281,15 +295,6 @@ function ArrowIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
       <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-      <rect x="5" y="11" width="14" height="10" rx="2" />
-      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
     </svg>
   );
 }

@@ -45,7 +45,7 @@
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 5.5rem;
+  bottom: 6.5rem;
   transform: translateX(-50%);
   background: var(--text-primary);
   color: #fff;
@@ -133,5 +133,21 @@
 @media (min-width: 481px) {
   .fillTabBar {
     bottom: 1rem;
+  }
+}
+
+/* Phone browsers (Safari 26 floats its own bar at the bottom): our guide sits just above that bar, in the same
+   column, so the two read as one stack instead of two bars fighting for the edge. A home-screen app keeps the
+   home-indicator offset above. */
+@media (hover: none) and (pointer: coarse) and (display-mode: browser) and (max-width: 480px) {
+  .tabBarWrap,
+  .fillTabBar {
+    /* clear of the viewport edge, so the scroll's lower knobs are not cut off */
+    bottom: 1.125rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  .page {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
   }
 }

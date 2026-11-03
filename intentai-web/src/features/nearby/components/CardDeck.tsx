@@ -199,7 +199,6 @@ export default function CardDeck({ cards, label }: { cards: DeckCard[]; label: s
           <button type="button" className={styles.arrow} onClick={() => away(-1)} aria-label="Next card">
             ›
           </button>
-          <span className={styles.hint}>Swipe the card for the next one</span>
         </div>
       )}
     </div>

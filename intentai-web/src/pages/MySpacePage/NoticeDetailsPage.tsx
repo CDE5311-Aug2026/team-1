@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import back from '../../assets/my-space/back-chevron.svg';
 import check from '../../assets/my-space/button-check.svg';
@@ -7,12 +6,10 @@ import calendar from '../../assets/my-space/detail-calendar.svg';
 import pencil from '../../assets/my-space/detail-pencil.svg';
 import users from '../../assets/my-space/detail-users.svg';
 import utensils from '../../assets/my-space/detail-utensils.svg';
-import chat from '../../assets/my-space/link-chat.svg';
 import dotAmber from '../../assets/my-space/dot-amber.svg';
 import { usePersistentStore } from '../../data/persistentStore';
 import { noticesStore, settingsStore } from '../../data/stores';
 import { paths } from '../../routes';
-import AskLocalDialog from './AskLocalDialog/AskLocalDialog';
 import MySpaceLayout from './MySpaceLayout/MySpaceLayout';
 import cardStyles from './NoticeCard/NoticeCard.module.css';
 import screen from './DetailScreen.module.css';
@@ -26,7 +23,6 @@ export type EditField = 'occasion' | 'with';
 export default function NoticeDetailsPage() {
   const [notices] = usePersistentStore(noticesStore);
   const [settings] = usePersistentStore(settingsStore);
-  const [asking, setAsking] = useState(false);
   const navigate = useNavigate();
   const resolve = useResolveNotice();
 
@@ -111,14 +107,8 @@ export default function NoticeDetailsPage() {
           </div>
         </article>
 
-        <button type="button" className={styles.askLocal} onClick={() => setAsking(true)} data-node-id="21:1588">
-          <span className={styles.askHint}>Not sure?</span>
-          <img src={chat} alt="" width={14} height={14} />
-          Ask a local
-        </button>
       </div>
 
-      {asking && <AskLocalDialog onClose={() => setAsking(false)} />}
     </MySpaceLayout>
   );
 }

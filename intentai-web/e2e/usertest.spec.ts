@@ -10,7 +10,7 @@ test.describe('user test without a server', () => {
     await page.goto('/');
     await page.getByLabel('Test name').fill('P09');
     await page.getByRole('button', { name: 'Start' }).click();
-    await page.getByRole('button', { name: 'Get started' }).click();
+    await page.getByRole('button', { name: /Start the hunt/ }).click(); // v3 onboarding (Figma O1)
     await page.waitForTimeout(1200);
     await page.goto('/nearby'); // a full load ends the Welcome visit (pagehide) and starts a new one
     await page.waitForTimeout(1500);

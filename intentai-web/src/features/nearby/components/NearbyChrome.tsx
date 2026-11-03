@@ -6,7 +6,7 @@ import styles from './Nearby.module.css';
 
 /** Back button + title for detail screens. Back restores the previous exploration state (history). */
 /** Back, the page title, and an optional action on the right (Share). */
-export function BackHeader({ title, fallback, action }: { title: string; fallback: string; action?: ReactNode }) {
+export function BackHeader({ title, fallback, action, titleLang }: { title: string; fallback: string; action?: ReactNode; titleLang?: string }) {
   const navigate = useNavigate();
   const back = () => {
     const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
@@ -18,7 +18,9 @@ export function BackHeader({ title, fallback, action }: { title: string; fallbac
       <button type="button" className={styles.back} onClick={back} aria-label="Back">
         <img src={backChevron} alt="" width={16} height={16} />
       </button>
-      <h1 className={styles.detailTitle}>{title}</h1>
+      <h1 className={styles.detailTitle} lang={titleLang}>
+        {title}
+      </h1>
       {action && <span className={styles.headerAction}>{action}</span>}
     </header>
   );

@@ -1,0 +1,131 @@
+/* The 3D shelf fills its slot; the canvas takes the pointer so swipes look along the shelf rather than scroll the page
+   sideways (vertical scrolling still goes to the page). */
+.host {
+  position: relative;
+  width: 100%;
+  /* the camera fits the shelf's width, so a shorter slot only trims the empty wall above the books */
+  height: clamp(220px, 58vw, 300px);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.host:active {
+  cursor: grabbing;
+}
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* the lamp's pool of light falls off into the dark of the room */
+.host::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 40% 30%, transparent 55%, rgba(12, 8, 4, 0.55));
+}
+/* the display case is shorter and takes taps, not drags */
+.caseHost {
+  height: clamp(200px, 56vw, 280px);
+  cursor: pointer;
+}
+.caseHost:active {
+  cursor: pointer;
+}
+
+/* the case and what sits over it: a hint while the doors are shut, a caption bar while something is brought forward */
+.caseWrap {
+  position: relative;
+}
+.caseWrap .caseHost {
+  height: clamp(250px, 82vw, 380px);
+}
+.caseHint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  padding: 7px 14px;
+  border: 1px solid rgba(230, 196, 130, 0.55);
+  border-radius: 999px;
+  font:
+    400 0.8125rem/1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #f3e3c0;
+  background: rgba(24, 15, 8, 0.72);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  animation: caseHint 2.4s ease-in-out infinite;
+}
+@keyframes caseHint {
+  50% {
+    border-color: rgba(240, 210, 150, 0.95);
+  }
+}
+.caseBar {
+  position: relative;
+  margin: -1px 0 0;
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  color: #f3e3c0;
+  background: linear-gradient(180deg, rgba(30, 19, 10, 0.88), rgba(20, 12, 6, 0.94));
+  border-top: 1px solid rgba(200, 160, 90, 0.35);
+  border-radius: 0 0 6px 6px;
+  animation: caseBar 0.35s ease-out both;
+}
+.caseBar p {
+  margin: 0;
+  display: grid;
+  gap: 3px;
+}
+.caseBar b {
+  font:
+    500 1rem/1.1 var(--font-display);
+  letter-spacing: 0.03em;
+}
+.caseBar span {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  opacity: 0.85;
+}
+.caseBar div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.caseBar button {
+  padding: 7px 12px;
+  border: 1px solid rgba(230, 196, 130, 0.45);
+  border-radius: 3px;
+  font:
+    400 0.8125rem/1 var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f3e3c0;
+  background: transparent;
+  cursor: pointer;
+}
+.caseBar .caseGo {
+  color: #1e140a;
+  background: #e7c27a;
+  border-color: #e7c27a;
+}
+@keyframes caseBar {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .caseHint,
+  .caseBar {
+    animation: none;
+  }
+}

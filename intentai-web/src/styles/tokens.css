@@ -36,6 +36,9 @@
   --font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   /* Numbers only (counts, dates, levels): the typewriter-ledger touch. */
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /* Titles, labels and buttons everywhere: a tall condensed sans (owner, 1 Nov 2026: the "AEGEAN FERRY" lettering).
+     Letters, notes and the printed props inside the games keep their own faces. */
+  --font-display: 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
   --fs-title: 1.625rem;      /* 26px */
   --lh-title: 2rem;          /* 32px */
   --ls-title: -0.39px;

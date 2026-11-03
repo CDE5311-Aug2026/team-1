@@ -1,0 +1,370 @@
+[
+ {
+  "file": "then-anderson-bridge.webp",
+  "placeId": "curated:sg-anderson-bridge",
+  "name": "Anderson Bridge",
+  "year": "c.1930",
+  "old": true,
+  "credit": "Unknown photographer, c.1930 (KITLV 104800) · CC BY 4.0"
+ },
+ {
+  "file": "then-boat-quay.webp",
+  "placeId": "curated:sg-boat-quay",
+  "name": "Boat Quay",
+  "year": "c.1900",
+  "old": true,
+  "credit": "G.R. Lambert & Co. c.1900 · public domain"
+ },
+ {
+  "file": "then-cavenagh-bridge.webp",
+  "placeId": "curated:sg-cavenagh-bridge",
+  "name": "Cavenagh Bridge",
+  "year": "c.1870",
+  "old": true,
+  "credit": "Unknown photographer, c.1870 (KITLV 155825) · Public domain"
+ },
+ {
+  "file": "then-fullerton-building.webp",
+  "placeId": "curated:sg-fullerton-building",
+  "name": "The Fullerton Building (former General Post Office)",
+  "year": "1930s",
+  "old": true,
+  "credit": "Unknown photographer, undated (KITLV 1404891) · CC BY 4.0"
+ },
+ {
+  "file": "then-national-museum-of-singapore.webp",
+  "placeId": "curated:sg-national-museum-of-singapore",
+  "name": "National Museum of Singapore",
+  "year": "c.1900",
+  "old": true,
+  "credit": "KITLV 105738, c.1900 · public domain"
+ },
+ {
+  "file": "then-raffles-hotel.webp",
+  "placeId": "curated:sg-raffles-hotel",
+  "name": "Raffles Hotel",
+  "year": "1920",
+  "old": true,
+  "credit": "Marine Photo Service, 1920–1939 · public domain"
+ },
+ {
+  "file": "then-singapore-conference-hall.webp",
+  "placeId": "curated:sg-singapore-conference-hall",
+  "name": "Singapore Conference Hall",
+  "year": "1967",
+  "old": true,
+  "credit": "Sherwin John Carlquist 1967 · CC BY 4.0"
+ },
+ {
+  "file": "then-st-andrew-s-cathedral.webp",
+  "placeId": "curated:sg-st-andrew-s-cathedral",
+  "name": "St Andrew's Cathedral",
+  "year": "1890",
+  "old": true,
+  "credit": "Photoglob Co. 1890 · public domain"
+ },
+ {
+  "file": "then-the-cenotaph.webp",
+  "placeId": "curated:sg-the-cenotaph",
+  "name": "The Cenotaph",
+  "year": "1920s",
+  "old": true,
+  "credit": "Unknown photographer, undated (KITLV 104806) · CC BY 4.0"
+ },
+ {
+  "file": "then-victoria-theatre-and-concert-hall.webp",
+  "placeId": "curated:sg-victoria-theatre-and-concert-hall",
+  "name": "Victoria Theatre and Concert Hall",
+  "year": "Old photo",
+  "old": true,
+  "credit": "Unknown author, 1930s · public domain"
+ },
+ {
+  "file": "then-wesley-methodist-church.webp",
+  "placeId": "curated:sg-wesley-methodist-church",
+  "name": "Wesley Methodist Church",
+  "year": "1910s",
+  "old": true,
+  "credit": "Unknown, old postcard · public domain"
+ },
+ {
+  "file": "then-masjid-jamae-chulia.webp",
+  "placeId": "curated:sg-masjid-jamae-chulia",
+  "name": "Masjid Jamae (Chulia)",
+  "year": "c.1900",
+  "old": true,
+  "credit": "G.R. Lambert & Co., c.1900 · public domain"
+ },
+ {
+  "file": "now-sri-mariamman-temple.webp",
+  "placeId": "curated:sg-sri-mariamman-temple",
+  "name": "Sri Mariamman Temple",
+  "year": "Today",
+  "old": false,
+  "credit": "Chainwit. · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-thian-hock-keng-temple.webp",
+  "placeId": "curated:sg-thian-hock-keng-temple",
+  "name": "Thian Hock Keng Temple",
+  "year": "Today",
+  "old": false,
+  "credit": "Zairon · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-sultan-mosque.webp",
+  "placeId": "curated:sg-sultan-mosque",
+  "name": "Sultan Mosque",
+  "year": "Today",
+  "old": false,
+  "credit": "Chainwit. · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-armenian-church-of-saint-gregory-the-illuminator.webp",
+  "placeId": "curated:sg-armenian-church-of-saint-gregory-the-illuminator",
+  "name": "Armenian Church of Saint Gregory the Illuminator",
+  "year": "Today",
+  "old": false,
+  "credit": "Chainwit. · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-st-andrew-s-cathedral.webp",
+  "placeId": "curated:sg-st-andrew-s-cathedral",
+  "name": "St Andrew's Cathedral",
+  "year": "Today",
+  "old": false,
+  "credit": "Someformofhuman. · CC BY-SA 3.0"
+ },
+ {
+  "file": "now-victoria-theatre-and-concert-hall.webp",
+  "placeId": "curated:sg-victoria-theatre-and-concert-hall",
+  "name": "Victoria Theatre and Concert Hall",
+  "year": "Today",
+  "old": false,
+  "credit": "TTangMonuments · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-raffles-hotel.webp",
+  "placeId": "curated:sg-raffles-hotel",
+  "name": "Raffles Hotel",
+  "year": "Today",
+  "old": false,
+  "credit": "Anthere · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-fullerton-building.webp",
+  "placeId": "curated:sg-fullerton-building",
+  "name": "The Fullerton Building (former General Post Office)",
+  "year": "Today",
+  "old": false,
+  "credit": "Marcin Konsek · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-cavenagh-bridge.webp",
+  "placeId": "curated:sg-cavenagh-bridge",
+  "name": "Cavenagh Bridge",
+  "year": "Today",
+  "old": false,
+  "credit": "Marcin Konsek · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-anderson-bridge.webp",
+  "placeId": "curated:sg-anderson-bridge",
+  "name": "Anderson Bridge",
+  "year": "Today",
+  "old": false,
+  "credit": "Zairon 2015 · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-tanjong-pagar-railway-station.webp",
+  "placeId": "curated:sg-tanjong-pagar-railway-station",
+  "name": "Tanjong Pagar Railway Station",
+  "year": "Today",
+  "old": false,
+  "credit": "EquatorialSky2 Derivative work MagentaGreen · CC BY-SA 3.0"
+ },
+ {
+  "file": "now-former-kallang-airport-terminal.webp",
+  "placeId": "curated:sg-former-kallang-airport-terminal",
+  "name": "Former Kallang Airport Terminal",
+  "year": "Today",
+  "old": false,
+  "credit": "William Cho · CC BY-SA 2.0"
+ },
+ {
+  "file": "now-jinrikisha-station.webp",
+  "placeId": "curated:sg-jinrikisha-station",
+  "name": "Jinrikisha Station",
+  "year": "Today",
+  "old": false,
+  "credit": "Elisa.rolle · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-chijmes.webp",
+  "placeId": "curated:sg-chijmes",
+  "name": "CHIJMES",
+  "year": "Today",
+  "old": false,
+  "credit": "Wikimedia Commons contributor · CC BY-SA 3.0"
+ },
+ {
+  "file": "now-national-museum-of-singapore.webp",
+  "placeId": "curated:sg-national-museum-of-singapore",
+  "name": "National Museum of Singapore",
+  "year": "Today",
+  "old": false,
+  "credit": "Rudolph Fennington · Public domain"
+ },
+ {
+  "file": "now-the-arts-house-old-parliament-house.webp",
+  "placeId": "curated:sg-the-arts-house-old-parliament-house",
+  "name": "The Arts House (Old Parliament House)",
+  "year": "Today",
+  "old": false,
+  "credit": "Balon Greyjoy · CC0"
+ },
+ {
+  "file": "now-old-hill-street-police-station.webp",
+  "placeId": "curated:sg-old-hill-street-police-station",
+  "name": "Old Hill Street Police Station",
+  "year": "Today",
+  "old": false,
+  "credit": "GoAheadFan95 2025 · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-central-fire-station.webp",
+  "placeId": "curated:sg-central-fire-station",
+  "name": "Central Fire Station",
+  "year": "Today",
+  "old": false,
+  "credit": "Mike Peel 2023 · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-capitol-singapore.webp",
+  "placeId": "curated:sg-capitol-singapore",
+  "name": "Capitol Singapore",
+  "year": "Today",
+  "old": false,
+  "credit": "Jacklee · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-peranakan-museum.webp",
+  "placeId": "curated:sg-peranakan-museum",
+  "name": "Peranakan Museum",
+  "year": "Today",
+  "old": false,
+  "credit": "GoAheadFan95 · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-malay-heritage-centre-istana-kampong-gelam.webp",
+  "placeId": "curated:sg-malay-heritage-centre-istana-kampong-gelam",
+  "name": "Malay Heritage Centre (Istana Kampong Gelam)",
+  "year": "Today",
+  "old": false,
+  "credit": "Elisa.rolle · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-house-of-tan-teng-niah.webp",
+  "placeId": "curated:sg-house-of-tan-teng-niah",
+  "name": "House of Tan Teng Niah",
+  "year": "Today",
+  "old": false,
+  "credit": "Marcin Konsek · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-kwan-im-thong-hood-cho-temple.webp",
+  "placeId": "curated:sg-kwan-im-thong-hood-cho-temple",
+  "name": "Kwan Im Thong Hood Cho Temple",
+  "year": "Today",
+  "old": false,
+  "credit": "Chainwit. · CC BY 4.0"
+ },
+ {
+  "file": "now-masjid-abdul-gafoor.webp",
+  "placeId": "curated:sg-masjid-abdul-gafoor",
+  "name": "Masjid Abdul Gafoor",
+  "year": "Today",
+  "old": false,
+  "credit": "M. Adrian Jurhami · CC BY 4.0"
+ },
+ {
+  "file": "now-goodwood-park-hotel.webp",
+  "placeId": "curated:sg-goodwood-park-hotel",
+  "name": "Goodwood Park Hotel",
+  "year": "Today",
+  "old": false,
+  "credit": "Twytang · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-clifford-pier-customs-house.webp",
+  "placeId": "curated:sg-clifford-pier-customs-house",
+  "name": "Clifford Pier & Customs House",
+  "year": "Today",
+  "old": false,
+  "credit": "Smuconlaw 2016 · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-the-majestic.webp",
+  "placeId": "curated:sg-the-majestic",
+  "name": "The Majestic",
+  "year": "Today",
+  "old": false,
+  "credit": "Bahnfrend · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-boat-quay.webp",
+  "placeId": "curated:sg-boat-quay",
+  "name": "Boat Quay",
+  "year": "Today",
+  "old": false,
+  "credit": "chensiyuan · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-sri-veeramakaliamman-temple.webp",
+  "placeId": "curated:sg-sri-veeramakaliamman-temple",
+  "name": "Sri Veeramakaliamman Temple",
+  "year": "Today",
+  "old": false,
+  "credit": "Bahnfrend 2023 · CC BY-SA 4.0"
+ },
+ {
+  "file": "now-hajjah-fatimah-mosque.webp",
+  "placeId": "curated:sg-hajjah-fatimah-mosque",
+  "name": "Hajjah Fatimah Mosque",
+  "year": "Today",
+  "old": false,
+  "credit": "M. Adrian Jurhami · CC BY 4.0"
+ },
+ {
+  "file": "now-macdonald-house.webp",
+  "placeId": "curated:sg-macdonald-house",
+  "name": "MacDonald House",
+  "year": "Today",
+  "old": false,
+  "credit": "ProjectManhattan 2013 · CC0"
+ },
+ {
+  "file": "now-cathedral-of-the-good-shepherd.webp",
+  "placeId": "curated:sg-cathedral-of-the-good-shepherd",
+  "name": "Cathedral of the Good Shepherd",
+  "year": "Today",
+  "old": false,
+  "credit": "Chainwit. 2023 · CC BY 4.0"
+ },
+ {
+  "file": "now-nagore-dargah.webp",
+  "placeId": "curated:sg-nagore-dargah",
+  "name": "Nagore Dargah",
+  "year": "Today",
+  "old": false,
+  "credit": "Chainwit. 2025 · CC BY 4.0"
+ },
+ {
+  "file": "now-lian-shan-shuang-lin-monastery.webp",
+  "placeId": "curated:sg-lian-shan-shuang-lin-monastery",
+  "name": "Lian Shan Shuang Lin Monastery",
+  "year": "Today",
+  "old": false,
+  "credit": "Chainwit. · CC BY 4.0"
+ }
+]

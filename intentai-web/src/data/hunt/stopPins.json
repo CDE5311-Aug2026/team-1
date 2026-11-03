@@ -1,0 +1,233 @@
+{
+  "_note": "Stop pins for the FindSG stories. OneMap search by postcode/street/name on 2026-11-01; pin \"approx\" = no exact address, check on site.",
+  "stops": {
+    "telok-ayer-01": {
+      "lat": 1.283033,
+      "lng": 103.848666,
+      "pin": "onemap-postcode",
+      "match": "76 TELOK AYER STREET AMOY HOTEL SINGAPORE 048464"
+    },
+    "telok-ayer-02": {
+      "lat": 1.282505,
+      "lng": 103.848452,
+      "pin": "onemap-postcode",
+      "match": "98 TELOK AYER STREET YING FO FUI KUN SINGAPORE 048474"
+    },
+    "telok-ayer-03": {
+      "lat": 1.281456,
+      "lng": 103.847802,
+      "pin": "onemap-postcode",
+      "match": "140A TELOK AYER STREET NAGORE DARGAH INDIAN MUSLIM HERITAGE CENTRE SINGAPORE 068604"
+    },
+    "telok-ayer-04": {
+      "lat": 1.281252,
+      "lng": 103.847689,
+      "pin": "onemap-postcode",
+      "match": "150 TELOK AYER STREET SINGAPORE 'YU HUANG GONG' TEMPLE OF HEAVENLY JADE EMPEROR SINGAPORE 068608"
+    },
+    "telok-ayer-05": {
+      "lat": 1.281321,
+      "lng": 103.847451,
+      "pin": "onemap-postcode",
+      "match": "158 TELOK AYER STREET SINGAPORE 'YU HUANG GONG' TEMPLE OF HEAVENLY JADE EMPEROR SINGAPORE 068613"
+    },
+    "telok-ayer-06": {
+      "lat": 1.280842,
+      "lng": 103.847433,
+      "pin": "onemap-postcode",
+      "match": "168 TELOK AYER STREET SINGAPORE 068619"
+    },
+    "telok-ayer-07": {
+      "lat": 1.280322,
+      "lng": 103.847217,
+      "pin": "onemap-postcode",
+      "match": "192 TELOK AYER STREET MASJID AL-ABRAR (KOOCHOO PALLY) SINGAPORE 068635"
+    },
+    "telok-ayer-08": {
+      "lat": 1.278495,
+      "lng": 103.846975,
+      "pin": "onemap-postcode",
+      "match": "235 TELOK AYER STREET TELOK AYER CHINESE METHODIST CHURCH SINGAPORE 068656"
+    },
+    "kampong-gelam-01": {
+      "lat": 1.301617,
+      "lng": 103.8596,
+      "pin": "nhb",
+      "match": "NHB reference point, Bussorah Street"
+    },
+    "kampong-gelam-02": {
+      "lat": 1.302187,
+      "lng": 103.860044,
+      "pin": "onemap-postcode",
+      "match": "73 SULTAN GATE SINGAPORE 198497"
+    },
+    "kampong-gelam-03": {
+      "lat": 1.302556,
+      "lng": 103.861076,
+      "pin": "onemap-postcode",
+      "match": "28 ALIWAL STREET ALIWAL ARTS CENTRE SINGAPORE 199918"
+    },
+    "kampong-gelam-04": {
+      "lat": 1.303175,
+      "lng": 103.861002,
+      "pin": "onemap-postcode",
+      "match": "101 JALAN SULTAN THE SULTAN SINGAPORE 199002"
+    },
+    "kampong-gelam-05": {
+      "lat": 1.303662,
+      "lng": 103.860672,
+      "pin": "onemap-postcode",
+      "match": "111 JALAN SULTAN MADRASAH ALSAGOFF AL-ARABIAH SINGAPORE 199006"
+    },
+    "kampong-gelam-06": {
+      "lat": 1.305039,
+      "lng": 103.859733,
+      "pin": "onemap-postcode",
+      "match": "471 VICTORIA STREET MASJID MALABAR SINGAPORE 198370"
+    },
+    "kampong-gelam-07": {
+      "lat": 1.303172,
+      "lng": 103.860053,
+      "pin": "onemap-postcode",
+      "match": "85A SULTAN GATE ISTANA KAMPONG GLAM SINGAPORE 198501"
+    },
+    "balestier-01": {
+      "lat": 1.321765,
+      "lng": 103.852616,
+      "pin": "onemap-street",
+      "match": "249 BALESTIER ROAD WU CAO DA BO GONG GONG"
+    },
+    "balestier-02": {
+      "lat": 1.323536,
+      "lng": 103.8524,
+      "pin": "onemap-street",
+      "match": "312 BALESTIER ROAD SINGAPORE 329743"
+    },
+    "balestier-03": {
+      "lat": 1.323838,
+      "lng": 103.852036,
+      "pin": "onemap-postcode",
+      "match": "328 BALESTIER ROAD SINGAPORE 329760"
+    },
+    "balestier-04": {
+      "lat": 1.325865,
+      "lng": 103.84962,
+      "pin": "onemap-street",
+      "match": "418 BALESTIER ROAD FRAGRANCE HOTEL - CLASSIC SINGAPORE 329808"
+    },
+    "balestier-05": {
+      "lat": 1.326359,
+      "lng": 103.849389,
+      "pin": "onemap-street",
+      "match": "1A BOON TECK ROAD THONG TECK SIAN TONG LIAN SIN SIA TEMPLE SINGAPORE 329578"
+    },
+    "balestier-06": {
+      "lat": 1.328436,
+      "lng": 103.846939,
+      "pin": "onemap-postcode",
+      "match": "14 TAI GIN ROAD BURMESE BUDDHIST TEMPLE SINGAPORE 327873"
+    },
+    "civic-f1-01": {
+      "lat": 1.294797,
+      "lng": 103.852573,
+      "pin": "onemap-postcode",
+      "match": "30 VICTORIA STREET CHIJMES SINGAPORE 187996"
+    },
+    "civic-f1-02": {
+      "lat": 1.290765,
+      "lng": 103.848202,
+      "pin": "onemap-postcode",
+      "match": "140 HILL STREET OLD HILL STREET POLICE STATION SINGAPORE 179369"
+    },
+    "civic-f1-03": {
+      "lat": 1.288647,
+      "lng": 103.851066,
+      "pin": "onemap-postcode",
+      "match": "1 OLD PARLIAMENT LANE THE ARTS HOUSE AT THE OLD PARLIAMENT SINGAPORE 179429"
+    },
+    "civic-f1-05": {
+      "lat": 1.287246,
+      "lng": 103.852444,
+      "pin": "onemap-name",
+      "match": "EMPRESS PLACE DALHOUSIE OBELISK"
+    },
+    "civic-f1-06": {
+      "lat": 1.288348,
+      "lng": 103.851584,
+      "pin": "onemap-postcode",
+      "match": "9 EMPRESS PLACE VICTORIA THEATRE & CONCERT HALL SINGAPORE 179556"
+    },
+    "civic-f1-08": {
+      "lat": 1.291086,
+      "lng": 103.854189,
+      "pin": "onemap-name",
+      "match": "CONNAUGHT DRIVE ESPLANADE PARK MEMORIAL (TAN KIM SENG FOUNTAIN)"
+    },
+    "short-press": {
+      "lat": 1.303175,
+      "lng": 103.861002,
+      "pin": "onemap-postcode",
+      "match": "101 JALAN SULTAN THE SULTAN SINGAPORE 199002"
+    },
+    "short-mosque": {
+      "lat": 1.302238,
+      "lng": 103.859004,
+      "pin": "onemap-postcode",
+      "match": "3 MUSCAT STREET MASJID SULTAN SINGAPORE 198833"
+    },
+    "balestier-07": {
+      "lat": 1.326236,
+      "lng": 103.851444,
+      "pin": "approx",
+      "match": "OneMap street point, Jalan Ampas; no.8 not indexed"
+    },
+    "civic-f1-04": {
+      "lat": 1.28688,
+      "lng": 103.85205,
+      "pin": "approx",
+      "match": "North end of Cavenagh Bridge (bridge from OneMap 1.286504,103.852319)"
+    },
+    "civic-f1-07": {
+      "lat": 1.2886,
+      "lng": 103.8544,
+      "pin": "approx",
+      "match": "South end of Esplanade Park by Jubilee Bridge; handoff: exact pin pending site check"
+    },
+    "only-one-missing-01": {
+      "lat": 1.301617,
+      "lng": 103.8596,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-02": {
+      "lat": 1.30205,
+      "lng": 103.86005,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-03": {
+      "lat": 1.30082,
+      "lng": 103.85962,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-04": {
+      "lat": 1.30266,
+      "lng": 103.85954,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-05": {
+      "lat": 1.30318,
+      "lng": 103.85958,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    },
+    "only-one-missing-06": {
+      "lat": 1.30252,
+      "lng": 103.86012,
+      "pin": "approx",
+      "match": "Only One Missing: street position, check on site"
+    }
+  }
+}

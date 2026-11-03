@@ -1,0 +1,513 @@
+/* The Passport tab (2 Nov 2026): Home's kraft paper behind, the holder's data page with foil and a red-ink rank stamp,
+   the details on paper slips, and the switches in Home's stitched leather (DiscoveryHome .device). */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #c8a87a center / cover no-repeat;
+}
+
+.screen {
+  --ink: #2c2117;
+  --ink-soft: #5c4a36;
+  --red-ink: #9b2c1c;
+  --brass: #e8c983;
+  --cream: #f2e8d5;
+  position: relative;
+  isolation: isolate;
+  gap: 0.875rem;
+  color: var(--ink);
+}
+
+/* ---------- the data page ---------- */
+
+.stage {
+  perspective: 900px;
+}
+
+.bio {
+  position: relative;
+  overflow: hidden;
+  padding: 0.75rem 0.875rem 0.625rem;
+  border-radius: 14px;
+  color: var(--ink);
+  /* a guilloche rosette (rings and rays) on cream security paper */
+  background:
+    repeating-radial-gradient(circle at 82% 34%, rgba(31, 58, 138, 0.07) 0 1px, transparent 1px 6px),
+    repeating-conic-gradient(from 0deg at 82% 34%, rgba(155, 44, 28, 0.06) 0 1.2deg, transparent 1.2deg 7deg),
+    radial-gradient(120% 90% at 20% 0%, rgba(255, 252, 240, 0.9), transparent 60%),
+    linear-gradient(165deg, #f8f0dc, #eedfbf);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 0 0 1px rgba(120, 78, 30, 0.22),
+    0 16px 30px rgba(60, 38, 16, 0.32),
+    0 3px 0 #d9c49a,
+    0 5px 0 #c8b086;
+  transform-style: preserve-3d;
+  touch-action: pan-y;
+  will-change: transform;
+}
+
+/* the holographic foil: a soft band of colour that follows the finger (--foil) */
+.foil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 120, 160, 0.55) 36%,
+    rgba(255, 236, 140, 0.6) 44%,
+    rgba(120, 230, 210, 0.55) 52%,
+    rgba(130, 150, 255, 0.5) 60%,
+    transparent 76%
+  );
+  background-size: 260% 100%;
+  background-position: var(--foil, 50%) 0;
+  opacity: 0.75;
+}
+
+.bioHead {
+  position: relative;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font: 500 0.8125rem/1 var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--red-ink);
+}
+
+.bioRule {
+  flex: 1;
+  border-top: 1px dashed rgba(155, 44, 28, 0.35);
+}
+
+.bioCode {
+  color: var(--ink-soft);
+}
+
+.bioBody {
+  position: relative;
+  display: flex;
+  gap: 0.875rem;
+  margin-top: 0.625rem;
+}
+
+.photo {
+  position: relative;
+  flex: none;
+  width: 5rem;
+  height: 6.25rem;
+  overflow: hidden;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  background:
+    repeating-linear-gradient(45deg, rgba(31, 58, 138, 0.07) 0 2px, transparent 2px 6px),
+    linear-gradient(180deg, #e3e8f2, #cfd8ea);
+  box-shadow: inset 0 0 0 1px rgba(31, 58, 138, 0.25);
+}
+
+.watermark {
+  position: absolute;
+  right: -0.75rem;
+  bottom: -0.5rem;
+  width: 4.25rem;
+  opacity: 0.1;
+}
+
+.photo span {
+  position: relative;
+  width: 3.125rem;
+  height: 3.125rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #1f3a8a;
+  color: #fff;
+  font: 500 1.5rem/1 var(--font-display);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
+}
+
+.bioMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.field {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.field span,
+.stat dt {
+  font: 500 0.625rem/1 var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.field strong {
+  font: 500 1.75rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.stats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  gap: 1rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.1875rem;
+}
+
+.stat dd {
+  margin: 0;
+  font: 500 1.5rem/1 var(--font-display);
+}
+
+/* the rank: a red-ink rubber stamp (the onboarding WELCOME seal), pressed over the corner of the page */
+.stampWrap {
+  position: absolute;
+  right: -0.125rem;
+  top: -0.25rem;
+}
+
+.stamp {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--red-ink);
+  box-shadow:
+    inset 0 0 0 3px rgba(248, 240, 220, 0.85),
+    inset 0 0 0 4.5px var(--red-ink);
+  color: var(--red-ink);
+  font: 500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  opacity: 0.88;
+  mix-blend-mode: multiply;
+}
+
+/* 44px+ target */
+.stamp::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+}
+
+.stampStar {
+  fill: currentColor;
+}
+
+.stamp:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.mrz {
+  position: relative;
+  margin: 0.625rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(120, 78, 30, 0.2);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  color: rgba(44, 33, 23, 0.72);
+}
+
+/* ---------- On file ---------- */
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0.375rem 0 0;
+  font: 500 1.125rem/1 var(--font-display);
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.headingRule {
+  flex: 1;
+  border-top: 1px solid rgba(44, 33, 23, 0.3);
+  box-shadow: 0 2px 0 -1px rgba(44, 33, 23, 0.12);
+}
+
+.slips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.slip {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.6875rem 0.75rem 0.75rem;
+  border-radius: 10px;
+  background:
+    radial-gradient(120% 80% at 30% 0%, rgba(255, 252, 240, 0.85), transparent 60%),
+    linear-gradient(170deg, #f7efdc, #efe2c4);
+  box-shadow:
+    0 0 0 1px rgba(120, 78, 30, 0.2),
+    0 8px 16px rgba(60, 38, 16, 0.2);
+}
+
+/* a perforated top edge, as a slip torn from a pad */
+.slip::before {
+  content: '';
+  position: absolute;
+  top: 0.25rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  border-top: 1.5px dotted rgba(120, 78, 30, 0.28);
+  pointer-events: none;
+}
+
+.slipTop {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 1.5rem;
+}
+
+.slipLabel {
+  font: 500 0.75rem/1 var(--font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7a5236;
+}
+
+.slipVisual {
+  height: 4.25rem;
+  display: flex;
+  align-items: center;
+}
+
+/* The whole slip is the edit button (stretched), except the eye above it. */
+.slipButton {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.slipButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+}
+
+.slipButton:focus,
+.slipButton:focus-visible {
+  outline: none;
+}
+
+.slipButton:focus-visible::after {
+  outline: 2px solid #7a5236;
+  outline-offset: 2px;
+}
+
+.slipValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font: 500 1.0625rem/1.2 var(--font-display);
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+}
+
+.slipEmpty {
+  color: var(--ink-soft);
+}
+
+/* ---------- the leather ledger ---------- */
+
+.ledger {
+  position: relative;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 22px;
+  color: var(--cream);
+  background:
+    radial-gradient(120% 80% at 30% 0%, rgba(255, 225, 180, 0.16), transparent 60%),
+    linear-gradient(180deg, #634530 0%, #47301f 55%, #3a2717 100%);
+  box-shadow:
+    0 14px 28px rgba(40, 24, 10, 0.4),
+    inset 0 1px 0 rgba(255, 225, 180, 0.2);
+}
+
+/* the stitching */
+.ledger::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1.5px dashed rgba(240, 214, 170, 0.4);
+  border-radius: 17px;
+  pointer-events: none;
+}
+
+.line {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3.75rem;
+  padding: 0.5rem 0.5rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.line + .line,
+.line + .privacy,
+.privacy + .line {
+  border-top: 1px solid rgba(240, 214, 170, 0.14);
+}
+
+.privacy {
+  display: block;
+  padding-bottom: 0.5rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.privacy > :last-child {
+  margin: 0.125rem 0.5rem 0.25rem 3.75rem;
+  height: 0.5rem;
+}
+
+.bead {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--brass);
+  background: rgba(20, 12, 6, 0.35);
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 201, 131, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.lineText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+}
+
+.lineTitle {
+  font: 500 1.0625rem/1.1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.lineSub {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: rgba(242, 232, 213, 0.72);
+}
+
+.inlineLink {
+  color: var(--brass);
+  font-weight: 600;
+}
+
+.chevron {
+  flex: none;
+  color: rgba(232, 201, 131, 0.7);
+}
+
+.line:focus-visible,
+.privacy:focus-visible,
+.inlineLink:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+/* the shared switch, in brass and leather */
+.ledger [role='switch'] {
+  background: rgba(20, 12, 6, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.ledger [role='switch'][aria-checked='true'] {
+  background: linear-gradient(180deg, #ef7a32, #d45a17);
+  box-shadow: inset 0 0 0 1px rgba(255, 210, 160, 0.4);
+}
+
+.ledger [role='switch'] > span {
+  background: linear-gradient(180deg, #fbefd4, #e8c983);
+}
+
+.ledger [role='switch']:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+@supports (corner-shape: superellipse(1.5)) {
+  .ledger,
+  .slip {
+    corner-shape: superellipse(1.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .foil {
+    display: none;
+  }
+}
+
+/* the top bar on kraft paper */
+.bar.bar {
+  background: linear-gradient(rgba(200, 168, 122, 0.94), rgba(200, 168, 122, 0.6));
+}

@@ -21,6 +21,6 @@ test('the hero card carries a kicker and the Berlin Wall anniversary row', () =>
   expect(todaysHoliday.also).toEqual({
     when: 'Also Mon 9 Nov · Near you',
     title: 'The Berlin Wall fell 37 years ago',
-    placeId: 'berlin-wall-fragments',
+    placeId: 'curated:sg-berlin-wall-fragments-utown',
   });
 });

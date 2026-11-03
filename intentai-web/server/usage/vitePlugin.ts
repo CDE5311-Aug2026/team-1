@@ -1,7 +1,25 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Connect, Plugin } from 'vite';
 import { handleStats, handleTrack, type HandlerConfig } from './handlers.js';
-import { fileStore } from './store.js';
+import { appendFile, mkdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import { handleCaption } from '../caption/handler.js';
+import { handleHelp } from '../help/handler.js';
+import { handleAbTest, memoryList } from '../abtest/handler.js';
+import { fileStore, redisFromEnv, type RedisLike } from './store.js';
+
+/** Help feedback on this machine: one JSON line per note (only rpush is used locally). */
+function fileList(path: string): RedisLike {
+  return {
+    async rpush(_key, ...values) {
+      await mkdir(dirname(path), { recursive: true });
+      await appendFile(path, values.map((v) => v + '\n').join(''));
+    },
+    ltrim: async () => undefined,
+    lrange: async () => [],
+    del: async () => undefined,
+  };
+}
 
 export const LOCAL_ADMIN_PASSWORD = 'intentai-local';
 
@@ -35,12 +53,29 @@ export function usageApiPlugin(env: Record<string, string | undefined>): Plugin 
     store: fileStore(env.USAGE_FILE || '.data/usage.jsonl'),
     password: env.ADMIN_PASSWORD || LOCAL_ADMIN_PASSWORD,
   };
+  const help = {
+    apiKey: env.ANTHROPIC_API_KEY,
+    redis: redisFromEnv(env) ?? fileList(env.FEEDBACK_FILE || '.data/feedback.jsonl'),
+  };
+  // A/B test answers live in memory locally (cleared when the dev server restarts) unless Redis is set.
+  const abtest = { redis: redisFromEnv(env) ?? memoryList(), password: cfg.password };
   const middleware: Connect.NextHandleFunction = (req, res, next) => {
     const path = (req.url ?? '').split('?')[0];
-    const handler = path === '/api/track' ? handleTrack : path === '/api/stats' ? handleStats : null;
+    const handler: ((request: Request) => Promise<Response>) | null =
+      path === '/api/track'
+        ? (r) => handleTrack(r, cfg)
+        : path === '/api/stats'
+          ? (r) => handleStats(r, cfg)
+          : path === '/api/help'
+            ? (r) => handleHelp(r, help)
+            : path === '/api/abtest'
+              ? (r) => handleAbTest(r, abtest)
+            : path === '/api/caption' && req.method === 'POST'
+              ? (r) => handleCaption(r, env.ANTHROPIC_API_KEY)
+              : null;
     if (!handler) return next();
     toRequest(req)
-      .then((request) => handler(request, cfg))
+      .then(handler)
       .then((response) => send(res, response))
       .catch(next);
   };

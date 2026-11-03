@@ -48,7 +48,9 @@ function mockGeolocation(fix?: { lat: number; lng: number; accuracy: number }, c
   return getCurrentPosition;
 }
 
-describe('Explore', () => {
+// Every interaction re-renders the full map and list (382 places), which can pass 5 s on a slow machine
+// while the whole suite runs in parallel.
+describe('Explore', { timeout: 30_000 }, () => {
   test('first entry: manual Singapore overview, no location request, map and list of real places', () => {
     const getCurrentPosition = mockGeolocation({ lat: 1.28, lng: 103.84, accuracy: 10 });
     renderAt('/nearby');
@@ -56,7 +58,7 @@ describe('Explore', () => {
     expect(getCurrentPosition).not.toHaveBeenCalled();
     expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
     expect(screen.getByText(new RegExp(`^${placesIn('SG').length} places$`))).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Local phrases/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Local phrases/ })).toBeNull();
     // Without an origin there are no distances.
     expect(screen.queryByText(/~[\d.]+ k?m/)).not.toBeInTheDocument();
   });
@@ -116,8 +118,6 @@ describe('Explore', () => {
     const sheet = screen.getByRole('region', { name: 'Places' });
     expect(sheet).toHaveAttribute('data-detent', 'peek');
     expect(within(sheet).getByRole('heading', { level: 1, name: 'Nearby' })).toBeInTheDocument();
-    // the phrases for the place picked on the phrase settings (Today's "Near you") are the first row
-    expect(within(sheet).getByRole('link', { name: /Local phrases Old Airport Rd Food Centre/ })).toHaveAttribute('href', '/nearby/phrases');
     const handle = screen.getByRole('button', { name: 'Show the list' });
     expect(handle).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(handle);
@@ -228,6 +228,17 @@ describe('Explore', () => {
     expect(screen.queryByText(/from you(?!r)/)).not.toBeInTheDocument();
   });
 
+  test('My Space › Nearby radius is the default radius; the URL still wins', async () => {
+    const { mySpacePrefsStore } = await import('../../data/profile/profile');
+    mySpacePrefsStore.set((p) => ({ ...p, radiusM: 3000 }));
+    renderAt('/nearby?area=sg-chinatown&view=list');
+    expect(screen.getByText(/places within 3 km/)).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Radius' })).toHaveValue('3000');
+    cleanup();
+    renderAt('/nearby?area=sg-chinatown&view=list&radius=1000');
+    expect(screen.getByText(/places within 1 km/)).toBeInTheDocument();
+  });
+
   test('with location granted: explanation first, then distances "from you"; switching off clears it', async () => {
     const getCurrentPosition = mockGeolocation({ lat: 1.2803, lng: 103.8447, accuracy: 15 });
     renderAt('/nearby?view=list');
@@ -293,7 +304,7 @@ describe('Place detail', () => {
     expect(screen.queryByRole('link', { name: /Maxwell Road Food Centre/ })).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Next card' }));
     expect((await screen.findAllByRole('link', { name: /Maxwell Road Food Centre/ }))[0]).toHaveAttribute('href', expect.stringMatching(/^https:\/\/www\.roots\.gov\.sg\//));
-    expect(screen.getByText(/Last reviewed 2026-10-20/)).toBeInTheDocument();
+    expect(screen.getByText(/Checked 2026-10-20/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Directions/ })).toHaveAttribute('href', expect.stringContaining('destination=1.2'));
     expect(screen.getByRole('link', { name: /Directions/ }).getAttribute('href')).not.toContain('origin');
     expect(screen.queryByRole('link', { name: /View in 3D/ })).toBeNull();
@@ -315,12 +326,6 @@ describe('Place detail', () => {
     expect(within(details).getAllByText((_, el) => el?.tagName === 'P' && /^Hours, Address, Phone, Website, What people say: Summer Pavilion/.test(el.textContent ?? ''))).toHaveLength(1);
   });
 
-  test('a place that a Today article names shows that article in its culture cards', () => {
-    renderAt('/nearby/place/curated:sg-sultan-mosque');
-    const cards = screen.getByRole('group', { name: 'Culture and language cards for Sultan Mosque' });
-    expect(within(cards).getByText('Culture · from Today')).toBeInTheDocument();
-    expect(within(cards).getByText('A landmark mosque first built in the 1820s for Sultan Hussein Shah.')).toBeInTheDocument();
-  });
 
   test('a place with nothing confirmed still gets Apple Maps, and no empty rows', () => {
     renderAt('/nearby/place/curated:sg-coleman-bridge');

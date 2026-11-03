@@ -1,8 +1,8 @@
-import { screen, within } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, test } from 'vitest';
 import { DEFAULT_NOTICES, DEFAULT_SETTINGS } from '../../data/domain';
-import { noticesStore, questionsStore, settingsStore } from '../../data/stores';
+import { noticesStore, settingsStore } from '../../data/stores';
 import { paths } from '../../routes';
 import { currentPath, renderAt } from './testUtils';
 
@@ -54,27 +54,6 @@ test('Confirm and Not right resolve the notice', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Not right' }));
   expect(noticesStore.get().status).toBe('rejected');
   expect(currentPath()).toBe(paths.noticeRejected);
-});
-
-test('Ask a local saves an anonymous question and opens Community', async () => {
-  questionsStore.set([]);
-  renderAt(paths.noticeDetails);
-  await userEvent.click(screen.getByRole('button', { name: /ask a local/i }));
-  const dialog = screen.getByRole('dialog', { name: 'Ask a local' });
-  expect(within(dialog).getByText(/your name is not attached/i)).toBeInTheDocument();
-  expect(within(dialog).getByRole('textbox', { name: 'Where did you hear it?' })).toHaveValue(
-    'Team dinner · Colleagues and manager',
-  );
-  await userEvent.type(within(dialog).getByRole('textbox', { name: 'Your question' }), 'Where should I sit?');
-  await userEvent.click(within(dialog).getByRole('button', { name: 'Send' }));
-  const [question] = questionsStore.get();
-  expect(question).toMatchObject({
-    text: 'Where should I sit?',
-    detail: 'Where should I sit?',
-    context: 'Team dinner · Colleagues and manager',
-    status: 'Pending',
-  });
-  expect(currentPath()).toBe(paths.community);
 });
 
 test('a resolved notice has no details screen (browser Back after Confirm)', () => {

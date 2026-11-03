@@ -84,7 +84,7 @@ export default function SavedPage() {
   };
 
   return (
-    <AppShell background="var(--bg-screen-b)" chrome="status">
+    <AppShell background="var(--bg-screen-b)">
       <div className={styles.screen}>
         <BackHeader title="Saved" fallback={paths.nearby} />
         <StorageWarning />

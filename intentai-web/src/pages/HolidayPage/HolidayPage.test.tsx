@@ -36,9 +36,9 @@ test('opening the detail records today as a learning day for the streak', () => 
   expect(streakStore.get()).toEqual({ date: todayKey(), count: 1 });
 });
 
-test('the back link returns to Today', async () => {
+test('the back link returns to Home', async () => {
   renderPage();
-  await userEvent.click(screen.getByRole('button', { name: 'Back to Today' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Back to Home' }));
   expect(screen.getByText('today page')).toBeInTheDocument();
 });
 

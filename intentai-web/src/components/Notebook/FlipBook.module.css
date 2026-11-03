@@ -1,0 +1,243 @@
+/* The stack of pages and the strip under it with the page number. A turning page peels like paper (paperPeel.ts): the
+   page underneath sits in the flap's shadow until it is uncovered. */
+.wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.book {
+  /* each page under the open one shows this much at the right and the foot */
+  --edge-x: 4px;
+  --edge-y: 3.5px;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  touch-action: pan-y;
+}
+
+/* over the open page exactly: the flap of a page turning stays on the book */
+.flapHost {
+  inset: 0 calc(var(--depth, 0) * var(--edge-x)) calc(var(--depth, 0) * var(--edge-y)) 0;
+  --flap-paper: radial-gradient(circle, rgba(110, 80, 45, 0.16) 1px, transparent 1.3px) 0 0 / 18px 18px, #f1e6cc;
+}
+
+.leaf {
+  position: absolute;
+  /* the room left at the right and the foot shows the pages underneath (see .under) */
+  inset: 0 calc(var(--depth, 0) * var(--edge-x)) calc(var(--depth, 0) * var(--edge-y)) 0;
+  background: #f6eedb;
+  /* the page's gutter, darker by the spine, and its shadow on the pages under it */
+  box-shadow:
+    inset 14px 0 18px -14px rgba(120, 85, 45, 0.35),
+    1px 1px 0 rgba(90, 60, 30, 0.35),
+    2px 2px 3px rgba(60, 35, 12, 0.22);
+  will-change: transform;
+}
+
+.leaf[data-state='past'] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.leaf[data-state='next'] {
+  pointer-events: none;
+}
+
+.sheet {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 38px 8px 22px;
+  background:
+    radial-gradient(circle, rgba(110, 80, 45, 0.2) 1px, transparent 1.3px) 0 0 / 18px 18px local,
+    linear-gradient(90deg, rgba(120, 85, 45, 0.12), transparent 14px) local;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* a page lying under the open one: only its edge shows, a little further out the deeper it is */
+.under {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: calc((var(--depth) - var(--k)) * var(--edge-x));
+  bottom: calc((var(--depth) - var(--k)) * var(--edge-y));
+  border-radius: 0 3px 3px 0;
+  /* deeper pages sit a little further in the shade */
+  background: linear-gradient(135deg, #f1e4c6, #e3d1a9);
+  filter: brightness(calc(1 - var(--k) * 0.035));
+  box-shadow:
+    inset -1px -1px 0 rgba(100, 68, 32, 0.5),
+    1px 1px 2px rgba(60, 35, 12, 0.25);
+  pointer-events: none;
+}
+
+/* light and shadow on a page in motion */
+.shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(60, 35, 12, calc(var(--lift, 0) * 0.28)),
+      rgba(255, 245, 225, calc(var(--lift, 0) * 0.3)) 45%,
+      rgba(60, 35, 12, calc(var(--lift, 0) * 0.18))
+    ),
+    linear-gradient(270deg, rgba(40, 22, 6, calc(var(--under, 0) * 0.32)), transparent 70%);
+}
+
+/* a page's own content grows to fill the sheet, so a short page is not left with blank paper under it */
+.body {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.body > :global(*) {
+  flex: none;
+}
+
+.body > :global([data-fill]) {
+  flex: 1 0 auto;
+}
+
+.entryNo {
+  margin: 0 0 2px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a8481f;
+}
+
+.entryNo span {
+  color: rgba(90, 60, 30, 0.55);
+}
+
+/* the bottom corner, turned up a little: tap to turn */
+.corner {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 0 0 16px 0;
+  cursor: pointer;
+  background: linear-gradient(315deg, transparent 50%, #e6d7b6 50%, #f3e7cd 62%, #d9c59c 100%);
+  box-shadow: -3px -3px 6px -3px rgba(60, 35, 12, 0.35);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  transform-origin: 100% 100%;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.corner:hover {
+  transform: scale(1.25);
+}
+
+/* --- the strip under the pages ---------------------------------------------------------------------------------- */
+.nav {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 30px 7px 8px;
+  border-top: 1px dashed rgba(90, 60, 30, 0.3);
+  background: #efe3c8;
+}
+
+.turns {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+
+.arrow {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(90, 60, 30, 0.3);
+  border-radius: 50%;
+  background: #f8f0dd;
+  color: #4a2f1c;
+  cursor: pointer;
+}
+
+.arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.arrow:focus-visible {
+  outline: 2px solid #b9502a;
+  outline-offset: 2px;
+}
+
+.where {
+  margin: 0;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #a8481f;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--serif, Georgia, serif);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: #3a2a1a;
+}
+
+.dots {
+  flex: none;
+  display: flex;
+  gap: 4px;
+}
+
+.dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(90, 60, 30, 0.28);
+  transition:
+    width 0.3s,
+    background 0.3s;
+}
+
+.dots i[data-on] {
+  width: 14px;
+  border-radius: 3px;
+  background: #b9502a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaf {
+    will-change: auto;
+  }
+}

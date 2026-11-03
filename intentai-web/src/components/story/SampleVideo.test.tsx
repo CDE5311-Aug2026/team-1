@@ -33,7 +33,8 @@ test('idle: poster, duration chip, orbit text, play button and title; no control
   expect(screen.getByText('1:48')).toBeInTheDocument();
   expect(document.querySelector('textPath')).toHaveTextContent('PLAY · SAMPLE CLIP · 1:48 · WATCH ·');
   expect(screen.getByRole('button', { name: 'Play video: The panels up close' })).toBeInTheDocument();
-  expect(screen.getByText('Video · Sample clip · Captions on')).toBeInTheDocument();
+  // the ring and the duration chip say what it is: no second label line (user test round 1)
+  expect(screen.queryByText('Video · Sample clip · Captions on')).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Pause video' })).not.toBeInTheDocument();
 });
 

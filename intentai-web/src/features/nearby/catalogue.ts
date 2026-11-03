@@ -27,7 +27,9 @@ export function curatedPlace(id: string): CuratedPlace | undefined {
   return byId.get(id);
 }
 
-const byEarthKey = new Map<string, CuratedPlace>(PUBLISHED_PLACES.filter((p) => p.earthKey).map((p) => [p.earthKey as string, p]));
+// One model can serve several places (a hawker centre and a stall in it): the first place listed, the building, wins.
+const byEarthKey = new Map<string, CuratedPlace>();
+for (const p of PUBLISHED_PLACES) if (p.earthKey && !byEarthKey.has(p.earthKey)) byEarthKey.set(p.earthKey, p);
 
 /** The published place for a landmark key of the EARTH ONLINE dataset (a card opened in the 3D view). */
 export function placeByEarthKey(key: string | null | undefined): CuratedPlace | undefined {

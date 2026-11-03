@@ -1,0 +1,96 @@
+/* The story blocks keep their own 20px side margins (as on Team 1's cards): undo the screen's gutter. */
+.card {
+  margin: 0 calc(-1 * var(--gutter));
+  display: flex;
+  flex-direction: column;
+}
+
+.photo {
+  margin: 16px 20px 0;
+  border-radius: 18px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--tint-warm-2);
+  box-shadow: 0 6px 20px rgb(35 33 29 / 0.12);
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.storyRow {
+  margin: 12px 0 0;
+}
+
+.storyLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #e4ded4);
+  background: #fff;
+  color: var(--text-primary, #23211d);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgb(35 33 29 / 0.06);
+}
+
+.storyLink svg {
+  color: var(--accent);
+  flex: none;
+}
+
+.storyLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.rows {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-ink-2);
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+
+.sourceLink {
+  color: inherit;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+

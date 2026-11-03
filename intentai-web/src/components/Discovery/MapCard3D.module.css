@@ -1,0 +1,185 @@
+.map {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  /* the sea, lighter towards the horizon */
+  background: linear-gradient(180deg, #a9c7df 0%, #7fa8c9 55%, #6f9cc0 100%);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.flat {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.overlay > * {
+  pointer-events: auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px 2px 2px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.badge.small {
+  padding: 2px;
+}
+
+.badge.small.badgeOn {
+  padding-right: 10px;
+}
+
+.numWrap {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+}
+
+.num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--text-primary);
+  color: #fff;
+  font-size: 0.6875rem;
+}
+
+.badgeOn {
+  background: var(--accent);
+  color: #fff;
+  z-index: 3;
+}
+
+.badgeOn .num {
+  background: #fff;
+  color: var(--accent);
+}
+
+.pin {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+  background: #6b7a90;
+  box-shadow: 0 4px 10px -4px rgba(20, 30, 50, 0.8);
+  cursor: pointer;
+}
+
+.pinDone {
+  background: #1f9d55;
+}
+
+.pinOn {
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge {
+    transition: none;
+  }
+}
+
+/* a walk's numbered stop */
+.pin:has(.pinNum) {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  background: var(--text-primary);
+}
+
+.pin.pinOn:has(.pinNum) {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+}
+
+.pinNum {
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Near you: where you are, a blue dot with a soft pulse (like a maps app) */
+.here {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: #2f6fe4;
+  box-shadow:
+    0 0 0 6px rgba(47, 111, 228, 0.22),
+    0 4px 10px -4px rgba(20, 30, 50, 0.8);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .here {
+    animation: herePulse 2.2s ease-out infinite;
+  }
+}
+
+@keyframes herePulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(47, 111, 228, 0.45),
+      0 4px 10px -4px rgba(20, 30, 50, 0.8);
+  }
+  100% {
+    box-shadow:
+      0 0 0 18px rgba(47, 111, 228, 0),
+      0 4px 10px -4px rgba(20, 30, 50, 0.8);
+  }
+}

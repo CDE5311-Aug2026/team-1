@@ -1,0 +1,70 @@
+/* A rubber stamp in red ink on the parchment: multiplied into the paper so its grain shows through. */
+.stamp {
+  position: relative;
+  display: block;
+  color: #9b2c1c;
+  mix-blend-mode: multiply;
+}
+
+.round {
+  aspect-ratio: 1;
+}
+
+.card {
+  aspect-ratio: 150 / 104;
+}
+
+.base,
+.ink {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.base {
+  opacity: 0.28;
+}
+
+.ink {
+  color: #9b2c1c;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.name,
+.roundName {
+  fill: currentColor;
+  font-family: 'IM Fell English', Georgia, serif;
+  font-weight: 400;
+}
+
+.small,
+.ring {
+  fill: currentColor;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.name {
+  font-size: 14px;
+  letter-spacing: 0.6px;
+}
+
+.roundName {
+  font-size: 11px;
+  letter-spacing: 0.4px;
+}
+
+.small {
+  font-size: 7.5px;
+}
+
+.ring {
+  font-size: 6.4px;
+  letter-spacing: 0.6px;
+}

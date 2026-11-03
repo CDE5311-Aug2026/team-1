@@ -1,9 +1,9 @@
-// Today's culture content ↔ Nearby. A Today article (and its video) or holiday that names a real place (a monument, a temple,
+// Today's culture content ↔︎ Nearby. A Today article (and its video) or holiday that names a real place (a monument, a temple,
 // a neighbourhood) links to that place in Nearby, and the place shows the article in its culture cards.
 // Only places the text itself names, or a catalogue stall that serves the dish the article is about ("try it").
 // Labels are stored here so Today does not load the Nearby catalogue; src/data/cultureLinks.test.ts checks that every
 // id exists and every label matches the catalogue.
-import { paths } from '../routes';
+import { homeListHref, homeNeighbourhoodHref, homePlaceHref } from './homeLinks';
 
 export type NearbyLink =
   /** why 'try': a stall that serves the dish. named: what the text calls the place, when not its catalogue name. */
@@ -64,13 +64,10 @@ export function articlesNaming(placeId: string): string[] {
     .map(([id]) => id);
 }
 
-/** Where a link goes in Nearby: the place selected on the map with its details open, an area, or an editor's pick. */
+/** Where a link goes: Home's map at the place (its card selected, not opened), at the area, or the editor's pick
+ *  (owner, 31 Oct 2026: map links go back to Home, never to a new page). */
 export function nearbyHref(link: NearbyLink): string {
-  const q = new URLSearchParams();
-  if (link.kind === 'place') {
-    q.set('sel', link.id);
-    q.set('info', '1');
-  } else if (link.kind === 'area') q.set('area', link.id);
-  else q.set('list', link.id);
-  return `${paths.nearby}?${q.toString()}`;
+  if (link.kind === 'place') return homePlaceHref(link.id);
+  if (link.kind === 'area') return homeNeighbourhoodHref(link.id);
+  return homeListHref(link.id);
 }

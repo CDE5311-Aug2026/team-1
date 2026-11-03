@@ -1,0 +1,260 @@
+/* ---- field notes: sticky notes on the page ---- */
+.board {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-content: start;
+  gap: 12px 10px;
+  margin: 4px 0 0;
+  padding: 4px 2px;
+}
+.note {
+  min-height: 0;
+  padding: 15px 26px 8px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.many .note {
+  padding-top: 12px;
+}
+.note small {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font:
+    600 0.5625rem/1.25 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+.note p {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font:
+    400 0.8125rem/1.35 'IM Fell English',
+    Georgia,
+    serif;
+  padding-bottom: 1px;
+}
+.many .note p {
+  -webkit-line-clamp: 2;
+}
+.empty {
+  font-style: italic;
+  opacity: 0.55;
+}
+.pencil {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  color: #6e4a26;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+}
+.pencil::before {
+  /* a finger-sized target around the small pencil */
+  content: '';
+  position: absolute;
+  inset: -9px;
+}
+.pencil:focus-visible {
+  outline: 2px solid #9b2c1c;
+}
+/* writing: a big note pad laid over the page */
+.pad {
+  position: absolute;
+  inset: 22% 16px auto 20px;
+  z-index: 100000;
+  padding: 18px 14px 12px;
+  background: linear-gradient(180deg, rgba(160, 120, 30, 0.12) 0 16px, transparent 16px), #f4dc8a;
+  border-radius: 2px 2px 3px 18px / 2px 2px 3px 6px;
+  box-shadow:
+    0 24px 30px -12px rgba(60, 35, 10, 0.55),
+    0 2px 3px rgba(60, 35, 10, 0.2);
+  transform: rotate(-1deg);
+  animation: padIn 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+.pad label {
+  display: grid;
+  gap: 4px;
+}
+.pad small {
+  font:
+    600 0.6875rem/1.2 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #3a2814;
+}
+/* 16px so the phone does not zoom in to type */
+.pad textarea {
+  width: 100%;
+  border: 0;
+  resize: none;
+  padding: 2px 0;
+  background: repeating-linear-gradient(180deg, transparent 0 23px, rgba(120, 80, 30, 0.25) 23px 24px);
+  font:
+    400 16px/24px 'IM Fell English',
+    Georgia,
+    serif;
+  color: #2c1d0e;
+  outline: none;
+}
+.padRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+.padRow button {
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 3px;
+  font:
+    400 0.875rem/1 var(--font-display);
+  color: #3a2814;
+  background: transparent;
+  cursor: pointer;
+}
+.padRow .stick {
+  border: 1.5px solid #9b2c1c;
+  color: #9b2c1c;
+}
+@keyframes padIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) rotate(-5deg) scale(0.95);
+  }
+}
+
+/* ---- the record ---- */
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0 8px;
+  border-bottom: 1px solid rgba(90, 60, 25, 0.28);
+}
+.summary em {
+  flex: none;
+  padding: 4px 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  font:
+    600 0.625rem/1 var(--font-display);
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transform: rotate(-3deg);
+}
+.done {
+  color: #2f6a37;
+  background: rgba(63, 122, 69, 0.1);
+}
+.open {
+  color: #a3291a;
+  background: rgba(163, 41, 26, 0.07);
+}
+.summary dl {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 0;
+}
+.summary dt {
+  font:
+    600 0.5625rem/1.2 var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(70, 46, 22, 0.6);
+}
+.summary dd {
+  margin: 2px 0 0;
+  font:
+    400 0.9375rem/1.1 var(--font-display);
+}
+.rows {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.rows li {
+  flex: 1;
+  max-height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px dashed rgba(90, 60, 25, 0.25);
+}
+.n {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(155, 44, 28, 0.6);
+  border-radius: 50%;
+  font:
+    700 0.625rem/1 Georgia,
+    serif;
+  color: #9b2c1c;
+}
+.stop {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  /* long place names wrap to a second line rather than lose their ends */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+.stamp {
+  flex: none;
+  display: grid;
+  justify-items: center;
+  padding: 2px 6px;
+  border: 1.5px solid rgba(163, 41, 26, 0.85);
+  border-radius: 3px;
+  font:
+    600 0.5625rem/1.1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(163, 41, 26, 0.9);
+  transform: rotate(-4deg);
+  mix-blend-mode: multiply;
+}
+.stamp small {
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.afar {
+  flex: none;
+  font-style: italic;
+  font-size: 0.75rem;
+  color: rgba(70, 46, 22, 0.75);
+}
+.none {
+  flex: none;
+  font-style: italic;
+  font-size: 0.75rem;
+  color: rgba(70, 46, 22, 0.45);
+}

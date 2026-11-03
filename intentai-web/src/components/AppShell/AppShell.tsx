@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { staticCopy } from '../../data/expressions';
+import { releaseStrayScrollLock } from '../../hooks/scrollLock';
 import { undoToast, useToastState } from '../../hooks/useToast';
 import HomeIndicator from '../HomeIndicator/HomeIndicator';
 import StatusBar from '../StatusBar/StatusBar';
@@ -52,10 +53,24 @@ export default function AppShell({
   // before navigating, e.g. "Question withdrawn").
   const [regionReady, setRegionReady] = useState(false);
   useEffect(() => setRegionReady(true), []);
+  // A full-screen layer that closed mid-navigation must not leave the next page unable to scroll.
+  useEffect(() => releaseStrayScrollLock(), [pathname]);
+  // Safari tints its status bar and toolbar from the page: give it this page's own colour (dark on Hunt and Moments),
+  // so no pale band of the default paper shows above or below a dark page.
+  const shellRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = shellRef.current;
+    if (!el) return;
+    const bg = getComputedStyle(el).backgroundColor;
+    if (!bg) return;
+    document.documentElement.style.backgroundColor = bg;
+    document.body.style.backgroundColor = bg;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+  }, [background]);
   const visibleToast = regionReady ? toast : null;
 
   return (
-    <div className={fill ? `${styles.shell} ${styles.fill}` : styles.shell} style={{ backgroundColor: background }}>
+    <div ref={shellRef} className={fill ? `${styles.shell} ${styles.fill}` : styles.shell} style={{ backgroundColor: background }}>
       {chrome !== 'none' && (fill ? <div className={styles.fillStatus}><StatusBar /></div> : <StatusBar />)}
       <main
         className={fill ? styles.fillPage : story ? `${styles.page} ${styles.story}` : styles.page}
