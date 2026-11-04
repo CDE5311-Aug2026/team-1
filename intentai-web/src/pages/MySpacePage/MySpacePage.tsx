@@ -432,6 +432,20 @@ export default function MySpacePage() {
         </ul>
 
         <div className={book.ledger}>
+          <Link to={paths.saved} className={book.line}>
+            <Bead icon="star" />
+            <span className={book.lineText}>
+              <span className={book.lineTitle}>Saved places</span>
+            </span>
+            <Icon name="chevron" size={18} className={book.chevron} />
+          </Link>
+          <Link to={paths.nearby} className={book.line}>
+            <Bead icon="pin" />
+            <span className={book.lineText}>
+              <span className={book.lineTitle}>All places</span>
+            </span>
+            <Icon name="chevron" size={18} className={book.chevron} />
+          </Link>
           {/* PR #5's privacy summary: real size on this phone, private details, and the storage bar by area. */}
           <Link to={paths.mySpacePrivacy} className={book.privacy}>
             <span className={book.line}>

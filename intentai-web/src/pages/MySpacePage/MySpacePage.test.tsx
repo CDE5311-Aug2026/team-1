@@ -113,6 +113,16 @@ test('settings for removed features are gone from Passport and Settings', () => 
   expect(screen.queryByText(/Ask remembers/)).toBeNull();
 });
 
+test('Saved places and All places open from Passport', async () => {
+  renderAt(paths.mySpace);
+  await userEvent.click(screen.getByRole('link', { name: 'Saved places' }));
+  expect(currentPath()).toBe(paths.saved);
+  cleanup();
+  renderAt(paths.mySpace);
+  await userEvent.click(screen.getByRole('link', { name: 'All places' }));
+  expect(currentPath()).toBe(paths.nearby);
+});
+
 test('links: Privacy & data and Redo onboarding; Settings and Help live in the top bar', async () => {
   renderAt(paths.mySpace);
   expect(screen.queryByRole('button', { name: /Help & feedback/ })).toBeNull();
