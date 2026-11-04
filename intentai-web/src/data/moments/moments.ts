@@ -2,7 +2,7 @@
 // Stamps come from Nearby check-ins, ink from opened cards, rank and badges from opened cards, stamps and tips.
 import { ARTICLE_IMAGES, type ArticleImage } from '../articleImages';
 import type { SavedConversation } from '../community/social';
-import type { Insight, Lookup, Tip } from '../domain';
+import { lookupSourceLabel, type Insight, type Lookup, type Tip } from '../domain';
 import { phraseBank } from '../expressions';
 import type { ExplorePersonalData } from '../../features/nearby/domain';
 import { AREAS, curatedPlace } from '../../features/nearby/catalogue';
@@ -289,7 +289,7 @@ export function collectedItems({ opened, tips, insights, lookups, todaysThree, c
       key: `lookup:${lookup.id}`,
       word: lookup.word,
       meaning: lookup.meaning,
-      source: lookup.source,
+      source: lookupSourceLabel(lookup.source),
       lookup,
       example: lookup.example,
     })),

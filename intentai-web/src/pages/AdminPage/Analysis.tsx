@@ -75,7 +75,7 @@ export default function Analysis({ events }: { events: UsageEvent[] }) {
           </select>
         </label>
         <span className={styles.spacer} />
-        <button type="button" className={styles.button} onClick={() => download('intentai-pages.csv', pagesCsv(a.pages), 'text/csv')}>
+        <button type="button" className={styles.button} onClick={() => download('findsg-pages.csv', pagesCsv(a.pages), 'text/csv')}>
           Page summary CSV
         </button>
       </div>

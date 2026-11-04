@@ -39,7 +39,7 @@ function downloadCsv(events: UsageEvent[]) {
   const url = URL.createObjectURL(new Blob([toCsv(events)], { type: 'text/csv' }));
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'intentai-usage.csv';
+  link.download = 'findsg-usage.csv';
   link.click();
   // Revoking in the same tick can cancel the download in Safari.
   setTimeout(() => URL.revokeObjectURL(url), 0);
@@ -63,7 +63,7 @@ function downloadJson(events: UsageEvent[], who: string) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(toExport(events), null, 1)], { type: 'application/json' }));
   const link = document.createElement('a');
   link.href = url;
-  link.download = `intentai-usage-${who || 'device'}-${new Date().toISOString().slice(0, 10)}.json`;
+  link.download = `findsg-usage-${who || 'device'}-${new Date().toISOString().slice(0, 10)}.json`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }

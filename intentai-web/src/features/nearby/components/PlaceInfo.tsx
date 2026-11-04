@@ -404,7 +404,7 @@ export default function PlaceInfo({
           <details className={styles.fold}>
             <summary className={styles.foldSummary}>Spotted a mistake?</summary>
             <div className={styles.foldBody}>
-              <p className={styles.note}>Copy this line, add what should change, and send it to the IntentAI team.</p>
+              <p className={styles.note}>Copy this line, add what should change, and send it to the FindSG team.</p>
               <p className={styles.sourceLine}>{correction}</p>
               <button type="button" className={styles.secondary} onClick={copyCorrection}>
                 {copied ? 'Copied' : 'Copy correction text'}

@@ -71,7 +71,7 @@ export default function ResultPage() {
           </p>
           <h2 className={styles.findsTitle}>YOUR FIRST FINDS</h2>
           {finds.length === 0 ? (
-            <p className={styles.noFinds}>Set a home base in My Space to see what’s closest.</p>
+            <p className={styles.noFinds}>Set a home base in Passport to see what’s closest.</p>
           ) : (
             <ul ref={fan} className={styles.fan} aria-label="Your first finds">
               {finds.map((find, i) => (

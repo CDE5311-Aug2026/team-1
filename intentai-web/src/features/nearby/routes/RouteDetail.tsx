@@ -63,7 +63,7 @@ export default function RouteDetail({ view }: { view: RouteView }) {
               label="Share this route"
               content={() => ({
                 title: view.title.text,
-                text: `${view.title.text}: a route in IntentAI Nearby (${stops.length} ${stops.length === 1 ? 'stop' : 'stops'})`,
+                text: `${view.title.text}: a route in FindSG Nearby (${stops.length} ${stops.length === 1 ? 'stop' : 'stops'})`,
                 url: appUrl(location.pathname + location.search),
               })}
             />
@@ -248,7 +248,7 @@ function TeamFooter({ view }: { view: RouteView }) {
         </details>
       )}
       <p className={styles.note}>
-        An IntentAI route. Each stop’s facts and hours come with their sources on its place page. Times marked ≈ are our estimate. Opening hours change: check on the day.
+        A FindSG route. Each stop’s facts and hours come with their sources on its place page. Times marked ≈ are our estimate. Opening hours change: check on the day.
       </p>
     </>
   );

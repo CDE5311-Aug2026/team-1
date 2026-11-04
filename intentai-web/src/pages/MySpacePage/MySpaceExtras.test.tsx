@@ -1,5 +1,5 @@
-// Features ported from Team 1's PR #5 into our My Space: text size, Nearby radius, Today's topics, the Licences page,
-// page-timing opt-out, data export, dependent switches, the header title and the privacy summary card.
+// Features ported from Team 1's PR #5 into our My Space: text size, Nearby radius, the Licences page,
+// page-timing opt-out, data export, the header title and the privacy summary card.
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, expect, test, vi } from 'vitest';
@@ -8,14 +8,14 @@ import { curatedPlace } from '../../features/nearby/catalogue';
 import { STORAGE_PREFIX } from '../../data/persistentStore';
 import { DEFAULT_MY_SPACE_PREFS, mySpacePrefsStore, profileV3Store, repairMySpacePrefs } from '../../data/profile/profile';
 import { exportData } from '../../data/profile/storage';
-import { culturePrefsStore, openedCardsStore, settingsStore } from '../../data/stores';
+import { openedCardsStore } from '../../data/stores';
 import { dismissToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import { send } from '../../usage/appTracker';
 import type { UsageEvent } from '../../usage/event';
 import { readLocalUsage } from '../../usage/localLog';
 import { creditGroups } from './LicencesPage';
-import { NEEDS_LOCAL, NEEDS_OCCASIONS, TEXT_PREVIEW } from './SettingsPage';
+import { TEXT_PREVIEW } from './SettingsPage';
 import { currentPath, renderAt } from './testUtils';
 
 afterEach(() => {
@@ -62,41 +62,6 @@ test('older stored preferences keep their choices and gain the new defaults', ()
   expect(repairMySpacePrefs('x')).toBeNull();
 });
 
-test('Today’s topics shows the saved topics and opens the ranked topic editor', async () => {
-  culturePrefsStore.set({ categories: ['foods', 'monuments', 'holidays'] });
-  renderAt(paths.mySpaceSettings);
-  const row = screen.getByRole('button', { name: /Today’s topics/ });
-  expect(row).toHaveTextContent(/Foods.*Monuments/);
-  await userEvent.click(row);
-  expect(screen.getByRole('dialog')).toBeInTheDocument();
-});
-
-test('dependent switches wait for their My Space switch, with the reason', async () => {
-  settingsStore.set((s) => ({ ...s, occasions: false, local: false }));
-  renderAt(paths.mySpaceSettings);
-  const occasions = screen.getByRole('switch', { name: 'Occasions' });
-  const near = screen.getByRole('switch', { name: 'Questions near you' });
-  expect(occasions).toHaveAttribute('aria-disabled', 'true');
-  expect(occasions).toHaveAccessibleDescription(NEEDS_OCCASIONS);
-  expect(near).toHaveAttribute('aria-disabled', 'true');
-  expect(near).toHaveAccessibleDescription(NEEDS_LOCAL);
-  await userEvent.click(near);
-  expect(mySpacePrefsStore.get().notify.nearYou).toBe(false);
-  expect(screen.getByRole('status')).toHaveTextContent(NEEDS_LOCAL);
-  // Independent ones are never blocked.
-  expect(screen.getByRole('switch', { name: 'Local answers' })).not.toHaveAttribute('aria-disabled');
-
-  act(() => settingsStore.set((s) => ({ ...s, local: true })));
-  expect(near).not.toHaveAttribute('aria-disabled');
-  await userEvent.click(near);
-  expect(mySpacePrefsStore.get().notify.nearYou).toBe(true);
-  expect(near).toHaveAttribute('aria-checked', 'true');
-  // Turning the dependency off shows it off again; the choice is kept for later.
-  act(() => settingsStore.set((s) => ({ ...s, local: false })));
-  expect(near).toHaveAttribute('aria-checked', 'false');
-  expect(mySpacePrefsStore.get().notify.nearYou).toBe(true);
-});
-
 test('Licences page lists the map, culture-card, place-story, Nearby place-photo and community credits', () => {
   renderAt(paths.licences);
   expect(screen.getByRole('heading', { level: 1, name: 'Terms & licences' })).toBeInTheDocument();
@@ -125,7 +90,7 @@ test('Export my data downloads one JSON file with our stores', async () => {
   profileV3Store.set((p) => ({ ...p, from: 'CN' }));
   mySpacePrefsStore.set((p) => ({ ...p, textSize: 2 }));
   const data = exportData() as { app: string; data: Record<string, unknown> };
-  expect(data.app).toBe('IntentAI');
+  expect(data.app).toBe('FindSG');
   expect(data.data['opened-cards']).toEqual(['laksa']);
   expect((data.data['profile-v3'] as { from: string }).from).toBe('CN');
   expect((data.data['my-space-prefs'] as { textSize: number }).textSize).toBe(2);

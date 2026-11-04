@@ -1,6 +1,7 @@
 // Privacy & data (Figma S3): what this device stores, per area, with real sizes measured from localStorage, a Clear per
 // area (with Undo), and an export of everything as one JSON file.
 import { DEFAULT_EXPLORE_PERSONAL } from '../../features/nearby/domain';
+import { EDITORIAL_LABEL, LEGACY_EDITORIAL } from '../domain';
 import { STORAGE_PREFIX, type PersistentStore } from '../persistentStore';
 import {
   askThreadsStore,
@@ -125,7 +126,8 @@ export function exportData(): Record<string, unknown> {
     for (let i = 0; i < window.localStorage.length; i++) {
       const key = window.localStorage.key(i);
       if (!key?.startsWith(STORAGE_PREFIX)) continue;
-      const raw = window.localStorage.getItem(key) ?? 'null';
+      // the stored lookup source keeps its old value (/ui1 shares this storage); a downloaded file shows the app's name
+      const raw = (window.localStorage.getItem(key) ?? 'null').split(LEGACY_EDITORIAL).join(EDITORIAL_LABEL);
       try {
         out[key.slice(STORAGE_PREFIX.length)] = JSON.parse(raw);
       } catch {
@@ -135,5 +137,5 @@ export function exportData(): Record<string, unknown> {
   } catch {
     // Storage unavailable: nothing to export.
   }
-  return { app: 'IntentAI', exportedAt: new Date().toISOString(), data: out };
+  return { app: 'FindSG', exportedAt: new Date().toISOString(), data: out };
 }

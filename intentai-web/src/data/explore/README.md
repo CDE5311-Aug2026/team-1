@@ -64,4 +64,4 @@ One entry per real place (no duplicate entrances or renamed copies); public acce
 sites are marked `viewFromOutside` and kept out of the collection); 0–3 facts of 40–80 words, each with a specific
 source page (not a home page) and a checked date; no unsupported superlatives, "locals recommend", prices or opening
 hours without a dated source; no photos without a recorded licence. Language tips (`languageTip.context`) use the nine
-Singapore phrase settings and are written by the IntentAI team.
+Singapore phrase settings and are written by the FindSG team.

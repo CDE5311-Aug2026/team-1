@@ -24,7 +24,7 @@ test('Default sets the survey default', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.setItem('intentai:v1:culturePrefs', JSON.stringify({ categories: ['history', 'unesco', 'ich'] })));
   await page.goto('/today-setup');
-  await expect(page.getByText('You can change these anytime in My Space.')).toBeVisible();
+  await expect(page.getByText('You can change these anytime in Passport.')).toBeVisible();
   await page.getByRole('button', { name: 'Default', exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('intentai:v1:culturePrefs') ?? 'null'));

@@ -7,7 +7,9 @@ export const LOCAL_USAGE_KEY = 'intentai:v1:usage-log';
 /** Oldest events go first past this (about 2 MB of JSON). */
 export const LOCAL_USAGE_MAX = 20_000;
 
-export const EXPORT_FORMAT = 'intentai-usage';
+export const EXPORT_FORMAT = 'findsg-usage';
+/** Files exported before the app's name changed still load. */
+const LEGACY_EXPORT_FORMAT = 'intentai-usage';
 
 export interface UsageExport {
   format: typeof EXPORT_FORMAT;
@@ -50,7 +52,7 @@ export function toExport(events: UsageEvent[], now = new Date()): UsageExport {
 /** Events from an exported file (or a bare array of events); null when the file is not one of ours. */
 export function fromExport(json: unknown): UsageEvent[] | null {
   if (Array.isArray(json)) return parseEvents(json);
-  if (typeof json === 'object' && json !== null && (json as UsageExport).format === EXPORT_FORMAT) return parseEvents((json as UsageExport).events);
+  if (typeof json === 'object' && json !== null && ((json as { format?: string }).format === EXPORT_FORMAT || (json as { format?: string }).format === LEGACY_EXPORT_FORMAT)) return parseEvents((json as UsageExport).events);
   return null;
 }
 

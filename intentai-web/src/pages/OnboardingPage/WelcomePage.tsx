@@ -71,7 +71,7 @@ function Welcome({ onStart }: { onStart: () => void }) {
           <img src={lion} alt="" width={62} height={62} />
         </span>
         <span className={styles.bookTitle}>PASSPORT</span>
-        <span className={styles.bookSub}>INTENTAI · SINGAPORE</span>
+        <span className={styles.bookSub}>FINDSG · SINGAPORE</span>
       </motion.div>
       <h1 className={styles.welcomeTitle}>
         <BlurText as="span" text="Welcome to the" trigger="load" delay={70} className={styles.welcomeLine} />

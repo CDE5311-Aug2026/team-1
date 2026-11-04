@@ -124,7 +124,7 @@ export default function PrivacyPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `intentai-data-${localDate()}.json`;
+    a.download = `findsg-data-${localDate()}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();

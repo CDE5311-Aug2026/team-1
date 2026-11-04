@@ -215,7 +215,7 @@ for a in SG_AREAS:
     a = dict(a)
     if a['id'].endswith('-overview'):
         a['overview'] = True
-        a['source'] = {'title': 'Editorial map centre (country overview)', 'url': '', 'publisher': 'IntentAI editorial', 'checkedAt': TODAY}
+        a['source'] = {'title': 'Editorial map centre (country overview)', 'url': '', 'publisher': 'FindSG editorial', 'checkedAt': TODAY}
     areas.append(a)
 
 collections = [{

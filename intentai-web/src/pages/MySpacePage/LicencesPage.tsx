@@ -15,7 +15,7 @@ import { Kraft, SubHeader } from './v3/Parts';
 import book from './v3/Booklet.module.css';
 import styles from './v3/MySpace.module.css';
 
-export const TERMS = 'IntentAI is a student prototype for a user test. Your data stays on this phone.';
+export const TERMS = 'FindSG is a student prototype for a user test. Your data stays on this phone.';
 export const OSM_CREDIT = '© OpenStreetMap contributors';
 
 interface Credit {
@@ -71,7 +71,7 @@ export function creditGroups(): { title: string; items: Credit[] }[] {
         { subject: 'Community avatars', credit: 'DiceBear “Notionists” by Zoish · CC0 1.0', href: 'https://www.dicebear.com/styles/notionists/' },
         {
           subject: 'Community portraits and question photos',
-          credit: 'IntentAI community card kit: AI-generated illustrations of fictional people and everyday scenes',
+          credit: 'FindSG community card kit: AI-generated illustrations of fictional people and everyday scenes',
         },
         { subject: 'Demo community', credit: 'This demo build shows illustrative community members, questions and activity.' },
       ],

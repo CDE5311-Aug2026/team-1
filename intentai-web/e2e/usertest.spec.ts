@@ -26,6 +26,6 @@ test.describe('user test without a server', () => {
     expect(results.violations.map((v) => `${v.id} @ ${v.nodes[0]?.target}`)).toEqual([]);
     const download = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Export file (JSON)' }).click();
-    expect((await download).suggestedFilename()).toMatch(/^intentai-usage-P09-\d{4}-\d{2}-\d{2}\.json$/);
+    expect((await download).suggestedFilename()).toMatch(/^findsg-usage-P09-\d{4}-\d{2}-\d{2}\.json$/);
   });
 });

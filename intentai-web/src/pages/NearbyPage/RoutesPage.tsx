@@ -49,7 +49,7 @@ export default function RoutesPage() {
     <AppShell background="var(--bg-screen-b)">
       <div className={nearby.screen}>
         <BackHeader title="Routes" fallback={paths.nearby} />
-        <p className={styles.subtitle}>Walks and half days from IntentAI’s place stories and the team’s Singapore Culture Atlas, starting at an MRT station.</p>
+        <p className={styles.subtitle}>Walks and half days from FindSG’s place stories and the team’s Singapore Culture Atlas, starting at an MRT station.</p>
 
         <section aria-labelledby="story-walks" className={styles.section}>
           <h2 id="story-walks" className={styles.sectionTitle}>

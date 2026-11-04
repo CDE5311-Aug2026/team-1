@@ -90,7 +90,7 @@ export const HOME_PLACES: readonly HomePlace[] = [
     ]),
     photo: berlinPhoto,
     photoAlt: 'Two painted Berlin Wall panels in a garden at NUS University Town',
-    credit: 'Photo supplied by the IntentAI team',
+    credit: 'Photo supplied by the FindSG team',
   },
   nearbyPlace('curated:sg-national-university-of-singapore', 'National University of Singapore', 'Queenstown & Holland', { lat: 1.2985, lng: 103.776 }, [
     'NUS',

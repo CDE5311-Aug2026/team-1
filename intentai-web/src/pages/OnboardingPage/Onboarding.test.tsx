@@ -125,7 +125,7 @@ test('the whole flow stamps the passport, writes every store and shows first fin
 test('the result page without a home base says how to get finds', () => {
   profileV3Store.set({ ...DEFAULT_PROFILE_V3 });
   renderAt('/onboarding/result');
-  expect(screen.getByText('Set a home base in My Space to see what’s closest.')).toBeInTheDocument();
+  expect(screen.getByText('Set a home base in Passport to see what’s closest.')).toBeInTheDocument();
 });
 
 test('a first-run user can skip onboarding with ✕: it counts as done and Home opens', async () => {
