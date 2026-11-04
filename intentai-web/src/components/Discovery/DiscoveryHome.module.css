@@ -508,6 +508,13 @@
 
 /* The scroll unrolled across the bottom: the deck (stacked by CoverFlow3D) sinks behind the paper and fades. It never
    moves up, so it never reaches the map's keys above it. */
+/* a wide screen has room for covers you can read */
+@media (min-width: 761px) {
+  .deckBox {
+    height: clamp(170px, 26vh, 280px);
+  }
+}
+
 :global(html[data-guide-open]) .deckBox {
   transform: translateY(14px) scale(0.92);
   transform-origin: 50% 100%;
