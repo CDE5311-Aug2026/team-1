@@ -1379,16 +1379,71 @@
     2px 2px 0 #d4bf93,
     4px 4px 0 #c9b286;
 }
-/* the book's bar and tabs take over: back to the shelf, and Clues on its tab */
-.inBook :global(.ogc-top) > button:first-child,
-.inBook :global(.ogc-top) > button:last-child {
+/* the book's bar takes over the way back; Clues stays on the page and opens over the stop */
+.inBook :global(.ogc-top) > button:first-child {
   visibility: hidden;
 }
-/* the page is the stop itself; the wrapper's own paper would show behind the running head */
-.storyPage.inBook.inBook:global(.findsg) {
-  background: none;
-  box-shadow: none;
+/* while you work the puzzle or open its find, the page takes the phone's whole width and the tabs step aside. In one
+   block, so a browser without :has keeps the page and its tabs side by side */
+@media (max-width: 760px) {
+  @supports selector(:has(*)) {
+    .desk:has(:global(.ogc[data-phase='puzzle'])) .inBook :global(.ogc),
+    .desk:has(:global(.ogc[data-phase='reward'])) .inBook :global(.ogc) {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+      border-radius: 0;
+    }
+    .desk:has(:global(.ogc[data-phase='puzzle'])) .bookTabs,
+    .desk:has(:global(.ogc[data-phase='reward'])) .bookTabs {
+      display: none;
+    }
+    /* the field note is modal, but it's inside the page's own layer: the bar and tabs must not stay on top of it */
+    .desk:has(:global(.ogc-sheet)) .bookTabs,
+    .desk:has(:global(.ogc-sheet)) .bookBar {
+      visibility: hidden;
+    }
+  }
 }
-.storyPage.inBook::before {
-  display: none;
+.inBook :global(.ogc[data-phase='puzzle']) {
+  gap: 6px;
+}
+.inBook :global(.ogc[data-phase='puzzle'] .ogc-steps li) {
+  padding-block: 5px;
+}
+/* a short phone: the book's proportions would leave a sliver of a page, so it takes the width and the tabs go to the top */
+@media (max-width: 760px) and (max-height: 700px) {
+  .bookTabs,
+  .inBook {
+    --bw: min(calc(100vw - 52px), 470px);
+  }
+  .bookTabs.bookTabs {
+    top: calc(var(--game-top, 0px) + 58px);
+  }
+}
+/* on a phone the page is the stop itself; the wrapper's own paper would show behind the running head */
+@media (max-width: 760px) {
+  .storyPage.inBook.inBook:global(.findsg) {
+    background: none;
+    box-shadow: none;
+  }
+  .storyPage.inBook::before {
+    display: none;
+  }
+}
+/* on a wide screen the story is the wrapper's paper page, min(100vw - 40px, 1000px) wide: it starts under the running
+   head, and the tabs lie in its right margin, clear of what's on the page */
+@media (min-width: 761px) {
+  .storyPage.storyPage.inBook:global(.findsg) {
+    margin-top: 50px;
+  }
+  /* the page scrolls under the running head, so the head needs its own ground */
+  .bookBar {
+    background: #1d1510;
+    border-bottom: 1px solid rgba(232, 201, 131, 0.18);
+  }
+  .bookTabs.bookTabs {
+    right: calc((100vw - min(100vw - 40px, 1000px)) / 2 - 14px);
+  }
 }

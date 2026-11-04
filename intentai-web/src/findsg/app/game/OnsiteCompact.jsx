@@ -1,11 +1,12 @@
 // Hunt (2 Nov 2026): a stop on a phone is one page of the case book that never scrolls (owner: a game you have to
 // scroll through is a failure). The model is the page's mounted plate; under it a paper card holds the one thing to do
 // now. Everything else the guide says, the photo, the hint and the mode switch sits in the field note, opened from the card.
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import DiscoveryPacket from './DiscoveryPacket.jsx';
 import CaseFinale from './CaseFinale.jsx';
 import {lockScroll} from '../../../hooks/scrollLock';
 import {imageFor} from '../data.js';
+import {readOnsite} from './onsite-storage.js';
 import './onsite-compact.css';
 import {OM_ID, OM_FILMS} from '../om/om-content.js';
 import {playFilm} from '../om/films.js';
@@ -28,11 +29,27 @@ export default function OnsiteCompact(p) {
   const n = pad(game.stopIndex + 1), total = pad(config.stops.length);
   const reward = !intro && !ending && phase === 'reward';
   const manual = mode === 'manual';
+  // the same count as the clue cards it opens, which hold what you found in either way of playing
+  const clueCount = new Set([...game.completed, ...readOnsite(routeId, config.stops, manual ? 'preview' : 'manual').completed]).size;
   const route = () => onOpen({type: 'route', routeId, state: game, mode});
   const name = stop.name || cleanPlace(place.name);
   const role = story.playerRole.replace(/\s*\(.*?\)\s*$/, '');
   const step = reward ? STEPS.length : STEPS.findIndex(([id]) => id === phase);
   const note = () => setSheet(true);
+
+  // how much page there is, in lines of text (so the largest text size counts too): short pages drop what can wait
+  const page = useRef(null), [fit, setFit] = useState(undefined);
+  useLayoutEffect(() => {
+    const el = page.current;
+    const measure = () => {
+      const rems = el.clientHeight / parseFloat(getComputedStyle(document.documentElement).fontSize);
+      setFit(rems <= 29 ? 'tiny' : rems <= 30 ? 'short' : undefined);
+    };
+    measure();
+    const seen = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    seen?.observe(el);
+    return () => seen?.disconnect();
+  }, []);
 
   // the page itself: nothing under it scrolls while it is open
   useEffect(() => lockScroll(), []);
@@ -83,10 +100,11 @@ export default function OnsiteCompact(p) {
       card = <Card kicker={manual ? 'Go to' : 'Remote lead'} title={stop.at || place.address}
         aside={<a className="ogc-map" href={mapSearch(place)} target="_blank" rel="noreferrer">Map ↗︎</a>}
         said={{by: story.guideName, text: stop.sceneLine}}
-        actions={<><Primary onClick={() => arrive(mode, !manual)}>{manual ? 'I’m here · check in' : 'Start remotely'}</Primary>
+        actions={<><Primary label={manual ? 'I’m here, check in' : undefined} onClick={() => arrive(mode, !manual)}>{manual ? 'I’m here' : 'Start remotely'}</Primary>
           <Quiet onClick={() => manual ? arrive('preview', true) : changeMode('manual')}>{manual ? 'Play remotely' : 'On site'}</Quiet></>}
         more="Field note" onMore={note}/>;
       body = <><h2>{place.name}</h2>
+        <p className="ogc-note-said">{stop.sceneLine}</p>
         <div className="og-destination"><span>Address</span><strong>{place.address}</strong><a href={mapSearch(place)} target="_blank" rel="noreferrer">Open the map ↗︎</a></div>
         <p className="og-fine-print">Check-in is on your word. No location is read. Remote play keeps its own progress.</p></>;
     } else if (phase === 'observe') {
@@ -114,13 +132,13 @@ export default function OnsiteCompact(p) {
     }
   }
 
-  return <section className={'ogc' + (sheet ? ' has-sheet' : '')} data-phase={intro ? 'intro' : ending ? 'ending' : phase} aria-label={`${story.title}, stop ${n} of ${total}`}>
+  return <section ref={page} className={'ogc' + (sheet ? ' has-sheet' : '')} data-fit={fit} data-phase={intro ? 'intro' : ending ? 'ending' : phase} aria-label={`${story.title}, stop ${n} of ${total}`}>
     <header className="ogc-top">
       <button onClick={onExit} aria-label="Back to the book">‹ Book</button>
       <button className="ogc-chapter" onClick={route} aria-label={intro || ending ? 'Show the route' : `Stop ${n} of ${total}. Show the route`}>
         {intro ? <>{total} stops</> : ending ? <><b>{total}</b>/{total} found</> : <>Stop <b>{n}</b>/{total}</>}
       </button>
-      <button onClick={journal}>Clues <b>{game.completed.length}</b></button>
+      <button onClick={journal}>Clues <b>{clueCount}</b></button>
     </header>
     <div className="ogc-title">
       <h1>{intro || ending ? story.title : name}</h1>
@@ -166,7 +184,7 @@ export function Card({kicker, title, lead, said, aside, actions, more, onMore}) 
     {actions && <div className="ogc-actions">{actions}</div>}
   </article>;
 }
-export const Primary = ({onClick, children}) => <button className="ogc-primary" onClick={onClick}><b>{children}</b><span aria-hidden="true">→</span></button>;
+export const Primary = ({onClick, label, children}) => <button className="ogc-primary" onClick={onClick} aria-label={label}><b>{children}</b><span aria-hidden="true">→</span></button>;
 export const Quiet = ({onClick, children}) => <button className="ogc-quiet" onClick={onClick}>{children}</button>;
 
 /** The field note: a sheet of paper laid over the page, closed by its corner or Escape. */

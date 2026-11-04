@@ -1,7 +1,7 @@
 /* Hunt: a stop on a phone, one page of the case book that never scrolls (see OnsiteCompact.jsx).
    It borrows the treasure books on the hunt desk: parchment, a leather spine, red ink, Oswald heads, IM Fell prose,
    a mounted plate with photo corners, rubber stamps and ribbon buttons.
-   The short story (short/ShortCompact.jsx) lays out its stops with the same classes. */
+   The short story has its own book and never renders this page. */
 .findsg .ogc {
   --ogc-ink: #2c2117;
   --ogc-soft: #5a4632;
@@ -819,6 +819,36 @@
   background: rgba(244, 234, 210, 0.6);
   color: var(--ogc-ink);
   white-space: nowrap;
+}
+/* a short page or the largest text: the model keeps its room, and the guide's line waits in the field note */
+.findsg .ogc[data-fit] .ogc-said {
+  display: none;
+}
+.findsg .ogc[data-fit] .ogc-card {
+  min-height: 0;
+}
+.findsg .ogc[data-fit] .ogc-lead {
+  -webkit-line-clamp: 2;
+}
+/* the very shortest: the page and the card already say where you are in the stop */
+.findsg .ogc[data-fit='tiny'] .ogc-steps {
+  display: none;
+}
+/* at the door, the two ways to play carry the same weight: walk there or play from here, each one line */
+.findsg .ogc[data-phase='arrival'] .ogc-actions > :is(.ogc-primary, .ogc-quiet) {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding: 2px 14px 4px 8px;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.1;
+}
+.findsg .ogc[data-phase='arrival'] .ogc-actions > .ogc-quiet {
+  padding-inline: 8px;
+}
+.findsg .ogc[data-phase='arrival'] .ogc-primary > span {
+  display: none;
 }
 .findsg .ogc :is(button, a):focus-visible {
   outline: 2px solid var(--ogc-red);

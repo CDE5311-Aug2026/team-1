@@ -13,6 +13,7 @@ import {readOnsite,saveOnsite,emitOnsiteEvent} from './onsite-storage.js';
 import './story-game.css';
 import './onsite-game.css';
 import OnsiteCompact from './OnsiteCompact.jsx';
+import {useCompactStop} from '../../../hooks/useCompactStop';
 import {canRace,readBoost,writeBoost,solveActions} from './race-boost.js';
 import {questStage} from './quest-logic.js';
 const QuestViewport=lazy(()=>import('./QuestViewport.jsx'));
@@ -42,12 +43,12 @@ function PhotoClue({target,onPhoto,onReview,preview}){
 }
 class SceneBoundary extends React.Component{state={failed:false};static getDerivedStateFromError(){return {failed:true};}render(){return this.state.failed?<div className="og-scene-error"><strong>The 3D scene did not load</strong><p>Your progress is saved. You can reload this stop.</p><button className="sg-primary" onClick={this.props.onRetry}>Reload the scene ↻</button></div>:this.props.children;}}
 /** Hunt: a phone gets the one-screen stop (OnsiteCompact.jsx); wider screens keep the prototype's two columns. */
-function useCompact(){const q='(max-width: 760px)';const [m,setM]=useState(()=>window.matchMedia(q).matches);useEffect(()=>{const mm=window.matchMedia(q),on=()=>setM(mm.matches);mm.addEventListener('change',on);return()=>mm.removeEventListener('change',on);},[]);return m;}
+
 function OnsiteSession({routeId,reducedMotion,onExit,onOpen,onProgress}){
  const config=ONSITE_ROUTES[routeId],story=GAME_STORIES[routeId],base=findStory(routeId),meta=ROUTES[routeId];
  const [game,setGame]=useState(()=>readOnsite(routeId,config.stops)),[saved,setSaved]=useState(true),[showReference,setShowReference]=useState(false),[celebrated,setCelebrated]=useState(false),[sceneKey,setSceneKey]=useState(0),[uiFeedback,setUiFeedback]=useState('');
  const current=useRef(game);current.current=game;
- const compact=useCompact(),[sheet,setSheet]=useState(false),[raceOpen,setRaceOpen]=useState(false),[boost,setBoost]=useState(()=>readBoost(routeId,game.mode));
+ const compact=useCompactStop(),[sheet,setSheet]=useState(false),[raceOpen,setRaceOpen]=useState(false),[boost,setBoost]=useState(()=>readBoost(routeId,game.mode));
  const stop=config.stops[Math.min(game.stopIndex,config.stops.length-1)],place=base.stops[game.stopIndex]||base.stops.at(-1),record=game.stops[stop.id],mode=game.mode;
  // Hunt: a stop can have layers; the page names the one that is open now
  const layer=questStage(stop.quest,record?.puzzle).quest;
