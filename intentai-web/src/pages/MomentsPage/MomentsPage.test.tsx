@@ -37,14 +37,15 @@ const checkIn = (key: `curated:${string}`, date = '2026-11-02') =>
     places: [...d.places, { placeKey: key, saved: false, visited: true, visitedOn: date, updatedAt: `${date}T00:00:00.000Z` }],
   }));
 
-test('new user: no stamps, locked outlines, and the empty states say what to do', () => {
+test('new user: no stamps, no locked areas, and the empty states say what to do', () => {
   lookupsStore.set([]);
   renderPage();
   expect(screen.getByRole('heading', { level: 1, name: 'Moments' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Snap a moment with the camera' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /^Rank: Visitor\. 3 more cards to Explorer/ })).toBeInTheDocument();
-  expect(screen.getByText(/No stamps yet\. Check in at a place in/)).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Chinatown: no stamp yet. See its cards.' })).toBeInTheDocument();
+  expect(screen.getByText(/No stamps yet\./)).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Check in at a place' })).toHaveAttribute('href', '/');
+  expect(screen.queryByRole('button', { name: /no stamp yet/ })).not.toBeInTheDocument();
   expect(screen.getByText('Nothing collected yet')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Explore places' })).toHaveAttribute('href', '/');
   expect(screen.getByRole('button', { name: /Recap/ })).toBeDisabled();
@@ -62,8 +63,36 @@ test('a check-in collects the stamp at once; ink counts the opened cards of that
   expect(screen.getByRole('link', { name: /1 of 100 places checked in/ })).toBeInTheDocument();
 });
 
-test('an outline stamp sends you to Nearby to check in', async () => {
+test('My places follows where you went: on-site Hunt stops, not a fixed list', async () => {
   const user = userEvent.setup();
+  localStorage.setItem(
+    'findsg-onsite-v1:civic-f1:manual',
+    JSON.stringify({ stops: { 'civic-f1-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-02T08:00:00.000Z' } } } }),
+  );
+  renderPage();
+  expect(screen.queryByRole('button', { name: /no stamp yet/ })).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /0 of 100 places checked in, on 100 Places to Explore/ })).toHaveTextContent('0 / 100 places');
+  await user.click(screen.getByRole('button', { name: /Marina Bay/ }));
+  const sheet = screen.getByRole('dialog', { name: 'Marina Bay' });
+  const visit = within(sheet).getByRole('link', { name: /2 Nov 2026/ });
+  expect(visit).toHaveAttribute('href', '/hunt#story/civic-f1');
+  expect(visit).not.toHaveTextContent('civic-f1-01');
+});
+
+test('a Balestier stop stamps Balestier, which has no place on the map', async () => {
+  const user = userEvent.setup();
+  localStorage.setItem(
+    'findsg-onsite-v1:balestier:manual',
+    JSON.stringify({ stops: { 'balestier-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-02T08:00:00.000Z' } } } }),
+  );
+  renderPage();
+  await user.click(screen.getByRole('button', { name: /Balestier/ }));
+  expect(within(screen.getByRole('dialog', { name: 'Balestier' })).queryByRole('link', { name: 'Show on the map' })).not.toBeInTheDocument();
+});
+
+test('an outline stamp, for a place you hold a card from, sends you to Nearby to check in', async () => {
+  const user = userEvent.setup();
+  openedCardsStore.set(['chicken-rice']);
   renderPage();
   await user.click(screen.getByRole('button', { name: 'Chinatown: no stamp yet. See its cards.' }));
   const sheet = screen.getByRole('dialog', { name: 'Chinatown' });

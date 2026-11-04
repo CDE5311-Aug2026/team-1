@@ -3,7 +3,9 @@ import { homePlaceHref } from '../../../data/homeLinks';
 import inkDrop from '../../../assets/v3/moments/ink-drop.svg';
 import lockIcon from '../../../assets/v3/moments/lock.svg';
 import { nearbyHref } from '../../../data/cultureLinks';
-import { longDate, stampVisits, type Stamp as StampData } from '../../../data/moments/moments';
+import { huntKey, longDate, stampVisits, type Stamp as StampData } from '../../../data/moments/moments';
+import { chapters } from '../../HuntPage/notebook/chapters';
+import { reopenBook } from '../../HuntPage/notebook/bookSession';
 import { usePersistentStore } from '../../../data/persistentStore';
 import { explorePersonalStore } from '../../../data/stores';
 import { paths } from '../../../routes';
@@ -19,12 +21,22 @@ interface PlaceSheetProps {
   onClose: () => void;
 }
 
+/** Where a visit leads: its story for a Hunt stop (the short story lives in its book, not at a story address). */
+function visitLink(key: string): { to: string; onClick?: () => void } {
+  const hunt = huntKey(key);
+  if (hunt?.story === 'short') return { to: paths.hunt, onClick: () => reopenBook('short') };
+  if (hunt) return { to: `${paths.hunt}#story/${hunt.story}` };
+  return { to: key.startsWith('story:') ? paths.today : homePlaceHref(key) };
+}
+
 /** M2: tap a stamp → the places you checked in at in that area (culture cards removed in the Discovery redesign). */
 export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
   const { subject } = stamp;
   const [personal] = usePersistentStore(explorePersonalStore);
-  const visits = stampVisits(stamp, personal);
+  const visits = stampVisits(stamp, personal, (story, stop) => chapters().find((c) => c.routeId === story)?.stops.find((s) => s.id === stop)?.name ?? stop);
   const inNearby = nearbyHref({ kind: 'area', id: subject.id, label: subject.name });
+  // a Hunt-only area has no place on Nearby's map
+  const onMap = !subject.id.startsWith('hunt-');
 
   return (
     <Sheet title={subject.short} hideTitle onClose={onClose}>
@@ -51,7 +63,7 @@ export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
         <ul className={styles.visits} aria-label="Places you checked in at">
           {visits.map((v) => (
             <li key={v.key}>
-              <Link to={v.key.startsWith('story:') ? paths.today : homePlaceHref(v.key)} className={styles.visit}>
+              <Link {...visitLink(v.key)} className={styles.visit}>
                 <span className={styles.visitName}>{v.name}</span>
                 {v.on && <span className={styles.visitDate}>{longDate(v.on)}</span>}
               </Link>
@@ -63,9 +75,11 @@ export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
       {!stamp.collected && <p className={styles.note}>Check in at a place in {subject.name} to collect this stamp.</p>}
 
       <div className={styles.actions}>
-        <Link to={inNearby} className={stamp.collected ? styles.primary : styles.secondary}>
-          Show on the map
-        </Link>
+        {onMap && (
+          <Link to={inNearby} className={stamp.collected ? styles.primary : styles.secondary}>
+            Show on the map
+          </Link>
+        )}
         {!stamp.collected && (
           <Link to={inNearby} className={styles.primary}>
             Find a place to check in

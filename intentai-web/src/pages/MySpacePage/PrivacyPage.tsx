@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
-import { buildStamps } from '../../data/moments/moments';
+import { allStamps } from '../../data/moments/moments';
 import { usePersistentStore } from '../../data/persistentStore';
 import { clearProfileData, localDate, mySpacePrefsStore } from '../../data/profile/profile';
 import { STORAGE_AREAS, areaBytes, clearArea, exportData, formatBytes, totalBytes, type StorageAreaId } from '../../data/profile/storage';
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
   const [prefs, setPrefs] = usePersistentStore(mySpacePrefsStore);
   // Sizes are read from storage on each render; the stores above re-render the page after a Clear.
   const total = totalBytes();
-  const stamps = buildStamps(personal, opened, stories).filter((s) => s.collected).length;
+  const stamps = allStamps(personal, opened, stories).filter((s) => s.collected).length;
   const subs: Record<StorageAreaId, string> = {
     passport: `${plural(stamps, 'stamp')} · ${plural(opened.length, 'card')}`,
     ask: `${plural(threads.length, 'chat')} · ${plural(insights.length, 'saved answer')}`,

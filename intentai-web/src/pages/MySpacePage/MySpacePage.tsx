@@ -14,7 +14,7 @@ import groundUrl from "../../assets/nearby/sg-ground.webp";
 import logo from "../../assets/brand/findsg-logo.png";
 import logoInk from "../../assets/brand/findsg-logo-black.png";
 import AppShell from "../../components/AppShell/AppShell";
-import { buildStamps, openedCards, rankOf } from "../../data/moments/moments";
+import { allStamps, openedCards, rankOf } from "../../data/moments/moments";
 import { usePersistentStore } from "../../data/persistentStore";
 import {
   GROUND_BOX,
@@ -61,7 +61,7 @@ function Holder({ profile }: { profile: ProfileV3 }) {
   const [opened] = usePersistentStore(openedCardsStore);
   const [stories] = usePersistentStore(placeStoriesStore);
   const [tips] = usePersistentStore(tipsStore);
-  const stamps = buildStamps(personal, opened, stories).filter(
+  const stamps = allStamps(personal, opened, stories).filter(
     (s) => s.collected,
   ).length;
   // The same counts as Moments: real cards only, and tips from locals (not the labelled samples).

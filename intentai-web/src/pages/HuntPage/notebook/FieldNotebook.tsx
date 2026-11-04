@@ -15,41 +15,9 @@ import { Overlay } from './Overlay';
 import { ChapterCardsPage, ChapterLetterPage, ChapterMapPage, placeOf } from './pages';
 import { PrologueBook } from './PrologueBook';
 import { StoryBook } from './StoryBook';
+import { BOOK_KEY, SHELF_KEY, pageKey, session } from './bookSession';
 import styles from './props.module.css';
 import shelf from './shelf.module.css';
-
-const session = {
-  get(k: string) {
-    try {
-      return sessionStorage.getItem(k);
-    } catch {
-      return null;
-    }
-  },
-  set(k: string, v: string | null) {
-    try {
-      if (v == null) sessionStorage.removeItem(k);
-      else sessionStorage.setItem(k, v);
-    } catch {
-      /* fine */
-    }
-  },
-};
-const BOOK_KEY = 'hunt-book';
-const SHELF_KEY = 'hunt-shelf';
-const pageKey = (id: string) => `hunt-page-${id}`;
-
-/** A route book's pages, in order (their thumb tabs). A stop's page shows the same tabs; each opens the book there. */
-export const BOOK_TABS = ['Story', 'Map', 'Clues', 'Notes', 'Record'] as const;
-
-/** Leave a stop for its book, open at one of its pages (or put it back on the shelf with null). */
-export function openBookAt(id: BookId | null, page = 0) {
-  session.set(BOOK_KEY, id);
-  if (id) {
-    session.set(SHELF_KEY, id);
-    session.set(pageKey(id), String(page));
-  }
-}
 
 /** Which book is out, kept for the visit (a stop's game sends you back to it). */
 export function useShelfBook() {
@@ -306,3 +274,5 @@ function LetterReader({ ch, onClose, onFilm, onSetOut }: { ch: Chapter; onClose(
     </Overlay>
   );
 }
+
+export { BOOK_TABS, openBookAt, reopenBook } from './bookSession';
