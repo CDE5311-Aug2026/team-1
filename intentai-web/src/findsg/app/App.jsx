@@ -36,7 +36,7 @@ const STEP_ICONS={
  keep:<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 17h30l-3 26H12z"/><path d="M15 17c0-7 4-11 9-11s9 4 9 11"/><path d="m24 24 2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z"/></svg>
 };
 const STEPS=[
- ['go','Go there','Walk to the real place and check in.'],
+ ['go','Go there','Walk to the real place and check in, or play remotely from anywhere.'],
  ['look','Look, then solve','Spot the detail on the building. Work the 3D model with it.'],
  ['keep','Keep the clue','The find joins your clues. The story moves on.']
 ];
