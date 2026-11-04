@@ -41,7 +41,6 @@ import {
   explorePersonalStore,
   openedCardsStore,
   placeStoriesStore,
-  settingsStore,
   tipsStore,
 } from "../../data/stores";
 import { paths } from "../../routes";
@@ -50,9 +49,6 @@ import { EyeButton } from "../OnboardingPage/v3/Passport";
 import { CodeCircle } from "../OnboardingPage/v3/Pickers";
 import useInitial from "../OnboardingPage/v3/useInitial";
 import FieldEditor from "./v3/FieldEditor";
-import { useMemories } from "./v3/MemorySection";
-import { setMemoryEnabled } from "../../data/memory";
-import { Switch } from "./v3/Parts";
 import StorageBar from "./v3/StorageBar";
 import styles from "./v3/MySpace.module.css";
 import book from "./v3/Booklet.module.css";
@@ -402,8 +398,6 @@ function Bead({ icon }: { icon: IconName }) {
 export default function MySpacePage() {
   const navigate = useNavigate();
   const [profile] = usePersistentStore(profileV3Store);
-  const [settings, setSettings] = usePersistentStore(settingsStore);
-  const memory = useMemories();
   const [editing, setEditing] = useState<FieldKey | null>(null);
   const privateCount = profile.hidden.filter(
     (f) => fieldValue(profile, f, areaShortName) !== null,
@@ -438,45 +432,6 @@ export default function MySpacePage() {
         </ul>
 
         <div className={book.ledger}>
-          <div className={book.line}>
-            <Bead icon="flag" />
-            <span className={book.lineText}>
-              <span className={book.lineTitle}>Flag occasions</span>
-              <span className={book.lineSub} id="hint-occasions">
-                Reads calendar titles only
-              </span>
-            </span>
-            <Switch
-              label="Flag occasions"
-              describedBy="hint-occasions"
-              checked={settings.occasions}
-              onChange={(on) => setSettings((s) => ({ ...s, occasions: on }))}
-            />
-          </div>
-          <div className={book.line}>
-            <Bead icon="book" />
-            <span className={book.lineText}>
-              <span className={book.lineTitle}>Memory</span>
-              <span className={book.lineSub} id="hint-memory-row">
-                {memory.state.enabled
-                  ? `${memory.items.length} ${memory.items.length === 1 ? "thing" : "things"} Ask remembers`
-                  : "Off"}{" "}
-                ·{" "}
-                <Link
-                  to={`${paths.mySpaceSettings}?section=memory`}
-                  className={book.inlineLink}
-                >
-                  Manage
-                </Link>
-              </span>
-            </span>
-            <Switch
-              label="Memory"
-              describedBy="hint-memory-row"
-              checked={memory.state.enabled}
-              onChange={setMemoryEnabled}
-            />
-          </div>
           {/* PR #5's privacy summary: real size on this phone, private details, and the storage bar by area. */}
           <Link to={paths.mySpacePrivacy} className={book.privacy}>
             <span className={book.line}>

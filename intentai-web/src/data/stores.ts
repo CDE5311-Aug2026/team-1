@@ -281,6 +281,8 @@ export function deleteAllData() {
   // Pre-release key from an unmerged branch; harmless to drop.
   try {
     localStorage.removeItem('intentai:v1:placeProgress');
+    // What the old Memory screen kept; nothing reads it now.
+    localStorage.removeItem('intentai:v1:memory');
   } catch {
     /* storage unavailable */
   }

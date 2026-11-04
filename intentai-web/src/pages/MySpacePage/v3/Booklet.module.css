@@ -456,11 +456,6 @@
   color: rgba(242, 232, 213, 0.72);
 }
 
-.inlineLink {
-  color: var(--brass);
-  font-weight: 600;
-}
-
 .chevron {
   flex: none;
   color: rgba(232, 201, 131, 0.7);
@@ -472,26 +467,6 @@
   outline: 2px solid var(--brass);
   outline-offset: 2px;
   border-radius: 12px;
-}
-
-/* the shared switch, in brass and leather */
-.ledger [role='switch'] {
-  background: rgba(20, 12, 6, 0.5);
-  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.35);
-}
-
-.ledger [role='switch'][aria-checked='true'] {
-  background: linear-gradient(180deg, #ef7a32, #d45a17);
-  box-shadow: inset 0 0 0 1px rgba(255, 210, 160, 0.4);
-}
-
-.ledger [role='switch'] > span {
-  background: linear-gradient(180deg, #fbefd4, #e8c983);
-}
-
-.ledger [role='switch']:focus-visible {
-  outline: 2px solid var(--brass);
-  outline-offset: 2px;
 }
 
 @supports (corner-shape: superellipse(1.5)) {

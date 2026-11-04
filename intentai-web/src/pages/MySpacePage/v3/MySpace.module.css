@@ -1214,157 +1214,11 @@ div.perm {
   }
 }
 
-/* ---------- Memory ---------- */
-
-.memoryFocus .card {
-  box-shadow: 0 0 0 2px var(--accent);
-}
-
-.memoryList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding: 4px 12px 8px;
-  list-style: none;
-}
-
-.memoryItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 6px 10px 14px;
-  border-radius: 16px;
-  background: #f6f3ee;
-}
-
-.memoryText {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  font-size: 0.875rem;
-  color: #23211d;
-}
-
-.memorySource {
-  font-size: 0.6875rem;
-  color: #5e5a53;
-}
-
-.memoryForget {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  color: #4d4a44;
-  cursor: pointer;
-}
-
-.memoryForget:hover {
-  background: #ebe6de;
-}
-
-.memoryEmpty {
-  padding: 10px 4px;
-  font-size: 0.8125rem;
-  color: #4d4a44;
-}
-
-.memoryAdd {
-  display: flex;
-  gap: 8px;
-  padding: 0 12px 12px;
-}
-
-.memoryInput {
-  flex: 1;
-  min-width: 0;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid #ddd6cb;
-  border-radius: 999px;
-  background: #fff;
-  font: inherit;
-  font-size: 0.875rem;
-}
-
-.memoryAddButton,
-.memoryDanger {
-  min-height: 44px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 999px;
-  background: #23211d;
-  color: #fff;
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.memoryAddButton:disabled {
-  background: #cfc9bf;
-  color: #4d4a44;
-  cursor: default;
-}
-
-.memoryDanger {
-  background: #b3261e;
-}
-
-.memoryActions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px 12px;
-  border-top: 1px solid #efeae2;
-}
-
-.memoryGhost {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 999px;
-  background: #f1ede6;
-  color: #23211d;
-  font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.memoryGhost:disabled {
-  color: #6b665e;
-  cursor: default;
-}
-
-.memoryInput:focus-visible,
-.memoryAddButton:focus-visible,
-.memoryGhost:focus-visible,
-.memoryDanger:focus-visible,
-.memoryForget:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 .inlineLink {
   color: #a3400a;
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
-}
-
-#memory {
-  scroll-margin-top: 16px;
 }
 
 /* ---------- Ported from PR #5: header title, dependent switches, sliders, privacy summary, licences ---------- */
@@ -1387,10 +1241,6 @@ div.perm {
 .switch[aria-disabled='true'] {
   opacity: 0.45;
   cursor: not-allowed;
-}
-
-.blockedHint {
-  color: #8c3a0c;
 }
 
 .sliderHead {
@@ -1640,10 +1490,6 @@ div.perm {
   color: var(--brass);
 }
 
-.kraft .blockedHint {
-  color: #f2a974;
-}
-
 .kraft .rowChevron {
   color: rgba(232, 201, 131, 0.7);
 }
@@ -1765,25 +1611,6 @@ div.perm {
   color: var(--ink-soft);
 }
 
-.kraft .memoryForget {
-  color: var(--ink-soft);
-}
-
-.kraft .memoryForget:hover {
-  background: rgba(120, 78, 30, 0.12);
-}
-
-.kraft .memoryInput {
-  border: 0;
-  background: rgba(20, 12, 6, 0.4);
-  color: var(--cream);
-  box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.kraft .memoryInput::placeholder {
-  color: rgba(242, 232, 213, 0.5);
-}
-
 .kraft .memoryAddButton,
 .kraft .memoryGhost,
 .kraft .clear {
@@ -1799,23 +1626,6 @@ div.perm {
   background: rgba(20, 12, 6, 0.35);
   color: var(--brass);
   box-shadow: inset 0 0 0 1px rgba(232, 201, 131, 0.4);
-}
-
-.kraft .memoryAddButton:disabled {
-  background: rgba(232, 201, 131, 0.25);
-  color: var(--cream-soft);
-}
-
-.kraft .memoryDanger {
-  font: 500 0.9375rem/1 var(--font-display);
-  letter-spacing: 0.04em;
-  background: var(--red-ink);
-}
-
-.kraft .memoryFocus .card {
-  box-shadow:
-    0 0 0 2px var(--brass),
-    0 12px 24px rgba(40, 24, 10, 0.34);
 }
 
 .kraft .inlineLink,
@@ -1908,11 +1718,6 @@ div.perm {
 .kraft .exportBtn:focus-visible,
 .kraft .range:focus-visible {
   outline: 2px solid var(--brass);
-}
-
-/* Passport's "Manage" lands on Memory below the sticky bar */
-.kraft .memoryFocus {
-  scroll-margin-top: 4.5rem;
 }
 
 /* Settings › User test › Restart test: the confirm step. */

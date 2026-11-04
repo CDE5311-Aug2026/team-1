@@ -3,7 +3,7 @@ import type { NoticeStatus } from '../../data/domain';
 import { noticesStore } from '../../data/stores';
 import { paths } from '../../routes';
 
-/** How the AI occasion notice shows: hidden while "Flag occasions" is off. */
+/** How the AI occasion notice shows: hidden while the Privacy page's Calendar is off. */
 export type OccasionState = NoticeStatus | 'hidden';
 export type Outcome = Exclude<NoticeStatus, 'pending'>;
 

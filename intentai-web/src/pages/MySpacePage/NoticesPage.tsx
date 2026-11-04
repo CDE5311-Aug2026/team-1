@@ -3,7 +3,7 @@ import { noticesStore, settingsStore } from '../../data/stores';
 import MySpaceLayout from './MySpaceLayout/MySpaceLayout';
 import NoticesView from './NoticesView/NoticesView';
 
-/** Figma 12:182 "2 My Space — Notices". The AI notice exists only while "Flag occasions" is on. */
+/** Figma 12:182 "2 My Space — Notices". The AI notice exists only while the Privacy page's Calendar is on. */
 export default function NoticesPage() {
   const [notices] = usePersistentStore(noticesStore);
   const [settings] = usePersistentStore(settingsStore);
