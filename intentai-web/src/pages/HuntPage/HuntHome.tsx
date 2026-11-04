@@ -22,6 +22,7 @@ import { localToday } from "../../features/nearby/personal";
 import Icon from "../OnboardingPage/v3/icons";
 import type { HuntGo } from "./HuntPage";
 import { HowToPlay } from "./notebook/HowToPlay";
+import { howToPlayPending, markHowToPlaySeen } from "./notebook/howToPlayState";
 import PageBar from "../../components/PageBar/PageBar";
 import { PublicHall } from "./public3d/PublicHall";
 import styles from "./Hunt.module.css";
@@ -43,24 +44,14 @@ export function useExplored() {
   return useMemo(() => visitedSet(personal).size, [personal]);
 }
 
-const HOW_SEEN = "findsg-hunt-how-seen";
-
 /** Hunt's top bar (the shared PageBar). How to play opens by itself the first time the desk is seen. */
 export function HuntHeader({ tab }: { tab: "story" | "public"; go?: HuntGo }) {
-  const [how, setHow] = useState(() => {
-    try {
-      return tab === "story" && !localStorage.getItem(HOW_SEEN);
-    } catch {
-      return false;
-    }
-  });
+  // up whenever the shelf is showing and the card hasn't been seen, so the shelf behind it is never left waiting
+  const [, closed] = useState(false);
+  const how = tab === "story" && howToPlayPending();
   const close = () => {
-    setHow(false);
-    try {
-      localStorage.setItem(HOW_SEEN, "1");
-    } catch {
-      /* private mode: it shows again next time */
-    }
+    markHowToPlaySeen();
+    closed(true);
   };
   return (
     <>

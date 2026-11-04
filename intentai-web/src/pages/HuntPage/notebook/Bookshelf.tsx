@@ -6,6 +6,7 @@ import { ROUTES } from '../../../findsg';
 import type { Chapter } from './chapters';
 import { MATERIALS } from './Notebook';
 import { RouteChart } from './RouteChart';
+import { howToPlayPending, onHowToPlayClosed } from './howToPlayState';
 import { ShelfScene } from './shelf3d/ShelfScene';
 import styles from './shelf.module.css';
 
@@ -148,6 +149,21 @@ export function Bookshelf({
   const [pulling, setPulling] = useState<BookId | null>(null);
   // the real 3D shelf, unless this device cannot draw it (then the flat shelf below is shown instead)
   const [flat, setFlat] = useState(() => typeof window === 'undefined' || !('WebGLRenderingContext' in window));
+  // the first-visit card covers the shelf: build it only once the card has gone, and after the page has painted that
+  const [waiting, setWaiting] = useState(howToPlayPending);
+  useEffect(() => {
+    if (!waiting) return undefined;
+    let frame = 0;
+    const off = onHowToPlayClosed(() => {
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => setWaiting(false));
+      });
+    });
+    return () => {
+      off();
+      cancelAnimationFrame(frame);
+    };
+  }, [waiting]);
   const settle = useRef<number>(0);
 
   // start with the selected book in the middle of the shelf
@@ -197,7 +213,7 @@ export function Bookshelf({
   return (
     <section className={styles.library} style={MATERIALS} aria-label="The story shelf">
       <RouteChart books={BOOKS} chapters={chapters} short={short} selected={selected} onPick={pick} />
-      {!flat && (
+      {!flat && !waiting && (
         <ShelfScene
           books={BOOKS}
           progress={progress}

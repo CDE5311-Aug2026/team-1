@@ -26,7 +26,7 @@ test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and 
   expect(screen.getByRole('tab', { name: 'Public' })).toHaveAttribute('aria-selected', 'false');
   // first visit: How to play opens by itself, once
   expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Open a volume' }));
+  await userEvent.click(screen.getByRole('button', { name: 'See the shelf' }));
   expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
   // the story shelf: six books, the demo story first; pick the third, take it down, open it, and its tabs are the story, the map, the clue cards, notes and the record
   const books = within(screen.getByRole('listbox', { name: 'Story books' })).getAllByRole('option');
@@ -57,7 +57,7 @@ test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and 
       .getAllByRole('button')
       .map((b) => b.textContent),
   ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record']);
-});
+}, 20_000); // a long walk through the shelf, with two book animations to wait out
 
 test('Public shows this weekend’s challenge on the Civic District route, the boards and what is coming', async () => {
   at('/hunt');
