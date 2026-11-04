@@ -220,7 +220,21 @@
   font: 500 0.6875rem/1 var(--font-mono);
   color: var(--cream);
   background: rgba(20, 12, 6, 0.72);
-  pointer-events: none;
+  border: 0;
+  cursor: pointer;
+}
+/* a finger's worth of target around the small count */
+.count::after {
+  content: '';
+  position: absolute;
+  inset: -14px -8px;
+}
+.count:hover {
+  background: rgba(20, 12, 6, 0.92);
+}
+.count:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 2px;
 }
 
 /* ---- the log: a map of the day, then a card for each place ---- */
