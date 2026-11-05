@@ -5,8 +5,11 @@
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import logo from '../../assets/avatar-logo.png';
 import { matchTopic, TOPICS, type HelpTopic } from '../../data/help/guide';
 import Icon, { type IconName } from '../../pages/OnboardingPage/v3/icons';
+import { holderInitial } from '../../data/profile/profile';
+import useHolderName from '../../pages/OnboardingPage/v3/useHolderName';
 import { HelpMark } from './HelpBadge';
 import { lockScroll } from '../../hooks/scrollLock';
 import { closeHelp, setHelpTab, useHelp, type HelpTab } from './helpStore';
@@ -210,6 +213,25 @@ function Panel({ page, tab }: { page: string; tab: HelpTab }) {
   );
 }
 
+/** The guide: the same lion as the badge. */
+function LionAvatar() {
+  return (
+    <span className={styles.avatarLion} aria-hidden="true">
+      <img src={logo} alt="" draggable={false} />
+    </span>
+  );
+}
+
+/** The person: their initial on a small passport portrait, as on the Passport tab. */
+function HolderAvatar() {
+  const holder = useHolderName();
+  return (
+    <span className={styles.avatarHolder} aria-hidden="true">
+      {holderInitial(holder)}
+    </span>
+  );
+}
+
 // the conversation survives closing and opening again (until the app reloads)
 let saved: Message[] = [];
 let nextId = 1;
@@ -261,32 +283,39 @@ function Ask({ page }: { page: string }) {
     <>
       <div className={styles.chat} ref={list}>
       <ol className={styles.log} aria-live="polite">
-        <motion.li className={styles.bot} variants={rise} initial="hidden" animate="show" custom={2}>
-          {HELLO}
+        <motion.li className={styles.turn} variants={rise} initial="hidden" animate="show" custom={2}>
+          <LionAvatar />
+          <div className={styles.bot}>{HELLO}</div>
         </motion.li>
         {messages.map((m) => (
           <motion.li
             key={m.id}
-            className={m.role === 'user' ? styles.me : styles.bot}
+            className={m.role === 'user' ? `${styles.turn} ${styles.turnMe}` : styles.turn}
             initial={{ opacity: 0, y: 12, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
             style={{ originX: m.role === 'user' ? 1 : 0 }}
           >
-            {m.text}
-            {m.topic?.path && m.role === 'assistant' && !here(m.topic.path) && (
-              <button type="button" className={styles.go} onClick={() => navigate(m.topic!.path!)}>
-                Take me there
-                <Icon name="arrow" size={14} />
-              </button>
-            )}
+            {m.role === 'user' ? <HolderAvatar /> : <LionAvatar />}
+            <div className={m.role === 'user' ? styles.me : styles.bot}>
+              {m.text}
+              {m.topic?.path && m.role === 'assistant' && !here(m.topic.path) && (
+                <button type="button" className={styles.go} onClick={() => navigate(m.topic!.path!)}>
+                  Take me there
+                  <Icon name="arrow" size={14} />
+                </button>
+              )}
+            </div>
           </motion.li>
         ))}
         {busy && (
-          <motion.li className={`${styles.bot} ${styles.typing}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} aria-label="Writing">
-            <i />
-            <i />
-            <i />
+          <motion.li className={styles.turn} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} aria-label="Writing">
+            <LionAvatar />
+            <div className={`${styles.bot} ${styles.typing}`}>
+              <i />
+              <i />
+              <i />
+            </div>
           </motion.li>
         )}
       </ol>
@@ -315,6 +344,7 @@ function Ask({ page }: { page: string }) {
           <Icon name="send" size={20} />
         </motion.button>
       </form>
+      <p className={styles.disclaimer}>Generative AI assistance may make mistakes.</p>
     </>
   );
 }

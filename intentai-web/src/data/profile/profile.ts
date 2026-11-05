@@ -266,12 +266,21 @@ export function fieldValue(profile: ProfileV3, field: FieldKey, areaName: (id: s
   }
 }
 
-/** The passport's machine-readable line, as in Figma: P<SGP + initial, then the role in capitals. */
-export function mrzLine(initial: string, profile: ProfileV3, length = 44): string {
-  const name = (initial || 'W').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 1) || 'W';
+/**
+ * The passport's machine-readable line, as in Figma: P<SGP + the holder's name, then the role in capitals. It holds A-Z and
+ * digits only: accents drop to their base letter, a name with no such letters is left blank, and a long name gives way to the role.
+ */
+export function mrzLine(holder: string, profile: ProfileV3, length = 44): string {
+  const spelled = holder.normalize('NFD').replace(/\p{M}/gu, '').toUpperCase().replace(/[^A-Z0-9]+/g, '<').replace(/^<+|<+$/g, '');
   const role = profile.hidden.includes('role') ? '' : roleOf(profile.role)?.label.toUpperCase().replace(/[^A-Z]+/g, '<') ?? '';
-  const head = `P<SGP${name}<<<` + (role ? `<${role}` : '');
-  return (head + '<'.repeat(length)).slice(0, length);
+  const tail = role ? `<<<<${role}` : '<<<';
+  const name = spelled.slice(0, Math.max(0, length - 'P<SGP'.length - tail.length)).replace(/<+$/, '');
+  return (`P<SGP${name}${tail}` + '<'.repeat(length)).slice(0, length);
+}
+
+/** The holder's initial for an avatar: one whole letter, however many code units it takes. */
+export function holderInitial(holder: string): string {
+  return Array.from(holder.trim())[0]?.toUpperCase() ?? 'W';
 }
 
 /** Today's three categories from the ranking: ranked topics first, then the default order fills the rest. */

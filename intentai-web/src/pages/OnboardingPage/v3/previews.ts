@@ -46,7 +46,7 @@ const EMPTY: Record<FieldKey, string> = {
   role: 'Pick what brings you here.',
   language: 'Pick a language for your cards.',
   base: 'Drop a pin to see what’s closest.',
-  topics: 'Tap a kind of place to start your ranking.',
+  topics: 'Tap choice(s) to start your ranking.',
 };
 
 const EMPTY_PHOTO: Record<FieldKey, string> = {

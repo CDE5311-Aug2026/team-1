@@ -63,7 +63,6 @@
 .square:focus-visible,
 .logoLink:focus-visible,
 .row:focus-visible,
-.knowsButton:focus-visible,
 .switch:focus-visible,
 .segment:focus-visible,
 .perm:focus-visible,
@@ -79,8 +78,6 @@
 }
 
 @supports (corner-shape: superellipse(1.5)) {
-  .holder,
-  .knows,
   .card,
   .perm,
   .hero,
@@ -93,86 +90,6 @@
 }
 
 /* ---------- Holder ---------- */
-
-.holder {
-  padding: 0.875rem 1rem 0.75rem;
-  border-radius: 24px;
-  background:
-    repeating-radial-gradient(circle at 90% 10%, rgba(228, 103, 31, 0.05) 0 1px, transparent 1px 7px),
-    linear-gradient(160deg, #fbf3e8, #f6ead9);
-  box-shadow: 0 10px 24px rgba(35, 33, 29, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.holderHead {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #a3400a;
-}
-
-.holderHead > :last-child {
-  color: #4d473f;
-}
-
-.holderRule {
-  flex: 1;
-  border-top: 1px dashed #d8b89f;
-}
-
-.holderBody {
-  display: flex;
-  gap: 0.875rem;
-  margin-top: 0.75rem;
-}
-
-.holderPhoto {
-  flex: none;
-  width: 5.25rem;
-  height: 6.5rem;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  background:
-    repeating-linear-gradient(45deg, rgba(31, 58, 138, 0.06) 0 2px, transparent 2px 6px),
-    #dfe6f4;
-  border: 1px solid #c9d3ea;
-}
-
-.holderPhoto span {
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #1f3a8a;
-  color: #fff;
-  font-weight: 800;
-  font-size: 1.375rem;
-}
-
-.holderMain {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.holderName {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-}
-
-.holderInitial {
-  font-size: 1.5rem;
-  font-weight: 800;
-}
 
 .rank {
   display: inline-flex;
@@ -217,16 +134,6 @@
   font-weight: 800;
 }
 
-.holderMrz {
-  margin: 0.625rem 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-  overflow: hidden;
-  color: #4d473f;
-}
-
 /* ---------- What the app knows ---------- */
 
 .sectionHead {
@@ -260,44 +167,6 @@
   color: #3a3731;
 }
 
-.knowsGrid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.625rem;
-}
-
-.knows {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  padding: 0.75rem;
-  border-radius: 24px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(35, 33, 29, 0.06);
-  min-width: 0;
-}
-
-.knowsTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  z-index: 2;
-}
-
-.knowsLabel {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #4d473f;
-}
-
 .visual {
   height: 4.25rem;
   display: flex;
@@ -305,252 +174,6 @@
 }
 
 /* The whole tile is the edit button (stretched), except the eye above it. */
-.knowsButton {
-  border: 0;
-  padding: 0;
-  background: none;
-  font: inherit;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  border-radius: 24px;
-}
-
-.knowsButton::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-}
-
-.knowsButton:focus-visible {
-  outline: none;
-}
-
-.knowsButton:focus-visible::after {
-  outline: 2px solid #23211d;
-  outline-offset: 2px;
-}
-
-.knowsValue {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.9375rem;
-  font-weight: 800;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
-.knowsUse {
-  font-size: 0.75rem;
-  line-height: 1.3;
-  color: #4d4a44;
-}
-
-.route {
-  display: flex;
-  align-items: center;
-}
-
-.arc {
-  width: 3rem;
-  height: 1.5rem;
-  margin: 0 -0.25rem;
-  align-self: flex-start;
-}
-
-.miniTimeline {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.miniIcon {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  background: #fff2eb;
-  color: #e4671f;
-}
-
-.miniTrack {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-}
-
-.miniTrack::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  border-top: 2px solid rgba(120, 78, 30, 0.2);
-}
-
-.miniStop,
-.miniStopOn {
-  position: relative;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: 50%;
-  background: #cdb894;
-}
-
-.miniStopOn {
-  width: 1rem;
-  height: 1rem;
-  background: #e4671f;
-}
-
-.roleVisual {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-}
-
-.roleBox {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: #fff2eb;
-  color: #e4671f;
-}
-
-.roleLines {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.roleLines span {
-  height: 0.375rem;
-  border-radius: 3px;
-  background: rgba(120, 78, 30, 0.16);
-}
-
-.roleLines span:nth-child(2) {
-  width: 75%;
-}
-
-.roleLines span:nth-child(3) {
-  width: 55%;
-  background: #f6d5c0;
-}
-
-.langVisual {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.langBig {
-  min-width: 3rem;
-  height: 2.75rem;
-  padding: 0 0.375rem;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  background: #23211d;
-  color: #fff;
-  font-weight: 800;
-  font-size: 1.25rem;
-}
-
-.bubble {
-  padding: 0.375rem 0.75rem;
-  border-radius: 14px 14px 14px 4px;
-  background: #fff2eb;
-  color: #a3400a;
-  font-weight: 700;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 6rem;
-}
-
-.miniMap {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 14px;
-  background: #4d7ea2;
-}
-
-.miniMap img {
-  position: absolute;
-  max-width: none;
-}
-
-.miniPin {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin: -1.625rem 0 0 -0.8125rem;
-  color: #e4671f;
-}
-
-.miniPin svg {
-  fill: #fff;
-}
-
-.stack {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.stackCard {
-  position: absolute;
-  left: 0;
-  top: 0.25rem;
-  width: 3.25rem;
-  height: 3.75rem;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
-  background: #ddd;
-}
-
-.stackCard img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.stackRank {
-  position: absolute;
-  left: 0.125rem;
-  top: 0.125rem;
-  width: 1.125rem;
-  height: 1.125rem;
-  border-radius: 50%;
-  background: #fff;
-  color: #23211d;
-  font-size: 0.6875rem;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
-}
-
-.stackRankOn {
-  background: #e4671f;
-  color: #fff;
-}
 
 /* ---------- Cards, rows, switches ---------- */
 
@@ -1194,23 +817,8 @@ div.perm {
 }
 
 @media (max-width: 359px) {
-  .knowsGrid,
   .permGrid {
     gap: 0.5rem;
-  }
-
-  .knows {
-    padding: 0.625rem;
-  }
-
-  .holderPhoto {
-    width: 4.25rem;
-    height: 5.5rem;
-  }
-
-  .stackCard {
-    width: 2.75rem;
-    height: 3.25rem;
   }
 }
 
