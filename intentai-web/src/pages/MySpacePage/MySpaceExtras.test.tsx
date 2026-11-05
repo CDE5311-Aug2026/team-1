@@ -14,6 +14,7 @@ import { paths } from '../../routes';
 import { send } from '../../usage/appTracker';
 import type { UsageEvent } from '../../usage/event';
 import { readLocalUsage } from '../../usage/localLog';
+import { todaysHoliday } from '../../data/holiday';
 import { creditGroups } from './LicencesPage';
 import { TEXT_PREVIEW } from './SettingsPage';
 import { currentPath, renderAt } from './testUtils';
@@ -83,6 +84,8 @@ test('Licences page lists the map, culture-card, place-story, Nearby place-photo
   expect(screen.getAllByText('Photo: Zairon · CC BY-SA 4.0').length).toBeGreaterThan(0);
   // Every group has entries.
   for (const g of creditGroups()) expect(g.items.length, g.title).toBeGreaterThan(0);
+  // Home shows this photo with no room for a line of its own
+  expect(creditGroups().flatMap((g) => g.items).map((c) => c.credit)).toContain(todaysHoliday.image.credit);
 });
 
 test('Export my data downloads one JSON file with our stores', async () => {

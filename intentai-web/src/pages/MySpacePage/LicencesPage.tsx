@@ -5,6 +5,7 @@ import { STORY_IMAGES } from '../../assets/stories';
 import { V3_PHOTO_CREDITS } from '../../assets/v3/credits';
 import AppShell from '../../components/AppShell/AppShell';
 import { ARTICLE_IMAGES } from '../../data/articleImages';
+import { todaysHoliday } from '../../data/holiday';
 import { PLACE_CARDS } from '../../data/explore/placeCards';
 import placePhotos from '../../data/explore/photos.json';
 import { HOME_PLACES } from '../../data/homePlaces';
@@ -49,6 +50,7 @@ export function creditGroups(): { title: string; items: Credit[] }[] {
         ...V3_PHOTO_CREDITS.map((c) => ({ subject: c.subject, credit: c.credit })),
       ]),
     },
+    { title: 'Holidays', items: [{ subject: todaysHoliday.image.alt, credit: todaysHoliday.image.credit, href: todaysHoliday.image.url }] },
     { title: 'Place stories', items: unique(Object.values(STORY_IMAGES).map((p) => ({ subject: p.alt, credit: p.credit }))) },
     {
       title: 'Home places',
