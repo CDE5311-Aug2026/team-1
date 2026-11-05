@@ -1,22 +1,30 @@
 // The Help Center's door, top left of every tab: a capsule. The right end is the FindSG lion's circle; from its top and
-// bottom points two level lines run left a short way and an arc of the same radius closes the end. The "i" sits in
-// the narrow band that shows before the lion, in another colour. Inside the open panel the same mark shows a × to close.
-import type { ReactNode, Ref } from 'react';
+// bottom points two level lines run left a short way and an arc of the same radius closes the end. The assistant's
+// sparkle sits in the band that shows before the lion, in deep blue against the gold, so it reads as its own thing
+// beside the orange lion. Inside the open panel the same mark shows a × to close.
+import { useId, type ReactNode, type Ref } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import logo from '../../assets/avatar-logo.png';
 import styles from './HelpCenter.module.css';
 
 const R = 21; // the lion's circle (42px with its rim)
-const RUN = 17; // how far the level lines run left of the lion's centre
+const RUN = 28; // how far the level lines run left of the lion's centre
 const L = 23; // centre of the closing arc on the left
-const LION = L + RUN; // 40: the lion's centre
-const W = LION + R + 2; // 63: the mark's width
-/** Middle of the band that shows before the lion: where the "i" goes. */
+const LION = L + RUN; // 51: the lion's centre
+const W = LION + R + 2; // 74: the mark's width
+/** Middle of the band that shows before the lion: where the sparkle goes. */
 const G = (L - R + LION - R) / 2;
 export const HULL = `M${LION} ${23 - R} H${L} A${R} ${R} 0 0 0 ${L} ${23 + R} H${LION} A${R} ${R} 0 0 0 ${LION} ${23 - R} Z`;
 
-export function HelpMark({ glyph = 'info', ring }: { glyph?: 'info' | 'close'; ring?: ReactNode }) {
+/** A four-pointed star with sharp points. */
+const star = (x: number, y: number, r: number) => {
+  const k = r * 0.16;
+  return `M${x} ${y - r}Q${x + k} ${y - k} ${x + r} ${y}Q${x + k} ${y + k} ${x} ${y + r}Q${x - k} ${y + k} ${x - r} ${y}Q${x - k} ${y - k} ${x} ${y - r}Z`;
+};
+
+export function HelpMark({ glyph = 'spark', ring }: { glyph?: 'spark' | 'close'; ring?: ReactNode }) {
   const reduce = useReducedMotion();
+  const gold = `hull${useId().replace(/\W/g, '')}`;
   return (
     <span className={styles.mark} aria-hidden="true">
       <motion.svg
@@ -27,7 +35,13 @@ export function HelpMark({ glyph = 'info', ring }: { glyph?: 'info' | 'close'; r
         transition={{ type: 'spring', stiffness: 320, damping: 18, delay: 0.15 }}
         style={{ originX: 0.7 }}
       >
-        <path d={HULL} className={styles.hullFill} />
+        <defs>
+          <linearGradient id={gold} x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stopColor="var(--hull-a)" />
+            <stop offset="1" stopColor="var(--hull-b)" />
+          </linearGradient>
+        </defs>
+        <path d={HULL} fill={`url(#${gold})`} />
         <path d={HULL} className={styles.hullEdge} />
         <motion.g
           key={glyph}
@@ -37,11 +51,8 @@ export function HelpMark({ glyph = 'info', ring }: { glyph?: 'info' | 'close'; r
           style={{ originX: `${G}px`, originY: '23px' }}
           className={styles.glyph}
         >
-          {glyph === 'info' ? (
-            <>
-              <circle cx={G} cy={16.4} r={1.8} />
-              <path d={`M${G} 21v8.6`} />
-            </>
+          {glyph === 'spark' ? (
+            <path className={styles.spark} d={`${star(G - 2, 24.5, 8.5)}${star(G + 6, 14.5, 3.8)}`} />
           ) : (
             <path d={`M${G - 3.4} 19.6l6.8 6.8M${G + 3.4} 19.6l-6.8 6.8`} />
           )}

@@ -816,7 +816,7 @@
   pointer-events: none;
 }
 
-/* the desk's own pages (the shelf, Public, the boards) scroll clear of the field-guide roll in the corner */
+/* the desk's own pages (the shelf, Public, the boards) scroll clear of the tab bar */
 .deskHome {
   padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px));
 }
@@ -1330,7 +1330,7 @@
   flex-direction: column;
   height: calc(100svh - var(--status-h, 0px));
   min-height: 0;
-  padding-bottom: calc(1.125rem + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--tabbar-bottom) + var(--tabbar-h) + 10px);
   overflow: hidden;
 }
 

@@ -27,12 +27,8 @@ test('pop animates the active tab only; off by default', () => {
   expect(screen.getByRole('button', { name: /^hunt$/i })).not.toHaveClass('a-pill');
 });
 
-test('the guide rolls up in the corner and unrolls on a tap; Escape rolls it back', async () => {
+test('all four tabs are always there, one tap away', () => {
   render(<TabBar active="/moments" onNavigate={vi.fn()} />);
-  const roll = screen.getByRole('button', { name: /Tabs: on Moments/ });
-  expect(roll).toHaveAttribute('aria-expanded', 'false');
-  await userEvent.click(roll);
-  expect(screen.getByRole('button', { name: 'Roll up the tabs' })).toHaveAttribute('aria-expanded', 'true');
-  await userEvent.keyboard('{Escape}');
-  expect(screen.getByRole('button', { name: /Tabs: on Moments/ })).toHaveAttribute('aria-expanded', 'false');
+  expect(screen.getAllByRole('button')).toHaveLength(4);
+  expect(screen.getByRole('button', { name: /^moments$/i })).toHaveAttribute('aria-current', 'page');
 });

@@ -6,6 +6,16 @@
   /* Fill the viewport so a page's background reaches the bottom edge on short pages. */
   min-height: 100vh;
   min-height: 100dvh;
+  /* the tab bar's height and its distance from the bottom of the screen (pages that fill the screen leave room for it) */
+  --tabbar-h: 3.5rem;
+  --tabbar-bottom: 1.75rem;
+}
+
+/* Wider screens have no home indicator to clear. */
+@media (min-width: 481px) {
+  .shell {
+    --tabbar-bottom: 1rem;
+  }
 }
 
 .page {
@@ -29,17 +39,10 @@
   padding-right: var(--gutter);
   box-sizing: border-box;
   position: sticky;
-  bottom: 1.75rem;
+  bottom: var(--tabbar-bottom);
   padding-top: 0.5rem;
   /* Above anything a page positions (e.g. Home's carousel cards), below the home indicator and toasts. */
   z-index: 4;
-}
-
-/* Wider screens have no home indicator to clear; stay pinned so short laptop windows still show the tabs. */
-@media (min-width: 481px) {
-  .tabBarWrap {
-    bottom: 1rem;
-  }
 }
 
 .toast {
@@ -125,27 +128,16 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 1.75rem;
+  bottom: var(--tabbar-bottom);
   z-index: 30;
   padding-top: 0;
 }
 
-@media (min-width: 481px) {
-  .fillTabBar {
-    bottom: 1rem;
-  }
-}
-
-/* Phone browsers (Safari 26 floats its own bar at the bottom): our guide sits just above that bar, in the same
-   column, so the two read as one stack instead of two bars fighting for the edge. A home-screen app keeps the
-   home-indicator offset above. */
+/* Phone browsers (Safari 26 floats its own bar at the bottom): our bar sits just above that one, so the two read as
+   one stack instead of fighting for the edge. A home-screen app keeps the home-indicator offset above. */
 @media (hover: none) and (pointer: coarse) and (display-mode: browser) and (max-width: 480px) {
-  .tabBarWrap,
-  .fillTabBar {
-    /* clear of the viewport edge, so the scroll's lower knobs are not cut off */
-    bottom: 1.125rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
+  .shell {
+    --tabbar-bottom: 1.125rem;
   }
   .page {
     padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));

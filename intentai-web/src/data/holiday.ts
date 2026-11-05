@@ -12,6 +12,8 @@ export interface Holiday {
   /** Hero card kicker, shown uppercase by CSS. */
   kicker: string;
   cardTitle: string;
+  /** One line under the name on Home's calendar card. */
+  cardLine: string;
   cardBody: string;
   /** Anniversary row under the hero card, linking to a Home place. */
   also: { when: string; title: string; placeId: string };
@@ -28,7 +30,8 @@ export const todaysHoliday: Holiday = {
   name: 'Deepavali',
   today: 'Sat 7 Nov',
   kicker: 'Sat 7 Nov · Long weekend',
-  cardTitle: 'Deepavali long weekend starts today',
+  cardTitle: 'Deepavali long weekend',
+  cardLine: 'Long weekend to Mon 9 Nov',
   cardBody: 'The festival of lights is on Sun 8 Nov. Mon 9 Nov is a public holiday too.',
   also: {
     when: 'Also Mon 9 Nov · Near you',

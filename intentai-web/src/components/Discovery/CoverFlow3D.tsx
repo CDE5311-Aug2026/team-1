@@ -2,8 +2,7 @@
 // sits exactly over each drawn card, so taps, keyboard and screen readers work as on any list. Swipe or drag to move;
 // the deck glides and settles on a card. Tap the middle card (or its action) to go in; tap a side card to bring it in.
 // Each invisible card is clipped to the drawn card's own outline, so a tap on a card's visible sliver never lands on
-// the card in front of it. While the tab guide is unrolled over the deck, the cards gather into a stack behind the
-// middle one and take no taps; they fan out again when it rolls up.
+// the card in front of it.
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import type { UnlockStatus } from '../../data/ura/ura';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
@@ -233,16 +232,6 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
     items.findIndex((i) => i.id === selectedId),
   );
   const [centre, setCentre] = useState(selectedIndex);
-  // the tab guide unrolled over the deck (TabBar sets html[data-guide-open] and sends a 'guide' event)
-  const [gathered, setGathered] = useState(() => typeof document !== 'undefined' && document.documentElement.hasAttribute('data-guide-open'));
-  useEffect(() => {
-    const on = (e: Event) => setGathered(!!(e as CustomEvent<boolean>).detail);
-    window.addEventListener('guide', on);
-    return () => window.removeEventListener('guide', on);
-  }, []);
-  useEffect(() => {
-    sceneRef.current?.setSpread(gathered ? 0 : 1);
-  }, [gathered, gl]);
   const latest = useRef({ items, selectedId, onSelect });
   latest.current = { items, selectedId, onSelect };
 
@@ -372,9 +361,8 @@ export function CoverFlow3D({ label, items, selectedId, onSelect, onEnter, fallb
   const sel = items[selectedIndex];
   return (
     <section
-      className={gathered ? `${styles.deck} ${styles.gathered}` : styles.deck}
+      className={styles.deck}
       aria-label={label}
-      {...(gathered ? { inert: '' } : {})}
     >
       <div
         ref={boxRef}

@@ -455,7 +455,8 @@ export default function ExplorePage() {
 
   return (
     // No app tab bar here: the map is a full screen of its own; Back (in the search bar) returns to where you came from.
-    <AppShell background="var(--bg-screen-b)" layout="fill">
+    // A screen of its own with a back arrow: no tab bar, which would cover the list's Save stars.
+    <AppShell background="var(--bg-screen-b)" layout="fill" chrome="status">
       {/* The map (or the 3D view, the same page around it: search, lists, sheet and map buttons) fills the screen. */}
       <div className={x.stage} data-allow-bleed>
         {view === '3d' ? (

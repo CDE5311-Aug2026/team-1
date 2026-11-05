@@ -2,7 +2,6 @@
 .head {
   display: flex;
   align-items: baseline;
-  /* the link sits by the heading, not in the corner where the field-guide roll floats */
   gap: 14px;
   margin: 0 2px 8px;
 }

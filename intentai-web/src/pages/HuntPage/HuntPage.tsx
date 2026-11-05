@@ -119,7 +119,8 @@ export default function HuntPage() {
     navigate({ pathname: '/hunt', search: '', hash: '' });
   };
   return (
-    <AppShell background={CHART_BG}>
+    // On a phone the stop fills the screen over the tab bar, so the bar steps away and the book's back button leads out.
+    <AppShell background={CHART_BG} chrome={phone && book ? 'status' : 'full'}>
       <div className={`${styles.screen} ${styles.desk}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
         {/* the header stays while you play: Help and Settings are one tap away in a story too */}
         <PageBar title="Hunt" tone="dark" className={styles.pageBar} game />
