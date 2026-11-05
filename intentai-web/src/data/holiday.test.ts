@@ -3,7 +3,9 @@ import { todaysHoliday } from './holiday';
 
 test('the demo date is Sat 7 Nov 2026, the start of the Deepavali long weekend', () => {
   expect(todaysHoliday.today).toBe('Sat 7 Nov');
-  expect(todaysHoliday.cardTitle).toBe('Deepavali long weekend starts today');
+  expect(todaysHoliday.cardTitle).toBe('Deepavali long weekend');
+  // the date on the card is fixed, so nothing here may claim it is today
+  expect(`${todaysHoliday.cardTitle} ${todaysHoliday.cardLine}`).not.toMatch(/today/i);
   // Deepavali itself is Sun 8 Nov; the card must not claim Nov 7 is the festival day.
   expect(todaysHoliday.cardBody).toMatch(/Sun 8 Nov/);
   expect(todaysHoliday.cardBody).toMatch(/Mon 9 Nov/);

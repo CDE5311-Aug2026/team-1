@@ -3,7 +3,7 @@ import { Overlay } from './Overlay';
 import styles from './props.module.css';
 
 const MOVES: [string, string][] = [
-  ['Go there', 'Walk to the real place and check in.'],
+  ['Go there', 'Walk to the real place and check in, or play remotely from anywhere.'],
   ['Look, then solve', 'Spot the detail on the building, then work the 3D model with it.'],
   ['Keep the clue', 'The find joins your clues and the story moves on.'],
 ];
@@ -27,7 +27,7 @@ export function HowToPlay({ onClose }: { onClose(): void }) {
         </ol>
         <p className={styles.howFine}>Real places and history; the story and its characters are fiction.</p>
         <button type="button" className={styles.waxButton} onClick={onClose}>
-          <span>Open a volume</span>
+          <span>See the shelf</span>
         </button>
       </article>
     </Overlay>

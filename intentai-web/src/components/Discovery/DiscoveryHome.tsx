@@ -11,6 +11,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -150,6 +151,9 @@ function CoverFlow3D(props: Parameters<typeof CoverFlow3DLazy>[0]) {
   );
 }
 
+/** "Sat 7 Nov": the calendar card's day and month. */
+const [, eventDay, eventMonth] = todaysHoliday.today.split(" ");
+
 /** Card band colours by unlock status (as on the map). */
 const SHAPE_COLOR = {
   none: "#c9c2b4",
@@ -262,7 +266,7 @@ const pickKicker = (pick: EditorPick) =>
     ? `Walk · ${pick.stops.length} stops${pick.minutes ? ` · ${formatMinutes(pick.minutes)}` : ""}`
     : `List · ${pick.stops.length} places`;
 
-export default function DiscoveryHome() {
+export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange?: (open: boolean) => void }) {
   const navigate = useNavigate();
   const reduce = useReducedMotionConfig();
   const [params, setParams] = useSearchParams();
@@ -402,6 +406,8 @@ export default function DiscoveryHome() {
     level === "places" || level === "pick" || level === "near"
       ? params.get("open")
       : null;
+  // A place's notebook is a page of its own: the tab bar steps away (TodayPage) and ↩ is the way back.
+  useLayoutEffect(() => onPlaceOpenChange?.(!!openId), [onPlaceOpenChange, openId]);
   const openPlace = (id: string) => {
     const q = new URLSearchParams(params);
     q.set("p", id);
@@ -463,7 +469,7 @@ export default function DiscoveryHome() {
   useEffect(() => {
     if (!openId) setMapAway(false);
   }, [openId]);
-  const eventH = useRef(112);
+  const eventH = useRef(66);
   const [grow, setGrow] = useState(() => {
     try {
       return sessionStorage.getItem("home.mapTall") === "1" ? 1 : 0;
@@ -485,7 +491,7 @@ export default function DiscoveryHome() {
   const gripProps = {
     onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
       if (grow === 0 && eventRef.current)
-        eventH.current = eventRef.current.offsetHeight || 112;
+        eventH.current = eventRef.current.offsetHeight || 66;
       grip.current = { y: e.clientY, g: grow, moved: false };
       e.currentTarget.setPointerCapture?.(e.pointerId);
       setGripping(true);
@@ -943,7 +949,7 @@ export default function DiscoveryHome() {
 
   return (
     // One screen with a deck that reaches the screen edges: bleeds past the column on purpose.
-    <div className={styles.home} data-allow-bleed style={tone ? ({ "--tone": tone } as React.CSSProperties) : undefined}>
+    <div className={openId ? `${styles.home} ${styles.homeOpen}` : styles.home} data-allow-bleed style={tone ? ({ "--tone": tone } as React.CSSProperties) : undefined}>
       {/* the deck's own map; the old one fades out once the new one has loaded */}
       <AnimatePresence initial={false}>
         <motion.div
@@ -973,6 +979,7 @@ export default function DiscoveryHome() {
               gripping ? styles.event : `${styles.event} ${styles.eventFold}`
             }
             onClick={() => navigate(paths.holiday)}
+            aria-label={`${todaysHoliday.cardTitle}, ${todaysHoliday.today}`}
             aria-hidden={grow === 1 ? true : undefined}
             tabIndex={grow === 1 ? -1 : undefined}
             style={
@@ -993,15 +1000,13 @@ export default function DiscoveryHome() {
               alt=""
               {...{ fetchpriority: "high" }}
             />
-            <span className={styles.eventCredit}>
-              {todaysHoliday.image.credit.replace(/ · cropped$/, "")}
+            <span className={styles.eventText}>
+              <span className={styles.eventTitle}>{todaysHoliday.name}</span>
+              <span className={styles.eventLine}>{todaysHoliday.cardLine}</span>
             </span>
-            <span className={styles.eventKicker}>
-              Festival · {todaysHoliday.today}
-            </span>
-            <span className={styles.eventTitle}>{todaysHoliday.cardTitle}</span>
-            <span className={styles.eventGo} aria-hidden="true">
-              →
+            <span className={styles.eventDate}>
+              <span className={styles.eventDay}>{eventDay}</span>
+              <span className={styles.eventMonth}>{eventMonth}</span>
             </span>
           </button>
         </div>

@@ -117,7 +117,7 @@ export default function PlaceDetails({ place, panel, idPrefix }: { place: Curate
               ))}
             </ul>
           )}
-          {d.reviewSummary && <p className={styles.sourceLine}>Summary by the IntentAI team from these reviews.</p>}
+          {d.reviewSummary && <p className={styles.sourceLine}>Summary by the FindSG team from these reviews.</p>}
         </div>
       )}
 

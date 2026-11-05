@@ -1,5 +1,5 @@
 /* Public, one screen: the notice board (3D) over the podium (3D); the board switch and your own plate along the
-   bottom, beside the tab scroll. */
+   bottom, above the tab bar. */
 .hall {
   display: flex;
   flex-direction: column;
@@ -20,11 +20,11 @@
 }
 .boardBox {
   flex: 1.5 1 0;
-  min-height: 230px;
+  min-height: 150px;
 }
 .podiumBox {
   flex: 1 1 0;
-  min-height: 150px;
+  min-height: 100px;
 }
 /* the lamp's pool of light falls off into the dark of the room */
 .stageBox::after {
@@ -215,12 +215,11 @@
   }
 }
 
-/* the bottom row, beside the tab scroll: which board, and your own plate */
+/* the bottom row: which board, and your own plate */
 .foot {
   flex: none;
   display: grid;
   gap: 8px;
-  padding-right: 88px;
 }
 .switch {
   position: relative;

@@ -8,7 +8,7 @@ import styles from './v3.module.css';
 
 interface PassportProps {
   profile: ProfileV3;
-  initial: string;
+  holder: string;
   /** The fields to show (default: all of them). */
   fields?: readonly FieldKey[];
   /** The field the current question fills (orange label and a caret). */
@@ -52,12 +52,12 @@ export function Seal({ date }: { date: string }) {
   );
 }
 
-export default function Passport({ profile, initial, fields = FIELDS, active, onToggleHidden, stamped }: PassportProps) {
+export default function Passport({ profile, holder, fields = FIELDS, active, onToggleHidden, stamped }: PassportProps) {
   const reduce = useReducedMotionConfig();
   return (
     <section className={styles.passport} aria-label="Your passport">
       <div className={styles.photo} aria-hidden="true">
-        <span className={styles.initial}>{initial}</span>
+        <span className={styles.holder}>{holder}</span>
       </div>
       {stamped && <Seal date={stamped} />}
       <dl className={styles.fields}>
@@ -100,7 +100,7 @@ export default function Passport({ profile, initial, fields = FIELDS, active, on
         })}
       </dl>
       <p className={styles.mrz} aria-hidden="true">
-        {mrzLine(initial, profile)}
+        {mrzLine(holder, profile)}
       </p>
     </section>
   );

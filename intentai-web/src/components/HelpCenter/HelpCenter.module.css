@@ -1,11 +1,11 @@
 /* The Help Center: its badge in the top bars, and the panel the header unfolds into. */
 
-/* ---- the badge: the lion, and the info bulb joined to it by two tangents ---- */
+/* ---- the badge: the lion, and the assistant's sparkle in the band joined to it by two tangents ---- */
 .badge {
   position: relative;
   justify-self: start;
   display: block;
-  width: 63px;
+  width: 74px;
   height: 46px;
   padding: 0;
   border: 0;
@@ -15,7 +15,7 @@
   --hull-a: #f3dc9f;
   --hull-b: #c9933e;
   --hull-line: rgba(255, 244, 214, 0.65);
-  --glyph: #2a1c0f;
+  --glyph: #0f3f5f;
 }
 .badge:focus-visible {
   outline: 2px solid var(--pill-ink, #e8c983);
@@ -25,19 +25,16 @@
 .mark {
   position: relative;
   display: block;
-  width: 63px;
+  width: 74px;
   height: 46px;
 }
 .hull {
   position: absolute;
   inset: 0;
-  width: 63px;
+  width: 74px;
   height: 46px;
   overflow: visible;
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.28));
-}
-.hullFill {
-  fill: var(--hull-b);
 }
 .hullEdge {
   fill: none;
@@ -54,9 +51,13 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+.glyph .spark {
+  fill: var(--glyph);
+  stroke: none;
+}
 .lion {
   position: absolute;
-  left: 19px; /* the right end of the capsule; the "i" band is on its left */
+  left: 30px; /* the right end of the capsule; the sparkle's band is on its left */
   top: 2px;
   width: 42px;
   height: 42px;
@@ -75,7 +76,7 @@
 }
 .ring {
   position: absolute;
-  left: 17px;
+  left: 28px;
   top: 0;
   width: 46px;
   height: 46px;
@@ -87,7 +88,7 @@
   width: 46px;
   height: 46px;
 }
-/* the bulb catches the eye once, a moment after the page arrives */
+/* the sparkle catches the eye once, a moment after the page arrives */
 @media (prefers-reduced-motion: no-preference) {
   .badge .glyph {
     animation: nudge 2.4s 1.2s ease-in-out 1;
@@ -190,6 +191,7 @@
   border: 0;
   background: none;
   cursor: pointer;
+  --hull-a: #d9663a;
   --hull-b: #c4532a;
   --hull-line: rgba(255, 220, 190, 0.5);
   --glyph: #fff4e4;
@@ -272,7 +274,9 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 4px 2px 8px;
+  /* the top fade sits in the gap above, so it only touches messages that have scrolled up */
+  margin-top: -10px;
+  padding: 14px 2px 8px;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-mask-image: linear-gradient(transparent, #000 14px);
@@ -286,22 +290,62 @@
   flex-direction: column;
   gap: 10px;
 }
+/* one turn: who is speaking, then what they said; the bubble's sharp corner points at the speaker */
+.turn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.turnMe {
+  flex-direction: row-reverse;
+}
+.avatarLion,
+.avatarHolder {
+  flex: none;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.avatarLion {
+  border: 1.5px solid #f2e8d5;
+  border-radius: 50%;
+  background: #f6641d;
+}
+.avatarLion img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* the passport portrait: an ivory print, taller than wide */
+.avatarHolder {
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--brass);
+  border-radius: 4px;
+  background: linear-gradient(170deg, #fbf5e6, #e8dabb);
+  color: #3a2011;
+  font: 500 1.125rem/1 var(--font-display);
+}
 .bot,
 .me {
-  max-width: 86%;
+  min-width: 0;
+  max-width: calc(100% - 62px);
   padding: 11px 14px;
   font: 400 1.0625rem/1.38 'IM Fell English', Georgia, serif;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .bot {
-  align-self: flex-start;
   border-radius: 4px 18px 18px 18px;
   color: #2c2117;
   background: linear-gradient(180deg, #f6ecd6, #eadcbd);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 .me {
-  align-self: flex-end;
   border-radius: 18px 4px 18px 18px;
   color: #2a1c0f;
   background: linear-gradient(180deg, #f3dc9f, #d9ab57);
@@ -350,10 +394,12 @@
     opacity: 1;
   }
 }
+/* in line with the guide's bubble, clear of the lion */
 .starters {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  padding-left: 38px;
 }
 .starters button {
   padding: 9px 13px;
@@ -408,6 +454,12 @@
 .send:disabled {
   opacity: 0.4;
   cursor: default;
+}
+.disclaimer {
+  margin: -4px 0 0;
+  text-align: center;
+  font: 400 0.75rem/1.25 Georgia, serif;
+  color: var(--soft);
 }
 
 /* ---- Feedback ---- */

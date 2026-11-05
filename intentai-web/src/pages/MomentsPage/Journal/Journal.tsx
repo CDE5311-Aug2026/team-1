@@ -436,15 +436,16 @@ function PhotoStack({
   }, [top, frames]);
   // a drag that ends on the card must not also open the studio
   const dragged = useRef(0);
+  const showNext = () =>
+    setOrder((o) => {
+      const next = [...o.slice(1), o[0]];
+      const f = frames[next[0]];
+      if (f) onTop?.(f.id);
+      return next;
+    });
   const fling = (_: unknown, info: PanInfo) => {
     dragged.current = Date.now();
-    if (Math.abs(info.offset.x) > 60 || Math.abs(info.velocity.x) > 450)
-      setOrder((o) => {
-        const next = [...o.slice(1), o[0]];
-        const f = frames[next[0]];
-        if (f) onTop?.(f.id);
-        return next;
-      });
+    if (Math.abs(info.offset.x) > 60 || Math.abs(info.velocity.x) > 450) showNext();
   };
   const open = () => {
     if (Date.now() - dragged.current > 300) onOpen();
@@ -499,9 +500,9 @@ function PhotoStack({
         );
       })}
       {n > 1 && (
-        <span className={styles.count} aria-hidden="true">
+        <button type="button" className={styles.count} onClick={showNext} aria-label={`Next photo, ${order[0] + 1} of ${n}`}>
           {order[0] + 1}/{n}
-        </span>
+        </button>
       )}
     </div>
   );

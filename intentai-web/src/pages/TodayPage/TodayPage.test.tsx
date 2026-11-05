@@ -146,10 +146,21 @@ test('an area with no places yet says so and stays where it is', async () => {
   expect(screen.getByTestId('where')).toHaveTextContent('lvl=areas');
 });
 
+test('an open place is a page of its own: the tab bar steps away and comes back when it closes', () => {
+  const id = placesInArea('ot')[0].id;
+  const open = renderHome(`/?lvl=places&r=central&a=ot&p=${id}&open=${id}`);
+  expect(screen.queryByRole('navigation', { name: 'Primary' })).toBeNull();
+  // the page says so through its shell, not through a mark on the document
+  expect(document.documentElement).not.toHaveAttribute('data-place-open');
+  open.unmount();
+  renderHome(`/?lvl=places&r=central&a=ot&p=${id}`);
+  expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument();
+});
+
 test('the event card opens the holiday page; the bell opens notices', async () => {
   const user = userEvent.setup();
   renderHome();
-  await user.click(screen.getByRole('button', { name: /Deepavali long weekend starts today/ }));
+  await user.click(screen.getByRole('button', { name: /Deepavali long weekend/ }));
   expect(screen.getByText('holiday page')).toBeInTheDocument();
 });
 

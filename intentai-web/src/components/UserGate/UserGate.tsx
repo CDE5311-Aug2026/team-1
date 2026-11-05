@@ -4,7 +4,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { usePersistentStore } from '../../data/persistentStore';
-import { clearPhone, restartTest, testerStore, type TestVersion } from '../../data/stores';
+import { clearPhone, restartTest, testerStore, versionOf, type TestVersion } from '../../data/stores';
 import { T4_CLUE } from '../../pages/AbTestPage/abTest';
 import { ADMIN_PATH, TEST_PATH } from '../../routes';
 import { isTestName } from '../../usage/event';
@@ -32,22 +32,41 @@ export default function UserGate({ children }: { children: ReactNode }) {
   const toUi1 = USER_GATE_ENABLED && !desk && !restarting && !preparing && !!tester.name && tester.version === 'A';
   const seed = params.has('seed');
 
+  // Read once: clearing the phone removes the tester, and a retry must still know this phone's version.
+  const [phoneVersion] = useState<TestVersion>(() => version ?? versionOf(tester));
+  const [photosStuck, setPhotosStuck] = useState(false);
+
   useEffect(() => {
     // Between participants: /restart clears this phone and opens the start screen with its version picked.
-    if (restarting) restartTest();
+    if (restarting) void restartTest(phoneVersion).then((done) => setPhotosStuck(!done));
     // Before T4: /t4 clears the phone (the test name stays), then a fresh load writes the prepared profile, so no
     // store still holding the last person's data can write it back.
     else if (preparing && !seed) {
-      clearPhone(true);
-      window.location.replace(T4_CLUE.path + '?seed=1');
+      void clearPhone(true).then((done) => {
+        if (done) window.location.replace(T4_CLUE.path + '?seed=1');
+        else setPhotosStuck(true);
+      });
     } else if (preparing)
       void import('../../pages/AbTestPage/prepare').then((m) => {
         m.seedT4();
         window.location.replace('/');
       });
     else if (toUi1) window.location.replace(ui1Url(window.location.pathname) + window.location.search + window.location.hash);
-  }, [restarting, preparing, seed, toUi1]);
+  }, [restarting, preparing, seed, toUi1, phoneVersion]);
 
+  if (photosStuck)
+    return (
+      <main className={styles.gate}>
+        <div className={styles.card} role="alert">
+          <p className={styles.kicker}>User test</p>
+          <h1 className={styles.title}>Journal photos could not be cleared</h1>
+          <p className={styles.body}>Don’t hand this phone on yet: the last person’s photos may still be on it. Try again, or clear this site’s data in the browser’s settings.</p>
+          <button type="button" className={styles.start} onClick={() => window.location.assign(restarting ? `${RESTART_PATH}?v=${phoneVersion}` : T4_CLUE.path)}>
+            Try again
+          </button>
+        </div>
+      </main>
+    );
   if (restarting || preparing || toUi1) return null;
   if (!USER_GATE_ENABLED || tester.name || desk) return <>{children}</>;
 

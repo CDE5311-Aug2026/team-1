@@ -30,8 +30,8 @@ export const TOPICS: HelpTopic[] = [
   {
     id: 'hunt',
     q: 'How do story hunts work?',
-    words: ['hunt', 'story', 'stories', 'game', 'play', 'route', 'stop', 'puzzle', 'clue', '3d', 'model'],
-    a: 'In Hunt, take a story book from the shelf and start a route. At each stop, walk to the real place and check in, spot the detail on the building, then use it to solve the 3D model. Each find goes into your clue bag and the story moves on. The places and history are real; the characters are fiction.',
+    words: ['hunt', 'story', 'stories', 'game', 'play', 'route', 'stop', 'puzzle', 'clue', '3d', 'model', 'remote', 'remotely'],
+    a: 'In Hunt, take a story book from the shelf and start a route. At each stop, walk to the real place and check in, spot the detail on the building, then use it to solve the 3D model. Or play remotely from anywhere; remote progress is kept separately and earns no Hunt points. Each find goes into your clue bag and the story moves on. The places and history are real; the characters are fiction.',
     path: '/hunt',
   },
   {

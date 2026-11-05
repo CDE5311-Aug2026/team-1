@@ -5,7 +5,7 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import App from '../../App';
 import { STORAGE_PREFIX } from '../../data/persistentStore';
 import { DEFAULT_PROFILE_V3, profileV3Store } from '../../data/profile/profile';
-import { culturePrefsStore, explorePersonalStore, onboardingStore } from '../../data/stores';
+import { culturePrefsStore, explorePersonalStore, onboardingStore, testerStore } from '../../data/stores';
 import { dismissToast } from '../../hooks/useToast';
 
 function Pathname() {
@@ -52,6 +52,15 @@ test('onboarding asks only about places: no country, stay, role or language', ()
   renderAt('/onboarding?step=1');
   const passport = screen.getByRole('region', { name: 'Your passport' });
   expect(within(passport).getAllByRole('term').map((t) => t.textContent)).toEqual(['Place tags', 'Home base']);
+});
+
+test('the passport shows the whole name typed at the start screen', () => {
+  const before = testerStore.get();
+  testerStore.set({ name: 'XE', version: 'B' });
+  const { unmount } = renderAt('/onboarding?step=1');
+  expect(within(screen.getByRole('region', { name: 'Your passport' })).getByText('XE')).toBeInTheDocument();
+  unmount();
+  testerStore.set(before);
 });
 
 test('place tags: tap in order, tap again to un-rank, Reset order clears', async () => {
@@ -122,10 +131,18 @@ test('the whole flow stamps the passport, writes every store and shows first fin
   expect(location()).toBe('/');
 });
 
+test('See passport opens the Passport tab', async () => {
+  const user = userEvent.setup();
+  profileV3Store.set({ ...DEFAULT_PROFILE_V3 });
+  renderAt('/onboarding/result');
+  await user.click(screen.getByRole('button', { name: 'See passport' }));
+  expect(location()).toBe('/my-space');
+});
+
 test('the result page without a home base says how to get finds', () => {
   profileV3Store.set({ ...DEFAULT_PROFILE_V3 });
   renderAt('/onboarding/result');
-  expect(screen.getByText('Set a home base in My Space to see what’s closest.')).toBeInTheDocument();
+  expect(screen.getByText('Set a home base in Passport to see what’s closest.')).toBeInTheDocument();
 });
 
 test('a first-run user can skip onboarding with ✕: it counts as done and Home opens', async () => {

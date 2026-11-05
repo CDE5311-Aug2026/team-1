@@ -1,4 +1,4 @@
-import { act, fireEvent, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, expect, test, vi } from 'vitest';
 import { DEFAULT_PROFILE_V3, mySpacePrefsStore, profileV3Store, type ProfileV3 } from '../../data/profile/profile';
@@ -9,7 +9,6 @@ import {
   profileStore,
   questionsStore,
   reduceMotionStore,
-  settingsStore,
   tipsStore,
 } from '../../data/stores';
 import { dismissToast } from '../../hooks/useToast';
@@ -103,11 +102,25 @@ test('editors: role tiles save, and Clear empties a field with Undo', async () =
   expect(profileV3Store.get().role).toBe('researcher');
 });
 
-test('switches: Flag occasions is the shared setting; Answer as a local is gone with Community', async () => {
+test('settings for removed features are gone from Passport and Settings', () => {
   renderAt(paths.mySpace);
-  expect(screen.queryByRole('switch', { name: 'Answer as a local' })).toBeNull();
-  await userEvent.click(screen.getByRole('switch', { name: 'Flag occasions' }));
-  expect(settingsStore.get().occasions).toBe(true);
+  for (const name of ['Flag occasions', 'Memory', 'Answer as a local']) expect(screen.queryByRole('switch', { name })).toBeNull();
+  cleanup();
+  renderAt(paths.mySpaceSettings);
+  expect(screen.queryByRole('heading', { name: 'Notifications' })).toBeNull();
+  expect(screen.queryByRole('switch', { name: 'Questions near you' })).toBeNull();
+  expect(screen.queryByRole('button', { name: /Today’s topics/ })).toBeNull();
+  expect(screen.queryByText(/Ask remembers/)).toBeNull();
+});
+
+test('Saved places and All places open from Passport', async () => {
+  renderAt(paths.mySpace);
+  await userEvent.click(screen.getByRole('link', { name: 'Saved places' }));
+  expect(currentPath()).toBe(paths.saved);
+  cleanup();
+  renderAt(paths.mySpace);
+  await userEvent.click(screen.getByRole('link', { name: 'All places' }));
+  expect(currentPath()).toBe(paths.nearby);
 });
 
 test('links: Privacy & data and Redo onboarding; Settings and Help live in the top bar', async () => {
@@ -124,7 +137,7 @@ test('links: Privacy & data and Redo onboarding; Settings and Help live in the t
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Which places do you want to find first?');
 });
 
-test('S2: Reduce motion is the app-wide setting; notification choices are kept locally', async () => {
+test('S2: Reduce motion is the app-wide setting; captions are kept locally', async () => {
   renderAt(paths.mySpaceSettings);
   expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('radio', { name: 'Reduced' }));
@@ -133,11 +146,6 @@ test('S2: Reduce motion is the app-wide setting; notification choices are kept l
   await userEvent.click(screen.getByRole('radio', { name: 'Full' }));
   expect(reduceMotionStore.get()).toBe(false);
 
-  await userEvent.click(screen.getByRole('switch', { name: 'Recap reminders' }));
-  expect(mySpacePrefsStore.get().notify.recaps).toBe(true);
-  await userEvent.click(screen.getByRole('radio', { name: 'Morning' }));
-  expect(mySpacePrefsStore.get().notifyTime).toBe('morning');
-  expect(screen.queryByText(/doesn’t send notifications yet/)).toBeNull();
   await userEvent.click(screen.getByRole('switch', { name: 'Captions on videos' }));
   expect(mySpacePrefsStore.get().captions).toBe(false);
 });
@@ -192,41 +200,6 @@ test('S3: Hold to delete only deletes after a full hold, then starts onboarding 
   expect(onboardingStore.get().done).toBe(false);
   expect(currentPath()).toBe(paths.welcome);
 });
-
-test('Memory: My Space switch and count; Settings lists, adds, forgets, clears with undo and resets', async () => {
-  const { memoryStore, EMPTY_MEMORY } = await import('../../data/memory');
-  memoryStore.set(EMPTY_MEMORY);
-  profileV3Store.set(ANSWERED);
-  renderAt(paths.mySpace);
-  expect(screen.getByText(/things Ask remembers/)).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('link', { name: 'Manage' }));
-  expect(currentPath()).toBe(paths.mySpaceSettings);
-
-  const list = screen.getByRole('list', { name: 'What Ask remembers' });
-  expect(within(list).getByText('From China')).toBeInTheDocument();
-  await userEvent.type(screen.getByLabelText('Add something Ask should remember'), 'I’m vegetarian');
-  await userEvent.click(screen.getByRole('button', { name: 'Add' }));
-  expect(within(list).getByText('I’m vegetarian')).toBeInTheDocument();
-  expect(within(list).getByText('Added by you')).toBeInTheDocument();
-
-  await userEvent.click(screen.getByRole('button', { name: 'Forget “From China”' }));
-  expect(memoryStore.get().forgotten).toContain('profile:from');
-
-  await userEvent.click(screen.getByRole('button', { name: /Clear memory/ }));
-  await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
-  expect(screen.getByText(/Nothing yet/)).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
-  expect(within(screen.getByRole('list', { name: 'What Ask remembers' })).getByText('I’m vegetarian')).toBeInTheDocument();
-
-  await userEvent.click(screen.getByRole('button', { name: /Reset to profile/ }));
-  expect(memoryStore.get().items).toEqual([]);
-  expect(screen.getByText('From China')).toBeInTheDocument();
-
-  await userEvent.click(screen.getByRole('switch', { name: 'Memory' }));
-  expect(memoryStore.get().enabled).toBe(false);
-  expect(screen.queryByRole('list', { name: 'What Ask remembers' })).not.toBeInTheDocument();
-});
-
 
 test('Settings › Redo onboarding opens question 1', async () => {
   renderAt(paths.mySpaceSettings);

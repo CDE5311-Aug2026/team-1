@@ -17,7 +17,7 @@ export default function MySpaceLayout({ children, tabBarNodeId }: MySpaceLayoutP
       <div className={withTabBar ? `${styles.screen} ${styles.withTabBar}` : styles.screen}>
         <header className={styles.header}>
           <HomeLink className={styles.logo} />
-          <h1 className={styles.title}>My Space</h1>
+          <h1 className={styles.title}>Passport</h1>
         </header>
         {children}
       </div>

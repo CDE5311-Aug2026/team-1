@@ -1,6 +1,8 @@
 import {blankField,normalizeField,fieldStorageKey} from './field-state.js';
+import {SAVES_CLEARED} from '../../../data/deviceKeys';
 // Client-only session cache keeps export usable when persistent storage is full.
 const sessionRecords=new Map();
+window.addEventListener(SAVES_CLEARED,()=>sessionRecords.clear());
 export function readField(routeId,mode,stops){
  const key=fieldStorageKey(routeId,mode);
  if(sessionRecords.has(key))return normalizeField(sessionRecords.get(key),routeId,mode,stops);

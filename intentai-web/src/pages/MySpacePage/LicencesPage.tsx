@@ -5,6 +5,7 @@ import { STORY_IMAGES } from '../../assets/stories';
 import { V3_PHOTO_CREDITS } from '../../assets/v3/credits';
 import AppShell from '../../components/AppShell/AppShell';
 import { ARTICLE_IMAGES } from '../../data/articleImages';
+import { todaysHoliday } from '../../data/holiday';
 import { PLACE_CARDS } from '../../data/explore/placeCards';
 import placePhotos from '../../data/explore/photos.json';
 import { HOME_PLACES } from '../../data/homePlaces';
@@ -15,7 +16,7 @@ import { Kraft, SubHeader } from './v3/Parts';
 import book from './v3/Booklet.module.css';
 import styles from './v3/MySpace.module.css';
 
-export const TERMS = 'IntentAI is a student prototype for a user test. Your data stays on this phone.';
+export const TERMS = 'FindSG is a student prototype for a user test. Your data stays on this phone.';
 export const OSM_CREDIT = '© OpenStreetMap contributors';
 
 interface Credit {
@@ -49,6 +50,7 @@ export function creditGroups(): { title: string; items: Credit[] }[] {
         ...V3_PHOTO_CREDITS.map((c) => ({ subject: c.subject, credit: c.credit })),
       ]),
     },
+    { title: 'Holidays', items: [{ subject: todaysHoliday.image.alt, credit: todaysHoliday.image.credit, href: todaysHoliday.image.url }] },
     { title: 'Place stories', items: unique(Object.values(STORY_IMAGES).map((p) => ({ subject: p.alt, credit: p.credit }))) },
     {
       title: 'Home places',
@@ -71,7 +73,7 @@ export function creditGroups(): { title: string; items: Credit[] }[] {
         { subject: 'Community avatars', credit: 'DiceBear “Notionists” by Zoish · CC0 1.0', href: 'https://www.dicebear.com/styles/notionists/' },
         {
           subject: 'Community portraits and question photos',
-          credit: 'IntentAI community card kit: AI-generated illustrations of fictional people and everyday scenes',
+          credit: 'FindSG community card kit: AI-generated illustrations of fictional people and everyday scenes',
         },
         { subject: 'Demo community', credit: 'This demo build shows illustrative community members, questions and activity.' },
       ],

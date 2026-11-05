@@ -51,16 +51,18 @@
   border: 1px solid #c9d3ea;
 }
 
-.initial {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #1f3a8a;
-  color: #fff;
-  font-weight: 800;
-  font-size: 1.125rem;
+/* The name as typed: wraps inside the photo box and stops at three lines (names can be 40 characters). */
+.holder {
+  max-width: 100%;
+  padding-inline: 0.25rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  text-align: center;
+  color: #1f3a8a;
+  font: 500 0.9375rem/1.15 var(--font-display);
 }
 
 .fields {
@@ -861,11 +863,6 @@
 
   .photo {
     height: 4.25rem;
-  }
-
-  .initial {
-    width: 2.25rem;
-    height: 2.25rem;
   }
 
   .valueText {

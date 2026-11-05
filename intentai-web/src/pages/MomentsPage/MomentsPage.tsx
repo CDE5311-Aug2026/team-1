@@ -7,7 +7,7 @@ import { communitySocialStore } from "../../data/community/social";
 import { usePersistentStore } from "../../data/persistentStore";
 import {
   badgesOf,
-  buildStamps,
+  allStamps,
   collectedItems,
   imageOf,
   openedCards,
@@ -83,7 +83,7 @@ export default function MomentsPage() {
   const today = localToday();
   const [stories] = usePersistentStore(placeStoriesStore);
   const stamps = useMemo(
-    () => buildStamps(personal, opened, stories),
+    () => allStamps(personal, opened, stories),
     [personal, opened, stories],
   );
   const progress = MAIN_COLLECTION

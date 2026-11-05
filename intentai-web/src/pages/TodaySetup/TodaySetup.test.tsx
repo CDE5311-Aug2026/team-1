@@ -39,7 +39,7 @@ test('shows all six topics in survey rank order with nothing selected, and names
   expect(screen.getByText('0 of 3 picked')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Default' })).toHaveAccessibleDescription('Foods, Monuments, Festivals');
   expect(screen.getByText('Foods, Monuments, Festivals')).toBeVisible();
-  expect(screen.getByText('You can change these anytime in My Space.')).toBeInTheDocument();
+  expect(screen.getByText('You can change these anytime in Passport.')).toBeInTheDocument();
   expect(screen.queryByText(/Not sure\?/)).toBeNull();
   expect(screen.queryByRole('button', { name: 'Use the top 3' })).toBeNull();
   expect(screen.queryByRole('radio')).toBeNull();
@@ -104,7 +104,7 @@ test('retake from My Space pre-fills the saved picks, and Cancel returns without
   for (const label of ['UNESCO', 'Heritage', 'History']) expect(tile(label)).toHaveAttribute('aria-pressed', 'true');
   // Default and the "change later" note are for first-time onboarding only.
   expect(screen.queryByRole('button', { name: 'Default' })).toBeNull();
-  expect(screen.queryByText('You can change these anytime in My Space.')).toBeNull();
+  expect(screen.queryByText('You can change these anytime in Passport.')).toBeNull();
 
   await userEvent.click(tile('History'));
   await userEvent.click(tile('Foods'));

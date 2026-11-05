@@ -11,10 +11,11 @@ import '@fontsource/im-fell-english/400.css';
 import '@fontsource/im-fell-english/400-italic.css';
 import { paths } from '../../routes';
 import { FindSGApp } from '../../findsg';
+import { useCompactStop } from '../../hooks/useCompactStop';
 import { Board } from './Board';
 import { huntStops, HuntHeader, HuntTabs, PublicTab, useExplored } from './HuntHome';
 import { CHART_BACKDROP } from './notebook/chartBackdrop';
-import { BOOK_TABS, FieldNotebook, openBookAt, useShelfBook } from './notebook/FieldNotebook';
+import { BOOK_TABS, FieldNotebook, openBookAt, reopenBook, useShelfBook } from './notebook/FieldNotebook';
 import { bookOf } from './notebook/Bookshelf';
 import nb from './notebook/notebook.module.css';
 import sb from './notebook/storyBook.module.css';
@@ -66,6 +67,7 @@ export default function HuntPage() {
   const navigate = useNavigate();
   const home = useFindsgHome();
   const location = useLocation();
+  const phone = useCompactStop();
   const go: HuntGo = (next, replace = false) => {
     const q = new URLSearchParams();
     for (const [k, v] of Object.entries(next)) if (v != null) q.set(k, v);
@@ -104,23 +106,29 @@ export default function HuntPage() {
   // the Stories tab: the field notebook on the desk; a story or a stop opens FindSG's own game
   if (home) return <Desk tab={tab} go={go} openRoute={openRoute} />;
 
-  // a story or a stop: a page of the same book, with the book's running head and thumb tabs (owner, 3 Nov 2026:
-  // every story looks like its book once opened; the Clues tab stays where it is on the book)
+  // a story or a stop: a page of the same book, with the book's running head and thumb tabs (owner, 3 Nov 2026: every
+  // story looks like its book once opened). On a phone the stop page has its own Clues button, which opens over the
+  // stop, so its tabs drop Clues and its back goes one level up, to the book. Each tab keeps its page in the book.
   const book = bookOf(/^#story\/([\w-]+)/.exec(location.hash)?.[1] ?? null);
   const toBook = (page: number | null) => {
     openBookAt(page == null ? null : (book?.id ?? null), page ?? 0);
     navigate({ pathname: '/hunt', search: '', hash: '' });
   };
+  const backToBook = () => {
+    if (book) reopenBook(book.id);
+    navigate({ pathname: '/hunt', search: '', hash: '' });
+  };
   return (
-    <AppShell background={CHART_BG}>
+    // On a phone the stop fills the screen over the tab bar, so the bar steps away and the book's back button leads out.
+    <AppShell background={CHART_BG} chrome={phone && book ? 'status' : 'full'}>
       <div className={`${styles.screen} ${styles.desk}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
         {/* the header stays while you play: Help and Settings are one tap away in a story too */}
         <PageBar title="Hunt" tone="dark" className={styles.pageBar} game />
         {book && (
           <>
             <header className={`${sb.bar} ${styles.bookBar}`}>
-              <button type="button" className={sb.back} onClick={() => toBook(null)}>
-                <span aria-hidden="true">‹</span> Shelf
+              <button type="button" className={sb.back} onClick={phone ? backToBook : () => toBook(null)}>
+                <span aria-hidden="true">‹</span> {phone ? 'Book' : 'Shelf'}
               </button>
               <p className={sb.running}>
                 <small>Volume {book.roman}</small>
@@ -128,11 +136,13 @@ export default function HuntPage() {
               </p>
             </header>
             <nav className={`${nb.tabs} ${styles.bookTabs}`} style={MATERIALS} aria-label="Chapters">
-              {BOOK_TABS.map((t, i) => (
-                <button key={t} type="button" className={nb.tab} style={{ '--n': i } as CSSProperties} onClick={() => toBook(i)}>
-                  <span>{t}</span>
-                </button>
-              ))}
+              {BOOK_TABS.map((t, i) =>
+                phone && t === 'Clues' ? null : (
+                  <button key={t} type="button" className={nb.tab} style={{ '--n': i } as CSSProperties} onClick={() => toBook(i)}>
+                    <span>{t}</span>
+                  </button>
+                ),
+              )}
               <button type="button" className={`${nb.tab} ${nb.playTab}`} aria-current="page" style={{ '--n': BOOK_TABS.length } as CSSProperties}>
                 <span>Play</span>
               </button>

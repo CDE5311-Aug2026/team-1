@@ -24,7 +24,7 @@ test('four places in card order (story cards removed 31 Oct)', () => {
 test("the Berlin Wall keeps Team 1's photo", () => {
   const berlin = HOME_PLACES[0];
   expect(berlin.name).toBe('Berlin Wall Fragments');
-  expect(berlin.credit).toBe('Photo supplied by the IntentAI team');
+  expect(berlin.credit).toBe('Photo supplied by the FindSG team');
   expect(berlin.distance).toMatch(/ m$/);
 });
 

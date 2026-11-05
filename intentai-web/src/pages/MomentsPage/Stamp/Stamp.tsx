@@ -53,7 +53,7 @@ function StampArt({ shape, name, date, filled }: StampArtProps) {
       <circle cx="52" cy="52" r="42" fill="none" stroke="currentColor" strokeWidth="1.1" strokeDasharray="3 2.5" />
       <text className={styles.ring}>
         <textPath href={`#top${id}`} startOffset="50%" textAnchor="middle">
-          INTENTAI · SINGAPORE
+          FINDSG · SINGAPORE
         </textPath>
       </text>
       {date && (

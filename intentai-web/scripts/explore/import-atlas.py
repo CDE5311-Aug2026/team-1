@@ -22,7 +22,7 @@ keys = json.load(open(P('src/data/atlas/placeKeys.json')))
 places = json.load(open(P('src/data/explore/places.sg.json')))
 areas = [a for a in json.load(open(P('src/data/explore/areas.json')))['areas'] if not a.get('overview')]
 
-IMPORTED_BY = 'IntentAI team · Singapore Culture Atlas'
+IMPORTED_BY = 'FindSG team · Singapore Culture Atlas'
 SNAPSHOT = atlas.get('research_date', '2026-10-29')
 REGION = {'central': 'central', 'east': 'east', 'north': 'north', 'northeast': 'north-east', 'west': 'west'}
 CATEGORY = {'food': 'food', 'nature': 'nature', 'culture': 'culture', 'history': 'landmark', 'urban': 'landmark'}

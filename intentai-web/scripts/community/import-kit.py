@@ -55,7 +55,7 @@ notifications = [{
 } for n in d['notifications']]
 boards = [{'id': b['id'], 'name': b['name'], 'description': b['description']} for b in d['boards']]
 out = {
-    'about': 'Imported from IntentAI-community-card-kit (schema %s). Fictional demo community; avatars and generated covers are AI-made illustrations.' % d['meta']['schemaVersion'],
+    'about': 'Imported from the FindSG community card kit (schema %s). Fictional demo community; avatars and generated covers are AI-made illustrations.' % d['meta']['schemaVersion'],
     'currentUser': d['currentUserId'], 'people': people, 'boards': boards, 'questions': questions,
     'replies': replies, 'notifications': notifications,
     'feeds': {'top': d['feedOrder']['top'], 'forYou': d['feedOrder']['forYou']}, 'covers': covers,

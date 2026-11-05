@@ -26,7 +26,9 @@ interface PassportProps {
 }
 
 /** M1: "My places" passport (a parchment page bound on the left), four stamps a page; swipe or use the arrows for the next page. */
-export default function Passport({ stamps, progress, today, onOpen, rank }: PassportProps) {
+export default function Passport({ stamps: every, progress, today, onOpen, rank }: PassportProps) {
+  // your places: where you've checked in, or hold a card from, newest first (buildStamps' order)
+  const stamps = every.filter((s) => s.collected || s.openedIds.length > 0);
   const reduce = useReducedMotionConfig();
   const pages = Math.max(1, Math.ceil(stamps.length / PER_PAGE));
   const [page, setPage] = useState(0);
@@ -54,8 +56,8 @@ export default function Passport({ stamps, progress, today, onOpen, rank }: Pass
           )}
           <span className={styles.rule} aria-hidden="true" />
           {progress && (
-            <Link to={paths.today} className={styles.count} aria-label={`${progress.visited} of ${progress.total} places checked in. Open Nearby`}>
-              {progress.visited} / {progress.total}
+            <Link to={paths.today} className={styles.count} aria-label={`${progress.visited} of ${progress.total} places checked in, on 100 Places to Explore in Singapore. Open Home`}>
+              {progress.visited} / {progress.total} places
             </Link>
           )}
         </div>
@@ -98,11 +100,11 @@ export default function Passport({ stamps, progress, today, onOpen, rank }: Pass
           <p>
             <img src={inkDrop} alt="" width={13} height={14} />
             <span>
-              No stamps yet. Check in at a place in{' '}
+              No stamps yet.{' '}
               <Link to={paths.today} className={styles.link}>
-                Nearby
+                Check in at a place
               </Link>{' '}
-              to collect one.
+              to get your first.
             </span>
           </p>
         ) : (

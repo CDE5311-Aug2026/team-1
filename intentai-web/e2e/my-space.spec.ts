@@ -114,14 +114,9 @@ test.describe('geometry at 390x844', () => {
   });
 });
 
-// v3 My Space (Figma S1/S2): the switches start off and persist; Reduce motion in Settings applies to the whole app.
-test('My Space switches persist, and Settings › Reduced motion stops the app’s animations', async ({ page }) => {
-  await open(page, paths.mySpace);
-  await expect(page.getByRole('switch', { name: 'Flag occasions', exact: true })).toHaveAttribute('aria-checked', 'false');
-  await page.getByRole('switch', { name: 'Flag occasions', exact: true }).click();
-  await page.reload();
-  await expect(page.getByRole('switch', { name: 'Flag occasions', exact: true })).toHaveAttribute('aria-checked', 'true');
-  await page.goto(paths.mySpaceSettings);
+// Reduce motion in Settings applies to the whole app.
+test('Settings › Reduced motion stops the app’s animations', async ({ page }) => {
+  await open(page, paths.mySpaceSettings);
   await page.getByRole('radio', { name: 'Reduced', exact: true }).click();
   await expect(page.locator('html')).toHaveClass(/reduce-motion/);
 });

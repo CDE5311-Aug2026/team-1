@@ -1,6 +1,6 @@
-// The Passport tab on Home's kraft paper: the holder's data page (tilts like a card, the rank pressed on as a stamp),
-// what the app knows as six paper slips (tap to edit, eye = private), and a leather ledger with the two switches,
-// Privacy & data and Redo onboarding. Settings and Help live in the top bar.
+// The Passport tab on Home's kraft paper: the holder's leather data page (tilts like a card, the rank stamped on it),
+// what the app knows as one list (tap a line to edit, eye = private), and where to go next. Settings and Help live in
+// the top bar.
 import {
   motion,
   useMotionValue,
@@ -8,13 +8,13 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
-import { useState, type PointerEvent, type ReactNode } from "react";
+import { useState, type CSSProperties, type PointerEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import groundUrl from "../../assets/nearby/sg-ground.webp";
 import logo from "../../assets/brand/findsg-logo.png";
 import logoInk from "../../assets/brand/findsg-logo-black.png";
 import AppShell from "../../components/AppShell/AppShell";
-import { buildStamps, openedCards, rankOf } from "../../data/moments/moments";
+import { allStamps, openedCards, rankOf } from "../../data/moments/moments";
 import { usePersistentStore } from "../../data/persistentStore";
 import {
   GROUND_BOX,
@@ -30,6 +30,7 @@ import {
   countryOf,
   fieldValue,
   languageOf,
+  holderInitial,
   mrzLine,
   profileV3Store,
   toggleHidden,
@@ -41,31 +42,26 @@ import {
   explorePersonalStore,
   openedCardsStore,
   placeStoriesStore,
-  settingsStore,
   tipsStore,
 } from "../../data/stores";
 import { paths } from "../../routes";
 import Icon, { type IconName } from "../OnboardingPage/v3/icons";
 import { EyeButton } from "../OnboardingPage/v3/Passport";
-import { CodeCircle } from "../OnboardingPage/v3/Pickers";
-import useInitial from "../OnboardingPage/v3/useInitial";
+import useHolderName from "../OnboardingPage/v3/useHolderName";
 import FieldEditor from "./v3/FieldEditor";
-import { useMemories } from "./v3/MemorySection";
-import { setMemoryEnabled } from "../../data/memory";
-import { Switch } from "./v3/Parts";
 import StorageBar from "./v3/StorageBar";
 import styles from "./v3/MySpace.module.css";
 import book from "./v3/Booklet.module.css";
 import PageBar from "../../components/PageBar/PageBar";
 
 function Holder({ profile }: { profile: ProfileV3 }) {
-  const initial = useInitial();
+  const holder = useHolderName();
   const reduce = useReducedMotionConfig();
   const [personal] = usePersistentStore(explorePersonalStore);
   const [opened] = usePersistentStore(openedCardsStore);
   const [stories] = usePersistentStore(placeStoriesStore);
   const [tips] = usePersistentStore(tipsStore);
-  const stamps = buildStamps(personal, opened, stories).filter(
+  const stamps = allStamps(personal, opened, stories).filter(
     (s) => s.collected,
   ).length;
   // The same counts as Moments: real cards only, and tips from locals (not the labelled samples).
@@ -120,12 +116,12 @@ function Holder({ profile }: { profile: ProfileV3 }) {
         <div className={book.bioBody}>
           <div className={book.photo} aria-hidden="true">
             <img className={book.watermark} src={logoInk} alt="" />
-            <span>{initial}</span>
+            <span>{holderInitial(holder)}</span>
           </div>
           <div className={book.bioMain}>
             <p className={book.field}>
               <span>Holder</span>
-              <strong>{initial}</strong>
+              <strong>{holder}</strong>
             </p>
             <dl className={book.stats}>
               {stats.map((s) => (
@@ -154,7 +150,7 @@ function Holder({ profile }: { profile: ProfileV3 }) {
           <motion.div
             className={book.stampWrap}
             initial={reduce ? false : { scale: 2.4, opacity: 0, rotate: -40 }}
-            animate={{ scale: 1, opacity: 1, rotate: -12 }}
+            animate={{ scale: 1, opacity: 1, rotate: -6 }}
             transition={
               reduce
                 ? { duration: 0 }
@@ -162,13 +158,13 @@ function Holder({ profile }: { profile: ProfileV3 }) {
             }
           >
             <Link to={paths.moments} className={book.stamp}>
-              <Icon name="star" size={11} className={book.stampStar} />
+              <Icon name="star" size={10} className={book.stampStar} />
               <span>{rank.step.label}</span>
             </Link>
           </motion.div>
         </div>
         <p className={book.mrz} aria-hidden="true">
-          <span>{mrzLine(initial, profile)}</span>
+          <span>{mrzLine(holder, profile)}</span>
           <span>{`${String(stamps).padStart(3, "0")}SGP${String(cards).padStart(4, "0")}<<${String(realTips).padStart(3, "0")}<<<<<<<<<<<<<<<<<<<<<<<<<<`}</span>
         </p>
       </motion.section>
@@ -176,97 +172,36 @@ function Holder({ profile }: { profile: ProfileV3 }) {
   );
 }
 
-/** The small picture at the top of each tile. */
-function Visual({
-  field,
-  profile,
-}: {
-  field: FieldKey;
-  profile: ProfileV3;
-}): ReactNode {
+const ROLE_ICON: Record<string, IconName> = {
+  student: "cap",
+  intern: "badge",
+  working: "briefcase",
+  visiting: "bag",
+  family: "people",
+  researcher: "book",
+};
+
+const FIELD_LOOK: Record<FieldKey, { color: string; icon: IconName }> = {
+  from: { color: "#7b3257", icon: "globe" },
+  stay: { color: "#3a2011", icon: "clock" },
+  role: { color: "#2a6a45", icon: "badge" },
+  language: { color: "#b4442a", icon: "globe" },
+  base: { color: "#8e2f17", icon: "pin" },
+  topics: { color: "#5d554a", icon: "star" },
+};
+
+/** What a line's tile shows: the value's own mark when there is one to show. A private value shows only its lock. */
+function TileMark({ field, profile }: { field: FieldKey; profile: ProfileV3 }) {
   switch (field) {
-    case "from": {
-      const c = countryOf(profile.from);
-      return (
-        <span className={styles.route}>
-          <CodeCircle
-            code={c?.code ?? "?"}
-            color={
-              c
-                ? profile.hidden.includes("from")
-                  ? "#d9a0a6"
-                  : c.color
-                : "#c9c3b8"
-            }
-            size={40}
-          />
-          <svg className={styles.arc} viewBox="0 0 60 24" aria-hidden="true">
-            <path
-              d="M2 22 C 18 0, 42 0, 58 22"
-              fill="none"
-              stroke="#e9a378"
-              strokeWidth="2"
-            />
-            <path
-              d="M27 6l4-3-1 5"
-              fill="none"
-              stroke="#e4671f"
-              strokeWidth="1.6"
-            />
-          </svg>
-          <CodeCircle code="SG" color="#6b665e" size={40} />
-        </span>
-      );
-    }
-    case "stay": {
-      const index = STAYS.findIndex((s) => s.id === profile.stay);
-      return (
-        <span className={styles.miniTimeline}>
-          <span className={styles.miniIcon}>
-            <Icon
-              name={(STAYS[Math.max(0, index)].icon as IconName) ?? "plane"}
-              size={16}
-            />
-          </span>
-          <span className={styles.miniTrack}>
-            {STAYS.map((s, i) => (
-              <span
-                key={s.id}
-                className={i === index ? styles.miniStopOn : styles.miniStop}
-              />
-            ))}
-          </span>
-        </span>
-      );
-    }
+    case "from":
+      return <>{countryOf(profile.from)?.code}</>;
+    case "stay":
+      return <Icon name={STAYS.find((s) => s.id === profile.stay)?.icon as IconName} size={19} />;
     case "role":
-      return (
-        <span className={styles.roleVisual}>
-          <span className={styles.roleBox}>
-            <Icon
-              name={(ROLE_ICON[profile.role ?? ""] ?? "badge") as IconName}
-              size={22}
-            />
-          </span>
-          <span className={styles.roleLines} aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </span>
-        </span>
-      );
+      return <Icon name={ROLE_ICON[profile.role ?? ""] ?? "badge"} size={19} />;
     case "language": {
       const l = languageOf(profile.language);
-      return (
-        <span className={styles.langVisual}>
-          <span className={styles.langBig} lang={l?.lang}>
-            {l?.mark ?? "··"}
-          </span>
-          <span className={styles.bubble} lang={l?.lang}>
-            {l ? (l.id === "en" ? "Hello" : l.name) : "Hello"}
-          </span>
-        </span>
-      );
+      return <span lang={l?.lang}>{l?.mark}</span>;
     }
     case "base": {
       const area = areaById(profile.base);
@@ -274,7 +209,7 @@ function Visual({
       // Zoom the ground picture around the base (×3).
       const z = 3;
       return (
-        <span className={styles.miniMap}>
+        <>
           <img
             src={groundUrl}
             alt=""
@@ -285,112 +220,65 @@ function Visual({
               top: `${50 - (p.y - GROUND_BOX.top) * z}%`,
             }}
           />
-          {area && (
-            <span className={styles.miniPin}>
-              <Icon name="pin" size={26} strokeWidth={2} />
-            </span>
-          )}
-        </span>
+          <span className={book.tilePin} />
+        </>
       );
     }
-    case "topics":
-      return (
-        <span className={styles.stack}>
-          {(profile.topics.length ? profile.topics : []).map((t, i) => {
-            const photo = topicPhoto(t);
-            return (
-              <span
-                key={t}
-                className={styles.stackCard}
-                style={{
-                  zIndex: 10 - i,
-                  left: `${i * 21}%`,
-                  transform: `rotate(${(i - 1.5) * 3}deg)`,
-                }}
-              >
-                {photo && <img src={photo.src} alt="" />}
-                <span
-                  className={
-                    i === 0
-                      ? `${styles.stackRank} ${styles.stackRankOn}`
-                      : styles.stackRank
-                  }
-                >
-                  {i + 1}
-                </span>
-              </span>
-            );
-          })}
-        </span>
-      );
+    case "topics": {
+      const photo = topicPhoto(profile.topics[0]);
+      return photo ? <img className={book.tilePhoto} src={photo.src} alt="" /> : <Icon name="star" size={19} />;
+    }
   }
 }
 
-const ROLE_ICON: Record<string, string> = {
-  student: "cap",
-  intern: "badge",
-  working: "briefcase",
-  visiting: "bag",
-  family: "people",
-  researcher: "book",
-};
-
-function KnowsTile({
+function FileRow({
   field,
-  index,
   profile,
   onEdit,
 }: {
   field: FieldKey;
-  index: number;
   profile: ProfileV3;
   onEdit: () => void;
 }) {
-  const reduce = useReducedMotionConfig();
   const value = fieldValue(profile, field, areaShortName);
   const hidden = profile.hidden.includes(field);
+  const look = FIELD_LOOK[field];
   return (
-    <motion.li
-      className={book.slip}
-      initial={reduce ? false : { opacity: 0, y: 18, rotate: index % 2 ? 2 : -2 }}
-      animate={{ opacity: 1, y: 0, rotate: 0 }}
-      transition={{ type: "spring", stiffness: 260, damping: 22, delay: 0.15 + index * 0.05 }}
-      whileTap={reduce ? undefined : { scale: 0.97 }}
-    >
-      <div className={book.slipTop}>
-        <span className={book.slipLabel}>{FIELD_LABELS[field]}</span>
-        <EyeButton
-          field={field}
-          hidden={hidden}
-          onToggle={() => toggleHidden(field)}
-        />
-      </div>
-      <span className={book.slipVisual} aria-hidden="true">
-        <Visual field={field} profile={profile} />
-      </span>
-      <button
-        type="button"
-        className={book.slipButton}
-        onClick={onEdit}
-        aria-label={`Edit ${FIELD_LABELS[field]}`}
+    <li className={book.row}>
+      <span
+        className={value === null ? `${book.tile} ${book.tileEmpty}` : book.tile}
+        style={{ "--tile": look.color } as CSSProperties}
+        aria-hidden="true"
       >
-        <span className={value === null ? `${book.slipValue} ${book.slipEmpty}` : book.slipValue}>
-          {value === null ? (
-            "Not set"
-          ) : hidden ? (
-            <>
-              <Icon name="lock" size={14} /> Hidden
-            </>
-          ) : (
-            value
-          )}
-        </span>
-      </button>
-    </motion.li>
+        {value === null ? (
+          <Icon name={look.icon} size={19} />
+        ) : hidden ? (
+          <Icon name="lock" size={18} />
+        ) : (
+          <TileMark field={field} profile={profile} />
+        )}
+      </span>
+      <span className={book.rowText}>
+        <span className={book.rowLabel}>{FIELD_LABELS[field]}</span>
+        <button
+          type="button"
+          className={book.rowEdit}
+          onClick={onEdit}
+          aria-label={`Edit ${FIELD_LABELS[field]}`}
+        >
+          <span className={value === null ? `${book.rowValue} ${book.rowEmpty}` : book.rowValue}>
+            {value === null ? "Not set" : hidden ? "Hidden" : value}
+          </span>
+        </button>
+      </span>
+      <span className={book.rowEye}>
+        <EyeButton field={field} hidden={hidden} onToggle={() => toggleHidden(field)} />
+      </span>
+    </li>
   );
 }
 
-/** The brass-ringed icon at the start of a ledger line. */
+/** The icon at the start of a line. */
 function Bead({ icon }: { icon: IconName }) {
   return (
     <span className={book.bead}>
@@ -402,10 +290,11 @@ function Bead({ icon }: { icon: IconName }) {
 export default function MySpacePage() {
   const navigate = useNavigate();
   const [profile] = usePersistentStore(profileV3Store);
-  const [settings, setSettings] = usePersistentStore(settingsStore);
-  const memory = useMemories();
   const [editing, setEditing] = useState<FieldKey | null>(null);
   const privateCount = profile.hidden.filter(
+    (f) => fieldValue(profile, f, areaShortName) !== null,
+  ).length;
+  const filled = FIELDS.filter(
     (f) => fieldValue(profile, f, areaShortName) !== null,
   ).length;
 
@@ -421,16 +310,20 @@ export default function MySpacePage() {
 
         <Holder profile={profile} />
 
-        <h2 className={book.heading}>
-          <span>On file</span>
-          <span className={book.headingRule} aria-hidden="true" />
-        </h2>
-        <ul className={book.slips}>
-          {FIELDS.map((field, i) => (
-            <KnowsTile
+        <div className={book.headRow}>
+          <h2 className={book.heading}>
+            <span>On file</span>
+            {filled < FIELDS.length && (
+              <span className={book.count}>{`${filled} of ${FIELDS.length}`}</span>
+            )}
+          </h2>
+          <p className={book.hint}>Tap to edit, eye to hide</p>
+        </div>
+        <ul className={book.file}>
+          {FIELDS.map((field) => (
+            <FileRow
               key={field}
               field={field}
-              index={i}
               profile={profile}
               onEdit={() => setEditing(field)}
             />
@@ -438,45 +331,20 @@ export default function MySpacePage() {
         </ul>
 
         <div className={book.ledger}>
-          <div className={book.line}>
-            <Bead icon="flag" />
+          <Link to={paths.saved} className={book.line}>
+            <Bead icon="star" />
             <span className={book.lineText}>
-              <span className={book.lineTitle}>Flag occasions</span>
-              <span className={book.lineSub} id="hint-occasions">
-                Reads calendar titles only
-              </span>
+              <span className={book.lineTitle}>Saved places</span>
             </span>
-            <Switch
-              label="Flag occasions"
-              describedBy="hint-occasions"
-              checked={settings.occasions}
-              onChange={(on) => setSettings((s) => ({ ...s, occasions: on }))}
-            />
-          </div>
-          <div className={book.line}>
-            <Bead icon="book" />
+            <Icon name="chevron" size={18} className={book.chevron} />
+          </Link>
+          <Link to={paths.nearby} className={book.line}>
+            <Bead icon="pin" />
             <span className={book.lineText}>
-              <span className={book.lineTitle}>Memory</span>
-              <span className={book.lineSub} id="hint-memory-row">
-                {memory.state.enabled
-                  ? `${memory.items.length} ${memory.items.length === 1 ? "thing" : "things"} Ask remembers`
-                  : "Off"}{" "}
-                ·{" "}
-                <Link
-                  to={`${paths.mySpaceSettings}?section=memory`}
-                  className={book.inlineLink}
-                >
-                  Manage
-                </Link>
-              </span>
+              <span className={book.lineTitle}>All places</span>
             </span>
-            <Switch
-              label="Memory"
-              describedBy="hint-memory-row"
-              checked={memory.state.enabled}
-              onChange={setMemoryEnabled}
-            />
-          </div>
+            <Icon name="chevron" size={18} className={book.chevron} />
+          </Link>
           {/* PR #5's privacy summary: real size on this phone, private details, and the storage bar by area. */}
           <Link to={paths.mySpacePrivacy} className={book.privacy}>
             <span className={book.line}>

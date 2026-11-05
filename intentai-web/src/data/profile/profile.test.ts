@@ -5,6 +5,7 @@ import { culturePrefsStore, deleteAllData, explorePersonalStore, openedCardsStor
 import { BASE_AREAS, TOPIC_PLACE, firstFinds, formatDistance, fromWindow, nearestArea, placesNear, toWindow } from './finds';
 import {
   DEFAULT_PROFILE_V3,
+  holderInitial,
   isProfileV3,
   mrzLine,
   repairProfileV3,
@@ -15,7 +16,8 @@ import {
   sealDate,
   updateProfile,
 } from './profile';
-import { STORAGE_AREAS, clearArea, exportData, formatBytes } from './storage';
+import { huntVisits } from '../moments/huntVisits';
+import { STORAGE_AREAS, clearArea, exportData, formatBytes, totalBytes } from './storage';
 
 test('From starts hidden and the default profile is valid', () => {
   expect(DEFAULT_PROFILE_V3.hidden).toEqual(['from']);
@@ -52,6 +54,8 @@ test('updateProfile writes through to the stores the app already reads', () => {
 test('the passport line and seal date follow the Figma format', () => {
   expect(mrzLine('W', { ...DEFAULT_PROFILE_V3, role: 'intern' })).toBe('P<SGPW<<<<STUDENT<INTERN<<<<<<<<<<<<<<<<<<<<');
   expect(mrzLine('W', { ...DEFAULT_PROFILE_V3, role: 'intern', hidden: ['role'] })).not.toContain('STUDENT');
+  expect(mrzLine('Sam Lee', DEFAULT_PROFILE_V3)).toMatch(/^P<SGPSAM<LEE<<<+$/);
+  expect(mrzLine('01', DEFAULT_PROFILE_V3)).toMatch(/^P<SGP01<<<+$/);
   expect(sealDate('2026-10-27')).toBe('27 OCT 2026');
 });
 
@@ -101,4 +105,44 @@ test('Delete all also resets this file’s stores', () => {
   deleteAllData();
   expect(profileV3Store.get()).toEqual(DEFAULT_PROFILE_V3);
   expect(mySpacePrefsStore.get().haptics).toBe(false);
+});
+
+const passportArea = () => STORAGE_AREAS.find((a) => a.id === 'passport')!;
+const onsiteSave = 'findsg-onsite-v1:telok-ayer:manual';
+const checkIn = JSON.stringify({ stops: { a: { checkin: { mode: 'manual', confirmedAt: '2026-11-02T08:00:00.000Z' } } } });
+
+test('Clear on Passport leaves on-site Hunt progress alone', () => {
+  localStorage.setItem(onsiteSave, checkIn);
+  localStorage.setItem('findsg-short-v2:gold-under-glass:manual', JSON.stringify({ arrival1: true }));
+  expect(huntVisits()).toHaveLength(2);
+  clearArea(passportArea());
+  expect(huntVisits()).toHaveLength(2);
+  expect(localStorage.getItem(onsiteSave)).toBe(checkIn);
+});
+
+test('sizes and the export count Hunt saves and other device keys, not feedback waiting to send', () => {
+  const total = totalBytes();
+  localStorage.setItem(onsiteSave, checkIn);
+  localStorage.setItem('notebook.spotted.x', '["a"]');
+  localStorage.setItem('findsg-help-feedback', '["note"]');
+  expect(totalBytes()).toBeGreaterThan(total);
+  const { data } = exportData() as { data: Record<string, unknown> };
+  expect(data[onsiteSave]).toEqual(JSON.parse(checkIn));
+  expect(data['notebook.spotted.x']).toEqual(['a']);
+  expect(data['findsg-help-feedback']).toBeUndefined();
+});
+
+test('the machine-readable line keeps base letters, prints no name it cannot spell, and keeps the role', () => {
+  expect(mrzLine('Jos\u00e9', DEFAULT_PROFILE_V3)).toMatch(/^P<SGPJOSE<<<+$/);
+  // Chinese characters have no Latin spelling here: no name, and never the placeholder holder W
+  expect(mrzLine('\u674e\u660e', DEFAULT_PROFILE_V3)).toBe('P<SGP'.padEnd(44, '<'));
+  const long = mrzLine('A'.repeat(40), { ...DEFAULT_PROFILE_V3, role: 'intern' });
+  expect(long).toHaveLength(44);
+  expect(long).toContain('STUDENT<INTERN');
+});
+
+test('the holder initial is one whole letter', () => {
+  expect(holderInitial('sam')).toBe('S');
+  expect(holderInitial('\u{20BB7}x')).toBe('\u{20BB7}');
+  expect(holderInitial('  ')).toBe('W');
 });

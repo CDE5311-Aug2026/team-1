@@ -23,8 +23,7 @@
   z-index: 3;
 }
 
-.primary,
-.secondary {
+.primary {
   flex: 1;
   min-height: 3.5rem;
   border-radius: 16px;
@@ -37,9 +36,6 @@
   font-weight: 800;
   cursor: pointer;
   text-decoration: none;
-}
-
-.primary {
   border: 1px solid #5a3a22;
   background: #23211d;
   color: #fff;
@@ -54,19 +50,7 @@
   cursor: default;
 }
 
-.accent {
-  background: #e4671f;
-  border-color: #c4520f;
-}
-
-.secondary {
-  border: 1px solid #dedad2;
-  background: #fff;
-  color: #23211d;
-}
-
 .primary:focus-visible,
-.secondary:focus-visible,
 .back:focus-visible {
   outline: 2px solid #23211d;
   outline-offset: 3px;
@@ -74,7 +58,6 @@
 
 @supports (corner-shape: superellipse(1.5)) {
   .primary,
-  .secondary,
   .back,
   .find {
     corner-shape: superellipse(1.5);
@@ -137,15 +120,8 @@
   overflow: auto;
 }
 
-.logo {
-  align-self: flex-start;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
-  width: 2.75rem;
-  height: 2.75rem;
-}
-
 .book {
-  margin-top: 10.5rem;
+  margin-top: 13.25rem;
   width: 8.75rem;
   aspect-ratio: 200 / 272;
   border-radius: 18px;

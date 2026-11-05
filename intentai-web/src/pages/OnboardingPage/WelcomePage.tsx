@@ -4,7 +4,6 @@
 import { motion, useReducedMotionConfig } from 'motion/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import logo from '../../assets/brand/findsg-logo.png';
-import lion from '../../assets/v3/onboarding/lion.png';
 import AppShell from '../../components/AppShell/AppShell';
 import BlurText from '../../components/reactbits/BlurText';
 import { topicPhoto } from '../../data/profile/finds';
@@ -25,7 +24,7 @@ import Icon from './v3/icons';
 import Passport from './v3/Passport';
 import { BaseMap, PreviewCard, TopicRanker } from './v3/Pickers';
 import { previewFor } from './v3/previews';
-import useInitial from './v3/useInitial';
+import useHolderName from './v3/useHolderName';
 import styles from './Onboarding.module.css';
 
 type Step = (typeof ONBOARDING_FIELDS)[number];
@@ -55,7 +54,6 @@ function Welcome({ onStart }: { onStart: () => void }) {
       <div className={styles.wallWrap} data-allow-bleed>
         <FilmWall />
       </div>
-      <img className={styles.logo} src={logo} alt="FindSG" width={44} height={44} />
       <motion.div
         className={styles.book}
         aria-hidden="true"
@@ -68,10 +66,10 @@ function Welcome({ onStart }: { onStart: () => void }) {
         }
       >
         <span className={styles.bookFace}>
-          <img src={lion} alt="" width={62} height={62} />
+          <img src={logo} alt="" width={62} height={62} />
         </span>
         <span className={styles.bookTitle}>PASSPORT</span>
-        <span className={styles.bookSub}>INTENTAI · SINGAPORE</span>
+        <span className={styles.bookSub}>FINDSG · SINGAPORE</span>
       </motion.div>
       <h1 className={styles.welcomeTitle}>
         <BlurText as="span" text="Welcome to the" trigger="load" delay={70} className={styles.welcomeLine} />
@@ -122,7 +120,7 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
   const navigate = useNavigate();
   const [profile] = usePersistentStore(profileV3Store);
   const [prefs] = usePersistentStore(mySpacePrefsStore);
-  const initial = useInitial();
+  const holder = useHolderName();
   const field = ONBOARDING_FIELDS[step - 1];
   const last = step === STEPS;
   const answered = field === 'topics' ? profile.topics.length > 0 : Boolean(profile.base);
@@ -169,7 +167,7 @@ function Question({ step, goTo }: { step: number; goTo: (n: number) => void }) {
         </span>
         <ExitButton />
       </div>
-      <Passport profile={profile} initial={initial} fields={ONBOARDING_FIELDS} active={field} onToggleHidden={toggleHidden} />
+      <Passport profile={profile} holder={holder} fields={ONBOARDING_FIELDS} active={field} onToggleHidden={toggleHidden} />
       <BlurText key={field} as="h1" text={TITLES[field]} trigger="load" delay={50} className={styles.title} />
       <p className={styles.use}>
         <span className={styles.useDot} aria-hidden="true" />

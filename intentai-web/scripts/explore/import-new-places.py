@@ -14,7 +14,7 @@ import glob, json, math, os, sys
 
 ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
 P = lambda *a: os.path.join(ROOT, *a)
-IMPORTED_BY = 'IntentAI team source check (new places, 31 Oct 2026)'
+IMPORTED_BY = 'FindSG team source check (new places, 31 Oct 2026)'
 # Left out on purpose: the Istana's own gallery page is gone (404) and no 2026 source says the gallery is open.
 EXCLUDE = {'curated:sg-istana-heritage-gallery'}
 REVIEWED = '2026-10-31'

@@ -3,11 +3,6 @@
   height: 100%;
 }
 
-/* the tab scroll is unrolled over the deck: the cards stack (in Three.js) and nothing takes a tap */
-.gathered {
-  pointer-events: none;
-}
-
 .stage {
   position: absolute;
   inset: 0;

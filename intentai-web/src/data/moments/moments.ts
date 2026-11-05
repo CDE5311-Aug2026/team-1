@@ -2,7 +2,8 @@
 // Stamps come from Nearby check-ins, ink from opened cards, rank and badges from opened cards, stamps and tips.
 import { ARTICLE_IMAGES, type ArticleImage } from '../articleImages';
 import type { SavedConversation } from '../community/social';
-import type { Insight, Lookup, Tip } from '../domain';
+import { lookupSourceLabel, type Insight, type Lookup, type Tip } from '../domain';
+import { HUNT_AREAS, HUNT_ONLY_AREAS, SHORT_STOPS, huntVisits, type HuntVisit } from './huntVisits';
 import { phraseBank } from '../expressions';
 import type { ExplorePersonalData } from '../../features/nearby/domain';
 import { AREAS, curatedPlace } from '../../features/nearby/catalogue';
@@ -38,6 +39,7 @@ export function imageOf(id: string): ArticleImage | undefined {
 /** Nearby place key → its area, from the catalogue's areaId (PLACE_AREAS as a fallback). */
 export function areaOfPlace(placeKey: string): string | undefined {
   if (placeKey.startsWith('story:')) return STORY_AREAS[placeKey.slice(6)];
+  if (placeKey.startsWith('hunt:')) return HUNT_AREAS[placeKey.split(':')[1]];
   return curatedPlace(placeKey)?.areaId ?? PLACE_AREAS[placeKey];
 }
 
@@ -64,6 +66,8 @@ export interface Stamp {
 
 /** An area with no culture cards yet, as a Subject with an empty card list (its name comes from the Nearby areas). */
 function areaSubject(id: string): Subject | undefined {
+  const own = HUNT_ONLY_AREAS.find((a) => a.id === id);
+  if (own) return { id, name: own.name, short: own.name, cards: [] };
   const area = AREAS.find((a) => a.id === id && !a.overview);
   if (!area) return undefined;
   return { id, name: area.name, short: area.name.split(/\s*[&,]\s*/)[0], cards: [] };
@@ -74,7 +78,7 @@ function areaSubject(id: string): Subject | undefined {
  * whether or not the area has culture cards yet), plus an outline for each area with cards that isn't stamped.
  * Stamped first, newest check-in first; then the outlines in SUBJECTS order (most cards first).
  */
-export function buildStamps(personal: ExplorePersonalData, opened: readonly string[], stories: PlaceStories = {}): Stamp[] {
+export function buildStamps(personal: ExplorePersonalData, opened: readonly string[], stories: PlaceStories = {}, hunt: readonly HuntVisit[] = []): Stamp[] {
   const openedSet = new Set(opened);
   const visits = new Map<string, { keys: string[]; dates: string[] }>();
   const add = (key: string, date: string | undefined) => {
@@ -88,6 +92,7 @@ export function buildStamps(personal: ExplorePersonalData, opened: readonly stri
   for (const s of personal.places) if (s.visited) add(s.placeKey, s.visitedOn ?? s.updatedAt.slice(0, 10));
   // A check-in (or stamp) on a Home place story counts for its area too.
   for (const [id, st] of Object.entries(stories)) if (st.checkedIn || st.stamped) add(`story:${id}`, st.stampedOn);
+  for (const v of hunt) add(`hunt:${v.story}:${v.stop}:${v.on ?? ''}`, v.on);
   const subjects: Subject[] = [...SUBJECTS];
   for (const id of visits.keys()) {
     if (subjects.some((s) => s.id === id)) continue;
@@ -115,10 +120,32 @@ export function buildStamps(personal: ExplorePersonalData, opened: readonly stri
   return [...collected, ...stamps.filter((s) => !s.collected && s.subject.cards.length > 0)];
 }
 
-/** The checked-in places of a stamp, with names from the catalogue and the self-reported dates, newest first. */
-export function stampVisits(stamp: Pick<Stamp, 'places'>, personal: ExplorePersonalData): { key: string; name: string; on?: string }[] {
+/** Every stamp, with the Hunt's on-site stops: one source, so Moments, Passport and Privacy can't disagree. */
+export const allStamps = (personal: ExplorePersonalData, opened: readonly string[], stories: PlaceStories = {}): Stamp[] =>
+  buildStamps(personal, opened, stories, huntVisits());
+
+/** A Hunt visit's story and stop, from its stamp key. */
+export function huntKey(key: string): { story: string; stop: string; on?: string } | null {
+  const [kind, story, stop, on] = key.split(':');
+  return kind === 'hunt' && story && stop ? { story, stop, on: on || undefined } : null;
+}
+
+/**
+ * The checked-in places of a stamp, with names from the catalogue and the self-reported dates, newest first. A Hunt
+ * stop's name comes from `huntStopName`, because the stop list lives with the game.
+ */
+export function stampVisits(
+  stamp: Pick<Stamp, 'places'>,
+  personal: ExplorePersonalData,
+  huntStopName: (story: string, stop: string) => string = (_, stop) => stop,
+): { key: string; name: string; on?: string }[] {
   return stamp.places
     .map((key) => {
+      const hunt = huntKey(key);
+      if (hunt) {
+        const short = SHORT_STOPS[hunt.stop as keyof typeof SHORT_STOPS];
+        return { key, name: short ?? huntStopName(hunt.story, hunt.stop), on: hunt.on };
+      }
       if (key.startsWith('story:')) return { key, name: storyPlace(key.slice(6))?.name ?? key, on: undefined as string | undefined };
       const state = personal.places.find((p) => p.placeKey === key);
       return { key, name: curatedPlace(key)?.name ?? key, on: state?.visitedOn ?? state?.updatedAt.slice(0, 10) };
@@ -289,7 +316,7 @@ export function collectedItems({ opened, tips, insights, lookups, todaysThree, c
       key: `lookup:${lookup.id}`,
       word: lookup.word,
       meaning: lookup.meaning,
-      source: lookup.source,
+      source: lookupSourceLabel(lookup.source),
       lookup,
       example: lookup.example,
     })),

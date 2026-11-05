@@ -1,14 +1,11 @@
-// My Space v3 S2 · Settings: notification choices (kept on this phone; the app sends none), language and home base
-// with the same editors as onboarding, look & feel (Reduce motion = the app-wide reduceMotionStore, captions, haptics),
-// and links to Privacy & data, photo credits and feedback. From PR #5: Text size (applied app-wide), Nearby radius (Explore's
-// default), Today's topics, Terms & licences as a page, and notification switches that wait for their My Space switch.
+// Settings: language and home base with the same editors as onboarding, look & feel (Reduce motion = the app-wide
+// reduceMotionStore, captions, haptics), and links to Privacy & data, photo credits and feedback. From PR #5: Text size
+// (applied app-wide), Nearby radius (Explore's default) and Terms & licences as a page.
 import { motion, useReducedMotionConfig } from 'motion/react';
 import { openHelp } from '../../components/HelpCenter/helpStore';
 import { useId, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
-import { categoryLabel } from '../../data/culture';
-import { canonicalPrefs } from '../../data/culturePrefs';
 import { usePersistentStore } from '../../data/persistentStore';
 import { areaById } from '../../data/profile/finds';
 import {
@@ -19,33 +16,21 @@ import {
   mySpacePrefsStore,
   profileV3Store,
   type FieldKey,
-  type MySpacePrefs,
 } from '../../data/profile/profile';
 import { formatBytes, totalBytes } from '../../data/profile/storage';
-import { culturePrefsStore, reduceMotionStore, restartTest, settingsStore, testerStore, versionOf } from '../../data/stores';
+import { RESTART_PATH } from '../../components/UserGate/UserGate';
+import { reduceMotionStore, restartTest, testerStore, versionOf } from '../../data/stores';
 import { USER_GATE_ENABLED } from '../../components/UserGate/UserGate';
 import { RADII_M } from '../../features/nearby/types';
-import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
-import Icon, { type IconName } from '../OnboardingPage/v3/icons';
+import Icon from '../OnboardingPage/v3/icons';
 import FieldEditor from './v3/FieldEditor';
-import MemorySection from './v3/MemorySection';
 import { Kraft, SubHeader, Switch } from './v3/Parts';
 import book from './v3/Booklet.module.css';
 import styles from './v3/MySpace.module.css';
 
-type NotifyKey = keyof MySpacePrefs['notify'];
-export const NEEDS_OCCASIONS = 'Turn on Flag occasions in My Space first';
-export const NEEDS_LOCAL = 'Turn on Answer as a local in My Space first';
 export const TEXT_PREVIEW = 'Bak kwa is sweet, smoky dried pork, grilled over charcoal.';
 const km = (m: number) => `${m / 1000} km`;
-
-const NOTIFY: { key: NotifyKey; icon: IconName; title: string; sub: string }[] = [
-  { key: 'localAnswers', icon: 'chat', title: 'Local answers', sub: 'When a local answers your question' },
-  { key: 'recaps', icon: 'cards', title: 'Recap reminders', sub: 'A 1-minute recap of your cards' },
-  { key: 'occasions', icon: 'calendar', title: 'Occasions', sub: '' },
-  { key: 'nearYou', icon: 'pin', title: 'Questions near you', sub: '' },
-];
 
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { id: T; label: string }[]; onChange: (v: T) => void }) {
   return (
@@ -75,71 +60,20 @@ function MotionPreview({ reduced }: { reduced: boolean }) {
 export default function SettingsPage() {
   const [prefs, setPrefs] = usePersistentStore(mySpacePrefsStore);
   const [reduceMotion, setReduceMotion] = usePersistentStore(reduceMotionStore);
-  const [settings] = usePersistentStore(settingsStore);
   const [profile] = usePersistentStore(profileV3Store);
-  const [culture] = usePersistentStore(culturePrefsStore);
   const [editing, setEditing] = useState<FieldKey | null>(null);
   const radiusId = useId();
   const sizeId = useId();
-  const [params] = useSearchParams();
   const language = languageOf(profile.language);
   const base = areaById(profile.base);
 
-  const setNotify = (key: NotifyKey, on: boolean) => setPrefs((p) => ({ ...p, notify: { ...p.notify, [key]: on } }));
-  // A notification that needs a My Space switch waits for it: shown off and unavailable, with the reason.
-  const blocked: Partial<Record<NotifyKey, string>> = {
-    ...(settings.occasions ? {} : { occasions: NEEDS_OCCASIONS }),
-    ...(settings.local ? {} : { nearYou: NEEDS_LOCAL }),
-  };
   const radiusIndex = Math.max(0, RADII_M.indexOf(prefs.radiusM));
-  const topics = canonicalPrefs(culture.categories).categories.map(categoryLabel).join(', ');
 
   return (
     <AppShell background="#c8a87a" chrome="status">
       <Kraft />
       <div className={`${styles.screen} ${book.screen} ${styles.kraft}`}>
         <SubHeader title="Settings" />
-
-        <h2 className={styles.kicker}>Notifications</h2>
-        <div className={styles.card}>
-          {NOTIFY.map((n) => {
-            const needs = blocked[n.key];
-            return (
-              <div key={n.key} className={styles.switchRow}>
-                <span className={styles.rowIcon}>
-                  <Icon name={n.icon} size={18} />
-                </span>
-                <span className={styles.rowText}>
-                  <span className={styles.rowTitle}>{n.title}</span>
-                  {(needs ?? n.sub) && (
-                    <span className={needs ? `${styles.rowSub} ${styles.blockedHint}` : styles.rowSub} id={`hint-${n.key}`}>
-                      {needs ?? n.sub}
-                    </span>
-                  )}
-                </span>
-                <Switch
-                  label={n.title}
-                  describedBy={needs ?? n.sub ? `hint-${n.key}` : undefined}
-                  checked={!needs && prefs.notify[n.key]}
-                  disabled={!!needs}
-                  onBlocked={() => showToast(needs!)}
-                  onChange={(on) => setNotify(n.key, on)}
-                />
-              </div>
-            );
-          })}
-          <div className={styles.rowPad}>
-            <Segmented
-              label="When"
-              value={prefs.notifyTime}
-              options={[
-                { id: 'morning', label: 'Morning' },
-                { id: 'evening', label: 'Evening' },
-              ]}
-              onChange={(notifyTime) => setPrefs((p) => ({ ...p, notifyTime }))}
-            />
-          </div>
-        </div>
 
         <h2 className={styles.kicker}>Language & place</h2>
         <div className={styles.card}>
@@ -197,19 +131,7 @@ export default function SettingsPage() {
               How far Nearby searches around you or your home base
             </span>
           </div>
-          <button type="button" className={styles.row} onClick={() => setEditing('topics')}>
-            <span className={styles.rowIcon}>
-              <Icon name="star" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Today’s topics</span>
-              <span className={styles.rowSub}>{topics}</span>
-            </span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </button>
         </div>
-
-        <MemorySection highlight={params.get('section') === 'memory'} />
 
         <h2 className={styles.kicker}>Look & feel</h2>
         <div className={styles.card}>
@@ -351,7 +273,16 @@ function RestartTest() {
             <button type="button" className={styles.restartNo} onClick={() => setSure(false)}>
               Keep
             </button>
-            <button type="button" className={styles.restartYes} onClick={restartTest}>
+            <button
+              type="button"
+              className={styles.restartYes}
+              onClick={() => {
+                const version = versionOf(testerStore.get());
+                void restartTest(version).then((done) => {
+                  if (!done) window.location.assign(`${RESTART_PATH}?v=${version}`);
+                });
+              }}
+            >
               Restart
             </button>
           </div>

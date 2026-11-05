@@ -131,7 +131,7 @@ export const LUNAR_NEW_YEAR = {
     remind: 'Remind me',
     reminded: 'Reminder set for 6 Feb',
   },
-  source: 'Source: IntentAI editorial; Singapore 2027 public holidays (MOM) · Photo: Dileep Kaluaratchie · CC BY-SA 4.0',
+  source: 'Source: FindSG editorial; Singapore 2027 public holidays (MOM) · Photo: Dileep Kaluaratchie · CC BY-SA 4.0',
   next: { title: 'From the 1822 town plan to today', thumb: STORY_IMAGES.plan1822.src, credit: STORY_IMAGES.plan1822.credit },
 };
 

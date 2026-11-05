@@ -79,7 +79,7 @@ export default function TodaySetupPage() {
               {TOP_THREE}
             </span>
           </div>
-          <p className={styles.note}>You can change these anytime in My Space.</p>
+          <p className={styles.note}>You can change these anytime in Passport.</p>
         </>
       )}
       <p className={styles.count} aria-live="polite">

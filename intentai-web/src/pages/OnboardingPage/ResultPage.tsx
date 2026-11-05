@@ -12,14 +12,14 @@ import { onboardingStore } from '../../data/stores';
 import { paths } from '../../routes';
 import Icon from './v3/icons';
 import Passport from './v3/Passport';
-import useInitial from './v3/useInitial';
+import useHolderName from './v3/useHolderName';
 import styles from './Onboarding.module.css';
 
 export default function ResultPage() {
   const navigate = useNavigate();
   const reduce = useReducedMotionConfig();
   const [profile] = usePersistentStore(profileV3Store);
-  const initial = useInitial();
+  const holder = useHolderName();
   const finds = firstFinds(profile.base, profile.topics);
   const fan = useRef<HTMLUListElement>(null);
 
@@ -58,7 +58,7 @@ export default function ResultPage() {
           </div>
           <Passport
             profile={profile}
-            initial={initial}
+            holder={holder}
             fields={ONBOARDING_FIELDS}
             onToggleHidden={toggleHidden}
             stamped={profile.stampedOn ?? localDate()}
@@ -71,7 +71,7 @@ export default function ResultPage() {
           </p>
           <h2 className={styles.findsTitle}>YOUR FIRST FINDS</h2>
           {finds.length === 0 ? (
-            <p className={styles.noFinds}>Set a home base in My Space to see what’s closest.</p>
+            <p className={styles.noFinds}>Set a home base in Passport to see what’s closest.</p>
           ) : (
             <ul ref={fan} className={styles.fan} aria-label="Your first finds">
               {finds.map((find, i) => (
@@ -102,10 +102,10 @@ export default function ResultPage() {
             </ul>
           )}
           <div className={styles.footer}>
-            <button type="button" className={styles.secondary} onClick={() => leave(paths.moments)}>
+            <button type="button" className={styles.primary} onClick={() => leave(paths.mySpace)}>
               See passport
             </button>
-            <button type="button" className={`${styles.primary} ${styles.accent}`} onClick={() => leave(paths.today)}>
+            <button type="button" className={styles.primary} onClick={() => leave(paths.today)}>
               Start exploring <Icon name="arrow" size={18} />
             </button>
           </div>

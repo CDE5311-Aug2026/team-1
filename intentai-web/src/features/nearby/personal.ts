@@ -110,7 +110,9 @@ export function restore(data: ExplorePersonalData, key: PlaceKey, previous: Pers
 
 /* ---------- Export / import (PRD NBR 27) ---------- */
 
-export const EXPORT_FORMAT = 'intentai-explore-personal';
+export const EXPORT_FORMAT = 'findsg-explore-personal';
+/** Backups made before the app's name changed still restore. */
+const LEGACY_EXPORT_FORMAT = 'intentai-explore-personal';
 export const MAX_IMPORT_BYTES = 1024 * 1024;
 export const MAX_IMPORT_RECORDS = 5000;
 
@@ -154,8 +156,8 @@ export function parseImport(text: string, byteLength: number, now = new Date()):
   } catch {
     return { ok: false, error: 'This file is not valid JSON.' };
   }
-  if (!isRecord(parsed) || parsed.format !== EXPORT_FORMAT) {
-    return { ok: false, error: 'This is not an IntentAI exploration backup.' };
+  if (!isRecord(parsed) || (parsed.format !== EXPORT_FORMAT && parsed.format !== LEGACY_EXPORT_FORMAT)) {
+    return { ok: false, error: 'This is not a FindSG exploration backup.' };
   }
   if (parsed.schemaVersion !== 1) return { ok: false, error: 'This backup uses an unsupported version.' };
   if (!Array.isArray(parsed.places)) return { ok: false, error: 'This backup has no places list.' };

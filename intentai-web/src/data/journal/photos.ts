@@ -34,6 +34,10 @@ const DB = 'findsg-journal';
 const STORE = 'photos';
 const MAX_SIDE = 1280;
 const CHANGED = 'journal-photos-changed';
+const DELETE_LIMIT_MS = 3000;
+
+/** Moves on when everything is deleted: a write that started before then must not put a photo back. */
+let epoch = 0;
 
 function open(): Promise<IDBDatabase | null> {
   if (typeof indexedDB === 'undefined') return Promise.resolve(null);
@@ -59,11 +63,20 @@ function run<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<
           const req = fn(tx.objectStore(STORE));
           tx.oncomplete = () => resolve(req.result);
           tx.onerror = () => resolve(null);
+          tx.onabort = () => resolve(null);
         } catch {
           resolve(null);
         }
       }),
   );
+}
+
+/** A write that gives up, without writing, if everything was deleted after `since`. */
+function write<T>(since: number, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | null> {
+  return run('readwrite', (s) => {
+    if (epoch !== since) throw new Error('deleted since');
+    return fn(s);
+  });
 }
 
 export async function listPhotos(): Promise<JournalPhoto[]> {
@@ -78,17 +91,19 @@ export async function addPhoto(
   now = Date.now(),
   more: { taken?: number; place?: string } = {},
 ): Promise<JournalPhoto | null> {
+  const since = epoch;
   const blob = await shrink(file);
   const photo: JournalPhoto = { id: `p${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, day, at: now, caption: caption.trim(), blob };
   if (more.taken !== undefined) photo.taken = more.taken;
   if (more.place) photo.place = more.place;
-  const ok = await run('readwrite', (s) => s.put(photo));
+  const ok = await write(since, (s) => s.put(photo));
   if (ok === null) return null;
   window.dispatchEvent(new Event(CHANGED));
   return photo;
 }
 
 export async function updatePhoto(id: string, edit: PhotoEdit): Promise<JournalPhoto | null> {
+  const since = epoch;
   const old = await run<JournalPhoto | undefined>('readonly', (s) => s.get(id) as IDBRequest<JournalPhoto | undefined>);
   if (!old) return null;
   const next: JournalPhoto = { ...old };
@@ -99,7 +114,7 @@ export async function updatePhoto(id: string, edit: PhotoEdit): Promise<JournalP
   if (edit.place === null) delete next.place;
   else if (edit.place !== undefined) next.place = edit.place;
   if (edit.file) next.blob = await shrink(edit.file);
-  const ok = await run('readwrite', (s) => s.put(next));
+  const ok = await write(since, (s) => s.put(next));
   if (ok === null) return null;
   window.dispatchEvent(new Event(CHANGED));
   return next;
@@ -108,6 +123,47 @@ export async function updatePhoto(id: string, edit: PhotoEdit): Promise<JournalP
 export async function deletePhoto(id: string): Promise<void> {
   await run('readwrite', (s) => s.delete(id));
   window.dispatchEvent(new Event(CHANGED));
+}
+
+/**
+ * Deletes every journal photo. True once they are gone (or this browser has no IndexedDB), false if that failed or did
+ * not finish in time. A delete that times out is aborted, so it cannot run later and take photos added since.
+ */
+export function deleteAllPhotos(): Promise<boolean> {
+  epoch++;
+  if (typeof indexedDB === 'undefined') return Promise.resolve(true);
+  return new Promise<boolean>((resolve) => {
+    let tx: IDBTransaction | null = null;
+    let settled = false;
+    const finish = (done: boolean) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timer);
+      window.dispatchEvent(new Event(CHANGED));
+      resolve(done);
+    };
+    const timer = window.setTimeout(() => {
+      finish(false);
+      try {
+        tx?.abort();
+      } catch {
+        /* already finished */
+      }
+    }, DELETE_LIMIT_MS);
+    void open().then((db) => {
+      if (settled) return;
+      if (!db) return finish(false);
+      try {
+        tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).clear();
+        tx.oncomplete = () => finish(true);
+        tx.onerror = () => finish(false);
+        tx.onabort = () => finish(false);
+      } catch {
+        finish(false);
+      }
+    });
+  });
 }
 
 export function onPhotosChanged(fn: () => void): () => void {

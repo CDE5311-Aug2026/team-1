@@ -1,4 +1,4 @@
-// Every tab's top bar, one design: the Help Center badge (the FindSG lion and its info bulb) on the left, the page's
+// Every tab's top bar, one design: the Help Center badge (the FindSG lion and the assistant's sparkle) on the left, the page's
 // name in the middle, Settings on the right. The badge unfolds this bar into the Help Center.
 import HelpHint from "../HelpCenter/HelpHint";
 import { useLayoutEffect, useRef, type ReactNode } from "react";

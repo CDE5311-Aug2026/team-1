@@ -25,7 +25,7 @@ export default function SegmentNav({ active, count, nodeIds }: SegmentNavProps) 
   const itemClass = (on: boolean) => (on ? `${styles.item} ${styles.active}` : styles.item);
 
   return (
-    <nav className={styles.segment} aria-label="My Space" data-node-id={nodeIds.root}>
+    <nav className={styles.segment} aria-label="Passport" data-node-id={nodeIds.root}>
       <button
         type="button"
         className={itemClass(isAbout)}
