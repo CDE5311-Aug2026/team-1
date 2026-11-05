@@ -18,6 +18,7 @@ import {
   type FieldKey,
 } from '../../data/profile/profile';
 import { formatBytes, totalBytes } from '../../data/profile/storage';
+import { RESTART_PATH } from '../../components/UserGate/UserGate';
 import { reduceMotionStore, restartTest, testerStore, versionOf } from '../../data/stores';
 import { USER_GATE_ENABLED } from '../../components/UserGate/UserGate';
 import { RADII_M } from '../../features/nearby/types';
@@ -272,7 +273,16 @@ function RestartTest() {
             <button type="button" className={styles.restartNo} onClick={() => setSure(false)}>
               Keep
             </button>
-            <button type="button" className={styles.restartYes} onClick={restartTest}>
+            <button
+              type="button"
+              className={styles.restartYes}
+              onClick={() => {
+                const version = versionOf(testerStore.get());
+                void restartTest(version).then((done) => {
+                  if (!done) window.location.assign(`${RESTART_PATH}?v=${version}`);
+                });
+              }}
+            >
               Restart
             </button>
           </div>

@@ -46,7 +46,7 @@ export default function NoticesView({ occasion, nodeIds }: NoticesViewProps) {
   };
 
   const deleteEverything = () => {
-    deleteAllData();
+    void deleteAllData();
     navigate(paths.welcome);
   };
 

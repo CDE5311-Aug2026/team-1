@@ -1,6 +1,8 @@
 import {blankGame,normalizeGame} from './game-state.js';
+import {SAVES_CLEARED} from '../../../data/deviceKeys';
 
 const sessionGames=new Map();
+window.addEventListener(SAVES_CLEARED,()=>sessionGames.clear());
 export const gameStorageKey=routeId=>`findsg-story-cards-v1:${routeId}`;
 export function readGame(routeId,stops){
  const key=gameStorageKey(routeId);

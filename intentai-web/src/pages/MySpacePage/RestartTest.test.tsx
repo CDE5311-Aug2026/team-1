@@ -79,7 +79,7 @@ test('/t4 clears the phone but keeps the test name, then a fresh load writes the
   renderAt('/t4');
   expect(localStorage.getItem('hunt-book')).toBeNull();
   expect(localStorage.getItem(`${STORAGE_PREFIX}tester`)).toContain('P06');
-  expect(replace).toHaveBeenCalledWith('/t4?seed=1');
+  await vi.waitFor(() => expect(replace).toHaveBeenCalledWith('/t4?seed=1'));
 });
 
 test('/t4?seed=1 saves the Balestier remote clue and finishes onboarding', async () => {

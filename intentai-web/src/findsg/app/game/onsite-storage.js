@@ -1,5 +1,7 @@
 import {normalizeOnsite,onsiteStorageKey} from './onsite-state.js';
+import {SAVES_CLEARED} from '../../../data/deviceKeys';
 const memory=new Map(),modeMemory=new Map();
+window.addEventListener(SAVES_CLEARED,()=>{memory.clear();modeMemory.clear();});
 export function preferredOnsiteMode(routeId){if(modeMemory.has(routeId))return modeMemory.get(routeId);try{return localStorage.getItem('findsg-onsite-mode:'+routeId)==='preview'?'preview':'manual';}catch{return 'manual';}}
 export function readOnsite(routeId,stops,mode=preferredOnsiteMode(routeId)){
  const key=onsiteStorageKey(routeId,mode);

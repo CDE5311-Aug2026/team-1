@@ -1,6 +1,7 @@
 // Privacy & data (Figma S3): what this device stores, per area, with real sizes measured from localStorage, a Clear per
 // area (with Undo), and an export of everything as one JSON file.
 import { DEFAULT_EXPLORE_PERSONAL } from '../../features/nearby/domain';
+import { isDeviceDataKey } from '../deviceKeys';
 import { EDITORIAL_LABEL, LEGACY_EDITORIAL } from '../domain';
 import { STORAGE_PREFIX, type PersistentStore } from '../persistentStore';
 import {
@@ -84,6 +85,15 @@ export function storedBytes(key: string): number {
   }
 }
 
+function rawBytes(key: string): number {
+  try {
+    const value = window.localStorage.getItem(key);
+    return value === null ? 0 : new TextEncoder().encode(key + value).length;
+  } catch {
+    return 0;
+  }
+}
+
 export function areaBytes(area: StorageArea): number {
   return area.keys.reduce((sum, key) => sum + storedBytes(key), 0);
 }
@@ -94,8 +104,8 @@ export function totalBytes(): number {
   try {
     for (let i = 0; i < window.localStorage.length; i++) {
       const key = window.localStorage.key(i);
-      if (!key?.startsWith(STORAGE_PREFIX)) continue;
-      sum += new TextEncoder().encode(key + (window.localStorage.getItem(key) ?? '')).length;
+      if (!key || !(key.startsWith(STORAGE_PREFIX) || isDeviceDataKey(key))) continue;
+      sum += rawBytes(key);
     }
   } catch {
     return 0;
@@ -119,19 +129,22 @@ export function clearArea(area: StorageArea): () => void {
   return () => area.clear.forEach(({ store }, i) => store.set(before[i]));
 }
 
-/** Everything this app stores on the device, parsed, as one object. */
+/** Everything this app stores in this phone's local storage, parsed, as one object. Journal photos are not in it. */
 export function exportData(): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   try {
     for (let i = 0; i < window.localStorage.length; i++) {
       const key = window.localStorage.key(i);
-      if (!key?.startsWith(STORAGE_PREFIX)) continue;
+      if (!key) continue;
+      const stored = key.startsWith(STORAGE_PREFIX);
+      if (!stored && !isDeviceDataKey(key)) continue;
+      const name = stored ? key.slice(STORAGE_PREFIX.length) : key;
       // the stored lookup source keeps its old value (/ui1 shares this storage); a downloaded file shows the app's name
       const raw = (window.localStorage.getItem(key) ?? 'null').split(LEGACY_EDITORIAL).join(EDITORIAL_LABEL);
       try {
-        out[key.slice(STORAGE_PREFIX.length)] = JSON.parse(raw);
+        out[name] = JSON.parse(raw);
       } catch {
-        out[key.slice(STORAGE_PREFIX.length)] = raw;
+        out[name] = raw;
       }
     }
   } catch {

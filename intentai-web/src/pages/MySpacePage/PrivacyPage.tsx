@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import { allStamps } from '../../data/moments/moments';
 import { usePersistentStore } from '../../data/persistentStore';
+import { huntVisits } from '../../data/moments/huntVisits';
 import { clearProfileData, localDate, mySpacePrefsStore } from '../../data/profile/profile';
 import { STORAGE_AREAS, areaBytes, clearArea, exportData, formatBytes, totalBytes, type StorageAreaId } from '../../data/profile/storage';
 import {
@@ -116,7 +117,9 @@ export default function PrivacyPage() {
   const clear = (index: number) => {
     const area = STORAGE_AREAS[index];
     const undo = clearArea(area);
-    showToast(`${area.label} cleared`, { undo });
+    // On-site Hunt progress is never cleared here: its stamps stay, and saying so explains why they still show.
+    const kept = area.id === 'passport' && huntVisits().length > 0;
+    showToast(kept ? `${area.label} cleared. Hunt check-ins stay` : `${area.label} cleared`, { undo });
   };
 
   const download = () => {
@@ -133,12 +136,13 @@ export default function PrivacyPage() {
   };
 
   const deleteAll = () => {
-    deleteAllData();
+    const deleted = deleteAllData();
     clearProfileData();
     // Open timings and queued taps from before the delete must not be sent under the old ids.
     tracker.discard();
-    showToast('All your data is deleted from this phone');
     navigate(paths.welcome, { replace: true });
+    // Said once it is true: photos go last, and can fail.
+    void deleted.then((done) => showToast(done ? 'All your data is deleted from this phone' : 'Your data is deleted, but some journal photos could not be removed'));
   };
 
   return (
@@ -281,14 +285,14 @@ export default function PrivacyPage() {
           </span>
           <span className={styles.rowText}>
             <span className={styles.rowTitle}>Export my data</span>
-            <span className={styles.rowSub}>One file you can keep or move to a new phone</span>
+            <span className={styles.rowSub}>One readable file. Journal photos are not in it or in the sizes above</span>
           </span>
         </button>
 
         <h2 className={styles.kicker}>Delete</h2>
         <div className={styles.card}>
           <p className={styles.deleteText} id="hold-hint">
-            Removes your passport, stamps, cards, chats, questions and settings from this phone. This can’t be undone.
+            Removes your passport, stamps, Hunt progress, cards, photos, chats, questions and settings from this phone. This can’t be undone.
           </p>
           <HoldToDelete onDone={deleteAll} />
         </div>
