@@ -21,6 +21,15 @@ export const HUNT_ONLY_AREAS = [{ id: 'hunt-balestier', name: 'Balestier' }] as 
 export const SHORT_STORY_SAVE = 'findsg-short-v2:gold-under-glass:manual';
 export const SHORT_STOPS = { arrival1: '101 Jalan Sultan', arrival2: 'Sultan Mosque' } as const;
 const ROUTES = Object.keys(HUNT_AREAS).filter((id) => id !== 'short');
+const onsiteSave = (story: string) => `findsg-onsite-v1:${story}:manual`;
+
+/** The saved time's date on this phone's calendar: the saved time is UTC, so its own first ten characters can be a day early. */
+function localDay(at: unknown): string | undefined {
+  const d = typeof at === 'string' ? new Date(at) : null;
+  if (!d || Number.isNaN(d.getTime())) return undefined;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 
 function read(key: string): Record<string, unknown> | null {
   try {
@@ -34,13 +43,12 @@ function read(key: string): Record<string, unknown> | null {
 export function huntVisits(): HuntVisit[] {
   const out: HuntVisit[] = [];
   for (const story of ROUTES) {
-    const stops = read(`findsg-onsite-v1:${story}:manual`)?.stops;
+    const stops = read(onsiteSave(story))?.stops;
     if (typeof stops !== 'object' || stops === null) continue;
     for (const [stop, record] of Object.entries(stops)) {
       const checkin = (record as { checkin?: { mode?: unknown; confirmedAt?: unknown } } | null)?.checkin;
       if (checkin?.mode !== 'manual') continue;
-      const at = typeof checkin.confirmedAt === 'string' ? checkin.confirmedAt.slice(0, 10) : undefined;
-      out.push({ story, stop, on: at });
+      out.push({ story, stop, on: localDay(checkin.confirmedAt) });
     }
   }
   const short = read(SHORT_STORY_SAVE);

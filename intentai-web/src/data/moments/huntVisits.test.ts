@@ -1,4 +1,4 @@
-import { beforeEach, expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 // @ts-expect-error the game's modules are untyped
 import { ROUTES } from '../../findsg/app/data.js';
 // @ts-expect-error the game's modules are untyped
@@ -61,6 +61,16 @@ test('every story is covered, and the keys match what the game saves', () => {
 
 test('old callers are unchanged', () => {
   expect(buildStamps(DEFAULT_EXPLORE_PERSONAL, [], {}).filter((s) => s.collected)).toEqual([]);
+});
+
+test('a check-in is dated by the local calendar, not UTC', () => {
+  vi.stubEnv('TZ', 'Asia/Singapore');
+  // 07:30 on 3 Nov in Singapore is still 2 Nov in UTC
+  localStorage.setItem('findsg-onsite-v1:telok-ayer:manual', JSON.stringify({ stops: { a: { checkin: { mode: 'manual', confirmedAt: '2026-11-02T23:30:00.000Z' } } } }));
+  expect(huntVisits()).toEqual([{ story: 'telok-ayer', stop: 'a', on: '2026-11-03' }]);
+  localStorage.setItem('findsg-onsite-v1:telok-ayer:manual', JSON.stringify({ stops: { a: { checkin: { mode: 'manual', confirmedAt: 'not a date' } } } }));
+  expect(huntVisits()[0].on).toBeUndefined();
+  vi.unstubAllEnvs();
 });
 
 test('it stays light: no game or shelf code', () => {

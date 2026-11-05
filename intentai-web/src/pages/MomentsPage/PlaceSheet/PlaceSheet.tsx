@@ -33,7 +33,12 @@ function visitLink(key: string): { to: string; onClick?: () => void } {
 export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
   const { subject } = stamp;
   const [personal] = usePersistentStore(explorePersonalStore);
-  const visits = stampVisits(stamp, personal, (story, stop) => chapters().find((c) => c.routeId === story)?.stops.find((s) => s.id === stop)?.name ?? stop);
+  // Rebuilding the stories reads every saved game, so do it once, and only for a sheet that lists a stop.
+  let stories: ReturnType<typeof chapters> | undefined;
+  const visits = stampVisits(stamp, personal, (story, stop) => {
+    stories ??= chapters();
+    return stories.find((c) => c.routeId === story)?.stops.find((s) => s.id === stop)?.name ?? stop;
+  });
   const inNearby = nearbyHref({ kind: 'area', id: subject.id, label: subject.name });
   // a Hunt-only area has no place on Nearby's map
   const onMap = !subject.id.startsWith('hunt-');
