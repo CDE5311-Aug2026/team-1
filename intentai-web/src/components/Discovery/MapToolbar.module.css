@@ -36,7 +36,9 @@
   justify-content: space-between;
 }
 
+/* a 44 px key holding a 32 px tinted tile, radius 10, like the Settings rows' icons (MySpace.module.css .rowIcon) */
 .key {
+  position: relative;
   flex: none;
   width: 44px;
   height: 44px;
@@ -45,20 +47,61 @@
   padding: 0;
   border: 0;
   border-radius: var(--v2-r-control);
-  background: var(--key-bg);
+  background: none;
   color: var(--key-ink);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
-    background 0.15s ease,
     color 0.15s ease,
     transform 0.12s ease;
+}
+
+.key::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border-radius: 10px;
+  background: var(--key-bg);
+  transition: background 0.15s ease;
+}
+
+.key > svg {
+  position: relative;
 }
 
 .row .key {
   flex: 1 1 0;
   width: auto;
   max-width: 64px;
+}
+
+/* a narrow phone: 36 px keys and 4 px padding, so the rail takes less of the map; each key's tap target stays 44 px */
+@media (max-width: 359px) {
+  .rail {
+    top: 8px;
+    right: 6px;
+  }
+
+  .rail .bar {
+    gap: 4px;
+    padding: 4px;
+    border-radius: 14px;
+  }
+
+  .rail .key {
+    width: 36px;
+    height: 36px;
+  }
+
+  .rail .key::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+  }
 }
 
 .key:active:not(:disabled) {
@@ -101,19 +144,28 @@
 .key[aria-expanded='true'],
 .key[aria-pressed='true'],
 .key[aria-busy='true'] {
-  background: var(--key-ink);
   color: #fff;
 }
 
+.key[aria-expanded='true']::before,
+.key[aria-pressed='true']::before,
+.key[aria-busy='true']::before {
+  background: var(--key-ink);
+}
+
+/* not available (Back at the top level): the tile stays, its icon in muted ink (no see-through key) */
 .key:disabled {
-  background: var(--v2-surface-sunk);
   color: var(--v2-muted);
-  opacity: 0.45;
   cursor: default;
 }
 
+.key:disabled::before {
+  background: var(--v2-surface-sunk);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .key {
+  .key,
+  .key::before {
     transition: none;
   }
 
@@ -122,7 +174,8 @@
   }
 }
 
-:global(html.reduce-motion) .key {
+:global(html.reduce-motion) .key,
+:global(html.reduce-motion) .key::before {
   transition: none;
 }
 
@@ -189,15 +242,6 @@
   background: #fff;
   font: inherit;
   font-size: 0.875rem;
-}
-
-.group {
-  margin: 10px 0 4px;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
 }
 
 .list {
