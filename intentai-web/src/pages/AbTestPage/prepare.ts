@@ -32,6 +32,8 @@ export const clueTitle = () =>
 export function seedT4() {
   profileV3Store.set({ ...DEFAULT_PROFILE_V3, topics: ['culture', 'landmark', 'food'] });
   finishOnboarding();
+  // v2 screens read the Tourism 2040 ranking; the legacy flow above stays byte-for-byte as before (plan A1).
+  profileV3Store.set((prev) => ({ ...prev, tourismRanking: ['att', 'wel', 'lei', 'cru'] }));
   const record = remoteRecord();
   localStorage.setItem(onsiteStorageKey(T4_CLUE.route, 'preview'), JSON.stringify(record));
   localStorage.setItem('findsg-onsite-mode:' + T4_CLUE.route, 'preview');

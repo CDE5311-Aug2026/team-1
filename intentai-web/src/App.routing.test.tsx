@@ -15,14 +15,14 @@ test('default route shows Home: the regions deck and the holiday event', () => {
   expect(screen.getByRole('button', { name: /Deepavali long weekend/ })).toBeInTheDocument();
 });
 
-test('the tab bar is Home, Moments, Hunt, Passport; Hunt opens FindSG', async () => {
+test('the v2 tab bar is Home, Hunt, Passport plus Search; Hunt opens FindSG', async () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
       <App />
     </MemoryRouter>,
   );
   const tabs = within(screen.getByRole('navigation', { name: 'Primary' })).getAllByRole('button');
-  expect(tabs.map((t) => t.getAttribute('aria-label'))).toEqual(['Home', 'Moments', 'Hunt', 'Passport']);
+  expect(tabs.map((t) => t.getAttribute('aria-label'))).toEqual(['Home', 'Hunt', 'Passport', 'Search']);
   await userEvent.click(screen.getByRole('button', { name: /^hunt$/i }));
   expect(await screen.findByRole('heading', { level: 1, name: 'Hunt' })).toBeInTheDocument();
 });

@@ -22,8 +22,20 @@ test('renders children inside main with the primary tab bar', () => {
 });
 
 test('marks the tab matching the current path as current', () => {
+  renderAt('/hunt');
+  expect(screen.getByRole('button', { name: 'Hunt' })).toHaveAttribute('aria-current', 'page');
+});
+
+test('v2: Moments has no tab; its journal lives under Passport, so Passport is current there', () => {
   renderAt('/moments');
-  expect(screen.getByRole('button', { name: 'Moments' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.queryByRole('button', { name: 'Moments' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Passport' })).toHaveAttribute('aria-current', 'page');
+});
+
+test('v2: Search lights the round Search button, not a tab', () => {
+  renderAt('/search');
+  expect(screen.getByRole('button', { name: 'Search' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('button', { name: 'Home' })).not.toHaveAttribute('aria-current');
 });
 
 test('non-tab routes keep Home current', () => {
