@@ -204,6 +204,15 @@
   font-weight: 600;
 }
 
+.youLink {
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  /* a 44 px tap target without changing the line */
+  padding-block: 12px;
+  margin-block: -12px;
+}
 .you b {
   color: var(--text-primary);
 }

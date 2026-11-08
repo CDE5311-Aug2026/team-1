@@ -4,7 +4,7 @@
   --gutter: 16px;
   position: relative;
   min-height: 100%;
-  background: var(--bg-app);
+  /* no ground of its own: the app-wide chart paper shows through (v2) */
   color: var(--text-primary);
   font-family: var(--font-family);
 }

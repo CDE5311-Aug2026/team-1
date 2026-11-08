@@ -7,8 +7,9 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  /* v2 drops the kraft paper: the page is the flat linen ground (the inline photo is hidden under it) */
-  background: var(--bg-app) !important;
+  /* v2 drops the kraft paper; the app-wide chart paper (AppShell PaperLayer) shows through. Transparent still hides
+     the inline photo. */
+  background: transparent !important;
 }
 
 .screen {

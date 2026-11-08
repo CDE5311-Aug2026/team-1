@@ -429,7 +429,9 @@ describe('v2 sections', () => {
     expect(icons.map((s) => s.getAttribute('data-animal'))).toEqual(
       ['Arjun K.', 'Hui Wen', 'Farid', 'You'].map(animalFor),
     );
-    expect(within(board).getByText(/no time yet\. Open a challenge\./)).toBeInTheDocument();
+    expect(within(board).getByText(/no time yet\./)).toBeInTheDocument();
+    // "Open a challenge" is a link again: to the region's challenge volume
+    expect(within(board).getByRole('link', { name: 'Open a challenge' }).getAttribute('href')).toMatch(/^\/hunt#story\//);
     const civic = screen.getByRole('article', { name: 'Civic District' });
     expect(within(civic).getByText(/7–8 Nov · 8 stops · 214 joined/)).toBeInTheDocument();
     expect(within(civic).getByText('Example')).toBeInTheDocument();
@@ -473,7 +475,9 @@ describe('v2 sections', () => {
     huntModeStore.set({ mode: 'together', region: 'central' });
     renderHome();
     const board = screen.getByRole('region', { name: 'Leaderboard · Central · this weekend' });
-    expect(within(board).getByText(/no time yet\. Open a challenge\./)).toBeInTheDocument();
+    expect(within(board).getByText(/no time yet\./)).toBeInTheDocument();
+    // "Open a challenge" is a link again: to the region's challenge volume
+    expect(within(board).getByRole('link', { name: 'Open a challenge' }).getAttribute('href')).toMatch(/^\/hunt#story\//);
     localStorage.setItem('findsg-onsite-v1:kampong-gelam:manual', JSON.stringify({ stops: { 'kampong-gelam-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-09T01:00:00.000Z' } } } }));
     window.dispatchEvent(new Event('focus'));
     expect(await within(board).findByText(/clock running in Kampong Gelam\./)).toBeInTheDocument();

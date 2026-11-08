@@ -7,6 +7,7 @@
 //   the challenge's volume (its story, /hunt#story/<route>): the challenge page was retired (second canvas, 8 Nov 2026).
 // - Picked for you: real published places by your categories, then distance when Locate has found you.
 import { useMemo, useState, type CSSProperties } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from '../../components/Avatar/Avatar';
 import CategoryBadge from '../../components/Category/CategoryBadge';
@@ -60,7 +61,16 @@ export function ChallengeBook({ c }: { c: Challenge }) {
  *  read from the saved games (Home never loads the game), again each time you come back to Home. */
 function YouLine({ challenge }: { challenge: Challenge | undefined }) {
   const progress = useChallengeProgress(challenge, false);
-  let text = 'no time yet. Open a challenge.';
+  let text: ReactNode = (
+    <>
+      no time yet.{' '}
+      {/* the region's challenge opens its volume; with none, Hunt lists them all */}
+      <Link className={styles.youLink} to={challenge ? volumeHref(challenge.routeId) : paths.hunt}>
+        Open a challenge
+      </Link>
+      .
+    </>
+  );
   if (challenge && progress) {
     const t = progress.timer;
     if (t.kind === 'minutes' || t.kind === 'days') text = `${timerText(t)} in ${challenge.title}${t.finished ? '' : ' so far'}.`;
