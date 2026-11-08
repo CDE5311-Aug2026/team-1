@@ -67,7 +67,7 @@ test("presses count on the page they happen on: a button by its name, a link by 
       <button type="button" aria-label="Practise: chope">
         <span>Practise</span>
       </button>
-      <Link to="/nearby">a phrase someone typed</Link>
+      <Link to="/nearby/saved">a phrase someone typed</Link>
       <div data-no-track>
         <button type="button">Secret</button>
       </div>
@@ -82,8 +82,8 @@ test("presses count on the page they happen on: a button by its name, a link by 
   const taps = sent.filter((e) => e.kind === 'tap');
   expect(taps.map((e) => [e.name, e.ms, e.user])).toEqual([
     ['Moments › Practise chope', 0, 'P07'],
-    ['Moments › to Nearby', 0, 'P07'],
-    ['Nearby › Swipe card', 0, 'P07'], // the link above moved to Nearby
+    ['Moments › to Nearby saved', 0, 'P07'],
+    ['Nearby saved › Swipe card', 0, 'P07'], // the link above moved to Saved (the /nearby explorer is retired)
   ]);
 });
 
