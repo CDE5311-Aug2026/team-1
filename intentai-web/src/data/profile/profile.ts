@@ -165,7 +165,9 @@ export function repairProfileV3(value: unknown): ProfileV3 | null {
 }
 
 /** The legacy tag each v2 category is worked out from, for profiles saved before v2 (Landmark, Culture and Food are
- *  all attractions in STB's sense; Nature is wellness). */
+ *  read as attractions; Nature as wellness).
+ *  ESTIMATE: this mapping is the team's own estimate for migrating old profiles, not an STB classification; no
+ *  source places these old topics in the Tourism 2040 categories. */
 const TOPIC_TOURISM: Record<TopicId, TourismCategory> = { landmark: 'att', culture: 'att', food: 'att', nature: 'wel' };
 
 /** The v2 ranking as saved, or worked out from the legacy tags when none was saved. Pure: nothing is written. */

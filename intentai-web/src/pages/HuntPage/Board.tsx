@@ -69,7 +69,7 @@ function PassportBoard() {
         <span>
           <b>You</b> · no time yet.{' '}
           <Link to={volumeHref(ch.routeId)} className={pb.join}>
-            Join a challenge
+            Open a challenge
           </Link>
           .
         </span>

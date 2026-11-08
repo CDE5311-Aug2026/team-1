@@ -126,7 +126,7 @@ function HuntStep({ draft, setDraft, goTo, onDone }: StepProps) {
       <div className={styles.head}>
         <span className={styles.kicker}>Question 2 of 3</span>
         <h1 className={styles.title}>Hunt with others nearby?</h1>
-        <p className={styles.sub}>Join open challenges and see example leaderboards. Nothing about your location is shared.</p>
+        <p className={styles.sub}>Open this weekend’s challenges and see example leaderboards. Nothing about your location is shared.</p>
       </div>
       <HuntModeEditor
         mode={draft.mode}

@@ -94,6 +94,9 @@ test('question 2: Continue needs a mode and a region; Back keeps the question-1 
   await user.click(primary(/^Continue/));
   expect(location()).toBe('/onboarding?step=2');
   expect(h1()).toHaveTextContent('Hunt with others nearby?');
+  // a challenge opens its volume now (there is no Join)
+  expect(screen.getByText(/^Open this weekend’s challenges and see example leaderboards\./)).toBeInTheDocument();
+  expect(screen.queryByText(/Join/)).toBeNull();
   expect(primary(/Pick a mode and a region/)).toBeDisabled();
   await user.click(screen.getByRole('button', { name: /Not now/ }));
   expect(primary(/Pick a mode and a region/)).toBeDisabled();
