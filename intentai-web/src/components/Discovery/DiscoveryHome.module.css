@@ -1,4 +1,4 @@
-/* Home (Discovery, owner sketch 31 Oct): header, event card, map card, Recommended deck, tab bar. One screen. */
+/* Home (Discovery, owner sketch 31 Oct): header, map card, Recommended deck, tab bar. One screen. */
 .home {
   position: absolute;
   inset: 0;
@@ -47,87 +47,6 @@
   flex-direction: column;
   gap: 10px;
   flex-shrink: 0;
-}
-
-/* The calendar card: one quiet row, so the map stays the page's picture. What, why today, and the date. */
-.event {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: 12px;
-  height: 66px;
-  padding: 0 14px 0 9px;
-  box-sizing: border-box;
-  border: 0;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #fdf9ef;
-  color: #2f2014;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  box-shadow:
-    inset 0 0 0 1px rgba(90, 60, 25, 0.12),
-    0 10px 18px -14px rgba(60, 34, 14, 0.7);
-}
-
-.event:focus-visible {
-  outline: 2px solid #2f2014;
-  outline-offset: 2px;
-}
-
-.eventImg {
-  display: block;
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  object-fit: cover;
-  object-position: 50% 40%;
-}
-
-.eventText {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
-.eventTitle {
-  font: 500 1.125rem/1.1 var(--font-display);
-  letter-spacing: 0.01em;
-}
-
-.eventLine {
-  font-size: 0.8125rem;
-  line-height: 1.2;
-  color: rgba(59, 38, 20, 0.72);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* the date, like a torn-off calendar leaf */
-.eventDate {
-  display: grid;
-  justify-items: center;
-  width: 40px;
-  padding: 5px 0 4px;
-  border-radius: 8px;
-  background: #f8e4d3;
-  color: #8e2f17;
-}
-
-.eventDay {
-  font: 500 1.0625rem/1 var(--font-display);
-}
-
-.eventMonth {
-  margin-top: 2px;
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-transform: uppercase;
 }
 
 /* The map and its keys are one piece, made like a travel notebook: a brown leather body with stitching, the map as
@@ -333,14 +252,6 @@
     0 10px 16px -10px rgba(60, 35, 15, 0.6);
 }
 
-/* the picture card folds away while the map is stretched */
-.eventFold {
-  transition:
-    height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
-    margin 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 0.3s ease;
-}
-
 .mapTop {
   position: absolute;
   top: 10px;
@@ -540,15 +451,6 @@
     gap: 8px;
   }
 
-  .event {
-    height: 56px;
-  }
-
-  .eventImg {
-    width: 40px;
-    height: 40px;
-  }
-
   .mapCard {
     min-height: 118px;
   }
@@ -684,27 +586,6 @@
 /* v2: the overview map keeps its own colours (no paper warmth) */
 .device:not(.deviceOpen) .mapCard [role='application'] {
   filter: none;
-}
-
-.home:not(.homeOpen) .event {
-  height: 60px;
-  border-radius: var(--v2-r-card);
-  background: var(--v2-surface);
-  color: var(--text-primary);
-  box-shadow: var(--v2-shadow-card);
-}
-
-.home:not(.homeOpen) .eventLine {
-  color: var(--v2-muted);
-}
-
-.home:not(.homeOpen) .eventDate {
-  background: var(--tint-warm-2);
-  color: var(--accent-ink);
-}
-
-.home:not(.homeOpen) .event:focus-visible {
-  outline-color: var(--text-primary);
 }
 
 .home:not(.homeOpen) .title {
