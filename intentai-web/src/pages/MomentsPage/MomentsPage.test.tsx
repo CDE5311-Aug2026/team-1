@@ -45,8 +45,9 @@ test('new user: no stamps, no locked areas, and the empty states say what to do'
   expect(screen.getByText(/No stamps yet\./)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Check in at a place' })).toHaveAttribute('href', '/');
   expect(screen.queryByRole('button', { name: /no stamp yet/ })).not.toBeInTheDocument();
-  expect(screen.getByText('Nothing collected yet')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Explore places' })).toHaveAttribute('href', '/');
+  // the Collected section is gone (owner, 9 Nov 2026)
+  expect(screen.queryByText('Nothing collected yet')).toBeNull();
+  expect(screen.queryByRole('heading', { name: /Collected/ })).toBeNull();
   expect(screen.getByRole('button', { name: /Recap/ })).toBeDisabled();
 });
 
@@ -98,14 +99,6 @@ test('an outline stamp, for a place you hold a card from, sends you to Nearby to
   expect(within(sheet).getByText(/Not checked in yet/)).toBeInTheDocument();
   expect(within(sheet).getByRole('link', { name: 'Find a place to check in' })).toHaveAttribute('href', '/?lvl=places&r=central&a=ot');
   expect(within(sheet).queryByRole('button', { name: /Add ink/ })).not.toBeInTheDocument();
-});
-
-test('a phrase sheet deletes with Undo', async () => {
-  const user = userEvent.setup();
-  renderPage();
-  await user.click(within(screen.getByRole('article', { name: 'Phrase: chope' })).getAllByRole('button')[0]);
-  await user.click(within(screen.getByRole('dialog', { name: 'chope' })).getByRole('button', { name: 'Delete phrase' }));
-  expect(lookupsStore.get().map((l) => l.id)).not.toContain('chope');
 });
 
 test('rank sheet: rank from opened cards and badges with progress', async () => {
