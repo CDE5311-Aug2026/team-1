@@ -1,12 +1,14 @@
 // The v2 Home sections around the kept 3D map (boards 05 Home A "hunting together" and 11 Home B "solo"):
-// - the region leaderboard card (together mode only). The other hunters and their times are Hunt's SAMPLE players
-//   (stories.ts, as on Hunt's boards) and say "Example"; your own line is real (your time in this weekend's challenge,
+// - the region leaderboard card (together mode only; Passport shows the same card). Players wear the cute animal
+//   icons from components/Avatar (decorative; names stay as text). The other hunters and their times are Hunt's
+//   SAMPLE players (stories.ts, as on Hunt's boards) and say "Example"; your own line is real (your time in this weekend's challenge,
 //   from your stamps at its stops, if any).
 // - Challenges: Hunt's public challenges (both modes; solo leaves out the "joined" social line, plan B6). "Open" goes to
 //   the challenge's volume (its story, /hunt#story/<route>): the challenge page was retired (second canvas, 8 Nov 2026).
 // - Picked for you: real published places by your categories, then distance when Locate has found you.
 import { useMemo, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
+import Avatar from '../../components/Avatar/Avatar';
 import CategoryBadge from '../../components/Category/CategoryBadge';
 import CategoryGlyph from '../../components/Category/CategoryGlyph';
 import { placePicture } from '../../data/home/nearbyCards';
@@ -67,10 +69,7 @@ function YouLine({ challenge }: { challenge: Challenge | undefined }) {
   return (
     <p className={styles.you}>
       <span className={styles.youFace} aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4.5 20c1.2-4 4-6 7.5-6s6.3 2 7.5 6" />
-        </svg>
+        <Avatar name="You" size={26} />
       </span>
       <span>
         <b>You</b> · {text}
@@ -87,7 +86,7 @@ function Podium() {
       {top.map((r, i) => (
         <li key={r.name} className={styles.podiumRow}>
           <span className={styles.face} style={{ '--medal': MEDAL[i] } as CSSProperties} aria-hidden="true">
-            {r.name[0]}
+            <Avatar name={r.name} size={40} />
             <span className={styles.rank}>{i + 1}</span>
           </span>
           <span className={styles.who}>
@@ -114,17 +113,33 @@ function Podium() {
  * The region's board for today. Its challenge is the one open there (running now, else the next to open), and your
  * line is your time in that one; a region with no open challenge says so (no example players either).
  */
-export function RegionLeaderboard({ region, challenges }: { region: RegionId; challenges: readonly Challenge[] }) {
+export function RegionLeaderboard({
+  region,
+  challenges,
+  titleId = 'home-board-title',
+  className,
+}: {
+  region: RegionId;
+  challenges: readonly Challenge[];
+  /** The heading's id (unique on the page); Passport passes its own. */
+  titleId?: string;
+  className?: string;
+}) {
   const name = uraRegion(region)?.name ?? 'Central';
   const challenge = regionChallenge(region, localToday(), challenges);
   return (
-    <section className={styles.board} aria-labelledby="home-board-title">
+    <section className={className ? `${styles.board} ${className}` : styles.board} aria-labelledby={titleId}>
       <div className={styles.boardHead}>
-        <h2 id="home-board-title" className={styles.boardTitle}>
+        <h2 id={titleId} className={styles.boardTitle}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.trophy}>
             <path d="M8 21h8M12 17v4M6 3h12v5a6 6 0 0 1-12 0zM6 5H3v3a3 3 0 0 0 3 3M18 5h3v3a3 3 0 0 1-3 3" />
           </svg>
-          <span>{name} · this weekend</span>
+          {/* says what the card is (owner, 8 Nov 2026): "Leaderboard · East · this weekend", also when it is empty */}
+          <span className={styles.boardName}>
+            <span className={styles.boardKicker}>Leaderboard</span>
+            <span className={styles.srDot}> · </span>
+            <span>{name} · this weekend</span>
+          </span>
         </h2>
         {challenge && <Example />}
         <Link className={styles.boardLink} to={`${paths.hunt}?board=speed`} aria-label="Leaderboards">
@@ -174,7 +189,7 @@ function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
               <span className={styles.faces} aria-hidden="true">
                 {SAMPLE_SPEED.slice(0, 3).map((r) => (
                   <span key={r.name} className={styles.miniFace}>
-                    {r.name[0]}
+                    <Avatar name={r.name} size={22} />
                   </span>
                 ))}
               </span>

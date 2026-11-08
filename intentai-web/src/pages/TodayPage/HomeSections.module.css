@@ -63,6 +63,33 @@
   flex-shrink: 0;
 }
 
+/* "LEADERBOARD" kicker over "East · this weekend": the card says what it is (also when empty). The dot between them
+   is for screen readers only, so the heading reads "Leaderboard · East · this weekend". */
+.boardName {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.boardKicker {
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.srDot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .boardLink {
   width: 44px;
   height: 44px;
@@ -100,10 +127,6 @@
     0 0 0 3.5px var(--medal);
   display: grid;
   place-items: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--v2-ink-2);
 }
 
 .rank {
@@ -191,7 +214,6 @@
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--tint-warm-2);
-  color: var(--accent-ink);
   box-shadow: 0 0 0 1.5px var(--border-strong);
   display: grid;
   place-items: center;
@@ -369,9 +391,7 @@ span.sectionMeta {
   box-shadow: 0 0 0 2px var(--v2-surface);
   display: grid;
   place-items: center;
-  font-size: 0.5625rem;
-  font-weight: 700;
-  color: var(--v2-ink-2);
+  overflow: hidden;
 }
 
 .miniFace:first-child {
