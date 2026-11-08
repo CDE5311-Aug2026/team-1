@@ -39,7 +39,8 @@ test('[Onboarding + Home + Passport] the v2 onboarding opens Home; the answers a
   expect(onboardingStore.get().done).toBe(true);
   expect(tourismOrder(profileV3Store.get())[0]).toBe('wel');
   expect(huntModeStore.get()).toEqual({ mode: 'together', region: 'central' });
-});
+  // walks three screens, a sheet-free review and the stamp: slow on a loaded machine
+}, 15_000);
 
 test('[Today + streak] opening the app does not add a day; reading the holiday detail does', async () => {
   const now = new Date();

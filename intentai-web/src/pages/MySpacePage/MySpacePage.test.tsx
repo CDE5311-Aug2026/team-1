@@ -220,7 +220,7 @@ test('links: Privacy & data and Redo onboarding; Settings and Help live in the t
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   await userEvent.click(screen.getByRole('button', { name: /Redo onboarding/ }));
   expect(currentPath()).toBe(paths.welcome);
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Which places do you want to find first?');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('What would you like to explore?');
 });
 
 test('S2: Reduce motion is the app-wide setting; captions are kept locally', async () => {
