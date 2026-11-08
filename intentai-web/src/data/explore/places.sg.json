@@ -3836,8 +3836,8 @@
       }
     },
     "tourism": {
-      "category": "att",
-      "subtype": "attraction"
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -5822,8 +5822,8 @@
       }
     },
     "tourism": {
-      "category": "att",
-      "subtype": "attraction"
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {

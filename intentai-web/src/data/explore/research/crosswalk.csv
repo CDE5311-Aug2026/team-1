@@ -38,7 +38,7 @@ wel-20,"Hideaway Bathhouse, New Bahru",,,child-of:curated:sg-new-bahru,A bathhou
 wel-21,g.spa,,,new,No record for this place in the catalogue.
 wel-22,Sentosa Sensoryscape,,,new,No record for this place in the catalogue.
 wel-23,Mandai Boardwalk,,,new,No record for this place in the catalogue.
-wel-24,Southern Ridges & Henderson Waves,"curated:sg-henderson-waves (82: name contains (2 words), 10 m)",,ambiguous,Southern Ridges & Henderson Waves (a 10 km ridge walk) vs the record Henderson Waves (one bridge on it). Whole vs part: left for the owner.
+wel-24,Southern Ridges & Henderson Waves,"curated:sg-henderson-waves (82: name contains (2 words), 10 m)",,match:curated:sg-henderson-waves,"Owner ruling 8 Nov 2026: the ridge walk maps to the existing Henderson Waves record (the bridge on it). Only tourism comes from the doc; no whole-walk facts, length or coordinates move onto the bridge (B4)."
 wel-25,MacRitchie TreeTop Walk,,,child-of:curated:sg-macritchie-reservoir-park,The TreeTop Walk is a trail inside MacRitchie Reservoir Park.
 wel-26,Bukit Timah Nature Reserve,"curated:sg-bukit-timah-nature-reserve (120: same normalised name, 185 m) ; curated:sg-nus-bukit-timah-campus-faculty-of-law-former-raffles-college (42: 2 shared words) ; curated:sg-bukit-batok-nature-park (42: 2 shared words)",,match:curated:sg-bukit-timah-nature-reserve,Same reserve.
 wel-27,Jurong Lake Gardens,"curated:sg-jurong-lake-gardens (100: same normalised name) ; curated:sg-chinese-garden-jurong-lake-gardens (83: name contains (3 words), 222 m)",,match:curated:sg-jurong-lake-gardens,"Same national garden (the Chinese Garden record is a part of it, not this row)."
@@ -61,7 +61,7 @@ lei-12,Sentosa Golf Club,,,new,No record for this place in the catalogue.
 lei-13,Singapore EXPO,,,new,No record for this place in the catalogue.
 lei-14,Sands Expo & Convention Centre,,,child-of:curated:sg-marina-bay-sands,The convention centre is part of the Marina Bay Sands complex.
 lei-15,Suntec Convention Centre,,,child-of:curated:sg-suntec-city,The convention centre is part of Suntec City.
-lei-16,Fort Canning Park,"curated:sg-fort-canning-park-fort-gate-fort-canning-centre (83: name contains (3 words), 146 m)",,ambiguous,Fort Canning Park as a whole vs the record “Fort Canning Park: Fort Gate & Fort Canning Centre” (a part of it). B4: no whole-park data moves onto the narrower record until the owner rules.
+lei-16,Fort Canning Park,"curated:sg-fort-canning-park-fort-gate-fort-canning-centre (83: name contains (3 words), 146 m)",,match:curated:sg-fort-canning-park-fort-gate-fort-canning-centre,"Owner ruling 8 Nov 2026: Fort Canning Park (whole) maps to the existing Fort Canning Park record. Only tourism comes from the doc; no whole-park coordinates, hours or description move onto the narrower record (B4)."
 lei-17,Capitol Theatre,"curated:sg-capitol-singapore (81: name contains (1 words), 24 m)",Capitol Theatre,match:curated:sg-capitol-singapore,The record is about Capitol Theatre (opened 1930).
 lei-18,Victoria Theatre & Concert Hall,"curated:sg-victoria-theatre-and-concert-hall (120: same normalised name, 8 m)",,match:curated:sg-victoria-theatre-and-concert-hall,Same building.
 lei-19,Star Theatre,,,child-of:curated:sg-the-star-vista,"The theatre is in The Star, the complex the Star Vista mall record sits in."
@@ -107,12 +107,12 @@ att-30,Singapore Botanic Gardens,"curated:sg-singapore-botanic-gardens (120: sam
 att-31,Haw Par Villa,curated:sg-haw-par-villa (100: same normalised name),,match:curated:sg-haw-par-villa,Same park.
 att-32,New Bahru,,,new,No record for this place in the catalogue.
 att-33,Founders' Memorial (under construction),,,new,No record for this place in the catalogue.
-att-34,Science Centre at Jurong Lake District,curated:sg-science-centre-singapore (62: name contains (2 words)) ; curated:sg-chinese-garden-jurong-lake-gardens (42: 2 shared words) ; curated:sg-jurong-lake-gardens (42: 2 shared words),,ambiguous,The new Science Centre at Jurong Lake District vs the record Science Centre Singapore (the current building in Jurong East): a relocation of the same institution or a new place? Left for the owner.
+att-34,Science Centre at Jurong Lake District,curated:sg-science-centre-singapore (62: name contains (2 words)) ; curated:sg-chinese-garden-jurong-lake-gardens (42: 2 shared words) ; curated:sg-jurong-lake-gardens (42: 2 shared words),,match:curated:sg-science-centre-singapore,"Owner ruling 8 Nov 2026: the same institution as the existing Science Centre Singapore record, which keeps its current coordinates and stays open (no planned status added). The doc slates the move to Jurong Lake District for 2027; only tourism comes from the doc."
 pre-01,Marina Bay,curated:sg-marina-bay-financial-centre (62: name contains (2 words)) ; curated:sg-marina-bay-sands (62: name contains (2 words)) ; curated:sg-the-float-marina-bay (62: name contains (2 words)),,new,No record for this place in the catalogue.
 pre-02,Orchard Road,,,new,No record for this place in the catalogue.
 pre-03,Civic District,,,new,No record for this place in the catalogue.
 pre-04,"Singapore River (Boat, Clarke, Robertson Quays)",,,new,No record for this place in the catalogue.
-pre-05,Chinatown,curated:sg-chinatown-complex-food-centre (61: name contains (1 words)),,new,No record for this place in the catalogue.
+pre-05,Chinatown,curated:sg-chinatown-complex-food-centre (61: name contains (1 words)),,match:curated:sg-pagoda-street-trengganu-street,Owner instruction 8 Nov 2026 (adapt to existing places used by the stories): the Chinatown story and its team route use Pagoda Street and Trengganu Street as the Chinatown precinct place. Only tourism (att/precinct) comes from the doc; no whole-district facts move onto the streets (B4).
 pre-06,Kampong Gelam,curated:sg-malay-heritage-centre-istana-kampong-gelam (62: name contains (2 words)),,new,No record for this place in the catalogue.
 pre-07,Little India,curated:sg-little-india (100: same normalised name) ; curated:sg-bismillah-biryani (62: name contains (2 words)),,match:curated:sg-little-india,The record is the Little India conservation district.
 pre-08,Katong–Joo Chiat,curated:sg-koon-seng-road-shophouses (42: 2 shared words) ; curated:sg-kuan-im-tng-temple (42: 2 shared words),,new,No record for this place in the catalogue.
