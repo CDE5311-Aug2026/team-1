@@ -1,0 +1,148 @@
+docRow,name,proposed,aliases,outcome,reason
+cru-01,Marina Bay Cruise Centre Singapore,curated:sg-marina-bay-financial-centre (43: 3 shared words) ; curated:sg-marina-bay-sands (42: 2 shared words) ; curated:sg-the-float-marina-bay (42: 2 shared words),,new,No record for this place in the catalogue.
+cru-02,Singapore Cruise Centre (HarbourFront),,,new,No record for this place in the catalogue.
+cru-03,Tanah Merah Ferry Terminal,,,new,No record for this place in the catalogue.
+cru-04,Marina South Pier,,,new,No record for this place in the catalogue.
+cru-05,Changi Point Ferry Terminal,curated:sg-changi-airport-terminal-4 (42: 2 shared words),,new,No record for this place in the catalogue.
+cru-06,West Coast Pier,curated:sg-west-coast-park (42: 2 shared words) ; curated:sg-west-coast-market-square (42: 2 shared words),,new,No record for this place in the catalogue.
+cru-07,ONE°15 Marina Sentosa Cove,curated:sg-marina-one (62: name contains (2 words)),,new,No record for this place in the catalogue.
+cru-08,Marina at Keppel Bay,curated:sg-marina-bay-financial-centre (42: 2 shared words) ; curated:sg-marina-bay-sands (42: 2 shared words) ; curated:sg-the-float-marina-bay (42: 2 shared words),,new,No record for this place in the catalogue.
+cru-09,Republic of Singapore Yacht Club,,,new,No record for this place in the catalogue.
+cru-10,Raffles Marina,,,new,No record for this place in the catalogue.
+cru-11,"Singapore River Cruise, Clarke Quay jetty","curated:sg-clarke-quay (82: name contains (2 words), 66 m)",,child-of:curated:sg-clarke-quay,A jetty on Clarke Quay: a narrower place than the quay record.
+cru-12,Kusu Island,,,new,No record for this place in the catalogue.
+cru-13,St John's & Lazarus Islands,,,new,No record for this place in the catalogue.
+cru-14,Sisters' Islands Marine Park,curated:sg-sisters-islands-marine-park (64: name contains (4 words)),Big Sister’s Island,match:curated:sg-sisters-islands-marine-park,"The record is the marine park itself (boat from Marina South Pier, public visits on Big Sister’s Island)."
+cru-15,Pulau Ubin,curated:sg-pulau-ubin (100: same normalised name),,match:curated:sg-pulau-ubin,Same island.
+cru-16,Integrated Cruise & Ferry Terminal (under study),,,new,No record for this place in the catalogue.
+wel-01,Therme Singapore,,,new,No record for this place in the catalogue.
+wel-02,"Auriga Spa, Capella Singapore",,,new,"Inside Capella Singapore (hot-05), which is not in the catalogue."
+wel-03,"Banyan Tree Spa, Marina Bay Sands","curated:sg-marina-bay-sands (83: name contains (3 words), 160 m) ; curated:sg-marina-bay-financial-centre (42: 2 shared words) ; curated:sg-the-float-marina-bay (42: 2 shared words)",,child-of:curated:sg-marina-bay-sands,A spa inside Marina Bay Sands.
+wel-04,"Willow Stream Spa, Fairmont",,,new,"Inside Fairmont Singapore, which is not in the catalogue."
+wel-05,The St. Regis Spa (formerly Remède Spa),,,new,No record for this place in the catalogue.
+wel-06,"ESPA, Resorts World Sentosa",,,new,"Inside Resorts World Sentosa (hot-02), which is not in the catalogue."
+wel-07,"BODHI Spa, The Laurus",,,child-of:curated:sg-the-laurus,A spa inside The Laurus (new record hot-07).
+wel-08,"Raffles Spa, Raffles Singapore","curated:sg-raffles-city (82: name contains (2 words), 156 m) ; curated:sg-raffles-hotel (82: name contains (2 words), 38 m) ; curated:sg-raffles-lighthouse (62: name contains (2 words))",,child-of:curated:sg-raffles-hotel,A spa inside Raffles Hotel.
+wel-09,Raffles Sentosa Spa,,,child-of:curated:sg-raffles-sentosa-singapore,The spa of Raffles Sentosa (new record hot-04).
+wel-10,"AWAY Spa, W Sentosa Cove",,,new,"Inside W Singapore – Sentosa Cove (hot-16), which is not in the catalogue."
+wel-11,"CHI, The Spa, Shangri-La Rasa Sentosa",,,new,"Inside Shangri-La Rasa Sentosa (hot-15), which is not in the catalogue."
+wel-12,Oasia Resort Sentosa,,,new,No record for this place in the catalogue.
+wel-13,"COMO Shambhala Spa, Bideford Road",,,new,No record for this place in the catalogue.
+wel-14,Aramsa – The Garden Spa,,,new,No record for this place in the catalogue.
+wel-15,Yunomori Onsen & Spa,,,new,No record for this place in the catalogue.
+wel-16,House Longevity & Sauna Bath House,curated:sg-parliament-house (62: name contains (2 words)) ; curated:sg-macdonald-house (62: name contains (2 words)) ; curated:sg-clifford-pier-customs-house (42: 2 shared words),,new,No record for this place in the catalogue.
+wel-17,Sama Wellness,,,new,No record for this place in the catalogue.
+wel-18,House of Wellness,,,new,No record for this place in the catalogue.
+wel-19,"Future Resonance, New Bahru",,,child-of:curated:sg-new-bahru,A studio inside New Bahru (new record att-32).
+wel-20,"Hideaway Bathhouse, New Bahru",,,child-of:curated:sg-new-bahru,A bathhouse inside New Bahru (new record att-32).
+wel-21,g.spa,,,new,No record for this place in the catalogue.
+wel-22,Sentosa Sensoryscape,,,new,No record for this place in the catalogue.
+wel-23,Mandai Boardwalk,,,new,No record for this place in the catalogue.
+wel-24,Southern Ridges & Henderson Waves,"curated:sg-henderson-waves (82: name contains (2 words), 10 m)",,ambiguous,Southern Ridges & Henderson Waves (a 10 km ridge walk) vs the record Henderson Waves (one bridge on it). Whole vs part: left for the owner.
+wel-25,MacRitchie TreeTop Walk,,,child-of:curated:sg-macritchie-reservoir-park,The TreeTop Walk is a trail inside MacRitchie Reservoir Park.
+wel-26,Bukit Timah Nature Reserve,"curated:sg-bukit-timah-nature-reserve (120: same normalised name, 185 m) ; curated:sg-nus-bukit-timah-campus-faculty-of-law-former-raffles-college (42: 2 shared words) ; curated:sg-bukit-batok-nature-park (42: 2 shared words)",,match:curated:sg-bukit-timah-nature-reserve,Same reserve.
+wel-27,Jurong Lake Gardens,"curated:sg-jurong-lake-gardens (100: same normalised name) ; curated:sg-chinese-garden-jurong-lake-gardens (83: name contains (3 words), 222 m)",,match:curated:sg-jurong-lake-gardens,"Same national garden (the Chinese Garden record is a part of it, not this row)."
+wel-28,Sungei Buloh Wetland Reserve,curated:sg-sungei-buloh-wetland-reserve (100: same normalised name),,match:curated:sg-sungei-buloh-wetland-reserve,Same reserve.
+wel-29,Coney Island Park,"curated:sg-coney-island-park (120: same normalised name, 133 m) ; curated:sg-sisters-islands-marine-park (42: 2 shared words)",,match:curated:sg-coney-island-park,Same park.
+wel-30,East Coast Park,curated:sg-east-coast-park (100: same normalised name) ; curated:sg-west-coast-park (42: 2 shared words) ; curated:sg-kim-choo-kueh-chang (42: 2 shared words),,match:curated:sg-east-coast-park,Same park.
+wel-31,Kranji Countryside farms,,,new,No record for this place in the catalogue.
+lei-01,Marina Bay Street Circuit & F1 Pit Building,curated:sg-marina-bay-financial-centre (42: 2 shared words) ; curated:sg-marina-bay-sands (42: 2 shared words) ; curated:sg-the-float-marina-bay (42: 2 shared words),,new,No record for this place in the catalogue.
+lei-02,"National Stadium, The Kallang","curated:sg-national-stadium-sports-hub (62: 2 shared words, 92 m)",National Stadium · Sports Hub,match:curated:sg-national-stadium-sports-hub,Same stadium.
+lei-03,Singapore Indoor Stadium,"curated:sg-singapore-indoor-stadium (120: same normalised name, 5 m)",,match:curated:sg-singapore-indoor-stadium,Same arena.
+lei-04,"OCBC Arena, The Kallang",,,new,No record for this place in the catalogue.
+lei-05,New Kallang indoor arena,,,new,No record for this place in the catalogue.
+lei-06,Esplanade – Theatres on the Bay,"curated:sg-esplanade-theatres-on-the-bay (120: same normalised name, 100 m)",,match:curated:sg-esplanade-theatres-on-the-bay,Same arts centre.
+lei-07,The Padang,,,new,No record for this place in the catalogue.
+lei-08,Bayfront Event Space,,,new,No record for this place in the catalogue.
+lei-09,"IMBA Theatre, Gardens by the Bay","curated:sg-gardens-by-the-bay (82: name contains (2 words), 225 m)",,child-of:curated:sg-gardens-by-the-bay,"A venue on the West Lawn of Gardens by the Bay; its own record, inheriting nothing."
+lei-10,"Marina Bay Sands expansion: 15,000-seat arena",curated:sg-marina-bay-sands (63: name contains (3 words)) ; curated:sg-marina-bay-financial-centre (42: 2 shared words) ; curated:sg-the-float-marina-bay (42: 2 shared words),,child-of:curated:sg-marina-bay-sands,Part of the planned Marina Bay Sands expansion.
+lei-11,Downtown MICE Hub,,,new,No record for this place in the catalogue.
+lei-12,Sentosa Golf Club,,,new,No record for this place in the catalogue.
+lei-13,Singapore EXPO,,,new,No record for this place in the catalogue.
+lei-14,Sands Expo & Convention Centre,,,child-of:curated:sg-marina-bay-sands,The convention centre is part of the Marina Bay Sands complex.
+lei-15,Suntec Convention Centre,,,child-of:curated:sg-suntec-city,The convention centre is part of Suntec City.
+lei-16,Fort Canning Park,"curated:sg-fort-canning-park-fort-gate-fort-canning-centre (83: name contains (3 words), 146 m)",,ambiguous,Fort Canning Park as a whole vs the record “Fort Canning Park: Fort Gate & Fort Canning Centre” (a part of it). B4: no whole-park data moves onto the narrower record until the owner rules.
+lei-17,Capitol Theatre,"curated:sg-capitol-singapore (81: name contains (1 words), 24 m)",Capitol Theatre,match:curated:sg-capitol-singapore,The record is about Capitol Theatre (opened 1930).
+lei-18,Victoria Theatre & Concert Hall,"curated:sg-victoria-theatre-and-concert-hall (120: same normalised name, 8 m)",,match:curated:sg-victoria-theatre-and-concert-hall,Same building.
+lei-19,Star Theatre,,,child-of:curated:sg-the-star-vista,"The theatre is in The Star, the complex the Star Vista mall record sits in."
+lei-20,Zouk Singapore,,,new,No record for this place in the catalogue.
+lei-21,Siloso Beach,,,new,No record for this place in the catalogue.
+lei-22,NS Square (under construction),,The Float@Marina Bay,match:curated:sg-the-float-marina-bay,"The record is The Float, the site being rebuilt as NS Square (its kind says so). The doc’s planned status has no source, so operatingStatus is not set."
+lei-23,Grange Road Events Venue by Live Nation,,,new,No record for this place in the catalogue.
+lei-24,"Christmas on a Great Street, Orchard Road",,,new,"A seasonal event pinned at ION Orchard; an event, not a destination record."
+lei-25,"Christmas Wonderland, Supertree Grove",,,new,"A seasonal event at Supertree Grove (Gardens by the Bay); an event, not a destination record."
+lei-26,"Changi Festive Village, Terminal 3",curated:sg-changi-airport-terminal-4 (42: 2 shared words) ; curated:sg-changi-airport-terminals-1-3 (42: 2 shared words),,new,"A seasonal event at Changi Airport Terminal 3; an event, not a destination record."
+lei-27,"Deepavali Light-Up, Serangoon Road",,,new,"A seasonal light-up along Serangoon Road (Little India); an event, not a destination record."
+lei-28,Marina Bay Singapore Countdown,"curated:sg-marina-bay-financial-centre (62: 2 shared words, 229 m) ; curated:sg-the-sail-marina-bay (62: 2 shared words, 170 m) ; curated:sg-marina-bay-sands (42: 2 shared words)",,new,"A yearly event pinned at The Promontory; an event, not a destination record."
+att-01,Gardens by the Bay,curated:sg-gardens-by-the-bay (100: same normalised name),,match:curated:sg-gardens-by-the-bay,Same gardens.
+att-02,Wetlands by the Bay & teamLab museum,,,child-of:curated:sg-gardens-by-the-bay,An expansion of the Kingfisher Wetlands at Gardens by the Bay.
+att-03,Marina Bay Sands SkyPark,"curated:sg-marina-bay-sands (83: name contains (3 words), 160 m) ; curated:sg-marina-bay-financial-centre (42: 2 shared words) ; curated:sg-the-float-marina-bay (42: 2 shared words)",,child-of:curated:sg-marina-bay-sands,The SkyPark tops the Marina Bay Sands towers.
+att-04,ArtScience Museum,"curated:sg-artscience-museum (120: same normalised name, 17 m)",,match:curated:sg-artscience-museum,Same museum.
+att-05,Singapore Flyer,"curated:sg-singapore-flyer (120: same normalised name, 44 m)",,match:curated:sg-singapore-flyer,Same wheel.
+att-06,Merlion Park,"curated:sg-merlion-park (120: same normalised name, 14 m)",,match:curated:sg-merlion-park,Same park.
+att-07,Marina Barrage,"curated:sg-marina-barrage (120: same normalised name, 205 m)",,match:curated:sg-marina-barrage,Same barrage.
+att-08,Universal Studios Singapore,"curated:sg-universal-studios-singapore (120: same normalised name, 236 m)",,match:curated:sg-universal-studios-singapore,Same theme park.
+att-09,Singapore Oceanarium,,,new,No record for this place in the catalogue.
+att-10,"WEAVE, Resorts World Sentosa",,,new,No record for this place in the catalogue.
+att-11,Adventure Cove Waterpark,,,new,No record for this place in the catalogue.
+att-12,Skypark Sentosa by AJ Hackett,,,new,No record for this place in the catalogue.
+att-13,"Singapore Cable Car, Faber Peak",,,new,No record for this place in the catalogue.
+att-14,Fort Siloso,"curated:sg-fort-siloso (120: same normalised name, 76 m) ; curated:sg-fort-siloso-skywalk (82: name contains (2 words), 152 m)",,match:curated:sg-fort-siloso,Same fort (Fort Siloso Skywalk is a separate record).
+att-15,Palawan Beach,,,new,No record for this place in the catalogue.
+att-16,Singapore Zoo,,,new,No record for this place in the catalogue.
+att-17,Night Safari,,,new,No record for this place in the catalogue.
+att-18,River Wonders,,,new,No record for this place in the catalogue.
+att-19,Bird Paradise,,,new,No record for this place in the catalogue.
+att-20,Rainforest Wild Adventure (West & East),,,new,No record for this place in the catalogue.
+att-21,Exploria,,,new,No record for this place in the catalogue.
+att-22,Curiosity Cove,,,new,No record for this place in the catalogue.
+att-23,Jewel Changi Airport,"curated:sg-jewel-changi-airport (120: same normalised name, 76 m) ; curated:sg-changi-airport-control-tower (62: 2 shared words, 132 m) ; curated:sg-changi-airport-terminal-4 (42: 2 shared words)",,match:curated:sg-jewel-changi-airport,Same building.
+att-24,Porsche Experience Centre Singapore,,,new,No record for this place in the catalogue.
+att-25,National Gallery Singapore,"curated:sg-national-gallery-singapore (120: same normalised name, 46 m)",,match:curated:sg-national-gallery-singapore,Same museum.
+att-26,National Museum of Singapore,"curated:sg-national-museum-of-singapore (120: same normalised name, 20 m)",,match:curated:sg-national-museum-of-singapore,Same museum.
+att-27,Asian Civilisations Museum,"curated:sg-asian-civilisations-museum (120: same normalised name, 4 m)",,match:curated:sg-asian-civilisations-museum,Same museum.
+att-28,Malay Heritage Centre,"curated:sg-malay-heritage-centre-istana-kampong-gelam (83: name contains (3 words), 4 m) ; curated:sg-indian-heritage-centre (42: 2 shared words)",Istana Kampong Gelam,match:curated:sg-malay-heritage-centre-istana-kampong-gelam,"Same museum. Reopening on 25 Apr 2026 is sourced (Time Out), so operatingStatus new is added."
+att-29,Buddha Tooth Relic Temple,"curated:sg-buddha-tooth-relic-temple-and-museum (84: name contains (4 words), 1 m) ; curated:sg-sakya-muni-buddha-gaya (42: 2 shared words)",Buddha Tooth Relic Temple and Museum,match:curated:sg-buddha-tooth-relic-temple-and-museum,Same temple.
+att-30,Singapore Botanic Gardens,"curated:sg-singapore-botanic-gardens (120: same normalised name, 4 m)",,match:curated:sg-singapore-botanic-gardens,Same gardens.
+att-31,Haw Par Villa,curated:sg-haw-par-villa (100: same normalised name),,match:curated:sg-haw-par-villa,Same park.
+att-32,New Bahru,,,new,No record for this place in the catalogue.
+att-33,Founders' Memorial (under construction),,,new,No record for this place in the catalogue.
+att-34,Science Centre at Jurong Lake District,curated:sg-science-centre-singapore (62: name contains (2 words)) ; curated:sg-chinese-garden-jurong-lake-gardens (42: 2 shared words) ; curated:sg-jurong-lake-gardens (42: 2 shared words),,ambiguous,The new Science Centre at Jurong Lake District vs the record Science Centre Singapore (the current building in Jurong East): a relocation of the same institution or a new place? Left for the owner.
+pre-01,Marina Bay,curated:sg-marina-bay-financial-centre (62: name contains (2 words)) ; curated:sg-marina-bay-sands (62: name contains (2 words)) ; curated:sg-the-float-marina-bay (62: name contains (2 words)),,new,No record for this place in the catalogue.
+pre-02,Orchard Road,,,new,No record for this place in the catalogue.
+pre-03,Civic District,,,new,No record for this place in the catalogue.
+pre-04,"Singapore River (Boat, Clarke, Robertson Quays)",,,new,No record for this place in the catalogue.
+pre-05,Chinatown,curated:sg-chinatown-complex-food-centre (61: name contains (1 words)),,new,No record for this place in the catalogue.
+pre-06,Kampong Gelam,curated:sg-malay-heritage-centre-istana-kampong-gelam (62: name contains (2 words)),,new,No record for this place in the catalogue.
+pre-07,Little India,curated:sg-little-india (100: same normalised name) ; curated:sg-bismillah-biryani (62: name contains (2 words)),,match:curated:sg-little-india,The record is the Little India conservation district.
+pre-08,Katong–Joo Chiat,curated:sg-koon-seng-road-shophouses (42: 2 shared words) ; curated:sg-kuan-im-tng-temple (42: 2 shared words),,new,No record for this place in the catalogue.
+pre-09,Bras Basah–Bugis,,,new,No record for this place in the catalogue.
+pre-10,Dempsey,curated:sg-chang-korean-charcoal-bbq (61: name contains (1 words)),,new,No record for this place in the catalogue.
+pre-11,Greater Sentosa (incl. Pulau Brani),,,new,No record for this place in the catalogue.
+pre-12,Mandai Wildlife Reserve,,,new,No record for this place in the catalogue.
+pre-13,Jurong Lake District,curated:sg-chinese-garden-jurong-lake-gardens (42: 2 shared words) ; curated:sg-jurong-lake-gardens (42: 2 shared words),,new,No record for this place in the catalogue.
+pre-14,HarbourFront–Keppel (Greater Southern Waterfront),,,new,No record for this place in the catalogue.
+pre-15,Changi Village & East Coast,curated:sg-kim-choo-kueh-chang (42: 2 shared words) ; curated:sg-east-coast-park (42: 2 shared words),,new,No record for this place in the catalogue.
+pre-16,Changi East Urban District,,,new,No record for this place in the catalogue.
+hot-01,Marina Bay Sands,"curated:sg-marina-bay-sands (120: same normalised name, 160 m) ; curated:sg-marina-bay-financial-centre (42: 2 shared words) ; curated:sg-the-float-marina-bay (42: 2 shared words)",,match:curated:sg-marina-bay-sands,Same integrated resort.
+hot-02,Resorts World Sentosa,,,new,No record for this place in the catalogue.
+hot-03,Raffles Hotel Singapore,"curated:sg-raffles-hotel (82: name contains (2 words), 38 m)",,match:curated:sg-raffles-hotel,Same hotel.
+hot-04,Raffles Sentosa Singapore,,,new,No record for this place in the catalogue.
+hot-05,Capella Singapore,,,new,No record for this place in the catalogue.
+hot-06,Mandai Rainforest Resort by Banyan Tree,,,new,No record for this place in the catalogue.
+hot-07,"The Laurus, a Luxury Collection Resort",,,new,No record for this place in the catalogue.
+hot-08,The Mora Singapore,,,new,No record for this place in the catalogue.
+hot-09,The Fullerton Hotel,,The Fullerton Hotel | The Fullerton Building,match:curated:sg-fullerton-building,The Fullerton Building is The Fullerton Hotel (the record says it is now a hotel).
+hot-10,The Fullerton Bay Hotel,,,new,No record for this place in the catalogue.
+hot-11,Pan Pacific Orchard,,,new,No record for this place in the catalogue.
+hot-12,Goodwood Park Hotel,"curated:sg-goodwood-park-hotel (120: same normalised name, 24 m)",,match:curated:sg-goodwood-park-hotel,Same hotel.
+hot-13,Parkroyal Collection Pickering,"curated:sg-parkroyal-collection-pickering (120: same normalised name, 3 m)",,match:curated:sg-parkroyal-collection-pickering,Same hotel.
+hot-14,The Singapore EDITION,,,new,No record for this place in the catalogue.
+hot-15,Shangri-La Rasa Sentosa,,,new,No record for this place in the catalogue.
+hot-16,W Singapore – Sentosa Cove,,,new,No record for this place in the catalogue.
+hot-17,"Maxwell Reserve Singapore, Autograph Collection",,,new,No record for this place in the catalogue.
+hot-18,"Frasers House, a Luxury Collection Hotel",,,new,No record for this place in the catalogue.
+hot-19,Hotel Waterloo Singapore,,,new,No record for this place in the catalogue.
+hot-20,Varel Singapore,,,new,No record for this place in the catalogue.
+hot-21,Mövenpick Singapore,,,new,No record for this place in the catalogue.
+hot-22,NoMad Singapore at Faber House,,,new,No record for this place in the catalogue.
