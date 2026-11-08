@@ -41,6 +41,7 @@ import { formatHomeDistance } from "../../data/homePlaces";
 import styles from "./Hunt.module.css";
 import a from "./HuntArchive.module.css";
 import bd from "./Boards.module.css";
+import Avatar from "../../components/Avatar/Avatar";
 import { CHALLENGES } from "../../data/hunt/challenges";
 import CategoryBadge from "../../components/Category/CategoryBadge";
 
@@ -313,6 +314,7 @@ function MiniBoard({
             <span className={bd.rank} data-n={i + 1}>
               {i + 1}
             </span>
+            <Avatar name={r.name} size={32} className={bd.rowAvatar} />
             <span className={bd.name}>{r.name}</span>
             <span className={bd.value}>
               {r.value} {unit}

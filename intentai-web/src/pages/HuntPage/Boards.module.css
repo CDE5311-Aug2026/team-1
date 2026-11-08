@@ -236,8 +236,11 @@ button.card {
 .podium li[data-n='1'] .avatar {
   width: 60px;
   height: 60px;
-  font-size: 1.375rem;
   box-shadow: 0 0 0 2px var(--medal-gold);
+}
+/* a player's animal icon in a list row (Avatar, decorative: the name stays as text) */
+.rowAvatar {
+  flex: none;
 }
 .medal {
   position: absolute;

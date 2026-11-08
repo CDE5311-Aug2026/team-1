@@ -1,85 +1,25 @@
 // The boards (owner: "who has explored the most of Singapore, and who is fastest in the community challenges"):
 // Explorers, by all of Singapore or one region, and Fastest for this weekend's challenge. The other players are
 // samples until the leaderboard service and accounts exist; your own count is real (places you explored).
-// v2 (owner, 8 Nov 2026): the page board in the field archive's language (Boards.module.css), on the app's chart paper.
+// v2 (owner, 8 Nov 2026): the page board in the field archive's language (Boards.module.css), on the app's chart paper,
+// with the players' animal icons (Avatar, as Home's leaderboard). The Passport now shows Home's region leaderboard.
 import { useMemo } from 'react';
 import { HUNT_CHALLENGES, rankAmong, SAMPLE_EXPLORERS, SAMPLE_SPEED } from '../../data/hunt/stories';
 import { CHALLENGES } from '../../data/hunt/challenges';
 import { areaOfPlace, URA_REGIONS, visitedSet } from '../../data/ura/ura';
 import { useExplorePersonal } from '../../features/nearby/actions';
-import { Link } from 'react-router-dom';
-import { paths } from '../../routes';
-import { volumeHref } from '../../data/search/hunt';
 import { imageFor } from '../../findsg';
+import Avatar from '../../components/Avatar/Avatar';
 import CategoryBadge from '../../components/Category/CategoryBadge';
 import Icon from '../OnboardingPage/v3/icons';
 import type { HuntGo } from './HuntPage';
 import bd from './Boards.module.css';
-import pb from './PassportBoard.module.css';
 
 // a region's share of the sample players' places (roughly by how many places each region has)
 const SHARE: Record<string, number> = { central: 0.55, west: 0.15, east: 0.12, 'north-east': 0.1, north: 0.08 };
 
-type BoardProps =
-  | { variant?: 'page'; kind: 'explore' | 'speed'; scope: string; go: HuntGo; openRoute(id: string): void }
-  /** passport (v2 boards 13/14): the weekend challenge's top three as one compact card, with your own row. */
-  | { variant: 'passport' };
-
-export function Board(props: BoardProps) {
-  if (props.variant === 'passport') return <PassportBoard />;
+export function Board(props: { kind: 'explore' | 'speed'; scope: string; go: HuntGo; openRoute(id: string): void }) {
   return <PageBoard {...props} />;
-}
-
-/** The weekend challenge's fastest three (SAMPLE players, labelled Example) and your own row, for the Passport. */
-function PassportBoard() {
-  const ch = HUNT_CHALLENGES[0];
-  const top = SAMPLE_SPEED.slice(0, 3);
-  const best = top[0].value;
-  const where = ch.title.replace(/^Weekend challenge · /, '');
-  return (
-    <section className={pb.card} aria-labelledby="passport-board-title">
-      <div className={pb.head}>
-        <h2 id="passport-board-title" className={pb.title}>
-          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={pb.trophy}>
-            <path d="M8 21h8M12 17v4M6 3h12v5a6 6 0 0 1-12 0zM6 5H3v3a3 3 0 0 0 3 3M18 5h3v3a3 3 0 0 1-3 3" />
-          </svg>
-          <span>{where} · fastest</span>
-        </h2>
-        <Link to={`${paths.hunt}?board=speed`} className={pb.all} aria-label="Open the full leaderboard">
-          <span className={pb.example}>Example</span>
-          <Icon name="chevron" size={14} />
-        </Link>
-      </div>
-      <ol className={pb.podium} aria-label="Top three, example players">
-        {top.map((r, i) => (
-          <li key={r.name} className={pb.player} data-n={i + 1}>
-            <span className={pb.avatar} aria-hidden="true">
-              {r.name[0]}
-              <span className={pb.medal}>{i + 1}</span>
-            </span>
-            <span className={pb.who}>
-              <b>{r.name}</b>
-              <small className={i === 0 ? pb.fastest : undefined}>
-                {r.value} min {i === 0 ? <span>fastest</span> : <span>+{r.value - best}</span>}
-              </small>
-            </span>
-          </li>
-        ))}
-      </ol>
-      <p className={pb.you}>
-        <span className={pb.youMark} aria-hidden="true">
-          <Icon name="user" size={14} />
-        </span>
-        <span>
-          <b>You</b> · no time yet.{' '}
-          <Link to={volumeHref(ch.routeId)} className={pb.join}>
-            Open a challenge
-          </Link>
-          .
-        </span>
-      </p>
-    </section>
-  );
 }
 
 function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; scope: string; go: HuntGo; openRoute(id: string): void }) {
@@ -162,7 +102,7 @@ function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; 
           {rows.slice(0, 3).map((r, i) => (
             <li key={r.name} data-n={i + 1}>
               <span className={bd.avatar} aria-hidden="true">
-                {r.name[0]}
+                <Avatar name={r.name} size={i === 0 ? 60 : 48} />
                 <span className={bd.medal}>{i + 1}</span>
               </span>
               <span className={bd.who}>{r.name}</span>
@@ -176,6 +116,7 @@ function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; 
           {rows.slice(3).map((r, i) => (
             <li key={r.name}>
               <span className={bd.rank}>{i + 4}</span>
+              <Avatar name={r.name} size={32} className={bd.rowAvatar} />
               <span className={bd.name}>{r.name}</span>
               <span className={bd.value}>
                 {r.value} {unit}
