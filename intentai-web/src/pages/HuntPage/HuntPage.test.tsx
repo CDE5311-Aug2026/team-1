@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, test } from 'vitest';
 import HuntPage from './HuntPage';
 import { huntPoints } from './HuntHome';
+import { huntModeStore } from '../../data/v2Stores';
 
 const at = (url: string) =>
   render(
@@ -16,18 +17,89 @@ const at = (url: string) =>
 
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
   window.location.hash = '';
 });
 
-test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and the field notebook on the desk', async () => {
+const rows = () => within(screen.getByRole('list', { name: 'Volumes' })).getAllByRole('button');
+
+test('Hunt opens on the field archive: the rules card once, the chips, a pick and one row per volume', async () => {
   at('/hunt');
   expect(screen.getByRole('heading', { level: 1, name: 'Hunt' })).toBeInTheDocument();
-  expect(screen.getByRole('tab', { name: 'Stories' })).toHaveAttribute('aria-selected', 'true');
-  expect(screen.getByRole('tab', { name: 'Public' })).toHaveAttribute('aria-selected', 'false');
-  // first visit: How to play opens by itself, once
-  expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
+  // first visit: How to play opens by itself, once, with remote play and the fiction disclosure
+  const how = screen.getByRole('dialog', { name: 'How to play' });
+  expect(within(how).getByText(/play remotely from anywhere/)).toBeInTheDocument();
+  expect(within(how).getByText(/characters are fiction/)).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'See the shelf' }));
   expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
+  // the disclosure stays on the page, and the card can be opened again
+  expect(screen.getByText(/play remotely from anywhere\. Real places and history; the story and its characters are fiction/)).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'How to play' }));
+  expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'See the shelf' }));
+
+  // six volumes in shelf order, nothing played yet: 0 of the 38 stops
+  expect(screen.getByText('6 volumes · 0/38 stamps')).toBeInTheDocument();
+  const list = rows();
+  expect(list).toHaveLength(6);
+  expect(list[0]).toHaveTextContent(/Vol\. I · Kampong Gelam.*Only One Missing.*The bottle base.*Not started/);
+  expect(list[5]).toHaveTextContent(/Vol\. VI · Civic District.*The Missing Years/);
+  // nothing in progress: a pick to start, from your categories
+  const pick = screen.getByRole('article', { name: 'Picked for you' });
+  expect(within(pick).getByText(/Picked for you · Attractions/)).toBeInTheDocument();
+  expect(within(pick).getByRole('button', { name: /Start/ })).toBeInTheDocument();
+  // no location known: no distances
+  expect(screen.queryByText(/\d km|\d m\b/)).toBeNull();
+});
+
+test('the chips filter the archive by each volume’s category, from its stops’ places', async () => {
+  localStorage.setItem('findsg-hunt-how-seen', '1');
+  at('/hunt');
+  await userEvent.click(screen.getByRole('button', { name: 'Attractions' }));
+  expect(screen.getByRole('button', { name: 'Attractions' })).toHaveAttribute('aria-pressed', 'true');
+  // the two volumes whose stops map to no catalogue place stay under All only
+  const titles = ['Beneath the Golden Dome', 'Letters to the Shore', 'The Last Edition', 'The Missing Years'];
+  expect(rows()).toHaveLength(4);
+  rows().forEach((r, i) => expect(r).toHaveTextContent(new RegExp(`Attractions\\|Vol\\..*${titles[i]}`)));
+  expect(screen.getByText('4 volumes · 0/25 stamps')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Wellness' }));
+  expect(screen.getByText('No volumes in Wellness yet.')).toBeInTheDocument();
+  expect(screen.queryByRole('article')).toBeNull();
+});
+
+test('real progress: a route in progress is the Continue card, and its row counts what was found', async () => {
+  localStorage.setItem('findsg-hunt-how-seen', '1');
+  localStorage.setItem('findsg-onsite-v1:telok-ayer:manual', saved('manual'));
+  at('/hunt');
+  const card = screen.getByRole('article', { name: 'Continue' });
+  expect(within(card).getByRole('heading', { name: 'Letters to the Shore' })).toBeInTheDocument();
+  expect(within(card).getByText('Stop 2 of 8')).toBeInTheDocument();
+  expect(within(card).getByRole('img', { name: '1 of 8 found' })).toBeInTheDocument();
+  expect(within(card).getByRole('button', { name: /Continue/ })).toBeInTheDocument();
+  expect(screen.getByText('6 volumes · 1/38 stamps')).toBeInTheDocument();
+  expect(rows()[2]).toHaveTextContent('1 of 8 found');
+});
+
+test('a volume opens its own book, with the story, map, clue cards, notes and record tabs; the shelf is kept too', async () => {
+  localStorage.setItem('findsg-hunt-how-seen', '1');
+  at('/hunt');
+  await userEvent.click(rows()[2]);
+  expect(sessionStorage.getItem('hunt-book')).toBe('telok-ayer');
+  const cover = screen.queryByRole('button', { name: 'Open Letters to the Shore' });
+  if (cover) await userEvent.click(cover);
+  expect(
+    within(await screen.findByRole('navigation', { name: 'Chapters' }))
+      .getAllByRole('button')
+      .map((b) => b.textContent),
+  ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record', 'Play']);
+  sessionStorage.clear();
+});
+
+test('the story shelf is one tap from the archive', async () => {
+  localStorage.setItem('findsg-hunt-how-seen', '1');
+  at('/hunt');
+  await userEvent.click(screen.getByRole('button', { name: 'The story shelf' }));
+  expect(screen.getByRole('tab', { name: 'Stories' })).toHaveAttribute('aria-selected', 'true');
   // the story shelf: six books, the demo story first; pick the third, take it down, open it, and its tabs are the story, the map, the clue cards, notes and the record
   const books = within(screen.getByRole('listbox', { name: 'Story books' })).getAllByRole('option');
   expect(books).toHaveLength(6);
@@ -60,8 +132,11 @@ test('Hunt opens on the stories in IntentAI’s frame: header, the two tabs and 
 }, 20_000); // a long walk through the shelf, with two book animations to wait out
 
 test('Public shows this weekend’s challenge on the Civic District route, the boards and what is coming', async () => {
+  localStorage.setItem('findsg-hunt-how-seen', '1');
   at('/hunt');
-  await userEvent.click(screen.getByRole('tab', { name: 'Public' }));
+  // from the archive (both hunt modes), the challenges and their boards
+  await userEvent.click(screen.getByRole('button', { name: /Weekend challenges/ }));
+  expect(screen.getByRole('tab', { name: 'Public' })).toHaveAttribute('aria-selected', 'true');
   expect(screen.getByRole('button', { name: /Weekend challenge · Civic District/ })).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Fastest' })).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Explorers' })).toBeInTheDocument();
@@ -69,6 +144,19 @@ test('Public shows this weekend’s challenge on the Civic District route, the b
   // writing your own story is not built yet: a notice, not a dead form
   expect(screen.getByRole('heading', { name: 'A story from your streets' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Coming soon' })).not.toBeInTheDocument();
+});
+
+test('hunting together: the archive also links straight to the leaderboards (example players); solo does not', async () => {
+  localStorage.setItem('findsg-hunt-how-seen', '1');
+  huntModeStore.set({ mode: 'solo' });
+  const solo = at('/hunt');
+  expect(screen.queryByRole('button', { name: /Leaderboards/ })).toBeNull();
+  solo.unmount();
+  huntModeStore.set({ mode: 'together' });
+  at('/hunt');
+  await userEvent.click(screen.getByRole('button', { name: /Leaderboards.*Example players/ }));
+  expect(screen.getByRole('heading', { name: 'Leaderboards' })).toBeInTheDocument();
+  huntModeStore.set({});
 });
 
 test('the boards: explorers by region, and fastest this weekend with a way to join', async () => {
