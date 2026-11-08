@@ -345,7 +345,11 @@
 
 .rowEdit {
   display: block;
-  padding: 0;
+  /* the value's line is 18 px; the button itself is 44 px tall (13 px above and below, given back by the margins so
+     the row looks the same). Its ::after still covers the whole row. */
+  min-height: 2.75rem;
+  margin: -0.8125rem 0;
+  padding: 0.8125rem 0;
   border: 0;
   background: none;
   font: inherit;
@@ -400,7 +404,18 @@
 }
 
 .rowEye button::after {
-  inset: -0.625rem;
+  inset: 0;
+}
+
+/* the eye looks 24 px (its dark disc when private is clipped to the middle 24 px), but the button is 44 x 44: the
+   padding is the tap area, given back by the margins so the row looks the same */
+.rowEye button {
+  box-sizing: border-box;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.625rem;
+  padding: 0.625rem;
+  background-clip: content-box;
 }
 
 /* ---------- where to go next ---------- */
