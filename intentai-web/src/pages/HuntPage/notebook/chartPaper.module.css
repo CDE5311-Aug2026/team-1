@@ -124,3 +124,10 @@
     transform: rotate(360deg);
   }
 }
+
+/* the app-wide paper (AppShell PaperLayer) lies behind every page, many without the archive's PageBar: the small roses
+   (top right, low left) fall behind body text there, so they are fainter than on the archive board */
+:global([data-app-paper]) .roseTop,
+:global([data-app-paper]) .roseLow {
+  opacity: 0.42;
+}
