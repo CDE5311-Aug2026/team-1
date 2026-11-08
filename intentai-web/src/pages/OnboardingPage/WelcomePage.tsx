@@ -8,7 +8,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import logo from '../../assets/brand/findsg-logo.png';
 import AppShell from '../../components/AppShell/AppShell';
 import CategoryGlyph from '../../components/Category/CategoryGlyph';
-import HuntModeEditor from '../../components/ProfileEditors/HuntModeEditor';
+import HuntStepEditor from './HuntChoice';
 import TourismRanker from '../../components/ProfileEditors/TourismRanker';
 import { usePersistentStore } from '../../data/persistentStore';
 import { profileV3Store } from '../../data/profile/profile';
@@ -128,7 +128,7 @@ function HuntStep({ draft, setDraft, goTo, onDone }: StepProps) {
         <h1 className={styles.title}>Hunt with others nearby?</h1>
         <p className={styles.sub}>Open this weekend’s challenges and see example leaderboards. Nothing about your location is shared.</p>
       </div>
-      <HuntModeEditor
+      <HuntStepEditor
         mode={draft.mode}
         region={draft.region}
         onMode={(mode) => setDraft({ ...draft, mode })}

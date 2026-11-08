@@ -98,7 +98,7 @@ test('question 2: Continue needs a mode and a region; Back keeps the question-1 
   expect(screen.getByText(/^Open this weekend’s challenges and see example leaderboards\./)).toBeInTheDocument();
   expect(screen.queryByText(/Join/)).toBeNull();
   expect(primary(/Pick a mode and a region/)).toBeDisabled();
-  await user.click(screen.getByRole('button', { name: /Not now/ }));
+  await user.click(screen.getByRole('radio', { name: /Not now/ }));
   expect(primary(/Pick a mode and a region/)).toBeDisabled();
   await user.click(regionChip('East'));
   expect(primary(/^Continue/)).toBeEnabled();
@@ -108,6 +108,35 @@ test('question 2: Continue needs a mode and a region; Back keeps the question-1 
   expect(screen.getByRole('button', { name: 'Leisure, ranked 1' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Back' }));
   expect(location()).toBe('/onboarding');
+});
+
+test('question 2: hunt together / on your own is a radio group of two cards, one Tab stop, arrows move the choice', async () => {
+  const user = userEvent.setup();
+  renderAt('/onboarding?step=1');
+  await user.click(screen.getByRole('button', { name: 'Cruise' }));
+  await user.click(primary(/^Continue/));
+  const group = screen.getByRole('radiogroup', { name: 'Hunt with others nearby?' });
+  const [together, solo] = within(group).getAllByRole('radio');
+  expect(together).toHaveAccessibleName(/^Yes, hunt together/);
+  expect(solo).toHaveAccessibleName(/^Not now/);
+  // nothing chosen yet: both unchecked, the first card is the group's Tab stop
+  expect(together).toHaveAttribute('aria-checked', 'false');
+  expect(solo).toHaveAttribute('aria-checked', 'false');
+  expect(together).toHaveAttribute('tabindex', '0');
+  expect(solo).toHaveAttribute('tabindex', '-1');
+  await user.click(solo);
+  expect(solo).toHaveAttribute('aria-checked', 'true');
+  expect(together).toHaveAttribute('aria-checked', 'false');
+  expect(solo).toHaveAttribute('tabindex', '0');
+  // the chosen card shows a check in its radio, not only a colour
+  expect(solo.querySelector('svg path[d^="m5 12.5"]')).not.toBeNull();
+  expect(together.querySelector('svg path[d^="m5 12.5"]')).toBeNull();
+  await user.keyboard('{ArrowLeft}');
+  expect(together).toHaveAttribute('aria-checked', 'true');
+  expect(together).toHaveFocus();
+  await user.keyboard('{ArrowRight}');
+  expect(solo).toHaveAttribute('aria-checked', 'true');
+  expect(solo).toHaveFocus();
 });
 
 test('old onboarding routes open question 1', () => {
@@ -132,7 +161,7 @@ test('the whole flow: rank → mode and region → review edit → stamp saves t
   await user.click(screen.getByRole('button', { name: 'Attractions' }));
   await user.click(screen.getByRole('button', { name: 'Cruise' }));
   await user.click(primary(/^Continue/));
-  await user.click(screen.getByRole('button', { name: /Yes, hunt together/ }));
+  await user.click(screen.getByRole('radio', { name: /Yes, hunt together/ }));
   await user.click(regionChip('Central'));
   await user.click(primary(/^Continue/));
 
@@ -163,7 +192,7 @@ test('the whole flow: rank → mode and region → review edit → stamp saves t
 
   await user.click(screen.getByRole('button', { name: /^Hunt:/ }));
   sheet = screen.getByRole('dialog', { name: 'Hunt with others nearby?' });
-  await user.click(within(sheet).getByRole('button', { name: /Not now/ }));
+  await user.click(within(sheet).getByRole('radio', { name: /Not now/ }));
   await user.click(within(within(sheet).getByRole('group', { name: 'Regions' })).getByRole('button', { name: /^West,/ }));
   await user.click(within(sheet).getByRole('button', { name: 'Save' }));
   expect(screen.getByRole('button', { name: 'Hunt: West, on your own. Change' })).toBeInTheDocument();
@@ -194,12 +223,12 @@ test('Back from the review returns to question 2 with the answers kept', async (
   renderAt('/onboarding?step=1');
   await user.click(screen.getByRole('button', { name: 'Cruise' }));
   await user.click(primary(/^Continue/));
-  await user.click(screen.getByRole('button', { name: /Not now/ }));
+  await user.click(screen.getByRole('radio', { name: /Not now/ }));
   await user.click(regionChip('North'));
   await user.click(primary(/^Continue/));
   await user.click(screen.getByRole('button', { name: 'Back' }));
   expect(location()).toBe('/onboarding?step=2');
-  expect(screen.getByRole('button', { name: /Not now/ })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('radio', { name: /Not now/ })).toHaveAttribute('aria-checked', 'true');
   expect(regionChip('North')).toHaveAttribute('aria-pressed', 'true');
 });
 

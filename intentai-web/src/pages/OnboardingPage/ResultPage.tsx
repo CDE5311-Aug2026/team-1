@@ -6,7 +6,7 @@ import { motion, useReducedMotionConfig } from 'motion/react';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
-import HuntModeEditor from '../../components/ProfileEditors/HuntModeEditor';
+import HuntStepEditor from './HuntChoice';
 import TourismRanker from '../../components/ProfileEditors/TourismRanker';
 import { REGION_NAMES } from '../../components/RegionMap/regionPaths.generated';
 import { usePersistentStore } from '../../data/persistentStore';
@@ -263,7 +263,7 @@ export default function ResultPage() {
       ) : null}
       {editing === 'hunt' ? (
         <Sheet title="Hunt with others nearby?" onCancel={() => setEditing(null)} onSave={save} canSave={Boolean(edit.mode && edit.region)}>
-          <HuntModeEditor mode={edit.mode} region={edit.region} onMode={(mode) => setEdit({ ...edit, mode })} onRegion={(region) => setEdit({ ...edit, region })} />
+          <HuntStepEditor mode={edit.mode} region={edit.region} onMode={(mode) => setEdit({ ...edit, mode })} onRegion={(region) => setEdit({ ...edit, region })} />
         </Sheet>
       ) : null}
     </AppShell>
