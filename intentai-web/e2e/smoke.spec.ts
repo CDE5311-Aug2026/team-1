@@ -8,7 +8,8 @@ test('every route renders without runtime errors or broken images', async ({ pag
   // WebKit reports the previous page's in-flight lazy chunks and CSS preloads as errors when a full page load cancels
   // them. Only those two messages, raised while goto is replacing the page, are set aside; any other error counts.
   let leaving = false;
-  const cancelled = /^(TypeError: )?(Importing a module script failed\.|Unable to preload CSS for )/;
+  // (Vite raises the CSS one as a plain Error, the module one as a TypeError)
+  const cancelled = /^((Type)?Error: )?(Importing a module script failed\.|Unable to preload CSS for )/;
   page.on('pageerror', (e) => {
     // WebKit can also report that cancellation a moment after goto returns (seen under a parallel run, 8 Nov 2026),
     // so on WebKit the two messages are never counted. Chromium still counts them, so a CSS file that is really
