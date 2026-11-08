@@ -42,6 +42,48 @@ O.BBa). Re-check first: coordinates for those seven come from Tatler map links, 
 Michelin; Cote's phone is the COMO hotel's number; Meta's hours and Um Yong Baek's hours and phone are left out because
 the sources disagree. No source gave Chinese names; 엄용백 (Um Yong Baek) is from MiddleClass.sg.
 
+## Tourism 2040 categories and import (Redesign v2, 8 Nov 2026)
+
+New optional fields on `CuratedPlace` (types in `src/data/tourism.ts`; rules in `scripts/validate-explore.mjs`):
+
+| Field | Values | Rule |
+| --- | --- | --- |
+| `tourism` | `{ category: att \| wel \| lei \| cru, subtype?: attraction \| precinct \| hotel \| terminal \| marina \| island \| spa \| nature \| venue \| festival }` | Required on every published place. The legacy `category` stays as it is for Nearby, Moments and the 3D view. |
+| `operatingStatus` | `open \| new \| planned \| seasonal` (absent = open) | `planned` places are always drafts. Set only where a source gives the status. |
+| `pinQuality` | `building \| street \| area \| approx` (absent = an older curated pin) | Only `building` (and older pins) may ever show “within range”. |
+| `parentId` | an existing place id | A narrower place inside another (a spa in a resort, a venue in a garden). It is its own record and inherits nothing. |
+
+How every existing record got `tourism` (`node scripts/tourism-map.mjs --apply`): a rule table over `kind` + `category`
+(museums, worship, monuments, heritage, food → Attractions; districts, quays, hawker centres → precincts; hotels and
+resorts → hotels; parks, reserves, gardens, beaches → Wellness/nature; stadiums, theatres, concert halls → Leisure
+venues; ferries, marinas → Cruise). The rules leave a few records open; each was decided by reading it, and those
+decisions are listed with their reason in `HAND` in the script. Places the research doc matched take the doc's
+category instead (Gardens by the Bay → Attractions, Sisters' Islands and Pulau Ubin → Cruise islands).
+
+The import (`research/`):
+
+- `tourism2040-doc.md` — the research inventory (Claude Doc rev 21, exported 8 Nov 2026): 147 rows with type,
+  status, area, pin quality and the source links. It is the cited source list.
+- `tourism2040.csv` — one row per doc row, the full import schema: tourism category/subtype, doc status, pin, area,
+  source URLs, the OneMap query and hit (`node scripts/geocode-onemap.mjs`, cache in `onemap-cache.json`), and for
+  admitted rows the record name, slug, legacy kind/category, our one-sentence summary and the fact with its pages.
+  Facts were written in our own words from the cited pages, opened on 8 Nov 2026.
+- `crosswalk.csv` — the identity decision per row: `match:<id>` (adds `tourism`, and `operatingStatus` only when
+  sourced; the id and every other field stay), `child-of:<id>` (a separate record with `parentId`), `new`, or
+  `ambiguous` (changes nothing until the owner rules). `node scripts/tourism-map.mjs --crosswalk` only *proposes*
+  (normalised name, aliases, OneMap distance); the outcomes were reviewed by hand against each existing record.
+- `quarantine.csv` — `new`/`child-of` rows that cannot meet the unchanged validator, with the reason (no sourced fact,
+  no trustworthy OneMap coordinate, a dated event rather than a place). Nothing is filled in to admit them.
+- `baseline-ids-ddc8e4e.json` — every place id before the import; `catalogue.test.ts` checks none is lost.
+
+New records (`node scripts/tourism-map.mjs --import`) are `provenance: researched`, `reviewedBy: tourism2040-import`,
+with OneMap coordinates (the query URL as `coordinates.source`), the nearest legacy area, and drafts for planned or
+unconfirmed rows. They have no team editor sign-off yet. Their legacy `category` is a best fit for the old screens
+(spas, hotels, terminals, precincts → landmark; venues and the lifestyle cluster → culture; Mandai parks → nature). Matched records keep their coordinates; OneMap hits more than
+150 m away are listed by the geocode script for review and never applied. Run order: `--crosswalk` → review →
+`geocode-onemap.mjs` → `--import` → `--apply` → `python scripts/ura/build-ura.py` (planning areas, offshore list) →
+`npm run validate:explore`.
+
 ## Files
 
 - `places.sg.json` — `CuratedPlace[]` (see `src/features/nearby/domain.ts`). `editorialStatus: published` entries are

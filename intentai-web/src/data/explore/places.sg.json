@@ -1063,8 +1063,8 @@
       }
     },
     "tourism": {
-      "category": "wel",
-      "subtype": "nature"
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6293,7 +6293,8 @@
     "tourism": {
       "category": "att",
       "subtype": "attraction"
-    }
+    },
+    "operatingStatus": "new"
   },
   {
     "id": "curated:sg-national-library-building",
@@ -26509,8 +26510,8 @@
       ]
     },
     "tourism": {
-      "category": "wel",
-      "subtype": "nature"
+      "category": "cru",
+      "subtype": "island"
     }
   },
   {
@@ -34049,5 +34050,1477 @@
       "category": "att",
       "subtype": "attraction"
     }
+  },
+  {
+    "id": "curated:sg-marina-bay-cruise-centre",
+    "name": "Marina Bay Cruise Centre Singapore",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.266062,
+      "lng": 103.86056,
+      "source": {
+        "title": "OneMap Search: Marina Bay Cruise Centre",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Marina%20Bay%20Cruise%20Centre&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Cruise terminal",
+    "summary": "The cruise terminal at Marina South, where large ships berth and passengers board.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "STB’s chief executive listed the completed expansion of Marina Bay Cruise Centre Singapore among the year’s infrastructure milestones in May 2026. The Disney Adventure cruise ship left on its maiden voyage from this terminal on 10 March 2026.",
+        "sources": [
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Singapore New Attractions 2026–2027: What Travel Agents Can Sell and How to Package It",
+            "url": "https://dmcquote.com/blog/post/singapore-new-attractions-2026-travel-agents",
+            "publisher": "DMC Quote",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "cru",
+      "subtype": "terminal"
+    },
+    "operatingStatus": "open",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-singapore-cruise-centre-harbourfront",
+    "name": "Singapore Cruise Centre (HarbourFront)",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-sentosa",
+    "coordinates": {
+      "lat": 1.263776,
+      "lng": 103.818562,
+      "source": {
+        "title": "OneMap Search: 5 HarbourFront Avenue",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=5%20HarbourFront%20Avenue&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Cruise and ferry terminal",
+    "summary": "The new cruise and ferry terminal at HarbourFront that replaces the HarbourFront Passenger Terminal.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "In May 2026 the Singapore Tourism Board said the HarbourFront Passenger Terminal would move to a new purpose-built building next to the old one, and that the new terminal would be called the Singapore Cruise Centre (HarbourFront).",
+        "sources": [
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "draft",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "cru",
+      "subtype": "terminal"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-integrated-cruise-ferry-terminal",
+    "name": "Integrated Cruise & Ferry Terminal (under study)",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.278881,
+      "lng": 103.852964,
+      "source": {
+        "title": "OneMap Search: Straits View",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Straits%20View&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Cruise terminal (under study)",
+    "summary": "A combined cruise and ferry terminal that the Singapore Tourism Board is studying for the Straits View area.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The Singapore Tourism Board said in May 2026 that it is studying the possible development of an Integrated Cruise and Ferry Terminal. It is a study only: no design, site plan or opening date has been announced, so the pin marks the area.",
+        "sources": [
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "draft",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "cru",
+      "subtype": "terminal"
+    },
+    "operatingStatus": "planned",
+    "pinQuality": "area"
+  },
+  {
+    "id": "curated:sg-bodhi-spa-the-laurus",
+    "name": "BODHI Spa, The Laurus",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-sentosa",
+    "coordinates": {
+      "lat": 1.257034,
+      "lng": 103.819266,
+      "source": {
+        "title": "OneMap Search: 28 Sentosa Gateway",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=28%20Sentosa%20Gateway&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Spa",
+    "summary": "A spa with a private bathhouse inside The Laurus resort on Sentosa.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "BODHI Spa at The Laurus is the brand’s first international destination. It has six treatment rooms, two of them VIP suites, plus a ZeroBody dry float, a red light recovery pod and a private VIP bathhouse with a sauna, jacuzzi and pail shower.",
+        "sources": [
+          {
+            "title": "Singapore’s Latest Wellness Launches and Debuts",
+            "url": "https://www.luxuo.com/style/beauty/singapores-latest-wellness-launches-and-debuts.html",
+            "publisher": "LUXUO",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "wel",
+      "subtype": "spa"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building",
+    "parentId": "curated:sg-the-laurus"
+  },
+  {
+    "id": "curated:sg-raffles-sentosa-spa",
+    "name": "Raffles Sentosa Spa",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-sentosa",
+    "coordinates": {
+      "lat": 1.246802,
+      "lng": 103.826351,
+      "source": {
+        "title": "OneMap Search: 4 Bukit Manis Road",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=4%20Bukit%20Manis%20Road&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Spa",
+    "summary": "The spa of the Raffles Sentosa villa resort, with treatment rooms and hydrotherapy.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Raffles Sentosa unveiled Raffles Sentosa Spa as a new wellness space with 12 private treatment rooms and hydrotherapy facilities. Guests can also use indoor and outdoor pools and a steam room, and join yoga and sound bath sessions.",
+        "sources": [
+          {
+            "title": "Singapore’s Latest Wellness Launches and Debuts",
+            "url": "https://www.luxuo.com/style/beauty/singapores-latest-wellness-launches-and-debuts.html",
+            "publisher": "LUXUO",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "wel",
+      "subtype": "spa"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building",
+    "parentId": "curated:sg-raffles-sentosa-singapore"
+  },
+  {
+    "id": "curated:sg-house-longevity",
+    "name": "House Longevity & Sauna Bath House",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.284695,
+      "lng": 103.852104,
+      "source": {
+        "title": "OneMap Search: Singapore Land Tower",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Singapore%20Land%20Tower&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Sauna and recovery club",
+    "summary": "A sauna, contrast-therapy and recovery club in Singapore Land Tower at Raffles Place.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "House Longevity and Sauna Bath House opened in Singapore Land Tower at 50 Raffles Place. It runs an Aufguss sauna programme and contrast therapy, and also offers hyperbaric oxygen therapy, full-body red light therapy, performance assessments and a coffee bar.",
+        "sources": [
+          {
+            "title": "Singapore’s Latest Wellness Launches and Debuts",
+            "url": "https://www.luxuo.com/style/beauty/singapores-latest-wellness-launches-and-debuts.html",
+            "publisher": "LUXUO",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "wel",
+      "subtype": "spa"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-sama-wellness",
+    "name": "Sama Wellness",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.318745,
+      "lng": 103.820233,
+      "source": {
+        "title": "OneMap Search: 26 Evans Road",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=26%20Evans%20Road&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Wellness club",
+    "summary": "A fitness, recovery and spa venue on Evans Road with a large outdoor landscape.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Sama Wellness at 26 Evans Road brings together fitness, recovery, spa treatments and community events. It has a 600 square metre indoor facility and an 11,000 square metre outdoor landscape, according to a July 2026 round-up of new wellness venues.",
+        "sources": [
+          {
+            "title": "Singapore’s Latest Wellness Launches and Debuts",
+            "url": "https://www.luxuo.com/style/beauty/singapores-latest-wellness-launches-and-debuts.html",
+            "publisher": "LUXUO",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "wel",
+      "subtype": "spa"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-house-of-wellness",
+    "name": "House of Wellness",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.278103,
+      "lng": 103.843284,
+      "source": {
+        "title": "OneMap Search: 55 Duxton Road",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=55%20Duxton%20Road&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Spa",
+    "summary": "A Duxton Road spa that combines face and body treatments in one session.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "House of Wellness, at 55 Duxton Road in Tanjong Pagar, combines face and body treatments in a single session. Guests choose between sessions of 70, 90 or 110 minutes, as described in a July 2026 round-up of new wellness venues.",
+        "sources": [
+          {
+            "title": "Singapore’s Latest Wellness Launches and Debuts",
+            "url": "https://www.luxuo.com/style/beauty/singapores-latest-wellness-launches-and-debuts.html",
+            "publisher": "LUXUO",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "wel",
+      "subtype": "spa"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-future-resonance",
+    "name": "Future Resonance",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.292187,
+      "lng": 103.839288,
+      "source": {
+        "title": "OneMap Search: New Bahru",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=New%20Bahru&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Sound and wellness studio",
+    "summary": "A sound-healing, breathwork and yoga studio inside New Bahru on Kim Yam Road.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Future Resonance is a wellness studio in New Bahru at 46 Kim Yam Road offering sound healing, breathwork, yoga, meditation and Light Sound Vibration sessions. STB’s chief executive named it in May 2026 as a new wellness concept welcomed by New Bahru.",
+        "sources": [
+          {
+            "title": "Future Resonance Singapore Brings Immersive Wellness to New Bahru",
+            "url": "https://www.factmagazines.com/singapore/spa-wellness/future-resonance-singapore-immersive-wellness-sound-healing",
+            "publisher": "FACT Magazine",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "wel",
+      "subtype": "spa"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building",
+    "parentId": "curated:sg-new-bahru"
+  },
+  {
+    "id": "curated:sg-mandai-boardwalk",
+    "name": "Mandai Boardwalk",
+    "country": "SG",
+    "regionId": "north",
+    "areaId": "sg-woodlands",
+    "coordinates": {
+      "lat": 1.406357,
+      "lng": 103.794532,
+      "source": {
+        "title": "OneMap Search: Mandai Boardwalk",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Mandai%20Boardwalk&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "nature",
+    "kind": "Nature boardwalk",
+    "summary": "A free public boardwalk through the forest edge of the Mandai Wildlife Reserve.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "A 3.3-kilometre publicly accessible boardwalk skirting River Wonders and Singapore Zoo opened on 14 January 2025, as part of the ten-year transformation of the Mandai Wildlife Reserve that ended with its grand opening in May 2026.",
+        "sources": [
+          {
+            "title": "A decade in the making: The Mandai Wildlife Reserve marks Grand Opening as Singapore’s wildlife and nature destination",
+            "url": "https://cn.mandai.com/en/about-mandai/media-centre/A-decade-in-the-making-The-Mandai-Wildlife-Reserve-marks-Grand-Opening-as-Singapores-wildlife-and-nature-destination.html",
+            "publisher": "Mandai Wildlife Group",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-marina-bay-street-circuit",
+    "name": "Marina Bay Street Circuit & F1 Pit Building",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.291372,
+      "lng": 103.863902,
+      "source": {
+        "title": "OneMap Search: Pit Building",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Pit%20Building&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Street circuit",
+    "summary": "The night-race street circuit through the downtown waterfront, with its permanent Pit Building.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The 2026 Formula 1 Singapore Grand Prix was held from 9 to 11 October 2026 on the Marina Bay Street Circuit, a night-race track through the downtown waterfront. The main race started under lights at 8 pm on the Sunday.",
+        "sources": [
+          {
+            "title": "Singapore Grand Prix 2026: Dates, Tickets & Where to Stay",
+            "url": "https://blog.wego.com/singapore-grand-prix/",
+            "publisher": "Wego Travel Blog",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
+    },
+    "operatingStatus": "open",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-ocbc-arena",
+    "name": "OCBC Arena",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-kampong-glam",
+    "coordinates": {
+      "lat": 1.304643,
+      "lng": 103.8761,
+      "source": {
+        "title": "OneMap Search: OCBC Arena",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=OCBC%20Arena&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "culture",
+    "kind": "Indoor arena",
+    "summary": "An indoor arena at The Kallang that hosts the Singapore Tennis Open.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The Singapore Tennis Open is played at OCBC Arena in The Kallang. The tournament was upgraded from WTA 250 to WTA 500 status, and the event page lists the next edition for 20 to 26 September 2027.",
+        "sources": [
+          {
+            "title": "Singapore Tennis Open",
+            "url": "https://www.thekallang.com.sg/en/things-to-do/events/singapore-tennis-open-2026.html",
+            "publisher": "The Kallang",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
+    },
+    "operatingStatus": "open",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-imba-theatre",
+    "name": "IMBA Theatre",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.281758,
+      "lng": 103.861586,
+      "source": {
+        "title": "OneMap Search: 18 Marina Gardens Drive",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=18%20Marina%20Gardens%20Drive&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "culture",
+    "kind": "Immersive art venue",
+    "summary": "An immersive art and exhibition venue on the West Lawn of Gardens by the Bay.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "IMBA Theatre covers more than 80,000 square feet on the West Lawn beside Bayfront Plaza and holds two black box theatres for rotating immersive exhibitions. Its first exhibitions opened on 13 February 2026, and the venue was officially launched on 21 April 2026.",
+        "sources": [
+          {
+            "title": "IMBA Theatre Singapore: A new immersive theatre for art experiences and exhibitions at Gardens by the Bay",
+            "url": "https://thehoneycombers.com/singapore/imba-theatre-gardens-by-the-bay-singapore/",
+            "publisher": "Honeycombers Singapore",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Singapore New Attractions 2026–2027: What Travel Agents Can Sell and How to Package It",
+            "url": "https://dmcquote.com/blog/post/singapore-new-attractions-2026-travel-agents",
+            "publisher": "DMC Quote",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "area",
+    "parentId": "curated:sg-gardens-by-the-bay"
+  },
+  {
+    "id": "curated:sg-downtown-mice-hub",
+    "name": "Downtown MICE Hub",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.278881,
+      "lng": 103.852964,
+      "source": {
+        "title": "OneMap Search: Straits View",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Straits%20View&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Convention venue (planned)",
+    "summary": "A planned meetings and exhibitions hub for the Straits View area near Marina Bay.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "In May 2026 the Singapore Tourism Board named the Straits View area, near Marina Bay, as the potential location for a Downtown MICE Hub for meetings, conventions and exhibitions. No building or opening date has been announced, so the pin marks the area.",
+        "sources": [
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "draft",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
+    },
+    "operatingStatus": "planned",
+    "pinQuality": "area"
+  },
+  {
+    "id": "curated:sg-singapore-oceanarium",
+    "name": "Singapore Oceanarium",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-sentosa",
+    "coordinates": {
+      "lat": 1.25836,
+      "lng": 103.820507,
+      "source": {
+        "title": "OneMap Search: Singapore Oceanarium",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Singapore%20Oceanarium&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "nature",
+    "kind": "Aquarium",
+    "summary": "An ocean institute and aquarium at Resorts World Sentosa, with habitats from the surface to the deep sea.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The Singapore Oceanarium replaced the S.E.A. Aquarium at Resorts World Sentosa and opened to the public on 24 July 2025. Its habitats run from the ocean surface to the deep sea, and it is run as an ocean institute with research and learning programmes.",
+        "sources": [
+          {
+            "title": "Singapore New Attractions 2026–2027: What Travel Agents Can Sell and How to Package It",
+            "url": "https://dmcquote.com/blog/post/singapore-new-attractions-2026-travel-agents",
+            "publisher": "DMC Quote",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-skypark-sentosa",
+    "name": "Skypark Sentosa by AJ Hackett",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-sentosa",
+    "coordinates": {
+      "lat": 1.255138,
+      "lng": 103.813343,
+      "source": {
+        "title": "OneMap Search: AJ Hackett",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=AJ%20Hackett&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Adventure park",
+    "summary": "The bungy, giant swing and dry-slide site above Siloso Beach on Sentosa.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Skypark Sentosa by AJ Hackett, the bungy and giant swing site on Siloso Beach, reopened on 7 June 2026 with Skyslides: two dry slides that start from a height of 44 metres.",
+        "sources": [
+          {
+            "title": "Singapore New Attractions 2026–2027: What Travel Agents Can Sell and How to Package It",
+            "url": "https://dmcquote.com/blog/post/singapore-new-attractions-2026-travel-agents",
+            "publisher": "DMC Quote",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-bird-paradise",
+    "name": "Bird Paradise",
+    "country": "SG",
+    "regionId": "north",
+    "areaId": "sg-woodlands",
+    "coordinates": {
+      "lat": 1.406211,
+      "lng": 103.779682,
+      "source": {
+        "title": "OneMap Search: Bird Paradise",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Bird%20Paradise&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "nature",
+    "kind": "Bird park",
+    "summary": "The bird park of the Mandai Wildlife Reserve.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Bird Paradise is one of the five wildlife parks of the Mandai Wildlife Reserve. Its grand opening on 15 November 2023 was officiated by then Deputy Prime Minister Lawrence Wong, according to the Mandai Wildlife Group.",
+        "sources": [
+          {
+            "title": "A decade in the making: The Mandai Wildlife Reserve marks Grand Opening as Singapore’s wildlife and nature destination",
+            "url": "https://cn.mandai.com/en/about-mandai/media-centre/A-decade-in-the-making-The-Mandai-Wildlife-Reserve-marks-Grand-Opening-as-Singapores-wildlife-and-nature-destination.html",
+            "publisher": "Mandai Wildlife Group",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    },
+    "operatingStatus": "open",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-rainforest-wild-adventure",
+    "name": "Rainforest Wild Adventure",
+    "country": "SG",
+    "regionId": "north",
+    "areaId": "sg-woodlands",
+    "coordinates": {
+      "lat": 1.403791,
+      "lng": 103.788406,
+      "source": {
+        "title": "OneMap Search: Rainforest Wild",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Rainforest%20Wild&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "nature",
+    "kind": "Wildlife park",
+    "summary": "An adventure-based wildlife park in two zones, West and East, at Mandai.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Rainforest Wild Adventure is one park in two zones. West, formerly Rainforest Wild Asia, opened as the first phase on 12 March 2025. East, a seven-hectare zone of Afro-tropical and Madagascan habitats, opened on 20 May 2026.",
+        "sources": [
+          {
+            "title": "A decade in the making: The Mandai Wildlife Reserve marks Grand Opening as Singapore’s wildlife and nature destination",
+            "url": "https://cn.mandai.com/en/about-mandai/media-centre/A-decade-in-the-making-The-Mandai-Wildlife-Reserve-marks-Grand-Opening-as-Singapores-wildlife-and-nature-destination.html",
+            "publisher": "Mandai Wildlife Group",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Singapore New Attractions 2026–2027: What Travel Agents Can Sell and How to Package It",
+            "url": "https://dmcquote.com/blog/post/singapore-new-attractions-2026-travel-agents",
+            "publisher": "DMC Quote",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-exploria",
+    "name": "Exploria",
+    "country": "SG",
+    "regionId": "north",
+    "areaId": "sg-woodlands",
+    "coordinates": {
+      "lat": 1.405905,
+      "lng": 103.789995,
+      "source": {
+        "title": "OneMap Search: Exploria",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Exploria&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "nature",
+    "kind": "Indoor nature attraction",
+    "summary": "An indoor, nature-themed multimedia attraction at the Mandai Wildlife Reserve.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Exploria opened on 3 March 2026 at Mandai as a fully indoor, nature-themed multimedia attraction covering 10,000 square metres. The Mandai Wildlife Group describes it as one of the largest indoor attractions of its kind in Southeast Asia.",
+        "sources": [
+          {
+            "title": "A decade in the making: The Mandai Wildlife Reserve marks Grand Opening as Singapore’s wildlife and nature destination",
+            "url": "https://cn.mandai.com/en/about-mandai/media-centre/A-decade-in-the-making-The-Mandai-Wildlife-Reserve-marks-Grand-Opening-as-Singapores-wildlife-and-nature-destination.html",
+            "publisher": "Mandai Wildlife Group",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Singapore New Attractions 2026–2027: What Travel Agents Can Sell and How to Package It",
+            "url": "https://dmcquote.com/blog/post/singapore-new-attractions-2026-travel-agents",
+            "publisher": "DMC Quote",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-curiosity-cove",
+    "name": "Curiosity Cove",
+    "country": "SG",
+    "regionId": "north",
+    "areaId": "sg-woodlands",
+    "coordinates": {
+      "lat": 1.405226,
+      "lng": 103.79039,
+      "source": {
+        "title": "OneMap Search: Curiosity Cove",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Curiosity%20Cove&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "nature",
+    "kind": "Indoor playscape",
+    "summary": "An indoor, nature-inspired playscape for young children at Mandai.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Curiosity Cove opened on 21 November 2025 as an indoor, nature-inspired playscape of 4,600 square metres for children aged 12 and under, part of the Mandai Wildlife Reserve.",
+        "sources": [
+          {
+            "title": "A decade in the making: The Mandai Wildlife Reserve marks Grand Opening as Singapore’s wildlife and nature destination",
+            "url": "https://cn.mandai.com/en/about-mandai/media-centre/A-decade-in-the-making-The-Mandai-Wildlife-Reserve-marks-Grand-Opening-as-Singapores-wildlife-and-nature-destination.html",
+            "publisher": "Mandai Wildlife Group",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Singapore New Attractions 2026–2027: What Travel Agents Can Sell and How to Package It",
+            "url": "https://dmcquote.com/blog/post/singapore-new-attractions-2026-travel-agents",
+            "publisher": "DMC Quote",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-new-bahru",
+    "name": "New Bahru",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.292187,
+      "lng": 103.839288,
+      "source": {
+        "title": "OneMap Search: New Bahru",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=New%20Bahru&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "culture",
+    "kind": "Lifestyle cluster",
+    "summary": "A creative and lifestyle cluster on Kim Yam Road in River Valley, run by The Lo and Behold Group.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "New Bahru is a lifestyle cluster by The Lo and Behold Group at 46 Kim Yam Road. In May 2026 STB’s chief executive said it had just welcomed a new wellness concept, the Future Resonance studio.",
+        "sources": [
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Future Resonance Singapore Brings Immersive Wellness to New Bahru",
+            "url": "https://www.factmagazines.com/singapore/spa-wellness/future-resonance-singapore-immersive-wellness-sound-healing",
+            "publisher": "FACT Magazine",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-founders-memorial",
+    "name": "Founders’ Memorial",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-marina-bay",
+    "coordinates": {
+      "lat": 1.289,
+      "lng": 103.869656,
+      "source": {
+        "title": "OneMap Search: Founders Memorial",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Founders%20Memorial&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Memorial (under construction)",
+    "summary": "A memorial to Singapore’s founders, being built in Bay East Garden of Gardens by the Bay.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The Founders’ Memorial commemorates the founders of Singapore and the years after World War II. Designed by Kengo Kuma with K2LD Architects, it is being built in Bay East Garden and is scheduled to open in 2028, served by Founders’ Memorial MRT station.",
+        "sources": [
+          {
+            "title": "Founders’ Memorial",
+            "url": "https://en.wikipedia.org/wiki/Founders%27_Memorial",
+            "publisher": "Wikipedia",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "draft",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    },
+    "operatingStatus": "planned",
+    "pinQuality": "area"
+  },
+  {
+    "id": "curated:sg-greater-sentosa",
+    "name": "Greater Sentosa",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-sentosa",
+    "coordinates": {
+      "lat": 1.249812,
+      "lng": 103.829491,
+      "source": {
+        "title": "OneMap Search: Sentosa",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Sentosa&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Island precinct",
+    "summary": "The resort island of Sentosa and neighbouring Pulau Brani, planned as one tourism precinct.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "STB’s chief executive said in May 2026 that the Greater Sentosa Master Plan would reinforce Sentosa’s appeal, and that the Brani West zone will be one of the largest sites for new attractions development, with design consultancy tenders to follow.",
+        "sources": [
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
+    },
+    "operatingStatus": "open",
+    "pinQuality": "area"
+  },
+  {
+    "id": "curated:sg-mandai-wildlife-reserve",
+    "name": "Mandai Wildlife Reserve",
+    "country": "SG",
+    "regionId": "north",
+    "areaId": "sg-woodlands",
+    "coordinates": {
+      "lat": 1.406421,
+      "lng": 103.789653,
+      "source": {
+        "title": "OneMap Search: Mandai Wildlife Reserve",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Mandai%20Wildlife%20Reserve&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "nature",
+    "kind": "Wildlife and nature precinct",
+    "summary": "The wildlife and nature precinct at Mandai, with five wildlife parks and two nature attractions.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The Mandai Wildlife Reserve marked its grand opening on 29 May 2026, the final milestone of a ten-year transformation of the 126-hectare site. It now spans five wildlife parks, two nature-themed attractions and public green spaces.",
+        "sources": [
+          {
+            "title": "A decade in the making: The Mandai Wildlife Reserve marks Grand Opening as Singapore’s wildlife and nature destination",
+            "url": "https://cn.mandai.com/en/about-mandai/media-centre/A-decade-in-the-making-The-Mandai-Wildlife-Reserve-marks-Grand-Opening-as-Singapores-wildlife-and-nature-destination.html",
+            "publisher": "Mandai Wildlife Group",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "area"
+  },
+  {
+    "id": "curated:sg-raffles-sentosa-singapore",
+    "name": "Raffles Sentosa Singapore",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-sentosa",
+    "coordinates": {
+      "lat": 1.246802,
+      "lng": 103.826351,
+      "source": {
+        "title": "OneMap Search: 4 Bukit Manis Road",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=4%20Bukit%20Manis%20Road&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Villa resort",
+    "summary": "A villa-only Raffles resort at 4 Bukit Manis Road on Sentosa.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Raffles Sentosa Singapore, at 4 Bukit Manis Road, is described as the first villa-only resort in Singapore, with 62 villas spread over about 100,000 square metres of greenery.",
+        "sources": [
+          {
+            "title": "All The New & Upcoming Hotels In Singapore To Check Out For A Staycay In 2026",
+            "url": "https://thesmartlocal.com/read/new-hotels-in-singapore/amp/",
+            "publisher": "TheSmartLocal",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-mandai-rainforest-resort",
+    "name": "Mandai Rainforest Resort by Banyan Tree",
+    "country": "SG",
+    "regionId": "north",
+    "areaId": "sg-woodlands",
+    "coordinates": {
+      "lat": 1.407201,
+      "lng": 103.791562,
+      "source": {
+        "title": "OneMap Search: Mandai Rainforest Resort",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Mandai%20Rainforest%20Resort&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "nature",
+    "kind": "Resort",
+    "summary": "The first resort inside the Mandai Wildlife Reserve, with rooms and treehouses.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Mandai Rainforest Resort by Banyan Tree officially opened on 26 November 2025 as the first resort inside the Mandai wildlife and nature destination. The 4.6-hectare resort has 338 rooms and 24 pod-shaped treehouses.",
+        "sources": [
+          {
+            "title": "A decade in the making: The Mandai Wildlife Reserve marks Grand Opening as Singapore’s wildlife and nature destination",
+            "url": "https://cn.mandai.com/en/about-mandai/media-centre/A-decade-in-the-making-The-Mandai-Wildlife-Reserve-marks-Grand-Opening-as-Singapores-wildlife-and-nature-destination.html",
+            "publisher": "Mandai Wildlife Group",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "All The New & Upcoming Hotels In Singapore To Check Out For A Staycay In 2026",
+            "url": "https://thesmartlocal.com/read/new-hotels-in-singapore/amp/",
+            "publisher": "TheSmartLocal",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-the-laurus",
+    "name": "The Laurus, a Luxury Collection Resort",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-sentosa",
+    "coordinates": {
+      "lat": 1.257034,
+      "lng": 103.819266,
+      "source": {
+        "title": "OneMap Search: 28 Sentosa Gateway",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=28%20Sentosa%20Gateway&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Resort",
+    "summary": "An all-suite resort at Resorts World Sentosa on the former Hard Rock Hotel site.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The Laurus opened in October 2025 on the site formerly used by the Hard Rock Hotel at 28 Sentosa Gateway. It is the first resort in Singapore under Marriott’s Luxury Collection brand, with 183 suites in a five-storey building.",
+        "sources": [
+          {
+            "title": "All The New & Upcoming Hotels In Singapore To Check Out For A Staycay In 2026",
+            "url": "https://thesmartlocal.com/read/new-hotels-in-singapore/amp/",
+            "publisher": "TheSmartLocal",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-frasers-house",
+    "name": "Frasers House, a Luxury Collection Hotel",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-kampong-glam",
+    "coordinates": {
+      "lat": 1.29847,
+      "lng": 103.854867,
+      "source": {
+        "title": "OneMap Search: 80 Middle Road",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=80%20Middle%20Road&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Hotel",
+    "summary": "The former InterContinental Singapore on Middle Road, reopened as Frasers House.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Frasers House, a Luxury Collection Hotel, fully took over the former InterContinental Singapore at 80 Middle Road on 7 January 2026. STB’s chief executive named the newly rejuvenated hotel among the year’s openings.",
+        "sources": [
+          {
+            "title": "All The New & Upcoming Hotels In Singapore To Check Out For A Staycay In 2026",
+            "url": "https://thesmartlocal.com/read/new-hotels-in-singapore/amp/",
+            "publisher": "TheSmartLocal",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-hotel-waterloo",
+    "name": "Hotel Waterloo Singapore",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-little-india",
+    "coordinates": {
+      "lat": 1.299129,
+      "lng": 103.851458,
+      "source": {
+        "title": "OneMap Search: 78 Waterloo Street",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=78%20Waterloo%20Street&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Hotel",
+    "summary": "A Handwritten Collection hotel on Waterloo Street in the Bras Basah area.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Hotel Waterloo Singapore, part of the Handwritten Collection, opened for bookings on 16 January 2026 at 78 Waterloo Street, with two room types, Superior and Deluxe, according to a TheSmartLocal hotel round-up.",
+        "sources": [
+          {
+            "title": "All The New & Upcoming Hotels In Singapore To Check Out For A Staycay In 2026",
+            "url": "https://thesmartlocal.com/read/new-hotels-in-singapore/amp/",
+            "publisher": "TheSmartLocal",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-varel-singapore",
+    "name": "Varel Singapore",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-little-india",
+    "coordinates": {
+      "lat": 1.304083,
+      "lng": 103.850031,
+      "source": {
+        "title": "OneMap Search: 189 Selegie Road",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=189%20Selegie%20Road&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Hotel",
+    "summary": "A Tribute Portfolio hotel on Selegie Road, on the site of the old Selegie Centre.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "Varel Singapore, a Tribute Portfolio Hotel, opened in April 2026 at 189 Selegie Road. It is built on the site of the former Selegie Centre, and STB’s chief executive listed it among the new hotel openings.",
+        "sources": [
+          {
+            "title": "All The New & Upcoming Hotels In Singapore To Check Out For A Staycay In 2026",
+            "url": "https://thesmartlocal.com/read/new-hotels-in-singapore/amp/",
+            "publisher": "TheSmartLocal",
+            "checkedAt": "2026-11-08"
+          },
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "published",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
+    },
+    "operatingStatus": "new",
+    "pinQuality": "building"
+  },
+  {
+    "id": "curated:sg-movenpick-singapore",
+    "name": "Mövenpick Singapore",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-chinatown",
+    "coordinates": {
+      "lat": 1.27408,
+      "lng": 103.842263,
+      "source": {
+        "title": "OneMap Search: Hoe Chiang Road",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=Hoe%20Chiang%20Road&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Hotel (planned)",
+    "summary": "A planned Mövenpick hotel on Hoe Chiang Road in Tanjong Pagar.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "In May 2026 STB’s chief executive listed Asia’s largest Mövenpick hotel among Singapore’s new hotel openings. The research inventory places it on Hoe Chiang Road in Tanjong Pagar, so the pin is a street-level point.",
+        "sources": [
+          {
+            "title": "Speech by Ms Melissa Ow, Chief Executive, Singapore Tourism Board, at the Tourism Industry Conference 2026",
+            "url": "https://www.stb.gov.sg/about-stb/media-publications/speeches/speech-by-ms-melissa-ow--chief-executive--singapore-tourism-board--at-the-tourism-industry-conference-2026/",
+            "publisher": "Singapore Tourism Board",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "draft",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
+    },
+    "operatingStatus": "planned",
+    "pinQuality": "street"
+  },
+  {
+    "id": "curated:sg-nomad-singapore",
+    "name": "NoMad Singapore",
+    "country": "SG",
+    "regionId": "central",
+    "areaId": "sg-orchard",
+    "coordinates": {
+      "lat": 1.301907,
+      "lng": 103.838285,
+      "source": {
+        "title": "OneMap Search: 230 Orchard Road",
+        "url": "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=230%20Orchard%20Road&returnGeom=Y&getAddrDetails=Y&pageNum=1",
+        "publisher": "OneMap (SLA)",
+        "checkedAt": "2026-11-08"
+      }
+    },
+    "category": "landmark",
+    "kind": "Hotel (planned)",
+    "summary": "A planned NoMad hotel in the Faber House building on Orchard Road.",
+    "facts": [
+      {
+        "id": "f1",
+        "text": "The NoMad hotel on Orchard Road will take over the current Faber House building at 230 Orchard Road and will have 173 guest rooms, according to TheSmartLocal’s round-up of new and upcoming hotels.",
+        "sources": [
+          {
+            "title": "All The New & Upcoming Hotels In Singapore To Check Out For A Staycay In 2026",
+            "url": "https://thesmartlocal.com/read/new-hotels-in-singapore/amp/",
+            "publisher": "TheSmartLocal",
+            "checkedAt": "2026-11-08"
+          }
+        ]
+      }
+    ],
+    "editorialStatus": "draft",
+    "reviewedAt": "2026-11-08",
+    "reviewedBy": "tourism2040-import",
+    "provenance": "researched",
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
+    },
+    "operatingStatus": "planned",
+    "pinQuality": "building"
   }
 ]
