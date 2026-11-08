@@ -344,7 +344,8 @@ describe('Place detail', () => {
     renderAt(`/nearby/place/${key}`);
     await userEvent.click(screen.getByRole('link', { name: /Directions/ }));
     expect(explorePersonalStore.get().places).toEqual([]);
-    await userEvent.click(screen.getByRole('button', { name: 'Check in' }));
+    // v2 (board 08): the sticky "Stamp here" bar is the self-reported check-in
+    await userEvent.click(screen.getByRole('button', { name: 'Stamp here' }));
     expect(explorePersonalStore.get().places[0]).toMatchObject({ placeKey: key, saved: false, visited: true });
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(explorePersonalStore.get().places[0]).toMatchObject({ saved: true, visited: true });
@@ -354,9 +355,9 @@ describe('Place detail', () => {
 
   test('a future visit date is refused', async () => {
     renderAt(`/nearby/place/${key}`);
-    await userEvent.click(screen.getByRole('button', { name: 'Check in' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Stamp here' }));
     await userEvent.click(screen.getByRole('button', { name: 'Change date' }));
-    fireEvent.change(screen.getByLabelText(/Check-in date/), { target: { value: '2999-01-01' } });
+    fireEvent.change(screen.getByLabelText(/Stamp date/), { target: { value: '2999-01-01' } });
     await userEvent.click(screen.getByRole('button', { name: 'Save date' }));
     expect(screen.getByRole('alert')).toHaveTextContent('cannot be in the future');
   });
