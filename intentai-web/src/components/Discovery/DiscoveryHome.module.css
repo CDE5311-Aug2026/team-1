@@ -503,6 +503,11 @@
 .home:not(.homeOpen) {
   top: var(--status-h);
   padding-top: 0;
+  /* the scroller spans the whole window and centres the column with padding: with max-width on the scroller itself,
+     a wheel or trackpad over the side margins of a wide window scrolled nothing (owner, 8 Nov 2026) */
+  max-width: none;
+  margin: 0;
+  padding-inline: max(var(--gutter), calc((100% - var(--content-max)) / 2 + var(--gutter)));
 }
 
 /* a scrolling column: nothing in it gives up its height */
