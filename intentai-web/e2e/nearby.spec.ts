@@ -30,3 +30,50 @@ test('old links to the explorer and its location page land on Home', async ({ pa
     await expect(page.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
   }
 });
+
+// The kept Nearby pages (place, collection, Saved), moved here from the retired explorer's explore.spec.ts.
+test('deep links reload, invalid ids get a not-found page, and the 3D page is bundled', async ({ page }) => {
+  for (const path of [paths.nearbyPlace('curated:sg-merlion-park'), paths.collection('sg-100'), `${paths.saved}?tab=visited`]) {
+    await page.goto(path);
+    await expect(page.getByRole('main')).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('main')).toBeVisible();
+  }
+  await page.goto(paths.nearbyPlace('curated:sg-nowhere'));
+  await expect(page.getByRole('heading', { name: 'Place not found' })).toBeVisible();
+  for (const [path, type, marker] of [
+    ['/earth-online/sg/lite.html', 'text/html', 'IntentAI Nearby lite'],
+    ['/earth-online/sg/vendor/three-r128.min.js', 'javascript', 'Three.js Authors'],
+  ]) {
+    const res = await page.request.get(path);
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toContain(type);
+    expect(await res.text()).toContain(marker);
+  }
+});
+
+test('another tab sees saved changes', async ({ page, context }) => {
+  await page.goto(paths.saved);
+  const other = await context.newPage();
+  await other.goto(paths.nearbyPlace('curated:sg-merlion-park'));
+  await other.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Merlion Park' })).toBeVisible();
+});
+
+test('unavailable storage keeps the feature working and says so', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function setItem(key: string, value: string) {
+      if (key.includes('explore-personal')) throw new DOMException('quota', 'QuotaExceededError');
+      return original.call(this, key, value);
+    };
+  });
+  await page.goto(paths.nearbyPlace('curated:sg-merlion-park'));
+  // v2 place page (boards 08/12): Save is one toggle button whose pressed state says it is saved.
+  const save = page.getByRole('button', { name: 'Save', exact: true });
+  await expect(save).toHaveAttribute('aria-pressed', 'false');
+  await save.click();
+  await expect(save).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByText('Changes will not be saved on this device.')).toBeVisible();
+});
+

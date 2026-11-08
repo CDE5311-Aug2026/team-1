@@ -20,7 +20,7 @@ Every test that the redesign touches, with its owner phase and what happens to i
 | `pages/OnboardingPage/Onboarding.test.tsx`, `quiz.test.ts` | S1 | replace (Onboarding), retain (quiz) | Old Landmark/Culture/Food/Nature labels go |
 | `pages/TodayPage/TodayPage.test.tsx` | S2 | retain drill-down + add v2 sections | 3D map logic is untouched (D-keep) |
 | `components/Discovery/*.test.ts` | S2 | retain | Discovery logic is not changed |
-| `pages/NearbyPage/Explorer.test.tsx`, `Nearby3D.test.tsx`, `Routes.test.tsx` | S3/S4 | retain | Only the place detail page is redesigned |
+| `pages/NearbyPage/Nearby3D.test.tsx`, `Routes.test.tsx` | S3/S4, N1 | retain (explorer parts removed by N1) | Only the place detail page is redesigned |
 | `features/nearby/card/PlaceStoryCard.test.tsx` | S4 | retain or replace if the card is swapped | |
 | `pages/HuntPage/*.test.tsx` | S6 | rewrite (desk/shelf); retain HuntStop and howToPlay | `#story/` hash navigation must still work (B8) |
 | `pages/MySpacePage/MySpacePage.test.tsx`, `MySpaceExtras.test.tsx` | S7 | rewrite | Passport |
@@ -40,8 +40,28 @@ Every test that the redesign touches, with its owner phase and what happens to i
 | `my-space.spec.ts` | rewrite | Passport + Settings sub-pages |
 | `moments.spec.ts` | retain | Route stays |
 | `admin.spec.ts:29`, `nearby-links.spec.ts:21` | rewrite | Navigate via Passport instead of the Moments tab |
-| `explore.spec.ts:166–180` | retain or rewrite | Place Save behaviour on the new place page |
-| `nearby.spec.ts`, `nearby3d.spec.ts`, `today-setup.spec.ts` | retain | |
+| `nearby.spec.ts` | rewritten (N1) | Privacy › Location → Home's Near you; old `/nearby` links → Home; plus the kept-page tests moved from `explore.spec.ts` |
+| `nearby3d.spec.ts`, `today-setup.spec.ts` | retain | `nearby3d` tests the place page's 3D, a kept page |
 | `usertest.spec.ts` | retain + I2 pilot checks | B1, B8 |
 
 The suites and browsers are not configured as Playwright projects. I1 runs Chromium and WebKit separately, as the previous round did: `E2E_PORT=4340 npx playwright test` and `E2E_PORT=4341 npx playwright test --browser=webkit`.
+
+## Removed with the v1 Nearby explorer (N1, owner decision 8 Nov 2026)
+
+`/nearby` (ExplorePage) and `/nearby/location` (LocationPage) now redirect to Home, and the Nearby radius setting is gone.
+
+| Test | What went | What covers the kept behaviour now |
+|---|---|---|
+| `pages/NearbyPage/Explorer.test.tsx` | whole file (explorer map/list, sheet, search, areas, picks, location page) | `App.routing.test.tsx` (redirects), `PlaceV2.test.tsx` (Back → Home) |
+| `pages/NearbyPage/Nearby3D.test.tsx` | `Explore in 3D` block (8 tests) | `Place detail in 3D` block kept |
+| `pages/NearbyPage/Routes.test.tsx` | "Explore links to Routes" | the place page's "On routes" test kept |
+| `pages/MySpacePage/MySpaceExtras.test.tsx` | the Nearby radius slider test | "Settings has no Nearby radius"; an old prefs record with `radiusM` still repairs |
+| `pages/MySpacePage/SettingsPage.test.tsx` | the slider assertion | asserts no slider |
+| `usage/names.test.ts` | `Nearby` page name | the two retired paths are untracked |
+| `e2e/explore.spec.ts` | whole file (explorer journeys, sheet drag, clusters, 320 px, Back, phone status bar) | its three kept-page tests (deep links / not found, another tab's Save, storage unavailable) moved to `nearby.spec.ts` |
+| `e2e/nearby.spec.ts` | explorer "Use my location" test | Privacy › Location → Near you, position not stored |
+| `e2e/nearby-links.spec.ts` | Back from a place → explorer, explorer Back → Home | Back from a place → Home; old explorer links → Home |
+| `e2e/usertest.spec.ts` | opened `/nearby` and tapped Editor's picks | opens Saved and taps Checked in |
+| `e2e/a11y.spec.ts`, `smoke.spec.ts` | `/nearby`, `/nearby/location` in `e2e/routes.ts` (now listed as redirects) | |
+
+New: `App.routing.test.tsx` (`/nearby`, `/nearby?…`, `/nearby/location` → Home), `MySpacePage.test.tsx` (Privacy › Location → Near you, asks once; All places → Home), `PlaceV2.test.tsx` (Back fallback is Home).
