@@ -601,15 +601,16 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
                       <Cover id={v.id} />
                       <span className={a.rowBody}>
                         <span className={a.kicker}>
-                          {v.category && (
-                            <>
-                              <span className={a.badge}>{TOURISM_INFO[v.category].label}</span>
+                          {v.category && <span className={a.badge}>{TOURISM_INFO[v.category].label}</span>}
+                          {/* the bar travels with the volume number, so a full line never ends on a dangling "|" */}
+                          <span>
+                            {v.category && (
                               <span className={a.pipe} aria-hidden="true">
                                 |
                               </span>
-                            </>
-                          )}
-                          <span>Vol. {v.roman}</span>
+                            )}
+                            Vol. {v.roman}
+                          </span>
                           {/* the place drops out whole when the line is full (HuntArchive.module.css .kicker) */}
                           <span>{` · ${v.area}`}</span>
                         </span>

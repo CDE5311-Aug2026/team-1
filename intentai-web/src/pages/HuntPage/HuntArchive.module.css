@@ -148,11 +148,16 @@
   gap: 8px;
 }
 .head {
-  height: 28px;
+  min-height: 28px;
   display: flex;
-  align-items: center;
+  flex-wrap: wrap; /* at 320 px the tally drops whole under the title instead of both breaking into ragged columns */
+  align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  column-gap: 8px;
+  row-gap: 2px;
+}
+.head > * {
+  white-space: nowrap;
 }
 .head h2 {
   margin: 0;
@@ -221,6 +226,7 @@
 }
 .pipe {
   color: var(--border-strong);
+  margin-right: 6px; /* the kicker's column gap, now that the bar sits inside the volume's span */
 }
 /* up to two lines ("Beneath the Golden Dome" at 320 px), then an ellipsis */
 .rowTitle {
