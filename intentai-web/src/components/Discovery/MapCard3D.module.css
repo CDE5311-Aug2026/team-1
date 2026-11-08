@@ -2,7 +2,9 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  touch-action: none;
+  /* the map only takes taps (MapCard3D onPointerUp), so a finger swiping up or down scrolls Home; `none` here froze
+     half the phone screen (owner, 8 Nov 2026) */
+  touch-action: pan-y;
   /* the sea, lighter towards the horizon */
   background: linear-gradient(180deg, #a9c7df 0%, #7fa8c9 55%, #6f9cc0 100%);
 }

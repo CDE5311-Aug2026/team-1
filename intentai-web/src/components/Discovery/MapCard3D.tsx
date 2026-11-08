@@ -450,6 +450,10 @@ export function MapCard3D({
   const onPointerDown = (e: PointerEvent) => {
     down.current = { x: e.clientX, y: e.clientY };
   };
+  // the page took the gesture (a scroll): no tap
+  const onPointerCancel = () => {
+    down.current = null;
+  };
   const onPointerUp = (e: PointerEvent) => {
     const d = down.current;
     down.current = null;
@@ -493,7 +497,7 @@ export function MapCard3D({
   };
 
   return (
-    <div ref={boxRef} className={styles.map} role="application" aria-label={label} onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+    <div ref={boxRef} className={styles.map} role="application" aria-label={label} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={onPointerCancel}>
       {gl && <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />}
       {!gl && <div className={styles.flat} aria-hidden="true" />}
       <div className={styles.overlay}>
