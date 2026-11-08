@@ -3,6 +3,68 @@ import { loadCatalogue, validateCatalogue } from '../../../scripts/validate-expl
 import { COLLECTIONS, PUBLISHED_PLACES, collectionProgress, collectionTitle, collectionsContaining, curatedPlace, members, placeByEarthKey } from './catalogue';
 import { DEFAULT_EXPLORE_PERSONAL, type ExploreCollection, type ExplorePersonalData } from './domain';
 import { appleMapsUrl, directionsUrl, view3dTarget, view3dUrl } from './links';
+import { OPERATING_STATUSES as VALIDATOR_STATUSES, PIN_QUALITIES as VALIDATOR_PINS, TOURISM_CATEGORIES as VALIDATOR_CATS, TOURISM_SUBTYPES as VALIDATOR_SUBTYPES } from '../../../scripts/validate-explore.mjs';
+import { OPERATING_STATUSES, PIN_QUALITIES, TOURISM_CATEGORIES, TOURISM_SUBTYPES } from '../../data/tourism';
+import baseline from '../../data/explore/research/baseline-ids-ddc8e4e.json';
+import placesJson from '../../data/explore/places.sg.json';
+import collectionsJson from '../../data/explore/collections.json';
+import placeCardsJson from '../../data/explore/placeCards.sg.json';
+import photosJson from '../../data/explore/photos.json';
+import thumbsJson from '../../data/explore/thumbs.json';
+
+describe('Tourism 2040 import (Redesign v2, R0)', () => {
+  const ids = new Set((placesJson as { id: string }[]).map((p) => p.id));
+
+  test('passes the validator, including the tourism, lifecycle, parent and crosswalk rules', () => {
+    const data = loadCatalogue();
+    expect(data.crosswalk?.length).toBe(147);
+    expect(validateCatalogue(data).errors).toEqual([]);
+  });
+
+  test('no id from before the import is lost (ids saved on devices keep resolving)', () => {
+    expect(baseline.ids).toHaveLength(385);
+    expect(baseline.ids.filter((id) => !ids.has(id))).toEqual([]);
+  });
+
+  test('every collection member still resolves', () => {
+    for (const c of collectionsJson as { id: string; memberIds: string[] }[]) for (const id of c.memberIds) expect(ids.has(id), `${c.id}: ${id}`).toBe(true);
+    // place cards, photos and thumbnails are keyed by place id too
+    const refs = [...Object.keys(placeCardsJson), ...Object.keys((photosJson as { photos: object }).photos), ...(thumbsJson as { ids: string[] }).ids];
+    expect(refs.filter((id) => !ids.has(id))).toEqual([]);
+  });
+
+  test('every published place has a tourism category; planned places are drafts', () => {
+    for (const p of PUBLISHED_PLACES) {
+      expect(TOURISM_CATEGORIES, p.id).toContain(p.tourism?.category);
+      expect(p.operatingStatus, p.id).not.toBe('planned');
+    }
+    expect(curatedPlace('curated:sg-founders-memorial')).toBeUndefined(); // a draft: not resolvable as published
+    expect(curatedPlace('curated:sg-gardens-by-the-bay')?.tourism).toEqual({ category: 'att', subtype: 'attraction' });
+    expect(curatedPlace('curated:sg-imba-theatre')?.parentId).toBe('curated:sg-gardens-by-the-bay');
+  });
+
+  test('the validator lists match the tourism module', () => {
+    expect(VALIDATOR_CATS).toEqual([...TOURISM_CATEGORIES]);
+    expect(VALIDATOR_SUBTYPES).toEqual([...TOURISM_SUBTYPES]);
+    expect(VALIDATOR_STATUSES).toEqual([...OPERATING_STATUSES]);
+    expect(VALIDATOR_PINS).toEqual([...PIN_QUALITIES]);
+  });
+
+  test('the validator refuses a missing tourism, a published planned place, a bad parent, a missing crosswalk id and a slug collision', () => {
+    const data = loadCatalogue();
+    const i = data.places.findIndex((p) => p.editorialStatus === 'published');
+    const { tourism: _drop, ...noTourism } = data.places[i];
+    void _drop;
+    data.places[i] = noTourism;
+    data.places.push({ ...data.places[i + 1], id: 'curated:sg-test-planned', name: 'Test planned place', operatingStatus: 'planned', pinQuality: 'nowhere', parentId: 'curated:sg-does-not-exist' });
+    data.crosswalk = [...data.crosswalk!, { docRow: 'x-01', outcome: 'match:curated:sg-does-not-exist' }, { docRow: 'x-02', outcome: 'maybe' }];
+    const admitted = data.research!.find((r) => r.admit)!;
+    data.research = [...data.research!.map((r) => (r.admit && r !== admitted ? { ...r, slug: admitted.slug } : r))];
+    const errors = validateCatalogue(data).errors.join('\n');
+    for (const m of [/published entries need a tourism category/, /a planned place must stay a draft/, /bad pinQuality/, /parentId curated:sg-does-not-exist is not in the catalogue/, /match target curated:sg-does-not-exist is not in the catalogue/, /outcome must be/, /slug .* used by/])
+      expect(errors).toMatch(m);
+  });
+});
 
 
 describe('the published catalogue', () => {
