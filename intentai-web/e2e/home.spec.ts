@@ -270,7 +270,9 @@ test('Home has no WCAG A/AA violations except the brand orange', async ({ page }
 
 test('a finger swiping over the map scrolls Home (the map only takes taps)', async ({ page }) => {
   await openHome(page);
-  // `none` froze half the phone screen (owner, 8 Nov 2026); vertical panning must stay with the page
+  // `none` froze half the phone screen (owner, 8 Nov 2026); vertical panning must stay with the page.
+  // The map itself, not its loading stand-in (same name): its badges are in.
+  await expect(page.getByRole('button', { name: /^Region \d/ })).toHaveCount(5);
   const ta = await page.getByRole('application', { name: /planning areas/ }).evaluate((el) => getComputedStyle(el).touchAction);
   expect(ta).toContain('pan-y');
 });
