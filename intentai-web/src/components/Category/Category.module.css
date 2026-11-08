@@ -59,7 +59,8 @@
 }
 
 .chipOn::before {
-  background: var(--cat, var(--text-primary));
+  /* ink, not fill: white 12 px text on the Attractions/Wellness fills is under 4.5:1 */
+  background: var(--cat-ink, var(--text-primary));
   box-shadow: none;
 }
 
@@ -97,7 +98,8 @@
   height: 22px;
   padding: 0 8px;
   border-radius: 999px;
-  background: var(--cat);
+  /* ink, not fill: small white text needs 4.5:1 (white on the Attractions fill is 2.66:1) */
+  background: var(--cat-ink);
   color: #fff;
   font: 500 0.625rem/1 var(--font-mono);
   letter-spacing: 0.4px;

@@ -59,7 +59,8 @@ export function LevelDeck({ label, cards, selectedId, actionLabel, onSelect, onE
       if (!card) continue;
       const d = Math.min(1, Math.abs(centreOf(card) - middle) / Math.max(1, card.offsetWidth));
       card.style.transform = reduced ? '' : `scale(${1 - 0.1 * d})`;
-      card.style.opacity = String(1 - 0.25 * d);
+      // at most 10 % fainter: side cards' grey text stays above 4.5:1 (25 % took it to 3.6:1)
+      card.style.opacity = String(1 - 0.1 * d);
     }
   };
 
