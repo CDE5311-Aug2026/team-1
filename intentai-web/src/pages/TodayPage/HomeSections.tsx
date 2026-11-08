@@ -1,0 +1,265 @@
+// The v2 Home sections around the kept 3D map (boards 05 Home A "hunting together" and 11 Home B "solo"):
+// - the region leaderboard card (together mode only). The other hunters and their times are Hunt's SAMPLE players
+//   (stories.ts, as on Hunt's boards) and say "Example"; your own line is real (joined or not, your time if any).
+// - Challenges: Hunt's public challenges (both modes; solo leaves out the "joined" social line, plan B6).
+// - Picked for you: real published places by your categories, then distance when Locate has found you.
+import { useMemo, useState, type CSSProperties } from 'react';
+import { Link } from 'react-router-dom';
+import CategoryBadge from '../../components/Category/CategoryBadge';
+import CategoryGlyph from '../../components/Category/CategoryGlyph';
+import { placePicture } from '../../data/home/nearbyCards';
+import {
+  joinChallenge,
+  leaveChallenge,
+  openChallenges,
+  shortDates,
+  timerText,
+  useChallengeProgress,
+  useJoinedChallenges,
+  type Challenge,
+} from '../../data/hunt/challenges';
+import { SAMPLE_SPEED } from '../../data/hunt/stories';
+import { tourismOrder, profileV3Store } from '../../data/profile/profile';
+import { usePersistentStore } from '../../data/persistentStore';
+import { TOURISM_INFO, type TourismFilter } from '../../data/tourism';
+import { areaOfPlace, uraRegion, type RegionId } from '../../data/ura/ura';
+import { PUBLISHED_PLACES } from '../../features/nearby/catalogue';
+import { localToday } from '../../features/nearby/personal';
+import type { LatLng } from '../../features/nearby/types';
+import { shortDistance } from '../../components/Discovery/nearYou';
+import { ChallengeBook } from '../ChallengePage/ChallengePage';
+import { paths } from '../../routes';
+import { pickedForYou } from './picked';
+import styles from './HomeSections.module.css';
+
+const MEDAL = ['var(--medal-gold, #e0b23c)', 'var(--medal-silver, #c3c6cc)', 'var(--medal-bronze, #c98a5a)'];
+
+function Example({ className }: { className?: string }) {
+  return <span className={`${styles.example} ${className ?? ''}`}>Example</span>;
+}
+
+function Chevron() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  );
+}
+
+/** Your own line: real, from the challenges you joined on this phone and your stamps. */
+function YouLine({ joined }: { joined: Challenge | undefined }) {
+  const progress = useChallengeProgress(joined, !!joined);
+  let text = 'no time yet. Join a challenge.';
+  if (joined && progress) {
+    const t = progress.timer;
+    text =
+      t.kind === 'minutes' || t.kind === 'days'
+        ? `${timerText(t)} in ${joined.title}${t.finished ? '' : ' so far'}.`
+        : t.kind === 'running'
+          ? `clock running in ${joined.title}.`
+          : `joined ${joined.title}. No time yet.`;
+  }
+  return (
+    <p className={styles.you}>
+      <span className={styles.youFace} aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4.5 20c1.2-4 4-6 7.5-6s6.3 2 7.5 6" />
+        </svg>
+      </span>
+      <span>
+        <b>You</b> · {text}
+      </span>
+    </p>
+  );
+}
+
+export function RegionLeaderboard({ region, challenges }: { region: RegionId; challenges: readonly Challenge[] }) {
+  const joinedIds = useJoinedChallenges();
+  const name = uraRegion(region)?.name ?? 'Central';
+  const top = SAMPLE_SPEED.slice(0, 3);
+  const joined = challenges.find((c) => joinedIds[c.id]);
+  return (
+    <section className={styles.board} aria-labelledby="home-board-title">
+      <div className={styles.boardHead}>
+        <h2 id="home-board-title" className={styles.boardTitle}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.trophy}>
+            <path d="M8 21h8M12 17v4M6 3h12v5a6 6 0 0 1-12 0zM6 5H3v3a3 3 0 0 0 3 3M18 5h3v3a3 3 0 0 1-3 3" />
+          </svg>
+          <span>{name} · this weekend</span>
+        </h2>
+        <Example />
+        <Link className={styles.boardLink} to={`${paths.hunt}?board=speed`} aria-label="Leaderboards">
+          <Chevron />
+        </Link>
+      </div>
+      <ol className={styles.podium} aria-label="Fastest (example players)">
+        {top.map((r, i) => (
+          <li key={r.name} className={styles.podiumRow}>
+            <span className={styles.face} style={{ '--medal': MEDAL[i] } as CSSProperties} aria-hidden="true">
+              {r.name[0]}
+              <span className={styles.rank}>{i + 1}</span>
+            </span>
+            <span className={styles.who}>
+              <span className={styles.whoName}>{r.name}</span>
+              <span className={i === 0 ? `${styles.whoTime} ${styles.whoBest}` : styles.whoTime}>
+                {i === 0 ? (
+                  <>
+                    {r.value} min <span className={styles.soft}>fastest</span>
+                  </>
+                ) : (
+                  <>
+                    {r.value} <span className={styles.soft}>+{r.value - top[0].value}</span>
+                  </>
+                )}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <YouLine joined={joined} />
+    </section>
+  );
+}
+
+function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
+  const joined = !!useJoinedChallenges()[c.id];
+  const info = c.category ? TOURISM_INFO[c.category] : undefined;
+  return (
+    <article className={styles.challenge} aria-labelledby={`ch-${c.id}`}>
+      <Link to={paths.challenge(c.id)} tabIndex={-1} aria-hidden="true" className={styles.bookLink}>
+        <ChallengeBook c={c} size="small" />
+      </Link>
+      <div className={styles.challengeText}>
+        <span className={styles.challengeKicker}>
+          {c.category ? <CategoryBadge category={c.category} variant="kicker" /> : null}
+          <span className={styles.rule} aria-hidden="true">
+            |
+          </span>
+          <span>{c.kind}</span>
+        </span>
+        <h3 id={`ch-${c.id}`} className={styles.challengeTitle}>
+          <Link to={paths.challenge(c.id)}>{c.title}</Link>
+        </h3>
+        <span className={styles.challengeMeta}>
+          {shortDates(c.from, c.to)} · {c.stops.length} stops
+          {together && c.example.players > 0 ? ` · ${c.example.players + (joined ? 1 : 0)} joined` : ''}
+        </span>
+        <div className={styles.challengeFoot}>
+          {together && c.example.players > 0 && (
+            <>
+              <span className={styles.faces} aria-hidden="true">
+                {SAMPLE_SPEED.slice(0, 3).map((r) => (
+                  <span key={r.name} className={styles.miniFace}>
+                    {r.name[0]}
+                  </span>
+                ))}
+              </span>
+              <Example />
+            </>
+          )}
+          <button
+            type="button"
+            className={joined ? `${styles.join} ${styles.joined}` : styles.join}
+            style={info ? ({ '--join': info.fill } as CSSProperties) : undefined}
+            aria-pressed={joined}
+            aria-label={joined ? `Joined ${c.title}` : `Join ${c.title}`}
+            onClick={() => (joined ? leaveChallenge(c.id) : joinChallenge(c.id))}
+          >
+            {joined ? 'Joined' : 'Join'}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export function ChallengesSection({ filter, together }: { filter: TourismFilter; together: boolean }) {
+  const list = openChallenges(localToday()).filter((c) => filter === 'all' || c.category === filter);
+  return (
+    <section className={styles.section} aria-labelledby="home-challenges">
+      <div className={styles.sectionHead}>
+        <h2 id="home-challenges" className={styles.sectionTitle}>
+          Challenges
+        </h2>
+        <Link className={styles.sectionMeta} to={paths.hunt} aria-label={`${list.length} open: all challenges in Hunt`}>
+          {list.length} open
+          <Chevron />
+        </Link>
+      </div>
+      {list.length ? (
+        <div className={styles.carousel}>
+          {list.map((c) => (
+            <ChallengeCard key={c.id} c={c} together={together} />
+          ))}
+        </div>
+      ) : (
+        <p className={styles.empty}>No open challenges in this category right now.</p>
+      )}
+    </section>
+  );
+}
+
+const PAGE = 8;
+
+export function PickedSection({ filter, here }: { filter: TourismFilter; here: LatLng | null }) {
+  const [profile] = usePersistentStore(profileV3Store);
+  const order = useMemo(() => tourismOrder(profile), [profile]);
+  const all = useMemo(() => pickedForYou(PUBLISHED_PLACES, order, filter, here), [order, filter, here]);
+  const [shown, setShown] = useState(PAGE);
+  const list = all.slice(0, shown);
+  return (
+    <section className={styles.section} aria-labelledby="home-picked">
+      <div className={styles.sectionHead}>
+        <h2 id="home-picked" className={styles.sectionTitle}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--assist-ink)" aria-hidden="true">
+            <path d="M10 6c.6 4.2 1.8 5.4 6 6-4.2.6-5.4 1.8-6 6-.6-4.2-1.8-5.4-6-6 4.2-.6 5.4-1.8 6-6z" />
+            <path d="M18 2c.3 2.1.9 2.7 3 3-2.1.3-2.7.9-3 3-.3-2.1-.9-2.7-3-3 2.1-.3 2.7-.9 3-3z" />
+          </svg>
+          Picked for you
+        </h2>
+        <span className={styles.sectionMeta}>{here ? 'your categories · nearest' : 'by your categories'}</span>
+      </div>
+      <ul className={styles.grid} aria-label="Places picked for you">
+        {list.map(({ place, category, m }) => {
+          const info = TOURISM_INFO[category];
+          const pic = placePicture(place);
+          const area = areaOfPlace(place.id)?.name;
+          return (
+            <li key={place.id} className={styles.pick} data-category={category}>
+              <Link className={styles.pickMedia} to={paths.nearbyPlace(place.id)} aria-label={`Open ${place.name}`} style={{ background: info.tint }}>
+                {pic.src ? (
+                  <img src={pic.src} alt="" loading="lazy" />
+                ) : (
+                  <span className={styles.pickTint} aria-hidden="true">
+                    <CategoryGlyph category={category} size={28} color={info.ink} />
+                  </span>
+                )}
+                <CategoryBadge category={category} className={styles.pickBadge} />
+                {m !== undefined && <span className={styles.pickDist}>{shortDistance(m)}</span>}
+              </Link>
+              <div className={styles.pickText}>
+                <h3 className={styles.pickTitle}>
+                  <Link to={paths.nearbyPlace(place.id)}>{place.name}</Link>
+                </h3>
+                {area && (
+                  <span className={styles.pickArea}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
+                      <path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11ZM12 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" />
+                    </svg>
+                    <span>{area}</span>
+                  </span>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {shown < all.length && (
+        <button type="button" className={styles.more} onClick={() => setShown((n) => n + PAGE)}>
+          Show more places
+        </button>
+      )}
+    </section>
+  );
+}

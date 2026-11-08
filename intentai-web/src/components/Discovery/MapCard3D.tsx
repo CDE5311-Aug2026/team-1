@@ -2,7 +2,9 @@
 // numbered 1–5; inside a region its planning areas are numbered in deck order; inside an area its places are pins.
 // Tiles in focus lift, the rest sink and dim; grey = not unlocked, light blue = exploring, blue = all checked in.
 // Labels and pins are DOM buttons that follow the camera, so they stay tappable and readable by screen readers.
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import CategoryGlyph from '../Category/CategoryGlyph';
+import { TOURISM_INFO, tourismOf, type TourismCategory, type TourismFilter } from '../../data/tourism';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { Rgba } from '../../features/nearby/map/CityMap';
 import { toXY } from '../../features/nearby/map/projection';
@@ -13,6 +15,8 @@ import {
   URA_REGIONS,
   areaProgress,
   areasOf,
+  placesInArea,
+  placesInRegion,
   regionBox,
   regionProgress,
   type RegionId,
@@ -31,6 +35,8 @@ export interface MapPlacePin {
   id: string;
   name: string;
   point: LatLng;
+  /** Its Tourism 2040 category: the pin's colour and glyph (v2). */
+  tourism?: TourismCategory;
 }
 
 interface Props {
@@ -52,6 +58,22 @@ interface Props {
   path?: boolean;
   /** Where you are (Locate): a blue dot, and the map frames NEAR_M round it. */
   here?: LatLng;
+  /** v2 category chips: other categories' pins dim, and the region / area badges count this category's places. */
+  category?: TourismFilter;
+}
+
+/** How many of these places are in the category (the badges' count when a chip is picked). */
+export const countIn = (places: readonly { tourism?: { category: TourismCategory } }[], cat: TourismCategory) =>
+  places.filter((p) => tourismOf(p) === cat).length;
+
+function CatCount({ cat, n }: { cat: TourismCategory; n: number }) {
+  const info = TOURISM_INFO[cat];
+  return (
+    <span className={styles.catCount} style={{ '--cat': info.fill } as CSSProperties} aria-hidden="true">
+      <CategoryGlyph category={cat} size={10} color="#fff" />
+      {n}
+    </span>
+  );
 }
 
 const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
@@ -129,7 +151,9 @@ export function MapCard3D({
   numbered = false,
   path = false,
   here,
+  category = 'all',
 }: Props) {
+  const cat = category === 'all' ? null : category;
   // near-you pins stand on the ground like a pick's stops
   const isPick = level === 'picks' || level === 'pick' || level === 'near';
   const reduced = useReducedMotion();
@@ -318,7 +342,7 @@ export function MapCard3D({
               type="button"
               className={`${styles.badge} ${r.id === region ? styles.badgeOn : ''}`}
               aria-pressed={r.id === region}
-              aria-label={`Region ${i + 1}: ${r.name}, ${pct(regionProgress(r.id, visited))}`}
+              aria-label={`Region ${i + 1}: ${r.name}, ${pct(regionProgress(r.id, visited))}${cat ? `, ${countIn(placesInRegion(r.id), cat)} ${TOURISM_INFO[cat].label}` : ''}`}
               onClick={() => onPickRegion(r.id)}
             >
               <span className={styles.numWrap}>
@@ -326,6 +350,7 @@ export function MapCard3D({
                 <span className={styles.num}>{i + 1}</span>
               </span>
               <span className={styles.badgeName}>{r.name}</span>
+              {cat && <CatCount cat={cat} n={countIn(placesInRegion(r.id), cat)} />}
             </button>
           ))}
         {level === 'areas' &&
@@ -338,7 +363,7 @@ export function MapCard3D({
                 type="button"
                 className={`${styles.badge} ${styles.small} ${id === areaId ? styles.badgeOn : ''}`}
                 aria-pressed={id === areaId}
-                aria-label={`Area ${i + 1}: ${a.name}, ${pct(areaProgress(id, visited))}`}
+                aria-label={`Area ${i + 1}: ${a.name}, ${pct(areaProgress(id, visited))}${cat ? `, ${countIn(placesInArea(id), cat)} ${TOURISM_INFO[cat].label}` : ''}`}
                 onClick={() => onPickArea(id)}
               >
                 <span className={styles.numWrap}>
@@ -346,24 +371,38 @@ export function MapCard3D({
                   <span className={styles.num}>{i + 1}</span>
                 </span>
                 {id === areaId && <span className={styles.badgeName}>{a.name}</span>}
+                {cat && <CatCount cat={cat} n={countIn(placesInArea(id), cat)} />}
               </button>
             );
           })}
         {(level === 'places' || isPick) &&
-          places.map((p, i) => (
-            <button
-              key={p.id}
-              ref={setRef(`p:${p.id}`)}
-              type="button"
-              data-pin={p.id}
-              className={`${styles.pin} ${p.id === selectedPlaceId ? styles.pinOn : ''} ${visited.has(p.id) ? styles.pinDone : ''}`}
-              aria-pressed={p.id === selectedPlaceId}
-              aria-label={numbered ? `Stop ${i + 1}: ${p.name}` : p.name}
-              onClick={() => onPickPlace(p.id)}
-            >
-              {numbered && <span className={styles.pinNum}>{i + 1}</span>}
-            </button>
-          ))}
+          places.map((p, i) => {
+            // v2: the pin is its category's colour and glyph; checked in = a check mark on it (not a colour)
+            const info = p.tourism ? TOURISM_INFO[p.tourism] : undefined;
+            const dim = !!cat && p.tourism !== cat;
+            const done = visited.has(p.id);
+            return (
+              <button
+                key={p.id}
+                ref={setRef(`p:${p.id}`)}
+                type="button"
+                data-pin={p.id}
+                data-category={p.tourism}
+                data-dim={dim || undefined}
+                className={`${styles.pin} ${p.id === selectedPlaceId ? styles.pinOn : ''} ${done ? styles.pinDone : ''} ${dim ? styles.pinDim : ''}`}
+                style={info ? ({ '--pin': info.fill } as CSSProperties) : undefined}
+                aria-pressed={p.id === selectedPlaceId}
+                aria-label={`${numbered ? `Stop ${i + 1}: ${p.name}` : p.name}${info ? `, ${info.label}` : ''}${done ? ', checked in' : ''}`}
+                onClick={() => onPickPlace(p.id)}
+              >
+                {numbered ? (
+                  <span className={styles.pinNum}>{i + 1}</span>
+                ) : p.tourism ? (
+                  <CategoryGlyph category={p.tourism} size={p.id === selectedPlaceId ? 13 : 9} color="#fff" className={styles.pinGlyph} />
+                ) : null}
+              </button>
+            );
+          })}
         {level === 'near' && here && <span ref={setRef('here')} className={styles.here} role="img" aria-label="You are here" />}
       </div>
     </div>

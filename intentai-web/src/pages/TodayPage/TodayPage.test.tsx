@@ -1,10 +1,15 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { resetPersistentStores } from '../../data/persistentStore';
+import { profileV3Store } from '../../data/profile/profile';
 import { explorePersonalStore } from '../../data/stores';
+import { tourismOf } from '../../data/tourism';
 import { placesInArea, placesInRegion, URA_AREAS } from '../../data/ura/ura';
+import { huntModeStore } from '../../data/v2Stores';
+import { curatedPlace, PUBLISHED_PLACES } from '../../features/nearby/catalogue';
+import { pickedForYou } from './picked';
 import TodayPage from './TodayPage';
 
 function Where() {
@@ -262,4 +267,148 @@ afterEach(() => vi.unstubAllGlobals());
 test('cards carry the full numbers: areas unlocked and checked in by kind', () => {
   renderHome('/?lvl=areas&r=west&a=cl');
   expect(within(card('Clementi')).getByText(/0 of 11 places checked in/)).toBeInTheDocument();
+});
+
+// ---- Redesign v2 (boards 05/11): category chips on the kept map, together vs solo, Challenges, Picked for you ----
+
+const catOf = (id: string) => tourismOf(curatedPlace(id) ?? {});
+const chip = (name: string) => within(screen.getByRole('group', { name: 'Categories' })).getByRole('button', { name });
+
+test('the category chips filter the deck to that category’s places (the URL keeps ?cat=)', async () => {
+  const user = userEvent.setup();
+  const mixed = URA_AREAS.find((a) => {
+    const cats = placesInArea(a.id).map((p) => tourismOf(p));
+    return cats.includes('wel') && cats.some((c) => c !== 'wel');
+  })!;
+  renderHome(`/?lvl=places&r=${mixed.region}&a=${mixed.id}`);
+  expect(within(deck('Nearby places')).getAllByRole('group')).toHaveLength(placesInArea(mixed.id).length);
+  await user.click(chip('Wellness'));
+  expect(screen.getByTestId('where')).toHaveTextContent('cat=wel');
+  expect(chip('Wellness')).toHaveAttribute('aria-pressed', 'true');
+  const shown = within(deck('Nearby places')).getAllByRole('group');
+  const wel = placesInArea(mixed.id).filter((p) => tourismOf(p) === 'wel');
+  expect(shown).toHaveLength(wel.length);
+  expect(shown.map((g) => g.getAttribute('aria-label')).sort()).toEqual(wel.map((p) => p.name).sort());
+  // the drill-down is untouched: still the same level and area
+  expect(screen.getByTestId('where')).toHaveTextContent('lvl=places');
+  expect(screen.getByTestId('where')).toHaveTextContent(`a=${mixed.id}`);
+});
+
+test('with a category picked, the other categories’ pins fade; each pin carries its category; All brings them back', async () => {
+  const user = userEvent.setup();
+  vi.stubGlobal('navigator', {
+    ...navigator,
+    geolocation: {
+      getCurrentPosition: (ok: PositionCallback) => ok({ coords: { latitude: 1.2806, longitude: 103.8448, accuracy: 20 } } as GeolocationPosition),
+    },
+  });
+  renderHome();
+  await user.click(screen.getByRole('button', { name: 'My location' }));
+  await waitFor(() => expect(document.querySelectorAll('[data-pin]').length).toBeGreaterThan(0));
+  const all = [...document.querySelectorAll<HTMLElement>('[data-pin]')];
+  for (const pin of all) expect(pin.dataset.category).toBe(catOf(pin.dataset.pin!));
+  expect(document.querySelectorAll('[data-pin][data-dim]')).toHaveLength(0);
+  // pick a category that some of these pins have and some do not
+  const cats = new Set(all.map((p) => p.dataset.category));
+  expect(cats.size).toBeGreaterThan(1);
+  const picked = (['wel', 'lei', 'cru', 'att'] as const).find((c) => cats.has(c))!;
+  await user.click(chip({ att: 'Attractions', wel: 'Wellness', lei: 'Leisure', cru: 'Cruise' }[picked]));
+  expect(screen.getByTestId('where')).toHaveTextContent(`cat=${picked}`);
+  const pins = [...document.querySelectorAll<HTMLElement>('[data-pin]')];
+  for (const pin of pins) expect(pin.hasAttribute('data-dim')).toBe(pin.dataset.category !== picked);
+  expect(pins.some((p) => p.hasAttribute('data-dim'))).toBe(true);
+  expect(pins.some((p) => !p.hasAttribute('data-dim'))).toBe(true);
+  await user.click(chip('All'));
+  expect(screen.getByTestId('where')).not.toHaveTextContent('cat=');
+  expect(document.querySelectorAll('[data-pin][data-dim]')).toHaveLength(0);
+});
+
+test('a picked category is counted on the region badges and the region cards', async () => {
+  renderHome('/?cat=wel');
+  const n = placesInRegion('central').filter((p) => tourismOf(p) === 'wel').length;
+  expect(within(card('Central')).getByText(new RegExp(`${n} Wellness`))).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: new RegExp(`^Region 1: Central, .*, ${n} Wellness$`) })).toBeInTheDocument();
+});
+
+describe('v2 sections', () => {
+  beforeEach(() => {
+    // Locate (above) keeps your position for the tab
+    sessionStorage.clear();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-11-07T10:00:00'));
+  });
+  afterEach(() => vi.useRealTimers());
+
+  test('together: the region leaderboard (example players, labelled) and the joined line on challenges', () => {
+    huntModeStore.set({ mode: 'together', region: 'east' });
+    renderHome();
+    const board = screen.getByRole('region', { name: 'East · this weekend' });
+    expect(within(board).getByText('Example')).toBeInTheDocument();
+    expect(within(board).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'A1Arjun K.96 min fastest',
+      'H2Hui Wen102 +6',
+      'F3Farid109 +13',
+    ]);
+    expect(within(board).getByText(/no time yet\. Join a challenge\./)).toBeInTheDocument();
+    const civic = screen.getByRole('article', { name: 'Civic District' });
+    expect(within(civic).getByText(/7–8 Nov · 8 stops · 214 joined/)).toBeInTheDocument();
+    expect(within(civic).getByText('Example')).toBeInTheDocument();
+  });
+
+  test('solo: no leaderboard, challenges without the social line', () => {
+    huntModeStore.set({ mode: 'solo' });
+    renderHome();
+    expect(screen.queryByRole('region', { name: /this weekend/ })).toBeNull();
+    const civic = screen.getByRole('article', { name: 'Civic District' });
+    expect(within(civic).getByText('7–8 Nov · 8 stops')).toBeInTheDocument();
+    expect(screen.queryByText('Example')).toBeNull();
+    expect(screen.getByRole('link', { name: '2 open: all challenges in Hunt' })).toHaveAttribute('href', '/hunt');
+  });
+
+  test('a challenge card links to its page; Join is kept on this phone', async () => {
+    const user = userEvent.setup();
+    renderHome();
+    const civic = screen.getByRole('article', { name: 'Civic District' });
+    expect(within(civic).getByRole('link', { name: 'Civic District' })).toHaveAttribute('href', '/hunt/challenge/wk45-civic');
+    await user.click(within(civic).getByRole('button', { name: 'Join Civic District' }));
+    expect(within(civic).getByRole('button', { name: 'Joined Civic District' })).toHaveAttribute('aria-pressed', 'true');
+    expect(JSON.parse(localStorage.getItem('intentai:v1:challenge-joined')!)).toHaveProperty('wk45-civic');
+  });
+
+  test('the chips filter the challenges too', async () => {
+    const user = userEvent.setup();
+    renderHome();
+    expect(screen.getAllByRole('article')).toHaveLength(2);
+    await user.click(chip('Cruise'));
+    expect(screen.queryAllByRole('article')).toHaveLength(0);
+    expect(screen.getByText('No open challenges in this category right now.')).toBeInTheDocument();
+  });
+
+  test('Picked for you: your first category first; a chip keeps one category; no distance without a position', async () => {
+    const user = userEvent.setup();
+    profileV3Store.set((p) => ({ ...p, tourismRanking: ['lei', 'wel'] }));
+    renderHome();
+    const grid = screen.getByRole('list', { name: 'Places picked for you' });
+    const items = within(grid).getAllByRole('listitem');
+    expect(items).toHaveLength(8);
+    expect(items.map((li) => li.dataset.category)).toEqual(Array(8).fill('lei'));
+    expect(within(items[0]).getByText('Leisure')).toBeInTheDocument();
+    expect(within(grid).queryByText(/^\d+(\.\d)? (m|km)$/)).toBeNull();
+    // the place's own name, and a link to its page
+    const first = pickedForYou(PUBLISHED_PLACES, ['lei', 'wel', 'att', 'cru'], 'all', null)[0].place;
+    expect(within(items[0]).getByRole('link', { name: first.name })).toHaveAttribute('href', `/nearby/place/${encodeURIComponent(first.id)}`);
+    await user.click(chip('Wellness'));
+    expect(within(grid).getAllByRole('listitem').every((li) => li.dataset.category === 'wel')).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Show more places' }));
+    expect(within(grid).getAllByRole('listitem')).toHaveLength(16);
+  });
+
+  test('Picked for you: with your position (Locate), the distance shows and the nearest comes first', () => {
+    sessionStorage.setItem('intentai:home-here', JSON.stringify({ lat: 1.2806, lng: 103.8448 }));
+    renderHome();
+    const items = within(screen.getByRole('list', { name: 'Places picked for you' })).getAllByRole('listitem');
+    const expected = pickedForYou(PUBLISHED_PLACES, ['att', 'wel', 'lei', 'cru'], 'all', { lat: 1.2806, lng: 103.8448 });
+    expect(within(items[0]).getByRole('link', { name: expected[0].place.name })).toBeInTheDocument();
+    expect(within(items[0]).getByText(/^\d+ m$|^\d+\.\d km$/)).toBeInTheDocument();
+  });
 });
