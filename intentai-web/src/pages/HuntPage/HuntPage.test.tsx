@@ -18,6 +18,7 @@ const at = (url: string) =>
 beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
+  huntModeStore.set({});
   window.location.hash = '';
 });
 
@@ -145,8 +146,9 @@ test('the story shelf is one tap from the archive', async () => {
 
 test('Public shows this weekend’s challenge on the Civic District route, the boards and what is coming', async () => {
   localStorage.setItem('findsg-hunt-how-seen', '1');
+  // the archive links to the challenges and boards only for those hunting together (owner, 9 Nov 2026)
+  huntModeStore.set({ mode: 'together' });
   at('/hunt');
-  // from the archive (both hunt modes), the challenges and their boards
   await userEvent.click(screen.getByRole('button', { name: /Weekend challenges/ }));
   expect(screen.getByRole('tab', { name: 'Public' })).toHaveAttribute('aria-selected', 'true');
   expect(screen.getByRole('button', { name: /Weekend challenge · Civic District/ })).toBeInTheDocument();
@@ -175,6 +177,10 @@ test('hunting together: the archive also links straight to the leaderboards; sol
   huntModeStore.set({ mode: 'solo' });
   const solo = at('/hunt');
   expect(screen.queryByRole('button', { name: /Leaderboards/ })).toBeNull();
+  // solo: no challenges row either; the shelf and How to play stay
+  expect(screen.queryByRole('button', { name: /Weekend challenges/ })).toBeNull();
+  expect(screen.getByRole('button', { name: 'The story shelf' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'How to play' })).toBeInTheDocument();
   solo.unmount();
   huntModeStore.set({ mode: 'together' });
   at('/hunt');

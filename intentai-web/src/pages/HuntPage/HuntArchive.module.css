@@ -297,11 +297,11 @@
   padding: 4px 8px;
 }
 .link {
-  min-height: 44px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   padding: 0 8px;
   border: 0;
   background: none;
@@ -331,4 +331,10 @@
   line-height: 16px;
   font-style: italic;
   color: var(--v2-muted);
+}
+
+/* the row's name takes the room between its tinted icon square and the chevron */
+.linkText {
+  flex: 1;
+  min-width: 0;
 }

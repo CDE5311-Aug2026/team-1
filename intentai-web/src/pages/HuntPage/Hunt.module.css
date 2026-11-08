@@ -816,6 +816,31 @@
   pointer-events: none;
 }
 
+/* the shelf on the app's chart paper (owner, 9 Nov 2026): the desk's dark chart steps away so AppShell's paper and
+   roses show; only the ink on it turns dark so it stays readable (AA) on the light paper */
+.desk.deskPaper {
+  background: none;
+  color: var(--text-primary);
+  /* the desk's own text (the shelf's intro, the display case's head and tally, the stamp legend) reads these */
+  --desk-ink: var(--text-primary);
+  --desk-soft: var(--text-secondary);
+  --desk-accent: var(--accent-ink);
+  --desk-done: #2f6b3f;
+  --desk-tag-gap: var(--v2-surface, #f6f5f2);
+}
+.deskPaper .segment {
+  border-bottom-color: var(--border);
+}
+.deskPaper .segment button {
+  color: var(--text-secondary);
+}
+.deskPaper .segment button[aria-selected='true'] {
+  color: var(--text-primary);
+}
+.deskPaper .segment button[aria-selected='true'] small {
+  color: var(--accent-ink);
+}
+
 /* the desk's own pages (the shelf, Public, the boards) scroll clear of the tab bar */
 .deskHome {
   padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px));

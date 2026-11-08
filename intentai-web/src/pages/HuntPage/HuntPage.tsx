@@ -203,12 +203,14 @@ function Desk({
     if (id == null) onPutBack();
   };
   return (
-    <AppShell background={book ? PAPER_BG : CHART_BG}>
-      <div className={`${styles.screen} ${styles.desk} ${styles.deskHome}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
+    // the shelf (no book out) lies on the app's chart paper with its turning roses, like the field archive (owner,
+    // 9 Nov 2026: only the background changes); a book out keeps its own paper
+    <AppShell background={book ? PAPER_BG : undefined}>
+      <div className={`${styles.screen} ${styles.desk} ${styles.deskHome} ${book ? '' : styles.deskPaper}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
         {/* a book out is read full-screen with its own bar (StoryBook), so the shelf's header steps away */}
         {!book && (
           <>
-            <HuntHeader tab={tab} go={go} />
+            <HuntHeader tab={tab} go={go} tone="light" />
             <HuntTabs tab={tab} go={go} />
           </>
         )}

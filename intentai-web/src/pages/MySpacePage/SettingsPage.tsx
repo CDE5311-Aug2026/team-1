@@ -237,7 +237,7 @@ export default function SettingsPage() {
           </nav>
         </Section>
         {USER_GATE_ENABLED && <RestartTest />}
-        <p className={styles.footerNote}>FindSG · redesign v2 · Tourism 2040 categories</p>
+        <p className={styles.footerNote}>FindSG · Tourism 2040 categories</p>
       </div>
       {open === 'categories' && <CategoriesSheet onClose={close} />}
       {open === 'hunt' && <HuntSheet onClose={close} />}

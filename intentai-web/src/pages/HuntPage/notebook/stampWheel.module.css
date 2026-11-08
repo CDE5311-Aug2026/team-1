@@ -297,7 +297,7 @@
     sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(242, 232, 213, 0.62);
+  color: var(--desk-soft, rgba(242, 232, 213, 0.62));
 }
 .legend span {
   display: inline-flex;

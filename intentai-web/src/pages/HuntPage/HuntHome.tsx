@@ -44,6 +44,7 @@ import bd from "./Boards.module.css";
 import Avatar from "../../components/Avatar/Avatar";
 import { CHALLENGES } from "../../data/hunt/challenges";
 import CategoryBadge from "../../components/Category/CategoryBadge";
+import { RowIcon } from "../MySpacePage/SettingsParts";
 
 /** Stops solved on site (FindSG's on-site mode; remote play does not count). */
 export function huntStops(): number {
@@ -63,7 +64,7 @@ export function useExplored() {
 }
 
 /** Hunt's top bar (the shared PageBar). How to play opens by itself the first time the desk is seen. */
-export function HuntHeader({ tab }: { tab: "story" | "public"; go?: HuntGo }) {
+export function HuntHeader({ tab, tone = "dark" }: { tab: "story" | "public"; go?: HuntGo; tone?: "dark" | "light" }) {
   // up whenever the shelf is showing and the card hasn't been seen, so the shelf behind it is never left waiting
   const [, closed] = useState(false);
   const how = tab === "story" && howToPlayPending();
@@ -73,7 +74,7 @@ export function HuntHeader({ tab }: { tab: "story" | "public"; go?: HuntGo }) {
   };
   return (
     <>
-      <PageBar title="Hunt" tone="dark" className={styles.pageBar} game={tab === "story"} />
+      <PageBar title="Hunt" tone={tone} className={styles.pageBar} game={tab === "story"} />
       {how && <HowToPlay onClose={close} />}
     </>
   );
@@ -638,23 +639,30 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
         </section>
 
         <nav aria-label="More ways to play" className={a.more}>
-          <button type="button" className={a.link} onClick={() => go({ tab: "public" })}>
-            <span>Weekend challenges{together ? " and boards" : ""}</span>
-            {CHEVRON}
-          </button>
+          {/* challenges and boards only for those who chose to hunt together in onboarding (owner, 9 Nov 2026); each row
+              wears a tinted icon square as Settings' rows do */}
           {together && (
-            <button type="button" className={a.link} onClick={() => go({ board: "explore" })}>
-              {/* no "Example players" here either (owner, 9 Nov 2026); the boards' own note says they are samples */}
-              <span>Leaderboards</span>
-              {CHEVRON}
-            </button>
+            <>
+              <button type="button" className={a.link} onClick={() => go({ tab: "public" })}>
+                <RowIcon icon="calendar" tint="att" />
+                <span className={a.linkText}>Weekend challenges and boards</span>
+                {CHEVRON}
+              </button>
+              <button type="button" className={a.link} onClick={() => go({ board: "explore" })}>
+                <RowIcon icon="trophy" tint="lei" />
+                <span className={a.linkText}>Leaderboards</span>
+                {CHEVRON}
+              </button>
+            </>
           )}
           <button type="button" className={a.link} onClick={() => go({ view: "shelf" })}>
-            <span>The story shelf</span>
+            <RowIcon icon="book" tint="cru" />
+            <span className={a.linkText}>The story shelf</span>
             {CHEVRON}
           </button>
           <button type="button" className={a.link} onClick={() => setHow(true)}>
-            <span>How to play</span>
+            <RowIcon icon="help" tint="wel" />
+            <span className={a.linkText}>How to play</span>
             {CHEVRON}
           </button>
         </nav>
