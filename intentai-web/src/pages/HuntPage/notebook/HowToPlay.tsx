@@ -27,7 +27,7 @@ export function HowToPlay({ onClose }: { onClose(): void }) {
         </ol>
         <p className={styles.howFine}>Real places and history; the story and its characters are fiction.</p>
         <button type="button" className={styles.waxButton} onClick={onClose}>
-          <span>See the shelf</span>
+          <span>See the field archive</span>
         </button>
       </article>
     </Overlay>

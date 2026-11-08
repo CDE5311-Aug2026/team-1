@@ -30,13 +30,13 @@ test('Hunt opens on the field archive: the rules card once, the chips, a pick an
   const how = screen.getByRole('dialog', { name: 'How to play' });
   expect(within(how).getByText(/play remotely from anywhere/)).toBeInTheDocument();
   expect(within(how).getByText(/characters are fiction/)).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'See the shelf' }));
+  await userEvent.click(screen.getByRole('button', { name: 'See the field archive' }));
   expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
   // the disclosure stays on the page, and the card can be opened again
   expect(screen.getByText(/play remotely from anywhere\. Real places and history; the story and its characters are fiction/)).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'How to play' }));
   expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'See the shelf' }));
+  await userEvent.click(screen.getByRole('button', { name: 'See the field archive' }));
 
   // six volumes in shelf order, nothing played yet: 0 of the 38 stops
   expect(screen.getByText('6 volumes · 0/38 stamps')).toBeInTheDocument();
