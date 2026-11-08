@@ -13,6 +13,12 @@ import {
 } from '../../data/stores';
 import { dismissToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
+import { HUNT_CHALLENGES } from '../../data/hunt/stories';
+import { allStamps } from '../../data/moments/moments';
+import { TOURISM_CATEGORIES, TOURISM_INFO, tourismOf, type TourismCategory } from '../../data/tourism';
+import { huntModeStore } from '../../data/v2Stores';
+import { PUBLISHED_PLACES } from '../../features/nearby/catalogue';
+import { passportMrz } from './MySpacePage';
 import { HOLD_MS } from './PrivacyPage';
 import { currentPath, renderAt } from './testUtils';
 
@@ -31,22 +37,102 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test('S1: one h1, the holder card counts stamps, cards and tips from the real stores', () => {
+const ATT = 'curated:sg-artscience-museum' as const;
+const WEL = 'curated:sg-henderson-waves' as const;
+const visit = (placeKey: `curated:${string}`, day: string) => ({ placeKey, saved: false, visited: true, visitedOn: day, updatedAt: `${day}T10:00:00Z` });
+const placesOf = (c: TourismCategory) => PUBLISHED_PLACES.filter((p) => tourismOf(p) === c && p.operatingStatus !== 'planned').length;
+
+test('Passport card: one h1; stamps, volumes and tips come from the real stores; the rank is its stamp', () => {
   openedCardsStore.set(['thian-hock-keng', 'laksa', 'chicken-rice']);
   tipsStore.set([]);
-  explorePersonalStore.set((d) => ({
-    ...d,
-    places: [{ placeKey: 'curated:sg-thian-hock-keng-temple', saved: false, visited: true, visitedOn: '2026-10-20', updatedAt: '2026-10-20T10:00:00Z' }],
-  }));
+  explorePersonalStore.set((d) => ({ ...d, places: [visit(ATT, '2026-11-07'), visit(WEL, '2026-11-04')] }));
+  const expected = allStamps(explorePersonalStore.get(), openedCardsStore.get()).filter((s) => s.collected).length;
+  expect(expected).toBeGreaterThan(0);
   renderAt(paths.mySpace);
   expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Passport');
   const holder = screen.getByRole('region', { name: 'Passport holder' });
   const stat = (label: string) => within(holder).getByText(label).closest('div')!;
-  expect(stat('Stamps')).toHaveTextContent('1');
-  expect(stat('Cards')).toHaveTextContent('3');
+  expect(stat('Stamps')).toHaveTextContent(String(expected));
+  expect(stat('Volumes')).toHaveTextContent('0');
   expect(stat('Tips')).toHaveTextContent('0');
   // Rank comes from Moments' rule: 3 opened cards = Explorer.
-  expect(within(holder).getByRole('link', { name: /Explorer/ })).toBeInTheDocument();
+  expect(within(holder).getByRole('link', { name: /Explorer/ })).toHaveAttribute('href', paths.moments);
+});
+
+test('together mode: "Hunting together · Central" chip and the example leaderboard with your own row', () => {
+  huntModeStore.set({ mode: 'together', region: 'central' });
+  renderAt(paths.mySpace);
+  const holder = screen.getByRole('region', { name: 'Passport holder' });
+  expect(within(holder).getByText('Hunting together · Central')).toBeInTheDocument();
+  expect(within(holder).queryByText(/public/i)).toBeNull();
+  const board = screen.getByRole('region', { name: /fastest/ });
+  expect(within(board).getByText('Example')).toBeInTheDocument();
+  expect(within(board).getAllByRole('listitem')).toHaveLength(3);
+  expect(within(board).getByText(/no time yet/)).toBeInTheDocument();
+  expect(within(board).getByRole('link', { name: 'Join a challenge' })).toHaveAttribute('href', paths.challenge(HUNT_CHALLENGES[0].id));
+});
+
+test('solo mode (and unset): no leaderboard and no together chip', () => {
+  huntModeStore.set({ mode: 'solo', region: 'central' });
+  renderAt(paths.mySpace);
+  expect(screen.getByText('Solo explorer')).toBeInTheDocument();
+  expect(screen.queryByText(/Hunting together/)).toBeNull();
+  expect(screen.queryByRole('region', { name: /fastest/ })).toBeNull();
+  cleanup();
+  huntModeStore.set({});
+  renderAt(paths.mySpace);
+  expect(screen.queryByRole('region', { name: /fastest/ })).toBeNull();
+});
+
+test('the MRZ lines use real fields only: name, ranking codes, counts, region and mode', () => {
+  const profile: ProfileV3 = { ...DEFAULT_PROFILE_V3, tourismRanking: ['wel', 'att'] };
+  const [a, b] = passportMrz('Serin', profile, { stamps: 4, volumes: 1 }, { together: true, region: 'Central' });
+  expect(a).toBe('P<SGPSERIN<<WEL<ATT'.padEnd(44, '<'));
+  expect(b).toBe('004SGP0001<<CENTRAL<<TOGETHER'.padEnd(44, '<'));
+  const [, solo] = passportMrz('Serin', DEFAULT_PROFILE_V3, { stamps: 0, volumes: 0 }, { together: false });
+  expect(solo).toBe('000SGP0000<<SOLO'.padEnd(44, '<'));
+});
+
+test('collection: one card per category with real counts; the chips filter it; the chevron opens Search', async () => {
+  explorePersonalStore.set((d) => ({ ...d, places: [visit(ATT, '2026-11-07'), visit(WEL, '2026-11-04')] }));
+  renderAt(paths.mySpace);
+  const total = TOURISM_CATEGORIES.reduce((n, c) => n + placesOf(c), 0);
+  const collection = screen.getByRole('region', { name: 'My collection' });
+  expect(within(collection).getByText(`2 of ${total} stamped`)).toBeInTheDocument();
+  for (const c of TOURISM_CATEGORIES) expect(within(collection).getByRole('region', { name: TOURISM_INFO[c].label })).toBeInTheDocument();
+  const att = within(collection).getByRole('region', { name: 'Attractions' });
+  expect(within(att).getByRole('progressbar', { name: 'Attractions stamped' })).toHaveAttribute('aria-valuenow', '1');
+  expect(within(att).getByRole('link', { name: /ArtScience Museum/ })).toHaveTextContent('Stamped 7 Nov');
+
+  await userEvent.click(screen.getByRole('button', { name: 'Wellness' }));
+  expect(screen.getByRole('button', { name: 'Wellness' })).toHaveAttribute('aria-pressed', 'true');
+  expect(within(collection).queryByRole('region', { name: 'Attractions' })).toBeNull();
+  // the section total and the one card left now agree
+  expect(within(collection).getAllByText(`1 of ${placesOf('wel')} stamped`)).toHaveLength(2);
+  await userEvent.click(within(collection).getByRole('link', { name: /Wellness, 1 of .* See all in Search/ }));
+  expect(currentPath()).toBe(paths.search);
+});
+
+test('journal carousel: recent days from the journal data, each opening that day in Moments', async () => {
+  explorePersonalStore.set((d) => ({ ...d, places: [visit(ATT, '2026-11-07'), visit(WEL, '2026-11-04')] }));
+  renderAt(paths.mySpace);
+  const journal = screen.getByRole('region', { name: 'Journal' });
+  expect(within(journal).getByRole('link', { name: /2 days/ })).toBeInTheDocument();
+  const day = within(journal).getByRole('link', { name: /^Sat 7 Nov: 1 place · 0 stamps/ });
+  expect(day).toHaveAttribute('href', `${paths.moments}#day-2026-11-07`);
+  await userEvent.click(day);
+  expect(currentPath()).toBe(paths.moments);
+});
+
+test('a fresh passport: zero counts, an empty journal, and nothing stamped', () => {
+  renderAt(paths.mySpace);
+  const holder = screen.getByRole('region', { name: 'Passport holder' });
+  for (const label of ['Stamps', 'Volumes', 'Tips']) expect(within(holder).getByText(label).closest('div')!).toHaveTextContent('0');
+  expect(screen.getByText(/No days yet/)).toBeInTheDocument();
+  const total = TOURISM_CATEGORIES.reduce((n, c) => n + placesOf(c), 0);
+  expect(screen.getByText(`0 of ${total} stamped`)).toBeInTheDocument();
+  expect(screen.queryAllByText(/^Stamped /)).toHaveLength(0);
 });
 
 test('S1: six tiles of what the app knows; From starts hidden and the eye shows it', async () => {
