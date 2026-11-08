@@ -86,7 +86,7 @@ export default function SavedPage() {
   return (
     <AppShell background="var(--bg-screen-b)">
       <div className={styles.screen}>
-        <BackHeader title="Saved" fallback={paths.nearby} />
+        <BackHeader title="Saved" fallback={paths.today} />
         <StorageWarning />
         <div className={styles.segmented} role="group" aria-label="Show">
           <button type="button" className={styles.segment} aria-pressed={tab === 'saved'} onClick={() => setParams({}, { replace: true })}>
@@ -101,8 +101,8 @@ export default function SavedPage() {
           <p className={styles.empty}>
             {tab === 'saved' ? 'Nothing saved yet.' : 'No check-ins yet.'}
             <br />
-            <Link className={styles.textLink} to={paths.nearby}>
-              Explore places
+            <Link className={styles.textLink} to={paths.today}>
+              Browse places on Home
             </Link>
           </p>
         ) : (

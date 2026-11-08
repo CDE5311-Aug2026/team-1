@@ -116,7 +116,7 @@ function useNow(active: boolean) {
 }
 
 function Hero({ place, category, actions }: { place: CuratedPlace; category: TourismCategory | undefined; actions: ReactNode }) {
-  const back = useBack(paths.nearby);
+  const back = useBack(paths.today);
   const photo = placePhoto(place);
   return (
     <section className={styles.hero} style={catStyle(category)} data-photo={photo ? 'yes' : 'no'}>

@@ -52,13 +52,13 @@ function NotFound() {
   return (
     <AppShell background="var(--bg-screen-b)">
       <div className={styles.screen}>
-        <BackHeader title="Place not found" fallback={paths.nearby} />
+        <BackHeader title="Place not found" fallback={paths.today} />
         <p className={styles.empty}>
           We could not find this place. It may have been renamed or removed from the catalogue. Your saved and visited records are kept.
         </p>
         <div className={styles.row}>
-          <Link className={styles.primary} to={paths.nearby}>
-            Explore places
+          <Link className={styles.primary} to={paths.today}>
+            Browse places on Home
           </Link>
           <Link className={styles.secondary} to={paths.saved}>
             Saved places

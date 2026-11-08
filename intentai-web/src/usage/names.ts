@@ -9,9 +9,7 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.moments, 'Moments'],
   [paths.hunt, 'Hunt'],
   [paths.search, 'Search'],
-  [paths.nearby, 'Nearby'],
-  // Nearby Explorer: names only, never the place or collection id in the path
-  [paths.nearbyLocation, 'Nearby location'],
+  // Nearby pages: names only, never the place or collection id in the path
   [patterns.nearbyPlace, 'Nearby place'],
   [paths.collections, 'Nearby collections'],
   [patterns.collection, 'Nearby collection'],

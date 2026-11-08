@@ -36,8 +36,6 @@ const WelcomePage = lazyPage(() => import('./pages/OnboardingPage/WelcomePage'))
 const TodaySetupPage = lazyPage(() => import('./pages/TodaySetup/TodaySetupPage'));
 const AdminPage = lazyPage(() => import('./pages/AdminPage/AdminPage'));
 const AbTestPage = lazyPage(() => import('./pages/AbTestPage/AbTestPage'));
-const ExplorePage = lazyPage(() => import('./pages/NearbyPage/ExplorePage'));
-const LocationPage = lazyPage(() => import('./pages/NearbyPage/LocationPage'));
 const PlaceDetailPage = lazyPage(() => import('./pages/NearbyPage/PlaceDetailPage'));
 const CollectionsPage = lazyPage(() => import('./pages/NearbyPage/CollectionsPage'));
 const CollectionDetailPage = lazyPage(() => import('./pages/NearbyPage/CollectionDetailPage'));
@@ -98,8 +96,9 @@ export default function App() {
             <Route path={paths.moments} element={<MomentsPage />} />
             <Route path={paths.hunt} element={<HuntPage />} />
             <Route path={paths.search} element={<SearchPage />} />
-            <Route path={paths.nearby} element={<ExplorePage />} />
-            <Route path={paths.nearbyLocation} element={<LocationPage />} />
+            {/* The v1 Nearby explorer is retired (owner, 8 Nov 2026): old links land on Home. */}
+            <Route path={paths.nearby} element={<Navigate to="/" replace />} />
+            <Route path={paths.nearbyLocation} element={<Navigate to="/" replace />} />
             <Route path={patterns.nearbyPlace} element={<PlaceDetailPage />} />
             <Route path={paths.collections} element={<CollectionsPage />} />
             <Route path={patterns.collection} element={<CollectionDetailPage />} />

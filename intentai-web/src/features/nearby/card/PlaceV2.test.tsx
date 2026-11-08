@@ -15,6 +15,8 @@ function renderAt(id: string) {
     <MemoryRouter initialEntries={[`/nearby/place/${encodeURIComponent(id)}`]}>
       <Routes>
         <Route path="/nearby/place/:placeKey" element={<PlaceDetailPage />} />
+        <Route path="/" element={<h1>Home probe</h1>} />
+        <Route path="/nearby" element={<h1>Retired explorer</h1>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -27,6 +29,13 @@ const NEAR = { lat: 1.28855, lng: 103.85159 };
 function active(fix: { lat: number; lng: number }, accuracyM = 15, ageMs = 1000, now = 1_000_000): LocationState {
   return { status: 'active', fix: { ...fix, accuracyM, timestamp: now - ageMs } };
 }
+
+test('a place opened on its own goes Back to Home (the v1 Nearby explorer is retired, 8 Nov 2026)', async () => {
+  renderAt(victoria.id);
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(screen.getByRole('heading', { name: 'Home probe' })).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'Retired explorer' })).toBeNull();
+});
 
 describe('stamp hint (plan C4, B7)', () => {
   const now = 1_000_000;

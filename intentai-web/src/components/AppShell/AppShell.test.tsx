@@ -39,7 +39,7 @@ test('v2: Search lights the round Search button, not a tab', () => {
 });
 
 test('non-tab routes keep Home current', () => {
-  renderAt('/nearby');
+  renderAt('/nearby/saved');
   expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });
 

@@ -3,7 +3,14 @@ import { ALL_STATIC_PATHS, paths } from '../src/routes';
 
 // Every route in the app, plus seeded Nearby places, a collection and routes.
 // v3: the old onboarding question routes redirect to /onboarding?step=… on purpose, so they are not pages of their own.
-const REDIRECTS = new Set<string>([paths.onboardingTime, paths.onboardingTopics, paths.onboardingQuiz]);
+// The retired v1 Nearby explorer (/nearby, /nearby/location) redirects to Home (owner, 8 Nov 2026).
+const REDIRECTS = new Set<string>([
+  paths.onboardingTime,
+  paths.onboardingTopics,
+  paths.onboardingQuiz,
+  paths.nearby,
+  paths.nearbyLocation,
+]);
 
 export const ROUTES = [
   ...ALL_STATIC_PATHS.filter((p) => !REDIRECTS.has(p)),

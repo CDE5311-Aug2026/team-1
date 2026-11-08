@@ -14,16 +14,17 @@ test.describe('user test without a server', () => {
     await page.getByRole('button', { name: 'Start' }).click();
     await page.getByRole('button', { name: /Start the hunt/ }).click(); // v3 onboarding (Figma O1)
     await page.waitForTimeout(1200);
-    await page.goto('/nearby'); // a full load ends the Welcome visit (pagehide) and starts a new one
+    // a full load ends the Welcome visit (pagehide) and starts a new one (the v1 /nearby explorer is retired: Saved)
+    await page.goto('/nearby/saved');
     await page.waitForTimeout(1500);
-    await page.getByRole('button', { name: "Editor's picks" }).click();
+    await page.getByRole('button', { name: /^Checked in/ }).click();
     await page.waitForTimeout(600);
     await page.goto('/admin');
     await expect(page.getByRole('button', { name: 'This device', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('heading', { name: 'User test analysis' })).toBeVisible();
     await expect(page.getByRole('table', { name: 'People in the test' })).toContainText('P09');
-    await expect(page.getByRole('table', { name: 'Pages in detail' })).toContainText('Nearby');
-    await expect(page.getByText("Editor's picks").first()).toBeVisible();
+    await expect(page.getByRole('table', { name: 'Pages in detail' })).toContainText('Nearby saved');
+    await expect(page.getByText(/Checked in/).first()).toBeVisible();
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
     expect(results.violations.map((v) => `${v.id} @ ${v.nodes[0]?.target}`)).toEqual([]);
     const download = page.waitForEvent('download');

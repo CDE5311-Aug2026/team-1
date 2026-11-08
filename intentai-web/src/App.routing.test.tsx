@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeAll, expect, test, vi } from 'vitest';
 import App from './App';
 
@@ -54,6 +54,28 @@ test.each(['/ask', '/community', '/community/sabo', '/place/chinatown', '/place/
       </MemoryRouter>,
     );
     expect(screen.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeInTheDocument();
+    vi.restoreAllMocks();
+  },
+);
+
+function Where() {
+  const l = useLocation();
+  return <output data-testid="where">{l.pathname + l.search}</output>;
+}
+
+test.each(['/nearby', '/nearby?area=sg-chinatown&view=list', '/nearby/location'])(
+  'the retired v1 explorer %s redirects to Home (owner, 8 Nov 2026)',
+  (path) => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    render(
+      <MemoryRouter useTransitions={false} initialEntries={[path]}>
+        <App />
+        <Where />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId('where')).toHaveTextContent(/^\/$/);
+    expect(screen.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 1, name: 'Nearby' })).not.toBeInTheDocument();
     vi.restoreAllMocks();
   },
 );

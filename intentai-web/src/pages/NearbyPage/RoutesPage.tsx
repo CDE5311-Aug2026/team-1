@@ -48,7 +48,7 @@ export default function RoutesPage() {
   return (
     <AppShell background="var(--bg-screen-b)">
       <div className={nearby.screen}>
-        <BackHeader title="Routes" fallback={paths.nearby} />
+        <BackHeader title="Routes" fallback={paths.today} />
         <p className={styles.subtitle}>Walks and half days from FindSG’s place stories and the team’s Singapore Culture Atlas, starting at an MRT station.</p>
 
         <section aria-labelledby="story-walks" className={styles.section}>

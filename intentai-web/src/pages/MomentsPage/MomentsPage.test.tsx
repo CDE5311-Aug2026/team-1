@@ -24,7 +24,6 @@ function renderPage() {
     <MemoryRouter useTransitions={false} initialEntries={[paths.moments]}>
       <Routes>
         <Route path={paths.moments} element={<MomentsPage />} />
-        <Route path={paths.nearby} element={<Probe name="nearby" />} />
         <Route path={patterns.nearbyPlace} element={<Probe name="place" />} />
       </Routes>
     </MemoryRouter>,

@@ -4,8 +4,8 @@ import { paths } from '../src/routes';
 // Nearby is part of the app, not a separate site: its list pages keep the app's tabs, and a check-in there is the same
 // data Home, the Passport (collection and journal), Moments and My Space read.
 // v2 (plan C6): the tabs are Home · Hunt · Passport plus a round Search button; Moments left the tab bar and is reached
-// from the Passport's journal (its route stays). Full-screen pages (the Nearby map, a place page with its sticky
-// "Stamp here" bar, board 08) show no tab bar and lead back with their Back button instead.
+// from the Passport's journal (its route stays). Full-screen pages (a place page with its sticky "Stamp here" bar,
+// board 08) show no tab bar and lead back with their Back button instead.
 
 test('Nearby pages keep the app tabs, so Home and Passport are one tap away', async ({ page, context }) => {
   for (const url of [paths.saved, paths.collections]) {
@@ -15,22 +15,23 @@ test('Nearby pages keep the app tabs, so Home and Passport are one tap away', as
   }
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Passport' }).click();
   await expect(page).toHaveURL(/\/my-space$/);
-  // full-screen Nearby pages have no tabs; Back leads out: a place opened on its own goes to the Nearby map, and the
-  // map opened on its own goes Home, where the tabs are
+  // full-screen Nearby pages have no tabs; Back leads out: a place opened on its own goes Home, where the tabs are
+  // (the v1 Nearby explorer is retired, owner 8 Nov 2026)
   await page.goto(paths.nearbyPlace('curated:sg-marina-bay-sands'));
   await expect(page.getByRole('heading', { level: 1, name: 'Marina Bay Sands' })).toBeVisible();
   await page.getByRole('button', { name: 'Back', exact: true }).click();
-  await expect(page).toHaveURL(/\/nearby(\?|$)/);
-  await expect(page.locator('main[aria-busy="true"]')).toHaveCount(0);
-  await expect(page.getByRole('heading', { level: 1, name: 'Nearby' })).toBeVisible();
-  // (a fresh tab: going to the same URL again would be a reload that keeps the map's own history)
-  const map = await context.newPage();
-  await map.goto(paths.nearby);
-  await expect(map.locator('main[aria-busy="true"]')).toHaveCount(0);
-  await expect(map.getByRole('heading', { level: 1, name: 'Nearby' })).toBeVisible();
-  await map.getByRole('search').getByRole('button', { name: 'Back', exact: true }).click();
-  await expect(map.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
-  await expect(map.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Home' })).toBeVisible();
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
+  await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Home' })).toBeVisible();
+  // old links to the explorer and its location page land on Home too
+  for (const old of [paths.nearby, `${paths.nearby}?area=sg-chinatown`, paths.nearbyLocation]) {
+    const tab = await context.newPage();
+    await tab.goto(old);
+    await expect.poll(() => new URL(tab.url()).pathname).toBe('/');
+    await expect(tab.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
+    await expect(tab.getByRole('heading', { level: 1, name: 'Nearby' })).toHaveCount(0);
+    await tab.close();
+  }
 });
 
 test('a check-in in an area without cards gets a stamp in the Passport journal (Moments) and counts in the Passport', async ({ page }) => {
