@@ -2,13 +2,14 @@ import { describe, expect, test } from 'vitest';
 import { searchMap } from '../../components/Discovery/mapSearch';
 import { BOOKS } from '../../pages/HuntPage/notebook/Bookshelf';
 import { ALL_PLACES, curatedPlace, PUBLISHED_PLACES } from '../../features/nearby/catalogue';
+import { CHALLENGES } from '../hunt/challenges';
 import { HUNT_CHALLENGES } from '../hunt/stories';
 import { allEntries, countByCategory, groupByCategory, searchAll } from '.';
 import { challengesAt, dateRange, HUNT_VOLUMES, stopCount, volumeHref } from './hunt';
 
 describe('search index', () => {
   test('holds the published places, every challenge and every volume, and no people', () => {
-    const all = allEntries();
+    const all = allEntries('2026-11-07');
     const places = all.filter((e) => e.kind === 'place');
     expect(places.length).toBe(PUBLISHED_PLACES.filter((p) => p.tourism && p.operatingStatus !== 'planned').length);
     expect(all.filter((e) => e.kind === 'challenge')).toHaveLength(HUNT_CHALLENGES.length);
@@ -31,10 +32,26 @@ describe('search index', () => {
   });
 
   test('finds challenges and volumes by title and area; a challenge opens its volume (no challenge page)', () => {
-    const missing = searchAll('missing years');
+    const missing = searchAll('missing years', '2026-11-07');
     expect(missing.find((e) => e.kind === 'volume')).toMatchObject({ title: 'The Missing Years', href: '/hunt#story/civic-f1' });
     expect(missing.find((e) => e.kind === 'challenge')).toMatchObject({ href: '/hunt#story/civic-f1' });
     expect(searchAll('golden dome')[0]).toMatchObject({ kind: 'volume', href: '/hunt#short' });
+  });
+
+  test('a challenge is listed only while it is open (wk45 ends 8 Nov 2026), under its stops’ category', () => {
+    const ids = (today: string) => allEntries(today).filter((e) => e.kind === 'challenge').map((e) => e.key);
+    expect(ids('2026-11-08')).toEqual(['challenge:wk45-civic', 'challenge:wk46-kampong']);
+    expect(ids('2026-11-09')).toEqual(['challenge:wk46-kampong']);
+    expect(ids('2026-11-16')).toEqual([]);
+    expect(searchAll('civic district', '2026-11-08').some((e) => e.key === 'challenge:wk45-civic')).toBe(true);
+    expect(searchAll('civic district', '2026-11-09').some((e) => e.kind === 'challenge')).toBe(false);
+    // the volume stays: only the challenge is over
+    expect(searchAll('missing years', '2026-11-09').map((e) => e.kind)).toContain('volume');
+    for (const e of allEntries('2026-11-08').filter((x) => x.kind === 'challenge')) {
+      const c = CHALLENGES.find((x) => `challenge:${x.id}` === e.key)!;
+      expect(e.category, e.key).toBe(c.category ?? 'att');
+      expect(e.title).toBe(`Weekend challenge · ${c.title}`);
+    }
   });
 
   test('a one-letter query finds nothing; counts and groups follow the categories', () => {
@@ -60,6 +77,7 @@ describe('Hunt entries', () => {
     expect(volumeHref('telok-ayer')).toBe('/hunt#story/telok-ayer');
     expect(dateRange('2026-11-07', '2026-11-08')).toBe('7–8 Nov');
     expect(dateRange('2026-11-30', '2026-12-01')).toBe('30 Nov – 1 Dec');
+    expect(dateRange('2026-11-08', '2026-11-08')).toBe('8 Nov');
   });
 
   test('a challenge links a place only where a surveyed stop stands at it', () => {

@@ -1,11 +1,14 @@
 // v2 Search (board 07): one index over the published places, Hunt's challenges and its story volumes, grouped by
 // Tourism 2040 category. Places are found by Home's map search (components/Discovery/mapSearch.ts, used as it is: its
 // names, aliases, synonyms and ranking), plus what that search does not know: the Tourism 2040 label and subtype.
-// No people are indexed (board 07's "hunters" are left out: there is no real hunter data).
+// No people are indexed (board 07's "hunters" are left out: there is no real hunter data). A challenge is listed only
+// while it is open (openChallenges: until its last day is over), under its own category (the one most of its catalogue
+// stops share, as on Home).
 import { normalise, searchMap, tokens } from '../../components/Discovery/mapSearch';
 import { area as localityOf, PUBLISHED_PLACES, regionName } from '../../features/nearby/catalogue';
 import type { CuratedPlace } from '../../features/nearby/domain';
-import { HUNT_CHALLENGES } from '../hunt/stories';
+import { CHALLENGES, openChallenges } from '../hunt/challenges';
+import { localToday } from '../../features/nearby/personal';
 import { areaOfPlace } from '../ura/ura';
 import { TOURISM_CATEGORIES, TOURISM_INFO, tourismOf, type TourismCategory, type TourismFilter } from '../tourism';
 import { dateRange, HUNT_CATEGORY, HUNT_VOLUMES, stopCount, volumeHref, volumeOf } from './hunt';
@@ -32,6 +35,13 @@ interface Indexed {
   fields: string[];
 }
 
+/** Entries open on `today`: every place and volume, and the challenges still open. */
+function openOn(today: string): Indexed[] {
+  index ??= build();
+  const open = new Set(openChallenges(today).map((c) => `challenge:${c.id}`));
+  return index.filter((i) => i.entry.kind !== 'challenge' || open.has(i.entry.key));
+}
+
 /** The place's neighbourhood (the catalogue's area, else its URA planning area, else its region). */
 export function placeArea(p: CuratedPlace): string {
   return localityOf(p.areaId)?.name ?? areaOfPlace(p.id)?.name ?? regionName(p.regionId);
@@ -53,19 +63,21 @@ function build(): Indexed[] {
       fields: [p.name, p.kind, placeArea(p), areaOfPlace(p.id)?.name ?? '', info.label, info.stbName, p.tourism?.subtype ?? ''].map(normalise),
     });
   }
-  for (const c of HUNT_CHALLENGES) {
+  for (const c of CHALLENGES) {
     const v = volumeOf(c.routeId);
+    const title = c.kind === 'Challenge' ? c.title : `${c.kind} challenge · ${c.title}`;
     out.push({
       entry: {
         key: `challenge:${c.id}`,
         kind: 'challenge',
-        title: c.title,
+        title,
         line: [v && `Vol. ${v.roman} · ${v.title}`, dateRange(c.from, c.to)].filter(Boolean).join(' · '),
-        category: HUNT_CATEGORY,
+        // its stops' category (as on Home); a challenge with no catalogue stop stays with the stories' precinct category
+        category: c.category ?? HUNT_CATEGORY,
         // the challenge page was retired (second canvas): a challenge opens its volume
         href: volumeHref(c.routeId),
       },
-      fields: [c.title, v?.title ?? '', v?.place ?? '', 'challenge weekend hunt'].map(normalise),
+      fields: [title, v?.title ?? '', v?.place ?? '', 'challenge weekend hunt'].map(normalise),
     });
   }
   for (const v of HUNT_VOLUMES) {
@@ -89,9 +101,9 @@ function wordMatches(word: string, fields: string[]): boolean {
   return fields.some((f) => !!f && (f === word || f.startsWith(word) || f.includes(` ${word}`) || (word.length >= 3 && f.includes(word))));
 }
 
-export function allEntries(): SearchEntry[] {
-  index ??= build();
-  return index.map((i) => i.entry);
+/** Everything Search can list today (expired challenges left out). */
+export function allEntries(today: string = localToday()): SearchEntry[] {
+  return openOn(today).map((i) => i.entry);
 }
 
 export type Counts = Record<TourismFilter, number>;
@@ -103,15 +115,15 @@ export function countByCategory(entries: readonly SearchEntry[]): Counts {
 }
 
 /** Everything matching the query, best first: Home's map-search order for places, then the rest by name. */
-export function searchAll(query: string): SearchEntry[] {
+export function searchAll(query: string, today: string = localToday()): SearchEntry[] {
   const q = normalise(query);
   const words = tokens(query);
   if (!words.length || (q.length < 2 && !/[㐀-鿿]/.test(q))) return [];
-  index ??= build();
-  const byKey = new Map(index.map((i) => [i.entry.key, i]));
+  const open = openOn(today);
+  const byKey = new Map(open.map((i) => [i.entry.key, i]));
   const ranked = searchMap(query, []).places.map((h) => byKey.get(`place:${h.place.id}`)?.entry).filter((e): e is SearchEntry => !!e);
   const seen = new Set(ranked.map((e) => e.key));
-  const rest = index
+  const rest = open
     .filter((i) => !seen.has(i.entry.key) && words.every((w) => wordMatches(w, i.fields)))
     .map((i) => i.entry)
     .sort((a, b) => (a.kind === 'place' ? 1 : 0) - (b.kind === 'place' ? 1 : 0) || a.title.localeCompare(b.title));

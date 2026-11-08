@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { searchRecentStore } from '../../data/v2Stores';
 import SearchPage from './SearchPage';
 
@@ -42,9 +42,13 @@ describe('Search (board 07)', () => {
   });
 
   test('challenges and volumes are found; a challenge links to its volume in Hunt', () => {
+    // wk45 (Civic District, The Missing Years) is open 7–8 Nov 2026; Search lists open challenges only
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-11-07T10:00:00'));
     renderAt('/search?q=missing%20years');
     expect(screen.getByRole('link', { name: /Attractions · Volume.*The Missing Years/ })).toHaveAttribute('href', '/hunt#story/civic-f1');
     expect(screen.getByRole('link', { name: /Attractions · Challenge/ })).toHaveAttribute('href', '/hunt#story/civic-f1');
+    vi.useRealTimers();
   });
 
   test('a chip narrows the list (kept in ?cat=); an empty category says so and offers all categories', async () => {
