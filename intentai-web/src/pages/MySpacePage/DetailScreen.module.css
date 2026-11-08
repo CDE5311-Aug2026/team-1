@@ -1,4 +1,4 @@
-/* Shared by Details (14:512) and Edit (19:1107): back row, card, detail fields and the 44px buttons. */
+/* v2 light cards (boards 16–23): white cards with 20 px corners on the linen page. Shared by Details (14:512) and Edit (19:1107): back row, card, detail fields and the 44px buttons. */
 .body {
   gap: 0.875rem;
 }
@@ -37,9 +37,10 @@
   display: flex;
   flex-direction: column;
   padding: 1rem;
-  border: 1px solid var(--ms-line);
-  border-radius: var(--radius-card);
-  background: var(--surface);
+  border: 0;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
 }
 
 .label {
@@ -129,7 +130,7 @@
 .back:focus-visible,
 .field:focus-visible,
 .button:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--text-primary);
   outline-offset: 2px;
 }
 
