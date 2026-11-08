@@ -487,7 +487,7 @@
   overflow-y: auto;
   overscroll-behavior-y: contain;
   gap: 14px;
-  background: var(--bg-app);
+  /* clear: the app's chart paper (AppShell's fixed layer) is Home's ground */
   scrollbar-width: none;
 }
 
@@ -524,7 +524,10 @@
   gap: 2px;
   margin: 0 calc(-1 * var(--gutter)) -6px;
   padding: 4px var(--gutter) 6px;
-  background: var(--bg-app);
+  /* frosted paper: the cards scrolling under the bar and chips stay readable without hiding the chart behind */
+  background: var(--paper-frost);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
 
 .device:not(.deviceOpen) {

@@ -2,7 +2,7 @@
 .page {
   --gutter: 16px;
   min-height: 100%;
-  background: var(--bg-app);
+  /* clear: the app's chart paper (AppShell) is the ground */
   color: var(--text-primary);
   font-family: var(--font-family);
   padding-bottom: 120px;

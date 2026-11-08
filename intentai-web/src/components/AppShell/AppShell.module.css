@@ -11,6 +11,28 @@
   --tabbar-bottom: 1.625rem;
 }
 
+/* On the app's chart paper (PaperLayer): the shell is clear, so the fixed paper behind shows through. */
+.shell.onPaper {
+  background: none;
+}
+
+/* The chart paper itself: one fixed layer under <body>, behind every page (z-index -1: over the canvas, under content). */
+.paperLayer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  contain: strict;
+}
+.paperLayer[hidden] {
+  display: none;
+}
+/* the body must not paint over the layer (a page's own script may tint it, e.g. Home's Safari bands): the canvas keeps
+   the colour, the body stays clear while a shell is on the paper */
+:global(body:has([data-paper='chart'])) {
+  background: transparent !important;
+}
+
 /* Wider screens have no home indicator to clear. */
 @media (min-width: 481px) {
   .shell {

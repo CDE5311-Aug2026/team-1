@@ -40,8 +40,6 @@ import { huntModeStore, isTogether } from "../../data/v2Stores";
 import { formatHomeDistance } from "../../data/homePlaces";
 import styles from "./Hunt.module.css";
 import a from "./HuntArchive.module.css";
-import ap from "./archivePaper.module.css";
-import { ChartPaper } from "./notebook/ChartPaper";
 
 /** Stops solved on site (FindSG's on-site mode; remote play does not count). */
 export function huntStops(): number {
@@ -538,12 +536,12 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
 
   return (
     <div className={a.page}>
-      {/* board 09 (second export): the light survey chart and its brass roses behind the cards */}
-      <ChartPaper variant="archive" />
+      {/* board 09 (second export): the light survey chart and its brass roses lie behind the cards: the app's own paper
+          now (AppShell's PaperLayer), so the archive draws none of its own */}
       <PageBar title="Hunt" className={a.bar} />
       {how && <HowToPlay onClose={closeHow} />}
-      <CategoryChips value={cat} onChange={setCat} className={`${a.chips} ${ap.above}`} />
-      <div className={`${a.scroll} ${ap.above}`}>
+      <CategoryChips value={cat} onChange={setCat} className={`${a.chips}`} />
+      <div className={`${a.scroll}`}>
         {pick && (
           <article className={a.next} aria-label={pick.inProgress ? "Continue" : "Picked for you"}>
             <Cover id={pick.id} big />

@@ -37,6 +37,8 @@
   /* v2 passport redesign (BellyBook-inspired): linen paper, greige cards, ink text. */
   --bg-app: #eceae5;
   --bg-screen-b: #eceae5;
+  /* the app's paper (--bg-app), translucent, for sticky bars over the chart paper (frost it with backdrop-filter) */
+  --paper-frost: rgba(236, 234, 229, 0.78);
   --surface: #f6f5f2;
   --surface-muted: #efede8;
   --surface-sunk: #e9e6e0;

@@ -6,6 +6,7 @@ import { undoToast, useToastState } from '../../hooks/useToast';
 import HomeIndicator from '../HomeIndicator/HomeIndicator';
 import StatusBar from '../StatusBar/StatusBar';
 import TabBar from '../TabBar/TabBar';
+import { usePaperLayer } from './PaperLayer';
 import { paths } from '../../routes';
 import styles from './AppShell.module.css';
 
@@ -24,7 +25,13 @@ interface AppShellProps {
   variant?: 'default' | 'story';
   /** The active tab pops in on arrival (Home). */
   tabPop?: boolean;
+  /** The app's chart paper behind the page (PaperLayer). Default: on for every page with chrome on the app's own light
+   *  paper; off for chrome="none" (onboarding) and for a page that asks for its own colour (a dark desk, a reader). */
+  paper?: boolean;
 }
+
+/** The app's own light paper colours: a page asking for one of these gets the chart paper instead. */
+const PAPER_COLOURS = new Set(['var(--bg-app)', 'var(--bg-screen-b)']);
 
 function activeTab(pathname: string): string {
   // v2: the journal moved into Passport, so Moments lights Passport; Search is the round button beside the bar.
@@ -45,7 +52,10 @@ export default function AppShell({
   layout = 'page',
   variant = 'default',
   tabPop = false,
+  paper,
 }: AppShellProps) {
+  const onPaper = paper ?? (chrome !== 'none' && PAPER_COLOURS.has(background));
+  usePaperLayer(onPaper);
   const fill = layout === 'fill';
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -65,16 +75,24 @@ export default function AppShell({
   useLayoutEffect(() => {
     const el = shellRef.current;
     if (!el) return;
-    const bg = getComputedStyle(el).backgroundColor;
+    // on the chart paper the shell is clear: the canvas takes the paper's colour and the body steps out of the way, so the
+    // fixed layer (z-index -1) shows between the canvas and the page
+    const bg = onPaper ? getComputedStyle(el).getPropertyValue('--bg-app').trim() || '#eceae5' : getComputedStyle(el).backgroundColor;
     if (!bg) return;
     document.documentElement.style.backgroundColor = bg;
-    document.body.style.backgroundColor = bg;
+    document.body.style.backgroundColor = onPaper ? 'transparent' : bg;
+    document.body.style.backgroundImage = onPaper ? 'none' : '';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
-  }, [background]);
+  }, [background, onPaper]);
   const visibleToast = regionReady ? toast : null;
 
   return (
-    <div ref={shellRef} className={fill ? `${styles.shell} ${styles.fill}` : styles.shell} style={{ backgroundColor: background }}>
+    <div
+      ref={shellRef}
+      className={`${styles.shell} ${fill ? styles.fill : ''} ${onPaper ? styles.onPaper : ''}`}
+      style={onPaper ? undefined : { backgroundColor: background }}
+      data-paper={onPaper ? 'chart' : undefined}
+    >
       {chrome !== 'none' && (fill ? <div className={styles.fillStatus}><StatusBar /></div> : <StatusBar />)}
       <main
         className={fill ? styles.fillPage : story ? `${styles.page} ${styles.story}` : styles.page}

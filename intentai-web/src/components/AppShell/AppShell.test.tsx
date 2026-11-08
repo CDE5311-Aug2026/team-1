@@ -123,3 +123,48 @@ test('tabPop pops the active tab in; off by default', () => {
   );
   expect(screen.getByRole('button', { name: 'Home' })).toHaveClass('a-pill');
 });
+
+// Owner, 8 Nov 2026: the field archive's chart paper is the app's page background, drawn once behind every shell.
+test('the chart paper: one fixed layer under body, shown behind tabbed pages, kept across page changes', () => {
+  const layer = () => document.querySelectorAll<HTMLElement>('[data-app-paper]');
+  const first = render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell>home</AppShell>
+    </MemoryRouter>,
+  );
+  expect(layer()).toHaveLength(1);
+  const el = layer()[0];
+  expect(el.parentElement).toBe(document.body);
+  expect(el).not.toHaveAttribute('hidden');
+  expect(el.querySelector('[data-chart-paper="archive"]')).not.toBeNull();
+  // the shell is clear on the paper; the page never draws a chart of its own
+  expect(document.querySelector('[data-paper="chart"]')).not.toBeNull();
+  expect(screen.getByRole('main').querySelector('[data-chart-paper]')).toBeNull();
+  first.unmount();
+  expect(el).toHaveAttribute('hidden');
+  // the next page reuses the same layer (painted once), a sub-page without the tab bar too
+  const settings = render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell chrome="status" background="var(--bg-app)">settings</AppShell>
+    </MemoryRouter>,
+  );
+  expect(layer()).toHaveLength(1);
+  expect(layer()[0]).toBe(el);
+  expect(el).not.toHaveAttribute('hidden');
+  settings.unmount();
+  // onboarding (no chrome) and a page with its own colour (Hunt's dark desk) keep their own ground
+  const onboarding = render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell chrome="none">welcome</AppShell>
+    </MemoryRouter>,
+  );
+  expect(el).toHaveAttribute('hidden');
+  onboarding.unmount();
+  render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell background="#1d1711">desk</AppShell>
+    </MemoryRouter>,
+  );
+  expect(el).toHaveAttribute('hidden');
+  expect(document.querySelector('[data-paper="chart"]')).toBeNull();
+});
