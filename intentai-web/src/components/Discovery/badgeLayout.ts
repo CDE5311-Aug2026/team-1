@@ -51,43 +51,81 @@ function clampTo(x: number, y: number, b: LaidBadge, safe: SafeRect): [number, n
   return [x1 < x0 ? (safe.left + safe.right) / 2 : Math.min(Math.max(x, x0), x1), y1 < y0 ? (safe.top + safe.bottom) / 2 : Math.min(Math.max(y, y0), y1)];
 }
 
-const clash = (x: number, y: number, b: LaidBadge, placed: readonly LaidBadge[]) =>
-  placed.some((p) => Math.abs(p.x - x) < (p.w + b.w) / 2 + GAP && Math.abs(p.y - y) < (p.h + b.h) / 2 + GAP);
+const clash = (x: number, y: number, b: LaidBadge, placed: readonly LaidBadge[], blocked: readonly SafeRect[]) =>
+  placed.some((p) => Math.abs(p.x - x) < (p.w + b.w) / 2 + GAP && Math.abs(p.y - y) < (p.h + b.h) / 2 + GAP) ||
+  blocked.some((r) => x + b.w / 2 + GAP > r.left && x - b.w / 2 - GAP < r.right && y + b.h / 2 + GAP > r.top && y - b.h / 2 - GAP < r.bottom);
 
-/** Lays the badges out in place. `width`/`height` are the map's; a point outside them is off the camera. */
-export function layoutBadges(badges: LaidBadge[], width: number, height: number, safe: SafeRect): LaidBadge[] {
+/** Lays the badges out in place. `width`/`height` are the map's; a point outside them is off the camera. `blocked`:
+ *  rectangles inside the safe one that badges keep off (the tool rail, when the room under it is free). */
+export function layoutBadges(
+  badges: LaidBadge[],
+  width: number,
+  height: number,
+  safe: SafeRect,
+  blocked: readonly SafeRect[] = [],
+): LaidBadge[] {
   const shown: LaidBadge[] = [];
   for (const b of badges) {
     b.hidden = !b.keep && (b.x < 0 || b.x > width || b.y < 0 || b.y > height);
     if (!b.hidden) shown.push(b);
   }
-  // the selected one first; the rest keep their order (the region's numbers)
-  const order = [...shown.filter((b) => b.on), ...shown.filter((b) => !b.on)];
+  // the selected one first; then from the top of the map down (a stable order frame to frame that packs closely)
+  const order = [...shown.filter((b) => b.on), ...shown.filter((b) => !b.on).sort((a, b) => a.y - b.y || a.x - b.x)];
   const placed: LaidBadge[] = [];
+  let stuck = false;
   for (const b of order) {
     b.squeezed = false;
     const px = b.x;
     const py = b.y;
-    let at = freeSpot(px, py, b, placed, safe);
+    let at = freeSpot(px, py, b, placed, safe, blocked);
     if (!at && b.bare && b.bare < b.w) {
       // no room for its name: the number alone
       const named = b.w;
       b.w = b.bare;
-      at = freeSpot(px, py, b, placed, safe);
+      at = freeSpot(px, py, b, placed, safe, blocked);
       if (at) b.squeezed = true;
       else b.w = named;
     }
+    if (!at) stuck = true;
     [b.x, b.y] = at ?? clampTo(px, py, b, safe);
     placed.push(b);
   }
+  // a badge found no free spot (wide badges on a narrow map, the free room cut up by the others): stack them
+  if (stuck && !blocked.length) settle(shown, safe);
   return badges;
 }
 
-function freeSpot(px: number, py: number, b: LaidBadge, placed: readonly LaidBadge[], safe: SafeRect): [number, number] | null {
+const sideBySide = (a: LaidBadge, b: LaidBadge) => Math.abs(a.x - b.x) >= (a.w + b.w) / 2 + GAP;
+
+/** Top down, each badge goes below those above it that share its column; then bottom up, each goes above those below
+ *  it, so the stack fits between the crumb and the credit when its height allows. */
+function settle(bs: LaidBadge[], safe: SafeRect) {
+  const down = [...bs].sort((a, b) => a.y - b.y);
+  down.forEach((b, i) => {
+    let y = Math.max(b.y, safe.top + b.h / 2);
+    for (const a of down.slice(0, i)) if (!sideBySide(a, b)) y = Math.max(y, a.y + (a.h + b.h) / 2 + GAP);
+    b.y = y;
+  });
+  const up = [...bs].sort((a, b) => b.y - a.y);
+  up.forEach((b, i) => {
+    let y = Math.min(b.y, safe.bottom - b.h / 2);
+    for (const a of up.slice(0, i)) if (!sideBySide(a, b)) y = Math.min(y, a.y - (a.h + b.h) / 2 - GAP);
+    b.y = Math.max(y, safe.top + b.h / 2);
+  });
+}
+
+function freeSpot(
+  px: number,
+  py: number,
+  b: LaidBadge,
+  placed: readonly LaidBadge[],
+  safe: SafeRect,
+  blocked: readonly SafeRect[],
+): [number, number] | null {
   const [x0, y0] = clampTo(px, py, b, safe);
   for (const [dx, dy] of OFFSETS) {
     const [x, y] = clampTo(x0 + dx, y0 + dy, b, safe);
-    if (!clash(x, y, b, placed)) return [x, y];
+    if (!clash(x, y, b, placed, blocked)) return [x, y];
   }
   return null;
 }

@@ -76,8 +76,8 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: dec
       if (need < 80) return;
       const over = sheet && sheet !== book ? sheet.scrollHeight - sheet.clientHeight : 0;
       // > 0: blank paper to give away; < 0: the note does not fit and needs that much more
-      // (6 px kept under the buttons, for their shadow)
-      const delta = over > 1 ? -over - 6 : note.clientHeight - need - 6;
+      // (10 px kept under the buttons, for their shadow)
+      const delta = over > 1 ? -over - 10 : note.clientHeight - need - 10;
       // a few pixels either way are not worth a new layout
       if (Math.abs(delta) < 8) return;
       setCap((had) => (delta < 0 && had === null ? null : Math.round(book.offsetHeight - delta)));

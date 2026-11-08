@@ -291,14 +291,39 @@
   box-shadow: inset 0 0 0 1.5px rgba(47, 107, 79, 0.65);
 }
 
-/* a narrow phone (320 px): "Check in" ran under the Save star. The button keeps only its tick, round like the others;
-   its words stay its accessible name (they are only drawn at size 0) */
-@media (max-width: 339px) {
+/* "Check in" ran under the Save star (320 px, and 390 px where Directions keeps its word). The row is measured
+   (a container): first Directions is drawn as its arrow only (its name is its aria-label), then, narrower still,
+   Check in keeps only its tick, round like the others (its words stay its accessible name, drawn at size 0). */
+.actions {
+  container-type: inline-size;
+}
+
+.actions button[aria-pressed]:first-child {
+  flex-shrink: 0;
+}
+
+@container (max-width: 319px) {
+  .actions a:last-child {
+    flex: none;
+    width: 2.75rem;
+    padding: 0;
+  }
+
+  .actions a:last-child > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@container (max-width: 261px) {
   .actions button[aria-pressed]:first-child {
     flex: none;
     width: 2.75rem;
     min-width: 2.75rem;
-    min-height: 2.75rem;
     padding: 0;
     font-size: 0;
   }

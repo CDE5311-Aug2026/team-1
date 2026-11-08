@@ -66,6 +66,8 @@ interface Props {
   insetRight?: number;
   /** Room kept clear at the map's top (the crumb's bottom, measured, and a margin), px. */
   insetTop?: number;
+  /** Where the tool rail ends, px from the map's top (measured): area badges may use the room under it. */
+  railBottom?: number;
 }
 
 /** Room kept clear at the map's foot (the map credit), px. */
@@ -220,6 +222,7 @@ export function MapCard3D({
   category = 'all',
   insetRight = 0,
   insetTop = 44,
+  railBottom,
 }: Props) {
   const cat = category === 'all' ? null : category;
   // near-you pins stand on the ground like a pick's stops
@@ -393,7 +396,11 @@ export function MapCard3D({
     if (!s) return undefined;
     const place = () => {
       const { w: bw, h: bh } = boxSize.current;
-      const safe = { left: INSET_LEFT, top: insetTop, right: bw - insetRight, bottom: bh - INSET_BOTTOM };
+      // Regions keep the rail's whole column clear. A region's areas (up to 22 on a 320 px map) also get the room
+      // under the rail: there the rail is a rectangle to keep off, not a strip.
+      const underRail = level === 'areas' && !!railBottom && railBottom < bh - INSET_BOTTOM;
+      const safe = { left: INSET_LEFT, top: insetTop, right: underRail ? bw - INSET_LEFT : bw - insetRight, bottom: bh - INSET_BOTTOM };
+      const blocked = underRail ? [{ left: bw - insetRight, top: 0, right: bw, bottom: railBottom! + 4 }] : [];
       const badges: (LaidBadge & { el: HTMLElement })[] = [];
       for (const m of markers) {
         const el = labelRefs.current.get(m.key);
@@ -422,7 +429,7 @@ export function MapCard3D({
         el.style.visibility = '';
         el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) translate(-50%, -50%)`;
       }
-      layoutBadges(badges, bw, bh, safe);
+      layoutBadges(badges, bw, bh, safe, blocked);
       for (const b of badges) {
         // off the camera: hidden (and out of the tab order), not stacked at an edge
         b.el.style.visibility = b.hidden ? 'hidden' : '';
@@ -436,7 +443,7 @@ export function MapCard3D({
     return () => {
       if (s.onFrame === place) s.onFrame = null;
     };
-  }, [markers, ready, insetRight, insetTop]);
+  }, [markers, ready, insetRight, insetTop, railBottom, level]);
 
   // ---- taps on the map ----
   const down = useRef<{ x: number; y: number } | null>(null);

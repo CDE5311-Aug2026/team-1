@@ -810,17 +810,26 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   // the badges stay below the crumb: its real bottom in the map card, measured (it wraps, and the text size changes)
   const crumbRef = useRef<HTMLDivElement>(null);
   const [crumbBottom, setCrumbBottom] = useState(0);
+  // and where the tool rail ends, so a region's area badges can use the room under it
+  const [railBottom, setRailBottom] = useState(0);
   const showCrumb = !routeMode && !openId;
   useLayoutEffect(() => {
     const el = crumbRef.current;
-    if (!showCrumb || !el) {
+    const card = el?.parentElement;
+    const rail = card?.querySelector<HTMLElement>('[role="toolbar"]');
+    if (!showCrumb || !el || !card) {
       setCrumbBottom(0);
+      setRailBottom(0);
       return undefined;
     }
-    const measure = () => setCrumbBottom(el.offsetTop + el.offsetHeight);
+    const measure = () => {
+      setCrumbBottom(el.offsetTop + el.offsetHeight);
+      setRailBottom(rail ? Math.round(rail.getBoundingClientRect().bottom - card.getBoundingClientRect().top) : 0);
+    };
     measure();
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
     ro?.observe(el);
+    if (rail) ro?.observe(rail);
     return () => ro?.disconnect();
   }, [showCrumb]);
 
@@ -1016,6 +1025,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                   category={category}
                   insetRight={narrow ? RAIL_W_NARROW : RAIL_W}
                   insetTop={crumbBottom ? crumbBottom + 6 : 6}
+                  railBottom={railBottom || undefined}
                 />
               </Suspense>
             )}

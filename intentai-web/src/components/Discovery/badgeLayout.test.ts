@@ -112,6 +112,35 @@ describe('layoutBadges', () => {
     for (const b of bs) expect(inside(b, SAFE)).toBe(true);
   });
 
+  test('the room under the rail is used when the rail is a blocked rectangle, never the rail itself', () => {
+    const full: SafeRect = { left: 4, top: 46, right: W - 4, bottom: H - 30 };
+    const rail: SafeRect = { left: W - 50, top: 0, right: W, bottom: 216 };
+    // a badge whose point is beside the rail, one under it
+    const bs: LaidBadge[] = [
+      { x: W - 20, y: 120, w: 36, h: 36 },
+      { x: W - 20, y: 280, w: 36, h: 36 },
+    ];
+    layoutBadges(bs, W, H, full, [rail]);
+    expect(bs[0].x + bs[0].w / 2).toBeLessThanOrEqual(rail.left);
+    expect(bs[1].x).toBeGreaterThan(rail.left);
+    expect(bs[1].y - bs[1].h / 2).toBeGreaterThanOrEqual(rail.bottom);
+  });
+
+  test('the five regions at 320 px as the built app projected them (West had no gap left): stacked apart', () => {
+    // projected points and measured sizes from the production build, Central selected (its counts on two lines)
+    const bs: LaidBadge[] = [
+      { x: 144, y: 182, w: 125, h: 50, keep: true, on: true },
+      { x: 255, y: 151, w: 103, h: 36, keep: true },
+      { x: 100, y: 98, w: 109, h: 36, keep: true },
+      { x: 175, y: 123, w: 123, h: 36, keep: true },
+      { x: 22, y: 156, w: 109, h: 36, keep: true },
+    ];
+    const safe = { left: 4, top: 43, right: 218, bottom: 326 };
+    layoutBadges(bs, W, H, safe);
+    expect(countOverlaps(bs)).toBe(0);
+    for (const b of bs) expect(inside(b, safe)).toBe(true);
+  });
+
   test('five region badges at 320 px (North-East over North) end up apart', () => {
     const bs: LaidBadge[] = [
       { x: 110, y: 200, w: 120, h: 46, keep: true, on: true },
