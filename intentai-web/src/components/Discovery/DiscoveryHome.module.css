@@ -607,11 +607,10 @@
   margin: 0;
   padding: 0;
   min-height: 46px;
-  background: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  -webkit-mask-image: none;
-  mask-image: none;
+}
+
+.pageBar.pageBar::before {
+  content: none;
 }
 
 /* ---- Redesign v2 (boards 05/11): Home is a page that scrolls (chips, the leaderboard card, the map card and its deck,

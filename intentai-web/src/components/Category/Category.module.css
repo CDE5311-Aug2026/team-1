@@ -14,6 +14,14 @@
   display: none;
 }
 
+/* On a wide screen the five chips fit the content column, so the row needs no scroll room in the gutters. */
+@media (min-width: 640px) {
+  .chips {
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+}
+
 /* 44 px tap target around a 32 px pill */
 .chip {
   flex: none;

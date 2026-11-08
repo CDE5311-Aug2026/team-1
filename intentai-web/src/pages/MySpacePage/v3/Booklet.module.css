@@ -498,5 +498,5 @@
 
 /* the top bar on the linen page */
 .bar.bar {
-  background: linear-gradient(rgba(236, 234, 229, 0.94), rgba(236, 234, 229, 0.6));
+  --bar-bg: linear-gradient(rgba(236, 234, 229, 0.94), rgba(236, 234, 229, 0.6));
 }
