@@ -37,7 +37,7 @@ const TAG_SPOTS = [
 ] as const;
 
 /**
- * M3 "Snap a moment": a dark viewfinder (live camera only after "Use camera", otherwise a recent photo), tap-to-focus,
+ * M3 "Snap a moment" (v2 light sheet, 9 Nov 2026): a viewfinder (live camera only after "Use camera", otherwise a recent photo), tap-to-focus,
  * a flash, a spinning glow frame while the energy orb says "Recognising image", tags popping onto the photo, then the
  * match. Recognition is a demo: recent photos are the app's own photos of known cards, each with a fixed match score;
  * the matched card is marked opened (its stamp gains ink). A camera photo is never matched: "No match yet".
@@ -417,7 +417,7 @@ export default function SnapSheet({ stamps, onClose }: { stamps: readonly StampD
             {reduce ? (
               <span className={styles.workingText}>Recognising image</span>
             ) : (
-              <ShinyText text="Recognising image" className={styles.workingText} color="#c9b48a" shineColor="#fff6e0" speed={1.6} />
+              <ShinyText text="Recognising image" className={styles.workingText} color="#5f5b54" shineColor="#23211d" speed={1.6} />
             )}
           </div>
         )}
@@ -585,7 +585,7 @@ function StampPanel({ photo, wasNew, stamps }: { photo: SnapPhoto; wasNew: boole
     const subject = subjectOfCardId(photo.target.cardId);
     const stamp = subject ? stamps.find((s) => s.subject.id === subject.id) : undefined;
     if (!stamp) {
-      return <p className={styles.plainLine}>{wasNew ? '+1 card · added to Collected' : 'Already in Collected'}</p>;
+      return <p className={styles.plainLine}>{wasNew ? '+1 card opened' : 'Already opened'}</p>;
     }
     name = stamp.subject.short;
     placeName = stamp.subject.short;
