@@ -1,17 +1,25 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { expect, test, vi } from 'vitest';
+import { beforeAll, expect, test, vi } from 'vitest';
 import App from './App';
 
-test('default route shows Home: the regions deck, no holiday card', () => {
+// The map (its badges and pins) is a lazy chunk: load it once up front, so a slow first import under a full run does
+// not eat a test's time; the map's buttons are still awaited (findBy) as they draw after Home.
+const MAP = { timeout: 4000 };
+beforeAll(async () => {
+  await import('./components/Discovery/MapCard3D');
+});
+
+test('default route shows Home: the regions on the map, no holiday card', async () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
       <App />
     </MemoryRouter>,
   );
   expect(screen.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeInTheDocument();
-  expect(screen.getByRole('region', { name: 'Regions' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 2, name: 'Regions' })).toBeInTheDocument();
+  expect(await screen.findAllByRole('button', { name: /^Region \d: / }, MAP)).toHaveLength(5);
   expect(screen.queryByRole('button', { name: /Deepavali long weekend/ })).not.toBeInTheDocument();
 });
 
