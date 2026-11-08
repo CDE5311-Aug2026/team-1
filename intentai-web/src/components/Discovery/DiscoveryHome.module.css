@@ -121,6 +121,16 @@
   border-top-right-radius: 0;
 }
 
+/* the notebook is held to its field note's height (PlaceIntro data-capped): the 3D print above takes the room left */
+.boardBook:has(> [data-capped]) > .deviceOpen:not(.mapAway) {
+  flex-grow: 1;
+}
+
+/* the print has turned away: the later pages get the whole height, cap or not */
+.boardBook:has(> .mapAway) > [data-capped] {
+  max-height: none;
+}
+
 /* turned away with the first page: the later pages get the whole height */
 .mapAway {
   height: 0;
@@ -219,6 +229,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* the tab is drawn small; its tap target is 44 px tall (up over the card's edge and down over the map's) */
+.grip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -9px;
+  height: 44px;
+}
+
 .grip::before {
   content: '';
   width: 38px;
@@ -252,12 +272,23 @@
     0 10px 16px -10px rgba(60, 35, 15, 0.6);
 }
 
+.mapCard {
+  /* the tool rail's room at the map's right edge, and a gap (MapToolbar.module.css .rail; DiscoveryHome.tsx RAIL_W) */
+  --rail-room: 72px;
+}
+
+@media (max-width: 359px) {
+  .mapCard {
+    --rail-room: 56px;
+  }
+}
+
 .mapTop {
   position: absolute;
   top: 10px;
   left: 10px;
   /* clear of the tool rail */
-  right: 72px;
+  right: var(--rail-room);
   z-index: 3;
   display: flex;
   align-items: center;
@@ -275,7 +306,8 @@
 .shelfSlot {
   position: absolute;
   left: 6px;
-  right: 72px;
+  /* the row (and its fade at the right end) stops short of the rail */
+  right: var(--rail-room);
   bottom: 32px;
   z-index: 3;
   pointer-events: none;
@@ -287,20 +319,6 @@
 
 .mapTop > * {
   pointer-events: auto;
-}
-
-.back {
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--text-primary);
-  display: grid;
-  place-items: center;
-  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
-  cursor: pointer;
 }
 
 .crumbBox {
@@ -439,16 +457,9 @@
   min-height: 0;
 }
 
-.fullPage {
-  margin-left: auto;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--text-primary);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
+/* the open print has no tool rail beside it: EARTH ONLINE's loading note sits at its true top centre */
+.deviceOpen .mapHero :global(div[role='status']) {
+  left: 50%;
 }
 
 /* the overview map takes a little of the paper's warmth (an open place's 3D view keeps its true colours) */
@@ -499,6 +510,8 @@
   flex-shrink: 0;
 }
 
+/* sticks at the top of Home's scroller, which itself starts under --status-h (on a phone: 0.5rem + the safe-area
+   inset, tokens.css), so the bar is already clear of the clock and the notch; an env() inset here would count it twice */
 .home:not(.homeOpen) .head {
   position: sticky;
   top: 0;

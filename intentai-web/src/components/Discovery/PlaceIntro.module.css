@@ -24,6 +24,8 @@
   background: #f6eedb;
   color: var(--text-primary);
   overflow: hidden;
+  /* no taller than the field note needs (PlaceIntro.tsx measures it); Home lifts it once the 3D print turns away */
+  max-height: var(--cap, none);
   /* the pages below this one, then the shadow on the desk */
   box-shadow:
     1px 2px 0 -1px #eadfc6,
@@ -287,6 +289,19 @@
   background: transparent;
   color: #2f6b4f;
   box-shadow: inset 0 0 0 1.5px rgba(47, 107, 79, 0.65);
+}
+
+/* a narrow phone (320 px): "Check in" ran under the Save star. The button keeps only its tick, round like the others;
+   its words stay its accessible name (they are only drawn at size 0) */
+@media (max-width: 339px) {
+  .actions button[aria-pressed]:first-child {
+    flex: none;
+    width: 2.75rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+    font-size: 0;
+  }
 }
 
 /* close, in the strip under the pages once the 3D view has turned away with the first page */
