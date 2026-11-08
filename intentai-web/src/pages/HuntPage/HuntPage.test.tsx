@@ -170,7 +170,7 @@ test('Public shows this weekend’s challenge on the Civic District route, the b
   expect(document.querySelector('[data-app-paper] [data-chart-paper="archive"]')).not.toBeNull();
 });
 
-test('hunting together: the archive also links straight to the leaderboards (example players); solo does not', async () => {
+test('hunting together: the archive also links straight to the leaderboards; solo does not', async () => {
   localStorage.setItem('findsg-hunt-how-seen', '1');
   huntModeStore.set({ mode: 'solo' });
   const solo = at('/hunt');
@@ -178,7 +178,9 @@ test('hunting together: the archive also links straight to the leaderboards (exa
   solo.unmount();
   huntModeStore.set({ mode: 'together' });
   at('/hunt');
-  await userEvent.click(screen.getByRole('button', { name: /Leaderboards.*Example players/ }));
+  const link = screen.getByRole('button', { name: /^Leaderboards/ });
+  expect(link).not.toHaveTextContent('Example players');
+  await userEvent.click(link);
   expect(screen.getByRole('heading', { name: 'Leaderboards' })).toBeInTheDocument();
   huntModeStore.set({});
 });

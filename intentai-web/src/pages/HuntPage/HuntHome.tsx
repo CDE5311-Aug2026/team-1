@@ -644,9 +644,8 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
           </button>
           {together && (
             <button type="button" className={a.link} onClick={() => go({ board: "explore" })}>
-              <span>
-                Leaderboards <small>Example players</small>
-              </span>
+              {/* no "Example players" here either (owner, 9 Nov 2026); the boards' own note says they are samples */}
+              <span>Leaderboards</span>
               {CHEVRON}
             </button>
           )}
