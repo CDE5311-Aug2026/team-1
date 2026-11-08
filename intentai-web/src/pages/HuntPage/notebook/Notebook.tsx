@@ -190,7 +190,12 @@ export function Notebook({
       className={`${styles.desk} ${open ? styles.isOpen : ''} ${held ? styles.held : ''} ${fit ? styles.fit : ''}`}
       style={{ ...MATERIALS, ...(tone ? { '--cover': tone } : {}) } as CSSProperties}
     >
-      <div className={styles.book} ref={book} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+      {/* --tab-n: how many fore-edge tabs the book carries, so the reader's book is always tall enough to hold them */}
+      <div
+        className={styles.book}
+        ref={book}
+        style={{ '--tab-n': tabs.length + (play ? 1 : 0) } as CSSProperties}
+        onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
         <div className={styles.stage}>
           {/* the page block's edges (seen while closed and tilted) */}
           <span className={styles.edgeRight} aria-hidden="true" />

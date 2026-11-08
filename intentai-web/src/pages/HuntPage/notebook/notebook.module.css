@@ -306,9 +306,9 @@
 .tab {
   position: relative;
   width: 30px;
-  min-height: 52px;
+  min-height: var(--tab-h, 52px);
   border: 0;
-  padding: 6px 0 6px 6px;
+  padding: var(--tab-pad, 6px) 0 var(--tab-pad, 6px) 6px;
   border-radius: 0 7px 7px 0;
   cursor: pointer;
   color: #f3e6c8;
@@ -318,7 +318,7 @@
     2px 2px 3px rgba(0, 0, 0, 0.35),
     inset -1px 0 0 rgba(255, 255, 255, 0.12);
   font:
-    400 0.6875rem/1 var(--font-display);
+    400 var(--tab-font, 0.6875rem)/1 var(--font-display);
   letter-spacing: 0.08em;
   writing-mode: vertical-rl;
   transition: transform 0.2s;
@@ -405,7 +405,21 @@
 .fit .book {
   /* as big as the phone allows, keeping a book's proportions; room left for the fore-edge tabs */
   --ratio: 1.46;
-  width: min(calc(100vw - 52px), calc((100dvh - var(--fit-chrome, 118px) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / var(--ratio)), 470px);
+  /* the fore-edge tabs (--tab-n of them, Notebook.tsx) sit inside the book's height (owner, 8 Nov 2026: in a short
+     window the tab column was taller than the book and Play hung below it). In a short window they close up, down to
+     40 px each (still well over the 24 px target size); below that the book keeps the height they need, so a very
+     short window scrolls a little rather than the tabs hanging off the book. */
+  --tabs-min-h: calc((var(--tab-n, 6) * 40px + (var(--tab-n, 6) - 1) * 5px + 10px) / 0.88);
+  --book-w: max(
+    calc(var(--tabs-min-h) / var(--ratio)),
+    min(calc(100vw - 52px), calc((100dvh - var(--fit-chrome, 118px) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / var(--ratio)), 470px)
+  );
+  /* the tabs start 7% down and stay 5% clear of the foot: 88% of the book's height is theirs, less the gaps and
+     Play's 10 px step */
+  --tab-h: clamp(40px, (var(--book-w) * var(--ratio) * 0.88 - (var(--tab-n, 6) - 1) * 5px - 10px) / var(--tab-n, 6), 52px);
+  --tab-font: clamp(0.5625rem, var(--tab-h) * 0.21, 0.6875rem);
+  --tab-pad: clamp(3px, var(--tab-h) - 46px, 6px);
+  width: var(--book-w);
   aspect-ratio: 1 / var(--ratio);
   max-width: none;
   max-height: none;
@@ -444,6 +458,13 @@
 }
 .fit .folio {
   margin-top: 12px;
+}
+/* the reader's book lies on the app's light chart paper (v2): its desk shadow stays close and soft. The old long drop
+   (made for the dark desk) showed as a grey slab, the book's width, from under the book to the window's foot. */
+.fit .back {
+  box-shadow:
+    0 10px 22px rgba(60, 40, 20, 0.28),
+    0 3px 6px rgba(0, 0, 0, 0.28);
 }
 /* on a phone the casebook is a little taller than a shelf book: a reporter's notebook, filling the screen */
 @media (max-width: 760px) {
