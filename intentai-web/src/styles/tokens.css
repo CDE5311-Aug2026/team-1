@@ -37,8 +37,12 @@
   /* v2 passport redesign (BellyBook-inspired): linen paper, greige cards, ink text. */
   --bg-app: #eceae5;
   --bg-screen-b: #eceae5;
-  /* the app's paper (--bg-app), translucent, for sticky bars over the chart paper (frost it with backdrop-filter) */
-  --paper-frost: rgba(236, 234, 229, 0.78);
+  /* The one frosted-paper style for every sticky header over the app's chart paper (PageBar, Home's head, Hunt's bars):
+     background: var(--frost-bg); backdrop-filter: var(--frost-filter); and, where backdrop-filter is not supported,
+     var(--frost-solid) (the @supports block at the end of this file swaps it in). Tune it here, not per page. */
+  --frost-bg: rgba(236, 234, 229, 0.8); /* --bg-app at 80% */
+  --frost-filter: blur(10px) saturate(1.1);
+  --frost-solid: var(--bg-app);
   --surface: #f6f5f2;
   --surface-muted: #efede8;
   --surface-sunk: #e9e6e0;
@@ -152,5 +156,12 @@
 @media (hover: none) and (pointer: coarse) {
   :root {
     --status-h: calc(0.5rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* the frosted-paper header without backdrop-filter: solid paper, so text scrolling under it never shows through */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --frost-bg: var(--frost-solid);
   }
 }

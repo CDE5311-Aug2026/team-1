@@ -152,14 +152,22 @@ test('the chart paper: one fixed layer under body, shown behind tabbed pages, ke
   expect(layer()[0]).toBe(el);
   expect(el).not.toHaveAttribute('hidden');
   settings.unmount();
-  // onboarding (no chrome) and a page with its own colour (Hunt's dark desk) keep their own ground
+  // onboarding (no chrome) on the app's paper gets it too; a page can opt out
   const onboarding = render(
     <MemoryRouter useTransitions={false}>
-      <AppShell chrome="none">welcome</AppShell>
+      <AppShell chrome="none" background="var(--bg-app)">welcome</AppShell>
+    </MemoryRouter>,
+  );
+  expect(el).not.toHaveAttribute('hidden');
+  onboarding.unmount();
+  const optOut = render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell paper={false}>reader</AppShell>
     </MemoryRouter>,
   );
   expect(el).toHaveAttribute('hidden');
-  onboarding.unmount();
+  optOut.unmount();
+  // a page with its own colour (Hunt's dark desk) keeps its own ground
   render(
     <MemoryRouter useTransitions={false}>
       <AppShell background="#1d1711">desk</AppShell>

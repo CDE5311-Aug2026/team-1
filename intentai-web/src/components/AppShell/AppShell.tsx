@@ -25,8 +25,8 @@ interface AppShellProps {
   variant?: 'default' | 'story';
   /** The active tab pops in on arrival (Home). */
   tabPop?: boolean;
-  /** The app's chart paper behind the page (PaperLayer). Default: on for every page with chrome on the app's own light
-   *  paper; off for chrome="none" (onboarding) and for a page that asks for its own colour (a dark desk, a reader). */
+  /** The app's chart paper behind the page (PaperLayer). Default: on for every page on the app's own light paper
+   *  (onboarding too, owner 8 Nov 2026); off for a page that asks for its own colour (a dark desk, a reader). */
   paper?: boolean;
 }
 
@@ -54,7 +54,7 @@ export default function AppShell({
   tabPop = false,
   paper,
 }: AppShellProps) {
-  const onPaper = paper ?? (chrome !== 'none' && PAPER_COLOURS.has(background));
+  const onPaper = paper ?? PAPER_COLOURS.has(background);
   usePaperLayer(onPaper);
   const fill = layout === 'fill';
   const { pathname } = useLocation();

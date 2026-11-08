@@ -525,9 +525,9 @@
   margin: 0 calc(-1 * var(--gutter)) -6px;
   padding: 4px var(--gutter) 6px;
   /* frosted paper: the cards scrolling under the bar and chips stay readable without hiding the chart behind */
-  background: var(--paper-frost);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  background: var(--frost-bg);
+  -webkit-backdrop-filter: var(--frost-filter);
+  backdrop-filter: var(--frost-filter);
 }
 
 .device:not(.deviceOpen) {
