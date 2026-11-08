@@ -255,7 +255,9 @@ export function ChapterLetterPage({ ch, onRead, onSetOut }: { ch: Chapter; onRea
       <Running left={`Vol. ${ch.roman} · The case`} right={placeOf(ch)} />
       <h2 className={styles.chTitle}>{ch.title}</h2>
       <p className={styles.chKicker}>{ch.logline || `${ch.stops.length} stops`}</p>
+      {/* the reader's caption under the book says "Press the seal to open the letter" (FieldNotebook's page hint) */}
       <SealedLetter
+        hint={false}
         id={ch.routeId}
         initial={ch.guide.slice(0, 1)}
         to={

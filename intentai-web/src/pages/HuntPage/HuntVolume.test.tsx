@@ -53,6 +53,8 @@ test('Only One Missing, out on the desk: the chart, the board-10 bar and head, a
   expect(screen.getAllByRole('heading', { level: 1, name: 'Hunt' })).toHaveLength(1);
   expect(folio()).toHaveTextContent('1 / 6 · Vol. I · The letter');
   expect(folio()).toHaveTextContent('Press the seal to open the letter');
+  // said once, in the caption: the page itself no longer repeats it under the envelope
+  expect(screen.getAllByText('Press the seal to open the letter')).toHaveLength(1);
   // the book is still the book: its own tabs, cover and pages
   expect(within(reader).getByRole('navigation', { name: 'Chapters' })).toBeInTheDocument();
   // a page turned: the folio follows, with that page's own instruction

@@ -19,6 +19,7 @@ export function SealedLetter({
   from,
   preview,
   onRead,
+  hint = true,
 }: {
   id: string;
   /** Pressed into the wax. */
@@ -29,6 +30,9 @@ export function SealedLetter({
   /** What shows of the letter once it's out. */
   preview: ReactNode;
   onRead(): void;
+  /** The pencilled "Press the seal…" under the envelope. Off where the volume's caption already says it (the
+   *  reader's folio): on a small page it sat half under the SET OUT stamp and said the same thing twice. */
+  hint?: boolean;
 }) {
   const [open, setOpen] = useState(() => wasOpened(id));
   const [breaking, setBreaking] = useState(false);
@@ -72,7 +76,7 @@ export function SealedLetter({
           </span>
         </button>
       )}
-      {!open && !breaking && <span className={styles.envHint}>Press the seal to open the letter</span>}
+      {hint && !open && !breaking && <span className={styles.envHint}>Press the seal to open the letter</span>}
     </div>
   );
 }
