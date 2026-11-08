@@ -453,7 +453,14 @@ function Day({
   const shown = open ? cards : cards.slice(0, ENTRIES);
   return (
     <article className={styles.day} id={dayAnchor(day.day)}>
-      <div className={styles.top}>
+      {/* v2 (owner, 9 Nov 2026): the date, and right beneath it the day's map, on the left; the day's photo on the right */}
+      <div
+        className={[
+          styles.top,
+          located.length > 0 ? styles.withMap : "",
+          frames.length > 0 ? styles.withPhoto : "",
+        ].join(" ")}
+      >
         <div className={styles.side}>
           <p className={styles.date}>
             <b>{num}</b>
@@ -490,6 +497,34 @@ function Day({
             </button>
           )}
         </div>
+        {located.length > 0 && (
+          <figure className={styles.map}>
+            <div className={styles.mapBox}>
+              <CityMap
+                key={placesKey}
+                label={`Map of ${weekday} ${num} ${month}: ${located.length} ${located.length === 1 ? "place" : "places"} in the order you went`}
+                // fills its cell beside the photo (v2, owner 9 Nov 2026); the day's places fit left of the zoom buttons
+                bleed
+                compact
+                insets={{ top: 10, left: 12, right: 46, bottom: 12 }}
+                attribution="hidden"
+                pins={located.map(({ e, n }) => ({
+                  key: keyOf(e),
+                  name: `${n}. ${e.title}`,
+                  location: e.pin!,
+                  category: "culture",
+                  visited: true,
+                  label: String(n),
+                }))}
+                path={located.length > 1 ? located.map((c) => c.e.pin!) : undefined}
+                clusterPins={false}
+                selectedKey={sel ?? undefined}
+                onSelect={(key) => choose(key, "map")}
+                focus={focus}
+              />
+            </div>
+          </figure>
+        )}
         {frames.length > 0 && (
           <PhotoStack
             frames={frames}
@@ -499,37 +534,14 @@ function Day({
             onOpen={onShare ?? (() => undefined)}
           />
         )}
+        {/* the map's credits, under the map and the photo (on the map they would sit over the day's places) */}
+        {located.length > 0 && (
+          <p className={styles.credit}>
+            {MAP_ATTRIBUTION} · <OneMapCredit />
+          </p>
+        )}
       </div>
       <div className={styles.log}>
-        {located.length > 0 && (
-          <figure className={styles.map}>
-            <CityMap
-              key={placesKey}
-              label={`Map of ${weekday} ${num} ${month}: ${located.length} ${located.length === 1 ? "place" : "places"} in the order you went`}
-              height={200}
-              // the day's places fit left of the zoom buttons (a pin under them is hidden) and above the credit
-              insets={{ top: 8, left: 76, right: 44, bottom: 44 }}
-              attribution="hidden"
-              pins={located.map(({ e, n }) => ({
-                key: keyOf(e),
-                name: `${n}. ${e.title}`,
-                location: e.pin!,
-                category: "culture",
-                visited: true,
-                label: String(n),
-              }))}
-              path={located.length > 1 ? located.map((c) => c.e.pin!) : undefined}
-              clusterPins={false}
-              selectedKey={sel ?? undefined}
-              onSelect={(key) => choose(key, "map")}
-              focus={focus}
-            />
-            {/* the map's credits, under it (on it they would sit over the day's places) */}
-            <figcaption className={styles.credit}>
-              {MAP_ATTRIBUTION} · <OneMapCredit />
-            </figcaption>
-          </figure>
-        )}
         <ol className={styles.cards}>
           {cards.length === 0 && (
             <li className={styles.card}>

@@ -13,6 +13,7 @@ import { shapeAt, stampDate } from '../parts';
 import Sheet from '../Sheet/Sheet';
 import Stamp from '../Stamp/Stamp';
 import styles from './PlaceSheet.module.css';
+import v2 from './v2Sheet.module.css';
 
 interface PlaceSheetProps {
   stamp: StampData;
@@ -29,7 +30,7 @@ function visitLink(key: string): { to: string; onClick?: () => void } {
   return { to: key.startsWith('story:') ? paths.today : homePlaceHref(key) };
 }
 
-/** M2: tap a stamp → the places you checked in at in that area (culture cards removed in the Discovery redesign). */
+/** M2 (v2 light sheet, owner 9 Nov 2026): tap a stamp → the places you checked in at in that area (culture cards removed in the Discovery redesign). */
 export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
   const { subject } = stamp;
   const [personal] = usePersistentStore(explorePersonalStore);
@@ -44,7 +45,7 @@ export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
   const onMap = !subject.id.startsWith('hunt-');
 
   return (
-    <Sheet title={subject.short} hideTitle onClose={onClose}>
+    <Sheet title={subject.short} hideTitle onClose={onClose} className={v2.sheet}>
       <div className={styles.top}>
         {stamp.collected ? (
           <span className={shapeAt(index) === 'card' ? styles.bigCard : styles.bigRound}>
@@ -81,12 +82,12 @@ export default function PlaceSheet({ stamp, index, onClose }: PlaceSheetProps) {
 
       <div className={styles.actions}>
         {onMap && (
-          <Link to={inNearby} className={stamp.collected ? styles.primary : styles.secondary}>
+          <Link to={inNearby} className={stamp.collected ? v2.primary : v2.secondary}>
             Show on the map
           </Link>
         )}
         {!stamp.collected && (
-          <Link to={inNearby} className={styles.primary}>
+          <Link to={inNearby} className={v2.primary}>
             Find a place to check in
           </Link>
         )}

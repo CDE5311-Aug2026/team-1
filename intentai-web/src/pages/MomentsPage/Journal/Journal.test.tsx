@@ -30,3 +30,24 @@ test('each day has an anchor, so /moments#day-… can open it', () => {
   expect(screen.getByRole('heading', { name: 'Journal' })).toBeInTheDocument();
   expect(document.getElementById('day-2026-11-04')).not.toBeNull();
 });
+
+test("a day's top: the date, the day's map right beneath it, the photo beside them; the map's credit stays", () => {
+  // owner, 9 Nov 2026: "the map is to the left of the high-quality image right beneath the date"
+  explorePersonalStore.set((d) => ({ ...d, places: [visit('curated:sg-artscience-museum', '2026-11-04')] }));
+  render(
+    <MemoryRouter>
+      <Journal />
+    </MemoryRouter>,
+  );
+  const day = document.getElementById('day-2026-11-04')!;
+  const top = day.firstElementChild as HTMLElement;
+  const map = screen.getByRole('application', { name: /^Map of .* 1 place in the order you went$/ });
+  const photo = screen.getByRole('group', { name: /^Places of / });
+  // all three sit in the day's top block, in reading order: date, map, photo; the place list comes after
+  expect(top.contains(map) && top.contains(photo)).toBe(true);
+  const order = [top.querySelector('p'), map, photo];
+  for (let i = 1; i < order.length; i++)
+    expect(order[i - 1]!.compareDocumentPosition(order[i]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(top.textContent).toMatch(/OpenStreetMap contributors/);
+  expect(top.compareDocumentPosition(day.querySelector('ol')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});

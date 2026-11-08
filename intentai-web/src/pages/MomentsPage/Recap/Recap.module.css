@@ -1,5 +1,27 @@
-/* M5 Recap, full screen on the chart: a stack of parchment cards, each photo taped on as a print. */
+/* M5 Recap, full screen. v2 (owner, 9 Nov 2026: "upgrade the moment screens"): on the app's light chart paper (Hunt's
+   archive), a stack of v2 cards, each with its photo; v2 controls. It sets its own colours, so nothing here leans on the
+   page's desk variables. */
+.sheet.sheet::backdrop {
+  background: var(--bg-app);
+}
+
+/* the panel: Sheet's first child */
+.sheet.sheet > div {
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+
+/* the chart paper, fixed behind the screen while it scrolls */
+.ground {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .screen {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -8,7 +30,7 @@
   margin: 0 auto;
   padding: calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
   overflow: hidden;
-  color: var(--cream);
+  color: var(--text-primary);
 }
 
 .top {
@@ -23,16 +45,17 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid rgba(232, 201, 131, 0.35);
-  border-radius: 14px;
-  background: rgba(20, 12, 6, 0.45);
-  color: var(--brass);
+  border: 0;
+  border-radius: 50%;
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
 .mascot {
   object-fit: contain;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 2px 3px rgba(35, 33, 29, 0.2));
 }
 
 .counter {
@@ -43,10 +66,10 @@
   height: 40px;
   margin-left: auto;
   border-radius: 50%;
-  background: rgba(20, 12, 6, 0.45);
-  color: var(--cream);
-  font:
-    400 0.8125rem/1 var(--font-display);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  color: var(--text-primary);
+  font: 600 0.8125rem/1 var(--font-display);
 }
 
 .counter svg {
@@ -54,7 +77,7 @@
   inset: 0;
 }
 
-/* progress: one hairline, sorted cards inked in */
+/* progress: one hairline, sorted cards filled in */
 .segments {
   display: flex;
   gap: 5px;
@@ -65,15 +88,15 @@
   flex: 1;
   height: 3px;
   border-radius: 2px;
-  background: rgba(226, 196, 140, 0.2);
+  background: rgba(35, 33, 29, 0.12);
 }
 
 .segments i.segKnew {
-  background: var(--orange);
+  background: var(--accent);
 }
 
 .segments i.segAgain {
-  background: rgba(242, 232, 213, 0.55);
+  background: var(--v2-muted);
 }
 
 .stack {
@@ -115,9 +138,9 @@
 }
 
 .flipper:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--text-primary);
   outline-offset: 4px;
-  border-radius: 4px;
+  border-radius: var(--v2-r-card);
 }
 
 .face {
@@ -126,12 +149,10 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 4px;
-  color: var(--ink);
-  background: var(--paper);
-  box-shadow:
-    0 18px 36px rgba(0, 0, 0, 0.5),
-    inset 0 0 40px rgba(120, 78, 30, 0.28);
+  border-radius: var(--v2-r-card);
+  color: var(--text-primary);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-bar);
   backface-visibility: hidden;
 }
 
@@ -142,74 +163,43 @@
   padding: 24px 22px;
 }
 
-/* a ruled border on the answer side, like a library card */
-.back::before {
-  content: '';
-  position: absolute;
-  inset: 9px;
-  border: 1px solid rgba(155, 44, 28, 0.25);
-  border-radius: 2px;
-  pointer-events: none;
-}
-
-/* the photo: a print with a cream border, taped at the top */
+/* the photo, as a v2 card's media */
 .photo,
 .photoPaper {
   display: block;
-  width: calc(100% - 32px);
-  height: 44%;
+  width: calc(100% - 16px);
+  height: 46%;
   flex: none;
   box-sizing: border-box;
-  margin: 18px 16px 0;
-  border: 6px solid var(--print);
-  border-bottom-width: 14px;
-  border-radius: 2px;
+  margin: 8px 8px 0;
+  border-radius: var(--v2-r-media);
   object-fit: cover;
-  box-shadow: 0 4px 10px rgba(44, 33, 23, 0.35);
-  rotate: -1deg;
-  filter: sepia(0.15);
 }
 
 .photoPaper {
-  background: repeating-linear-gradient(45deg, rgba(120, 78, 30, 0.08) 0 2px, transparent 2px 9px), #d7c39b;
-}
-
-.front::before {
-  content: '';
-  position: absolute;
-  z-index: 2;
-  top: 8px;
-  left: calc(50% - 30px);
-  width: 60px;
-  height: 18px;
-  background: linear-gradient(180deg, rgba(246, 238, 214, 0.8), rgba(226, 214, 182, 0.72));
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  clip-path: polygon(3% 0, 97% 6%, 100% 30%, 96% 55%, 100% 100%, 2% 94%, 0 60%, 4% 35%);
-  rotate: 3deg;
+  background: var(--v2-surface-sunk);
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   max-width: calc(100% - 24px);
-  color: var(--red-ink);
-  font:
-    italic 400 0.9375rem/1.2 'IM Fell English',
-    Georgia,
-    serif;
+  color: var(--accent-ink);
+  font: 500 0.75rem/1.2 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .chip img {
-  opacity: 0.75;
-  filter: sepia(0.8);
+  opacity: 0.8;
 }
 
 .front .chip {
-  margin: 14px 20px 0;
+  margin: 16px 20px 0;
 }
 
 .back .chip {
@@ -221,12 +211,11 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 4px 20px 16px;
+  padding: 6px 20px 16px;
 }
 
 .question {
-  font:
-    400 1.5rem/1.2 var(--font-display);
+  font: 600 1.5rem/1.2 var(--font-display);
 }
 
 .hint {
@@ -235,23 +224,19 @@
   align-items: center;
   gap: 6px;
   margin-top: auto;
-  color: var(--ink-soft);
-  font:
-    italic 400 0.875rem/1.2 'IM Fell English',
-    Georgia,
-    serif;
+  color: var(--v2-muted);
+  font-size: 0.8125rem;
+  line-height: 1.3;
 }
 
 .hint img {
   opacity: 0.7;
-  filter: sepia(0.8);
 }
 
 .answer {
   position: relative;
-  color: var(--red-ink);
-  font:
-    400 2.25rem/1.05 var(--font-display);
+  color: var(--accent-ink);
+  font: 600 2.25rem/1.05 var(--font-display);
 }
 
 .backText {
@@ -286,26 +271,30 @@
 .knew {
   width: 62px;
   height: 62px;
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.45),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.14);
+  box-shadow: var(--v2-shadow-bar);
 }
 
-/* see it again: a parchment disc */
+/* see it again: a light disc */
 .again {
-  background: var(--paper);
+  background: var(--v2-surface);
 }
 
-/* knew it: orange ink */
+/* knew it: the accent */
 .knew {
-  background: var(--orange);
+  background: var(--accent);
 }
 
 .flip {
   width: 50px;
   height: 50px;
-  border: 1px solid rgba(232, 201, 131, 0.35);
-  background: rgba(20, 12, 6, 0.55);
+  background: var(--text-primary);
+  box-shadow: var(--v2-shadow-card);
+}
+
+.again:active,
+.knew:active,
+.flip:active {
+  transform: scale(0.96);
 }
 
 .again:focus-visible,
@@ -314,7 +303,7 @@
 .close:focus-visible,
 .primary:focus-visible,
 .secondary:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--text-primary);
   outline-offset: 3px;
 }
 
@@ -335,6 +324,9 @@
   place-items: center;
   width: 168px;
   height: 168px;
+  border-radius: 50%;
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
 }
 
 .scoreRing svg {
@@ -343,26 +335,22 @@
 }
 
 .scoreValue {
-  color: var(--cream);
-  font:
-    400 3rem/1 var(--font-display);
+  color: var(--text-primary);
+  font: 600 3rem/1 var(--font-display);
 }
 
 .scoreTitle {
   margin: 22px 0 6px;
-  color: var(--cream);
-  font:
-    400 1.75rem/1.15 var(--font-display);
+  color: var(--text-primary);
+  font: 600 1.75rem/1.15 var(--font-display);
 }
 
 .scoreLine {
   max-width: 280px;
   margin: 0;
-  color: var(--cream-soft);
-  font:
-    italic 400 1rem/1.35 'IM Fell English',
-    Georgia,
-    serif;
+  color: var(--v2-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.4;
 }
 
 .scoreActions {
@@ -373,27 +361,28 @@
   margin-top: 28px;
 }
 
+/* v2 buttons: the accent pill and a quiet surface pill */
 .primary,
 .secondary {
   flex: 1;
-  min-height: 50px;
-  border-radius: 3px;
-  font:
-    400 1.125rem/1 var(--font-display);
+  min-height: 48px;
+  border-radius: 999px;
+  font: 600 1rem/1 var(--font-display);
+  letter-spacing: 0.2px;
   cursor: pointer;
 }
 
 .primary {
   border: 0;
-  background: var(--orange);
-  color: #2c1608;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  background: var(--accent);
+  color: var(--text-primary);
+  box-shadow: var(--v2-shadow-card);
 }
 
 .secondary {
-  border: 1px solid rgba(232, 201, 131, 0.4);
-  background: rgba(20, 12, 6, 0.45);
-  color: var(--cream);
+  border: 1px solid var(--border-strong);
+  background: var(--v2-surface);
+  color: var(--text-primary);
 }
 
 @media (max-height: 700px) {

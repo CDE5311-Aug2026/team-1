@@ -37,9 +37,8 @@ import Recap from "./Recap/Recap";
 import SnapSheet from "./SnapSheet/SnapSheet";
 import styles from "./MomentsPage.module.css";
 
-/** The dark sea-chart colour under the backdrop (as Hunt's). */
-const CHART_BG = "#1d1711";
-/** Hunt's paper materials (grain, stains, fibres) and its sea chart, as CSS variables for the page and its sheets. */
+/** Hunt's paper materials (grain, stains, fibres) and its sea chart, as CSS variables for the page's sheets (the page
+ *  itself sits on the app's chart paper since v2, 9 Nov 2026). */
 const DESK_STYLE = { ...MATERIALS, "--chart": CHART_BACKDROP } as CSSProperties;
 
 type Modal =
@@ -50,7 +49,7 @@ type Modal =
 
 /**
  * Moments (ZIP `moments()`, Figma M1–M5): a passport of the places you checked in, inked by the cards you opened.
- * Dressed as Hunt's desk (1 Nov 2026): parchment pages and pinned prints on a dark antique sea chart.
+ * v2 (9 Nov 2026): on the app's chart paper in the v2 light look, like Passport; the sheets keep Hunt's parchment.
  */
 export default function MomentsPage() {
   const personal = useExplorePersonal();
@@ -98,9 +97,9 @@ export default function MomentsPage() {
   }, [facts, personal.places]);
 
   return (
-    <AppShell background={CHART_BG}>
+    <AppShell>
       <div className={styles.desk} style={DESK_STYLE}>
-        <PageBar title="Moments" tone="dark" />
+        <PageBar title="Moments" tone="light" />
 
         <Journal onSnap={() => setModal({ type: "snap" })} />
 

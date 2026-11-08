@@ -13,6 +13,7 @@ import { recapStore } from '../../../data/moments/recapStore';
 import { TOPIC_ICONS } from '../parts';
 import { Ring } from '../RankSheet/RankSheet';
 import Icon from '../../OnboardingPage/v3/icons';
+import { ChartPaper } from '../../HuntPage/notebook/ChartPaper';
 import Sheet from '../Sheet/Sheet';
 import styles from './Recap.module.css';
 
@@ -21,7 +22,8 @@ const SWIPE = 90;
 /**
  * M5 Recap: a Stack of flip cards (React Bits Stack idea, built on motion). Tap to flip; drag right if you knew it, left
  * to see it again (or use the buttons / arrow keys). Ends on a score ring. Results go to the recap store. On the chart:
- * each card is a parchment page with its photo taped on as a print.
+ * each card is a parchment page with its photo taped on as a print. v2 (owner, 9 Nov 2026): the app's light chart paper behind
+ * (Hunt's archive), the cards as v2 cards, v2 controls.
  */
 export default function Recap({ facts, onClose }: { facts: readonly Fact[]; onClose: () => void }) {
   const [record, setRecord] = usePersistentStore(recapStore);
@@ -57,7 +59,10 @@ export default function Recap({ facts, onClose }: { facts: readonly Fact[]; onCl
   const knewCount = Object.values(round).filter((r) => r === 'knew').length;
 
   return (
-    <Sheet title="Recap" hideTitle variant="full" onClose={onClose}>
+    <Sheet title="Recap" hideTitle variant="full" onClose={onClose} className={styles.sheet}>
+      <span className={styles.ground} aria-hidden="true">
+        <ChartPaper variant="archive" />
+      </span>
       <div
         className={styles.screen}
         onKeyDown={(e) => {
@@ -72,7 +77,7 @@ export default function Recap({ facts, onClose }: { facts: readonly Fact[]; onCl
           </button>
           <img src={mascot} alt="" width={34} height={34} className={styles.mascot} />
           <span className={styles.counter} aria-label={`${Math.min(pos, deck.length)} of ${deck.length} sorted`}>
-            <Ring value={deck.length ? pos / deck.length : 0} size={40} stroke={2.5} track="rgba(232, 201, 131, 0.22)" />
+            <Ring value={deck.length ? pos / deck.length : 0} size={40} stroke={2.5} track="rgba(35, 33, 29, 0.12)" />
             <span aria-hidden="true">
               {Math.min(pos, deck.length)}/{deck.length}
             </span>
@@ -206,7 +211,7 @@ function Score({ knew, total, onAgain, onDone }: { knew: number; total: number; 
   return (
     <div className={styles.score}>
       <span className={styles.scoreRing}>
-        <Ring value={total ? knew / total : 0} size={168} stroke={10} track="rgba(232, 201, 131, 0.16)" />
+        <Ring value={total ? knew / total : 0} size={168} stroke={10} track="rgba(35, 33, 29, 0.1)" />
         <span className={styles.scoreValue}>
           <CountUp to={percent} duration={1} />%
         </span>

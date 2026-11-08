@@ -1,4 +1,5 @@
-/* M4 rank and badges, on the sheet's parchment: serif headings, red-ink marks, earned badges as wax seals. */
+/* M4 rank and badges on the v2 light sheet (v2Sheet.module.css): Oswald headings, the accent for progress, earned
+   badges as filled accent discs. */
 .head {
   display: flex;
   align-items: center;
@@ -27,39 +28,37 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: rgba(255, 249, 230, 0.55);
-  box-shadow: inset 0 0 0 1px rgba(44, 33, 23, 0.18);
+  background: #fff;
+  box-shadow: var(--v2-shadow-card);
 }
 
 .kicker {
   margin: 0;
-  color: var(--red-ink);
-  font:
-    400 0.75rem/1 var(--font-display);
+  color: var(--accent-ink);
+  font: 500 0.6875rem/1 var(--font-mono);
   letter-spacing: 0.16em;
 }
 
 .rank {
   margin: 4px 0 0;
-  color: var(--ink);
-  font:
-    400 2rem/1.05 var(--font-display);
+  color: var(--text-primary);
+  font: 600 2rem/1.05 var(--font-display);
 }
 
 .line {
   margin: 4px 0 0;
-  color: var(--ink-soft);
-  font:
-    italic 400 0.9375rem/1.3 'IM Fell English',
-    Georgia,
-    serif;
+  color: var(--v2-muted);
+  font-size: 0.875rem;
+  line-height: 1.35;
 }
 
 .stepsWrap {
   position: relative;
-  margin: 22px 0 20px;
-  padding: 12px 0 10px;
-  border-block: 1px solid var(--ink-faint);
+  margin: 20px 0 20px;
+  padding: 14px 0 12px;
+  border-radius: var(--v2-r-card);
+  background: #fff;
+  box-shadow: var(--v2-shadow-card);
 }
 
 .steps {
@@ -79,9 +78,8 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  color: var(--ink-soft);
-  font:
-    400 0.9375rem/1.1 var(--font-display);
+  color: var(--v2-muted);
+  font: 500 0.875rem/1.1 var(--font-display);
 }
 
 .stepDot {
@@ -90,25 +88,24 @@
   width: 28px;
   height: 28px;
   box-sizing: border-box;
-  border: 1.5px solid rgba(44, 33, 23, 0.35);
+  border: 1.5px solid var(--border-strong);
   border-radius: 50%;
-  background: var(--paper-color);
-  font:
-    400 0.875rem/1 var(--font-display);
+  background: #fff;
+  font: 600 0.8125rem/1 var(--font-display);
 }
 
 .stepOn .stepDot {
-  border-color: var(--orange);
-  background: var(--orange);
-  color: #2c1608;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--text-primary);
 }
 
 .stepOn {
-  color: var(--ink) !important;
+  color: var(--text-primary) !important;
 }
 
 .steps li[aria-current='step'] .stepLabel {
-  text-decoration: underline 3px var(--orange);
+  text-decoration: underline 3px var(--accent);
   text-underline-offset: 4px;
 }
 
@@ -116,24 +113,23 @@
   position: absolute;
   left: 12.5%;
   right: 12.5%;
-  top: 25px;
+  top: 27px;
   z-index: 0;
   height: 0;
-  border-top: 1.5px dashed rgba(44, 33, 23, 0.3);
+  border-top: 1.5px dashed var(--border-strong);
 }
 
 .track > span {
   display: block;
   height: 2px;
   margin-top: -1.75px;
-  background: var(--orange);
+  background: var(--accent);
 }
 
 .badgesHead {
   margin: 0 0 14px;
-  color: var(--ink);
-  font:
-    400 1.0625rem/1 var(--font-display);
+  color: var(--text-primary);
+  font: 600 1rem/1 var(--font-display);
   letter-spacing: 0.04em;
 }
 
@@ -154,7 +150,7 @@
   text-align: center;
 }
 
-/* not yet: a pencilled ring that fills as you go */
+/* not yet: a sunk disc with a ring that fills as you go */
 .badgeOrb {
   position: relative;
   display: grid;
@@ -163,13 +159,12 @@
   height: 64px;
   margin-bottom: 6px;
   border-radius: 50%;
-  background: rgba(120, 78, 30, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(44, 33, 23, 0.2);
+  background: var(--v2-surface-sunk);
 }
 
 .badgeOrb > img {
-  filter: brightness(0.25) sepia(1);
-  opacity: 0.5;
+  filter: brightness(0.2);
+  opacity: 0.45;
 }
 
 .badgeRing {
@@ -177,56 +172,33 @@
   inset: 0;
 }
 
-/* earned: a red wax seal */
+/* earned: a filled accent disc */
 .earned .badgeOrb {
-  background: radial-gradient(circle at 38% 32%, #c4472f, #9b2c1c 55%, #6e1c10);
-  box-shadow:
-    0 3px 6px rgba(44, 33, 23, 0.45),
-    inset 0 0 0 4px rgba(0, 0, 0, 0.12),
-    inset 0 2px 2px rgba(255, 220, 190, 0.25);
-  rotate: -6deg;
-}
-
-.earned:nth-child(even) .badgeOrb {
-  rotate: 5deg;
+  background: radial-gradient(circle at 36% 30%, var(--accent), var(--accent-ink) 78%);
+  box-shadow: var(--v2-shadow-card);
 }
 
 .earned .badgeOrb > img {
-  filter: none;
-  opacity: 0.95;
+  filter: brightness(0) invert(1);
+  opacity: 1;
 }
 
 .badgeLabel {
-  color: var(--ink);
-  font:
-    400 0.9375rem/1.15 var(--font-display);
+  color: var(--text-primary);
+  font: 500 0.9375rem/1.15 var(--font-display);
 }
 
 .badgeMeta {
-  color: var(--ink-soft);
+  color: var(--v2-muted);
   font-size: 12px;
   line-height: 15px;
 }
 
 .earned .badgeMeta {
-  color: var(--red-ink);
+  color: var(--accent-ink);
+  font-weight: 600;
 }
 
 .done {
   width: 100%;
-  min-height: 50px;
-  border: 0;
-  border-radius: 3px;
-  background: var(--ink);
-  color: var(--cream);
-  font:
-    400 1.125rem/1 var(--font-display);
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 10px rgba(44, 33, 23, 0.35);
-  cursor: pointer;
-}
-
-.done:focus-visible {
-  outline: 2px solid var(--orange);
-  outline-offset: 2px;
 }

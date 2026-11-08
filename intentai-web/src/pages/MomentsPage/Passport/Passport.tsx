@@ -25,7 +25,7 @@ interface PassportProps {
   rank?: { progress: number; label: string; onOpen: () => void };
 }
 
-/** M1: "My places" passport (a parchment page bound on the left), four stamps a page; swipe or use the arrows for the next page. */
+/** M1: "My places" (v2 card, owner 9 Nov 2026), four stamps a page; swipe or use the arrows for the next page. */
 export default function Passport({ stamps: every, progress, today, onOpen, rank }: PassportProps) {
   // your places: where you've checked in, or hold a card from, newest first (buildStamps' order)
   const stamps = every.filter((s) => s.collected || s.openedIds.length > 0);
@@ -45,12 +45,11 @@ export default function Passport({ stamps: every, progress, today, onOpen, rank 
   return (
     <section className={styles.section} aria-labelledby="passport-heading">
       <div className={styles.book}>
-        <span className={styles.spine} aria-hidden="true" />
         <div className={styles.heading}>
           <h2 id="passport-heading">My places</h2>
           {rank && (
             <motion.button type="button" className={styles.rank} onClick={rank.onOpen} aria-label={rank.label} whileTap={{ scale: 0.9 }}>
-              <Ring value={rank.progress} size={30} stroke={2.5} />
+              <Ring value={rank.progress} size={36} stroke={2.5} />
               <Icon name="badge" size={14} />
             </motion.button>
           )}
