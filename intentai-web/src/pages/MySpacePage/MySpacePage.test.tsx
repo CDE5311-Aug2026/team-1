@@ -13,7 +13,6 @@ import {
 } from '../../data/stores';
 import { dismissToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
-import { HUNT_CHALLENGES } from '../../data/hunt/stories';
 import { allStamps } from '../../data/moments/moments';
 import { TOURISM_CATEGORIES, TOURISM_INFO, tourismOf, type TourismCategory } from '../../data/tourism';
 import { huntModeStore } from '../../data/v2Stores';
@@ -61,28 +60,44 @@ test('Passport card: one h1; stamps, volumes and tips come from the real stores;
 });
 
 test('together mode: "Hunting together · Central" chip and the example leaderboard with your own row', () => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-07T10:00:00'));
   huntModeStore.set({ mode: 'together', region: 'central' });
   renderAt(paths.mySpace);
   const holder = screen.getByRole('region', { name: 'Passport holder' });
   expect(within(holder).getByText('Hunting together · Central')).toBeInTheDocument();
   expect(within(holder).queryByText(/public/i)).toBeNull();
-  const board = screen.getByRole('region', { name: /fastest/ });
+  // Home's region leaderboard, named as one, with the animal icons (decorative) beside the names
+  const board = screen.getByRole('region', { name: /^Leaderboard · Central · this weekend$/ });
   expect(within(board).getByText('Example')).toBeInTheDocument();
   expect(within(board).getAllByRole('listitem')).toHaveLength(3);
+  expect(within(board).getByText('Arjun K.')).toBeInTheDocument();
   expect(within(board).getByText(/no time yet/)).toBeInTheDocument();
-  expect(within(board).getByRole('link', { name: 'Open a challenge' })).toHaveAttribute('href', `/hunt#story/${HUNT_CHALLENGES[0].routeId}`);
+  expect(board.querySelectorAll('svg[data-animal][aria-hidden="true"]')).toHaveLength(4);
+  expect(within(board).getByRole('link', { name: 'Leaderboards' })).toHaveAttribute('href', '/hunt?board=speed');
 });
 
-test('solo mode (and unset): no leaderboard and no together chip', () => {
+test('together mode: the leaderboard comes before the Journal', () => {
+  huntModeStore.set({ mode: 'together', region: 'east' });
+  renderAt(paths.mySpace);
+  const board = screen.getByRole('region', { name: /^Leaderboard · East · this weekend$/ });
+  const journal = screen.getByRole('region', { name: 'Journal' });
+  expect(board.compareDocumentPosition(journal) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  const holder = screen.getByRole('region', { name: 'Passport holder' });
+  expect(holder.compareDocumentPosition(board) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+test('solo mode (and unset): no leaderboard and no together chip; the Journal follows the card', () => {
   huntModeStore.set({ mode: 'solo', region: 'central' });
   renderAt(paths.mySpace);
   expect(screen.getByText('Solo explorer')).toBeInTheDocument();
   expect(screen.queryByText(/Hunting together/)).toBeNull();
-  expect(screen.queryByRole('region', { name: /fastest/ })).toBeNull();
+  expect(screen.queryByRole('region', { name: /Leaderboard/ })).toBeNull();
+  expect(screen.getByRole('region', { name: 'Journal' })).toBeInTheDocument();
   cleanup();
   huntModeStore.set({});
   renderAt(paths.mySpace);
-  expect(screen.queryByRole('region', { name: /fastest/ })).toBeNull();
+  expect(screen.queryByRole('region', { name: /Leaderboard/ })).toBeNull();
 });
 
 test('the MRZ lines use real fields only: name, ranking codes, counts, region and mode', () => {

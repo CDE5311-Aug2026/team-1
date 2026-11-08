@@ -1,6 +1,7 @@
 // The Passport tab (v2 boards 13, 14, 15): category chips, the holder's passport card (stamps, volumes and tips from the
-// real stores, the rank as its stamp, hunt mode as a chip, an MRZ line built from real fields only), the journal's recent
-// days, the collection by Tourism 2040 category, and in "hunt together" mode the weekend leaderboard (example players).
+// real stores, the rank as its stamp, hunt mode as a chip, an MRZ line built from real fields only), in "hunt together"
+// mode the region's weekend leaderboard (Home's own card, example players; before the journal, owner 8 Nov 2026), the
+// journal's recent days and the collection by Tourism 2040 category.
 // What the app keeps on file, and the older Passport links, follow below.
 import { useMemo, useState, type CSSProperties } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -51,7 +52,9 @@ import { huntModeStore, isTogether } from "../../data/v2Stores";
 import { PUBLISHED_PLACES } from "../../features/nearby/catalogue";
 import type { CuratedPlace, ExplorePersonalData } from "../../features/nearby/domain";
 import { paths } from "../../routes";
-import { Board } from "../HuntPage/Board";
+import { openChallenges } from "../../data/hunt/challenges";
+import { localToday } from "../../features/nearby/personal";
+import { RegionLeaderboard } from "../TodayPage/HomeSections";
 import { storyRecords } from "../HuntPage/notebook/record";
 import { dayAnchor, useJournalDays } from "../MomentsPage/Journal/useJournalDays";
 import Icon, { type IconName } from "../OnboardingPage/v3/icons";
@@ -491,6 +494,7 @@ export default function MySpacePage() {
   const [cat, setCat] = useCategoryParam();
   // Hunt keeps its records outside the stores; read them once per visit.
   const volumes = useMemo(() => storyRecords().filter((r) => r.finished).length, []);
+  const challenges = useMemo(() => openChallenges(localToday()), []);
 
   const stamps = allStamps(personal, opened, stories).filter((s) => s.collected).length;
   // The same counts as Moments: real cards only, and tips from locals (not the labelled samples).
@@ -517,9 +521,12 @@ export default function MySpacePage() {
           together={together}
           regionName={regionName}
         />
+        {/* "chose to hunt" is Home's rule (huntModeStore mode "together"), with Home's region and card */}
+        {together && (
+          <RegionLeaderboard region={hunt.region ?? "central"} challenges={challenges} titleId="passport-board-title" />
+        )}
         <JournalStrip />
         <Collection profile={profile} personal={personal} cat={cat} />
-        {together && <Board variant="passport" />}
 
         <section className={styles.section} aria-labelledby="passport-file">
           <div className={styles.sectionHead}>
