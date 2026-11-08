@@ -24,6 +24,32 @@
 .overlayDark {
   background: radial-gradient(120% 80% at 50% 35%, #15100b, #040302);
 }
+/* v2 sheets (the field rules): a light frosted scrim, so the chart paper and the page stay faintly in sight */
+.overlaySheet {
+  color: var(--text-primary);
+  background: rgba(35, 33, 29, 0.38);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.overlaySheet .overlayClose {
+  color: var(--text-primary);
+  font: 400 1.625rem/1 var(--font-family);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-bar);
+}
+.overlaySheet .overlayClose:focus-visible {
+  outline: 2px solid var(--v2-surface);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--text-primary);
+}
+:global(html.reduce-motion) .overlaySheet {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .overlaySheet {
+    animation: none;
+  }
+}
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1741,84 +1767,4 @@
   pointer-events: none;
 }
 
-/* the desk's how-to-play card */
-.howTitle {
-  margin: 0 0 18px;
-  font: 500 1.625rem/1.1 var(--font-display, 'Oswald', sans-serif);
-  letter-spacing: 0.01em;
-  color: #2c2117;
-}
-.howMoves {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 14px;
-}
-.howMoves li {
-  display: grid;
-  grid-template-columns: 34px 1fr;
-  gap: 12px;
-  align-items: start;
-}
-.howMoves b {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  color: #f6e7c8;
-  font: 500 1rem/1 var(--font-display, 'Oswald', sans-serif);
-  background: radial-gradient(circle at 35% 30%, #b8452c, #8a2a17 60%, #5e1a0c);
-  box-shadow: 0 2px 4px rgba(60, 20, 5, 0.4);
-}
-.howMoves span {
-  font: 400 1rem/1.5 'IM Fell English', Georgia, serif;
-  color: #33261a;
-}
-.howMoves strong {
-  display: block;
-  margin-bottom: 2px;
-  font: 500 1.0625rem/1.2 var(--font-display, 'Oswald', sans-serif);
-  letter-spacing: 0.02em;
-  color: #2c2117;
-}
-.howFine {
-  margin: 18px 0 0;
-  font: italic 400 0.875rem/1.4 'IM Fell English', Georgia, serif;
-  color: #7a6448;
-}
-/* the card's own close, as wide as the card: it sticks to the screen's foot while the card is taller than the screen
-   (a short phone), so a way out is always in sight besides the round × up top */
-.howGotIt {
-  position: sticky;
-  bottom: calc(env(safe-area-inset-bottom) + 12px);
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  min-height: 48px;
-  margin: 22px 0 0;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #fbe3d2;
-  font: 500 1.0625rem/1 var(--font-display, 'Oswald', sans-serif);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: radial-gradient(circle at 34% 28%, #d4573f, #a3301e 45%, #6e1b10 85%);
-  box-shadow:
-    0 3px 8px rgba(40, 10, 4, 0.45),
-    inset 0 -3px 5px rgba(40, 6, 2, 0.45),
-    inset 0 2px 3px rgba(255, 190, 170, 0.35);
-  text-shadow: 0 -1px 0 rgba(60, 10, 4, 0.6);
-  transition: transform 0.15s;
-}
-.howGotIt:active {
-  transform: scale(0.98);
-}
-.howGotIt:focus-visible {
-  outline: 3px solid #f6dd98;
-  outline-offset: 3px;
-}
+/* the desk's how-to-play card: v2 now, howToPlay.module.css */

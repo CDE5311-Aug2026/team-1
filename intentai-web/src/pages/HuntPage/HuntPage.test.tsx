@@ -30,6 +30,10 @@ test('Hunt opens on the field archive: the rules card once, the chips, a pick an
   const how = screen.getByRole('dialog', { name: 'How to play' });
   expect(within(how).getByText(/play remotely from anywhere/)).toBeInTheDocument();
   expect(within(how).getByText(/characters are fiction/)).toBeInTheDocument();
+  // v2 (owner, 8 Nov 2026): field rules on the chart paper, three moves under a brass rose (decorative, hidden from AT)
+  expect(within(how).getByRole('heading', { name: 'Every stop, three moves.' })).toBeInTheDocument();
+  expect(within(how).getAllByRole('listitem').map((li) => li.querySelector('strong')?.textContent)).toEqual(['Go there', 'Look, then solve', 'Keep the clue']);
+  expect(how.querySelector('svg[aria-hidden="true"] text')).toHaveTextContent('N');
   // two ways out: the round × up top and "Got it", the card's last control
   const buttons = within(how).getAllByRole('button');
   expect(buttons.map((b) => b.getAttribute('aria-label') ?? b.textContent)).toEqual(['Close', 'Got it']);

@@ -1,11 +1,12 @@
 // A lamp-lit layer over the desk for the things you pick up: the unfolded map, the fanned cards, the projector.
+// tone="sheet" (v2): a light frosted scrim over the chart paper and a v2 round close, for v2 sheets (the field rules).
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { lockScroll } from '../../../hooks/scrollLock';
 import { MATERIALS } from './Notebook';
 import styles from './props.module.css';
 
-export function Overlay({ label, onClose, children, tone = 'lamp' }: { label: string; onClose(): void; children: ReactNode; tone?: 'lamp' | 'dark' }) {
+export function Overlay({ label, onClose, children, tone = 'lamp' }: { label: string; onClose(): void; children: ReactNode; tone?: 'lamp' | 'dark' | 'sheet' }) {
   const close = useRef<HTMLButtonElement>(null);
   const last = useRef(onClose);
   last.current = onClose;
@@ -23,7 +24,7 @@ export function Overlay({ label, onClose, children, tone = 'lamp' }: { label: st
   }, []);
   return createPortal(
     <div
-      className={`${styles.overlay} ${tone === 'dark' ? styles.overlayDark : ''}`}
+      className={`${styles.overlay} ${tone === 'dark' ? styles.overlayDark : tone === 'sheet' ? styles.overlaySheet : ''}`}
       role="dialog"
       aria-modal="true"
       aria-label={label}
