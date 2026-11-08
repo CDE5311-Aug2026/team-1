@@ -711,38 +711,84 @@
 
 /* the one-time pointer under the badge: a cream slip with a notch toward the lion */
 .hint {
+  /* in the bar's row, just right of the lion badge (74 px), clear of Settings (44 px) on the right: it points at the lion
+     and never drops over the category chips under the bar */
   position: absolute;
   z-index: 8;
-  top: calc(100% - 4px);
-  left: var(--gutter, 16px);
-  display: inline-flex;
+  top: 0;
+  bottom: 0;
+  left: 82px;
+  height: fit-content;
+  margin-block: auto;
+  max-width: calc(100% - 82px - 52px);
+  width: max-content;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 12px;
-  border: 0;
+  gap: 2px;
+  padding: 0 2px 0 0;
   border-radius: 6px;
   background: linear-gradient(180deg, #faf4e4, #ede2c8);
   color: #2b2118;
-  box-shadow: 0 10px 20px rgba(40, 24, 8, 0.35);
-  font: 400 0.875rem/1.2 Georgia, serif;
-  white-space: nowrap;
-  cursor: pointer;
-  transform-origin: 20px 0;
+  box-shadow: 0 8px 18px rgba(40, 24, 8, 0.3);
 }
+/* the slip's point, aimed at the lion */
 .hint::before {
   content: '';
   position: absolute;
-  top: -6px;
-  left: 22px;
-  width: 12px;
-  height: 12px;
-  background: #faf4e4;
+  top: 50%;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  background: #f4ecd7;
   transform: rotate(45deg);
 }
-.hint b {
-  font: 500 0.9375rem/1 var(--font-display);
+.hintOpen {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 36px;
+  padding: 5px 4px 5px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: 400 0.8125rem/1.15 Georgia, serif;
+  text-align: left;
+  cursor: pointer;
+}
+.hintOpen b {
+  font: 500 0.875rem/1 var(--font-display);
   color: #a33d1f;
 }
-.hint svg {
+.hintHand {
+  flex: none;
   color: #a33d1f;
+}
+.hintClose {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #6b5a47;
+  cursor: pointer;
+}
+.hintOpen:focus-visible,
+.hintClose:focus-visible {
+  outline: 2px solid #a33d1f;
+  outline-offset: 1px;
+}
+/* a narrow phone: no room for the hand beside two lines of text */
+@media (max-width: 359px) {
+  .hintHand {
+    display: none;
+  }
 }
