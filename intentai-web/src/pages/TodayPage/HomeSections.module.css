@@ -594,3 +594,10 @@ span.sectionMeta {
   align-items: center;
   text-decoration: none;
 }
+
+/* the leaderboard's quiet note that its players are samples (no pill in the head) */
+.sampleNote {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}

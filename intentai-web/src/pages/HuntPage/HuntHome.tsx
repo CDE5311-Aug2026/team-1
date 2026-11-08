@@ -306,7 +306,6 @@ function MiniBoard({
     <section className={bd.card} aria-label={title}>
       <button type="button" className={bd.miniHead} onClick={onOpen}>
         <h3>{title}</h3>
-        <span className={bd.example}>Example</span>
       </button>
       <ol className={bd.list}>
         {rows.slice(0, 3).map((r, i) => (
@@ -329,6 +328,8 @@ function MiniBoard({
           </li>
         )}
       </ol>
+      {/* no "Example" pill in the head (owner, 9 Nov 2026); still said to be samples, quietly */}
+      <p className={bd.sampleNote}>Sample players until real times come in</p>
     </section>
   );
 }

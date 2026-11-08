@@ -2,7 +2,7 @@
 // - the region leaderboard card (together mode only; Passport shows the same card). Its fastest three always show, and
 //   each opens Hunt's speed board. Players wear the cute animal
 //   icons from components/Avatar (decorative; names stay as text). The other hunters and their times are Hunt's
-//   SAMPLE players (stories.ts, as on Hunt's boards) and say "Example"; your own line is real (your time in this weekend's challenge,
+//   SAMPLE players (stories.ts, as on Hunt's boards), noted as samples under them; your own line is real (your time in this weekend's challenge,
 //   from your stamps at its stops, if any).
 // - Challenges: Hunt's public challenges (both modes; solo leaves out the "joined" social line, plan B6). "Open" goes to
 //   the challenge's volume (its story, /hunt#story/<route>): the challenge page was retired (second canvas, 8 Nov 2026).
@@ -155,13 +155,14 @@ export function RegionLeaderboard({
             <span>{name} · this weekend</span>
           </span>
         </h2>
-        <Example />
         <Link className={styles.boardLink} to={`${paths.hunt}?board=speed`} aria-label="Leaderboards">
           <Chevron />
         </Link>
       </div>
       {/* the fastest three always show (owner, 8 Nov 2026), also in a region with no challenge open right now */}
       <Podium />
+      {/* no "Example" pill in the head (owner, 9 Nov 2026); the sample players are still said to be samples, quietly */}
+      <p className={styles.sampleNote}>Sample players until real times come in</p>
       {challenge ? (
         <YouLine challenge={challenge} />
       ) : (

@@ -158,7 +158,9 @@ test('Public shows this weekend’s challenge on the Civic District route, the b
   expect(screen.queryByRole('button', { name: 'Coming soon' })).not.toBeInTheDocument();
   // v2: a clean list on the app's paper, the sample players labelled; the 3D hall is one switch away
   expect(screen.getByText('Example players')).toBeInTheDocument();
-  expect(screen.getAllByText('Example').length).toBeGreaterThanOrEqual(3);
+  expect(screen.getAllByText('Example').length).toBeGreaterThanOrEqual(1);
+  // the fastest board says its players are samples under them, not as a pill in its head (owner, 9 Nov 2026)
+  expect(screen.getAllByText('Sample players until real times come in').length).toBeGreaterThanOrEqual(1);
   const hall = screen.getByRole('button', { name: '3D hall' });
   expect(hall).toHaveAttribute('aria-pressed', 'false');
   // the page draws no paper of its own: AppShell's one layer under <body> is the ground

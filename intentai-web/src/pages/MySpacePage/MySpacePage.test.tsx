@@ -69,7 +69,8 @@ test('together mode: "Hunting together · Central" chip and the example leaderbo
   expect(within(holder).queryByText(/public/i)).toBeNull();
   // Home's region leaderboard, named as one, with the animal icons (decorative) beside the names
   const board = screen.getByRole('region', { name: /^Leaderboard · Central · this weekend$/ });
-  expect(within(board).getByText('Example')).toBeInTheDocument();
+  expect(within(board).getByText('Sample players until real times come in')).toBeInTheDocument();
+  expect(within(board).queryByText('Example')).toBeNull();
   expect(within(board).getAllByRole('listitem')).toHaveLength(3);
   expect(within(board).getByText('Arjun K.')).toBeInTheDocument();
   expect(within(board).getByText(/no time yet/)).toBeInTheDocument();

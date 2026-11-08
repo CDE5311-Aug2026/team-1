@@ -416,7 +416,9 @@ describe('v2 sections', () => {
     huntModeStore.set({ mode: 'together', region: 'central' });
     renderHome();
     const board = screen.getByRole('region', { name: 'Leaderboard · Central · this weekend' });
-    expect(within(board).getByText('Example')).toBeInTheDocument();
+    // no "Example" pill in the head (owner, 9 Nov 2026); a quiet note says the players are samples
+    expect(within(board).queryByText('Example')).toBeNull();
+    expect(within(board).getByText('Sample players until real times come in')).toBeInTheDocument();
     expect(within(board).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
       '1Arjun K.96 min fastest',
       '2Hui Wen102 +6',
@@ -448,7 +450,9 @@ describe('v2 sections', () => {
     const entries = within(podium).getAllByRole('link');
     expect(entries).toHaveLength(3);
     for (const e of entries) expect(e).toHaveAttribute('href', '/hunt?board=speed');
-    expect(within(board).getByText('Example')).toBeInTheDocument();
+    // no "Example" pill in the head (owner, 9 Nov 2026); a quiet note says the players are samples
+    expect(within(board).queryByText('Example')).toBeNull();
+    expect(within(board).getByText('Sample players until real times come in')).toBeInTheDocument();
     expect(within(board).queryByText(/^You$/)).toBeNull();
     // the empty card still says it is the leaderboard
     expect(within(board).getByRole('heading', { level: 2 })).toHaveTextContent(/^Leaderboard · East · this weekend$/);
