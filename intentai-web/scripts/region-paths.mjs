@@ -27,18 +27,13 @@ const MX = 111_290.5;
 const MY = 110_574.0;
 
 // Board 25 reference pins: [name, lat, lng, x, y]. Coordinates from data/explore/places.sg.json where the place
-// exists there, otherwise the public address point (marked *).
+// exists there, others are left out (no unsourced coordinates in the repo).
 const REF = [
   ['Marina Bay Sands', 1.2838, 103.85941, 189, 146],
   ['Gardens by the Bay', 1.2816, 103.8636, 201, 150],
-  ['Orchard Road*', 1.3048, 103.8318, 171, 129],
-  ['Resorts World Sentosa*', 1.254, 103.8238, 168, 176],
   ['Jewel Changi Airport', 1.36022, 103.98975, 289, 88],
-  ['Mandai Wildlife Reserve*', 1.4043, 103.793, 141, 57],
   ['Science Centre Singapore', 1.3329, 103.7359, 101, 112],
-  ['Singapore Discovery Centre*', 1.3326, 103.678, 57, 108],
   ['Singapore Botanic Gardens', 1.31039, 103.81636, 158, 121],
-  ['MacRitchie TreeTop Walk*', 1.3473, 103.8143, 159, 95],
   ['Bukit Timah Nature Reserve', 1.35278, 103.77833, 128, 99],
   ['East Coast Park', 1.30317, 103.92060, 244, 116],
   ['Changi Beach Park', 1.38333, 104.00167, 284, 68],
@@ -50,14 +45,7 @@ const REF = [
   ['Jurong Lake Gardens', 1.3339, 103.72746, 86, 100],
   ['Bukit Batok Nature Park', 1.35014, 103.7642, 111, 92],
   ['Singapore Sports Hub', 1.30444, 103.87435, 207, 129],
-  ['Marina Bay Street Circuit*', 1.2914, 103.864, 193, 135],
   ['Fort Canning Park', 1.29373, 103.84716, 180, 138],
-  ['Singapore EXPO*', 1.3348, 103.9617, 268, 107],
-  ['Changi Exhibition Centre*', 1.374, 104.009, 299, 104],
-  ['Marina Bay Cruise Centre*', 1.2667, 103.8656, 206, 162],
-  ['Singapore Cruise Centre*', 1.2645, 103.8205, 160, 158],
-  ['ONE°15 Marina Sentosa Cove*', 1.2453, 103.8414, 181, 180],
-  ['Tanah Merah Ferry Terminal*', 1.3155, 103.9893, 290, 117],
 ];
 
 // ---- fit: x = s·mx + tx, y = −s·my + ty (mx, my in projection metres, y up; no rotation or shear) ----
