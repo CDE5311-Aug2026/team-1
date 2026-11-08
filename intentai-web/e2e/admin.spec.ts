@@ -25,8 +25,8 @@ test('time on pages reaches the dashboard, which passes axe', async ({ page }) =
   await page.waitForTimeout(600);
   await page.getByRole('button', { name: 'Hunt', exact: true }).click();
   await expect(page).toHaveURL(/\/hunt$/);
-  // v2 Hunt (board 10): How to play opens by itself the first time; its button leads on to the field archive
-  await page.getByRole('dialog', { name: 'How to play' }).getByRole('button', { name: 'See the field archive' }).click();
+  // v2 Hunt (board 10): How to play opens by itself the first time; its Got it leads on to the field archive
+  await page.getByRole('dialog', { name: 'How to play' }).getByRole('button', { name: 'Got it' }).click();
   await page.waitForTimeout(600);
   // v2 (plan C6): Moments left the tab bar; the Passport's journal leads to it (its route stays)
   await page.getByRole('button', { name: 'Passport', exact: true }).click();

@@ -30,13 +30,19 @@ test('Hunt opens on the field archive: the rules card once, the chips, a pick an
   const how = screen.getByRole('dialog', { name: 'How to play' });
   expect(within(how).getByText(/play remotely from anywhere/)).toBeInTheDocument();
   expect(within(how).getByText(/characters are fiction/)).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'See the field archive' }));
+  // two ways out: the round × up top and "Got it", the card's last control
+  const buttons = within(how).getAllByRole('button');
+  expect(buttons.map((b) => b.getAttribute('aria-label') ?? b.textContent)).toEqual(['Close', 'Got it']);
+  await userEvent.click(within(how).getByRole('button', { name: 'Got it' }));
   expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
+  // Got it does what × does: the card is seen and does not open by itself again
+  expect(localStorage.getItem('findsg-hunt-how-seen')).toBe('1');
   // the disclosure stays on the page, and the card can be opened again
   expect(screen.getByText(/play remotely from anywhere\. Real places and history; the story and its characters are fiction/)).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'How to play' }));
   expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'See the field archive' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
 
   // six volumes in shelf order, nothing played yet: 0 of the 38 stops
   expect(screen.getByText('6 volumes · 0/38 stamps')).toBeInTheDocument();

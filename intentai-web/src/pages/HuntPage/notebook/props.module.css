@@ -1788,3 +1788,37 @@
   font: italic 400 0.875rem/1.4 'IM Fell English', Georgia, serif;
   color: #7a6448;
 }
+/* the card's own close, as wide as the card: it sticks to the screen's foot while the card is taller than the screen
+   (a short phone), so a way out is always in sight besides the round × up top */
+.howGotIt {
+  position: sticky;
+  bottom: calc(env(safe-area-inset-bottom) + 12px);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 48px;
+  margin: 22px 0 0;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #fbe3d2;
+  font: 500 1.0625rem/1 var(--font-display, 'Oswald', sans-serif);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: radial-gradient(circle at 34% 28%, #d4573f, #a3301e 45%, #6e1b10 85%);
+  box-shadow:
+    0 3px 8px rgba(40, 10, 4, 0.45),
+    inset 0 -3px 5px rgba(40, 6, 2, 0.45),
+    inset 0 2px 3px rgba(255, 190, 170, 0.35);
+  text-shadow: 0 -1px 0 rgba(60, 10, 4, 0.6);
+  transition: transform 0.15s;
+}
+.howGotIt:active {
+  transform: scale(0.98);
+}
+.howGotIt:focus-visible {
+  outline: 3px solid #f6dd98;
+  outline-offset: 3px;
+}

@@ -1,4 +1,5 @@
-// The desk's "?": a field card with the three moves every stop asks for.
+// The desk's "?": a field card with the three moves every stop asks for. It opens by itself on the first visit; it
+// closes with the round × up top or with "Got it" across its foot.
 import { Overlay } from './Overlay';
 import styles from './props.module.css';
 
@@ -26,8 +27,9 @@ export function HowToPlay({ onClose }: { onClose(): void }) {
           ))}
         </ol>
         <p className={styles.howFine}>Real places and history; the story and its characters are fiction.</p>
-        <button type="button" className={styles.waxButton} onClick={onClose}>
-          <span>See the field archive</span>
+        {/* the same as the × up top: closes the card onto the field archive (kept in sight on a short screen) */}
+        <button type="button" className={styles.howGotIt} onClick={onClose}>
+          Got it
         </button>
       </article>
     </Overlay>
