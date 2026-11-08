@@ -46,7 +46,7 @@ function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; 
           <Icon name="back" size={20} />
         </button>
         <h2 className={bd.title}>Leaderboards</h2>
-        <span className={bd.example}>Example players</span>
+        {/* no "Example players" pill top right (owner, 9 Nov 2026): the note under the boards says they are samples */}
       </header>
 
       <div className={bd.seg} role="tablist" aria-label="Board">

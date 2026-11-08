@@ -157,7 +157,9 @@ test('Public shows this weekend’s challenge on the Civic District route, the b
   expect(screen.getByRole('heading', { name: 'A story from your streets' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Coming soon' })).not.toBeInTheDocument();
   // v2: a clean list on the app's paper, the sample players labelled; the 3D hall is one switch away
-  expect(screen.getByText('Example players')).toBeInTheDocument();
+  // no "Example players" pill top right (owner, 9 Nov 2026): a note under the boards says the players are samples
+  expect(screen.queryByText('Example players')).toBeNull();
+  expect(screen.getByText('Other players are samples until the live boards open.')).toBeInTheDocument();
   expect(screen.getAllByText('Example').length).toBeGreaterThanOrEqual(1);
   // the fastest board says its players are samples under them, not as a pill in its head (owner, 9 Nov 2026)
   expect(screen.getAllByText('Sample players until real times come in').length).toBeGreaterThanOrEqual(1);
@@ -192,7 +194,8 @@ test('the boards: explorers by region, and fastest this weekend with a way to jo
   // v2: the challenge carries its category (glyph + label), and the players are labelled as examples
   expect(screen.getByRole('heading', { name: 'Civic District' })).toBeInTheDocument();
   expect(screen.getByText('Attractions')).toBeInTheDocument();
-  expect(screen.getByText('Example players')).toBeInTheDocument();
+  expect(screen.queryByText('Example players')).toBeNull();
+  expect(screen.getByText('Other players are samples until the live boards open.')).toBeInTheDocument();
   expect(screen.getByRole('list', { name: 'Top three, example players' }).children).toHaveLength(3);
 });
 

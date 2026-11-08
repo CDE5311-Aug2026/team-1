@@ -170,14 +170,16 @@ export function PublicTab({
   return (
     <>
       <div className={bd.tools}>
-        {/* the hall's podium shows sample players too: the label stays in sight above it */}
-        <span className={bd.example}>Example players</span>
         <button type="button" className={bd.toggle} aria-pressed={hall} onClick={() => setHall((h) => !h)}>
           3D hall
         </button>
       </div>
       {hall ? (
-        <PublicHall go={go} openRoute={openRoute} explored={explored} onFail={() => setHall(false)} />
+        <>
+          <PublicHall go={go} openRoute={openRoute} explored={explored} onFail={() => setHall(false)} />
+          {/* the hall's podium shows sample players too (said here, not as a pill top right: owner, 9 Nov 2026) */}
+          <p className={bd.note}>Other players are samples until the live boards open.</p>
+        </>
       ) : (
         <PublicFlat go={go} openRoute={openRoute} />
       )}
