@@ -3,6 +3,7 @@
 // observation and a 3D building puzzle, with its paper objects and films), re-dressed in our linen, cards and ink by
 // src/findsg/theme*.css; Public is the community challenges and the boards. The URL says which shows: ?tab=public,
 // ?board=explore|speed; FindSG keeps its own place in the hash (#home, #story/…; an old #short/… link opens the Golden Dome book).
+// v2 (board 10): with no book out, Hunt opens on the light field archive (HuntArchive); ?view=shelf is the old shelf.
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
@@ -13,10 +14,11 @@ import { paths } from '../../routes';
 import { FindSGApp } from '../../findsg';
 import { useCompactStop } from '../../hooks/useCompactStop';
 import { Board } from './Board';
-import { huntStops, HuntHeader, HuntTabs, PublicTab, useExplored } from './HuntHome';
+import { HuntArchive, huntStops, HuntHeader, HuntTabs, PublicTab, useExplored } from './HuntHome';
 import { CHART_BACKDROP } from './notebook/chartBackdrop';
 import { BOOK_TABS, FieldNotebook, openBookAt, reopenBook, useShelfBook } from './notebook/FieldNotebook';
-import { bookOf } from './notebook/Bookshelf';
+import { bookOf, type BookId } from './notebook/Bookshelf';
+import { BOOK_KEY, session } from './notebook/bookSession';
 import nb from './notebook/notebook.module.css';
 import sb from './notebook/storyBook.module.css';
 import { FilmHost } from './notebook/FilmProjector';
@@ -68,6 +70,14 @@ export default function HuntPage() {
   const home = useFindsgHome();
   const location = useLocation();
   const phone = useCompactStop();
+  // the book out on the desk is kept for the visit (a stop's Back writes it before coming home), so read it each time
+  const [, bump] = useState(0);
+  const shelfBook = bookOf(session.get(BOOK_KEY))?.id ?? null;
+  const openBook = (id: BookId) => {
+    reopenBook(id);
+    bump((n) => n + 1);
+    document.documentElement.scrollTop = 0;
+  };
   const go: HuntGo = (next, replace = false) => {
     const q = new URLSearchParams();
     for (const [k, v] of Object.entries(next)) if (v != null) q.set(k, v);
@@ -103,8 +113,16 @@ export default function HuntPage() {
       </AppShell>
     );
 
-  // the Stories tab: the field notebook on the desk; a story or a stop opens FindSG's own game
-  if (home) return <Desk tab={tab} go={go} openRoute={openRoute} />;
+  // Hunt's first sight (v2, board 10): the field archive. A volume opens its book on the desk (the shelf's own book,
+  // with its Story, Map, Clues, Notes and Record tabs); ?view=shelf is the shelf itself; a story or a stop opens
+  // FindSG's own game (#story/…), never gated on location.
+  if (home && !shelfBook && params.get('view') !== 'shelf')
+    return (
+      <AppShell>
+        <HuntArchive go={go} openBook={openBook} openRoute={openRoute} />
+      </AppShell>
+    );
+  if (home) return <Desk tab={tab} go={go} openRoute={openRoute} onPutBack={() => bump((n) => n + 1)} />;
 
   // a story or a stop: a page of the same book, with the book's running head and thumb tabs (owner, 3 Nov 2026: every
   // story looks like its book once opened). On a phone the stop page has its own Clues button, which opens over the
@@ -159,11 +177,26 @@ export default function HuntPage() {
 }
 
 /** Stories: the shelf of story books against the library wall; a book taken down lies open on the desk. */
-function Desk({ tab, go, openRoute }: { tab: 'story' | 'public'; go: HuntGo; openRoute(id: string): void }) {
+function Desk({
+  tab,
+  go,
+  openRoute,
+  onPutBack,
+}: {
+  tab: 'story' | 'public';
+  go: HuntGo;
+  openRoute(id: string): void;
+  /** The book went back on the shelf (Hunt shows the archive again, unless the shelf was asked for). */
+  onPutBack(): void;
+}) {
   const places = useExplored();
   const stops = useMemo(() => huntStops(), []);
   const navigate = useNavigate();
-  const [book, setBook] = useShelfBook();
+  const [book, setShelfBook] = useShelfBook();
+  const setBook = (id: BookId | null) => {
+    setShelfBook(id);
+    if (id == null) onPutBack();
+  };
   return (
     <AppShell background={CHART_BG}>
       <div className={`${styles.screen} ${styles.desk} ${styles.deskHome}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
