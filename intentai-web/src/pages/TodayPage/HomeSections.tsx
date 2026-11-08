@@ -13,7 +13,8 @@ import { Link } from 'react-router-dom';
 import Avatar from '../../components/Avatar/Avatar';
 import CategoryBadge from '../../components/Category/CategoryBadge';
 import CategoryGlyph from '../../components/Category/CategoryGlyph';
-import { placePicture } from '../../data/home/nearbyCards';
+import groundUrl from '../../assets/nearby/sg-ground.webp';
+import { groundCrop, placePicture } from '../../data/home/nearbyCards';
 import { openChallenges, regionChallenge, timerText, useChallengeProgress, type Challenge } from '../../data/hunt/challenges';
 import { dateRange, volumeHref } from '../../data/search/hunt';
 import { SAMPLE_SPEED } from '../../data/hunt/stories';
@@ -274,8 +275,16 @@ export function PickedSection({ filter, here }: { filter: TourismFilter; here: L
                 {pic.src ? (
                   <img src={pic.src} alt="" loading="lazy" />
                 ) : (
-                  <span className={styles.pickTint} aria-hidden="true">
-                    <CategoryGlyph category={category} size={28} color={info.ink} />
+                  // no licensed photo yet (owner, 9 Nov 2026: "does not have an image"): the 2D map around the place, as
+                  // a walk's stops show it, with the category's glyph on a tinted disc over its spot
+                  <span
+                    className={styles.pickGround}
+                    style={{ backgroundImage: `url("${groundUrl}")`, ...groundCrop(place.coordinates, 3200) }}
+                    aria-hidden="true"
+                  >
+                    <span className={styles.pickPin} style={{ background: info.tint, borderColor: info.fill }}>
+                      <CategoryGlyph category={category} size={20} color={info.ink} />
+                    </span>
                   </span>
                 )}
                 <CategoryBadge category={category} className={styles.pickBadge} />

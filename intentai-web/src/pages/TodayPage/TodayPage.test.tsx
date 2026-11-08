@@ -539,6 +539,17 @@ describe('v2 sections', () => {
     expect(within(grid).getAllByRole('listitem')).toHaveLength(16);
   });
 
+  test('Picked for you: a place with no licensed photo yet shows the map around it, not an empty tint', () => {
+    // Marina Bay Cruise Centre has no photo (owner, 9 Nov 2026: "does not have an image")
+    renderHome('/?cat=cru');
+    const grid = screen.getByRole('list', { name: 'Places picked for you' });
+    const card = within(grid).getByRole('link', { name: 'Open Marina Bay Cruise Centre Singapore' });
+    expect(card.querySelector('img')).toBeNull();
+    const ground = card.querySelector<HTMLElement>('[aria-hidden="true"]');
+    expect(ground?.style.backgroundImage).toMatch(/sg-ground/);
+    expect(ground?.style.backgroundSize).toMatch(/%/);
+  });
+
   test('Picked for you: with your position (Locate), the distance shows and the nearest comes first', () => {
     sessionStorage.setItem('intentai:home-here', JSON.stringify({ lat: 1.2806, lng: 103.8448 }));
     renderHome();
