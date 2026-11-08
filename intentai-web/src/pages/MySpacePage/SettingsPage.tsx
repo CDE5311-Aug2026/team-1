@@ -1,8 +1,8 @@
 // Settings, Redesign v2 (boards 16–17): the profile row; Explore (the Tourism 2040 ranking, the hunt region and
-// together/solo, each edited in a sheet with Save/Cancel, plan A8); Language & place (language, home base, Nearby
-// radius); Look & feel (Motion and Text size on their own pages, captions, haptics); More (onboarding, privacy, terms,
+// together/solo, each edited in a sheet with Save/Cancel, plan A8); Language & place (language, home base); Look &
+// feel (Motion and Text size on their own pages, captions, haptics); More (onboarding, privacy, terms,
 // photo credits, feedback); and the user-test restart.
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import { openHelp } from '../../components/HelpCenter/helpStore';
@@ -26,7 +26,6 @@ import { formatBytes, totalBytes } from '../../data/profile/storage';
 import { reduceMotionStore, restartTest, testerStore, versionOf } from '../../data/stores';
 import { TOURISM_INFO, type TourismCategory } from '../../data/tourism';
 import { huntModeStore, type HuntModeState } from '../../data/v2Stores';
-import { RADII_M } from '../../features/nearby/types';
 import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import Icon from '../OnboardingPage/v3/icons';
@@ -36,8 +35,6 @@ import { Kraft, SubHeader, Switch } from './v3/Parts';
 import Sheet from './v3/Sheet';
 import book from './v3/Booklet.module.css';
 import styles from './v3/MySpace.module.css';
-
-const km = (m: number) => `${m / 1000} km`;
 
 /** Up to two letters for the avatar: the first letters of the first two words, or the first two of one word. */
 export function initialsOf(name: string): string {
@@ -128,12 +125,10 @@ export default function SettingsPage() {
   const [hunt, setHunt] = usePersistentStore(huntModeStore);
   const [tester] = usePersistentStore(testerStore);
   const [open, setOpen] = useState<Open>(null);
-  const radiusId = useId();
   const language = languageOf(profile.language);
   const base = areaById(profile.base);
   const ranking = tourismRankingOf(profile);
   const together = hunt.mode === 'together';
-  const radiusIndex = Math.max(0, RADII_M.indexOf(prefs.radiusM));
   const name = tester.name.trim();
   const modeLine = together ? 'hunting together' : 'exploring on your own';
   const close = () => setOpen(null);
@@ -206,35 +201,6 @@ export default function SettingsPage() {
               onClick={() => setOpen('language')}
             />
             <Row icon="pin" tint="att" title="Home base" value={base ? base.name.split(/\s*[&,]\s*/)[0] : 'Not set'} onClick={() => setOpen('base')} />
-            <div className={styles.rowPad}>
-              <div className={styles.sliderHead}>
-                <RowIcon icon="radius" tint="wel" />
-                <label htmlFor={radiusId} className={styles.rowTitle}>
-                  Nearby radius
-                </label>
-                <span className={styles.rowValue}>{km(prefs.radiusM)}</span>
-              </div>
-              <input
-                id={radiusId}
-                type="range"
-                className={styles.range}
-                min={0}
-                max={RADII_M.length - 1}
-                step={1}
-                value={radiusIndex}
-                aria-valuetext={`${prefs.radiusM / 1000} kilometres`}
-                aria-describedby={`${radiusId}-hint`}
-                onChange={(e) => setPrefs((p) => ({ ...p, radiusM: RADII_M[Number(e.target.value)] ?? p.radiusM }))}
-              />
-              <span className={styles.rangeTicks} aria-hidden="true">
-                {RADII_M.map((r) => (
-                  <span key={r}>{km(r)}</span>
-                ))}
-              </span>
-              <span className={styles.rowSub} id={`${radiusId}-hint`}>
-                How far Nearby searches around you or your home base
-              </span>
-            </div>
           </div>
         </Section>
 

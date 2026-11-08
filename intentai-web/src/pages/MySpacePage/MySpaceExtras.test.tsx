@@ -1,11 +1,11 @@
-// Features ported from Team 1's PR #5 into our My Space: text size, Nearby radius, the Licences page,
+// Features ported from Team 1's PR #5 into our My Space: text size (the Nearby radius is retired), the Licences page,
 // page-timing opt-out, data export, the header title and the privacy summary card.
-import { act, fireEvent, screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, expect, test, vi } from 'vitest';
 import placePhotos from '../../data/explore/photos.json';
 import { curatedPlace } from '../../features/nearby/catalogue';
-import { STORAGE_PREFIX } from '../../data/persistentStore';
+import { STORAGE_PREFIX, resetPersistentStores } from '../../data/persistentStore';
 import { DEFAULT_MY_SPACE_PREFS, mySpacePrefsStore, profileV3Store, repairMySpacePrefs } from '../../data/profile/profile';
 import { exportData } from '../../data/profile/storage';
 import { openedCardsStore } from '../../data/stores';
@@ -59,21 +59,32 @@ test('Settings › Text size shows the chosen size and opens its page', async ()
   expect(currentPath()).toBe(paths.mySpaceTextSize);
 });
 
-test('Nearby radius: the slider steps through Explore’s radii and is persisted', () => {
+test('Settings has no Nearby radius any more (the v1 explorer, its only reader, is retired)', () => {
   renderAt(paths.mySpaceSettings);
-  const slider = screen.getByRole('slider', { name: 'Nearby radius' });
-  expect(slider).toHaveAttribute('aria-valuetext', '2 kilometres');
-  fireEvent.change(slider, { target: { value: '2' } });
-  expect(mySpacePrefsStore.get().radiusM).toBe(3000);
-  expect(slider).toHaveAttribute('aria-valuetext', '3 kilometres');
-  expect(JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}my-space-prefs`)!).radiusM).toBe(3000);
+  expect(screen.queryByRole('slider', { name: 'Nearby radius' })).toBeNull();
+  expect(screen.queryByText(/kilometres|\d km$/)).toBeNull();
+  expect(DEFAULT_MY_SPACE_PREFS).not.toHaveProperty('radiusM');
 });
 
 test('older stored preferences keep their choices and gain the new defaults', () => {
   const old = { notify: { localAnswers: true, recaps: false, occasions: false, nearYou: false }, notifyTime: 'morning', captions: false, haptics: true };
   expect(repairMySpacePrefs(old)).toEqual({ ...DEFAULT_MY_SPACE_PREFS, ...old });
-  expect(repairMySpacePrefs({ ...old, usageTiming: false, radiusM: 7 })).toMatchObject({ usageTiming: false, radiusM: DEFAULT_MY_SPACE_PREFS.radiusM });
   expect(repairMySpacePrefs('x')).toBeNull();
+});
+
+test('a stored record from before 8 Nov 2026 still loads: its radiusM is dropped, every other choice kept', () => {
+  const stored = { ...DEFAULT_MY_SPACE_PREFS, captions: false, haptics: true, textSize: 3, usageTiming: false, radiusM: 3000 };
+  const repaired = repairMySpacePrefs(stored);
+  expect(repaired).toEqual({ ...DEFAULT_MY_SPACE_PREFS, captions: false, haptics: true, textSize: 3, usageTiming: false });
+  expect(repaired).not.toHaveProperty('radiusM');
+  // an odd radius (never valid) does not sink the record either
+  expect(repairMySpacePrefs({ ...stored, radiusM: 7 })).toMatchObject({ usageTiming: false, textSize: 3 });
+  // through the store: the record is read (not reset to the defaults) and comes back without the field
+  localStorage.setItem(`${STORAGE_PREFIX}my-space-prefs`, JSON.stringify(stored));
+  resetPersistentStores();
+  const fresh = mySpacePrefsStore.get();
+  expect(fresh).toMatchObject({ captions: false, haptics: true, textSize: 3, usageTiming: false });
+  expect(fresh).not.toHaveProperty('radiusM');
 });
 
 test('Terms & licences: the prototype note, maps, content and terms; photo credits are one link away', async () => {

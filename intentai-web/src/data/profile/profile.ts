@@ -7,7 +7,6 @@ import type { Duration } from '../domain';
 import { createPersistentStore } from '../persistentStore';
 import { culturePrefsStore, explorePersonalStore, onboardingStore, onDataDeleted, profileStore } from '../stores';
 import { isRecord } from '../validate';
-import { DEFAULT_RADIUS_M, isRadius, type RadiusM } from '../../features/nearby/types';
 import { TOURISM_CATEGORIES, isTourismCategory, type TourismCategory } from '../tourism';
 import { huntModeStore, type HuntMode } from '../v2Stores';
 import type { RegionId } from '../ura/ura';
@@ -197,8 +196,6 @@ export interface MySpacePrefs {
   haptics: boolean;
   /** Text size step (TEXT_SCALE): the root font size of the whole app. */
   textSize: TextSize;
-  /** Nearby's default search radius, one of Explore's radii (metres). */
-  radiusM: RadiusM;
   /** Anonymous page timing may leave the phone (Privacy & data). Off: nothing is sent. */
   usageTiming: boolean;
 }
@@ -215,7 +212,6 @@ export const DEFAULT_MY_SPACE_PREFS: MySpacePrefs = {
   captions: true,
   haptics: false,
   textSize: 1,
-  radiusM: DEFAULT_RADIUS_M,
   usageTiming: true,
 };
 
@@ -226,13 +222,14 @@ const isNotifyTime = (v: unknown): v is MySpacePrefs['notifyTime'] => v === 'mor
 export function isMySpacePrefs(value: unknown): value is MySpacePrefs {
   return (
     isRecord(value) &&
+    // an older record still has the retired Nearby radius (8 Nov 2026): repairMySpacePrefs drops it, keeping the rest
+    !('radiusM' in value) &&
     isRecord(value.notify) &&
     Object.keys(DEFAULT_MY_SPACE_PREFS.notify).every((k) => isBool((value.notify as Record<string, unknown>)[k])) &&
     isNotifyTime(value.notifyTime) &&
     isBool(value.captions) &&
     isBool(value.haptics) &&
     isTextSize(value.textSize) &&
-    isRadius(value.radiusM) &&
     isBool(value.usageTiming)
   );
 }
@@ -254,7 +251,6 @@ export function repairMySpacePrefs(value: unknown): MySpacePrefs | null {
     captions: bool(value.captions, d.captions),
     haptics: bool(value.haptics, d.haptics),
     textSize: isTextSize(value.textSize) ? value.textSize : d.textSize,
-    radiusM: isRadius(value.radiusM) ? value.radiusM : d.radiusM,
     usageTiming: bool(value.usageTiming, d.usageTiming),
   };
 }

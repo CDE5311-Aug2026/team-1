@@ -102,8 +102,8 @@ export const TOPICS: HelpTopic[] = [
   {
     id: 'explore',
     q: 'How do I find places near me?',
-    words: ['near', 'nearby', 'near me', 'map', 'explore', 'places', 'where', 'hawker', 'go', 'radius'],
-    a: 'Home shows places in your categories first. Allow location to sort places by distance, or set a home base in Settings. Settings › Nearby radius sets how far Nearby looks around you.',
+    words: ['near', 'nearby', 'near me', 'map', 'explore', 'places', 'where', 'hawker', 'go'],
+    a: 'Home shows places in your categories first. Press My location on Home’s map to see what is near you, within 2 km, or set a home base in Settings.',
     path: '/',
   },
   {

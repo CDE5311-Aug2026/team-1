@@ -96,7 +96,9 @@ test('every existing Settings row is still there, restyled', () => {
   for (const name of [/Motion/, /Text size/, /Redo onboarding/, /Privacy & data/, /Terms & licences/, /Photo credits/]) {
     expect(screen.getByRole('link', { name })).toBeInTheDocument();
   }
-  expect(screen.getByRole('slider', { name: 'Nearby radius' })).toBeInTheDocument();
+  // the Nearby radius went with the v1 Nearby explorer (8 Nov 2026), the only page that read it
+  expect(screen.queryByRole('slider')).toBeNull();
+  expect(screen.queryByText(/Nearby radius/)).toBeNull();
   for (const name of ['Captions on videos', 'Haptics', 'Public hunts']) expect(screen.getByRole('switch', { name })).toBeInTheDocument();
   for (const kicker of ['Explore', 'Language & place', 'Look & feel', 'More']) expect(screen.getByRole('heading', { level: 2, name: kicker })).toBeInTheDocument();
 });
