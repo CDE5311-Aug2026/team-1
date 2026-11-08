@@ -9,7 +9,8 @@ import {
   STOP_PLACES,
   challengeTimer,
   openChallenges,
-  shortDates,
+  readStoryCheckins,
+  regionChallenge,
   stopProgress,
   timerText,
 } from './challenges';
@@ -53,12 +54,47 @@ test('a stop stands at a catalogue place only when its story name names the plac
   }
 });
 
-test('dates read as on the boards', () => {
-  expect(shortDates('2026-11-07', '2026-11-08')).toBe('7–8 Nov');
-  expect(shortDates('2026-11-30', '2026-12-01')).toBe('30 Nov – 1 Dec');
-  expect(shortDates('2026-11-08', '2026-11-08')).toBe('8 Nov');
+test('a challenge is open until its last day is over', () => {
   expect(openChallenges('2026-11-08').map((c) => c.id)).toEqual(['wk45-civic', 'wk46-kampong']);
   expect(openChallenges('2026-11-09').map((c) => c.id)).toEqual(['wk46-kampong']);
+  expect(openChallenges('2026-11-16')).toEqual([]);
+});
+
+test('a region’s challenge: the one running there today, else the next there; none for a region without one', () => {
+  expect(regionChallenge('central', '2026-11-07')?.id).toBe('wk45-civic');
+  expect(regionChallenge('central', '2026-11-08')?.id).toBe('wk45-civic');
+  expect(regionChallenge('central', '2026-11-09')?.id).toBe('wk46-kampong');
+  expect(regionChallenge('central', '2026-11-16')).toBeUndefined();
+  expect(regionChallenge('east', '2026-11-08')).toBeUndefined();
+  // only from the list it is given (Home passes the open ones)
+  expect(regionChallenge('central', '2026-11-08', [])).toBeUndefined();
+});
+
+test('the story’s check-ins read straight from its saves, as loadStoryStops reads them through the game', () => {
+  localStorage.setItem(
+    'findsg-onsite-v1:civic-f1:manual',
+    JSON.stringify({
+      stops: {
+        'civic-f1-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-07T01:00:00.000Z' } },
+        'civic-f1-02': { checkin: { mode: 'preview', confirmedAt: '2026-11-07T01:10:00.000Z' } },
+        'civic-f1-03': { checkin: { mode: 'manual', confirmedAt: 'not a date' } },
+        'civic-f1-04': { checkin: null },
+        'telok-ayer-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-07T01:00:00.000Z' } },
+      },
+    }),
+  );
+  localStorage.setItem(
+    'findsg-onsite-v1:civic-f1:preview',
+    JSON.stringify({ stops: { 'civic-f1-01': { checkin: { mode: 'preview', confirmedAt: '2026-11-06T23:00:00.000Z' } }, 'civic-f1-05': { checkin: { mode: 'preview', confirmedAt: '2026-11-07T02:00:00.000Z' } } } }),
+  );
+  const got = readStoryCheckins('civic-f1');
+  expect(Object.fromEntries(Object.entries(got).map(([k, v]) => [k, v.checkedAt]))).toEqual({
+    'civic-f1-01': '2026-11-06T23:00:00.000Z',
+    'civic-f1-05': '2026-11-07T02:00:00.000Z',
+  });
+  localStorage.setItem('findsg-onsite-v1:civic-f1:manual', '{nope');
+  localStorage.removeItem('findsg-onsite-v1:civic-f1:preview');
+  expect(readStoryCheckins('civic-f1')).toEqual({});
 });
 
 test('the clock runs from the first stamp to the last', () => {

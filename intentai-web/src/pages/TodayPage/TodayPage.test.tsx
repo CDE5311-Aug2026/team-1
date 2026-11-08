@@ -412,19 +412,61 @@ describe('v2 sections', () => {
   afterEach(() => vi.useRealTimers());
 
   test('together: the region leaderboard (example players, labelled) and the joined line on challenges', () => {
-    huntModeStore.set({ mode: 'together', region: 'east' });
+    huntModeStore.set({ mode: 'together', region: 'central' });
     renderHome();
-    const board = screen.getByRole('region', { name: 'East · this weekend' });
+    const board = screen.getByRole('region', { name: 'Central · this weekend' });
     expect(within(board).getByText('Example')).toBeInTheDocument();
     expect(within(board).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
       'A1Arjun K.96 min fastest',
       'H2Hui Wen102 +6',
       'F3Farid109 +13',
     ]);
-    expect(within(board).getByText(/no time yet\. Join a challenge\./)).toBeInTheDocument();
+    expect(within(board).getByText(/no time yet\. Open a challenge\./)).toBeInTheDocument();
     const civic = screen.getByRole('article', { name: 'Civic District' });
     expect(within(civic).getByText(/7–8 Nov · 8 stops · 214 joined/)).toBeInTheDocument();
     expect(within(civic).getByText('Example')).toBeInTheDocument();
+  });
+
+  test('the board is the region’s: a region with no open challenge says so, with no example players', () => {
+    huntModeStore.set({ mode: 'together', region: 'east' });
+    renderHome();
+    const board = screen.getByRole('region', { name: 'East · this weekend' });
+    expect(within(board).getByText(/No challenge is open in East right now\./)).toBeInTheDocument();
+    expect(within(board).getByRole('link', { name: 'See all challenges in Hunt' })).toHaveAttribute('href', '/hunt');
+    expect(within(board).queryByRole('list')).toBeNull();
+    expect(within(board).queryByText('Example')).toBeNull();
+    expect(within(board).queryByText(/^You$/)).toBeNull();
+  });
+
+  test('your line counts the story’s own check-ins (Hunt), read from its save without the game, and again on return', async () => {
+    huntModeStore.set({ mode: 'together', region: 'central' });
+    // wk45 Civic District (central): two stops checked in through Hunt, 96 minutes apart; a preview stamp under the
+    // wrong mode does not count
+    const save = (stops: Record<string, unknown>) => localStorage.setItem('findsg-onsite-v1:civic-f1:manual', JSON.stringify({ stops }));
+    save({
+      'civic-f1-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-07T01:00:00.000Z' } },
+      'civic-f1-03': { checkin: { mode: 'preview', confirmedAt: '2026-11-07T01:30:00.000Z' } },
+    });
+    renderHome();
+    const board = screen.getByRole('region', { name: 'Central · this weekend' });
+    expect(within(board).getByText(/clock running in Civic District\./)).toBeInTheDocument();
+    save({
+      'civic-f1-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-07T01:00:00.000Z' } },
+      'civic-f1-02': { checkin: { mode: 'manual', confirmedAt: '2026-11-07T02:36:00.000Z' } },
+    });
+    window.dispatchEvent(new Event('focus'));
+    expect(await within(board).findByText(/1 h 36 min in Civic District so far\./)).toBeInTheDocument();
+  });
+
+  test('a challenge whose days have passed leaves the board: the region’s next one takes it', async () => {
+    vi.setSystemTime(new Date('2026-11-09T10:00:00'));
+    huntModeStore.set({ mode: 'together', region: 'central' });
+    renderHome();
+    const board = screen.getByRole('region', { name: 'Central · this weekend' });
+    expect(within(board).getByText(/no time yet\. Open a challenge\./)).toBeInTheDocument();
+    localStorage.setItem('findsg-onsite-v1:kampong-gelam:manual', JSON.stringify({ stops: { 'kampong-gelam-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-09T01:00:00.000Z' } } } }));
+    window.dispatchEvent(new Event('focus'));
+    expect(await within(board).findByText(/clock running in Kampong Gelam\./)).toBeInTheDocument();
   });
 
   test('solo: no leaderboard, challenges without the social line', () => {

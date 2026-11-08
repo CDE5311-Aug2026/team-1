@@ -165,6 +165,22 @@
   color: var(--v2-muted);
 }
 
+/* a region with no open challenge: said plainly, with the way to Hunt (a 44 px tall link) */
+.boardEmpty {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 18px;
+  color: var(--v2-muted);
+}
+
+.boardEmpty a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
 .you b {
   color: var(--text-primary);
 }

@@ -10,8 +10,8 @@ import { Link } from 'react-router-dom';
 import CategoryBadge from '../../components/Category/CategoryBadge';
 import CategoryGlyph from '../../components/Category/CategoryGlyph';
 import { placePicture } from '../../data/home/nearbyCards';
-import { openChallenges, shortDates, timerText, useChallengeProgress, type Challenge } from '../../data/hunt/challenges';
-import { volumeHref } from '../../data/search/hunt';
+import { openChallenges, regionChallenge, timerText, useChallengeProgress, type Challenge } from '../../data/hunt/challenges';
+import { dateRange, volumeHref } from '../../data/search/hunt';
 import { SAMPLE_SPEED } from '../../data/hunt/stories';
 import { tourismOrder, profileV3Store } from '../../data/profile/profile';
 import { usePersistentStore } from '../../data/persistentStore';
@@ -54,10 +54,11 @@ export function ChallengeBook({ c }: { c: Challenge }) {
   );
 }
 
-/** Your own line: real, from your stamps at this weekend's challenge's catalogue stops (Home never loads the game). */
+/** Your own line: real, from your stamps in the region's challenge: its catalogue stops and the story's own check-ins,
+ *  read from the saved games (Home never loads the game), again each time you come back to Home. */
 function YouLine({ challenge }: { challenge: Challenge | undefined }) {
   const progress = useChallengeProgress(challenge, false);
-  let text = 'no time yet. Join a challenge.';
+  let text = 'no time yet. Open a challenge.';
   if (challenge && progress) {
     const t = progress.timer;
     if (t.kind === 'minutes' || t.kind === 'days') text = `${timerText(t)} in ${challenge.title}${t.finished ? '' : ' so far'}.`;
@@ -78,9 +79,44 @@ function YouLine({ challenge }: { challenge: Challenge | undefined }) {
   );
 }
 
+/** The fastest three: Hunt's SAMPLE players (stories.ts), labelled "Example" in the card's head. */
+function Podium() {
+  const top = SAMPLE_SPEED.slice(0, 3);
+  return (
+    <ol className={styles.podium} aria-label="Fastest (example players)">
+      {top.map((r, i) => (
+        <li key={r.name} className={styles.podiumRow}>
+          <span className={styles.face} style={{ '--medal': MEDAL[i] } as CSSProperties} aria-hidden="true">
+            {r.name[0]}
+            <span className={styles.rank}>{i + 1}</span>
+          </span>
+          <span className={styles.who}>
+            <span className={styles.whoName}>{r.name}</span>
+            <span className={i === 0 ? `${styles.whoTime} ${styles.whoBest}` : styles.whoTime}>
+              {i === 0 ? (
+                <>
+                  {r.value} min <span className={styles.soft}>fastest</span>
+                </>
+              ) : (
+                <>
+                  {r.value} <span className={styles.soft}>+{r.value - top[0].value}</span>
+                </>
+              )}
+            </span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/**
+ * The region's board for today. Its challenge is the one open there (running now, else the next to open), and your
+ * line is your time in that one; a region with no open challenge says so (no example players either).
+ */
 export function RegionLeaderboard({ region, challenges }: { region: RegionId; challenges: readonly Challenge[] }) {
   const name = uraRegion(region)?.name ?? 'Central';
-  const top = SAMPLE_SPEED.slice(0, 3);
+  const challenge = regionChallenge(region, localToday(), challenges);
   return (
     <section className={styles.board} aria-labelledby="home-board-title">
       <div className={styles.boardHead}>
@@ -90,36 +126,21 @@ export function RegionLeaderboard({ region, challenges }: { region: RegionId; ch
           </svg>
           <span>{name} · this weekend</span>
         </h2>
-        <Example />
+        {challenge && <Example />}
         <Link className={styles.boardLink} to={`${paths.hunt}?board=speed`} aria-label="Leaderboards">
           <Chevron />
         </Link>
       </div>
-      <ol className={styles.podium} aria-label="Fastest (example players)">
-        {top.map((r, i) => (
-          <li key={r.name} className={styles.podiumRow}>
-            <span className={styles.face} style={{ '--medal': MEDAL[i] } as CSSProperties} aria-hidden="true">
-              {r.name[0]}
-              <span className={styles.rank}>{i + 1}</span>
-            </span>
-            <span className={styles.who}>
-              <span className={styles.whoName}>{r.name}</span>
-              <span className={i === 0 ? `${styles.whoTime} ${styles.whoBest}` : styles.whoTime}>
-                {i === 0 ? (
-                  <>
-                    {r.value} min <span className={styles.soft}>fastest</span>
-                  </>
-                ) : (
-                  <>
-                    {r.value} <span className={styles.soft}>+{r.value - top[0].value}</span>
-                  </>
-                )}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ol>
-      <YouLine challenge={challenges[0]} />
+      {challenge ? (
+        <>
+          <Podium />
+          <YouLine challenge={challenge} />
+        </>
+      ) : (
+        <p className={styles.boardEmpty}>
+          No challenge is open in {name} right now. <Link to={paths.hunt}>See all challenges in Hunt</Link>
+        </p>
+      )}
     </section>
   );
 }
@@ -144,7 +165,7 @@ function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
           <Link to={volume}>{c.title}</Link>
         </h3>
         <span className={styles.challengeMeta}>
-          {shortDates(c.from, c.to)} · {c.stops.length} stops
+          {dateRange(c.from, c.to)} · {c.stops.length} stops
           {together && c.example.players > 0 ? ` · ${c.example.players} joined` : ''}
         </span>
         <div className={styles.challengeFoot}>

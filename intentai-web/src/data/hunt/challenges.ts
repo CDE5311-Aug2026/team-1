@@ -15,6 +15,7 @@ import { useExplorePersonal } from '../../features/nearby/actions';
 import type { ExplorePersonalData } from '../../features/nearby/domain';
 import pins from './stopPins.json';
 import { HUNT_CHALLENGES, type HuntChallenge, type HuntRouteId } from './stories';
+import { SAVES_CLEARED } from '../deviceKeys';
 
 /**
  * Story stops that stand at a published catalogue place, so a check-in at that place counts for the stop. Reviewed by
@@ -113,20 +114,19 @@ export function openChallenges(today: string): Challenge[] {
   return CHALLENGES.filter((c) => c.to >= today);
 }
 
+/** The region's challenge for today: the one running now, else the next to open there; undefined when it has none. */
+export function regionChallenge(region: RegionId, today: string, list: readonly Challenge[] = CHALLENGES): Challenge | undefined {
+  return list
+    .filter((c) => c.to >= today && c.region === region)
+    .sort((a, b) => a.from.localeCompare(b.from) || a.id.localeCompare(b.id))[0];
+}
+
 // ---- dates ----
-const MONTH = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// Challenge dates ("7–8 Nov") read through one helper everywhere: dateRange in search/hunt.ts.
 const parts = (iso: string) => {
   const [y, m, d] = iso.split('-').map(Number);
   return { y, m, d };
 };
-
-/** "7–8 Nov", "30 Nov – 1 Dec", "8 Nov" */
-export function shortDates(from: string, to: string): string {
-  const a = parts(from);
-  const b = parts(to);
-  if (from === to) return `${a.d} ${MONTH[a.m - 1]}`;
-  return a.m === b.m ? `${a.d}–${b.d} ${MONTH[b.m - 1]}` : `${a.d} ${MONTH[a.m - 1]} – ${b.d} ${MONTH[b.m - 1]}`;
-}
 
 // ---- stamps and the clock ----
 /** One stop's stamp: an exact time (the story's own check-in) or only a day (a place check-in keeps the date). */
@@ -198,6 +198,37 @@ export async function loadStoryStops(routeId: HuntRouteId): Promise<Record<strin
   return out;
 }
 
+/**
+ * The story's check-ins straight from its saved games, without loading FindSG: the same records loadStoryStops reads
+ * through the game (`findsg-onsite-v1:<route>:<manual|preview>`, a check-in counting only under its own mode, the
+ * earliest time kept). Home uses this; stop names need the game, so they are left out.
+ */
+export function readStoryCheckins(routeId: HuntRouteId): Record<string, StoryStop> {
+  const times = new Map<string, string[]>();
+  for (const mode of ['manual', 'preview'] as const) {
+    let raw: unknown = null;
+    try {
+      raw = JSON.parse(localStorage.getItem(`findsg-onsite-v1:${routeId}:${mode}`) ?? 'null');
+    } catch {
+      continue;
+    }
+    const stops = (raw as { stops?: unknown } | null)?.stops;
+    if (typeof stops !== 'object' || stops === null || Array.isArray(stops)) continue;
+    for (const [id, record] of Object.entries(stops as Record<string, unknown>)) {
+      const checkin = (record as { checkin?: { mode?: unknown; confirmedAt?: unknown } | null } | null)?.checkin;
+      const at = checkin?.confirmedAt;
+      if (!id.startsWith(`${routeId}-`) || checkin?.mode !== mode || typeof at !== 'string' || Number.isNaN(Date.parse(at))) continue;
+      times.set(id, [...(times.get(id) ?? []), new Date(at).toISOString()]);
+    }
+  }
+  const out: Record<string, StoryStop> = {};
+  for (const [id, list] of times) out[id] = { name: '', address: '', checkedAt: list.sort()[0] };
+  return out;
+}
+
+/** After these the saved games may have changed: back on the page, another tab, a story check-in, Delete all. */
+const REREAD_ON = ['focus', 'pageshow', 'storage', 'findsg:onsite-event', SAVES_CLEARED] as const;
+
 export interface StopProgress {
   stop: ChallengeStop;
   name?: string;
@@ -219,10 +250,29 @@ export function stopProgress(c: Challenge, story: Record<string, StoryStop> | nu
   });
 }
 
-/** Stops with your stamps; the story's names and check-ins arrive a moment later (when `withStory`). */
+/**
+ * Stops with your stamps. With `withStory` the story's names and check-ins arrive a moment later (FindSG loads);
+ * without it the check-ins are read from the saved games at once (readStoryCheckins), and again each time you come
+ * back to the page.
+ */
 export function useChallengeProgress(c: Challenge | undefined, withStory = true) {
   const personal = useExplorePersonal();
   const [story, setStory] = useState<Record<string, StoryStop> | null>(null);
+  const [saved, setSaved] = useState<Record<string, StoryStop> | null>(() => (c && !withStory ? readStoryCheckins(c.routeId) : null));
+  useEffect(() => {
+    if (!c || withStory) return undefined;
+    const reread = () => setSaved(readStoryCheckins(c.routeId));
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') reread();
+    };
+    reread();
+    for (const e of REREAD_ON) window.addEventListener(e, reread);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      for (const e of REREAD_ON) window.removeEventListener(e, reread);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [c, withStory]);
   useEffect(() => {
     if (!c || !withStory) return undefined;
     let live = true;
@@ -235,8 +285,8 @@ export function useChallengeProgress(c: Challenge | undefined, withStory = true)
   }, [c, withStory]);
   return useMemo(() => {
     if (!c) return null;
-    const stops = stopProgress(c, story, personal);
+    const stops = stopProgress(c, withStory ? story : saved, personal);
     const stamps = stops.flatMap((s) => (s.stamp ? [s.stamp] : []));
     return { stops, stamped: stamps.length, timer: challengeTimer(stamps, c.stops.length), storyLoaded: !!story };
-  }, [c, story, personal]);
+  }, [c, story, saved, withStory, personal]);
 }
