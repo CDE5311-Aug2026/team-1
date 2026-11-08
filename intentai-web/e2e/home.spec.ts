@@ -134,8 +134,11 @@ test('region → areas → places → the place pops up over Home; Back closes i
   const first = row(page, 'Clementi places').locator('[aria-current="true"]');
   const name = (await first.getAttribute('aria-label'))!.split(', ')[0];
   await expect(first).toBeVisible();
-  // the keyboard way in: Enter (↵) opens the current place (the check-in test below taps a pill)
-  await page.locator('body').press('Enter');
+  // the keyboard way in: the rail's ↵ key opens the current place (the check-in test below taps a pill). It is
+  // focused and pressed with Enter: the EARTH ONLINE 3D city is a frame that can hold the page's focus in WebKit.
+  const enterKey = tools(page).getByRole('button', { name: `Open ${name}` });
+  await enterKey.focus();
+  await enterKey.press('Enter');
   const sheet = page.getByRole('dialog', { name });
   await expect(sheet).toBeVisible();
   await expect(sheet.getByRole('button', { name: /Check in/ })).toBeVisible();
@@ -198,6 +201,8 @@ for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 700 });
     await openHome(page);
     const map = page.getByRole('application', { name: /planning areas/ });
+    // the map itself, not its loading stand-in (same name): its badges are in
+    await expect(page.getByRole('button', { name: /^Region \d/ })).toHaveCount(5);
     await expect(map).toBeVisible();
     await map.evaluate((el) => el.scrollIntoView({ block: 'center' }));
     const bar = await box(page, tabBarSearch(page));
