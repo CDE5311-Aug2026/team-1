@@ -162,11 +162,9 @@ test('an open place is a page of its own: the tab bar steps away and comes back 
   expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument();
 });
 
-test('the event card opens the holiday page; the bell opens notices', async () => {
-  const user = userEvent.setup();
+test('v2: Home has no holiday/date card (owner, 8 Nov)', () => {
   renderHome();
-  await user.click(screen.getByRole('button', { name: /Deepavali long weekend/ }));
-  expect(screen.getByText('holiday page')).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /Deepavali long weekend/ })).not.toBeInTheDocument();
 });
 
 test('the map credits name URA and the open data licence, and OneMap for the street map', async () => {

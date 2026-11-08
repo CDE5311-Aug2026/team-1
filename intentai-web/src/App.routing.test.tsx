@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, test, vi } from 'vitest';
 import App from './App';
 
-test('default route shows Home: the regions deck and the holiday event', () => {
+test('default route shows Home: the regions deck, no holiday card', () => {
   render(
     <MemoryRouter useTransitions={false} initialEntries={['/']}>
       <App />
@@ -12,7 +12,7 @@ test('default route shows Home: the regions deck and the holiday event', () => {
   );
   expect(screen.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeInTheDocument();
   expect(screen.getByRole('region', { name: 'Regions' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /Deepavali long weekend/ })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /Deepavali long weekend/ })).not.toBeInTheDocument();
 });
 
 test('the v2 tab bar is Home, Hunt, Passport plus Search; Hunt opens FindSG', async () => {

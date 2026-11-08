@@ -46,9 +46,11 @@ test('[Today + streak] opening the app does not add a day; reading the holiday d
   const now = new Date();
   const yesterday = todayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
   streakStore.set({ date: yesterday, count: 2 });
-  renderApp('/');
+  const home = renderApp('/');
   expect(streakStore.get()).toEqual({ date: yesterday, count: 2 });
-  await userEvent.click(screen.getByRole('button', { name: /Deepavali long weekend/ }));
+  home.unmount();
+  // v2: Home has no holiday card; the holiday page is still a route of its own
+  renderApp('/holidays/deepavali');
   expect(screen.getByTestId('pathname')).toHaveTextContent(/^\/holidays\/deepavali$/);
   expect(streakStore.get()).toEqual({ date: todayKey(), count: 3 });
 });

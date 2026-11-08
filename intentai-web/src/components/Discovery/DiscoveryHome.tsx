@@ -18,7 +18,6 @@ import {
   useState,
 } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { todaysHoliday } from "../../data/holiday";
 import {
   ALL_HOME_PLACES,
   HOME_BASE,
@@ -59,7 +58,6 @@ import { useExplorePersonal } from "../../features/nearby/actions";
 import { localToday } from "../../features/nearby/personal";
 import { toXY } from "../../features/nearby/map/projection";
 import { showToast } from "../../hooks/useToast";
-import { paths } from "../../routes";
 import PageBar from "../PageBar/PageBar";
 import { PlaceCarousel } from "../PlaceCarousel/PlaceCarousel";
 import type { CoverItem } from "./CoverFlow3D";
@@ -159,7 +157,6 @@ function CoverFlow3D(props: Parameters<typeof CoverFlow3DLazy>[0]) {
 }
 
 /** "Sat 7 Nov": the calendar card's day and month. */
-const [, eventDay, eventMonth] = todaysHoliday.today.split(" ");
 
 /** Card band colours by unlock status (as on the map). */
 const SHAPE_COLOR = {
@@ -479,7 +476,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
 
   // The map stretches (owner, 31 Oct 2026: "the screen can stretch"): drag the tab at its top up and the picture card
   // above folds away to give the map its room; drag it down (or tap the tab) to bring the card back.
-  const eventRef = useRef<HTMLButtonElement>(null);
   // a place is open: its 3D view is the top of the notebook's first page, and turns away with it
   const deviceRef = useRef<HTMLDivElement>(null);
   const [mapAway, setMapAway] = useState(false);
@@ -521,7 +517,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
       return 0;
     }
   }); // 0 (card shown) … 1 (card folded)
-  const [gripping, setGripping] = useState(false);
   const grip = useRef<{ y: number; g: number; moved: boolean } | null>(null);
   const gripDragged = useRef(false);
   const setTall = (on: boolean) => {
@@ -534,11 +529,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   };
   const gripProps = {
     onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
-      if (grow === 0 && eventRef.current)
-        eventH.current = eventRef.current.offsetHeight || 66;
       grip.current = { y: e.clientY, g: grow, moved: false };
       e.currentTarget.setPointerCapture?.(e.pointerId);
-      setGripping(true);
     },
     onPointerMove: (e: React.PointerEvent<HTMLButtonElement>) => {
       const g = grip.current;
@@ -551,7 +543,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     onPointerUp: () => {
       const g = grip.current;
       grip.current = null;
-      setGripping(false);
       if (!g) return;
       if (!g.moved) return; // a tap: the click toggles
       gripDragged.current = true;
@@ -560,7 +551,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     },
     onPointerCancel: () => {
       grip.current = null;
-      setGripping(false);
       setTall(grow > 0.5);
     },
   };
@@ -1050,43 +1040,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
           {bar}
         </div>
           {top}
-          <button
-            ref={eventRef}
-            type="button"
-            className={
-              gripping ? styles.event : `${styles.event} ${styles.eventFold}`
-            }
-            onClick={() => navigate(paths.holiday)}
-            aria-label={`${todaysHoliday.cardTitle}, ${todaysHoliday.today}`}
-            aria-hidden={grow === 1 ? true : undefined}
-            tabIndex={grow === 1 ? -1 : undefined}
-            style={
-              grow > 0
-                ? {
-                    height: (1 - grow) * eventH.current,
-                    marginTop: -10 * grow,
-                    opacity: Math.max(0, 1 - grow * 1.6),
-                    visibility: grow === 1 ? "hidden" : undefined,
-                  }
-                : undefined
-            }
-          >
-            {/* the first picture on Home: ahead of the 3D map's ground in the queue (React 18 spells the attribute in lower case) */}
-            <img
-              className={styles.eventImg}
-              src={todaysHoliday.image.src}
-              alt=""
-              {...{ fetchpriority: "high" }}
-            />
-            <span className={styles.eventText}>
-              <span className={styles.eventTitle}>{todaysHoliday.name}</span>
-              <span className={styles.eventLine}>{todaysHoliday.cardLine}</span>
-            </span>
-            <span className={styles.eventDate}>
-              <span className={styles.eventDay}>{eventDay}</span>
-              <span className={styles.eventMonth}>{eventMonth}</span>
-            </span>
-          </button>
         </>
       )}
 
