@@ -513,3 +513,10 @@ span.sectionMeta {
   font-weight: 500;
   cursor: pointer;
 }
+
+/* "Open" (second canvas): a link to the challenge's volume, in the Join button's place and shape */
+.open {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}

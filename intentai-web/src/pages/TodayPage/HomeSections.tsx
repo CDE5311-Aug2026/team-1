@@ -1,23 +1,17 @@
 // The v2 Home sections around the kept 3D map (boards 05 Home A "hunting together" and 11 Home B "solo"):
 // - the region leaderboard card (together mode only). The other hunters and their times are Hunt's SAMPLE players
-//   (stories.ts, as on Hunt's boards) and say "Example"; your own line is real (joined or not, your time if any).
-// - Challenges: Hunt's public challenges (both modes; solo leaves out the "joined" social line, plan B6).
+//   (stories.ts, as on Hunt's boards) and say "Example"; your own line is real (your time in this weekend's challenge,
+//   from your stamps at its stops, if any).
+// - Challenges: Hunt's public challenges (both modes; solo leaves out the "joined" social line, plan B6). "Open" goes to
+//   the challenge's volume (its story, /hunt#story/<route>): the challenge page was retired (second canvas, 8 Nov 2026).
 // - Picked for you: real published places by your categories, then distance when Locate has found you.
 import { useMemo, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import CategoryBadge from '../../components/Category/CategoryBadge';
 import CategoryGlyph from '../../components/Category/CategoryGlyph';
 import { placePicture } from '../../data/home/nearbyCards';
-import {
-  joinChallenge,
-  leaveChallenge,
-  openChallenges,
-  shortDates,
-  timerText,
-  useChallengeProgress,
-  useJoinedChallenges,
-  type Challenge,
-} from '../../data/hunt/challenges';
+import { openChallenges, shortDates, timerText, useChallengeProgress, type Challenge } from '../../data/hunt/challenges';
+import { volumeHref } from '../../data/search/hunt';
 import { SAMPLE_SPEED } from '../../data/hunt/stories';
 import { tourismOrder, profileV3Store } from '../../data/profile/profile';
 import { usePersistentStore } from '../../data/persistentStore';
@@ -27,10 +21,10 @@ import { PUBLISHED_PLACES } from '../../features/nearby/catalogue';
 import { localToday } from '../../features/nearby/personal';
 import type { LatLng } from '../../features/nearby/types';
 import { shortDistance } from '../../components/Discovery/nearYou';
-import { ChallengeBook } from '../ChallengePage/ChallengePage';
 import { paths } from '../../routes';
 import { pickedForYou } from './picked';
 import styles from './HomeSections.module.css';
+import cb from './ChallengeBook.module.css';
 
 const MEDAL = ['var(--medal-gold, #e0b23c)', 'var(--medal-silver, #c3c6cc)', 'var(--medal-bronze, #c98a5a)'];
 
@@ -46,18 +40,28 @@ function Chevron() {
   );
 }
 
-/** Your own line: real, from the challenges you joined on this phone and your stamps. */
-function YouLine({ joined }: { joined: Challenge | undefined }) {
-  const progress = useChallengeProgress(joined, !!joined);
+/** A challenge's small cloth cover, in its category's colour with its glyph. */
+export function ChallengeBook({ c }: { c: Challenge }) {
+  const info = c.category ? TOURISM_INFO[c.category] : undefined;
+  return (
+    <span className={cb.book} style={{ '--book': info?.fill ?? 'var(--v2-muted)' } as CSSProperties} aria-hidden="true">
+      <span className={cb.frame}>
+        {c.category && <CategoryGlyph category={c.category} size={18} color="rgba(255, 244, 214, 0.92)" />}
+        <span className={cb.title}>{c.title}</span>
+      </span>
+      <span className={cb.ribbon} />
+    </span>
+  );
+}
+
+/** Your own line: real, from your stamps at this weekend's challenge's catalogue stops (Home never loads the game). */
+function YouLine({ challenge }: { challenge: Challenge | undefined }) {
+  const progress = useChallengeProgress(challenge, false);
   let text = 'no time yet. Join a challenge.';
-  if (joined && progress) {
+  if (challenge && progress) {
     const t = progress.timer;
-    text =
-      t.kind === 'minutes' || t.kind === 'days'
-        ? `${timerText(t)} in ${joined.title}${t.finished ? '' : ' so far'}.`
-        : t.kind === 'running'
-          ? `clock running in ${joined.title}.`
-          : `joined ${joined.title}. No time yet.`;
+    if (t.kind === 'minutes' || t.kind === 'days') text = `${timerText(t)} in ${challenge.title}${t.finished ? '' : ' so far'}.`;
+    else if (t.kind === 'running') text = `clock running in ${challenge.title}.`;
   }
   return (
     <p className={styles.you}>
@@ -75,10 +79,8 @@ function YouLine({ joined }: { joined: Challenge | undefined }) {
 }
 
 export function RegionLeaderboard({ region, challenges }: { region: RegionId; challenges: readonly Challenge[] }) {
-  const joinedIds = useJoinedChallenges();
   const name = uraRegion(region)?.name ?? 'Central';
   const top = SAMPLE_SPEED.slice(0, 3);
-  const joined = challenges.find((c) => joinedIds[c.id]);
   return (
     <section className={styles.board} aria-labelledby="home-board-title">
       <div className={styles.boardHead}>
@@ -117,18 +119,18 @@ export function RegionLeaderboard({ region, challenges }: { region: RegionId; ch
           </li>
         ))}
       </ol>
-      <YouLine joined={joined} />
+      <YouLine challenge={challenges[0]} />
     </section>
   );
 }
 
 function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
-  const joined = !!useJoinedChallenges()[c.id];
   const info = c.category ? TOURISM_INFO[c.category] : undefined;
+  const volume = volumeHref(c.routeId);
   return (
     <article className={styles.challenge} aria-labelledby={`ch-${c.id}`}>
-      <Link to={paths.challenge(c.id)} tabIndex={-1} aria-hidden="true" className={styles.bookLink}>
-        <ChallengeBook c={c} size="small" />
+      <Link to={volume} tabIndex={-1} aria-hidden="true" className={styles.bookLink}>
+        <ChallengeBook c={c} />
       </Link>
       <div className={styles.challengeText}>
         <span className={styles.challengeKicker}>
@@ -139,11 +141,11 @@ function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
           <span>{c.kind}</span>
         </span>
         <h3 id={`ch-${c.id}`} className={styles.challengeTitle}>
-          <Link to={paths.challenge(c.id)}>{c.title}</Link>
+          <Link to={volume}>{c.title}</Link>
         </h3>
         <span className={styles.challengeMeta}>
           {shortDates(c.from, c.to)} · {c.stops.length} stops
-          {together && c.example.players > 0 ? ` · ${c.example.players + (joined ? 1 : 0)} joined` : ''}
+          {together && c.example.players > 0 ? ` · ${c.example.players} joined` : ''}
         </span>
         <div className={styles.challengeFoot}>
           {together && c.example.players > 0 && (
@@ -158,16 +160,9 @@ function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
               <Example />
             </>
           )}
-          <button
-            type="button"
-            className={joined ? `${styles.join} ${styles.joined}` : styles.join}
-            style={info ? ({ '--join': info.fill } as CSSProperties) : undefined}
-            aria-pressed={joined}
-            aria-label={joined ? `Joined ${c.title}` : `Join ${c.title}`}
-            onClick={() => (joined ? leaveChallenge(c.id) : joinChallenge(c.id))}
-          >
-            {joined ? 'Joined' : 'Join'}
-          </button>
+          <Link to={volume} className={`${styles.join} ${styles.open}`} style={info ? ({ '--join': info.fill } as CSSProperties) : undefined} aria-label={`Open ${c.title}`}>
+            Open
+          </Link>
         </div>
       </div>
     </article>

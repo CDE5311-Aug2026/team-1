@@ -1,0 +1,47 @@
+/* A challenge's small cloth cover on Home (moved from the retired challenge page, 8 Nov 2026). */
+.book {
+  position: relative;
+  flex-shrink: 0;
+  display: block;
+  width: 62px;
+  height: 84px;
+  border-radius: 3px 7px 7px 3px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(35, 33, 29, 0) 40%, rgba(35, 33, 29, 0.5) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.22) 0 8px, transparent 8px),
+    var(--book);
+  box-shadow: 0 3px 8px rgba(35, 33, 29, 0.35);
+}
+.frame {
+  position: absolute;
+  left: 13px;
+  top: 6px;
+  right: 6px;
+  bottom: 6px;
+  border: 1px solid rgba(242, 213, 138, 0.85);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px;
+  text-align: center;
+}
+.title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.5625rem;
+  line-height: 1.15;
+  color: rgba(255, 244, 214, 0.95);
+}
+.ribbon {
+  position: absolute;
+  right: 9px;
+  top: -2px;
+  width: 6px;
+  height: 18px;
+  background: #c8372d;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%);
+}

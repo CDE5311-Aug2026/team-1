@@ -4,10 +4,10 @@
 // the planning area the route starts in. Nothing new is invented: player counts and best times come from the sample
 // data in stories.ts and are always shown with an "Example" label.
 //
-// The one thing this file keeps is whether you joined a challenge (`challenge-joined`, this phone only).
+// There is no challenge page any more (second canvas, 8 Nov 2026): a challenge opens its volume. Home, the place
+// page and Search keep what they show: its title, kind, dates, category, stops and your stamps there. Nothing is
+// kept on the phone here.
 import { useEffect, useMemo, useState } from 'react';
-import { usePersistentStore } from '../persistentStore';
-import { challengeJoinedStore } from '../v2Stores';
 import { TOURISM_CATEGORIES, tourismOf, type TourismCategory } from '../tourism';
 import { areaOfPlace, type RegionId } from '../ura/ura';
 import { curatedPlace } from '../../features/nearby/catalogue';
@@ -108,10 +108,6 @@ function build(c: HuntChallenge): Challenge {
 
 export const CHALLENGES: readonly Challenge[] = HUNT_CHALLENGES.map(build);
 
-export function challengeById(id: string | undefined): Challenge | undefined {
-  return CHALLENGES.find((c) => c.id === id);
-}
-
 /** Open today or later (a challenge whose last day has passed is over). */
 export function openChallenges(today: string): Challenge[] {
   return CHALLENGES.filter((c) => c.to >= today);
@@ -119,10 +115,9 @@ export function openChallenges(today: string): Challenge[] {
 
 // ---- dates ----
 const MONTH = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const WEEKDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const parts = (iso: string) => {
   const [y, m, d] = iso.split('-').map(Number);
-  return { y, m, d, wd: new Date(Date.UTC(y, m - 1, d)).getUTCDay() };
+  return { y, m, d };
 };
 
 /** "7–8 Nov", "30 Nov – 1 Dec", "8 Nov" */
@@ -131,39 +126,6 @@ export function shortDates(from: string, to: string): string {
   const b = parts(to);
   if (from === to) return `${a.d} ${MONTH[a.m - 1]}`;
   return a.m === b.m ? `${a.d}–${b.d} ${MONTH[b.m - 1]}` : `${a.d} ${MONTH[a.m - 1]} – ${b.d} ${MONTH[b.m - 1]}`;
-}
-
-/** "Sat 7 – Sun 8 Nov" */
-export function longDates(from: string, to: string): string {
-  const a = parts(from);
-  const b = parts(to);
-  const end = `${WEEKDAY[b.wd]} ${b.d} ${MONTH[b.m - 1]}`;
-  if (from === to) return end;
-  return `${WEEKDAY[a.wd]} ${a.d}${a.m === b.m ? '' : ` ${MONTH[a.m - 1]}`} – ${end}`;
-}
-
-// ---- joined (this phone only) ----
-export type { JoinedChallenges } from "../v2Stores";
-import type { JoinedChallenges } from "../v2Stores";
-
-// The store itself lives in data/v2Stores.ts, so stores.ts can clear it without an import cycle.
-export { challengeJoinedStore, isJoinedChallenges } from '../v2Stores';
-
-export function joinChallenge(id: string, now: Date = new Date()) {
-  challengeJoinedStore.set((prev) => (prev[id] ? prev : { ...prev, [id]: { joinedAt: now.toISOString() } }));
-}
-
-export function leaveChallenge(id: string) {
-  challengeJoinedStore.set((prev) => {
-    if (!prev[id]) return prev;
-    const next = { ...prev };
-    delete next[id];
-    return next;
-  });
-}
-
-export function useJoinedChallenges(): JoinedChallenges {
-  return usePersistentStore(challengeJoinedStore)[0];
 }
 
 // ---- stamps and the clock ----

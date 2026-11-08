@@ -30,10 +30,10 @@ describe('search index', () => {
     expect(wellness.filter((e) => e.category === 'wel')).toHaveLength(wel);
   });
 
-  test('finds challenges and volumes by title and area, linked to the challenge page and the Hunt archive', () => {
+  test('finds challenges and volumes by title and area; a challenge opens its volume (no challenge page)', () => {
     const missing = searchAll('missing years');
     expect(missing.find((e) => e.kind === 'volume')).toMatchObject({ title: 'The Missing Years', href: '/hunt#story/civic-f1' });
-    expect(missing.find((e) => e.kind === 'challenge')).toMatchObject({ href: '/hunt/challenge/wk45-civic' });
+    expect(missing.find((e) => e.kind === 'challenge')).toMatchObject({ href: '/hunt#story/civic-f1' });
     expect(searchAll('golden dome')[0]).toMatchObject({ kind: 'volume', href: '/hunt#short' });
   });
 

@@ -41,10 +41,10 @@ describe('Search (board 07)', () => {
     expect(screen.queryByText(/hunter/i)).toBeNull();
   });
 
-  test('challenges and volumes are found and link to the challenge page and the Hunt archive', () => {
+  test('challenges and volumes are found; a challenge links to its volume in Hunt', () => {
     renderAt('/search?q=missing%20years');
     expect(screen.getByRole('link', { name: /Attractions · Volume.*The Missing Years/ })).toHaveAttribute('href', '/hunt#story/civic-f1');
-    expect(screen.getByRole('link', { name: /Attractions · Challenge/ })).toHaveAttribute('href', '/hunt/challenge/wk45-civic');
+    expect(screen.getByRole('link', { name: /Attractions · Challenge/ })).toHaveAttribute('href', '/hunt#story/civic-f1');
   });
 
   test('a chip narrows the list (kept in ?cat=); an empty category says so and offers all categories', async () => {

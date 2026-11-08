@@ -35,24 +35,6 @@ export function isTogether(state: HuntModeState = huntModeStore.get()): boolean 
   return state.mode === 'together';
 }
 
-/** Weekend challenges you joined on this phone (labelled demo, board 09): id → when. */
-export type JoinedChallenges = Record<string, { joinedAt: string }>;
-
-export function isJoinedChallenges(value: unknown): value is JoinedChallenges {
-  return (
-    isRecord(value) &&
-    Object.entries(value).every(
-      ([k, v]) => k.length > 0 && k.length <= 100 && isRecord(v) && typeof v.joinedAt === 'string' && !Number.isNaN(Date.parse(v.joinedAt)),
-    )
-  );
-}
-
-export const challengeJoinedStore = createPersistentStore<JoinedChallenges>({
-  key: 'challenge-joined',
-  fallback: {},
-  isValid: isJoinedChallenges,
-});
-
 export const SEARCH_RECENT_MAX = 8;
 
 export function isRecentList(value: unknown): value is string[] {

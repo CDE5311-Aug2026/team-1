@@ -363,14 +363,17 @@ describe('v2 sections', () => {
     expect(screen.getByRole('link', { name: '2 open: all challenges in Hunt' })).toHaveAttribute('href', '/hunt');
   });
 
-  test('a challenge card links to its page; Join is kept on this phone', async () => {
-    const user = userEvent.setup();
+  test('a challenge card says Open and goes to its volume (the challenge page is retired); nothing is kept', () => {
     renderHome();
     const civic = screen.getByRole('article', { name: 'Civic District' });
-    expect(within(civic).getByRole('link', { name: 'Civic District' })).toHaveAttribute('href', '/hunt/challenge/wk45-civic');
-    await user.click(within(civic).getByRole('button', { name: 'Join Civic District' }));
-    expect(within(civic).getByRole('button', { name: 'Joined Civic District' })).toHaveAttribute('aria-pressed', 'true');
-    expect(JSON.parse(localStorage.getItem('intentai:v1:challenge-joined')!)).toHaveProperty('wk45-civic');
+    expect(within(civic).getByRole('link', { name: 'Civic District' })).toHaveAttribute('href', '/hunt#story/civic-f1');
+    const open = within(civic).getByRole('link', { name: 'Open Civic District' });
+    expect(open).toHaveTextContent('Open');
+    expect(open).toHaveAttribute('href', '/hunt#story/civic-f1');
+    expect(within(civic).queryByRole('button', { name: /Join/ })).toBeNull();
+    const kampong = screen.getByRole('article', { name: /Kampong/ });
+    expect(within(kampong).getByRole('link', { name: /^Open / })).toHaveAttribute('href', '/hunt#story/kampong-gelam');
+    expect(localStorage.getItem('intentai:v1:challenge-joined')).toBeNull();
   });
 
   test('the chips filter the challenges too', async () => {
