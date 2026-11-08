@@ -223,20 +223,24 @@ test('links: Privacy & data and Redo onboarding; Settings and Help live in the t
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('What would you like to explore?');
 });
 
-test('S2: Reduce motion is the app-wide setting; captions are kept locally', async () => {
+test('S2: Reduce motion is the app-wide setting (on its own page); captions are kept locally', async () => {
   renderAt(paths.mySpaceSettings);
   expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('link', { name: /Motion/ }));
+  expect(currentPath()).toBe(paths.mySpaceMotion);
   await userEvent.click(screen.getByRole('radio', { name: 'Reduced' }));
   expect(reduceMotionStore.get()).toBe(true);
   expect(document.documentElement.classList.contains('reduce-motion')).toBe(true);
   await userEvent.click(screen.getByRole('radio', { name: 'Full' }));
   expect(reduceMotionStore.get()).toBe(false);
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(currentPath()).toBe(paths.mySpaceSettings);
 
   await userEvent.click(screen.getByRole('switch', { name: 'Captions on videos' }));
   expect(mySpacePrefsStore.get().captions).toBe(false);
 });
 
-test('S2: language opens the script tiles and Terms & licences opens its page of photo credits', async () => {
+test('S2: language opens the script tiles; Terms & licences and Photo credits open their pages', async () => {
   renderAt(paths.mySpaceSettings);
   await userEvent.click(screen.getByRole('button', { name: /Language/ }));
   await userEvent.click(within(screen.getByRole('dialog', { name: 'Language' })).getByRole('button', { name: '한국어, Korean' }));
@@ -247,9 +251,11 @@ test('S2: language opens the script tiles and Terms & licences opens its page of
   await userEvent.click(screen.getByRole('link', { name: /Terms & licences/ }));
   expect(currentPath()).toBe(paths.licences);
   expect(screen.getByRole('heading', { level: 1, name: 'Terms & licences' })).toBeInTheDocument();
-  expect(screen.getAllByText('Photo: Zairon · CC BY-SA 4.0').length).toBeGreaterThan(0);
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   expect(currentPath()).toBe(paths.mySpaceSettings);
+  await userEvent.click(screen.getByRole('link', { name: /Photo credits/ }));
+  expect(currentPath()).toBe(paths.credits);
+  expect(screen.getAllByText('Photo: Zairon · CC BY-SA 4.0').length).toBeGreaterThan(0);
 });
 
 test('S3: stored areas show sizes and counts; Clear has Undo', async () => {
