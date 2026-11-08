@@ -166,7 +166,7 @@ export default function WelcomePage() {
 
   const props = { draft, setDraft, goTo, onDone };
   return (
-    <AppShell chrome="none" background="var(--bg-app)">
+    <AppShell chrome="none">
       <div className={styles.screen}>
         {step === 0 ? <Welcome onStart={() => goTo(1)} /> : step === 1 ? <ExploreStep {...props} /> : <HuntStep {...props} />}
       </div>

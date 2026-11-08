@@ -22,7 +22,7 @@ export default function TodayPage() {
   const [here, setHere] = useState<LatLng | null>(readHomeHere);
   const challenges = useMemo(() => openChallenges(localToday()), []);
   return (
-    <AppShell layout="fill" background={placeOpen ? '#c8a87a' : 'var(--bg-app)'} chrome={placeOpen ? 'status' : 'full'} tabBarNodeId="1:317" tabPop>
+    <AppShell layout="fill" background={placeOpen ? '#c8a87a' : undefined} chrome={placeOpen ? 'status' : 'full'} tabBarNodeId="1:317" tabPop>
       <DiscoveryHome
         onPlaceOpenChange={setPlaceOpen}
         category={category}

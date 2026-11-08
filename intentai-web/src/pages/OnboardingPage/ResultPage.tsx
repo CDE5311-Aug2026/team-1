@@ -153,7 +153,7 @@ export default function ResultPage() {
   };
 
   return (
-    <AppShell chrome="none" background="var(--bg-app)">
+    <AppShell chrome="none">
       <div className={styles.screen}>
         <div className={styles.question}>
           <ProgressHeader step={3} onBack={() => navigate(`${paths.welcome}?step=2`, { state: { draft } })} />
