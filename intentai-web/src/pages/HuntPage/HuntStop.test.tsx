@@ -44,13 +44,13 @@ describe('a stop as a page of its book', () => {
     expect(sessionStorage.getItem('hunt-page-telok-ayer')).toBe('4');
   });
 
-  test('on a phone, back goes to this story’s book at its saved page, even with another book saved', async () => {
+  test('on a phone too, Shelf (board 10) puts the book back and goes to the field archive; the book keeps its page', async () => {
     phoneOr(true);
     sessionStorage.setItem('hunt-book', 'balestier');
     sessionStorage.setItem('hunt-page-telok-ayer', '1');
     at('/hunt#story/telok-ayer');
-    await userEvent.click(screen.getByRole('button', { name: /Book$/ }));
-    expect(sessionStorage.getItem('hunt-book')).toBe('telok-ayer');
+    await userEvent.click(screen.getByRole('button', { name: 'Shelf' }));
+    expect(sessionStorage.getItem('hunt-book')).toBeNull();
     expect(sessionStorage.getItem('hunt-page-telok-ayer')).toBe('1');
   });
 

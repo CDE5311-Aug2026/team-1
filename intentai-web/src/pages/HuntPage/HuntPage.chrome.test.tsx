@@ -22,11 +22,11 @@ afterEach(() => {
   window.location.hash = '';
 });
 
-test('a story on a phone is a page of its own: no tab bar under it, and Book is the way back', () => {
+test('a story on a phone is a page of its own: no tab bar under it, and Shelf is the way back', () => {
   vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({ ...matchMediaShim(query), matches: /max-width: 760px/.test(query) }));
   openStory();
   expect(screen.queryByRole('navigation', { name: 'Primary' })).toBeNull();
-  expect(screen.getByRole('button', { name: /Book$/ })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Shelf' })).toBeInTheDocument();
 });
 
 test('a story on a wide screen keeps the tab bar', () => {

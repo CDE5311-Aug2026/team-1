@@ -15,6 +15,7 @@ import { Overlay } from './Overlay';
 import { ChapterCardsPage, ChapterLetterPage, ChapterMapPage, placeOf } from './pages';
 import { PrologueBook } from './PrologueBook';
 import { StoryBook } from './StoryBook';
+import { VolumeFolio } from './VolumeChrome';
 import { BOOK_KEY, SHELF_KEY, pageKey, session } from './bookSession';
 import styles from './props.module.css';
 import shelf from './shelf.module.css';
@@ -100,10 +101,10 @@ export function FieldNotebook({
   const def = bookOf(book)!;
   const cover = <BookCover book={def} />;
   return (
-    <StoryBook title={def.title} kicker={`Volume ${def.roman}`} closing={closing} onClose={putBack}>
+    <StoryBook title={def.title} roman={def.roman} closing={closing} onClose={putBack}>
       <FlyIn from={from}>
         {book === 'short' ? (
-          <PrologueBook open={open} onOpen={() => setOpen(true)} cover={cover} />
+          <PrologueBook open={open} onOpen={() => setOpen(true)} cover={cover} roman={def.roman} />
         ) : (
           <Book key={book} id={book} def={def} chs={chs} open={open} onOpen={() => setOpen(true)} onRoute={onRoute} />
         )}
@@ -177,18 +178,21 @@ function Book({
           id: `${ch.routeId}-letter`,
           tab: 'Story',
           label: `Vol. ${def.roman} · The letter`,
+          hint: 'Press the seal to open the letter',
           render: () => <ChapterLetterPage ch={ch} onRead={() => setReading(true)} onSetOut={() => onRoute(ch.routeId)} />,
         },
         {
           id: `${ch.routeId}-map`,
           tab: 'Map',
           label: `Vol. ${def.roman} · The map`,
+          hint: 'Tap the packet to unfold the map',
           render: () => <ChapterMapPage ch={ch} onUnfold={() => setLayer({ kind: 'map' })} />,
         },
         {
           id: `${ch.routeId}-cards`,
           tab: 'Clues',
           label: `Vol. ${def.roman} · The clue cards`,
+          hint: 'Each stop you solve turns its card face up.',
           render: () => <ChapterCardsPage ch={ch} onCards={() => setLayer({ kind: 'cards' })} onChest={() => setLayer({ kind: 'ending' })} />,
         },
         {
@@ -222,6 +226,7 @@ function Book({
         fit
         coverLabel={`Open ${def.title}`}
         play={ch ? () => onRoute(ch.routeId) : undefined}
+        folio={(i) => <VolumeFolio n={i + 1} total={pages.length + (ch ? 1 : 0)} roman={def.roman} name={pages[i]?.label ?? ''} hint={pages[i]?.hint} />}
       />
 
       {reading && ch && (

@@ -1,0 +1,96 @@
+/* v2 boards 09 / 10: the light chart paper (positions measured on the 390 × 844 boards, anchored to the corners). */
+.paper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 40% at 50% 14%, rgba(242, 213, 138, 0.35), transparent 70%),
+    radial-gradient(140% 90% at 50% 40%, transparent 50%, rgba(184, 138, 42, 0.1)),
+    /* the survey grid, every 46 px */
+    repeating-linear-gradient(90deg, rgba(184, 138, 42, 0.1) 0 0.7px, transparent 0.7px 46px) -4px 0,
+    repeating-linear-gradient(180deg, rgba(184, 138, 42, 0.1) 0 0.7px, transparent 0.7px 46px) 0 12px,
+    /* the paper's weave */
+    repeating-linear-gradient(180deg, rgba(184, 138, 42, 0.05) 0 1px, transparent 1px 3px),
+    var(--bg-app, #eceae5);
+}
+/* the rhumb lines, seventeen from one point (board: 312, 470) */
+.rays {
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(from 0deg at 80% 56%, rgba(184, 138, 42, 0.16) 0 0.18deg, transparent 0.18deg 21.176deg);
+}
+.coast {
+  display: block;
+  overflow: visible;
+}
+.coastPlace {
+  position: absolute;
+  left: -30px;
+  bottom: -13px;
+  width: clamp(450px, 62vw, 860px);
+  height: auto;
+}
+.rose {
+  position: absolute;
+  display: block;
+  overflow: visible;
+}
+.rose g {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  filter: drop-shadow(0 0 1.5px rgba(242, 213, 138, 0.9));
+}
+.north {
+  font:
+    500 0.3px 'IBM Plex Mono',
+    ui-monospace,
+    monospace;
+  letter-spacing: 0.03px;
+  fill: #b88a2a;
+}
+.bigRose {
+  opacity: 0.7;
+  right: -138px;
+  bottom: -72px;
+}
+.roseTop {
+  right: 31px;
+  /* under the Settings button, below the status bar's room */
+  top: calc(var(--status-h, 0px) + 0.5rem + 29px);
+}
+.roseLow {
+  left: 29px;
+  bottom: 115px;
+}
+.archive {
+  position: fixed;
+}
+.archive .bigRose {
+  opacity: 0.55;
+  right: -75px;
+  top: 240px;
+  bottom: auto;
+}
+.archive .roseLow {
+  bottom: 140px;
+}
+
+/* the roses turn, very slowly, only when motion is allowed */
+@media (prefers-reduced-motion: no-preference) {
+  :global(html:not(.reduce-motion)) .slow {
+    animation: spin 45s linear infinite;
+  }
+  :global(html:not(.reduce-motion)) .slower {
+    animation: spin 90s linear infinite;
+  }
+  :global(html:not(.reduce-motion)) .back {
+    animation: spin 60s linear infinite reverse;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
