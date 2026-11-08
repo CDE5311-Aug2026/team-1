@@ -156,6 +156,14 @@ test('Public shows this weekend’s challenge on the Civic District route, the b
   // writing your own story is not built yet: a notice, not a dead form
   expect(screen.getByRole('heading', { name: 'A story from your streets' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Coming soon' })).not.toBeInTheDocument();
+  // v2: a clean list on the app's paper, the sample players labelled; the 3D hall is one switch away
+  expect(screen.getByText('Example players')).toBeInTheDocument();
+  expect(screen.getAllByText('Example').length).toBeGreaterThanOrEqual(3);
+  const hall = screen.getByRole('button', { name: '3D hall' });
+  expect(hall).toHaveAttribute('aria-pressed', 'false');
+  // the page draws no paper of its own: AppShell's one layer under <body> is the ground
+  expect(screen.getByRole('main').querySelector('[data-chart-paper]')).toBeNull();
+  expect(document.querySelector('[data-app-paper] [data-chart-paper="archive"]')).not.toBeNull();
 });
 
 test('hunting together: the archive also links straight to the leaderboards (example players); solo does not', async () => {
@@ -179,6 +187,11 @@ test('the boards: explorers by region, and fastest this weekend with a way to jo
   await userEvent.click(screen.getByRole('tab', { name: 'Fastest' }));
   expect(screen.getByText(/214 joined/)).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Join' })).toBeInTheDocument();
+  // v2: the challenge carries its category (glyph + label), and the players are labelled as examples
+  expect(screen.getByRole('heading', { name: 'Civic District' })).toBeInTheDocument();
+  expect(screen.getByText('Attractions')).toBeInTheDocument();
+  expect(screen.getByText('Example players')).toBeInTheDocument();
+  expect(screen.getByRole('list', { name: 'Top three, example players' }).children).toHaveLength(3);
 });
 
 // a stop as FindSG saves it after a tap check-in, the observation and the 3D puzzle (taken from a real play-through)

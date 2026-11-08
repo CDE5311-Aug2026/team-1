@@ -23,6 +23,7 @@ import nb from './notebook/notebook.module.css';
 import { ChartPaper } from './notebook/ChartPaper';
 import { VolumeBar, VolumeFolio, VolumeHead } from './notebook/VolumeChrome';
 import vd from './volumeDesk.module.css';
+import bd from './Boards.module.css';
 import { FilmHost } from './notebook/FilmProjector';
 import { ClueLibrary } from './notebook/layers';
 import { MATERIALS } from './notebook/Notebook';
@@ -96,23 +97,28 @@ export default function HuntPage() {
   const board = params.get('board');
   const tab = params.get('tab') === 'public' ? 'public' : 'story';
 
+  // v2 (owner, 8 Nov 2026): the boards and Public sit on the app's chart paper (AppShell) like the field archive
   if (board)
     return (
-      <AppShell background={CHART_BG}>
-        <div className={`${styles.screen} ${styles.desk} ${styles.deskHome} ${styles.publicDesk} ${styles.boardDesk}`} style={{ '--chart': CHART_BACKDROP } as CSSProperties}>
-          <PageBar title="Hunt" tone="dark" className={styles.pageBar} />
-          <Board kind={board === 'speed' ? 'speed' : 'explore'} scope={params.get('scope') ?? 'sg'} go={go} openRoute={openRoute} />
+      <AppShell>
+        <div className={bd.page}>
+          <PageBar title="Hunt" className={bd.bar} />
+          <div className={bd.body}>
+            <Board kind={board === 'speed' ? 'speed' : 'explore'} scope={params.get('scope') ?? 'sg'} go={go} openRoute={openRoute} />
+          </div>
         </div>
       </AppShell>
     );
 
   if (tab === 'public')
     return (
-      <AppShell background={CHART_BG}>
-        <div className={`${styles.screen} ${styles.desk} ${styles.deskHome} ${styles.publicDesk}`} style={{ '--chart': CHART_BACKDROP } as CSSProperties}>
-          <HuntHeader tab={tab} go={go} />
-          <HuntTabs tab={tab} go={go} />
-          <PublicTab go={go} openRoute={openRoute} />
+      <AppShell>
+        <div className={bd.page}>
+          <PageBar title="Hunt" className={bd.bar} />
+          <div className={bd.body}>
+            <HuntTabs tab={tab} go={go} v2 />
+            <PublicTab go={go} openRoute={openRoute} />
+          </div>
         </div>
       </AppShell>
     );

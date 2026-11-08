@@ -1,0 +1,543 @@
+/* v2 (owner, 8 Nov 2026): Hunt's boards (?board=explore|speed) and its Public tab (?tab=public) in the field archive's
+   language: on the app's chart paper (AppShell), under the light PageBar, with cards like the archive's rows. */
+.page {
+  --gutter: 16px;
+  min-height: 100%;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  padding-bottom: 120px;
+}
+.bar {
+  --gutter: 16px;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 2px var(--gutter) 0;
+}
+
+/* ---- the head: back · title · Example ---- */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+}
+.back {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--text-primary);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+}
+.back:focus-visible,
+.seg button:focus-visible,
+.chip:focus-visible,
+.card:focus-visible,
+.link:focus-visible,
+.toggle:focus-visible,
+.ghost:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: 600 1.375rem/1.15 var(--font-display);
+  letter-spacing: -0.2px;
+}
+.example {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--v2-surface-sunk);
+  color: var(--v2-ink-2);
+  font: 500 0.625rem/1 var(--font-mono);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.mono {
+  font: 400 0.6875rem/14px var(--font-mono);
+  color: var(--v2-muted);
+}
+
+/* ---- segmented control (Explorers | Fastest, Stories | Public) ---- */
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--v2-surface-sunk);
+}
+.seg button {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  background: none;
+  color: var(--v2-muted);
+  font: 600 0.875rem/1 var(--font-display);
+  letter-spacing: 0.2px;
+}
+.seg button[aria-selected='true'] {
+  background: var(--v2-surface);
+  color: var(--text-primary);
+  box-shadow: var(--v2-shadow-card);
+}
+
+/* ---- region chips (the archive's chips, without a category: a region has no glyph) ---- */
+.chips {
+  display: flex;
+  gap: 8px;
+  margin: 0 calc(-1 * var(--gutter));
+  padding: 2px var(--gutter) 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar {
+  display: none;
+}
+.chip {
+  flex: none;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--v2-surface);
+  color: var(--text-primary);
+  font: 500 0.875rem/1 var(--font-family);
+  white-space: nowrap;
+}
+.chip[aria-checked='true'] {
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+  color: var(--v2-surface);
+}
+
+/* ---- cards, like the archive's rows ---- */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 0;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+button.card {
+  width: 100%;
+  cursor: pointer;
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 22px;
+}
+.cardHead h2,
+.cardHead h3 {
+  margin: 0;
+  font: 600 0.9375rem/20px var(--font-family);
+  letter-spacing: -0.1px;
+}
+.challenge {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.thumb {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--v2-r-media);
+  object-fit: cover;
+  background: var(--v2-surface-sunk);
+}
+.cBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.cTitle {
+  margin: 0;
+  font: 600 1.125rem/22px var(--font-display);
+  letter-spacing: -0.2px;
+}
+.cFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+/* ---- the top three ---- */
+.podium {
+  --medal-gold: #e0b23c;
+  --medal-silver: #c3c6cc;
+  --medal-bronze: #c98a5a;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
+}
+.podium li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  text-align: center;
+}
+.podium li[data-n='1'] {
+  order: 2;
+}
+.podium li[data-n='2'] {
+  order: 1;
+}
+.podium li[data-n='3'] {
+  order: 3;
+}
+.avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--v2-surface-sunk);
+  font: 600 1.125rem/1 var(--font-display);
+}
+.podium li[data-n='1'] .avatar {
+  width: 60px;
+  height: 60px;
+  font-size: 1.375rem;
+  box-shadow: 0 0 0 2px var(--medal-gold);
+}
+.medal {
+  position: absolute;
+  right: -4px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--v2-surface);
+  font: 600 0.6875rem/1 var(--font-mono);
+  color: var(--text-primary);
+}
+.podium li[data-n='1'] .medal {
+  background: var(--medal-gold);
+}
+.podium li[data-n='2'] .medal {
+  background: var(--medal-silver);
+}
+.podium li[data-n='3'] .medal {
+  background: var(--medal-bronze);
+}
+.who {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 600 0.875rem/18px var(--font-family);
+}
+
+/* ---- the list from 4th on ---- */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 4px;
+}
+.list li + li {
+  box-shadow: inset 0 1px 0 var(--border);
+}
+.rank {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--v2-surface-sunk);
+  font: 500 0.75rem/1 var(--font-mono);
+}
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9375rem;
+}
+.value {
+  flex: none;
+  font: 500 0.8125rem/1 var(--font-mono);
+}
+
+/* ---- your own row ---- */
+/* it stays in sight just above the tab bar while the board scrolls (as before v2) */
+.you {
+  position: sticky;
+  bottom: calc(var(--tabbar-bottom, 1rem) + var(--tabbar-h, 4rem) + 8px);
+  z-index: 2;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  box-shadow:
+    inset 0 0 0 1.5px var(--accent),
+    var(--v2-shadow-card);
+}
+.youRank {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-primary);
+  font: 600 1rem/1 var(--font-display);
+  box-sizing: border-box;
+}
+.youText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.youText b {
+  font: 600 0.9375rem/20px var(--font-family);
+}
+.youText small {
+  font-size: 0.8125rem;
+  line-height: 18px;
+  color: var(--v2-muted);
+}
+
+/* v2 primary: the accent pill (the archive's "Set out") */
+.primary {
+  flex: none;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--text-primary);
+  font: 600 0.9375rem/1 var(--font-display);
+  letter-spacing: 0.2px;
+}
+.primary:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+.ghost {
+  flex: none;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border-strong, var(--border));
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--v2-surface);
+  color: var(--text-primary);
+  font: 600 0.875rem/1 var(--font-display);
+}
+
+.note {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 0.6875rem;
+  line-height: 16px;
+  font-style: italic;
+  color: var(--v2-muted);
+}
+
+/* ---- Public ---- */
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 28px;
+  margin-top: 4px;
+}
+.sectionHead h2 {
+  margin: 0;
+  font: 600 0.9375rem/20px var(--font-family);
+  letter-spacing: -0.1px;
+}
+.link {
+  min-height: 44px;
+  margin: -8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--v2-r-control);
+  background: none;
+  cursor: pointer;
+  color: var(--v2-ink-2);
+  font: 500 0.8125rem/1 var(--font-family);
+}
+.boards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+}
+.miniHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin: -8px 0 -6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.miniHead h3 {
+  margin: 0;
+  font: 600 0.9375rem/20px var(--font-family);
+}
+.miniHead:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+  border-radius: var(--v2-r-control);
+}
+.me .name {
+  font-weight: 600;
+}
+.upcoming {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.upcoming li {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.date {
+  flex: none;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 48px;
+  height: 52px;
+  border-radius: var(--v2-r-control);
+  background: var(--v2-surface-sunk);
+}
+.date b {
+  font: 600 1.25rem/1 var(--font-display);
+}
+.date small {
+  font: 500 0.625rem/1.2 var(--font-mono);
+  letter-spacing: 0.6px;
+}
+.soon {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px dashed var(--v2-muted);
+  color: var(--v2-ink-2);
+  font: 500 0.625rem/1 var(--font-mono);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.aiText {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--v2-ink-2);
+}
+/* the 3D hall, kept behind its own switch */
+.toggle {
+  align-self: flex-end;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  background: var(--v2-surface);
+  color: var(--text-primary);
+  font: 500 0.8125rem/1 var(--font-family);
+}
+.toggle[aria-pressed='true'] {
+  background: var(--text-primary);
+  color: var(--v2-surface);
+  border-color: var(--text-primary);
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* the card's own Join (the whole card is the button) */
+.fauxButton {
+  display: grid;
+  place-items: center;
+}
+/* the board from fourth on, under the top three in the same card */
+.podium + .list {
+  margin-top: 4px;
+  box-shadow: inset 0 1px 0 var(--border);
+}
+.tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}

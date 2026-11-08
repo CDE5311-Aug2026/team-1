@@ -40,6 +40,9 @@ import { huntModeStore, isTogether } from "../../data/v2Stores";
 import { formatHomeDistance } from "../../data/homePlaces";
 import styles from "./Hunt.module.css";
 import a from "./HuntArchive.module.css";
+import bd from "./Boards.module.css";
+import { CHALLENGES } from "../../data/hunt/challenges";
+import CategoryBadge from "../../components/Category/CategoryBadge";
 
 /** Stops solved on site (FindSG's on-site mode; remote play does not count). */
 export function huntStops(): number {
@@ -75,10 +78,11 @@ export function HuntHeader({ tab }: { tab: "story" | "public"; go?: HuntGo }) {
   );
 }
 
-export function HuntTabs({ tab, go }: { tab: "story" | "public"; go: HuntGo }) {
+/** Stories | Public. `v2`: the light segmented control of the boards and Public (Boards.module.css). */
+export function HuntTabs({ tab, go, v2 = false }: { tab: "story" | "public"; go: HuntGo; v2?: boolean }) {
   return (
     <div
-      className={styles.segment}
+      className={v2 ? bd.seg : styles.segment}
       role="tablist"
       aria-label="Hunt"
       style={{ "--at": tab === "story" ? 0 : 1 } as CSSProperties}
@@ -99,7 +103,7 @@ export function HuntTabs({ tab, go }: { tab: "story" | "public"; go: HuntGo }) {
       >
         Public
       </button>
-      <span className={styles.segInk} aria-hidden="true" />
+      {!v2 && <span className={styles.segInk} aria-hidden="true" />}
     </div>
   );
 }
@@ -148,7 +152,11 @@ export function HunterPass({ go }: { go: HuntGo }) {
 const days = (from: string, today: string) =>
   Math.round((Date.parse(from) - Date.parse(today)) / 86400000);
 
-/** Public: the 3D notice board and podium; the flat list where WebGL is not there. */
+/**
+ * Public (v2, owner 8 Nov 2026): the weekend challenges and the boards as a clean list in the archive's language, on the
+ * app's chart paper. The 3D hall (the cork notice board and the podium) stays one switch away ("3D hall"); without WebGL
+ * it hands back to the list.
+ */
 export function PublicTab({
   go,
   openRoute,
@@ -157,9 +165,23 @@ export function PublicTab({
   openRoute(id: string): void;
 }) {
   const explored = useExplored();
-  const [flat, setFlat] = useState(false);
-  if (flat) return <PublicFlat go={go} openRoute={openRoute} />;
-  return <PublicHall go={go} openRoute={openRoute} explored={explored} onFail={() => setFlat(true)} />;
+  const [hall, setHall] = useState(false);
+  return (
+    <>
+      <div className={bd.tools}>
+        {/* the hall's podium shows sample players too: the label stays in sight above it */}
+        <span className={bd.example}>Example players</span>
+        <button type="button" className={bd.toggle} aria-pressed={hall} onClick={() => setHall((h) => !h)}>
+          3D hall
+        </button>
+      </div>
+      {hall ? (
+        <PublicHall go={go} openRoute={openRoute} explored={explored} onFail={() => setHall(false)} />
+      ) : (
+        <PublicFlat go={go} openRoute={openRoute} />
+      )}
+    </>
+  );
 }
 
 function PublicFlat({
@@ -174,62 +196,60 @@ function PublicFlat({
   const story = GAME_STORIES[now.routeId];
   const d = days(now.from, today);
   const explored = useExplored();
+  const info = CHALLENGES.find((c) => c.id === now.id);
   return (
-    <div className={styles.stack} role="tabpanel" aria-label="Public">
-      <h2 className={styles.kicker}>This weekend</h2>
+    <div className={bd.stack} role="tabpanel" aria-label="Public">
+      <div className={bd.sectionHead}>
+        <h2>This weekend</h2>
+        <span className={bd.mono}>{d > 0 ? `Starts in ${d} day${d === 1 ? "" : "s"}` : "On now"}</span>
+      </div>
       <button
         type="button"
-        className={styles.challenge}
+        className={`${bd.card} ${bd.challenge}`}
         onClick={() => openRoute(now.routeId)}
+        aria-label={`${now.title}. ${story.stops.length} places. Example: ${now.players} joined, best ${now.bestMinutes} min. Join`}
       >
-        <img src={imageFor(now.routeId)} alt="" />
-        <span className={styles.chTag}>
-          {d > 0 ? `Starts in ${d} day${d === 1 ? "" : "s"}` : "On now"}
-        </span>
-        <span className={styles.chBody}>
-          <b>{now.title}</b>
-          <span>{story.stops.length} places</span>
-          <span className={styles.chFoot}>
-            <span>
-              <b>{now.players}</b> joined
+        <img className={bd.thumb} src={imageFor(now.routeId)} alt="" width={64} height={64} />
+        <span className={bd.cBody}>
+          {info?.category ? (
+            <CategoryBadge category={info.category} variant="kicker" suffix={info.kind} />
+          ) : (
+            <span className={bd.mono}>{info?.kind ?? "Weekend"}</span>
+          )}
+          <b className={bd.cTitle}>{info?.title ?? now.title}</b>
+          <span className={bd.cFoot}>
+            <span className={bd.mono}>
+              {story.stops.length} places · {now.players} joined · best {now.bestMinutes} min
             </span>
-            <span>
-              best <b>{now.bestMinutes} min</b>
-            </span>
-            <span className={styles.chGo}>Join</span>
+            <span className={bd.example}>Example</span>
           </span>
+        </span>
+        <span className={`${bd.primary} ${bd.fauxButton}`} aria-hidden="true">
+          Join
         </span>
       </button>
 
-      <div className={styles.sectionHead}>
-        <h2 className={styles.kicker}>Boards</h2>
-        <button
-          type="button"
-          className={styles.more}
-          onClick={() => go({ board: "explore" })}
-        >
+      <div className={bd.sectionHead}>
+        <h2>Boards</h2>
+        <button type="button" className={bd.link} onClick={() => go({ board: "explore" })}>
           See all <Icon name="chevron" size={14} />
         </button>
       </div>
-      <div className={styles.boards}>
-        <MiniBoard
-          title="Fastest"
-          rows={SAMPLE_SPEED}
-          unit="min"
-          you={{ rank: null, value: null }}
-          onOpen={() => go({ board: "speed" })}
-        />
+      <div className={bd.boards}>
+        <MiniBoard title="Fastest" rows={SAMPLE_SPEED} unit="min" you={{ rank: null, value: null }} onOpen={() => go({ board: "speed" })} />
         <MiniBoard
           title="Explorers"
           rows={SAMPLE_EXPLORERS}
-          unit=""
+          unit="places"
           you={{ rank: rankAmong(SAMPLE_EXPLORERS, explored), value: explored }}
           onOpen={() => go({ board: "explore" })}
         />
       </div>
 
-      <h2 className={styles.kicker}>Coming up</h2>
-      <ul className={styles.upcoming}>
+      <div className={bd.sectionHead}>
+        <h2>Coming up</h2>
+      </div>
+      <ul className={bd.upcoming}>
         {later.map((c) => {
           const [, m, dd] = c.from.split("-");
           const [, m2, dd2] = c.to.split("-");
@@ -237,26 +257,21 @@ function PublicFlat({
             m === m2
               ? `${+dd}–${+dd2} ${cap(MONTHS[+m - 1])}`
               : `${+dd} ${cap(MONTHS[+m - 1])} – ${+dd2} ${cap(MONTHS[+m2 - 1])}`;
+          const cat = CHALLENGES.find((x) => x.id === c.id)?.category;
           return (
-            <li key={c.id}>
-              <span
-                className={styles.date}
-                aria-label={`${dd} ${MONTHS[+m - 1]}`}
-              >
+            <li key={c.id} className={bd.card}>
+              <span className={bd.date} aria-label={`${dd} ${MONTHS[+m - 1]}`}>
                 <b>{dd}</b>
                 <small>{MONTHS[+m - 1]}</small>
               </span>
-              <span className={styles.upText}>
-                <b>{c.title.replace(/^Weekend challenge · /, "")}</b>
-                <small>
+              <span className={bd.cBody}>
+                {cat && <CategoryBadge category={cat} variant="kicker" />}
+                <b className={bd.cTitle}>{c.title.replace(/^Weekend challenge · /, "")}</b>
+                <span className={bd.mono}>
                   {GAME_STORIES[c.routeId].stops.length} places · {span}
-                </small>
+                </span>
               </span>
-              <button
-                type="button"
-                className={styles.ghost}
-                onClick={() => openRoute(c.routeId)}
-              >
+              <button type="button" className={bd.ghost} onClick={() => openRoute(c.routeId)}>
                 Preview
               </button>
             </li>
@@ -265,27 +280,12 @@ function PublicFlat({
       </ul>
 
       <AiStory />
-      <p className={styles.note}>
-        Other players are samples until the live boards open.
-      </p>
+      <p className={bd.note}>Other players are samples until the live boards open.</p>
     </div>
   );
 }
 const cap = (m: string) => m[0] + m.slice(1).toLowerCase();
-const MONTHS = [
-  "JAN",
-  "FEB",
-  "MAR",
-  "APR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AUG",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DEC",
-];
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 function MiniBoard({
   title,
@@ -302,29 +302,28 @@ function MiniBoard({
   onOpen(): void;
 }) {
   return (
-    <section className={styles.mini} aria-label={title}>
-      <button type="button" className={styles.miniHead} onClick={onOpen}>
+    <section className={bd.card} aria-label={title}>
+      <button type="button" className={bd.miniHead} onClick={onOpen}>
         <h3>{title}</h3>
-        <span aria-hidden="true">›</span>
+        <span className={bd.example}>Example</span>
       </button>
-      <ol>
+      <ol className={bd.list}>
         {rows.slice(0, 3).map((r, i) => (
           <li key={r.name}>
-            <span className={styles.medal} data-n={i + 1}>
+            <span className={bd.rank} data-n={i + 1}>
               {i + 1}
             </span>
-            <span className={styles.name}>{r.name}</span>
-            <b>
-              {r.value}
-              {unit && <small> {unit}</small>}
-            </b>
+            <span className={bd.name}>{r.name}</span>
+            <span className={bd.value}>
+              {r.value} {unit}
+            </span>
           </li>
         ))}
         {you && (
-          <li className={styles.me}>
-            <span className={styles.medal}>{you.rank ?? "–"}</span>
-            <span className={styles.name}>You</span>
-            <b>{you.value ?? "–"}</b>
+          <li className={bd.me}>
+            <span className={bd.rank}>{you.rank ?? "–"}</span>
+            <span className={bd.name}>You</span>
+            <span className={bd.value}>{you.value ?? "–"}</span>
           </li>
         )}
       </ol>
@@ -335,12 +334,12 @@ function MiniBoard({
 /** What comes next for Public: stories written from your own streets. Not built yet, so it is a sealed notice, not a form. */
 function AiStory() {
   return (
-    <section className={styles.ai} aria-labelledby="ai-h">
-      <h2 id="ai-h">A story from your streets</h2>
-      <p className={styles.aiText}>
-        Pick an area and a theme, and real places near you become a route.
-      </p>
-      <span className={styles.aiStamp}>Coming soon</span>
+    <section className={bd.card} aria-labelledby="ai-h">
+      <span className={bd.soon}>Coming soon</span>
+      <h2 id="ai-h" className={bd.cTitle}>
+        A story from your streets
+      </h2>
+      <p className={bd.aiText}>Pick an area and a theme, and real places near you become a route.</p>
     </section>
   );
 }
