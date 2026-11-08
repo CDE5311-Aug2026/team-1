@@ -117,7 +117,7 @@ test('tapping a numbered region on the map opens its planning areas', async ({ p
   await expect(page.getByRole('button', { name: /^Area \d+: / })).toHaveCount(12);
 });
 
-test('region → areas → places → the place pops up over Home; Back closes it on the same place', async ({ page }) => {
+test('region → areas → places → the place pops up over Home; Back closes it on the same place', async ({ page, browserName }) => {
   // the place level loads the EARTH ONLINE 3D city (up to 19 MB) and leaving it tears the scene down; under a full
   // parallel run that can hold the page for many seconds (WebKit draws it with software WebGL, slower still)
   test.slow();
@@ -140,7 +140,9 @@ test('region → areas → places → the place pops up over Home; Back closes i
   await enterKey.focus();
   await enterKey.press('Enter');
   const sheet = page.getByRole('dialog', { name });
-  await expect(sheet).toBeVisible();
+  // WebKit here has no GPU and builds the 3D city in software on the main thread, so the sheet can wait behind it
+  // (8 Nov 2026: 1 run in 3 missed 5 s even at 3 workers). This one wait only, WebKit only; Chromium keeps 5 s.
+  await expect(sheet).toBeVisible(browserName === 'webkit' ? { timeout: 15_000 } : undefined);
   await expect(sheet.getByRole('button', { name: /Check in/ })).toBeVisible();
   await expect(page).toHaveURL(/open=/);
   await page.goBack();
