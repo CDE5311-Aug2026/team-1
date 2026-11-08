@@ -122,7 +122,7 @@ Each agent brief contains:
 ## Owner decisions (answered)
 
 - **D-base = `main`** (8 Nov 2026).
-- **D-keep = keep the 3D map; restyle it only (8 Nov 2026).** The Home 3D map (`MapCard3D`, `MapCardEarth`, `three/*`, `CoverFlow3D`, `LevelDeck`, the drill-down levels and URL params in `DiscoveryHome`) is kept, and its logic and geometry are not changed. `three/*` is not edited.
+- **D-keep = keep the 3D map; restyle it only (8 Nov 2026).** The Home 3D map (`MapCard3D`, `MapCardEarth`, `three/*`, the drill-down levels and URL params in `DiscoveryHome`) is kept, and its logic and geometry are not changed. `three/*` is not edited. Amended 8 Nov 2026 (owner): the card deck under the map (`CoverFlow3D`, `LevelDeck`) is removed; the map drills down on one tap and a compact row (`MapShelf`) lists picks, stops and nearby places.
   - Allowed: visual restyling of the DOM chrome, meaning the card frame, region/area badges, toolbar and place pins, using the v2 tokens.
   - Added: the 4 tourism categories on the map. Pins get category colour + glyph (DOM overlay classes in `MapCard3D.module.css` and the `MapCardEarth` pin props). A `CategoryChips` row filters the map, dimming non-matching pins and filtering deck place items. Badges show per-category counts.
   - Home = the wireframe Home (board 05/11) sections arranged around this kept map. Owner: S2.
@@ -306,3 +306,5 @@ Codex outcome: three cycles, each ending REJECT (12 → 10 → 8 findings). Ever
 | 8 Editors unspecified | A8 |
 | 9 Board 12 sections | A9 |
 | 10 Persistence inventory | A10 |
+
+**Owner decision (8 Nov 2026):** I2 (study pilot checks) is dropped. v2 is a new version of the app, not a study arm. B1/B8 still apply only as far as the existing unit and e2e tests cover them.
