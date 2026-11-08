@@ -1,104 +1,129 @@
+/* v2 (owner, 8 Nov 2026): the map's five tools as tinted icon squares (the Settings rows' pattern), in a vertical rail
+   over the map card's right edge; with a place open, a row under its notebook. */
 .wrap {
-  position: relative;
   flex-shrink: 0;
 }
 
-/* The keys sit in the map card's rounded bottom, like the bottom row of a phone keyboard: wide keys, a small one at
-   the end. Without WebGL they are plain raised keys; with it the 3D keys draw on the canvas under the buttons. */
-.bar {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  gap: 6px;
-  padding: 7px 7px 9px;
+/* the rail: DiscoveryHome's map card is its positioned parent, so the search panel opens over the map */
+.rail {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
 }
 
-.canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+.row {
+  position: relative;
+  padding: 8px 10px 10px;
+}
+
+.bar {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 16px;
+  background: rgba(248, 247, 244, 0.94);
+  box-shadow: var(--v2-shadow-bar);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.rail .bar {
+  flex-direction: column;
+}
+
+.row .bar {
+  justify-content: space-between;
 }
 
 .key {
-  flex: 1 1 0;
-  min-width: 0;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: 0;
-  border-radius: 11px;
-  background: #f4ead6;
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
-  white-space: nowrap;
-  box-shadow:
-    0 4px 0 #b9b3a7,
-    0 6px 10px -4px rgba(0, 0, 0, 0.6);
+  border-radius: var(--v2-r-control);
+  background: var(--key-bg);
+  color: var(--key-ink);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease;
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.12s ease;
 }
 
-.key:active {
-  transform: translateY(3px);
-  box-shadow:
-    0 1px 0 #b9b3a7,
-    0 2px 4px -2px rgba(0, 0, 0, 0.6);
+.row .key {
+  flex: 1 1 0;
+  width: auto;
+  max-width: 64px;
 }
 
-.key span {
-  overflow: hidden;
-  text-overflow: ellipsis;
+.key:active:not(:disabled) {
+  transform: scale(0.94);
 }
 
-.key:first-child {
-  border-radius: 12px 12px 12px 20px;
+.key:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
 }
 
-.key:last-child {
-  border-radius: 12px 12px 20px 12px;
+/* each tool its own tint (ink on tint, all at least 4.5:1) */
+.tLocate {
+  --key-bg: var(--cat-cru-tint);
+  --key-ink: var(--cat-cru-ink);
+}
+
+.tSearch {
+  --key-bg: #e9e3f5;
+  --key-ink: #5b3f9e;
+}
+
+.tPicks {
+  --key-bg: var(--cat-att-tint);
+  --key-ink: var(--cat-att-ink);
+}
+
+.tBack {
+  --key-bg: var(--v2-surface-sunk);
+  --key-ink: var(--v2-ink-2);
+}
+
+/* Enter, the one that goes in: solid ink, like the selected badge and the 2D route key */
+.tEnter {
+  --key-bg: var(--text-primary);
+  --key-ink: var(--v2-surface);
+}
+
+/* on (search open, Editor's Pick showing, locating): the tint's ink fills the square */
+.key[aria-expanded='true'],
+.key[aria-pressed='true'],
+.key[aria-busy='true'] {
+  background: var(--key-ink);
+  color: #fff;
 }
 
 .key:disabled {
-  opacity: 0.4;
+  background: var(--v2-surface-sunk);
+  color: var(--v2-muted);
+  opacity: 0.45;
   cursor: default;
 }
 
-.key[aria-expanded='true'],
-.key[aria-pressed='true'] {
-  background: var(--accent);
-  color: #fff;
-  box-shadow:
-    0 1px 0 #b2501a,
-    0 2px 4px -2px rgba(0, 0, 0, 0.6);
-  transform: translateY(3px);
+@media (prefers-reduced-motion: reduce) {
+  .key {
+    transition: none;
+  }
+
+  .key:active:not(:disabled) {
+    transform: none;
+  }
 }
 
-/* 3D keys: the buttons only take the taps; the canvas draws them */
-.three .key,
-.three .key:active,
-.three .key[aria-expanded='true'],
-.three .key[aria-pressed='true'],
-.three .key:disabled {
-  background: transparent;
-  color: transparent;
-  box-shadow: none;
-  transform: none;
-  opacity: 1;
+:global(html.reduce-motion) .key {
   transition: none;
-}
-
-.three .key:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
 }
 
 .panel {
@@ -114,6 +139,16 @@
   background: var(--surface);
   box-shadow: 0 18px 40px -16px rgba(20, 22, 28, 0.55);
   overflow: hidden;
+}
+
+/* from the rail: over the map, to the left of the keys (the map card clips it, so it stays inside the map) */
+.rail .panel {
+  top: 0;
+  right: calc(100% + 8px);
+  bottom: auto;
+  left: auto;
+  width: min(290px, calc(100vw - 120px));
+  max-height: min(330px, 44vh);
 }
 
 .panelHead {

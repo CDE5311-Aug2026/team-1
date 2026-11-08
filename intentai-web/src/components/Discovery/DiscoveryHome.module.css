@@ -1,4 +1,4 @@
-/* Home (Discovery, owner sketch 31 Oct): header, map card, Recommended deck, tab bar. One screen. */
+/* Home (Discovery, owner sketch 31 Oct): header, map card, tab bar. v2 (8 Nov 2026): no card deck under the map. */
 .home {
   position: absolute;
   inset: 0;
@@ -256,7 +256,8 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  right: 10px;
+  /* clear of the tool rail */
+  right: 72px;
   z-index: 3;
   display: flex;
   align-items: center;
@@ -265,7 +266,23 @@
 }
 
 .mapTopEnd {
+  right: 10px;
   justify-content: flex-end;
+}
+
+/* v2 (no card deck): the row of places, picks or stops over the map's lower edge, above the credit and clear of the
+   tool rail on the right */
+.shelfSlot {
+  position: absolute;
+  left: 6px;
+  right: 72px;
+  bottom: 32px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.shelfSlot > * {
+  pointer-events: auto;
 }
 
 .mapTop > * {
@@ -328,15 +345,15 @@
   text-overflow: ellipsis;
 }
 
+/* bottom left, under the row of places (the tool rail has the right edge) */
 .credits {
   position: absolute;
-  right: 8px;
+  left: 8px;
   bottom: 8px;
   z-index: 3;
   font-size: 0.625rem;
   color: #fff;
   max-width: 240px;
-  text-align: right;
 }
 
 .credits summary {
@@ -357,49 +374,6 @@
 .credits p {
   margin: 6px 0 0;
   text-align: left;
-}
-
-.recommend {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.title {
-  margin: 0;
-  color: #2f2014;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.titleKicker {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(59, 38, 20, 0.62);
-}
-
-/* The deck reaches past both gutters, as cover art does. */
-.deckBox {
-  position: relative;
-  flex: 0 0 auto;
-  /* just the covers (their numbers are on them) */
-  height: clamp(118px, 16vh, 146px);
-  margin: 0 calc(-1 * var(--gutter));
-}
-
-.deckLayer {
-  position: absolute;
-  inset: 0;
 }
 
 .srOnly {
@@ -437,15 +411,14 @@
   cursor: pointer;
 }
 
-/* Shorter phones: a slimmer map, so the deck still clears the tab bar. */
+/* Shorter phones: a slimmer map. */
 @media (max-height: 760px) {
   .mapCard {
     min-height: 160px;
   }
 }
 
-/* Safari with its toolbars showing (about 660-720pt of screen): everything gives a little, so the map's keys stay
-   inside its frame and the deck keeps its title. */
+/* Safari with its toolbars showing (about 660-720pt of screen): everything gives a little. */
 @media (max-height: 720px) {
   .home {
     gap: 8px;
@@ -453,10 +426,6 @@
 
   .mapCard {
     min-height: 118px;
-  }
-
-  .deckBox {
-    height: clamp(108px, 16vh, 124px);
   }
 
   .pageBar.pageBar {
@@ -480,22 +449,6 @@
   font-weight: 700;
   text-decoration: none;
   box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
-}
-
-/* a place is open: the deck sits a little lower and smaller, so the intro's cards get the room */
-.recommendOpen .deckBox {
-  height: clamp(100px, 14vh, 124px);
-}
-
-/* a wide screen has room for covers you can read, however short the window. Keep this after the phone heights above. */
-@media (min-width: 761px) {
-  .deckBox {
-    height: clamp(170px, 26vh, 280px);
-  }
-
-  .recommendOpen .deckBox {
-    height: clamp(140px, 20vh, 200px);
-  }
 }
 
 /* the overview map takes a little of the paper's warmth (an open place's 3D view keeps its true colours) */
@@ -559,7 +512,7 @@
 .device:not(.deviceOpen) {
   flex: 0 0 auto;
   height: calc(clamp(330px, 50vh, 460px) + var(--grow, 0) * 180px);
-  padding: 18px 6px 0;
+  padding: 18px 6px 6px;
   border-radius: var(--v2-r-card);
   background: var(--v2-surface);
   box-shadow: var(--v2-shadow-card);
@@ -588,16 +541,6 @@
   filter: none;
 }
 
-.home:not(.homeOpen) .title {
-  color: var(--text-primary);
-  font-size: 0.9375rem;
-  font-weight: 600;
-}
-
-.home:not(.homeOpen) .titleKicker {
-  color: var(--v2-muted);
-}
-
 .home:not(.homeOpen) .crumbBox {
   background: rgba(35, 33, 29, 0.78);
 }
@@ -608,22 +551,6 @@
 
 .home:not(.homeOpen) .routeKey {
   background: var(--text-primary);
-}
-
-/* a category picked and none of its places on this deck */
-.deckEmpty {
-  position: absolute;
-  inset: 0;
-  margin: 0 var(--gutter);
-  display: grid;
-  place-items: center;
-  padding: 12px;
-  border-radius: var(--v2-r-card);
-  background: var(--v2-surface);
-  box-shadow: var(--v2-shadow-card);
-  color: var(--v2-muted);
-  font-size: 0.8125rem;
-  text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {

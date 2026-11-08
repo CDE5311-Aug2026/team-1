@@ -1,10 +1,11 @@
-// Home, Discovery redesign (owner brief and sketch, 31 Oct 2026). Top to bottom: the header, the Festival / Event
-// card, the map card (a Three.js scene of URA's planning areas: regions numbered 1–5, then the region's planning areas,
-// then the area's places), and "Recommended": a Cover Flow deck (Three.js) that goes region → planning area → place.
-// Map and deck follow each other. Grey = not unlocked, blue = every place checked in. The level and selection live in
-// the URL (?lvl=&r=&a=&p=), so Back from a place page returns to the same card. The toolbar's Picks key switches the
-// deck to Editor's Pick (?lvl=picks&k=): walks and lists, then a pick's stops (?lvl=pick), the map flying across the
-// island with them; a walk also opens as a 2D route (&route=1) with a button that starts Google Maps.
+// Home, Discovery redesign (owner brief and sketch, 31 Oct 2026). The map card is a Three.js scene of URA's planning
+// areas: regions numbered 1–5, then the region's planning areas, then the area's places. v2 (owner, 8 Nov 2026): no
+// card deck under it any more; one tap on the map goes down a level (a region badge → its planning areas, an area →
+// its places, a pin → the place's card), and what the deck listed lies over the map's lower edge as a compact row
+// (MapShelf). Ring = how much is checked in, a tick = all of it. The level and selection live in the URL
+// (?lvl=&r=&a=&p=), so Back from a place page returns to the same spot. The rail's Picks key shows Editor's Pick
+// (?lvl=picks&k=): walks and lists, then a pick's stops (?lvl=pick), the map flying across the island with them; a walk
+// also opens as a 2D route (&route=1) with a button that starts Google Maps.
 import { AnimatePresence, motion, useReducedMotionConfig } from "motion/react";
 import {
   lazy,
@@ -24,12 +25,10 @@ import {
   HOME_BASE_LABEL,
   type HomePlace,
 } from "../../data/homePlaces";
-import { formatMinutes } from "../../data/pickFormat";
 import { usePersistentStore } from "../../data/persistentStore";
 import { profileV3Store, type TopicId } from "../../data/profile/profile";
 import { curatedPlace } from "../../features/nearby/catalogue";
 import {
-  TOURISM_CATEGORIES,
   TOURISM_INFO,
   tourismOf,
   type TourismCategory,
@@ -38,16 +37,11 @@ import {
 import type { EditorPick } from "../../data/picks";
 import {
   URA_AREAS,
-  URA_REGIONS,
   URA_SOURCE,
   areaAt,
   areaOfPlace,
-  areaProgress,
   areasOf,
-  placesInRegion,
-  unlockedAreas,
   placesInArea,
-  regionProgress,
   uraArea,
   uraRegion,
   visitedSet,
@@ -59,11 +53,9 @@ import { localToday } from "../../features/nearby/personal";
 import { toXY } from "../../features/nearby/map/projection";
 import { showToast } from "../../hooks/useToast";
 import PageBar from "../PageBar/PageBar";
-import { PlaceCarousel } from "../PlaceCarousel/PlaceCarousel";
-import type { CoverItem } from "./CoverFlow3D";
-import { NEAR_M, nearYou, shortDistance, type NearItem } from "./nearYou";
+import { NEAR_M, nearYou, shortDistance } from "./nearYou";
+import { MapNotice, MapShelf, type ShelfItem } from "./MapShelf";
 import type { LatLng } from "../../features/nearby/types";
-import { LevelDeck, progressLine, type LevelCard } from "./LevelDeck";
 import type { BookControls } from "../Notebook/FlipBook";
 // Three.js loads with these two, after the rest of Home has drawn.
 // The map card (owner, 31 Oct): regions and planning areas on a light Three.js map over EARTH ONLINE's ground picture
@@ -132,38 +124,7 @@ function afterLoad(fn: () => void): () => void {
     if (idle) window.cancelIdleCallback?.(idle);
   };
 }
-const CoverFlow3DLazy = lazy(() =>
-  import("./CoverFlow3D").then((m) => ({ default: m.CoverFlow3D })),
-);
-const IS_JSDOM =
-  typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent);
-/** WebGL here? Without it (old devices, unit tests) the plain decks show and Three.js is never downloaded. */
-const HAS_WEBGL = (() => {
-  if (IS_JSDOM || typeof document === "undefined") return false;
-  try {
-    const c = document.createElement("canvas");
-    return !!(c.getContext("webgl2") || c.getContext("webgl"));
-  } catch {
-    return false;
-  }
-})();
-function CoverFlow3D(props: Parameters<typeof CoverFlow3DLazy>[0]) {
-  if (!HAS_WEBGL) return <>{props.fallback}</>;
-  return (
-    <Suspense fallback={props.fallback}>
-      <CoverFlow3DLazy {...props} />
-    </Suspense>
-  );
-}
 
-/** "Sat 7 Nov": the calendar card's day and month. */
-
-/** Card band colours by unlock status (as on the map). */
-const SHAPE_COLOR = {
-  none: "#c9c2b4",
-  exploring: "#8fb5f0",
-  done: "#2f6fe4",
-} as const;
 import { MapToolbar } from "./MapToolbar";
 import { PickRoute } from "./PickRoute";
 import { backdropSrc } from "./backdrop";
@@ -206,6 +167,8 @@ function saveHere(v: LatLng) {
   }
 }
 const isPickLevel = (l: Level) => l === "picks" || l === "pick";
+/** The tool rail's width over the map's right edge (MapToolbar.module.css .rail: 44 px keys, 5 px padding, 10 px in). */
+const RAIL_W = 64;
 
 /** The last of these pictures to finish loading (the first one at once), so a background never fades in blank. */
 function useLoadedImage(src: string) {
@@ -252,24 +215,11 @@ const homePlacesIn = (
   return [...list].sort((a, b) => rank(a) - rank(b));
 };
 
-const ratio = (p: UnlockProgress) => (p.total ? p.visited / p.total : 0);
-
 /** v2: a place's Tourism 2040 category (from the catalogue). */
 const tourismOfId = (id: string): TourismCategory | undefined => {
   const c = curatedPlace(id);
   return c ? tourismOf(c) : undefined;
 };
-/** "Attractions 2/40 · Wellness 0/6": checked in by Tourism 2040 category (replaces the older kinds on v2 screens). */
-function tourismLine(places: readonly { id: string; tourism?: { category: TourismCategory } }[], visited: ReadonlySet<string>): string {
-  return TOURISM_CATEGORIES.map((c) => {
-    const ps = places.filter((p) => tourismOf(p) === c);
-    return ps.length ? `${TOURISM_INFO[c].label} ${ps.filter((p) => visited.has(p.id)).length}/${ps.length}` : "";
-  })
-    .filter(Boolean)
-    .join(" · ");
-}
-const countLine = (places: readonly { tourism?: { category: TourismCategory } }[], cat: TourismCategory) =>
-  `${places.filter((p) => tourismOf(p) === cat).length} ${TOURISM_INFO[cat].label}`;
 
 const HOME_BY_ID = new Map(ALL_HOME_PLACES.map((p) => [p.id, p]));
 const homeOf = (id: string): HomePlace | undefined => HOME_BY_ID.get(id);
@@ -282,10 +232,6 @@ function pickProgress(pick: EditorPick, visited: Set<string>): UnlockProgress {
     status: n === 0 ? "none" : n === pick.stops.length ? "done" : "exploring",
   };
 }
-const pickKicker = (pick: EditorPick) =>
-  pick.kind === "walk"
-    ? `Walk · ${pick.stops.length} stops${pick.minutes ? ` · ${formatMinutes(pick.minutes)}` : ""}`
-    : `List · ${pick.stops.length} places`;
 
 /** Where Locate last found you (this tab only), for Home's "Picked for you" distance chips. */
 export const readHomeHere = (): LatLng | null => readHere();
@@ -427,9 +373,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     if (lvl === "places" && next.open) q.set("open", next.open);
     setParams(q, { replace: true });
   };
-  const lastDepth = useRef(DEPTH[level]);
-  const direction = DEPTH[level] >= lastDepth.current ? 1 : -1;
-  lastDepth.current = DEPTH[level];
 
   const enterRegion = (id: string) =>
     go({
@@ -451,6 +394,11 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   useLayoutEffect(() => onPlaceOpenChange?.(!!openId), [onPlaceOpenChange, openId]);
   const openPlace = (id: string) => {
     const q = new URLSearchParams(params);
+    // a stop tapped on the Editor's Pick map: it opens inside its pick, so ↩ goes back to the pick's stops
+    if (level === "picks") {
+      q.set("lvl", "pick");
+      if (pick) q.set("k", pick.id);
+    }
     q.set("p", id);
     q.set("open", id);
     setParams(q, { state: { sheet: true } });
@@ -604,207 +552,117 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     }
   };
 
-  // ---- cards ----
-  const regionCards: LevelCard[] = URA_REGIONS.map((r) => ({
-    id: r.id,
-    name: r.name,
-    kicker: `Region · ${areasOf(r.id).length} areas${cat ? ` · ${countLine(placesInRegion(r.id), cat)}` : ""}`,
-    progress: regionProgress(r.id, visited),
-  }));
-  const areaCards: LevelCard[] = areaList.map((a) => ({
-    id: a.id,
-    name: a.name,
-    kicker: `${uraRegion(a.region)?.name} · Planning area${cat ? ` · ${countLine(placesInArea(a.id), cat)}` : ""}`,
-    progress: areaProgress(a.id, visited),
-  }));
-  const regionItems: CoverItem[] = useMemo(
-    () =>
-      regionCards.map((c, i) => ({
-        id: c.id,
-        title: c.name,
-        kicker: `${i + 1} · Region · ${areasOf(c.id as RegionId).length} areas${cat ? ` · ${countLine(placesInRegion(c.id as RegionId), cat)}` : ""}`,
-        line: progressLine(c.progress),
-        stats: [
-          (({ done, total }) => `${done} of ${total} areas unlocked`)(
-            unlockedAreas(c.id as RegionId, visited),
-          ),
-          tourismLine(placesInRegion(c.id as RegionId), visited),
-        ],
-        status: c.progress.status,
-        progress: ratio(c.progress),
-        count: `${c.progress.visited}/${c.progress.total}`,
-        shape: areasOf(c.id as RegionId)
-          .filter((a) => !/Islands$/.test(a.name))
-          .map((a) => ({
-            rings: a.rings,
-            color: SHAPE_COLOR[areaProgress(a.id, visited).status],
-          })),
-        action: `Explore ${c.name}`,
-      })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [visited, cat],
-  );
-  const areaItems: CoverItem[] = useMemo(
-    () =>
-      areaCards.map((c, i) => ({
-        id: c.id,
-        title: c.name,
-        kicker: `${i + 1} · ${uraRegion(region)?.name} · Planning area${cat ? ` · ${countLine(placesInArea(c.id), cat)}` : ""}`,
-        line: progressLine(c.progress),
-        stats: [tourismLine(placesInArea(c.id), visited)].filter(Boolean),
-        status: c.progress.status,
-        progress: c.progress.total ? ratio(c.progress) : null,
-        count: `${c.progress.visited}/${c.progress.total}`,
-        shape: [
-          {
-            rings: URA_AREAS.find((a) => a.id === c.id)!.rings,
-            color: SHAPE_COLOR[c.progress.status],
-          },
-        ],
-        action: c.progress.total
-          ? `See ${c.progress.total} ${c.progress.total === 1 ? "place" : "places"}`
-          : "Nothing to see yet",
-      })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [region, visited, cat],
-  );
   // the deck shows the picked category's places only (the map keeps them all, the others faded)
   const deckPlaces = useMemo(() => placeList.filter((p) => matches(p.id)), [placeList, matches]);
   const deckPlace = place && matches(place.id) ? place : deckPlaces[0];
-  const placeItems: CoverItem[] = useMemo(
-    () =>
-      deckPlaces.map((p) => ({
-        id: p.id,
-        title: p.name,
-        kicker: visited.has(p.id)
-          ? "Checked in"
-          : `${p.distance} · ${area.name}`,
-        line: [tourismOfId(p.id) ? TOURISM_INFO[tourismOfId(p.id)!].label : "", p.kind].filter(Boolean).join(" · "),
-        status: visited.has(p.id) ? "done" : "none",
-        progress: null,
-        image: p.photo,
-        action: "Open",
-        actionLabel: `Open ${p.name} in Nearby`,
-      })),
-    [deckPlaces, visited, area.name],
-  );
 
-  const pickItems: CoverItem[] = useMemo(
-    () =>
-      picks.map((k) => {
-        const prog = pickProgress(k, visited);
-        return {
-          id: k.id,
-          title: k.title,
-          kicker: pickKicker(k),
-          line: k.subtitle || progressLine(prog),
-          stats: [
-            `${prog.visited} of ${prog.total} ${k.kind === "walk" ? "stops" : "places"} checked in`,
-            ...(k.kind === "walk" && k.km
-              ? [
-                  `≈ ${k.km.toFixed(1)} km ${k.mode === "transit" ? "with transit" : "on foot"}`,
-                ]
-              : []),
-          ],
-          status: prog.status,
-          progress: ratio(prog),
-          count: `${prog.visited}/${prog.total}`,
-          image: k.stops.map((st) => homeOf(st.place.id)?.photo).find(Boolean),
-          action:
-            k.kind === "walk"
-              ? `Start the walk`
-              : `See ${k.stops.length} places`,
-        };
-      }),
-    [picks, visited],
-  );
-  const nearItems: CoverItem[] = useMemo(
-    () =>
-      (near?.items ?? []).filter((it) => it.kind !== "place" || matches(it.id)).map((it) => {
-        const away = shortDistance(it.m);
-        if (it.kind === "place") {
-          const p = it.place;
-          return {
-            id: p.id,
-            title: p.name,
-            kicker: visited.has(p.id)
-              ? `Checked in · ${away}`
-              : `${away} · ${p.area}`,
-            line: p.kind,
-            status: visited.has(p.id) ? "done" : "none",
-            progress: null,
-            image: p.photo,
-            action: "Open",
-            actionLabel: `Open ${p.name}`,
-          } satisfies CoverItem;
-        }
-        const k = it.pick;
-        const prog = pickProgress(k, visited);
-        return {
-          id: k.id,
-          title: k.title,
-          kicker: `Editor's Pick · nearest stop ${away}`,
-          line: pickKicker(k),
-          stats: [
-            `${prog.visited} of ${prog.total} ${k.kind === "walk" ? "stops" : "places"} checked in`,
-          ],
-          status: prog.status,
-          progress: ratio(prog),
-          count: `${prog.visited}/${prog.total}`,
-          image:
-            homeOf(it.stopId)?.photo ??
-            k.stops.map((st) => homeOf(st.place.id)?.photo).find(Boolean),
-          action:
-            k.kind === "walk"
-              ? "Start the walk"
-              : `See ${k.stops.length} places`,
-        } satisfies CoverItem;
-      }),
-    [near, visited, matches],
-  );
   // a place opens over Home; a pick opens its deck of stops
   const enterNear = (id: string) => {
     const it = near?.items.find((i) => i.id === id);
     if (it?.kind === "pick") go({ lvl: "pick", k: it.id, p: it.stopId });
     else if (it) openPlace(it.id);
   };
-  const stopItems: CoverItem[] = useMemo(
-    () =>
-      (pick?.stops ?? []).flatMap((st, i) => {
-        if (!matches(st.place.id)) return [];
-        const h = homeOf(st.place.id);
-        return {
-          id: st.place.id,
-          title: st.place.name,
-          kicker: visited.has(st.place.id)
-            ? "Checked in"
-            : pick.kind === "walk"
-              ? `Stop ${i + 1}${st.minutes ? ` · ${st.estimate ? "≈ " : ""}${st.minutes} min` : ""}`
-              : st.place.kind,
-          line: h?.area ?? st.place.kind,
-          status: visited.has(st.place.id) ? "done" : "none",
-          progress: null,
-          image: h?.photo,
-          action: "Open",
-          actionLabel: `Open ${st.place.name}`,
-        } satisfies CoverItem;
-      }),
-    [pick, visited, matches],
-  );
-  const stopHomes = useMemo(
-    () => (pick?.stops ?? []).flatMap((st) => (matches(st.place.id) ? (homeOf(st.place.id) ?? []) : [])),
-    [pick, matches],
-  );
+  // a tap on the row: a place opens; a pick shows its stops
+  const onShelf = (id: string) =>
+    level === "near" ? enterNear(id) : level === "picks" ? go({ lvl: "pick", k: id }) : openPlace(id);
   const deckStop = stop && matches(stop.place.id) ? stop : pick?.stops.find((st) => matches(st.place.id));
-  const nearDeckSel =
-    nearSel && (nearSel.kind !== "place" || matches(nearSel.id))
-      ? nearSel
-      : near?.items.find((i) => i.kind !== "place" || matches(i.id));
-  const emptyDeck = cat ? (
-    <p className={styles.deckEmpty} role="status">
-      No {TOURISM_INFO[cat].label} places here. Pick All to see every place.
-    </p>
-  ) : null;
+
+  // ---- the compact row over the map's lower edge (what the deck listed), or a status line when there is none ----
+  const shelf = useMemo((): { label: string; items: ShelfItem[]; current?: string } | null => {
+    const catLabel = (id: string) => {
+      const c = tourismOfId(id);
+      return c ? TOURISM_INFO[c].label : "";
+    };
+    const pickLine = (k: EditorPick) =>
+      k.kind === "walk" ? `Walk · ${k.stops.length} stops` : `List · ${k.stops.length} places`;
+    const pickDetail = (k: EditorPick) => {
+      const pr = pickProgress(k, visited);
+      return `${pickLine(k)}, ${pr.visited} of ${pr.total} checked in`;
+    };
+    const pickDone = (k: EditorPick) => pickProgress(k, visited).status === "done";
+    if (level === "places")
+      return {
+        label: `${area.name} places`,
+        current: deckPlace?.id,
+        items: deckPlaces.map((p) => ({
+          id: p.id,
+          title: p.name,
+          sub: p.kind,
+          detail: [catLabel(p.id), p.kind, p.distance].filter(Boolean).join(", "),
+          mark: { kind: "cat", cat: tourismOfId(p.id) },
+          done: visited.has(p.id),
+        })),
+      };
+    if (level === "picks")
+      return {
+        label: "Editor's Pick",
+        current: pick?.id,
+        items: picks.map((k) => ({
+          id: k.id,
+          title: k.title,
+          sub: pickLine(k),
+          detail: pickDetail(k),
+          mark: { kind: "pick" },
+          done: pickDone(k),
+        })),
+      };
+    if (level === "pick" && pick)
+      return {
+        label: `${pick.title}: ${pick.kind === "walk" ? "stops" : "places"}`,
+        current: deckStop?.place.id,
+        items: pick.stops.flatMap((st, i): ShelfItem[] => {
+          if (!matches(st.place.id)) return [];
+          const where = homeOf(st.place.id)?.area ?? st.place.kind;
+          return [
+            {
+              id: st.place.id,
+              title: st.place.name,
+              sub: pick.kind === "walk" ? `Stop ${i + 1} · ${where}` : where,
+              detail: [pick.kind === "walk" ? `Stop ${i + 1}` : "", catLabel(st.place.id), where].filter(Boolean).join(", "),
+              mark: pick.kind === "walk" ? { kind: "num", n: i + 1 } : { kind: "cat", cat: tourismOfId(st.place.id) },
+              done: visited.has(st.place.id),
+            },
+          ];
+        }),
+      };
+    if (level === "near" && near)
+      return {
+        label: near.within ? `Near you · ${NEAR_M / 1000} km` : "Nearest to you",
+        current: nearSel?.id,
+        items: near.items.flatMap((it): ShelfItem[] => {
+          const away = shortDistance(it.m);
+          if (it.kind === "pick")
+            return [
+              {
+                id: it.id,
+                title: it.pick.title,
+                sub: `${away} · ${it.pick.kind === "walk" ? "Walk" : "List"}`,
+                detail: `${away} away, Editor's Pick, ${pickDetail(it.pick)}`,
+                mark: { kind: "pick" },
+                done: pickDone(it.pick),
+              },
+            ];
+          if (!matches(it.id)) return [];
+          return [
+            {
+              id: it.id,
+              title: it.place.name,
+              sub: `${away} · ${it.place.kind}`,
+              detail: [`${away} away`, catLabel(it.id), it.place.kind].filter(Boolean).join(", "),
+              mark: { kind: "cat", cat: tourismOfId(it.id) },
+              done: visited.has(it.id),
+            },
+          ];
+        }),
+      };
+    return null;
+  }, [level, area.name, deckPlace, deckPlaces, picks, pick, deckStop, near, nearSel, visited, matches]);
+  const notice =
+    level === "areas" && placesInArea(area.id).length === 0
+      ? `${area.name} has no places yet. Pick another area.`
+      : shelf && !shelf.items.length && cat
+        ? `No ${TOURISM_INFO[cat].label} places here. Pick All to see every place.`
+        : undefined;
 
   const regionName = uraRegion(region)?.name ?? "";
   const crumbs =
@@ -911,27 +769,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     [inPicks, pick, placeList, level, near],
   );
 
-  const deckMotion = {
-    initial: reduce
-      ? false
-      : {
-          opacity: 0,
-          y: direction > 0 ? 26 : -14,
-          scale: direction > 0 ? 0.96 : 1.02,
-        },
-    animate: { opacity: 1, y: 0, scale: 1 },
-    exit: reduce
-      ? { opacity: 0 }
-      : {
-          opacity: 0,
-          y: direction > 0 ? -14 : 26,
-          scale: direction > 0 ? 1.02 : 0.96,
-        },
-    transition: {
-      duration: reduce ? 0 : 0.3,
-      ease: [0.2, 0.8, 0.2, 1] as const,
-    },
-  };
 
   // Enter (the ↵ key, or the keyboard's Enter): open what the deck has selected; in a place's notebook, the next page
   const book = useRef<BookControls | null>(null);
@@ -985,6 +822,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   }, []);
   const keys = (
     <MapToolbar
+      layout={openId ? "row" : "rail"}
       // ↩ is the one back key (owner, 1 Nov 2026: it replaces the one at the top left): out of a place, else up a level
       canUndo={!!openId || (level !== "regions" && !routeMode)}
       undoLabel={openId ? "Back to the map" : upLabel}
@@ -1115,22 +953,13 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                   path={pick?.kind === "walk"}
                   visited={visited}
                   label={`Map of Singapore's planning areas. ${title}.`}
-                  onPickRegion={(id) =>
-                    level === "regions" ? go({ r: id }) : enterRegion(id)
-                  }
-                  onPickArea={(id) =>
-                    level === "areas" ? go({ a: id }) : enterArea(id)
-                  }
-                  onPickPlace={(id) =>
-                    level === "near"
-                      ? go({ n: id })
-                      : isPickLevel(level)
-                        ? go({ lvl: "pick", p: id })
-                        : go({ lvl: "places", p: id })
-                  }
+                  onPickRegion={(id) => enterRegion(id)}
+                  onPickArea={(id) => enterArea(id)}
+                  onPickPlace={(id) => openPlace(id)}
                   here={level === "near" ? (here ?? undefined) : undefined}
                   sky={openId ? sky : undefined}
                   category={category}
+                  insetRight={RAIL_W}
                 />
               </Suspense>
             )}
@@ -1183,6 +1012,15 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                   )}
               </div>
             )}
+            {!openId && (
+              <div className={styles.shelfSlot}>
+                {!routeMode && shelf && shelf.items.length > 0 && (
+                  <MapShelf label={shelf.label} items={shelf.items} currentId={shelf.current} onPick={onShelf} />
+                )}
+                <MapNotice>{routeMode ? undefined : notice}</MapNotice>
+              </div>
+            )}
+            {!openId && !routeMode && keys}
             {!routeMode && !openId && (
               <details className={styles.credits}>
                 <summary>Map data · OneMap</summary>
@@ -1201,7 +1039,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
               </details>
             )}
           </div>
-          {!openId && keys}
         </div>
         {openId && (
           <Suspense fallback={null}>
@@ -1222,212 +1059,9 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
         {openId && <div className={styles.keysOpen}>{keys}</div>}
       </div>
 
-      <div
-        className={
-          openId
-            ? `${styles.recommend} ${styles.recommendOpen}`
-            : styles.recommend
-        }
-      >
-        <h2
-          className={openId ? `${styles.title} ${styles.srOnly}` : styles.title}
-        >
-          <span className={styles.titleKicker}>Recommended</span>
-          {title}
-        </h2>
-        <div className={styles.deckBox}>
-          <AnimatePresence initial={false} mode="popLayout">
-            <motion.div
-              key={
-                level === "regions"
-                  ? "regions"
-                  : level === "areas"
-                    ? `areas:${region}`
-                    : level === "picks"
-                      ? "picks"
-                      : level === "near"
-                        ? "near"
-                        : level === "pick"
-                          ? `pick:${pick?.id}`
-                          : `places:${area.id}`
-              }
-              className={styles.deckLayer}
-              {...deckMotion}
-            >
-              {level === "regions" && (
-                <CoverFlow3D
-                  label="Regions"
-                  items={regionItems}
-                  selectedId={region}
-                  onSelect={(id) => go({ r: id, a: undefined })}
-                  onEnter={enterRegion}
-                  fallback={
-                    <LevelDeck
-                      label="Regions"
-                      cards={regionCards}
-                      selectedId={region}
-                      actionLabel={(c) => `Explore ${c.name}`}
-                      onSelect={(id) => go({ r: id, a: undefined })}
-                      onEnter={enterRegion}
-                    />
-                  }
-                />
-              )}
-              {level === "areas" && (
-                <CoverFlow3D
-                  label={`${regionName} planning areas`}
-                  items={areaItems}
-                  selectedId={area.id}
-                  onSelect={(id) => go({ a: id })}
-                  onEnter={enterArea}
-                  fallback={
-                    <LevelDeck
-                      label={`${regionName} planning areas`}
-                      cards={areaCards}
-                      selectedId={area.id}
-                      actionLabel={(c) =>
-                        c.progress.total
-                          ? `See ${c.progress.total} ${c.progress.total === 1 ? "place" : "places"}`
-                          : "Nothing to see yet"
-                      }
-                      onSelect={(id) => go({ a: id })}
-                      onEnter={enterArea}
-                    />
-                  }
-                />
-              )}
-              {level === "places" && place && !deckPlace && emptyDeck}
-              {level === "places" && deckPlace && (
-                <CoverFlow3D
-                  label="Nearby places"
-                  items={placeItems}
-                  hideAction={!!openId}
-                  selectedId={deckPlace.id}
-                  onSelect={(id) =>
-                    go({ p: id, open: openId ? id : undefined })
-                  }
-                  onEnter={openPlace}
-                  fallback={
-                    <PlaceCarousel
-                      places={deckPlaces}
-                      selectedId={deckPlace.id}
-                      stories={{}}
-                      onSelect={(id) => go({ p: id })}
-                      onActivate={(id) => go({ p: id })}
-                      onOpen={openPlace}
-                    />
-                  }
-                />
-              )}
-              {level === "picks" && pick && (
-                <CoverFlow3D
-                  label="Editor's Pick"
-                  items={pickItems}
-                  selectedId={pick.id}
-                  onSelect={(id) => go({ k: id })}
-                  onEnter={(id) => go({ lvl: "pick", k: id })}
-                  fallback={
-                    <LevelDeck
-                      label="Editor's Pick"
-                      cards={picks.map((k) => ({
-                        id: k.id,
-                        name: k.title,
-                        kicker: pickKicker(k),
-                        progress: pickProgress(k, visited),
-                      }))}
-                      selectedId={pick.id}
-                      actionLabel={(c) =>
-                        picks.find((k) => k.id === c.id)?.kind === "walk"
-                          ? `Start ${c.name}`
-                          : `See ${c.name}`
-                      }
-                      onSelect={(id) => go({ k: id })}
-                      onEnter={(id) => go({ lvl: "pick", k: id })}
-                    />
-                  }
-                />
-              )}
-              {level === "near" && nearSel && !nearDeckSel && emptyDeck}
-              {level === "near" && nearDeckSel && (
-                <CoverFlow3D
-                  label={title}
-                  items={nearItems}
-                  hideAction={!!openId}
-                  selectedId={nearDeckSel.id}
-                  onSelect={(id) =>
-                    go({
-                      n: id,
-                      open:
-                        openId &&
-                        near?.items.find((i) => i.id === id)?.kind === "place"
-                          ? id
-                          : undefined,
-                    })
-                  }
-                  onEnter={enterNear}
-                  fallback={
-                    <LevelDeck
-                      label={title}
-                      cards={nearItems.map((c) => ({
-                        id: c.id,
-                        name: c.title,
-                        kicker: c.kicker,
-                        progress:
-                          c.progress === null
-                            ? {
-                                visited: c.status === "done" ? 1 : 0,
-                                total: 1,
-                                status: c.status,
-                              }
-                            : pickProgress(
-                                (
-                                  near?.items.find(
-                                    (i) => i.id === c.id,
-                                  ) as Extract<NearItem, { kind: "pick" }>
-                                ).pick,
-                                visited,
-                              ),
-                      }))}
-                      selectedId={nearDeckSel.id}
-                      actionLabel={(c) => {
-                        const it = near?.items.find((i) => i.id === c.id);
-                        return it?.kind === "pick"
-                          ? `${it.pick.kind === "walk" ? "Start" : "See"} ${c.name}`
-                          : `Open ${c.name}`;
-                      }}
-                      onSelect={(id) => go({ n: id })}
-                      onEnter={enterNear}
-                    />
-                  }
-                />
-              )}
-              {level === "pick" && pick && stop && !deckStop && emptyDeck}
-              {level === "pick" && pick && deckStop && (
-                <CoverFlow3D
-                  label={`${pick.title}: ${pick.kind === "walk" ? "stops" : "places"}`}
-                  items={stopItems}
-                  hideAction={!!openId}
-                  selectedId={deckStop.place.id}
-                  onSelect={(id) =>
-                    go({ p: id, open: openId ? id : undefined })
-                  }
-                  onEnter={openPlace}
-                  fallback={
-                    <PlaceCarousel
-                      places={stopHomes}
-                      selectedId={deckStop.place.id}
-                      stories={{}}
-                      onSelect={(id) => go({ p: id })}
-                      onActivate={(id) => go({ p: id })}
-                      onOpen={openPlace}
-                    />
-                  }
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
+      {/* v2 (owner, 8 Nov 2026): no card deck under the map; the map itself drills down. The level's name stays for
+          screen readers. */}
+      <h2 className={styles.srOnly}>{title}</h2>
       {!openId && bottom}
     </div>
   );

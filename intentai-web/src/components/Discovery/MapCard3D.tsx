@@ -4,7 +4,7 @@
 // Labels and pins are DOM buttons that follow the camera, so they stay tappable and readable by screen readers.
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import CategoryGlyph from '../Category/CategoryGlyph';
-import { TOURISM_INFO, tourismOf, type TourismCategory, type TourismFilter } from '../../data/tourism';
+import { TOURISM_CATEGORIES, TOURISM_INFO, tourismOf, type TourismCategory, type TourismFilter } from '../../data/tourism';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { Rgba } from '../../features/nearby/map/CityMap';
 import { toXY } from '../../features/nearby/map/projection';
@@ -58,13 +58,43 @@ interface Props {
   path?: boolean;
   /** Where you are (Locate): a blue dot, and the map frames NEAR_M round it. */
   here?: LatLng;
-  /** v2 category chips: other categories' pins dim, and the region / area badges count this category's places. */
+  /** v2 category chips: other categories' pins dim, and the region / area badges count this category's places
+   *  (with All: each of the four categories'). */
   category?: TourismFilter;
+  /** Room kept clear at the map's right edge (the tool rail lies over it), px: the badges stay inside the rest. */
+  insetRight?: number;
 }
 
-/** How many of these places are in the category (the badges' count when a chip is picked). */
-export const countIn = (places: readonly { tourism?: { category: TourismCategory } }[], cat: TourismCategory) =>
-  places.filter((p) => tourismOf(p) === cat).length;
+type Counted = { tourism?: { category: TourismCategory }; operatingStatus?: string };
+/** How many of these places are in the category (the badges' counts); places still planned are not counted. */
+export const countIn = (places: readonly Counted[], cat: TourismCategory) =>
+  places.filter((p) => p.operatingStatus !== 'planned' && tourismOf(p) === cat).length;
+
+/** With All picked: the four categories' counts in their fixed order (Attractions · Wellness · Leisure · Cruise);
+ *  a category with none here is left out. */
+function CatCounts({ places }: { places: readonly Counted[] }) {
+  const counts = TOURISM_CATEGORIES.map((c) => [c, countIn(places, c)] as const).filter(([, n]) => n > 0);
+  if (!counts.length) return null;
+  return (
+    <span className={styles.catCounts} aria-hidden="true">
+      {counts.map(([c, n]) => (
+        <span key={c} className={styles.mini} data-cat={c} style={{ '--mini-bg': TOURISM_INFO[c].tint, '--mini-ink': TOURISM_INFO[c].ink } as CSSProperties}>
+          <CategoryGlyph category={c} size={9} color="currentColor" />
+          {n}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** The badges' counts for screen readers: the picked category's, or (All) each category with places here. */
+const countsLabel = (places: readonly Counted[], cat: TourismCategory | null) =>
+  cat
+    ? `, ${countIn(places, cat)} ${TOURISM_INFO[cat].label}`
+    : TOURISM_CATEGORIES.map((c) => [c, countIn(places, c)] as const)
+        .filter(([, n]) => n > 0)
+        .map(([c, n]) => `, ${n} ${TOURISM_INFO[c].label}`)
+        .join('');
 
 function CatCount({ cat, n }: { cat: TourismCategory; n: number }) {
   const info = TOURISM_INFO[cat];
@@ -134,7 +164,14 @@ function Ring({ p }: { p: UnlockProgress }) {
   );
 }
 
-const pct = (p: UnlockProgress) => (p.total ? `${Math.round((p.visited / p.total) * 100)}% checked in` : 'no places yet');
+/** A badge's progress in words: its status, then the numbers (as the old deck's cards had them). */
+const progressWords = (p: UnlockProgress) =>
+  !p.total
+    ? 'no places yet'
+    : `${p.status === 'done' ? 'unlocked' : p.status === 'exploring' ? 'exploring' : 'not visited yet'}, ${p.visited} of ${p.total} ${p.total === 1 ? 'place' : 'places'} checked in`;
+
+/** All of it checked in: a tick on the badge's ring (so colour never carries it alone). */
+const Tick = () => <span className={styles.tick} data-tick="" aria-hidden="true" />;
 
 export function MapCard3D({
   level,
@@ -152,6 +189,7 @@ export function MapCard3D({
   path = false,
   here,
   category = 'all',
+  insetRight = 0,
 }: Props) {
   const cat = category === 'all' ? null : category;
   // near-you pins stand on the ground like a pick's stops
@@ -287,6 +325,17 @@ export function MapCard3D({
     const s = sceneRef.current;
     if (!s) return undefined;
     const place = () => {
+      const bw = boxRef.current?.clientWidth ?? 0;
+      const bh = boxRef.current?.clientHeight ?? 0;
+      const badges: { el: HTMLElement; x: number; y: number; w: number; h: number; region: boolean }[] = [];
+      const clamp = (b: (typeof badges)[number]) => {
+        // regions always stay on the map; an area far off (the camera is on the selected one) may leave it
+        if (!b.region) return;
+        const hw = b.w / 2 + 6;
+        const hh = b.h / 2 + 6;
+        b.x = Math.min(Math.max(b.x, hw), Math.max(hw, bw - insetRight - hw));
+        b.y = Math.min(Math.max(b.y, hh + 44), Math.max(hh + 44, bh - hh - 26));
+      };
       for (const m of markers) {
         const el = labelRefs.current.get(m.key);
         if (!el) continue;
@@ -296,15 +345,43 @@ export function MapCard3D({
           continue;
         }
         el.style.visibility = '';
+        // a region or area badge stays whole inside the map, clear of the tool rail and the crumbs at the top, and
+        // off its neighbours (below); place pins stay exactly on their place
+        if (bw && (m.key.startsWith('r:') || m.key.startsWith('a:'))) {
+          const b = { el, x: p.x, y: p.y, w: el.offsetWidth, h: el.offsetHeight, region: m.key.startsWith('r:') };
+          clamp(b);
+          badges.push(b);
+          continue;
+        }
         el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) translate(-50%, -50%)`;
       }
+      // badges that would overlap step apart vertically (a few passes; there are at most a dozen)
+      for (let pass = 0; pass < 4; pass++) {
+        let moved = false;
+        for (let i = 0; i < badges.length; i++)
+          for (let j = i + 1; j < badges.length; j++) {
+            const a = badges[i];
+            const b = badges[j];
+            const ox = (a.w + b.w) / 2 + 4 - Math.abs(a.x - b.x);
+            const oy = (a.h + b.h) / 2 + 4 - Math.abs(a.y - b.y);
+            if (ox <= 0 || oy <= 0) continue;
+            const down = b.y >= a.y ? 1 : -1;
+            a.y -= (down * oy) / 2;
+            b.y += (down * oy) / 2;
+            clamp(a);
+            clamp(b);
+            moved = true;
+          }
+        if (!moved) break;
+      }
+      for (const b of badges) b.el.style.transform = `translate(${b.x.toFixed(1)}px, ${b.y.toFixed(1)}px) translate(-50%, -50%)`;
     };
     s.onFrame = place;
     s.kick();
     return () => {
       if (s.onFrame === place) s.onFrame = null;
     };
-  }, [markers, ready]);
+  }, [markers, ready, insetRight]);
 
   // ---- taps on the map ----
   const down = useRef<{ x: number; y: number } | null>(null);
@@ -342,14 +419,19 @@ export function MapCard3D({
               type="button"
               className={`${styles.badge} ${r.id === region ? styles.badgeOn : ''}`}
               aria-pressed={r.id === region}
-              aria-label={`Region ${i + 1}: ${r.name}, ${pct(regionProgress(r.id, visited))}${cat ? `, ${countIn(placesInRegion(r.id), cat)} ${TOURISM_INFO[cat].label}` : ''}`}
+              data-status={regionProgress(r.id, visited).status}
+              aria-label={`Region ${i + 1}: ${r.name}, ${progressWords(regionProgress(r.id, visited))}${countsLabel(placesInRegion(r.id), cat)}`}
               onClick={() => onPickRegion(r.id)}
             >
               <span className={styles.numWrap}>
                 <Ring p={regionProgress(r.id, visited)} />
                 <span className={styles.num}>{i + 1}</span>
+                {regionProgress(r.id, visited).status === 'done' && <Tick />}
               </span>
-              <span className={styles.badgeName}>{r.name}</span>
+              <span className={styles.badgeText}>
+                <span className={styles.badgeName}>{r.name}</span>
+                {!cat && <CatCounts places={placesInRegion(r.id)} />}
+              </span>
               {cat && <CatCount cat={cat} n={countIn(placesInRegion(r.id), cat)} />}
             </button>
           ))}
@@ -363,14 +445,21 @@ export function MapCard3D({
                 type="button"
                 className={`${styles.badge} ${styles.small} ${id === areaId ? styles.badgeOn : ''}`}
                 aria-pressed={id === areaId}
-                aria-label={`Area ${i + 1}: ${a.name}, ${pct(areaProgress(id, visited))}${cat ? `, ${countIn(placesInArea(id), cat)} ${TOURISM_INFO[cat].label}` : ''}`}
+                data-status={areaProgress(id, visited).status}
+                aria-label={`Area ${i + 1}: ${a.name}, ${progressWords(areaProgress(id, visited))}${countsLabel(placesInArea(id), cat)}`}
                 onClick={() => onPickArea(id)}
               >
                 <span className={styles.numWrap}>
                   <Ring p={areaProgress(id, visited)} />
                   <span className={styles.num}>{i + 1}</span>
+                  {areaProgress(id, visited).status === 'done' && <Tick />}
                 </span>
-                {id === areaId && <span className={styles.badgeName}>{a.name}</span>}
+                {(id === areaId || (!cat && placesInArea(id).length > 0)) && (
+                  <span className={styles.badgeText}>
+                    {id === areaId && <span className={styles.badgeName}>{a.name}</span>}
+                    {!cat && <CatCounts places={placesInArea(id)} />}
+                  </span>
+                )}
                 {cat && <CatCount cat={cat} n={countIn(placesInArea(id), cat)} />}
               </button>
             );

@@ -1,12 +1,9 @@
-// The keys at the bottom of the map card (owner, 31 Oct 2026: "like the bottom row of a phone keyboard", then "one
-// piece with the map, keys in Three.js you can press, tucked into the phone's big rounded bottom"): go to where you
-// are, search a place or area, switch the deck to the editor's picks (walks and themed lists), back (up a level), and Enter
-// (owner, 1 Nov 2026: "back and confirm, like a keyboard's Enter: five keys, not four"; it replaces the deck's round
-// arrow). With a place open the row stays under the notebook: back closes it, Enter turns the page.
-// With WebGL the keys are drawn in 3D (three/keyTray.ts) under the real buttons, which stay for taps and the keyboard.
+// The map's tools (owner, 31 Oct / 1 Nov 2026: five keys: where you are, search a place or area, Editor's Pick walks
+// and lists, back (up a level) and Enter). v2 (owner, 8 Nov 2026): a vertical rail over the map card's right edge, so
+// the map gets the height, with tinted icon squares like the Settings rows (MySpace.module.css .rowIcon). With a place
+// open the same keys lie in a row under the notebook: back closes it, Enter turns the page.
 import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import type { KeyTrayScene } from './three/keyTray';
+import { useMemo, useState, type ReactNode } from 'react';
 import { uraRegion } from '../../data/ura/ura';
 import { searchMap, type SearchPick } from './mapSearch';
 import styles from './MapToolbar.module.css';
@@ -32,13 +29,15 @@ interface Props {
   onPickPick?(id: string): void;
   /** The search panel opened (Home starts loading the picks). */
   onSearchOpen?(): void;
+  /** rail: a column over the map's right edge (default); row: under an open place's notebook. */
+  layout?: 'rail' | 'row';
 }
 
 function Icon({ d }: { d: string }) {
   return (
     <svg
-      width="16"
-      height="16"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -83,21 +82,6 @@ function Panel({ title, onClose, children }: { title: string; onClose(): void; c
   );
 }
 
-/** The card's corner radius: the outer keys' bottom corners are concentric with it. */
-const OUTER_R = 32;
-/** The card's frame around the keys, px (DiscoveryHome.module.css .device). */
-const DEVICE_PAD = 5;
-const IS_JSDOM = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
-function webgl(): boolean {
-  if (IS_JSDOM || typeof document === 'undefined') return false;
-  try {
-    const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
-  } catch {
-    return false;
-  }
-}
-
 export function MapToolbar({
   canUndo,
   undoLabel = 'Undo',
@@ -114,87 +98,9 @@ export function MapToolbar({
   picks = [],
   onPickPick,
   onSearchOpen,
+  layout = 'rail',
 }: Props) {
   const [open, setOpen] = useState<'search' | null>(null);
-  const reduce = useReducedMotionConfig();
-  const bar = useRef<HTMLDivElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const scene = useRef<KeyTrayScene | null>(null);
-  const [three, setThree] = useState(false);
-  const specs = [
-    { label: '', icon: ICONS.locate, on: !!locating, disabled: false },
-    { label: '', icon: ICONS.search, on: open === 'search', disabled: false },
-    { label: '', icon: ICONS.picks, on: picksOn, disabled: false },
-    { label: '', icon: ICONS.undo, on: false, disabled: !canUndo },
-    { label: '', icon: ICONS.enter, on: false, disabled: !canEnter },
-  ];
-  const specsRef = useRef(specs);
-  specsRef.current = specs;
-  const layout = () => {
-    const s = scene.current;
-    const b = bar.current;
-    if (!s || !b) return;
-    const box = b.getBoundingClientRect();
-    const all = [...b.querySelectorAll('button')];
-    const keys = all.map((el, i) => {
-      const r = el.getBoundingClientRect();
-      // the outer keys' bottom corners follow the card's rounded bottom (concentric with it)
-      const inset = DEVICE_PAD + (i === 0 ? r.left - box.left : box.right - r.right);
-      const outer = Math.max(12, OUTER_R - inset);
-      const corners: [number, number, number, number] = [12, 12, i === all.length - 1 ? outer : 12, i === 0 ? outer : 12];
-      return { x: r.left - box.left, w: r.width, corners, ...specsRef.current[i] };
-    });
-    s.setKeys(keys);
-  };
-
-  useEffect(() => {
-    if (!webgl()) return;
-    let gone = false;
-    let ro: ResizeObserver | null = null;
-    void import('./three/keyTray').then(({ KeyTrayScene }) => {
-      if (gone || !canvas.current || !bar.current) return;
-      const s = new KeyTrayScene(canvas.current);
-      scene.current = s;
-      const fit = () => {
-        const b = bar.current!;
-        s.resize(b.clientWidth, b.clientHeight);
-        layout();
-      };
-      ro = new ResizeObserver(fit);
-      ro.observe(bar.current);
-      fit();
-      void document.fonts?.ready.then(() => {
-        if (!gone) layout();
-      });
-      setThree(true);
-    });
-    return () => {
-      gone = true;
-      ro?.disconnect();
-      scene.current?.destroy();
-      scene.current = null;
-    };
-    // layout reads the latest keys through specsRef
-  }, []);
-  const specKey = specs.map((k) => `${k.label}${k.on}${k.disabled}`).join('|');
-  useEffect(() => {
-    if (scene.current) scene.current.reduced = !!reduce;
-    layout();
-  }, [specKey, three, reduce]);
-
-  // the 3D key under a button goes down while it is held
-  const keyProps = (i: number) => ({
-    onPointerDown: () => scene.current?.press(i, true),
-    onPointerUp: () => scene.current?.press(i, false),
-    onPointerLeave: () => {
-      scene.current?.press(i, false);
-      scene.current?.hover(i, false);
-    },
-    onPointerCancel: () => scene.current?.press(i, false),
-    onPointerEnter: (e: React.PointerEvent) => e.pointerType === 'mouse' && scene.current?.hover(i, true),
-    onKeyDown: (e: React.KeyboardEvent) => (e.key === ' ' || e.key === 'Enter') && scene.current?.press(i, true),
-    onKeyUp: (e: React.KeyboardEvent) => (e.key === ' ' || e.key === 'Enter') && scene.current?.press(i, false),
-  });
   const [q, setQ] = useState('');
   const hits = useMemo(() => searchMap(q, picks), [q, picks]);
   const nothing = hits.areas.length + hits.picks.length + hits.places.length === 0;
@@ -205,44 +111,46 @@ export function MapToolbar({
   };
 
   return (
-    <div className={styles.wrap}>
-      <canvas ref={canvas} className={styles.canvas} aria-hidden="true" />
-      <div ref={bar} className={three ? `${styles.bar} ${styles.three}` : styles.bar} role="toolbar" aria-label="Map tools">
-        <button type="button" className={styles.key} onClick={onLocate} aria-busy={locating} aria-label="My location" {...keyProps(0)}>
+    <div className={layout === 'rail' ? `${styles.wrap} ${styles.rail}` : `${styles.wrap} ${styles.row}`}>
+      <div
+        className={styles.bar}
+        role="toolbar"
+        aria-label="Map tools"
+        aria-orientation={layout === 'rail' ? 'vertical' : 'horizontal'}
+      >
+        <button type="button" className={`${styles.key} ${styles.tLocate}`} onClick={onLocate} aria-busy={locating} aria-label="My location">
           <Icon d={ICONS.locate} />
         </button>
         <button
           type="button"
-          className={styles.key}
+          className={`${styles.key} ${styles.tSearch}`}
           onClick={() => {
             if (open !== 'search') onSearchOpen?.();
             setOpen(open === 'search' ? null : 'search');
           }}
           aria-expanded={open === 'search'}
           aria-label="Search the map"
-          {...keyProps(1)}
         >
           <Icon d={ICONS.search} />
         </button>
         <button
           type="button"
-          className={styles.key}
+          className={`${styles.key} ${styles.tPicks}`}
           onClick={() => {
             close();
             onPicks();
           }}
           aria-pressed={picksOn}
           aria-label="Editor's Pick"
-          {...keyProps(2)}
         >
           <Icon d={ICONS.picks} />
         </button>
-        <button type="button" className={styles.key} onClick={onUndo} disabled={!canUndo} aria-label={undoLabel} {...keyProps(3)}>
+        <button type="button" className={`${styles.key} ${styles.tBack}`} onClick={onUndo} disabled={!canUndo} aria-label={undoLabel}>
           <Icon d={ICONS.undo} />
         </button>
         <button
           type="button"
-          className={`${styles.key} ${styles.enter}`}
+          className={`${styles.key} ${styles.tEnter}`}
           onClick={() => {
             close();
             onEnter();
@@ -250,7 +158,6 @@ export function MapToolbar({
           disabled={!canEnter}
           aria-label={enterLabel}
           aria-keyshortcuts="Enter"
-          {...keyProps(4)}
         >
           <Icon d={ICONS.enter} />
         </button>
