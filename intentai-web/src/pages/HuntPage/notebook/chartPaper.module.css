@@ -55,6 +55,31 @@
   right: -138px;
   bottom: -72px;
 }
+/* the roses grow with the screen (the boards are 390 px wide; pinned in px they looked sparse on a desktop); the SVG
+   keeps its shape (viewBox), its width set here, its height from the width */
+.bigRose {
+  width: clamp(312px, 38vw, 640px);
+  height: auto;
+}
+.roseTop,
+.roseLow,
+.roseFar {
+  width: clamp(57px, 7vw, 120px);
+  height: auto;
+}
+/* a second, larger rose upper left, only once the screen is wider than a phone (past 700 px) */
+.roseFar {
+  display: none;
+  opacity: 0.55;
+  left: 4vw;
+  top: 22vh;
+  width: clamp(150px, 16vw, 300px);
+}
+@media (min-width: 700px) {
+  .roseFar {
+    display: block;
+  }
+}
 .roseTop {
   right: 31px;
   /* under the Settings button, below the status bar's room */
@@ -75,6 +100,11 @@
 }
 .archive .roseLow {
   bottom: 140px;
+}
+/* the archive's PageBar is frosted and taller than the reader's top: the small rose sits just under it, not behind it
+   (the bar: the status room + 0.5rem + its 62 px) */
+.archive .roseTop {
+  top: calc(var(--status-h, 0px) + 0.5rem + 70px);
 }
 
 /* the roses turn, very slowly, only when motion is allowed */

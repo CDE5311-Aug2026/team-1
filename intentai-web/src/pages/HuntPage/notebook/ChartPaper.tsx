@@ -91,6 +91,7 @@ export function Coastline({ className }: { className?: string }) {
  * The chart behind a volume or the archive: absolutely placed over its (positioned) parent, behind everything.
  * `reader`: board 10 (the coast along the foot, a large rose low on the right, small ones top right and low left).
  * `archive`: board 09 (a large faint rose mid-right, the small ones, the coast low down).
+ * Past 700 px a fourth rose fills the upper left, and the roses grow with the screen (chartPaper.module.css).
  */
 export function ChartPaper({ variant = 'reader', className }: { variant?: 'reader' | 'archive'; className?: string }) {
   return (
@@ -100,6 +101,7 @@ export function ChartPaper({ variant = 'reader', className }: { variant?: 'reade
       <CompassRose size={variant === 'archive' ? 236 : 240} spin="slower" className={styles.bigRose} />
       <CompassRose size={44} spin="slow" className={styles.roseTop} />
       <CompassRose size={44} spin="back" className={styles.roseLow} />
+      <CompassRose size={44} spin="slow" className={styles.roseFar} />
     </div>
   );
 }
