@@ -276,3 +276,17 @@ test('a finger swiping over the map scrolls Home (the map only takes taps)', asy
   const ta = await page.getByRole('application', { name: /planning areas/ }).evaluate((el) => getComputedStyle(el).touchAction);
   expect(ta).toContain('pan-y');
 });
+
+test('the window scrolls Home, also with the wheel over the tab bar (no inner scroller)', async ({ page }) => {
+  // an inner scroller missed a wheel over the floating tab bar, the keys and the scrollbar (owner, 8 Nov 2026)
+  await page.setViewportSize({ width: 1229, height: 532 });
+  await openHome(page);
+  await expect(page.getByRole('button', { name: /^Region \d/ })).toHaveCount(5);
+  const bar = await box(page, tabBarSearch(page));
+  await page.mouse.move(bar.x - 200, bar.y + bar.height / 2);
+  await page.mouse.wheel(0, 400);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.keyboard.press('PageDown');
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
+});

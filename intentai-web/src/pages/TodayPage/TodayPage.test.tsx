@@ -437,14 +437,18 @@ describe('v2 sections', () => {
     expect(within(civic).getByText('Example')).toBeInTheDocument();
   });
 
-  test('the board is the region’s: a region with no open challenge says so, with no example players', () => {
+  test('the board is the region’s: a region with no open challenge says so, under the example fastest three', () => {
     huntModeStore.set({ mode: 'together', region: 'east' });
     renderHome();
     const board = screen.getByRole('region', { name: 'Leaderboard · East · this weekend' });
     expect(within(board).getByText(/No challenge is open in East right now\./)).toBeInTheDocument();
     expect(within(board).getByRole('link', { name: 'See all challenges in Hunt' })).toHaveAttribute('href', '/hunt');
-    expect(within(board).queryByRole('list')).toBeNull();
-    expect(within(board).queryByText('Example')).toBeNull();
+    // the fastest three always show (owner, 8 Nov 2026), labelled as examples, each opening Hunt's speed board
+    const podium = within(board).getByRole('list', { name: 'Fastest (example players)' });
+    const entries = within(podium).getAllByRole('link');
+    expect(entries).toHaveLength(3);
+    for (const e of entries) expect(e).toHaveAttribute('href', '/hunt?board=speed');
+    expect(within(board).getByText('Example')).toBeInTheDocument();
     expect(within(board).queryByText(/^You$/)).toBeNull();
     // the empty card still says it is the leaderboard
     expect(within(board).getByRole('heading', { level: 2 })).toHaveTextContent(/^Leaderboard · East · this weekend$/);

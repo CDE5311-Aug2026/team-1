@@ -26,6 +26,7 @@ import {
   type HomePlace,
 } from "../../data/homePlaces";
 import { usePersistentStore } from "../../data/persistentStore";
+import { huntModeStore, isTogether } from "../../data/v2Stores";
 import { profileV3Store, tourismOrder } from "../../data/profile/profile";
 import { curatedPlace } from "../../features/nearby/catalogue";
 import {
@@ -285,8 +286,12 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   const order = useMemo(() => tourismOrder(profile), [profile]);
 
   // ---- level and selection, from the URL ----
+  // with no region in the URL, a hunter's map starts on the region they picked in onboarding (owner, 8 Nov 2026);
+  // exploring on your own, it starts on home base's
+  const [hunt] = usePersistentStore(huntModeStore);
+  const startRegion = (isTogether(hunt) && hunt.region) || DEFAULT_REGION;
   const region = (uraRegion(params.get("r") ?? undefined)?.id ??
-    DEFAULT_REGION) as RegionId;
+    startRegion) as RegionId;
   const areaList = useMemo(() => sortedAreas(region), [region]);
   const areaParam = uraArea(params.get("a") ?? undefined);
   const area =

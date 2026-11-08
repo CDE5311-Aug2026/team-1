@@ -21,8 +21,11 @@ export default function TodayPage() {
   const together = isTogether(mode);
   const [here, setHere] = useState<LatLng | null>(readHomeHere);
   const challenges = useMemo(() => openChallenges(localToday()), []);
+  // One screen only while a place is open. Otherwise Home is a page the window scrolls, as every other page is: a wheel
+  // over the tab bar, the keys (Space, Page Down) and the scrollbar all reach it, which an inner scroller missed
+  // (owner, 8 Nov 2026: "Home still cannot scroll").
   return (
-    <AppShell layout="fill" background={placeOpen ? '#c8a87a' : undefined} chrome={placeOpen ? 'status' : 'full'} tabBarNodeId="1:317" tabPop>
+    <AppShell layout={placeOpen ? 'fill' : 'page'} background={placeOpen ? '#c8a87a' : undefined} chrome={placeOpen ? 'status' : 'full'} tabBarNodeId="1:317" tabPop>
       <DiscoveryHome
         onPlaceOpenChange={setPlaceOpen}
         category={category}

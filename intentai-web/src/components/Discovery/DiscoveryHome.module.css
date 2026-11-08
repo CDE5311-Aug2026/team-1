@@ -483,31 +483,23 @@
    Challenges, Picked for you). The kept 3D map sits in a plain v2 card; the kraft paper and the leather notebook stay
    only for an open place, which is still a page of its own. ---- */
 .home:not(.homeOpen) {
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
   gap: 14px;
-  /* clear: the app's chart paper (AppShell's fixed layer) is Home's ground */
-  scrollbar-width: none;
-}
-
-.home:not(.homeOpen)::-webkit-scrollbar {
-  display: none;
 }
 
 .backdropIdle {
   display: none;
 }
 
-/* the drawn status bar stays clear of the page scrolling under it; the bar and chips stick at the top */
+/* No place open: Home is in the page's flow and the window scrolls it (TodayPage uses AppShell's page layout, which
+   gives the column, the gutters and the room above the tab bar). An inner scroller here missed a wheel over the tab
+   bar, the keys and the scrollbar (owner, 8 Nov 2026). */
 .home:not(.homeOpen) {
-  top: var(--status-h);
-  padding-top: 0;
-  /* the scroller spans the whole window and centres the column with padding: with max-width on the scroller itself,
-     a wheel or trackpad over the side margins of a wide window scrolled nothing (owner, 8 Nov 2026) */
+  position: relative;
+  inset: auto;
   max-width: none;
   margin: 0;
-  padding-inline: max(var(--gutter), calc((100% - var(--content-max)) / 2 + var(--gutter)));
+  padding: 0;
+  overflow: visible;
 }
 
 /* a scrolling column: nothing in it gives up its height */
@@ -515,15 +507,16 @@
   flex-shrink: 0;
 }
 
-/* sticks at the top of Home's scroller, which itself starts under --status-h (on a phone: 0.5rem + the safe-area
-   inset, tokens.css), so the bar is already clear of the clock and the notch; an env() inset here would count it twice */
+/* sticks at the top of the window, as PageBar does on the other pages: a home-screen app's status gap above already
+   holds the safe-area inset, so the strip pulls up over it and its own inset padding keeps the row clear of the clock
+   once it sticks (in a browser the inset is 0) */
 .home:not(.homeOpen) .head {
   position: sticky;
   top: 0;
   z-index: 8;
   gap: 2px;
-  margin: 0 calc(-1 * var(--gutter)) -6px;
-  padding: 4px var(--gutter) 6px;
+  margin: calc(-1 * env(safe-area-inset-top, 0px)) calc(-1 * var(--gutter)) -6px;
+  padding: calc(env(safe-area-inset-top, 0px) + 4px) var(--gutter) 6px;
   /* frosted paper: the cards scrolling under the bar and chips stay readable without hiding the chart behind */
   background: var(--frost-bg);
   -webkit-backdrop-filter: var(--frost-filter);

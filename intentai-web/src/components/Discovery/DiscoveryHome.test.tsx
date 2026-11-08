@@ -196,3 +196,17 @@ describe("a walk's numbered stops carry their category as a corner glyph, and ke
     }
   });
 });
+
+describe('where the map starts', () => {
+  test("a hunter's map starts on the region they picked in onboarding; on your own, on home base's", async () => {
+    const { huntModeStore } = await import('../../data/v2Stores');
+    huntModeStore.set({ mode: 'together', region: 'east' });
+    const { unmount } = renderHome('/?lvl=areas');
+    expect(screen.getByRole('heading', { level: 2, name: 'East · planning areas' })).toBeInTheDocument();
+    unmount();
+    // explore on your own: the region picked earlier does not steer the map
+    huntModeStore.set({ mode: 'solo', region: 'east' });
+    renderHome('/?lvl=areas');
+    expect(screen.queryByRole('heading', { level: 2, name: 'East · planning areas' })).toBeNull();
+  });
+});

@@ -1,5 +1,6 @@
 // The v2 Home sections around the kept 3D map (boards 05 Home A "hunting together" and 11 Home B "solo"):
-// - the region leaderboard card (together mode only; Passport shows the same card). Players wear the cute animal
+// - the region leaderboard card (together mode only; Passport shows the same card). Its fastest three always show, and
+//   each opens Hunt's speed board. Players wear the cute animal
 //   icons from components/Avatar (decorative; names stay as text). The other hunters and their times are Hunt's
 //   SAMPLE players (stories.ts, as on Hunt's boards) and say "Example"; your own line is real (your time in this weekend's challenge,
 //   from your stamps at its stops, if any).
@@ -94,7 +95,8 @@ function Podium() {
   return (
     <ol className={styles.podium} aria-label="Fastest (example players)">
       {top.map((r, i) => (
-        <li key={r.name} className={styles.podiumRow}>
+        <li key={r.name}>
+          <Link className={styles.podiumRow} to={`${paths.hunt}?board=speed`} aria-label={`${r.name}, number ${i + 1}, ${r.value} minutes: see the leaderboard`}>
           <span className={styles.face} style={{ '--medal': MEDAL[i] } as CSSProperties} aria-hidden="true">
             <Avatar name={r.name} size={40} />
             <span className={styles.rank}>{i + 1}</span>
@@ -113,6 +115,7 @@ function Podium() {
               )}
             </span>
           </span>
+          </Link>
         </li>
       ))}
     </ol>
@@ -121,7 +124,7 @@ function Podium() {
 
 /**
  * The region's board for today. Its challenge is the one open there (running now, else the next to open), and your
- * line is your time in that one; a region with no open challenge says so (no example players either).
+ * line is your time in that one; a region with no open challenge says so under the (example) fastest three.
  */
 export function RegionLeaderboard({
   region,
@@ -151,16 +154,15 @@ export function RegionLeaderboard({
             <span>{name} · this weekend</span>
           </span>
         </h2>
-        {challenge && <Example />}
+        <Example />
         <Link className={styles.boardLink} to={`${paths.hunt}?board=speed`} aria-label="Leaderboards">
           <Chevron />
         </Link>
       </div>
+      {/* the fastest three always show (owner, 8 Nov 2026), also in a region with no challenge open right now */}
+      <Podium />
       {challenge ? (
-        <>
-          <Podium />
-          <YouLine challenge={challenge} />
-        </>
+        <YouLine challenge={challenge} />
       ) : (
         <p className={styles.boardEmpty}>
           No challenge is open in {name} right now. <Link to={paths.hunt}>See all challenges in Hunt</Link>
