@@ -609,9 +609,9 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
                               </span>
                             </>
                           )}
-                          <span>
-                            Vol. {v.roman} · {v.area}
-                          </span>
+                          <span>Vol. {v.roman}</span>
+                          {/* the place drops out whole when the line is full (HuntArchive.module.css .kicker) */}
+                          <span>{` · ${v.area}`}</span>
                         </span>
                         <span className={a.rowTitle}>{v.title}</span>
                         <span className={a.tag}>{v.tagline}</span>

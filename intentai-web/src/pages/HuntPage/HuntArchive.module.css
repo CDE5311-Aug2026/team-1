@@ -198,21 +198,21 @@
   flex-direction: column;
   gap: 2px;
 }
+/* one line of whole parts: a part that does not fit (the place, at 320 px) wraps onto a second line that is clipped,
+   so it drops out whole instead of ending in "KAMPONG GEL…" (it stays in the row's accessible name) */
 .kicker {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  column-gap: 6px;
   min-width: 0;
+  height: 13px;
   font: 500 0.625rem/13px var(--font-mono);
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--v2-muted);
   white-space: nowrap;
   overflow: hidden;
-}
-.kicker > span:last-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 /* the category kicker at the row's size */
 .badge {
@@ -222,12 +222,16 @@
 .pipe {
   color: var(--border-strong);
 }
+/* up to two lines ("Beneath the Golden Dome" at 320 px), then an ellipsis */
 .rowTitle {
   font: 600 1.125rem/22px var(--font-display);
   letter-spacing: -0.2px;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 .tag {
   font-size: 0.6875rem;
