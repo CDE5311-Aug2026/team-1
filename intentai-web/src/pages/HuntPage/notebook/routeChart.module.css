@@ -31,7 +31,7 @@
 }
 .window {
   position: relative;
-  aspect-ratio: 340 / 214;
+  aspect-ratio: 340 / 160; /* RouteChart's VW / VH */
   overflow: hidden;
   border-radius: 2px;
   background: #eef0ea;

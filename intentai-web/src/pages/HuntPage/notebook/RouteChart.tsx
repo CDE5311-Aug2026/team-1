@@ -9,9 +9,10 @@ import type { BookDef, BookId } from './Bookshelf';
 import { SHORT_PINS, type Chapter } from './chapters';
 import styles from './routeChart.module.css';
 
-/** The map's window, in its own units (the frame keeps this shape). */
+/** The map's window, in its own units (the frame keeps this shape). Wider than tall so the shelf below comes up
+ *  sooner (owner, 9 Nov 2026: the map takes less space); the views below fit their pins to it. */
 const VW = 340,
-  VH = 214;
+  VH = 160;
 const TILE = 256;
 const tileUrl = (z: number, x: number, y: number) => `https://www.onemap.gov.sg/maps/tiles/Default_HD/${z}/${x}/${y}.png`;
 
@@ -151,7 +152,7 @@ export function RouteChart({
     [starts.map((s) => `${s.lat},${s.lng}`).join('|'), me?.lat, me?.lng, nearest?.b.id],
   );
   const view = useMemo(() => {
-    if (mode === 'all') return overviewPts.length ? frame(overviewPts, 11, 15.5, 40) : null;
+    if (mode === 'all') return overviewPts.length ? frame(overviewPts, 11, 15.5, 24) : null;
     if (searchArea) {
       const d = (searchArea.m * 1.15) / 111_320;
       return frame([
@@ -159,7 +160,8 @@ export function RouteChart({
         { lat: searchArea.lat - d, lng: searchArea.lng - d },
       ]);
     }
-    return pins.length ? frame(pins) : null;
+    // a long walk can still fit the shorter window: one zoom further out allowed
+    return pins.length ? frame(pins, 13) : null;
   }, [mode, overviewPts, pins, searchArea?.lat, searchArea?.lng]);
   const book = books.find((b) => b.id === selected)!;
   const areaOf = (id: BookId) => books.find((b) => b.id === id)?.place ?? '';
