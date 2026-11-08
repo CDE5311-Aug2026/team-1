@@ -74,13 +74,17 @@ test('no horizontal overflow at 320, 390 and 1440', async ({ page }) => {
   }
 });
 
-test('the hero opens the holiday detail, and the back link returns to Home', async ({ page }) => {
+// Owner, 8 Nov 2026: Home no longer shows the holiday/date card; the holiday page still opens by its own address.
+test('Home shows no holiday card; the holiday page opens directly and its back link returns to Home', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Deepavali long weekend/ }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
+  await expect(page.getByRole('button', { name: /Deepavali long weekend/ })).toHaveCount(0);
+  await page.goto('/holidays/deepavali');
   await expect(page.getByRole('heading', { level: 1, name: 'Deepavali' })).toBeVisible();
   await page.getByRole('button', { name: 'Back to Home', exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
-  await expect(page.getByRole('button', { name: /Deepavali long weekend/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Deepavali long weekend/ })).toHaveCount(0);
 });
 
 test.describe('first visit', () => {
@@ -126,6 +130,7 @@ test('only the active tab icon is orange', async ({ page }) => {
 // v2: on a laptop every page uses Today's content column. Any wide block near the top of <main>
 // (a page wrapper, header or body, outside cards) must start and end where Today's header does.
 test('every route uses the same content column at 1440', async ({ page }) => {
+  test.setTimeout(240_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   // Home is a full-screen map since the Discovery redesign (31 Oct). v2: Moments left the tabs and opens on its full-width
   // desk, so Hunt (board 10, the field archive) sets the column now.
@@ -139,7 +144,7 @@ test('every route uses the same content column at 1440', async ({ page }) => {
     await page.goto(route);
     await expect(page.getByRole('main')).toBeVisible();
     // lazy pages first show a loading <main>; measure the page itself (flaky on a busy machine otherwise)
-    await expect(page.locator('main[aria-busy="true"]')).toHaveCount(0);
+    await expect(page.locator('main[aria-busy="true"]'), `${route} still loading`).toHaveCount(0, { timeout: 45_000 });
     const off = await page.evaluate(
       ({ left, width }) =>
         Array.from(document.querySelectorAll('main > *, main > * > *'))

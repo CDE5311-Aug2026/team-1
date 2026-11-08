@@ -99,7 +99,19 @@ test('dragging the sheet up by its header moves only the sheet: the map stays an
     }, { timeout: 10_000 })
     .toBe(true);
   const url = page.url();
-  const title = (await sheet.getByRole('heading', { level: 1, name: 'Nearby' }).boundingBox())!;
+  // and the sheet has finished rising to its peek (under load WebKit is still animating it)
+  const heading = sheet.getByRole('heading', { level: 1, name: 'Nearby' });
+  let top = (await heading.boundingBox())!.y;
+  await expect
+    .poll(async () => {
+      await page.waitForTimeout(200);
+      const now = (await heading.boundingBox())!.y;
+      const still = Math.abs(now - top) < 0.5;
+      top = now;
+      return still;
+    }, { timeout: 10_000 })
+    .toBe(true);
+  const title = (await heading.boundingBox())!;
   await page.mouse.move(title.x + 20, title.y + title.height / 2);
   await page.mouse.down();
   for (let i = 1; i <= 10; i++) await page.mouse.move(title.x + 20, title.y + title.height / 2 - i * 30);
@@ -203,7 +215,9 @@ test('Explore works at 320 px and on wide screens without horizontal overflow', 
   }
 });
 
-test('the Back button leaves Explore at once, however many map steps were taken (3D on and off, a list, details)', async ({ page }) => {
+test('the Back button leaves Explore at once, however many map steps were taken (3D on and off, a list, details)', async ({ page, browserName }) => {
+  // the 3D step loads the EARTH ONLINE city; WebKit draws it with software WebGL and can hold the page for a while
+  test.slow(browserName === 'webkit');
   await open(page, paths.today);
   await page.goto(paths.nearby);
   await expect(page).toHaveURL(/\/nearby/);

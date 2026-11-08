@@ -34,7 +34,8 @@ export default defineConfig({
   webServer: {
     command: `npm run build && npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
     url: `http://127.0.0.1:${PORT}`,
-    reuseExistingServer: false,
+    // E2E_REUSE=1: run specs against a preview you started yourself on this port (after `npm run build`). Default off.
+    reuseExistingServer: process.env.E2E_REUSE === '1',
     timeout: 120_000,
     // Each port gets its own usage file so Chromium and WebKit runs never share timings.
     env: { USAGE_FILE: `.data/e2e-${PORT}.jsonl` },
