@@ -25,6 +25,7 @@ import {
 } from '../../data/ura/ura';
 import groundUrl from '../../assets/nearby/sg-ground.webp';
 import { MapScene, type TileLook } from './three/mapScene';
+import { layoutBadges, type LaidBadge } from './badgeLayout';
 import styles from './MapCard3D.module.css';
 
 /** picks: Editor's Pick (the selected pick's stops shown); pick: inside one pick, its stops; near: what is within
@@ -63,7 +64,16 @@ interface Props {
   category?: TourismFilter;
   /** Room kept clear at the map's right edge (the tool rail lies over it), px: the badges stay inside the rest. */
   insetRight?: number;
+  /** Room kept clear at the map's top (the crumb's bottom, measured, and a margin), px. */
+  insetTop?: number;
 }
+
+/** Room kept clear at the map's foot (the map credit), px. */
+const INSET_BOTTOM = 30;
+const INSET_LEFT = 4;
+/** Area badges carry their (short) names when the region has at most this many areas (West has 12; Central's 22 do
+ *  not fit named on a 320 px phone, so there only the selected badge is named). */
+const MAX_NAMED = 12;
 
 type Counted = { tourism?: { category: TourismCategory }; operatingStatus?: string };
 /** How many of these places are in the category (the badges' counts); places still planned are not counted. */
@@ -139,6 +149,25 @@ function regionPoint(region: RegionId): [number, number] {
   return [xs.reduce((s, v) => s + v, 0) / xs.length, ys.reduce((s, v) => s + v, 0) / ys.length];
 }
 
+type Box = [number, number, number, number];
+/** Every planning area of the region, islands included (regionBox leaves the islands out). */
+function allAreasBox(region: RegionId): Box {
+  const bs = areasOf(region).map((a) => a.box);
+  return [Math.min(...bs.map((b) => b[0])), Math.min(...bs.map((b) => b[1])), Math.max(...bs.map((b) => b[2])), Math.max(...bs.map((b) => b[3]))];
+}
+/** A box grown east and north by the share of the map the rail and the crumb cover, so that once the camera frames
+ *  it, the box itself sits in the part of the map left clear (map y runs north, the top of the screen). */
+function clearOf(b: Box, w: number, h: number, right: number, top: number): Box {
+  // not laid out yet (or a sliver of a map): frame the box itself; the resize brings the real framing
+  if (w < 120 || h < 120) return b;
+  const fx = Math.min(0.6, right / (w - right));
+  const fy = Math.min(0.6, top / (h - top - INSET_BOTTOM));
+  const fb = Math.min(0.3, INSET_BOTTOM / (h - top - INSET_BOTTOM));
+  const bw = b[2] - b[0];
+  const bh = b[3] - b[1];
+  return [b[0], b[1] - bh * fb, b[2] + bw * fx, b[3] + bh * fy];
+}
+
 /** A badge's ring: how much of the region or area is checked in (the card below has the full numbers). */
 function Ring({ p }: { p: UnlockProgress }) {
   const r = 12.5;
@@ -190,15 +219,24 @@ export function MapCard3D({
   here,
   category = 'all',
   insetRight = 0,
+  insetTop = 44,
 }: Props) {
   const cat = category === 'all' ? null : category;
   // near-you pins stand on the ground like a pick's stops
   const isPick = level === 'picks' || level === 'pick' || level === 'near';
+  const named = areaOrder.length <= MAX_NAMED;
   const reduced = useReducedMotion();
   const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<MapScene | null>(null);
   const labelRefs = useRef(new Map<string, HTMLElement>());
+  // The map's and the badges' sizes, measured when they change (ResizeObserver), never in the frame loop: reading
+  // offsetWidth there after writing transforms forced a layout per badge per frame.
+  const boxSize = useRef({ w: 0, h: 0 });
+  const badgeSizes = useRef(new Map<string, { w: number; h: number }>());
+  const badgeRO = useRef<ResizeObserver | null>(null);
+  /** Set while the level's camera framing depends on the map's size; run again (at once) when the map resizes. */
+  const sizedFrame = useRef<(() => void) | null>(null);
   const [ready, setReady] = useState(false);
   const [gl] = useState(webglOk);
 
@@ -208,7 +246,12 @@ export function MapCard3D({
     const scene = new MapScene(canvasRef.current, URA_AREAS, groundUrl);
     sceneRef.current = scene;
     const box = boxRef.current;
-    const size = () => scene.setSize(box.clientWidth, box.clientHeight);
+    const size = () => {
+      boxSize.current = { w: box.clientWidth, h: box.clientHeight };
+      scene.setSize(box.clientWidth, box.clientHeight);
+      // a framing that depends on the map's size (the planning areas, clear of the rail) is worked out again
+      sizedFrame.current?.();
+    };
     size();
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(size) : null;
     ro?.observe(box);
@@ -219,6 +262,27 @@ export function MapCard3D({
       sceneRef.current = null;
     };
   }, [gl]);
+
+  // the badges' sizes: measured as each one is added and whenever it changes size (a new count, the text size)
+  useEffect(() => {
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver((entries) => {
+      for (const e of entries) {
+        const el = e.target as HTMLElement;
+        const key = el.dataset.key;
+        // a badge showing its number only for want of room keeps its named size on record
+        if (key && el.dataset.squeezed === undefined) badgeSizes.current.set(key, { w: el.offsetWidth, h: el.offsetHeight });
+      }
+      sceneRef.current?.kick();
+    });
+    badgeRO.current = ro;
+    // the badges already drawn (later ones are observed as they are added, in their ref)
+    for (const [key, el] of labelRefs.current) if (key.startsWith('r:') || key.startsWith('a:')) ro.observe(el);
+    return () => {
+      ro.disconnect();
+      if (badgeRO.current === ro) badgeRO.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (sceneRef.current) sceneRef.current.reduced = reduced;
@@ -263,6 +327,7 @@ export function MapCard3D({
 
   useEffect(() => {
     const s = sceneRef.current;
+    sizedFrame.current = null;
     if (!s) return;
     if (level === 'near' && here) {
       // the circle round you; a picked card's pin stays in it
@@ -286,14 +351,16 @@ export function MapCard3D({
     } else if (level === 'places') s.fit(areaById.get(areaId)?.box ?? regionBox(region), false, 0.18);
     else if (level === 'regions') s.fit(regionBox(region), false, 0.3);
     else {
-      // the selected area, with room around it for its neighbours (the map follows the card)
-      const b = areaById.get(areaId)?.box ?? regionBox(region);
-      const cx = (b[0] + b[2]) / 2;
-      const cy = (b[1] + b[3]) / 2;
-      const half = Math.max(2600, (b[2] - b[0]) / 2, (b[3] - b[1]) / 2);
-      s.fit([cx - half, cy - half, cx + half, cy + half], false, 0.35);
+      // all of the region's planning areas (its islands too), in the part of the map clear of the rail and the crumb,
+      // so every area badge starts on the map and can be tapped
+      const frame = (instant: boolean) => {
+        const { w, h } = boxSize.current;
+        s.fit(clearOf(allAreasBox(region), w, h, insetRight, insetTop), instant, 0.1);
+      };
+      frame(false);
+      sizedFrame.current = () => frame(true);
     }
-  }, [level, region, areaId, ready, isPick, places, selectedPlaceId, here]);
+  }, [level, region, areaId, ready, isPick, places, selectedPlaceId, here, insetRight, insetTop]);
 
   // ---- labels and pins follow the camera ----
   type Marker = { key: string; x: number; y: number; top: () => number };
@@ -325,63 +392,51 @@ export function MapCard3D({
     const s = sceneRef.current;
     if (!s) return undefined;
     const place = () => {
-      const bw = boxRef.current?.clientWidth ?? 0;
-      const bh = boxRef.current?.clientHeight ?? 0;
-      const badges: { el: HTMLElement; x: number; y: number; w: number; h: number; region: boolean }[] = [];
-      const clamp = (b: (typeof badges)[number]) => {
-        // regions always stay on the map; an area far off (the camera is on the selected one) may leave it
-        if (!b.region) return;
-        const hw = b.w / 2 + 6;
-        const hh = b.h / 2 + 6;
-        b.x = Math.min(Math.max(b.x, hw), Math.max(hw, bw - insetRight - hw));
-        b.y = Math.min(Math.max(b.y, hh + 44), Math.max(hh + 44, bh - hh - 26));
-      };
+      const { w: bw, h: bh } = boxSize.current;
+      const safe = { left: INSET_LEFT, top: insetTop, right: bw - insetRight, bottom: bh - INSET_BOTTOM };
+      const badges: (LaidBadge & { el: HTMLElement })[] = [];
       for (const m of markers) {
         const el = labelRefs.current.get(m.key);
         if (!el) continue;
         const p = s.project(m.x, m.y, m.top());
+        const isBadge = m.key.startsWith('r:') || m.key.startsWith('a:');
         if (!p) {
           el.style.visibility = 'hidden';
           continue;
         }
-        el.style.visibility = '';
-        // a region or area badge stays whole inside the map, clear of the tool rail and the crumbs at the top, and
-        // off its neighbours (below); place pins stay exactly on their place
-        if (bw && (m.key.startsWith('r:') || m.key.startsWith('a:'))) {
-          const b = { el, x: p.x, y: p.y, w: el.offsetWidth, h: el.offsetHeight, region: m.key.startsWith('r:') };
-          clamp(b);
-          badges.push(b);
+        // a region or area badge stays whole inside the map, clear of the tool rail and the crumb at the top, and
+        // off its neighbours; place pins stay exactly on their place
+        if (bw && isBadge) {
+          let size = badgeSizes.current.get(m.key);
+          if (!size) {
+            // not measured yet (just added): once, then the ResizeObserver keeps it
+            size = { w: el.offsetWidth, h: el.offsetHeight };
+            badgeSizes.current.set(m.key, size);
+          }
+          const on = el.getAttribute('aria-pressed') === 'true';
+          // a named area badge (not the selected one) may shed its name for room: then it is round, its height wide
+          const bare = m.key.startsWith('a:') && named && !on ? size.h : undefined;
+          badges.push({ el, x: p.x, y: p.y, w: size.w, h: size.h, keep: m.key.startsWith('r:'), on, bare });
           continue;
         }
+        el.style.visibility = '';
         el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) translate(-50%, -50%)`;
       }
-      // badges that would overlap step apart vertically (a few passes; there are at most a dozen)
-      for (let pass = 0; pass < 4; pass++) {
-        let moved = false;
-        for (let i = 0; i < badges.length; i++)
-          for (let j = i + 1; j < badges.length; j++) {
-            const a = badges[i];
-            const b = badges[j];
-            const ox = (a.w + b.w) / 2 + 4 - Math.abs(a.x - b.x);
-            const oy = (a.h + b.h) / 2 + 4 - Math.abs(a.y - b.y);
-            if (ox <= 0 || oy <= 0) continue;
-            const down = b.y >= a.y ? 1 : -1;
-            a.y -= (down * oy) / 2;
-            b.y += (down * oy) / 2;
-            clamp(a);
-            clamp(b);
-            moved = true;
-          }
-        if (!moved) break;
+      layoutBadges(badges, bw, bh, safe);
+      for (const b of badges) {
+        // off the camera: hidden (and out of the tab order), not stacked at an edge
+        b.el.style.visibility = b.hidden ? 'hidden' : '';
+        if (b.squeezed) b.el.dataset.squeezed = '';
+        else delete b.el.dataset.squeezed;
+        if (!b.hidden) b.el.style.transform = `translate(${b.x.toFixed(1)}px, ${b.y.toFixed(1)}px) translate(-50%, -50%)`;
       }
-      for (const b of badges) b.el.style.transform = `translate(${b.x.toFixed(1)}px, ${b.y.toFixed(1)}px) translate(-50%, -50%)`;
     };
     s.onFrame = place;
     s.kick();
     return () => {
       if (s.onFrame === place) s.onFrame = null;
     };
-  }, [markers, ready, insetRight]);
+  }, [markers, ready, insetRight, insetTop]);
 
   // ---- taps on the map ----
   const down = useRef<{ x: number; y: number } | null>(null);
@@ -401,9 +456,33 @@ export function MapCard3D({
     else onPickArea(a.id);
   };
 
-  const setRef = (key: string) => (el: HTMLElement | null) => {
-    if (el) labelRefs.current.set(key, el);
-    else labelRefs.current.delete(key);
+  // one ref callback per key, kept, so React does not detach and re-attach every badge on each render
+  const refFns = useRef(new Map<string, (el: HTMLElement | null) => void>());
+  const setRef = (key: string) => {
+    let fn = refFns.current.get(key);
+    if (!fn) {
+      fn = attach(key);
+      refFns.current.set(key, fn);
+    }
+    return fn;
+  };
+  const attach = (key: string) => (el: HTMLElement | null) => {
+    const badge = key.startsWith('r:') || key.startsWith('a:');
+    const had = labelRefs.current.get(key);
+    if (el) {
+      labelRefs.current.set(key, el);
+      if (badge && had !== el) {
+        el.dataset.key = key;
+        badgeSizes.current.delete(key);
+        badgeRO.current?.observe(el);
+      }
+    } else {
+      labelRefs.current.delete(key);
+      if (badge && had) {
+        badgeRO.current?.unobserve(had);
+        badgeSizes.current.delete(key);
+      }
+    }
   };
 
   return (
@@ -443,7 +522,7 @@ export function MapCard3D({
                 key={id}
                 ref={setRef(`a:${id}`)}
                 type="button"
-                className={`${styles.badge} ${styles.small} ${id === areaId ? styles.badgeOn : ''}`}
+                className={`${styles.badge} ${styles.small} ${id === areaId ? styles.badgeOn : named ? '' : styles.bare}`}
                 aria-pressed={id === areaId}
                 data-status={areaProgress(id, visited).status}
                 aria-label={`Area ${i + 1}: ${a.name}, ${progressWords(areaProgress(id, visited))}${countsLabel(placesInArea(id), cat)}`}
@@ -454,13 +533,16 @@ export function MapCard3D({
                   <span className={styles.num}>{i + 1}</span>
                   {areaProgress(id, visited).status === 'done' && <Tick />}
                 </span>
-                {(id === areaId || (!cat && placesInArea(id).length > 0)) && (
+                {/* a region of up to a dozen areas: every badge is named (cut short; the full name is in its label).
+                    Central's 22 cannot all be named on a phone: there only the selected one is. Only the selected
+                    badge carries the counts. */}
+                {(id === areaId || named) && (
                   <span className={styles.badgeText}>
-                    {id === areaId && <span className={styles.badgeName}>{a.name}</span>}
-                    {!cat && <CatCounts places={placesInArea(id)} />}
+                    <span className={id === areaId ? styles.badgeName : `${styles.badgeName} ${styles.short}`}>{a.name}</span>
+                    {id === areaId && !cat && <CatCounts places={placesInArea(id)} />}
                   </span>
                 )}
-                {cat && <CatCount cat={cat} n={countIn(placesInArea(id), cat)} />}
+                {id === areaId && cat && <CatCount cat={cat} n={countIn(placesInArea(id), cat)} />}
               </button>
             );
           })}
@@ -485,7 +567,15 @@ export function MapCard3D({
                 onClick={() => onPickPlace(p.id)}
               >
                 {numbered ? (
-                  <span className={styles.pinNum}>{i + 1}</span>
+                  <>
+                    <span className={styles.pinNum}>{i + 1}</span>
+                    {/* a walk's stop is numbered: its category is a small glyph on the corner (never colour alone) */}
+                    {p.tourism && (
+                      <span className={styles.pinCorner} data-corner={p.tourism} aria-hidden="true">
+                        <CategoryGlyph category={p.tourism} size={7} color="#fff" />
+                      </span>
+                    )}
+                  </>
                 ) : p.tourism ? (
                   <CategoryGlyph category={p.tourism} size={p.id === selectedPlaceId ? 13 : 9} color="#fff" className={styles.pinGlyph} />
                 ) : null}
