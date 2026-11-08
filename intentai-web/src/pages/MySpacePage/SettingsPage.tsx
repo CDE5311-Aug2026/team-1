@@ -1,257 +1,281 @@
-// Settings: language and home base with the same editors as onboarding, look & feel (Reduce motion = the app-wide
-// reduceMotionStore, captions, haptics), and links to Privacy & data, photo credits and feedback. From PR #5: Text size
-// (applied app-wide), Nearby radius (Explore's default) and Terms & licences as a page.
-import { motion, useReducedMotionConfig } from 'motion/react';
-import { openHelp } from '../../components/HelpCenter/helpStore';
+// Settings, Redesign v2 (boards 16–17): the profile row; Explore (the Tourism 2040 ranking, the hunt region and
+// together/solo, each edited in a sheet with Save/Cancel, plan A8); Language & place (language, home base, Nearby
+// radius); Look & feel (Motion and Text size on their own pages, captions, haptics); More (onboarding, privacy, terms,
+// photo credits, feedback); and the user-test restart.
 import { useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
+import { openHelp } from '../../components/HelpCenter/helpStore';
+import HuntModeEditor from '../../components/ProfileEditors/HuntModeEditor';
+import TourismRanker from '../../components/ProfileEditors/TourismRanker';
+import { REGION_NAMES } from '../../components/RegionMap/regionPaths.generated';
+import { RESTART_PATH, USER_GATE_ENABLED } from '../../components/UserGate/UserGate';
 import { usePersistentStore } from '../../data/persistentStore';
 import { areaById } from '../../data/profile/finds';
 import {
-  TEXT_SCALE,
-  TEXT_SIZES,
   TEXT_SIZE_LABELS,
+  holderInitial,
   languageOf,
   mySpacePrefsStore,
   profileV3Store,
+  tourismRankingOf,
+  updateProfile,
   type FieldKey,
 } from '../../data/profile/profile';
 import { formatBytes, totalBytes } from '../../data/profile/storage';
-import { RESTART_PATH } from '../../components/UserGate/UserGate';
 import { reduceMotionStore, restartTest, testerStore, versionOf } from '../../data/stores';
-import { USER_GATE_ENABLED } from '../../components/UserGate/UserGate';
+import { TOURISM_INFO, type TourismCategory } from '../../data/tourism';
+import { huntModeStore, type HuntModeState } from '../../data/v2Stores';
 import { RADII_M } from '../../features/nearby/types';
+import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import Icon from '../OnboardingPage/v3/icons';
+import { Row, RowIcon, Section } from './SettingsParts';
 import FieldEditor from './v3/FieldEditor';
 import { Kraft, SubHeader, Switch } from './v3/Parts';
+import Sheet from './v3/Sheet';
 import book from './v3/Booklet.module.css';
 import styles from './v3/MySpace.module.css';
 
-export const TEXT_PREVIEW = 'Bak kwa is sweet, smoky dried pork, grilled over charcoal.';
 const km = (m: number) => `${m / 1000} km`;
 
-function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { id: T; label: string }[]; onChange: (v: T) => void }) {
+/** Up to two letters for the avatar: the first letters of the first two words, or the first two of one word. */
+export function initialsOf(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return holderInitial(name);
+  if (words.length === 1) return Array.from(words[0]).slice(0, 2).join('').toUpperCase();
+  return words
+    .slice(0, 2)
+    .map((w) => Array.from(w)[0])
+    .join('')
+    .toUpperCase();
+}
+
+function Footer({ onCancel, onSave, canSave = true }: { onCancel: () => void; onSave: () => void; canSave?: boolean }) {
   return (
-    <div className={styles.segmented} role="radiogroup" aria-label={label}>
-      {options.map((o) => (
-        <button key={o.id} type="button" role="radio" aria-checked={value === o.id} className={styles.segment} onClick={() => onChange(o.id)}>
-          {o.label}
-        </button>
-      ))}
-    </div>
+    <>
+      <button type="button" className={styles.cancel} onClick={onCancel}>
+        Cancel
+      </button>
+      <button type="button" className={styles.save} onClick={onSave} disabled={!canSave}>
+        Save
+      </button>
+    </>
   );
 }
 
-function MotionPreview({ reduced }: { reduced: boolean }) {
-  const reduce = useReducedMotionConfig();
+/** Settings › Categories: the same ranker as onboarding; nothing is written until Save. */
+export function CategoriesSheet({ onClose }: { onClose: () => void }) {
+  const [draft, setDraft] = useState<TourismCategory[]>(() => tourismRankingOf(profileV3Store.get()));
   return (
-    <span className={styles.motionPreview} aria-hidden="true">
-      <motion.span
-        className={styles.motionDot}
-        animate={reduced || reduce ? { x: 0 } : { x: [0, 22, 0] }}
-        transition={reduced || reduce ? { duration: 0 } : { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-      />
-    </span>
+    <Sheet
+      title="Categories"
+      subtitle="What Home shows first"
+      icon={<Icon name="grid" size={20} />}
+      onClose={onClose}
+      footer={
+        <Footer
+          onCancel={onClose}
+          onSave={() => {
+            updateProfile({ tourismRanking: draft });
+            showToast('Categories saved');
+            onClose();
+          }}
+        />
+      }
+    >
+      <TourismRanker value={draft} onChange={setDraft} />
+    </Sheet>
   );
 }
+
+/** Settings › Hunt region: together/solo and the region, saved together on Save. */
+export function HuntSheet({ onClose }: { onClose: () => void }) {
+  const [draft, setDraft] = useState<HuntModeState>(() => huntModeStore.get());
+  return (
+    <Sheet
+      title="Hunt region"
+      subtitle="Where Hunt and Home look first"
+      icon={<Icon name="plane" size={20} />}
+      onClose={onClose}
+      footer={
+        <Footer
+          onCancel={onClose}
+          onSave={() => {
+            huntModeStore.set(draft);
+            showToast('Hunt region saved');
+            onClose();
+          }}
+        />
+      }
+    >
+      <HuntModeEditor
+        mode={draft.mode}
+        region={draft.region}
+        onMode={(mode) => setDraft((d) => ({ ...d, mode }))}
+        onRegion={(region) => setDraft((d) => ({ ...d, region }))}
+      />
+    </Sheet>
+  );
+}
+
+type Open = FieldKey | 'categories' | 'hunt' | null;
 
 export default function SettingsPage() {
   const [prefs, setPrefs] = usePersistentStore(mySpacePrefsStore);
-  const [reduceMotion, setReduceMotion] = usePersistentStore(reduceMotionStore);
+  const [reduceMotion] = usePersistentStore(reduceMotionStore);
   const [profile] = usePersistentStore(profileV3Store);
-  const [editing, setEditing] = useState<FieldKey | null>(null);
+  const [hunt, setHunt] = usePersistentStore(huntModeStore);
+  const [tester] = usePersistentStore(testerStore);
+  const [open, setOpen] = useState<Open>(null);
   const radiusId = useId();
-  const sizeId = useId();
   const language = languageOf(profile.language);
   const base = areaById(profile.base);
-
+  const ranking = tourismRankingOf(profile);
+  const together = hunt.mode === 'together';
   const radiusIndex = Math.max(0, RADII_M.indexOf(prefs.radiusM));
+  const name = tester.name.trim();
+  const modeLine = together ? 'hunting together' : 'exploring on your own';
+  const close = () => setOpen(null);
 
   return (
-    <AppShell background="#c8a87a" chrome="status">
+    <AppShell background="var(--bg-app)" chrome="status">
       <Kraft />
       <div className={`${styles.screen} ${book.screen} ${styles.kraft}`}>
         <SubHeader title="Settings" />
 
-        <h2 className={styles.kicker}>Language & place</h2>
-        <div className={styles.card}>
-          <button type="button" className={styles.row} onClick={() => setEditing('language')}>
-            <span className={`${styles.rowIcon} ${styles.rowIconBlue}`} lang={language?.lang}>
-              {language?.mark ?? 'EN'}
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Language</span>
-              {language && language.id !== 'en' && <span className={styles.rowSub}>Cards in English for now</span>}
-            </span>
-            <span className={styles.rowValue} lang={language?.lang}>
-              {language?.name ?? 'English'}
-            </span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </button>
-          <button type="button" className={styles.row} onClick={() => setEditing('base')}>
-            <span className={styles.rowIcon}>
-              <Icon name="pin" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Home base</span>
-            </span>
-            <span className={styles.rowValue}>{base ? base.name.split(/\s*[&,]\s*/)[0] : 'Not set'}</span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </button>
-          <div className={styles.rowPad}>
-            <div className={styles.sliderHead}>
-              <span className={styles.rowIcon}>
-                <Icon name="radius" size={18} />
-              </span>
-              <label htmlFor={radiusId} className={styles.rowTitle}>
-                Nearby radius
-              </label>
-              <span className={styles.rowValue}>{km(prefs.radiusM)}</span>
-            </div>
-            <input
-              id={radiusId}
-              type="range"
-              className={styles.range}
-              min={0}
-              max={RADII_M.length - 1}
-              step={1}
-              value={radiusIndex}
-              aria-valuetext={`${prefs.radiusM / 1000} kilometres`}
-              aria-describedby={`${radiusId}-hint`}
-              onChange={(e) => setPrefs((p) => ({ ...p, radiusM: RADII_M[Number(e.target.value)] ?? p.radiusM }))}
-            />
-            <span className={styles.rangeTicks} aria-hidden="true">
-              {RADII_M.map((r) => (
-                <span key={r}>{km(r)}</span>
-              ))}
-            </span>
-            <span className={styles.rowSub} id={`${radiusId}-hint`}>
-              How far Nearby searches around you or your home base
-            </span>
-          </div>
-        </div>
+        <section className={styles.profile} aria-label="Profile">
+          <span className={styles.avatar} aria-hidden="true">
+            {name ? initialsOf(name) : <Icon name="user" size={22} />}
+          </span>
+          <span className={styles.rowText}>
+            <span className={styles.profileName}>{name || 'Your passport'}</span>
+            <span className={styles.mono}>{name ? `${name} · ${modeLine}` : modeLine}</span>
+          </span>
+          <Link to={paths.mySpace} className={styles.edit} aria-label="Edit profile on Passport">
+            Edit
+          </Link>
+        </section>
 
-        <h2 className={styles.kicker}>Look & feel</h2>
-        <div className={styles.card}>
-          <div className={styles.rowPad}>
-            <div className={styles.inlineHead}>
-              <span className={styles.rowIcon}>
-                <Icon name="motion" size={18} />
+        <Section title="Explore">
+          <div className={styles.card}>
+            <button type="button" className={styles.catRow} onClick={() => setOpen('categories')} aria-label={`Categories, ${ranking.length} of 4${ranking.length ? `: ${ranking.map((c) => TOURISM_INFO[c].label).join(', ')}` : ''}`}>
+              <span className={styles.catHead}>
+                <RowIcon icon="grid" tint="lei" />
+                <span className={`${styles.rowTitle} ${styles.rowText}`}>Categories</span>
+                <span className={styles.catCount}>{ranking.length} of 4</span>
               </span>
-              <span className={styles.rowTitle}>Motion</span>
-              <MotionPreview reduced={reduceMotion} />
-            </div>
-            <Segmented
-              label="Motion"
-              value={reduceMotion ? 'reduced' : 'full'}
-              options={[
-                { id: 'full', label: 'Full' },
-                { id: 'reduced', label: 'Reduced' },
-              ]}
-              onChange={(v) => setReduceMotion(v === 'reduced')}
+              <span className={styles.chips} aria-hidden="true">
+                {ranking.length ? (
+                  ranking.map((c) => (
+                    <span
+                      key={c}
+                      className={styles.chip}
+                      style={{ '--chip-tint': TOURISM_INFO[c].tint, '--chip-ink': TOURISM_INFO[c].ink, '--chip-dot': TOURISM_INFO[c].fill } as React.CSSProperties}
+                    >
+                      <span className={styles.chipDot} />
+                      {TOURISM_INFO[c].label}
+                    </span>
+                  ))
+                ) : (
+                  <span className={styles.chipNone}>None picked: Home shows all four</span>
+                )}
+              </span>
+            </button>
+            <Row icon="plane" tint="cru" title="Hunt region" value={hunt.region ? REGION_NAMES[hunt.region] : 'Not set'} onClick={() => setOpen('hunt')} />
+            <Row
+              icon="people"
+              tint="wel"
+              title="Public hunts"
+              sub="Shows leaderboards. Nothing about you is shared."
+              subId="hint-public"
+              end={<Switch label="Public hunts" describedBy="hint-public" checked={together} onChange={(on) => setHunt((h) => ({ ...h, mode: on ? 'together' : 'solo' }))} />}
             />
           </div>
-          <div className={styles.rowPad}>
-            <div className={styles.sliderHead}>
-              <span className={styles.rowIcon}>
-                <Icon name="text" size={18} />
-              </span>
-              <label htmlFor={sizeId} className={styles.rowTitle}>
-                Text size
-              </label>
-              <span className={styles.rowValue}>{TEXT_SIZE_LABELS[prefs.textSize]}</span>
-            </div>
-            <input
-              id={sizeId}
-              type="range"
-              className={styles.range}
-              min={0}
-              max={TEXT_SIZES.length - 1}
-              step={1}
-              value={prefs.textSize}
-              aria-valuetext={TEXT_SIZE_LABELS[prefs.textSize]}
-              onChange={(e) => {
-                const textSize = TEXT_SIZES[Number(e.target.value)];
-                if (textSize !== undefined) setPrefs((p) => ({ ...p, textSize }));
-              }}
-            />
-            {/* Root-relative, so it shows the new size even before the page reflows around it. */}
-            <p className={styles.textPreview} data-testid="text-preview" style={{ fontSize: `${0.9375 * TEXT_SCALE[prefs.textSize]}rem` }}>
-              {TEXT_PREVIEW}
-            </p>
-          </div>
-          <div className={styles.switchRow}>
-            <span className={styles.rowIcon}>
-              <Icon name="captions" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Captions on videos</span>
-              <span className={styles.rowSub} id="hint-captions">
-                {prefs.captions ? 'Shown by default' : 'Off by default'}
-              </span>
-            </span>
-            <Switch label="Captions on videos" describedBy="hint-captions" checked={prefs.captions} onChange={(captions) => setPrefs((p) => ({ ...p, captions }))} />
-          </div>
-          <div className={styles.switchRow}>
-            <span className={styles.rowIcon}>
-              <Icon name="vibrate" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Haptics</span>
-              <span className={styles.rowSub} id="hint-haptics">
-                Light taps on stamps, where the phone supports it
-              </span>
-            </span>
-            <Switch label="Haptics" describedBy="hint-haptics" checked={prefs.haptics} onChange={(haptics) => setPrefs((p) => ({ ...p, haptics }))} />
-          </div>
-        </div>
+        </Section>
 
-        <h2 className={styles.kicker}>More</h2>
-        <nav className={styles.card} aria-label="More">
-          <Link to={`${paths.welcome}?step=1`} className={styles.row}>
-            <span className={styles.rowIcon}>
-              <Icon name="redo" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Redo onboarding</span>
-            </span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </Link>
-          <Link to={paths.mySpacePrivacy} className={styles.row}>
-            <span className={styles.rowIcon}>
-              <Icon name="shield" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Privacy & data</span>
-            </span>
-            <span className={styles.rowValue}>{formatBytes(totalBytes())}</span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </Link>
-          <Link to={paths.licences} className={styles.row}>
-            <span className={styles.rowIcon}>
-              <Icon name="book" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Terms & licences</span>
-              <span className={styles.rowSub}>Photo credits</span>
-            </span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </Link>
-          <button type="button" className={styles.row} onClick={() => openHelp('feedback')}>
-            <span className={styles.rowIcon}>
-              <Icon name="help" size={18} />
-            </span>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Send feedback</span>
-            </span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
-          </button>
-        </nav>
+        <Section title="Language & place">
+          <div className={styles.card}>
+            <Row
+              icon="globe"
+              tint="cru"
+              title="Language"
+              sub={language && language.id !== 'en' ? 'Cards in English for now' : undefined}
+              value={language?.name ?? 'English'}
+              lang={language?.lang}
+              onClick={() => setOpen('language')}
+            />
+            <Row icon="pin" tint="att" title="Home base" value={base ? base.name.split(/\s*[&,]\s*/)[0] : 'Not set'} onClick={() => setOpen('base')} />
+            <div className={styles.rowPad}>
+              <div className={styles.sliderHead}>
+                <RowIcon icon="radius" tint="wel" />
+                <label htmlFor={radiusId} className={styles.rowTitle}>
+                  Nearby radius
+                </label>
+                <span className={styles.rowValue}>{km(prefs.radiusM)}</span>
+              </div>
+              <input
+                id={radiusId}
+                type="range"
+                className={styles.range}
+                min={0}
+                max={RADII_M.length - 1}
+                step={1}
+                value={radiusIndex}
+                aria-valuetext={`${prefs.radiusM / 1000} kilometres`}
+                aria-describedby={`${radiusId}-hint`}
+                onChange={(e) => setPrefs((p) => ({ ...p, radiusM: RADII_M[Number(e.target.value)] ?? p.radiusM }))}
+              />
+              <span className={styles.rangeTicks} aria-hidden="true">
+                {RADII_M.map((r) => (
+                  <span key={r}>{km(r)}</span>
+                ))}
+              </span>
+              <span className={styles.rowSub} id={`${radiusId}-hint`}>
+                How far Nearby searches around you or your home base
+              </span>
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Look & feel">
+          <div className={styles.card}>
+            <Row icon="motion" tint="lei" title="Motion" value={reduceMotion ? 'Reduced' : 'Full'} to={paths.mySpaceMotion} />
+            <Row icon="text" tint="att" title="Text size" value={TEXT_SIZE_LABELS[prefs.textSize]} to={paths.mySpaceTextSize} />
+            <Row
+              icon="captions"
+              tint="wel"
+              title="Captions on videos"
+              sub={prefs.captions ? 'Shown by default' : 'Off by default'}
+              subId="hint-captions"
+              end={<Switch label="Captions on videos" describedBy="hint-captions" checked={prefs.captions} onChange={(captions) => setPrefs((p) => ({ ...p, captions }))} />}
+            />
+            <Row
+              icon="vibrate"
+              tint="purple"
+              title="Haptics"
+              sub="Light taps on stamps, where the phone supports it"
+              subId="hint-haptics"
+              end={<Switch label="Haptics" describedBy="hint-haptics" checked={prefs.haptics} onChange={(haptics) => setPrefs((p) => ({ ...p, haptics }))} />}
+            />
+          </div>
+        </Section>
+
+        <Section title="More">
+          <nav className={styles.card} aria-label="More">
+            <Row icon="redo" tint="att" title="Redo onboarding" to={`${paths.welcome}?step=1`} />
+            <Row icon="lock" tint="wel" title="Privacy & data" value={formatBytes(totalBytes())} to={paths.mySpacePrivacy} />
+            <Row icon="book" tint="cru" title="Terms & licences" to={paths.licences} />
+            <Row icon="gallery" tint="lei" title="Photo credits" to={paths.credits} />
+            <Row icon="feedback" tint="accent" title="Send feedback" onClick={() => openHelp('feedback')} />
+          </nav>
+        </Section>
         {USER_GATE_ENABLED && <RestartTest />}
+        <p className={styles.footerNote}>FindSG · redesign v2 · Tourism 2040 categories</p>
       </div>
-      {editing && <FieldEditor field={editing} profile={profile} onClose={() => setEditing(null)} />}
+      {open === 'categories' && <CategoriesSheet onClose={close} />}
+      {open === 'hunt' && <HuntSheet onClose={close} />}
+      {open && open !== 'categories' && open !== 'hunt' && <FieldEditor field={open} profile={profile} onClose={close} />}
     </AppShell>
   );
 }
@@ -261,11 +285,10 @@ function RestartTest() {
   const [tester] = usePersistentStore(testerStore);
   const [sure, setSure] = useState(false);
   return (
-    <>
-      <h2 className={styles.kicker}>User test</h2>
+    <Section title="User test">
       <div className={styles.card}>
         {sure ? (
-          <div className={styles.row}>
+          <div className={styles.switchRow}>
             <span className={styles.rowText}>
               <span className={styles.rowTitle}>Clear this phone?</span>
               <span className={styles.rowSub}>Visits, stamps and settings go. The next person starts fresh.</span>
@@ -288,17 +311,16 @@ function RestartTest() {
           </div>
         ) : (
           <button type="button" className={styles.row} onClick={() => setSure(true)}>
-            <span className={styles.rowIcon}>
-              <Icon name="redo" size={18} />
-            </span>
             <span className={styles.rowText}>
               <span className={styles.rowTitle}>Restart test</span>
-              {tester.name && <span className={styles.rowSub}>{`${tester.name} · version ${versionOf(tester)}`}</span>}
+              {tester.name && <span className={styles.mono}>{`${tester.name} · version ${versionOf(tester)} · redesign v2`}</span>}
             </span>
-            <Icon name="chevron" size={18} className={styles.rowChevron} />
+            <span className={styles.pillBtn} aria-hidden="true">
+              Restart
+            </span>
           </button>
         )}
       </div>
-    </>
+    </Section>
   );
 }

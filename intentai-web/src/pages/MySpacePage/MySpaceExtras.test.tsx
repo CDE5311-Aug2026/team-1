@@ -16,7 +16,8 @@ import type { UsageEvent } from '../../usage/event';
 import { readLocalUsage } from '../../usage/localLog';
 import { todaysHoliday } from '../../data/holiday';
 import { creditGroups } from './LicencesPage';
-import { TEXT_PREVIEW } from './SettingsPage';
+import { placePhotoGroups } from './CreditsPage';
+import { TOURISM_INFO } from '../../data/tourism';
 import { currentPath, renderAt } from './testUtils';
 
 afterEach(() => {
@@ -25,25 +26,37 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-test('Text size: the slider shows a live preview, applies to <html> app-wide and is kept', () => {
-  renderAt(paths.mySpaceSettings);
-  const slider = screen.getByRole('slider', { name: 'Text size' });
-  expect(slider).toHaveAttribute('aria-valuetext', 'Default');
+test('Text size page: the steps are radios, the preview scales live, the size applies to <html> app-wide and is kept', async () => {
+  renderAt(paths.mySpaceTextSize);
+  expect(screen.getByRole('heading', { level: 1, name: 'Text size' })).toBeInTheDocument();
+  expect(screen.getByRole('radio', { name: 'Default' })).toHaveAttribute('aria-checked', 'true');
   expect(document.documentElement.style.fontSize).toBe('');
-  expect(screen.getByTestId('text-preview')).toHaveTextContent(TEXT_PREVIEW);
+  expect(screen.getByText(/scales the app’s text/)).toBeInTheDocument();
+  expect(screen.queryByText(/Dynamic Type/)).toBeNull();
 
-  fireEvent.change(slider, { target: { value: '3' } });
-  expect(slider).toHaveAttribute('aria-valuetext', 'Larger');
+  await userEvent.click(screen.getByRole('radio', { name: 'Larger' }));
+  expect(screen.getByRole('radio', { name: 'Larger' })).toHaveAttribute('aria-checked', 'true');
   expect(mySpacePrefsStore.get().textSize).toBe(3);
   expect(document.documentElement.style.fontSize).toBe('120%');
-  expect(screen.getByTestId('text-preview').style.fontSize).toBe('1.125rem');
+  expect(screen.getByTestId('text-preview').style.fontSize).toBe('1.05rem');
   expect(JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}my-space-prefs`)!).textSize).toBe(3);
 
-  // Applied on every page, not only Settings.
+  // The largest step (plan B6 screenshot) and back to Default.
+  await userEvent.click(screen.getByRole('radio', { name: 'Largest' }));
+  expect(document.documentElement.style.fontSize).toBe('130%');
   act(() => mySpacePrefsStore.set((p) => ({ ...p, textSize: 0 })));
   expect(document.documentElement.style.fontSize).toBe('90%');
-  fireEvent.change(slider, { target: { value: '1' } });
+  await userEvent.click(screen.getByRole('radio', { name: 'Default' }));
   expect(document.documentElement.style.fontSize).toBe('');
+});
+
+test('Settings › Text size shows the chosen size and opens its page', async () => {
+  mySpacePrefsStore.set((p) => ({ ...p, textSize: 2 }));
+  renderAt(paths.mySpaceSettings);
+  const row = screen.getByRole('link', { name: /Text size/ });
+  expect(row).toHaveTextContent('Large');
+  await userEvent.click(row);
+  expect(currentPath()).toBe(paths.mySpaceTextSize);
 });
 
 test('Nearby radius: the slider steps through Explore’s radii and is persisted', () => {
@@ -63,29 +76,49 @@ test('older stored preferences keep their choices and gain the new defaults', ()
   expect(repairMySpacePrefs('x')).toBeNull();
 });
 
-test('Licences page lists the map, culture-card, place-story, Nearby place-photo and community credits', () => {
+test('Terms & licences: the prototype note, maps, content and terms; photo credits are one link away', async () => {
   renderAt(paths.licences);
   expect(screen.getByRole('heading', { level: 1, name: 'Terms & licences' })).toBeInTheDocument();
-  for (const title of ['Maps', 'Culture cards', 'Place stories', 'Home places', 'Nearby places', 'Community']) {
-    expect(screen.getByRole('heading', { level: 2, name: title })).toBeInTheDocument();
-  }
+  for (const title of ['Maps', 'Content', 'Terms']) expect(screen.getByRole('heading', { level: 2, name: title })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /student prototype/ })).toBeInTheDocument();
   expect(screen.getByText('© OpenStreetMap contributors')).toBeInTheDocument();
-  const nearby = within(screen.getByRole('region', { name: 'Nearby places' }));
+  expect(screen.getByRole('link', { name: /Master Plan 2019/ })).toHaveAttribute('href', expect.stringContaining('data.gov.sg'));
+  const content = within(screen.getByRole('region', { name: 'Content' }));
+  expect(content.getByRole('link', { name: /DiceBear “Notionists”/ })).toBeInTheDocument();
+  expect(content.getByText(/community card kit: AI-generated illustrations/)).toBeInTheDocument();
+  expect(content.getByText(/illustrative community members/)).toBeInTheDocument();
+  // No claim the app does not keep: nothing about hunters seeing your position.
+  expect(screen.queryByText(/live position/)).toBeNull();
+  await userEvent.click(screen.getByRole('link', { name: /Place photos/ }));
+  expect(currentPath()).toBe(paths.credits);
+});
+
+test('Photo credits: Nearby place photos by Tourism 2040 category, then every other photo group', () => {
+  renderAt(paths.credits);
+  expect(screen.getByRole('heading', { level: 1, name: 'Photo credits' })).toBeInTheDocument();
   const photos = Object.entries((placePhotos as { photos: Record<string, { credit: string; source: string }> }).photos);
   expect(photos.length).toBeGreaterThan(0);
-  for (const [id, p] of photos.slice(0, 5)) {
-    expect(nearby.getAllByText(curatedPlace(id)?.name ?? id).length).toBeGreaterThan(0);
-    expect(nearby.getAllByRole('link', { name: `${p.credit}, via Wikimedia Commons` })[0]).toHaveAttribute('href', p.source);
+  // Every Nearby photo is listed once, under its place's category, linked to its source.
+  const groups = placePhotoGroups();
+  expect(groups.reduce((n, g) => n + g.items.length, 0)).toBe(photos.length);
+  for (const g of groups) {
+    const region = within(screen.getByRole('region', { name: g.title }));
+    expect(region.getByText(`${g.items.length} ${g.items.length === 1 ? 'photo' : 'photos'}`)).toBeInTheDocument();
   }
-  const community = within(screen.getByRole('region', { name: 'Community' }));
-  expect(community.getByRole('link', { name: /DiceBear “Notionists”/ })).toBeInTheDocument();
-  expect(community.getByText(/community card kit: AI-generated illustrations/)).toBeInTheDocument();
-  expect(community.getByText(/illustrative community members/)).toBeInTheDocument();
+  for (const [id, p] of photos.slice(0, 5)) {
+    const place = curatedPlace(id);
+    const title = (place && place.tourism && TOURISM_INFO[place.tourism.category].label) ?? 'Other places';
+    const region = within(screen.getByRole('region', { name: title }));
+    expect(region.getAllByText(place?.name ?? id).length).toBeGreaterThan(0);
+    expect(region.getAllByRole('link', { name: p.credit }).some((a) => a.getAttribute('href') === p.source)).toBe(true);
+  }
+  for (const title of ['Culture cards', 'Place stories', 'Home places']) expect(screen.getByRole('heading', { level: 2, name: title })).toBeInTheDocument();
   expect(screen.getAllByText('Photo: Zairon · CC BY-SA 4.0').length).toBeGreaterThan(0);
   // Every group has entries.
   for (const g of creditGroups()) expect(g.items.length, g.title).toBeGreaterThan(0);
   // Home shows this photo with no room for a line of its own
   expect(creditGroups().flatMap((g) => g.items).map((c) => c.credit)).toContain(todaysHoliday.image.credit);
+  expect(screen.getAllByText(todaysHoliday.image.credit).length).toBeGreaterThan(0);
 });
 
 test('Export my data downloads one JSON file with our stores', async () => {
