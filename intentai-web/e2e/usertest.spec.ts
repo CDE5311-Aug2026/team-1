@@ -9,6 +9,8 @@ test.describe('user test without a server', () => {
   test('a named session reaches the dashboard from this device, which passes axe and exports', async ({ page }) => {
     await page.goto('/');
     await page.getByLabel('Test name').fill('P09');
+    // the facilitator picks the study version; B is this app (A redirects to the frozen UI1)
+    await page.getByRole('radiogroup', { name: 'Version' }).getByRole('radio', { name: 'B', exact: true }).click();
     await page.getByRole('button', { name: 'Start' }).click();
     await page.getByRole('button', { name: /Start the hunt/ }).click(); // v3 onboarding (Figma O1)
     await page.waitForTimeout(1200);

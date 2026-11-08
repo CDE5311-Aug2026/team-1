@@ -4,24 +4,35 @@ import { ROUTES, seed } from './routes';
 test('every route renders without runtime errors or broken images', async ({ page }) => {
   test.setTimeout(180_000); // one page load per route; WebKit needs longer than Chromium
   const errors: string[] = [];
-  page.on('pageerror', (e) => errors.push(e.message));
+  let at = '/';
+  // WebKit reports the previous page's in-flight lazy chunks and CSS preloads as errors when a full page load cancels
+  // them. Only those two messages, raised while goto is replacing the page, are set aside; any other error counts.
+  let leaving = false;
+  const cancelled = /^(TypeError: )?(Importing a module script failed\.|Unable to preload CSS for )/;
+  page.on('pageerror', (e) => {
+    if (leaving && cancelled.test(e.message)) return;
+    errors.push(`${at}: ${e.message}`);
+  });
   await page.goto('/');
   for (const route of ROUTES) {
+    at = route;
     await seed(page, route);
-    await page.goto(route);
+    leaving = true;
+    await page.goto(route, { waitUntil: 'domcontentloaded' });
+    leaving = false;
     await expect(page.getByRole('main')).toBeVisible();
     expect(new URL(page.url()).pathname, `${route} redirected away`).toBe(route);
     // lazily loaded screens (Nearby) first show a busy placeholder <main>; wait for the screen itself
-    await expect(page.locator('main[aria-busy="true"]')).toHaveCount(0);
+    await expect(page.locator('main[aria-busy="true"]')).toHaveCount(0, { timeout: 15_000 });
     // lazy images (Nearby place pictures) load now, so a missing file still counts as broken
     await page.locator('img[loading="lazy"]').evaluateAll((imgs) => imgs.forEach((img) => ((img as HTMLImageElement).loading = 'eager')));
     await expect
       .poll(() => page.locator('img').evaluateAll((imgs) => imgs.every((img) => (img as HTMLImageElement).complete)))
       .toBe(true);
-    const imagesOk = await page
+    const broken = await page
       .locator('img')
-      .evaluateAll((imgs) => imgs.every((img) => (img as HTMLImageElement).naturalWidth > 0));
-    expect(imagesOk, `broken image on ${route}`).toBe(true);
+      .evaluateAll((imgs) => imgs.filter((img) => !((img as HTMLImageElement).naturalWidth > 0)).map((img) => (img as HTMLImageElement).currentSrc || (img as HTMLImageElement).src));
+    expect(broken, `broken image on ${route}`).toEqual([]);
   }
   expect(errors).toEqual([]);
 });
@@ -79,44 +90,46 @@ test.describe('first visit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Type your test name to start' })).toBeVisible();
     await page.getByLabel('Test name').fill('P01');
+    // the facilitator picks the study version; B is this app (A redirects to the frozen UI1)
+    await page.getByRole('radiogroup', { name: 'Version' }).getByRole('radio', { name: 'B', exact: true }).click();
     await page.getByRole('button', { name: 'Start' }).click();
     await expect(page).toHaveURL(/\/onboarding$/);
   });
 });
 
+// v2 tab bar (plan C6): Home · Hunt · Passport in a pill plus a round Search button. Only the active tab's icon takes
+// the accent (--accent-ink #a8430c, AA on the pill); the others are --v2-muted. Moments left the tab bar (its route stays).
 test('only the active tab icon is orange', async ({ page }) => {
-  await page.goto('/moments');
-  const iconColour = (name: string) =>
-    page
-      .getByRole('navigation', { name: 'Primary' })
-      .getByRole('button', { name, exact: true })
-      .locator('span')
-      .first()
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-  expect(await iconColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await iconColour('Home')).toBe('rgb(43, 41, 36)');
-  // The glyph comes from a CSS mask; an invalid url() silently drops it and shows a solid square.
-  const masks = await page
-    .getByRole('navigation', { name: 'Primary' })
-    .locator('button > span:first-child')
-    .evaluateAll((els) => els.map((el) => getComputedStyle(el).maskImage || getComputedStyle(el).webkitMaskImage));
-  expect(masks).toHaveLength(4);
-  for (const mask of masks) expect(mask).toMatch(/^url\(/);
-  const labelColour = (name: string) =>
-    page
-      .getByRole('navigation', { name: 'Primary' })
-      .getByText(name, { exact: true })
-      .evaluate((el) => getComputedStyle(el).color);
-  expect(await labelColour('Moments')).toBe('rgb(228, 103, 31)');
-  expect(await labelColour('Home')).toBe('rgb(43, 41, 36)');
+  await page.goto('/hunt');
+  const nav = page.getByRole('navigation', { name: 'Primary' });
+  const tab = (name: string) => nav.getByRole('button', { name, exact: true });
+  const iconColour = (name: string) => tab(name).locator('svg').first().evaluate((el) => getComputedStyle(el).color);
+  await expect(tab('Hunt')).toHaveAttribute('aria-current', 'page');
+  expect(await iconColour('Hunt')).toBe('rgb(168, 67, 12)');
+  for (const name of ['Home', 'Passport']) {
+    await expect(tab(name)).not.toHaveAttribute('aria-current', 'page');
+    expect(await iconColour(name)).toBe('rgb(95, 91, 84)');
+  }
+  await expect(tab('Search')).not.toHaveAttribute('aria-current', 'page');
+  await expect(nav.getByRole('button', { name: 'Moments' })).toHaveCount(0);
+  // Each tab draws its glyph (inline SVG): a missing one would leave an empty button.
+  const marks = await nav
+    .locator('button svg')
+    .evaluateAll((els) => els.map((el) => el.querySelectorAll('path, circle, rect').length));
+  expect(marks).toHaveLength(4);
+  for (const n of marks) expect(n).toBeGreaterThan(0);
+  const labelColour = (name: string) => nav.getByText(name, { exact: true }).evaluate((el) => getComputedStyle(el).color);
+  expect(await labelColour('Hunt')).toBe('rgb(35, 33, 29)');
+  expect(await labelColour('Home')).toBe('rgb(95, 91, 84)');
 });
 
 // v2: on a laptop every page uses Today's content column. Any wide block near the top of <main>
 // (a page wrapper, header or body, outside cards) must start and end where Today's header does.
 test('every route uses the same content column at 1440', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  // Home is a full-screen map since the Discovery redesign (31 Oct); Moments sets the column now.
-  await page.goto('/moments');
+  // Home is a full-screen map since the Discovery redesign (31 Oct). v2: Moments left the tabs and opens on its full-width
+  // desk, so Hunt (board 10, the field archive) sets the column now.
+  await page.goto('/hunt');
   const column = await page.locator('main > *').first().evaluate((el) => {
     const box = el.getBoundingClientRect();
     return { left: box.left, width: box.width };
@@ -143,6 +156,8 @@ test('every route uses the same content column at 1440', async ({ page }) => {
           )
           .map((el) => ({ el, box: el.getBoundingClientRect() }))
           .filter(({ box }) => box.width > width / 2)
+          // a full-bleed surface (Moments' desk) is the page's ground, not a column; its children are checked
+          .filter(({ box }) => !(box.left <= 0 && box.width >= innerWidth))
           .filter(({ box }) => Math.abs(box.left - left) > 3 || Math.abs(box.width - width) > 3)
           .map(({ el, box }) => `${el.className} at ${Math.round(box.left)}/${Math.round(box.width)}`),
       column,

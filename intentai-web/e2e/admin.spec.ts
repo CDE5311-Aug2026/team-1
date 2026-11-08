@@ -25,9 +25,15 @@ test('time on pages reaches the dashboard, which passes axe', async ({ page }) =
   await page.waitForTimeout(600);
   await page.getByRole('button', { name: 'Hunt', exact: true }).click();
   await expect(page).toHaveURL(/\/hunt$/);
+  // v2 Hunt (board 10): How to play opens by itself the first time; its button leads on to the field archive
+  await page.getByRole('dialog', { name: 'How to play' }).getByRole('button', { name: 'See the field archive' }).click();
   await page.waitForTimeout(600);
-  await page.getByRole('button', { name: 'Moments', exact: true }).click();
-  await expect(page).toHaveURL(/\/moments$/);
+  // v2 (plan C6): Moments left the tab bar; the Passport's journal leads to it (its route stays)
+  await page.getByRole('button', { name: 'Passport', exact: true }).click();
+  await expect(page).toHaveURL(/\/my-space$/);
+  await page.waitForTimeout(600);
+  await page.getByRole('region', { name: 'Journal' }).getByRole('link').first().click();
+  await expect(page).toHaveURL(/\/moments(#.*)?$/);
   await page.waitForTimeout(600);
   await hideTab(page);
 
@@ -45,7 +51,7 @@ test('time on pages reaches the dashboard, which passes axe', async ({ page }) =
     }, { timeout: 15_000 })
     // Other specs run in parallel against the same server and add their own visits, so check
     // that each page appears with at least one person rather than an exact count.
-    .toEqual(expect.arrayContaining([expect.stringMatching(/^Today[1-9]/), expect.stringMatching(/^Hunt[1-9]/), expect.stringMatching(/^Moments[1-9]/)]));
+    .toEqual(expect.arrayContaining([expect.stringMatching(/^Today[1-9]/), expect.stringMatching(/^Hunt[1-9]/), expect.stringMatching(/^My Space[1-9]/), expect.stringMatching(/^Moments[1-9]/)]));
   await expect(page.getByRole('table', { name: 'Landing page' })).toContainText('Today');
 
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();

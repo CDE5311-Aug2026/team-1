@@ -87,7 +87,17 @@ test('dragging the sheet up by its header moves only the sheet: the map stays an
   const sheet = page.getByRole('region', { name: 'Places' });
   const map = page.getByRole('application', { name: /Map of Singapore places/ });
   await expect(sheet).toHaveAttribute('data-detent', 'peek');
-  const scale = await map.getAttribute('data-scale');
+  // the map first fits the area (WebKit takes longer): read its scale once it has settled
+  let scale = await map.getAttribute('data-scale');
+  await expect
+    .poll(async () => {
+      await page.waitForTimeout(400);
+      const now = await map.getAttribute('data-scale');
+      const settled = now === scale;
+      scale = now;
+      return settled;
+    }, { timeout: 10_000 })
+    .toBe(true);
   const url = page.url();
   const title = (await sheet.getByRole('heading', { level: 1, name: 'Nearby' }).boundingBox())!;
   await page.mouse.move(title.x + 20, title.y + title.height / 2);
@@ -176,8 +186,11 @@ test('unavailable storage keeps the feature working and says so', async ({ page 
     };
   });
   await open(page, paths.nearbyPlace('curated:sg-merlion-park'));
-  await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Saved', exact: true })).toBeVisible();
+  // v2 place page (boards 08/12): Save is one toggle button whose pressed state says it is saved.
+  const save = page.getByRole('button', { name: 'Save', exact: true });
+  await expect(save).toHaveAttribute('aria-pressed', 'false');
+  await save.click();
+  await expect(save).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByText('Changes will not be saved on this device.')).toBeVisible();
 });
 
