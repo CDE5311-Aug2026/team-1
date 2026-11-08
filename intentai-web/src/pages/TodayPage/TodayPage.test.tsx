@@ -384,14 +384,15 @@ describe('v2 sections', () => {
     expect(screen.getByText('No open challenges in this category right now.')).toBeInTheDocument();
   });
 
-  test('Picked for you: your first category first; a chip keeps one category; no distance without a position', async () => {
+  test('Picked for you: dealt in turns by your order (#1 leads); a chip keeps one category; no distance without a position', async () => {
     const user = userEvent.setup();
     profileV3Store.set((p) => ({ ...p, tourismRanking: ['lei', 'wel'] }));
     renderHome();
     const grid = screen.getByRole('list', { name: 'Places picked for you' });
     const items = within(grid).getAllByRole('listitem');
     expect(items).toHaveLength(8);
-    expect(items.map((li) => li.dataset.category)).toEqual(Array(8).fill('lei'));
+    expect(items.map((li) => li.dataset.category).slice(0, 4)).toEqual(['lei', 'wel', 'att', 'cru']);
+    expect(items[4].dataset.category).toBe('lei');
     expect(within(items[0]).getByText('Leisure')).toBeInTheDocument();
     expect(within(grid).queryByText(/^\d+(\.\d)? (m|km)$/)).toBeNull();
     // the place's own name, and a link to its page

@@ -6,14 +6,13 @@ import { pickedForYou } from './picked';
 
 const here = { lat: 1.2806, lng: 103.8448 };
 
-test('your categories first, in your order; within one, catalogue order without a position', () => {
+test('dealt in turns by your order, #1 leading each round; within one, catalogue order without a position', () => {
   const list = pickedForYou(PUBLISHED_PLACES, ['wel', 'cru', 'att', 'lei'], 'all', null);
   const cats = list.map((p) => p.category);
-  const firstOf = (c: string) => cats.indexOf(c as never);
-  expect(firstOf('wel')).toBe(0);
-  expect(cats.lastIndexOf('wel')).toBeLessThan(firstOf('cru'));
-  expect(cats.lastIndexOf('cru')).toBeLessThan(firstOf('att'));
-  expect(cats.lastIndexOf('att')).toBeLessThan(firstOf('lei'));
+  expect(cats.slice(0, 4)).toEqual(['wel', 'cru', 'att', 'lei']);
+  expect(cats[4]).toBe('wel');
+  expect(new Set(cats.slice(0, 8)).size).toBe(4);
+  expect(list).toHaveLength(PUBLISHED_PLACES.filter((p) => p.tourism && p.operatingStatus !== 'planned').length);
   const wel = list.filter((p) => p.category === 'wel').map((p) => p.place.id);
   expect(wel).toEqual(PUBLISHED_PLACES.filter((p) => p.tourism?.category === 'wel').map((p) => p.id));
   expect(list.every((p) => p.m === undefined)).toBe(true);

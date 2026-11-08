@@ -6,8 +6,8 @@
 //
 // The one thing this file keeps is whether you joined a challenge (`challenge-joined`, this phone only).
 import { useEffect, useMemo, useState } from 'react';
-import { usePersistentStore, createPersistentStore } from '../persistentStore';
-import { isRecord } from '../validate';
+import { usePersistentStore } from '../persistentStore';
+import { challengeJoinedStore } from '../v2Stores';
 import { TOURISM_CATEGORIES, tourismOf, type TourismCategory } from '../tourism';
 import { areaOfPlace, type RegionId } from '../ura/ura';
 import { curatedPlace } from '../../features/nearby/catalogue';
@@ -143,22 +143,11 @@ export function longDates(from: string, to: string): string {
 }
 
 // ---- joined (this phone only) ----
-export type JoinedChallenges = Record<string, { joinedAt: string }>;
+export type { JoinedChallenges } from "../v2Stores";
+import type { JoinedChallenges } from "../v2Stores";
 
-export function isJoinedChallenges(value: unknown): value is JoinedChallenges {
-  return (
-    isRecord(value) &&
-    Object.entries(value).every(
-      ([k, v]) => k.length > 0 && k.length <= 100 && isRecord(v) && typeof v.joinedAt === 'string' && !Number.isNaN(Date.parse(v.joinedAt)),
-    )
-  );
-}
-
-export const challengeJoinedStore = createPersistentStore<JoinedChallenges>({
-  key: 'challenge-joined',
-  fallback: {},
-  isValid: isJoinedChallenges,
-});
+// The store itself lives in data/v2Stores.ts, so stores.ts can clear it without an import cycle.
+export { challengeJoinedStore, isJoinedChallenges } from '../v2Stores';
 
 export function joinChallenge(id: string, now: Date = new Date()) {
   challengeJoinedStore.set((prev) => (prev[id] ? prev : { ...prev, [id]: { joinedAt: now.toISOString() } }));
