@@ -7,6 +7,15 @@
   background: linear-gradient(180deg, #a9c7df 0%, #7fa8c9 55%, #6f9cc0 100%);
 }
 
+/* EARTH ONLINE's "Loading 3D…" note (View3D's role=status): at the map's top centre, under the crumb, so it never
+   covers the row of places at the foot */
+.map :global(div[role='status']) {
+  top: 52px;
+  /* the middle of the map left clear of the tool rail (64 px at its right edge) */
+  left: calc(50% - 32px);
+  transform: translateX(-50%);
+  max-width: min(17rem, calc(100% - 80px));
+}
 .canvas {
   position: absolute;
   inset: 0;
@@ -55,11 +64,40 @@
 }
 
 .badge.small {
-  padding: 2px;
+  padding: 2px 8px 2px 2px;
+  gap: 4px;
 }
 
 .badge.small.badgeOn {
   padding-right: 10px;
+}
+
+/* a number only (a region with too many areas to name them all, or no room for this one's name): a round badge */
+.badge.small.bare,
+.badge.small[data-squeezed] {
+  padding: 2px;
+}
+
+.badge.small[data-squeezed] .badgeText {
+  display: none;
+}
+
+/* every badge keeps a 44 px tap target: the pill is drawn smaller, the button's hit area is not */
+.badge::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: min(0px, calc(50% - 22px));
+  bottom: min(0px, calc(50% - 22px));
+}
+
+/* an area badge that is not selected: its name, cut short (the full name is in its label) */
+.short {
+  max-width: 3.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.625rem;
 }
 
 .numWrap {
@@ -135,14 +173,23 @@
   line-height: 1.1;
 }
 
-.badge.small .badgeText {
-  padding-right: 6px;
+.badge.small.badgeOn .badgeText {
+  padding-right: 2px;
 }
 
 /* All picked: each category's count, a tinted mini chip with its glyph (Attractions · Wellness · Leisure · Cruise) */
 .catCounts {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 2px;
+}
+
+/* a narrow phone: the counts wrap onto a second line (two to a line), so the five region badges stay narrow enough
+   to sit apart */
+@media (max-width: 359px) {
+  .catCounts {
+    max-width: 4.75rem;
+  }
 }
 
 .mini {
@@ -264,13 +311,30 @@
   height: 28px;
 }
 
+/* faded (another category picked): smaller, but its number stays */
 .pin.pinDim:has(.pinNum) {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
+  opacity: 0.55;
 }
 
 .pinDim .pinNum {
-  font-size: 0;
+  font-size: 0.5625rem;
+}
+
+/* a numbered stop's category: its glyph on a small disc at the lower right corner */
+.pinCorner {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--pin, var(--v2-muted));
+  box-shadow: 0 0 0 1.5px #fff;
+  pointer-events: none;
 }
 
 .pinNum {

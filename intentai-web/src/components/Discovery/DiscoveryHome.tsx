@@ -26,7 +26,7 @@ import {
   type HomePlace,
 } from "../../data/homePlaces";
 import { usePersistentStore } from "../../data/persistentStore";
-import { profileV3Store, type TopicId } from "../../data/profile/profile";
+import { profileV3Store, tourismOrder } from "../../data/profile/profile";
 import { curatedPlace } from "../../features/nearby/catalogue";
 import {
   TOURISM_INFO,
@@ -167,8 +167,28 @@ function saveHere(v: LatLng) {
   }
 }
 const isPickLevel = (l: Level) => l === "picks" || l === "pick";
-/** The tool rail's width over the map's right edge (MapToolbar.module.css .rail: 44 px keys, 5 px padding, 10 px in). */
+/** The tool rail's room over the map's right edge (MapToolbar.module.css .rail: 44 px keys, 5 px padding, 10 px in;
+ *  under 360 px, 36 px keys, 4 px padding, 6 px in). DiscoveryHome.module.css keeps the crumb and the row clear of it. */
 const RAIL_W = 64;
+const RAIL_W_NARROW = 50;
+const NARROW = "(max-width: 359px)";
+/** How much taller the map gets with its tab dragged up (DiscoveryHome.module.css .device: --grow × 180 px). */
+const TALL_PX = 180;
+
+function useNarrow(): boolean {
+  const [narrow, setNarrow] = useState(
+    () => typeof window !== "undefined" && !!window.matchMedia?.(NARROW).matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia?.(NARROW);
+    if (!mq) return;
+    const on = () => setNarrow(mq.matches);
+    on();
+    mq.addEventListener?.("change", on);
+    return () => mq.removeEventListener?.("change", on);
+  }, []);
+  return narrow;
+}
 
 /** The last of these pictures to finish loading (the first one at once), so a background never fades in blank. */
 function useLoadedImage(src: string) {
@@ -201,24 +221,26 @@ const sortedAreas = (region: RegionId) =>
       a.name.localeCompare(b.name),
   );
 
-/** An area's places; with tags ranked in onboarding, the #1 tag's places first (otherwise in their own order). */
-const homePlacesIn = (
-  areaId: string,
-  tags: readonly TopicId[] = [],
-): HomePlace[] => {
-  const list = ALL_HOME_PLACES.filter((p) => areaOfPlace(p.id)?.id === areaId);
-  if (!tags.length) return list;
-  const rank = (p: HomePlace) => {
-    const i = tags.indexOf(curatedPlace(p.id)?.category as TopicId);
-    return i < 0 ? tags.length : i;
-  };
-  return [...list].sort((a, b) => rank(a) - rank(b));
-};
-
 /** v2: a place's Tourism 2040 category (from the catalogue). */
 const tourismOfId = (id: string): TourismCategory | undefined => {
   const c = curatedPlace(id);
   return c ? tourismOf(c) : undefined;
+};
+
+/** An area's places, ranked by your category order (tourismOrder: your ranking from onboarding, then the rest in STB
+ *  order), as Home's "Picked for you" ranks them; inside a category, in their own order. Exported for the tests. */
+export const homePlacesIn = (
+  areaId: string,
+  order: readonly TourismCategory[] = [],
+): HomePlace[] => {
+  const list = ALL_HOME_PLACES.filter((p) => areaOfPlace(p.id)?.id === areaId);
+  if (!order.length) return list;
+  const rank = (p: HomePlace) => {
+    const c = tourismOfId(p.id);
+    const i = c ? order.indexOf(c) : -1;
+    return i < 0 ? order.length : i;
+  };
+  return [...list].sort((a, b) => rank(a) - rank(b));
 };
 
 const HOME_BY_ID = new Map(ALL_HOME_PLACES.map((p) => [p.id, p]));
@@ -259,7 +281,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   const [params, setParams] = useSearchParams();
   const personal = useExplorePersonal();
   const visited = useMemo(() => visitedSet(personal), [personal]);
-  const [{ topics: tags }] = usePersistentStore(profileV3Store);
+  const [profile] = usePersistentStore(profileV3Store);
+  const order = useMemo(() => tourismOrder(profile), [profile]);
 
   // ---- level and selection, from the URL ----
   const region = (uraRegion(params.get("r") ?? undefined)?.id ??
@@ -271,8 +294,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
       ? areaParam
       : (areaList.find((a) => a.id === BASE_AREA?.id) ?? areaList[0]);
   const placeList = useMemo(
-    () => homePlacesIn(area.id, tags),
-    [area.id, tags],
+    () => homePlacesIn(area.id, order),
+    [area.id, order],
   );
   const [loadedPicks, setLoadedPicks] = useState<EditorPick[] | null>(
     () => picksModule?.editorPicks(localToday()) ?? null,
@@ -304,8 +327,10 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     () => (here ? nearYou(here, ALL_HOME_PLACES, picks) : null),
     [here, picks],
   );
+  // the selected item near you is kept in this page only: the URL never names what is nearest you (privacy)
+  const [nearPick, setNearPick] = useState<string | null>(null);
   const nearSel =
-    near?.items.find((i) => i.id === params.get("n")) ?? near?.items[0];
+    near?.items.find((i) => i.id === nearPick) ?? near?.items[0];
   const pick = picks.find((k) => k.id === params.get("k")) ?? picks[0];
   const lvlParam = params.get("lvl");
   const level: Level =
@@ -332,19 +357,23 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     open?: string;
     k?: string;
     route?: boolean;
-    n?: string;
   }) => {
     const q = new URLSearchParams();
     const lvl = next.lvl ?? level;
     if (lvl !== "regions") q.set("lvl", lvl);
+    // the category chips' ?cat= stays through every move on the map
+    const catParam = params.get("cat");
+    const commit = () => {
+      if (catParam) q.set("cat", catParam);
+      setParams(q, { replace: true });
+    };
     if (lvl === "near") {
-      // your planning area stays in the URL, so ↩ and the other decks go on from there
+      // the area you were browsing stays in the URL (never the one Locate found you in: a shared link must not tell
+      // where you are), so ↩ and the other decks go on from there
       q.set("r", next.r ?? region);
       q.set("a", next.a ?? area.id);
-      const n = "n" in next ? next.n : nearSel?.id;
-      if (n) q.set("n", n);
       if (next.open) q.set("open", next.open);
-      setParams(q, { replace: true });
+      commit();
       return;
     }
     if (isPickLevel(lvl)) {
@@ -363,7 +392,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
         if (next.open) q.set("open", next.open);
         if (next.route ?? (routeMode && k === pick?.id)) q.set("route", "1");
       }
-      setParams(q, { replace: true });
+      commit();
       return;
     }
     q.set("r", next.r ?? region);
@@ -371,7 +400,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     if (lvl === "places" && (next.p ?? place?.id))
       q.set("p", next.p ?? place!.id);
     if (lvl === "places" && next.open) q.set("open", next.open);
-    setParams(q, { replace: true });
+    commit();
   };
 
   const enterRegion = (id: string) =>
@@ -382,7 +411,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     });
   const enterArea = (id: string) =>
     placesInArea(id).length
-      ? go({ lvl: "places", a: id, p: homePlacesIn(id, tags)[0]?.id })
+      ? go({ lvl: "places", a: id, p: homePlacesIn(id, order)[0]?.id })
       : go({ a: id });
   // A place opens as a sheet over Home; the URL keeps it (?open=), so Back closes it and a reload keeps it open.
   const location = useLocation();
@@ -407,7 +436,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   const pickArea = (id: string) => {
     const a = uraArea(id);
     if (!a) return;
-    const ps = homePlacesIn(id, tags);
+    const ps = homePlacesIn(id, order);
     go(
       ps.length
         ? { lvl: "places", r: a.region, a: id, p: ps[0].id }
@@ -422,8 +451,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   // a place's sky (time of day, weather) stays as chosen while the deck moves to other places
   const [sky, setSky] = useState<View3DSky>({ time: "now", wx: "clear" });
 
-  // The map stretches (owner, 31 Oct 2026: "the screen can stretch"): drag the tab at its top up and the picture card
-  // above folds away to give the map its room; drag it down (or tap the tab) to bring the card back.
   // a place is open: its 3D view is the top of the notebook's first page, and turns away with it
   const deviceRef = useRef<HTMLDivElement>(null);
   const [mapAway, setMapAway] = useState(false);
@@ -457,18 +484,31 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   useEffect(() => {
     if (!openId) setMapAway(false);
   }, [openId]);
-  const eventH = useRef(66);
-  const [grow, setGrow] = useState(() => {
+  // The map stretches (owner, 31 Oct 2026: "the screen can stretch"): drag the tab at its top up, or tap it, for a
+  // taller map. While the finger moves, --grow is set on the card directly (no React render per move); the state
+  // changes once, on release.
+  const [tall, setTallState] = useState(() => {
     try {
-      return sessionStorage.getItem("home.mapTall") === "1" ? 1 : 0;
+      return sessionStorage.getItem("home.mapTall") === "1";
     } catch {
-      return 0;
+      return false;
     }
-  }); // 0 (card shown) … 1 (card folded)
+  });
+  const grow = tall ? 1 : 0; // 0 (normal) … 1 (tall)
+  const growNow = useRef(grow);
   const grip = useRef<{ y: number; g: number; moved: boolean } | null>(null);
   const gripDragged = useRef(false);
+  const paintGrow = (g: number, dragging: boolean) => {
+    growNow.current = g;
+    const el = deviceRef.current;
+    if (!el) return;
+    el.style.setProperty("--grow", String(g));
+    // the card follows the finger; the eased transition is for taps and the snap on release
+    el.style.transition = dragging ? "none" : "";
+  };
   const setTall = (on: boolean) => {
-    setGrow(on ? 1 : 0);
+    paintGrow(on ? 1 : 0, false);
+    setTallState(on);
     try {
       sessionStorage.setItem("home.mapTall", on ? "1" : "0");
     } catch {
@@ -477,7 +517,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   };
   const gripProps = {
     onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
-      grip.current = { y: e.clientY, g: grow, moved: false };
+      grip.current = { y: e.clientY, g: growNow.current, moved: false };
       e.currentTarget.setPointerCapture?.(e.pointerId);
     },
     onPointerMove: (e: React.PointerEvent<HTMLButtonElement>) => {
@@ -485,8 +525,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
       if (!g) return;
       const dy = e.clientY - g.y;
       if (Math.abs(dy) > 4) g.moved = true;
-      if (g.moved)
-        setGrow(Math.max(0, Math.min(1, g.g - dy / (eventH.current + 10))));
+      if (g.moved) paintGrow(Math.max(0, Math.min(1, g.g - dy / TALL_PX)), true);
     },
     onPointerUp: () => {
       const g = grip.current;
@@ -495,29 +534,25 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
       if (!g.moved) return; // a tap: the click toggles
       gripDragged.current = true;
       setTimeout(() => (gripDragged.current = false), 0);
-      setTall(grow > 0.5);
+      setTall(growNow.current > 0.5);
     },
     onPointerCancel: () => {
+      if (!grip.current) return;
       grip.current = null;
-      setTall(grow > 0.5);
+      setTall(growNow.current > 0.5);
     },
   };
   // Locate (owner, 1 Nov 2026): what is near you, within 2 km: landmarks and Editor's Picks, nearest first
   const showNear = (at: LatLng) => {
-    const q = toXY(at);
-    const a = areaAt(q.x, q.y) ?? BASE_AREA;
     setHere(at);
     saveHere(at);
+    setNearPick(null);
     onHere?.(at);
     void loadPicks().then((m) =>
       setLoadedPicks((had) => had ?? m.editorPicks(localToday())),
     );
-    go({
-      lvl: "near",
-      r: a?.region ?? region,
-      a: a?.id ?? area.id,
-      n: undefined,
-    });
+    // the URL keeps the area you were browsing; where you are stays in this tab's sessionStorage
+    go({ lvl: "near" });
   };
   const locate = () => {
     const fallback = (why: string) => {
@@ -559,6 +594,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   // a place opens over Home; a pick opens its deck of stops
   const enterNear = (id: string) => {
     const it = near?.items.find((i) => i.id === id);
+    if (it) setNearPick(it.id);
     if (it?.kind === "pick") go({ lvl: "pick", k: it.id, p: it.stopId });
     else if (it) openPlace(it.id);
   };
@@ -768,6 +804,34 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
           : placeList.map((p) => ({ id: p.id, name: p.name, point: p.point, tourism: tourismOfId(p.id) })),
     [inPicks, pick, placeList, level, near],
   );
+  // one array per region, so the map's markers are not rebuilt (and its frame loop restarted) on every render
+  const areaOrder = useMemo(() => areaList.map((a) => a.id), [areaList]);
+  const narrow = useNarrow();
+  // the badges stay below the crumb: its real bottom in the map card, measured (it wraps, and the text size changes)
+  const crumbRef = useRef<HTMLDivElement>(null);
+  const [crumbBottom, setCrumbBottom] = useState(0);
+  // and where the tool rail ends, so a region's area badges can use the room under it
+  const [railBottom, setRailBottom] = useState(0);
+  const showCrumb = !routeMode && !openId;
+  useLayoutEffect(() => {
+    const el = crumbRef.current;
+    const card = el?.parentElement;
+    const rail = card?.querySelector<HTMLElement>('[role="toolbar"]');
+    if (!showCrumb || !el || !card) {
+      setCrumbBottom(0);
+      setRailBottom(0);
+      return undefined;
+    }
+    const measure = () => {
+      setCrumbBottom(el.offsetTop + el.offsetHeight);
+      setRailBottom(rail ? Math.round(rail.getBoundingClientRect().bottom - card.getBoundingClientRect().top) : 0);
+    };
+    measure();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    ro?.observe(el);
+    if (rail) ro?.observe(rail);
+    return () => ro?.disconnect();
+  }, [showCrumb]);
 
 
   // Enter (the ↵ key, or the keyboard's Enter): open what the deck has selected; in a place's notebook, the next page
@@ -902,10 +966,10 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
             <button
               type="button"
               className={styles.grip}
-              aria-label={grow === 1 ? "Smaller map" : "Bigger map"}
-              aria-expanded={grow === 1}
+              aria-label={tall ? "Smaller map" : "Bigger map"}
+              aria-expanded={tall}
               onClick={() => {
-                if (!gripDragged.current) setTall(grow < 0.5);
+                if (!gripDragged.current) setTall(!tall);
               }}
               {...gripProps}
             />
@@ -935,7 +999,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                   level={openId && level !== "near" ? "places" : level}
                   region={openId ? (openArea?.region ?? region) : region}
                   areaId={openId ? (openArea?.id ?? area.id) : area.id}
-                  areaOrder={areaList.map((a) => a.id)}
+                  areaOrder={areaOrder}
                   places={mapPlaces}
                   selectedPlaceId={
                     openId ??
@@ -959,7 +1023,9 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                   here={level === "near" ? (here ?? undefined) : undefined}
                   sky={openId ? sky : undefined}
                   category={category}
-                  insetRight={RAIL_W}
+                  insetRight={narrow ? RAIL_W_NARROW : RAIL_W}
+                  insetTop={crumbBottom ? crumbBottom + 6 : 6}
+                  railBottom={railBottom || undefined}
                 />
               </Suspense>
             )}
@@ -969,8 +1035,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                 <SkyControls sky={sky} onChange={setSky} />
               </div>
             )}
-            {!routeMode && !openId && (
-              <div className={styles.mapTop}>
+            {showCrumb && (
+              <div ref={crumbRef} className={styles.mapTop}>
                 <div className={styles.crumbBox}>
                   <span className={styles.dots} aria-hidden="true">
                     {[0, 1, 2].map((d) => (

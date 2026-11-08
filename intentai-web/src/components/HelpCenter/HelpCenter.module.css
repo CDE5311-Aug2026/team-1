@@ -781,6 +781,12 @@
   color: #6b5a47;
   cursor: pointer;
 }
+/* × is drawn 24 px; its tap target is 44 px */
+.hintClose::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
 .hintOpen:focus-visible,
 .hintClose:focus-visible {
   outline: 2px solid #a33d1f;
@@ -790,5 +796,21 @@
 @media (max-width: 359px) {
   .hintHand {
     display: none;
+  }
+
+  /* no room beside the lion without covering the page's title: the slip hangs under the bar, its point up at the
+     lion */
+  .hint {
+    top: calc(100% - 4px);
+    bottom: auto;
+    left: 0;
+    margin-block: 0;
+    max-width: calc(100% - 8px);
+  }
+
+  .hint::before {
+    top: -5px;
+    left: 24px;
+    margin-top: 0;
   }
 }

@@ -7,7 +7,7 @@
 // visit notes and sources. Swiping the deck below changes the place; the ↩ key in the row under the notebook (it stays
 // while the pages turn), Esc or Back bring the map back.
 import { motion, useReducedMotionConfig } from 'motion/react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FlipBook, type BookControls, type BookPage } from '../Notebook/FlipBook';
 import { placeCard } from '../../data/explore/placeCards';
 import { areaOfPlace, areaProgress, visitedSet } from '../../data/ura/ura';
@@ -53,6 +53,42 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: dec
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  // A tall phone (Pixel 7): the field note's few lines left most of the page blank. The notebook is held to what the
+  // field note needs (--cap), and Home gives the room left to the 3D print above it. Once the print has turned away
+  // with the first page, Home lifts the cap so the later pages get the whole height.
+  const bookRef = useRef<HTMLElement>(null);
+  const noteRef = useRef<HTMLElement>(null);
+  const [cap, setCap] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    setCap(null);
+    const note = noteRef.current;
+    const book = bookRef.current;
+    if (!note || !book || typeof ResizeObserver === 'undefined') return undefined;
+    // the page's own scroller (FlipBook's sheet): when the cap is too tight the note overflows it
+    let sheet: HTMLElement | null = note.parentElement;
+    while (sheet && sheet !== book && !/(auto|scroll)/.test(getComputedStyle(sheet).overflowY)) sheet = sheet.parentElement;
+    const fit = () => {
+      if (!note.clientHeight || !book.offsetHeight) return;
+      const kids = [...note.children] as HTMLElement[];
+      const gap = parseFloat(getComputedStyle(note).rowGap) || 0;
+      const need = kids.reduce((s, k) => s + k.offsetHeight, 0) + gap * Math.max(0, kids.length - 1);
+      // not drawn yet (no heading, no buttons): nothing to go by
+      if (need < 80) return;
+      const over = sheet && sheet !== book ? sheet.scrollHeight - sheet.clientHeight : 0;
+      // > 0: blank paper to give away; < 0: the note does not fit and needs that much more
+      // (10 px kept under the buttons, for their shadow)
+      const delta = over > 1 ? -over - 10 : note.clientHeight - need - 10;
+      // a few pixels either way are not worth a new layout
+      if (Math.abs(delta) < 8) return;
+      setCap((had) => (delta < 0 && had === null ? null : Math.round(book.offsetHeight - delta)));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(note);
+    ro.observe(book);
+    return () => ro.disconnect();
+  }, [placeId]);
+
   if (!place) return null;
   const card = placeCard(place.id);
   const state = stateOf(personal, place.id);
@@ -72,7 +108,7 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: dec
   const stampDate = state?.visitedOn ? new Date(`${state.visitedOn}T12:00:00`) : null;
 
   const fieldNote = (
-    <header className={styles.head} aria-label="Your progress" data-fill>
+    <header ref={noteRef} className={styles.head} aria-label="Your progress" data-fill>
       <div className={styles.headTop}>
         {/* checked in: the place's stamp in your notebook; not yet: an empty ring waiting for it */}
         <span className={styles.stamp} data-in={isIn} role="img" aria-label={isIn ? 'Checked in' : 'Not checked in yet'}>
@@ -134,9 +170,12 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: dec
 
   return (
     <motion.section
+      ref={bookRef}
       className={styles.notebook}
       role="dialog"
       aria-label={place.name}
+      data-capped={cap !== null || undefined}
+      style={cap !== null ? ({ '--cap': `${cap}px` } as React.CSSProperties) : undefined}
       initial={reduce ? false : { opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={reduce ? { opacity: 0 } : { opacity: 0, y: 30 }}
