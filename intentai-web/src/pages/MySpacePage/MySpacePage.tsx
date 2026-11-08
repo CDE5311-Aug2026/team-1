@@ -545,7 +545,8 @@ export default function MySpacePage() {
               </span>
               <Icon name="chevron" size={18} className={book.chevron} />
             </Link>
-            <Link to={paths.nearby} className={book.line}>
+            {/* the v1 Nearby explorer is retired (8 Nov 2026): every place is on Home's map */}
+            <Link to={paths.today} className={book.line}>
               <Bead icon="pin" />
               <span className={book.lineText}>
                 <span className={book.lineTitle}>All places</span>

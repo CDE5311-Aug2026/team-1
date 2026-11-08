@@ -181,7 +181,8 @@ export default function PrivacyPage() {
         <Section title="Permissions">
           <ul className={styles.permGrid}>
             <li>
-              <button type="button" className={styles.perm} onClick={() => navigate(paths.nearbyLocation)}>
+              {/* Home's Near you, asking for location as the map's Locate key does (?locate=1, DiscoveryHome) */}
+              <button type="button" className={styles.perm} onClick={() => navigate(`${paths.today}?lvl=near&locate=1`)}>
                 <span className={styles.permTop}>
                   <span className={`${styles.permIcon} ${styles.tCru}`}>
                     <Icon name="pin" size={18} />
@@ -189,7 +190,7 @@ export default function PrivacyPage() {
                   <span className={settings.location ? styles.permOn : styles.permOff}>{settings.location ? 'While using' : 'Off'}</span>
                 </span>
                 <span className={styles.rowTitle}>Location</span>
-                <span className={styles.rowSub}>Nearby and check-ins</span>
+                <span className={styles.rowSub}>Near you and check-ins</span>
               </button>
             </li>
             <li>

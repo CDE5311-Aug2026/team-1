@@ -206,7 +206,27 @@ test('Saved places and All places open from Passport', async () => {
   cleanup();
   renderAt(paths.mySpace);
   await userEvent.click(screen.getByRole('link', { name: 'All places' }));
-  expect(currentPath()).toBe(paths.nearby);
+  // the v1 Nearby explorer is retired: All places opens Home's map
+  expect(currentPath()).toBe(paths.today);
+});
+
+test('Privacy › Location opens Home’s Near you and asks for location once, as the Locate key does', async () => {
+  const getCurrentPosition = vi.fn((ok: PositionCallback) =>
+    ok({ coords: { latitude: 1.2815, longitude: 103.8448, accuracy: 20 }, timestamp: 1 } as unknown as GeolocationPosition),
+  );
+  Object.defineProperty(navigator, 'geolocation', { value: { getCurrentPosition }, configurable: true });
+  try {
+    renderAt(paths.mySpacePrivacy);
+    const tile = screen.getByRole('button', { name: /Location Near you and check-ins/ });
+    expect(tile).toHaveTextContent('Near you and check-ins');
+    expect(tile).not.toHaveTextContent('Nearby');
+    await userEvent.click(tile);
+    expect(currentPath()).toBe(paths.today);
+    expect(await screen.findByText(/^Near you · 2 km$|^Nearest to you$/, undefined, { timeout: 4000 })).toBeInTheDocument();
+    expect(getCurrentPosition).toHaveBeenCalledTimes(1);
+  } finally {
+    Reflect.deleteProperty(navigator, 'geolocation');
+  }
 });
 
 test('links: Privacy & data and Redo onboarding; Settings and Help live in the top bar', async () => {

@@ -578,6 +578,18 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 },
     );
   };
+  // ?locate=1 (Settings › Privacy & data › Location, 8 Nov 2026): press Locate once on arrival, as the rail's key
+  // does. The flag leaves the URL at once, so a reload or a shared link never asks again.
+  const locateAsked = useRef(false);
+  useEffect(() => {
+    if (locateAsked.current || params.get("locate") !== "1") return;
+    locateAsked.current = true;
+    const q = new URLSearchParams(params);
+    q.delete("locate");
+    setParams(q, { replace: true });
+    locate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
+  }, []);
   const closePlace = () => {
     if ((location.state as { sheet?: boolean } | null)?.sheet) navigate(-1);
     else {
