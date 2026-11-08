@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { animalFor } from '../../components/Avatar/Avatar';
 import { resetPersistentStores } from '../../data/persistentStore';
 import { profileV3Store } from '../../data/profile/profile';
 import { explorePersonalStore } from '../../data/stores';
@@ -414,13 +415,20 @@ describe('v2 sections', () => {
   test('together: the region leaderboard (example players, labelled) and the joined line on challenges', () => {
     huntModeStore.set({ mode: 'together', region: 'central' });
     renderHome();
-    const board = screen.getByRole('region', { name: 'Central · this weekend' });
+    const board = screen.getByRole('region', { name: 'Leaderboard · Central · this weekend' });
     expect(within(board).getByText('Example')).toBeInTheDocument();
     expect(within(board).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
-      'A1Arjun K.96 min fastest',
-      'H2Hui Wen102 +6',
-      'F3Farid109 +13',
+      '1Arjun K.96 min fastest',
+      '2Hui Wen102 +6',
+      '3Farid109 +13',
     ]);
+    // each player (and You) wears a decorative animal icon from their name; the names stay as text
+    const icons = [...board.querySelectorAll('svg[data-animal]')];
+    expect(icons).toHaveLength(4);
+    expect(icons.every((s) => s.getAttribute('aria-hidden') === 'true')).toBe(true);
+    expect(icons.map((s) => s.getAttribute('data-animal'))).toEqual(
+      ['Arjun K.', 'Hui Wen', 'Farid', 'You'].map(animalFor),
+    );
     expect(within(board).getByText(/no time yet\. Open a challenge\./)).toBeInTheDocument();
     const civic = screen.getByRole('article', { name: 'Civic District' });
     expect(within(civic).getByText(/7–8 Nov · 8 stops · 214 joined/)).toBeInTheDocument();
@@ -430,12 +438,14 @@ describe('v2 sections', () => {
   test('the board is the region’s: a region with no open challenge says so, with no example players', () => {
     huntModeStore.set({ mode: 'together', region: 'east' });
     renderHome();
-    const board = screen.getByRole('region', { name: 'East · this weekend' });
+    const board = screen.getByRole('region', { name: 'Leaderboard · East · this weekend' });
     expect(within(board).getByText(/No challenge is open in East right now\./)).toBeInTheDocument();
     expect(within(board).getByRole('link', { name: 'See all challenges in Hunt' })).toHaveAttribute('href', '/hunt');
     expect(within(board).queryByRole('list')).toBeNull();
     expect(within(board).queryByText('Example')).toBeNull();
     expect(within(board).queryByText(/^You$/)).toBeNull();
+    // the empty card still says it is the leaderboard
+    expect(within(board).getByRole('heading', { level: 2 })).toHaveTextContent(/^Leaderboard · East · this weekend$/);
   });
 
   test('your line counts the story’s own check-ins (Hunt), read from its save without the game, and again on return', async () => {
@@ -448,7 +458,7 @@ describe('v2 sections', () => {
       'civic-f1-03': { checkin: { mode: 'preview', confirmedAt: '2026-11-07T01:30:00.000Z' } },
     });
     renderHome();
-    const board = screen.getByRole('region', { name: 'Central · this weekend' });
+    const board = screen.getByRole('region', { name: 'Leaderboard · Central · this weekend' });
     expect(within(board).getByText(/clock running in Civic District\./)).toBeInTheDocument();
     save({
       'civic-f1-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-07T01:00:00.000Z' } },
@@ -462,7 +472,7 @@ describe('v2 sections', () => {
     vi.setSystemTime(new Date('2026-11-09T10:00:00'));
     huntModeStore.set({ mode: 'together', region: 'central' });
     renderHome();
-    const board = screen.getByRole('region', { name: 'Central · this weekend' });
+    const board = screen.getByRole('region', { name: 'Leaderboard · Central · this weekend' });
     expect(within(board).getByText(/no time yet\. Open a challenge\./)).toBeInTheDocument();
     localStorage.setItem('findsg-onsite-v1:kampong-gelam:manual', JSON.stringify({ stops: { 'kampong-gelam-01': { checkin: { mode: 'manual', confirmedAt: '2026-11-09T01:00:00.000Z' } } } }));
     window.dispatchEvent(new Event('focus'));

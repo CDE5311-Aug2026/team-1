@@ -30,7 +30,7 @@ test.describe('first run', () => {
 
     // 2 of 3: together or solo, and a region
     await expect(page.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuetext', 'Step 2 of 3');
-    await page.getByRole('button', { name: /Yes, hunt together/ }).click();
+    await page.getByRole('radio', { name: /Yes, hunt together/ }).click();
     await page.getByRole('group', { name: 'Regions' }).getByRole('button', { name: /^Central,/ }).click();
     await noSideways();
     await page.getByRole('button', { name: /^Continue/ }).click();

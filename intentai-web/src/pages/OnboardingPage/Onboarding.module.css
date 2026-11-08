@@ -28,7 +28,8 @@
   padding: 1rem 0 calc(1.125rem + env(safe-area-inset-bottom, 0px));
   display: flex;
   gap: 0.625rem;
-  background: linear-gradient(180deg, rgba(236, 234, 229, 0), var(--bg-app) 35%);
+  /* a soft scrim, not an opaque band: the app-wide paper still shows through behind the button */
+  background: linear-gradient(180deg, rgba(236, 234, 229, 0), color-mix(in srgb, var(--bg-app) 85%, transparent) 35%);
   z-index: 3;
 }
 

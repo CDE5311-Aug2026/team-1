@@ -31,7 +31,7 @@ test('[Onboarding + Home + Passport] the v2 onboarding opens Home; the answers a
   await user.click(screen.getByRole('button', { name: /Start the hunt/ }));
   await user.click(screen.getByRole('button', { name: 'Wellness' }));
   await user.click(screen.getByRole('button', { name: /^Continue/ }));
-  await user.click(screen.getByRole('button', { name: /Yes, hunt together/ }));
+  await user.click(screen.getByRole('radio', { name: /Yes, hunt together/ }));
   await user.click(within(screen.getByRole('group', { name: 'Regions' })).getByRole('button', { name: /^Central/ }));
   await user.click(screen.getByRole('button', { name: /^Continue/ }));
   await user.click(screen.getByRole('button', { name: /Stamp my passport/ }));
