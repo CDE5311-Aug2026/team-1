@@ -9,6 +9,7 @@ import { AnimatePresence, motion, useReducedMotionConfig } from "motion/react";
 import {
   lazy,
   Suspense,
+  type ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -28,6 +29,13 @@ import { formatMinutes } from "../../data/pickFormat";
 import { usePersistentStore } from "../../data/persistentStore";
 import { profileV3Store, type TopicId } from "../../data/profile/profile";
 import { curatedPlace } from "../../features/nearby/catalogue";
+import {
+  TOURISM_CATEGORIES,
+  TOURISM_INFO,
+  tourismOf,
+  type TourismCategory,
+  type TourismFilter,
+} from "../../data/tourism";
 import type { EditorPick } from "../../data/picks";
 import {
   URA_AREAS,
@@ -37,7 +45,6 @@ import {
   areaOfPlace,
   areaProgress,
   areasOf,
-  categoryLine,
   placesInRegion,
   unlockedAreas,
   placesInArea,
@@ -250,6 +257,23 @@ const homePlacesIn = (
 
 const ratio = (p: UnlockProgress) => (p.total ? p.visited / p.total : 0);
 
+/** v2: a place's Tourism 2040 category (from the catalogue). */
+const tourismOfId = (id: string): TourismCategory | undefined => {
+  const c = curatedPlace(id);
+  return c ? tourismOf(c) : undefined;
+};
+/** "Attractions 2/40 · Wellness 0/6": checked in by Tourism 2040 category (replaces the older kinds on v2 screens). */
+function tourismLine(places: readonly { id: string; tourism?: { category: TourismCategory } }[], visited: ReadonlySet<string>): string {
+  return TOURISM_CATEGORIES.map((c) => {
+    const ps = places.filter((p) => tourismOf(p) === c);
+    return ps.length ? `${TOURISM_INFO[c].label} ${ps.filter((p) => visited.has(p.id)).length}/${ps.length}` : "";
+  })
+    .filter(Boolean)
+    .join(" · ");
+}
+const countLine = (places: readonly { tourism?: { category: TourismCategory } }[], cat: TourismCategory) =>
+  `${places.filter((p) => tourismOf(p) === cat).length} ${TOURISM_INFO[cat].label}`;
+
 const HOME_BY_ID = new Map(ALL_HOME_PLACES.map((p) => [p.id, p]));
 const homeOf = (id: string): HomePlace | undefined => HOME_BY_ID.get(id);
 
@@ -266,7 +290,27 @@ const pickKicker = (pick: EditorPick) =>
     ? `Walk · ${pick.stops.length} stops${pick.minutes ? ` · ${formatMinutes(pick.minutes)}` : ""}`
     : `List · ${pick.stops.length} places`;
 
-export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange?: (open: boolean) => void }) {
+/** Where Locate last found you (this tab only), for Home's "Picked for you" distance chips. */
+export const readHomeHere = (): LatLng | null => readHere();
+
+interface DiscoveryHomeProps {
+  onPlaceOpenChange?: (open: boolean) => void;
+  /** v2 category chips (?cat=): other categories' pins dim, the deck shows only this category's places, the badges
+   *  and region / area cards count it. */
+  category?: TourismFilter;
+  /** v2 Home sections above the map (chips, the leaderboard card) and below the deck (Challenges, Picked for you).
+   *  Hidden while a place is open: the notebook is a page of its own. */
+  /** Under the page's bar, staying with it at the top (the chips). */
+  bar?: ReactNode;
+  top?: ReactNode;
+  bottom?: ReactNode;
+  /** Locate found you (or the home base stood in). */
+  onHere?: (at: LatLng) => void;
+}
+
+export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar, top, bottom, onHere }: DiscoveryHomeProps) {
+  const cat = category === "all" ? null : category;
+  const matches = useCallback((id: string) => !cat || tourismOfId(id) === cat, [cat]);
   const navigate = useNavigate();
   const reduce = useReducedMotionConfig();
   const [params, setParams] = useSearchParams();
@@ -526,6 +570,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
     const a = areaAt(q.x, q.y) ?? BASE_AREA;
     setHere(at);
     saveHere(at);
+    onHere?.(at);
     void loadPicks().then((m) =>
       setLoadedPicks((had) => had ?? m.editorPicks(localToday())),
     );
@@ -573,13 +618,13 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
   const regionCards: LevelCard[] = URA_REGIONS.map((r) => ({
     id: r.id,
     name: r.name,
-    kicker: `Region · ${areasOf(r.id).length} areas`,
+    kicker: `Region · ${areasOf(r.id).length} areas${cat ? ` · ${countLine(placesInRegion(r.id), cat)}` : ""}`,
     progress: regionProgress(r.id, visited),
   }));
   const areaCards: LevelCard[] = areaList.map((a) => ({
     id: a.id,
     name: a.name,
-    kicker: `${uraRegion(a.region)?.name} · Planning area`,
+    kicker: `${uraRegion(a.region)?.name} · Planning area${cat ? ` · ${countLine(placesInArea(a.id), cat)}` : ""}`,
     progress: areaProgress(a.id, visited),
   }));
   const regionItems: CoverItem[] = useMemo(
@@ -587,13 +632,13 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
       regionCards.map((c, i) => ({
         id: c.id,
         title: c.name,
-        kicker: `${i + 1} · Region · ${areasOf(c.id as RegionId).length} areas`,
+        kicker: `${i + 1} · Region · ${areasOf(c.id as RegionId).length} areas${cat ? ` · ${countLine(placesInRegion(c.id as RegionId), cat)}` : ""}`,
         line: progressLine(c.progress),
         stats: [
           (({ done, total }) => `${done} of ${total} areas unlocked`)(
             unlockedAreas(c.id as RegionId, visited),
           ),
-          categoryLine(placesInRegion(c.id as RegionId), visited),
+          tourismLine(placesInRegion(c.id as RegionId), visited),
         ],
         status: c.progress.status,
         progress: ratio(c.progress),
@@ -607,16 +652,16 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
         action: `Explore ${c.name}`,
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [visited],
+    [visited, cat],
   );
   const areaItems: CoverItem[] = useMemo(
     () =>
       areaCards.map((c, i) => ({
         id: c.id,
         title: c.name,
-        kicker: `${i + 1} · ${uraRegion(region)?.name} · Planning area`,
+        kicker: `${i + 1} · ${uraRegion(region)?.name} · Planning area${cat ? ` · ${countLine(placesInArea(c.id), cat)}` : ""}`,
         line: progressLine(c.progress),
-        stats: [categoryLine(placesInArea(c.id), visited)].filter(Boolean),
+        stats: [tourismLine(placesInArea(c.id), visited)].filter(Boolean),
         status: c.progress.status,
         progress: c.progress.total ? ratio(c.progress) : null,
         count: `${c.progress.visited}/${c.progress.total}`,
@@ -631,24 +676,27 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
           : "Nothing to see yet",
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [region, visited],
+    [region, visited, cat],
   );
+  // the deck shows the picked category's places only (the map keeps them all, the others faded)
+  const deckPlaces = useMemo(() => placeList.filter((p) => matches(p.id)), [placeList, matches]);
+  const deckPlace = place && matches(place.id) ? place : deckPlaces[0];
   const placeItems: CoverItem[] = useMemo(
     () =>
-      placeList.map((p) => ({
+      deckPlaces.map((p) => ({
         id: p.id,
         title: p.name,
         kicker: visited.has(p.id)
           ? "Checked in"
           : `${p.distance} · ${area.name}`,
-        line: p.kind,
+        line: [tourismOfId(p.id) ? TOURISM_INFO[tourismOfId(p.id)!].label : "", p.kind].filter(Boolean).join(" · "),
         status: visited.has(p.id) ? "done" : "none",
         progress: null,
         image: p.photo,
         action: "Open",
         actionLabel: `Open ${p.name} in Nearby`,
       })),
-    [placeList, visited, area.name],
+    [deckPlaces, visited, area.name],
   );
 
   const pickItems: CoverItem[] = useMemo(
@@ -682,7 +730,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
   );
   const nearItems: CoverItem[] = useMemo(
     () =>
-      (near?.items ?? []).map((it) => {
+      (near?.items ?? []).filter((it) => it.kind !== "place" || matches(it.id)).map((it) => {
         const away = shortDistance(it.m);
         if (it.kind === "place") {
           const p = it.place;
@@ -722,7 +770,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
               : `See ${k.stops.length} places`,
         } satisfies CoverItem;
       }),
-    [near, visited],
+    [near, visited, matches],
   );
   // a place opens over Home; a pick opens its deck of stops
   const enterNear = (id: string) => {
@@ -732,7 +780,8 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
   };
   const stopItems: CoverItem[] = useMemo(
     () =>
-      (pick?.stops ?? []).map((st, i) => {
+      (pick?.stops ?? []).flatMap((st, i) => {
+        if (!matches(st.place.id)) return [];
         const h = homeOf(st.place.id);
         return {
           id: st.place.id,
@@ -748,14 +797,24 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
           image: h?.photo,
           action: "Open",
           actionLabel: `Open ${st.place.name}`,
-        };
+        } satisfies CoverItem;
       }),
-    [pick, visited],
+    [pick, visited, matches],
   );
   const stopHomes = useMemo(
-    () => (pick?.stops ?? []).flatMap((st) => homeOf(st.place.id) ?? []),
-    [pick],
+    () => (pick?.stops ?? []).flatMap((st) => (matches(st.place.id) ? (homeOf(st.place.id) ?? []) : [])),
+    [pick, matches],
   );
+  const deckStop = stop && matches(stop.place.id) ? stop : pick?.stops.find((st) => matches(st.place.id));
+  const nearDeckSel =
+    nearSel && (nearSel.kind !== "place" || matches(nearSel.id))
+      ? nearSel
+      : near?.items.find((i) => i.kind !== "place" || matches(i.id));
+  const emptyDeck = cat ? (
+    <p className={styles.deckEmpty} role="status">
+      No {TOURISM_INFO[cat].label} places here. Pick All to see every place.
+    </p>
+  ) : null;
 
   const regionName = uraRegion(region)?.name ?? "";
   const crumbs =
@@ -821,12 +880,24 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
     edgeTone(shownBackdrop, window.innerWidth, window.innerHeight).then((t) => {
       if (!live || !t) return;
       setTone(t);
-      paintBrowserBands(t);
+      // v2: the paper shows only behind an open place; the rest of Home is the app's plain ground
+      if (openRef.current) paintBrowserBands(t);
     });
     return () => {
       live = false;
     };
   }, [shownBackdrop]);
+  const openRef = useRef(!!openId);
+  openRef.current = !!openId;
+  useEffect(() => {
+    if (openId) {
+      if (tone) paintBrowserBands(tone);
+      return;
+    }
+    const ground = getComputedStyle(document.documentElement).getPropertyValue("--bg-app").trim();
+    if (ground) paintBrowserBands(ground);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on opening and closing a place
+  }, [!!openId]);
   const mapPlaces = useMemo(
     () =>
       level === "near"
@@ -834,6 +905,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
             id: p.id,
             name: p.name,
             point: p.point,
+            tourism: tourismOfId(p.id),
           })) ?? [])
         : inPicks
           ? (pick?.stops.map((st) => ({
@@ -843,8 +915,9 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
                 lat: st.place.coordinates.lat,
                 lng: st.place.coordinates.lng,
               },
+              tourism: tourismOfId(st.place.id),
             })) ?? [])
-          : placeList.map((p) => ({ id: p.id, name: p.name, point: p.point })),
+          : placeList.map((p) => ({ id: p.id, name: p.name, point: p.point, tourism: tourismOfId(p.id) })),
     [inPicks, pick, placeList, level, near],
   );
 
@@ -876,7 +949,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
     if (openId) return book.current?.turn(1);
     if (level === "regions") enterRegion(region);
     else if (level === "areas") enterArea(area.id);
-    else if (level === "places" && place) openPlace(place.id);
+    else if (level === "places" && (deckPlace ?? place)) openPlace((deckPlace ?? place)!.id);
     else if (level === "picks" && pick) go({ lvl: "pick", k: pick.id });
     else if (level === "pick" && stop) openPlace(stop.place.id);
     else if (level === "near" && nearSel) enterNear(nearSel.id);
@@ -950,11 +1023,11 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
   return (
     // One screen with a deck that reaches the screen edges: bleeds past the column on purpose.
     <div className={openId ? `${styles.home} ${styles.homeOpen}` : styles.home} data-allow-bleed style={tone ? ({ "--tone": tone } as React.CSSProperties) : undefined}>
-      {/* the deck's own map; the old one fades out once the new one has loaded */}
+      {/* the deck's own map; the old one fades out once the new one has loaded (v2: only behind an open place) */}
       <AnimatePresence initial={false}>
         <motion.div
           key={shownBackdrop}
-          className={styles.backdrop}
+          className={openId ? styles.backdrop : `${styles.backdrop} ${styles.backdropIdle}`}
           style={{ backgroundImage: `url(${shownBackdrop})` }}
           aria-hidden="true"
           initial={{ opacity: 0 }}
@@ -965,6 +1038,8 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
       </AnimatePresence>
       <h1 className={styles.srOnly}>Explore Singapore</h1>
       {!openId && (
+        <>
+        {/* v2: the bar and the chips stay at the top while Home scrolls under them */}
         <div className={styles.head}>
           <PageBar
             title="Home"
@@ -972,6 +1047,9 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
             heading={false}
             className={styles.pageBar}
           />
+          {bar}
+        </div>
+          {top}
           <button
             ref={eventRef}
             type="button"
@@ -1009,7 +1087,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
               <span className={styles.eventMonth}>{eventMonth}</span>
             </span>
           </button>
-        </div>
+        </>
       )}
 
       {/* The map card stays mounted when a place opens: it becomes the live 3D view on top of the intro (no reload).
@@ -1027,6 +1105,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
           }
           aria-hidden={(openId && mapAway) || undefined}
           {...{ inert: openId && mapAway ? "" : undefined }}
+          style={openId ? undefined : ({ "--grow": grow } as React.CSSProperties)}
         >
           {!openId && (
             <button
@@ -1070,9 +1149,9 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
                   selectedPlaceId={
                     openId ??
                     (level === "places"
-                      ? place?.id
+                      ? (deckPlace ?? place)?.id
                       : level === "pick"
-                        ? stop?.place.id
+                        ? (deckStop ?? stop)?.place.id
                         : level === "near"
                           ? nearSel?.kind === "pick"
                             ? nearSel.stopId
@@ -1098,6 +1177,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
                   }
                   here={level === "near" ? (here ?? undefined) : undefined}
                   sky={openId ? sky : undefined}
+                  category={category}
                 />
               </Suspense>
             )}
@@ -1263,20 +1343,21 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
                   }
                 />
               )}
-              {level === "places" && place && (
+              {level === "places" && place && !deckPlace && emptyDeck}
+              {level === "places" && deckPlace && (
                 <CoverFlow3D
                   label="Nearby places"
                   items={placeItems}
                   hideAction={!!openId}
-                  selectedId={place.id}
+                  selectedId={deckPlace.id}
                   onSelect={(id) =>
                     go({ p: id, open: openId ? id : undefined })
                   }
                   onEnter={openPlace}
                   fallback={
                     <PlaceCarousel
-                      places={placeList}
-                      selectedId={place.id}
+                      places={deckPlaces}
+                      selectedId={deckPlace.id}
                       stories={{}}
                       onSelect={(id) => go({ p: id })}
                       onActivate={(id) => go({ p: id })}
@@ -1313,12 +1394,13 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
                   }
                 />
               )}
-              {level === "near" && nearSel && (
+              {level === "near" && nearSel && !nearDeckSel && emptyDeck}
+              {level === "near" && nearDeckSel && (
                 <CoverFlow3D
                   label={title}
                   items={nearItems}
                   hideAction={!!openId}
-                  selectedId={nearSel.id}
+                  selectedId={nearDeckSel.id}
                   onSelect={(id) =>
                     go({
                       n: id,
@@ -1353,7 +1435,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
                                 visited,
                               ),
                       }))}
-                      selectedId={nearSel.id}
+                      selectedId={nearDeckSel.id}
                       actionLabel={(c) => {
                         const it = near?.items.find((i) => i.id === c.id);
                         return it?.kind === "pick"
@@ -1366,12 +1448,13 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
                   }
                 />
               )}
-              {level === "pick" && pick && stop && (
+              {level === "pick" && pick && stop && !deckStop && emptyDeck}
+              {level === "pick" && pick && deckStop && (
                 <CoverFlow3D
                   label={`${pick.title}: ${pick.kind === "walk" ? "stops" : "places"}`}
                   items={stopItems}
                   hideAction={!!openId}
-                  selectedId={stop.place.id}
+                  selectedId={deckStop.place.id}
                   onSelect={(id) =>
                     go({ p: id, open: openId ? id : undefined })
                   }
@@ -1379,7 +1462,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
                   fallback={
                     <PlaceCarousel
                       places={stopHomes}
-                      selectedId={stop.place.id}
+                      selectedId={deckStop.place.id}
                       stories={{}}
                       onSelect={(id) => go({ p: id })}
                       onActivate={(id) => go({ p: id })}
@@ -1392,6 +1475,7 @@ export default function DiscoveryHome({ onPlaceOpenChange }: { onPlaceOpenChange
           </AnimatePresence>
         </div>
       </div>
+      {!openId && bottom}
     </div>
   );
 }

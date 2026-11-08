@@ -16,7 +16,7 @@ import { area as areaById, curatedPlace, regionName } from '../../features/nearb
 import { PlaceSources } from '../../features/nearby/card/PlaceStoryCard';
 import { KeyNumbers, storyPages } from '../../features/nearby/card/storyPages';
 import PlaceInfo from '../../features/nearby/components/PlaceInfo';
-import { CATEGORY_INFO } from '../../features/nearby/domain';
+import { TOURISM_INFO, tourismOf } from '../../data/tourism';
 import { stateOf } from '../../features/nearby/personal';
 import styles from './PlaceIntro.module.css';
 
@@ -66,6 +66,9 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: dec
   const deck: DeckInfo | null =
     deckProp ?? (ura && prog && prog.total > 0 ? { kind: 'Planning area', name: ura.name, visited: prog.visited, total: prog.total, status: prog.status } : null);
 
+  // v2: the Tourism 2040 category (the older landmark / culture / food / nature kinds stay off this screen)
+  const tourism = tourismOf(place);
+  const kindLabel = tourism ? TOURISM_INFO[tourism].label : place.kind;
   const stampDate = state?.visitedOn ? new Date(`${state.visitedOn}T12:00:00`) : null;
 
   const fieldNote = (
@@ -88,7 +91,7 @@ export function PlaceIntro({ placeId, distance, onClose, onTurn, book, deck: dec
           )}
         </span>
         {/* the area is named in the strip under the pages; only without one does the kicker say where */}
-        <p className={styles.kicker}>{`Field note · ${CATEGORY_INFO[place.category].label}${deck ? '' : ` · ${areaName}`}`}</p>
+        <p className={styles.kicker}>{`Field note · ${kindLabel}${deck ? '' : ` · ${areaName}`}`}</p>
         <h2 className={styles.name} data-long={(card?.title?.join(' ') ?? place.name).length > 40 || undefined}>
           {card?.title?.join(' ') ?? place.name}
         </h2>

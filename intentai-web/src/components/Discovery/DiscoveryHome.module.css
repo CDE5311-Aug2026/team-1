@@ -613,3 +613,145 @@
   -webkit-mask-image: none;
   mask-image: none;
 }
+
+/* ---- Redesign v2 (boards 05/11): Home is a page that scrolls (chips, the leaderboard card, the map card and its deck,
+   Challenges, Picked for you). The kept 3D map sits in a plain v2 card; the kraft paper and the leather notebook stay
+   only for an open place, which is still a page of its own. ---- */
+.home:not(.homeOpen) {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  gap: 14px;
+  background: var(--bg-app);
+  scrollbar-width: none;
+}
+
+.home:not(.homeOpen)::-webkit-scrollbar {
+  display: none;
+}
+
+.backdropIdle {
+  display: none;
+}
+
+/* the drawn status bar stays clear of the page scrolling under it; the bar and chips stick at the top */
+.home:not(.homeOpen) {
+  top: var(--status-h);
+  padding-top: 0;
+}
+
+/* a scrolling column: nothing in it gives up its height */
+.home:not(.homeOpen) > * {
+  flex-shrink: 0;
+}
+
+.home:not(.homeOpen) .head {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  gap: 2px;
+  margin: 0 calc(-1 * var(--gutter)) -6px;
+  padding: 4px var(--gutter) 6px;
+  background: var(--bg-app);
+}
+
+.device:not(.deviceOpen) {
+  flex: 0 0 auto;
+  height: calc(clamp(330px, 50vh, 460px) + var(--grow, 0) * 180px);
+  padding: 18px 6px 0;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  transition: height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.device:not(.deviceOpen)::after {
+  content: none;
+}
+
+.device:not(.deviceOpen) .grip::before {
+  background: var(--border-strong);
+  box-shadow: none;
+}
+
+.device:not(.deviceOpen) .grip:focus-visible {
+  outline-color: var(--text-primary);
+}
+
+.device:not(.deviceOpen) .mapCard {
+  border-radius: var(--v2-r-media);
+}
+
+/* v2: the overview map keeps its own colours (no paper warmth) */
+.device:not(.deviceOpen) .mapCard [role='application'] {
+  filter: none;
+}
+
+.home:not(.homeOpen) .event {
+  height: 60px;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  color: var(--text-primary);
+  box-shadow: var(--v2-shadow-card);
+}
+
+.home:not(.homeOpen) .eventLine {
+  color: var(--v2-muted);
+}
+
+.home:not(.homeOpen) .eventDate {
+  background: var(--tint-warm-2);
+  color: var(--accent-ink);
+}
+
+.home:not(.homeOpen) .event:focus-visible {
+  outline-color: var(--text-primary);
+}
+
+.home:not(.homeOpen) .title {
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.home:not(.homeOpen) .titleKicker {
+  color: var(--v2-muted);
+}
+
+.home:not(.homeOpen) .crumbBox {
+  background: rgba(35, 33, 29, 0.78);
+}
+
+.home:not(.homeOpen) .dotOn {
+  background: var(--cat-att);
+}
+
+.home:not(.homeOpen) .routeKey {
+  background: var(--text-primary);
+}
+
+/* a category picked and none of its places on this deck */
+.deckEmpty {
+  position: absolute;
+  inset: 0;
+  margin: 0 var(--gutter);
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  color: var(--v2-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .device:not(.deviceOpen) {
+    transition: none;
+  }
+}
+
+:global(html.reduce-motion) .device:not(.deviceOpen) {
+  transition: none;
+}
