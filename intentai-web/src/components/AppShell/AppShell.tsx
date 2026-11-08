@@ -6,6 +6,7 @@ import { undoToast, useToastState } from '../../hooks/useToast';
 import HomeIndicator from '../HomeIndicator/HomeIndicator';
 import StatusBar from '../StatusBar/StatusBar';
 import TabBar from '../TabBar/TabBar';
+import { paths } from '../../routes';
 import styles from './AppShell.module.css';
 
 interface AppShellProps {
@@ -26,6 +27,9 @@ interface AppShellProps {
 }
 
 function activeTab(pathname: string): string {
+  // v2: the journal moved into Passport, so Moments lights Passport; Search is the round button beside the bar.
+  if (pathname === paths.moments || pathname.startsWith(`${paths.moments}/`)) return paths.mySpace;
+  if (pathname === paths.search) return paths.search;
   const match = staticCopy.tabs.find(
     (tab) => tab.path !== '/' && (pathname === tab.path || pathname.startsWith(`${tab.path}/`)),
   );

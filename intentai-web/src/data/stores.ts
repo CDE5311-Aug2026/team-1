@@ -43,6 +43,7 @@ import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeSt
 import { createPersistentStore, STORAGE_PREFIX } from './persistentStore';
 import { EMPTY_SOCIAL, communitySocialStore } from './community/socialStore';
 import { EMPTY_RECAP, recapStore } from './moments/recapStore';
+import { EMPTY_HUNT_MODE, huntModeStore, searchRecentStore } from './v2Stores';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -307,6 +308,9 @@ export function deleteAllData(): Promise<boolean> {
   // v3 page stores (their own files; Profile / My Space resets itself through onDataDeleted below).
   communitySocialStore.set(EMPTY_SOCIAL);
   recapStore.set(EMPTY_RECAP);
+  // v2: hunt-together choice and recent searches.
+  huntModeStore.set(EMPTY_HUNT_MODE);
+  searchRecentStore.set([]);
   usageIdStore.set('');
   // The user test goes on (the test name is not personal data); its records on this device are deleted.
   clearLocalUsage();

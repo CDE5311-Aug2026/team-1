@@ -45,6 +45,12 @@ const SavedPage = lazyPage(() => import('./pages/NearbyPage/SavedPage'));
 const RoutesPage = lazyPage(() => import('./pages/NearbyPage/RoutesPage'));
 const RouteDetailPage = lazyPage(() => import('./pages/NearbyPage/RouteDetailPage'));
 const RoutePlanPage = lazyPage(() => import('./pages/NearbyPage/RoutePlanPage'));
+// Redesign v2 screens
+const SearchPage = lazyPage(() => import('./pages/SearchPage/SearchPage'));
+const ChallengePage = lazyPage(() => import('./pages/ChallengePage/ChallengePage'));
+const MotionPage = lazyPage(() => import('./pages/MySpacePage/MotionPage'));
+const TextSizePage = lazyPage(() => import('./pages/MySpacePage/TextSizePage'));
+const CreditsPage = lazyPage(() => import('./pages/MySpacePage/CreditsPage'));
 
 function Lazy({ children }: { children: ReactNode }) {
   return (
@@ -92,6 +98,8 @@ export default function App() {
             <Route path={paths.holiday} element={<HolidayPage />} />
             <Route path={paths.moments} element={<MomentsPage />} />
             <Route path={paths.hunt} element={<HuntPage />} />
+            <Route path={patterns.challenge} element={<ChallengePage />} />
+            <Route path={paths.search} element={<SearchPage />} />
             <Route path={paths.nearby} element={<ExplorePage />} />
             <Route path={paths.nearbyLocation} element={<LocationPage />} />
             <Route path={patterns.nearbyPlace} element={<PlaceDetailPage />} />
@@ -104,6 +112,9 @@ export default function App() {
             <Route path={paths.mySpace} element={<MySpacePage />} />
             <Route path={paths.mySpaceSettings} element={<MySpaceSettingsPage />} />
             <Route path={paths.mySpacePrivacy} element={<MySpacePrivacyPage />} />
+            <Route path={paths.mySpaceMotion} element={<MotionPage />} />
+            <Route path={paths.mySpaceTextSize} element={<TextSizePage />} />
+            <Route path={paths.credits} element={<CreditsPage />} />
             <Route path={paths.licences} element={<MySpaceLicencesPage />} />
             <Route path={paths.notices} element={<NoticesPage />} />
             <Route path={paths.noticeDetails} element={<NoticeDetailsPage />} />

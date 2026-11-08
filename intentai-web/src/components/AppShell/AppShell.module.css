@@ -7,8 +7,8 @@
   min-height: 100vh;
   min-height: 100dvh;
   /* the tab bar's height and its distance from the bottom of the screen (pages that fill the screen leave room for it) */
-  --tabbar-h: 3.5rem;
-  --tabbar-bottom: 1.75rem;
+  --tabbar-h: 4rem;
+  --tabbar-bottom: 1.625rem;
 }
 
 /* Wider screens have no home indicator to clear. */

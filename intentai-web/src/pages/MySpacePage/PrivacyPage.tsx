@@ -27,6 +27,7 @@ import { Kraft, SubHeader, Switch } from './v3/Parts';
 import book from './v3/Booklet.module.css';
 import StorageBar, { AREA_LOOK } from './v3/StorageBar';
 import styles from './v3/MySpace.module.css';
+import { searchRecentStore } from '../../data/v2Stores';
 
 /** How long "Hold to delete" must be held. */
 export const HOLD_MS = 1600;
@@ -103,6 +104,7 @@ export default function PrivacyPage() {
   const [questions] = usePersistentStore(questionsStore);
   const [tips] = usePersistentStore(tipsStore);
   const [prefs, setPrefs] = usePersistentStore(mySpacePrefsStore);
+  const [recent] = usePersistentStore(searchRecentStore);
   // Sizes are read from storage on each render; the stores above re-render the page after a Clear.
   const total = totalBytes();
   const stamps = allStamps(personal, opened, stories).filter((s) => s.collected).length;
@@ -110,6 +112,7 @@ export default function PrivacyPage() {
     passport: `${plural(stamps, 'stamp')} · ${plural(opened.length, 'card')}`,
     ask: `${plural(threads.length, 'chat')} · ${plural(insights.length, 'saved answer')}`,
     community: `${plural(questions.length, 'question')} · ${plural(tips.length, 'local tip')}`,
+    search: `${plural(recent.length, 'recent search', 'recent searches')}`,
     profile: 'What the app knows',
   };
   const sizes = STORAGE_AREAS.map((a) => areaBytes(a));

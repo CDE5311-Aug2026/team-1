@@ -8,6 +8,7 @@ export const AREA_LOOK: Record<StorageAreaId, { icon: IconName; color: string }>
   passport: { icon: 'cards', color: '#e4671f' },
   ask: { icon: 'chat', color: '#f2b48c' },
   community: { icon: 'people', color: '#2c3e8f' },
+  search: { icon: 'grid', color: '#3a8f5c' },
   profile: { icon: 'user', color: '#8f8a82' },
 };
 

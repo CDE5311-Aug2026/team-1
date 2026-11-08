@@ -16,8 +16,9 @@ import {
   savedStore,
   tipsStore,
 } from '../stores';
+import { searchRecentStore } from '../v2Stores';
 
-export type StorageAreaId = 'passport' | 'ask' | 'community' | 'profile';
+export type StorageAreaId = 'passport' | 'ask' | 'community' | 'search' | 'profile';
 
 interface Clearable {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,9 +68,15 @@ export const STORAGE_AREAS: StorageArea[] = [
     ],
   },
   {
+    id: 'search',
+    label: 'Search history',
+    keys: ['search-recent'],
+    clear: [{ store: searchRecentStore, empty: [] }],
+  },
+  {
     id: 'profile',
     label: 'Profile & settings',
-    keys: ['profile-v3', 'profile', 'onboarding', 'settings', 'culturePrefs', 'notices', 'place', 'reduce-motion', 'my-space-prefs'],
+    keys: ['profile-v3', 'profile', 'onboarding', 'settings', 'culturePrefs', 'notices', 'place', 'reduce-motion', 'my-space-prefs', 'hunt-mode'],
     clear: [],
   },
 ];

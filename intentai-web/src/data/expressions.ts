@@ -183,7 +183,6 @@ export const staticCopy = {
   },
   tabs: [
     { path: paths.today, label: 'Home', icon: 'tab-today' as const },
-    { path: paths.moments, label: 'Moments', icon: 'tab-moments' as const },
     { path: paths.hunt, label: 'Hunt', icon: 'tab-hunt' as const },
     { path: paths.mySpace, label: 'Passport', icon: 'tab-my-space' as const },
   ],

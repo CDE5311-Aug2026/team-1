@@ -5,6 +5,10 @@ export const paths = {
   moments: '/moments',
   /** Hunt: the treasure-hunt game (spec to come; placeholder for now). */
   hunt: '/hunt',
+  /** v2 board 09: a weekend challenge (labelled demo built on the story routes). */
+  challenge: (id: string) => `/hunt/challenge/${encodeURIComponent(id)}`,
+  /** v2 board 07: search places, challenges and volumes, grouped by Tourism 2040 category. */
+  search: '/search',
   /** Nearby Explore (map / list). */
   nearby: '/nearby',
   nearbyLocation: '/nearby/location',
@@ -21,6 +25,11 @@ export const paths = {
   /** Figma S2 / S3. */
   mySpaceSettings: '/my-space/settings',
   mySpacePrivacy: '/my-space/privacy',
+  /** v2 boards 18 and 19: Look & feel sub-pages. */
+  mySpaceMotion: '/my-space/settings/motion',
+  mySpaceTextSize: '/my-space/settings/text-size',
+  /** v2 board 22: photo credits, split out of Terms & licences. */
+  credits: '/my-space/credits',
   /** Terms & licences: photo credits, map attribution (from Settings). */
   licences: '/my-space/licences',
   notices: '/my-space/notices',
@@ -48,6 +57,7 @@ export const patterns = {
   collection: '/nearby/collections/:collectionId',
   routePlan: '/nearby/routes/plan',
   route: '/nearby/routes/:routeId',
+  challenge: '/hunt/challenge/:challengeId',
 } as const;
 
 /** Static paths for smoke tests (routes with params are covered with seeded ids in e2e/routes.ts). */

@@ -4,6 +4,36 @@
   /* Colour — accent & surfaces */
   --accent: #e4671f;
   --accent-tile-border: #f4b389;
+
+  /* Redesign v2 · Tourism 2040 (board 24): category fill / ink / tint. Colour never alone: each has a glyph too. */
+  --cat-att: #e8862a;
+  --cat-att-ink: #9a4a0c;
+  --cat-att-tint: #f6e7d8;
+  --cat-wel: #3a8f5c;
+  --cat-wel-ink: #236b43;
+  --cat-wel-tint: #dde8df;
+  --cat-lei: #b8336f;
+  --cat-lei-ink: #a02b60;
+  --cat-lei-tint: #efdce1;
+  --cat-cru: #1d4f91;
+  --cat-cru-ink: #1d4f91;
+  --cat-cru-tint: #d9e0e6;
+  --map-land: #fdfaec;
+  --map-water: #9dbbe0;
+  /* v2 cards and bars (wireframe .fsg tokens) */
+  --v2-surface: #f8f7f4;
+  --v2-surface-sunk: #e3e0d9;
+  --v2-ink-2: #3a3731;
+  --v2-muted: #5f5b54;
+  --accent-ink: #a8430c;
+  --assist-bg: #eed796;
+  --assist-border: #d9bf7a;
+  --assist-ink: #144161;
+  --v2-r-card: 20px;
+  --v2-r-media: 14px;
+  --v2-r-control: 12px;
+  --v2-shadow-card: 0 1px 2px rgba(35, 33, 29, 0.06), 0 6px 16px rgba(35, 33, 29, 0.05);
+  --v2-shadow-bar: 0 2px 4px rgba(35, 33, 29, 0.06), 0 12px 28px rgba(35, 33, 29, 0.14);
   /* v2 passport redesign (BellyBook-inspired): linen paper, greige cards, ink text. */
   --bg-app: #eceae5;
   --bg-screen-b: #eceae5;

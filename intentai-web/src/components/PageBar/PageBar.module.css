@@ -36,7 +36,7 @@
 }
 .light {
   --bar-ink: #23211d;
-  --pill-bg: rgba(255, 255, 255, 0.82);
+  --pill-bg: var(--v2-surface);
   --pill-line: #dedad2;
   --pill-ink: #23211d;
   --face-line: #fff;
@@ -91,8 +91,9 @@ span.avatar {
 
 .title {
   margin: 0;
-  font: 500 1.375rem/1 var(--font-display, 'Oswald', sans-serif);
-  letter-spacing: 0.02em;
+  /* v2: Oswald 600, 24 px (boards 05, 10, 13) */
+  font: 600 1.5rem/2rem var(--font-display, 'Oswald', sans-serif);
+  letter-spacing: -0.2px;
   color: var(--bar-ink);
   white-space: nowrap;
 }
@@ -111,6 +112,9 @@ span.avatar {
   font: 500 0.9375rem/1 var(--font-display, 'Oswald', sans-serif);
   letter-spacing: 0.03em;
   text-decoration: none;
+  box-shadow: none;
+}
+.dark .settings {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 .settings:hover {
