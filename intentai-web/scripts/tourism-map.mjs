@@ -97,12 +97,15 @@ export const HAND = {
   'curated:sg-lee-kong-chian-natural-history': { to: { category: 'att', subtype: 'attraction' }, why: 'A natural history museum (filed as nature): a ticketed sight, not a nature area.' },
   'curated:sg-singapore-cricket-club': { to: { category: 'att', subtype: 'attraction' }, why: 'A historic members’ club at the Padang (founded 1852), seen as a heritage landmark; not a public events venue.' },
   'curated:sg-singapore-recreation-club': { to: { category: 'att', subtype: 'attraction' }, why: 'A historic members’ club facing the Padang (founded 1883); heritage landmark, not a public venue.' },
-  'curated:sg-fort-canning-park-fort-gate-fort-canning-centre': { to: { category: 'att', subtype: 'attraction' }, why: 'The record is the heritage part of the hill (Fort Gate, Fort Canning Centre), told as history: an attraction. The whole park as an events venue is a separate, ambiguous doc row.' },
+  'curated:sg-fort-canning-park-fort-gate-fort-canning-centre': { to: { category: 'lei', subtype: 'venue' }, why: 'Owner ruling 8 Nov 2026: doc row lei-16 (Fort Canning Park, event venue) now matches this record, so its tourism comes from the doc (crosswalk); only tourism moves, nothing else (B4).' },
   'curated:sg-henderson-waves': { to: { category: 'wel', subtype: 'nature' }, why: 'Footbridge on the Southern Ridges walk; the research doc files Southern Ridges & Henderson Waves under Wellness (mindful nature).' },
   'curated:sg-springleaf-prata-place': { to: { category: 'att', subtype: 'attraction' }, why: 'A prata restaurant (its kind says Park because of the Spring Leaf Garden name); food places are attractions.' },
   'curated:sg-hill-street-tai-hwa-pork-noodle': { to: { category: 'att', subtype: 'attraction' }, why: 'A single noodle stall (kind says Heritage street): an attraction, not a precinct.' },
   'curated:sg-kim-choo-kueh-chang': { to: { category: 'att', subtype: 'attraction' }, why: 'A dumpling shop with a Peranakan visitor centre (kind says Heritage street): an attraction, not a precinct.' },
   'curated:sg-haig-road-putu-piring': { to: { category: 'att', subtype: 'attraction' }, why: 'A single stall inside Haig Road hawker centre (kind says Hawker centre): an attraction, not a precinct.' },
+  // Story places (R1-data, owner 8 Nov 2026): the 23 catalogue places the Hunt stories, place stories and team routes
+  // use were re-read against the STB definitions; only records whose own text supports a better fit change.
+  'curated:sg-chijmes': { to: { category: 'lei', subtype: 'venue' }, why: 'Story place (Civic F1 stop 1, Gate of Hope). The record says that after restoration in the 1990s it became a place for dining and events: an events venue, like The Arts House.' },
   'curated:sg-seletar-the-oval': { to: { category: 'att', subtype: 'precinct' }, why: 'A heritage estate of black-and-white houses inside Seletar Aerospace Park: an area to walk, so a precinct.' },
 };
 
