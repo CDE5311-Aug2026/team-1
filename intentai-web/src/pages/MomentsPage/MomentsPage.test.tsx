@@ -2,7 +2,6 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { expect, test } from 'vitest';
-import { recapStore } from '../../data/moments/recapStore';
 import { explorePersonalStore, lookupsStore, openedCardsStore } from '../../data/stores';
 import { markVisited } from '../../features/nearby/actions';
 import { patterns, paths } from '../../routes';
@@ -48,7 +47,8 @@ test('new user: no stamps, no locked areas, and the empty states say what to do'
   // the Collected section is gone (owner, 9 Nov 2026)
   expect(screen.queryByText('Nothing collected yet')).toBeNull();
   expect(screen.queryByRole('heading', { name: /Collected/ })).toBeNull();
-  expect(screen.getByRole('button', { name: /Recap/ })).toBeDisabled();
+  // no Recap section (owner, 9 Nov 2026)
+  expect(screen.queryByRole('button', { name: /Recap/ })).toBeNull();
 });
 
 test('a check-in collects the stamp at once; ink counts the opened cards of that place', () => {
@@ -113,19 +113,4 @@ test('rank sheet: rank from opened cards and badges with progress', async () => 
   expect(within(sheet).getByRole('listitem', { name: 'Historian: earned' })).toBeInTheDocument();
   expect(within(sheet).getByRole('listitem', { name: /^Two districts: 1 of 2/ })).toBeInTheDocument();
   expect(within(sheet).getByRole('listitem', { name: /^Full set: 2 of 3/ })).toBeInTheDocument();
-});
-
-test('recap: sort the facts, then a score; results are stored', async () => {
-  const user = userEvent.setup();
-  renderPage();
-  expect(screen.getByText('3 facts · about 1 min')).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: /Recap/ }));
-  const recap = screen.getByRole('dialog', { name: 'Recap' });
-  await user.click(within(recap).getByRole('button', { name: 'Show the answer' }));
-  await user.click(within(recap).getByRole('button', { name: 'I knew it' }));
-  await user.click(within(recap).getByRole('button', { name: 'See it again' }));
-  await user.click(within(recap).getByRole('button', { name: 'I knew it' }));
-  expect(within(recap).getByRole('heading', { name: 'You knew 2 of 3' })).toBeInTheDocument();
-  expect(Object.values(recapStore.get().results).sort()).toEqual(['again', 'knew', 'knew']);
-  expect(recapStore.get().last).toMatchObject({ knew: 2, total: 3 });
 });

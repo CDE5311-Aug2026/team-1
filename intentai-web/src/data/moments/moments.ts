@@ -9,7 +9,7 @@ import type { ExplorePersonalData } from '../../features/nearby/domain';
 import { AREAS, curatedPlace } from '../../features/nearby/catalogue';
 import type { PlaceStories } from '../placeStories';
 import { storyPlace } from '../stories/places';
-import { PLACE_AREAS, SUBJECTS, cardById, keyNumberOf, type Card, type Subject } from '../cards';
+import { PLACE_AREAS, SUBJECTS, cardById, type Card, type Subject } from '../cards';
 
 // ---- Topics -------------------------------------------------------------------------------------------------------
 
@@ -341,79 +341,6 @@ export function matchesFilter(item: CollectedItem, filter: CollectedFilter): boo
   if (filter === 'phrases') return item.kind === 'phrase';
   if (filter === 'community') return item.kind === 'conversation';
   return (item.kind === 'card' || item.kind === 'tip') && item.topic === filter;
-}
-
-// ---- Recap ---------------------------------------------------------------------------------------------------------
-
-export interface Fact {
-  id: string;
-  kind: 'card' | 'phrase';
-  /** Chip on the card: the card title or the phrase. */
-  label: string;
-  topic?: CardTopic;
-  cardId?: string;
-  /** The question side. */
-  front: string;
-  /** The answer side (card text or phrase meaning, verbatim). */
-  back: string;
-  /** A short emphasis on the answer side: the number that was blanked out. */
-  answer?: string;
-}
-
-const MAX_FACTS = 10;
-
-/**
- * One fact per opened card (a sentence with a number becomes a fill-in-the-gap; otherwise "What do you remember…" with
- * the card's summary), then one per saved phrase. Wording is the card's own; nothing is made up.
- */
-export function recapFacts(opened: readonly string[], lookups: readonly Lookup[]): Fact[] {
-  const cardFacts = openedCards([...opened].reverse()).map((card): Fact => {
-    const { article } = card;
-    const numbered = article.facts.map((f) => ({ f, n: keyNumberOf(f) })).find((x) => x.n && x.f.includes(x.n.value));
-    if (numbered?.n) {
-      return {
-        id: `card:${article.id}`,
-        kind: 'card',
-        label: article.title,
-        topic: topicOfCard(card),
-        cardId: article.id,
-        front: numbered.f.replace(numbered.n.value, '____'),
-        back: numbered.f,
-        answer: numbered.n.value,
-      };
-    }
-    return {
-      id: `card:${article.id}`,
-      kind: 'card',
-      label: article.title,
-      topic: topicOfCard(card),
-      cardId: article.id,
-      front: `What do you remember about ${article.title}?`,
-      back: article.summary,
-    };
-  });
-  const phraseFacts = lookups.map((l): Fact => ({
-    id: `lookup:${l.id}`,
-    kind: 'phrase',
-    label: l.word,
-    front: `What does “${l.word}” mean?`,
-    back: l.meaning,
-  }));
-  return [...cardFacts, ...phraseFacts].slice(0, MAX_FACTS);
-}
-
-/** About 10 seconds a fact, at least a minute: "6 facts · about 1 min". */
-export function recapLine(count: number): string {
-  const minutes = Math.max(1, Math.round((count * 10) / 60));
-  return `${count} ${count === 1 ? 'fact' : 'facts'} · about ${minutes} min`;
-}
-
-export type RecapResult = 'knew' | 'again';
-
-/** Facts to see again first, then new ones, then ones already known. */
-export function recapOrder(facts: readonly Fact[], results: Readonly<Record<string, RecapResult>>): Fact[] {
-  const rank = (f: Fact) => (results[f.id] === 'again' ? 0 : results[f.id] === undefined ? 1 : 2);
-  return [...facts].sort((a, b) => rank(a) - rank(b));
 }
 
 // ---- Snap ----------------------------------------------------------------------------------------------------------
