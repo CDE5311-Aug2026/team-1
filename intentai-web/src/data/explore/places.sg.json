@@ -37,7 +37,11 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-armenian-church-of-saint-gregory-the-illuminator",
@@ -146,6 +150,10 @@
         "publisher": "armeniansinasia.org",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -245,6 +253,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -288,7 +300,11 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-asian-civilisations-museum",
@@ -434,6 +450,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -515,6 +535,10 @@
           "publisher": "TheSmartLocal"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -577,6 +601,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -662,6 +690,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -748,6 +780,10 @@
           "publisher": "Little Day Out"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -800,6 +836,10 @@
         },
         "postcode": "049326"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -878,6 +918,10 @@
           "publisher": "Singapore Tourism Board (visitsingapore)"
         }
       ]
+    },
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -1017,6 +1061,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -1092,6 +1140,10 @@
           "publisher": "Lonely Planet"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -1228,6 +1280,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -1371,6 +1427,10 @@
         "publisher": "pub.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -1435,6 +1495,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -1496,6 +1560,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
     }
   },
   {
@@ -1559,6 +1627,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -1679,6 +1751,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -1750,6 +1826,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -1814,6 +1894,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -1886,6 +1970,10 @@
           "publisher": "Time Out Singapore"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -1956,6 +2044,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2056,6 +2148,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2110,6 +2206,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2187,6 +2287,10 @@
           "publisher": "Time Out Singapore"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2267,6 +2371,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2304,7 +2412,11 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-st-andrew-s-cathedral",
@@ -2402,6 +2514,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2473,6 +2589,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2525,6 +2645,10 @@
         },
         "postcode": "179682"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2594,6 +2718,10 @@
           "publisher": "Time Out Singapore"
         }
       ]
+    },
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -2664,6 +2792,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2705,7 +2837,11 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
+    }
   },
   {
     "id": "curated:sg-fullerton-building",
@@ -2801,6 +2937,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
     }
   },
   {
@@ -2845,7 +2985,11 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-uob-plaza",
@@ -2899,6 +3043,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -2969,6 +3117,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -3009,7 +3161,11 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-boat-quay",
@@ -3071,6 +3227,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -3159,6 +3319,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -3223,6 +3387,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -3293,6 +3461,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -3380,6 +3552,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -3420,7 +3596,11 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-duke-nus-medical-school",
@@ -3478,6 +3658,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -3547,6 +3731,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -3646,6 +3834,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -3717,6 +3909,10 @@
           "publisher": "Urban Land Institute"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -3780,7 +3976,11 @@
         }
       }
     },
-    "earthKey": "ctjinrikisha"
+    "earthKey": "ctjinrikisha",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-masjid-jamae-chulia",
@@ -3936,6 +4136,10 @@
           "publisher": "Time Out Singapore"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -4044,7 +4248,11 @@
         ]
       }
     },
-    "earthKey": "ctmaxwell"
+    "earthKey": "ctmaxwell",
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
+    }
   },
   {
     "id": "curated:sg-nagore-dargah",
@@ -4139,6 +4347,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -4195,6 +4407,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -4267,6 +4483,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
     }
   },
   {
@@ -4359,6 +4579,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -4420,6 +4644,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
     }
   },
   {
@@ -4489,7 +4717,11 @@
         }
       ]
     },
-    "earthKey": "ctpagoda"
+    "earthKey": "ctpagoda",
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
+    }
   },
   {
     "id": "curated:sg-people-s-park-complex",
@@ -4552,6 +4784,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -4683,6 +4919,10 @@
         "publisher": "nhb.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -4754,6 +4994,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -4832,6 +5076,10 @@
           "publisher": "Time Out Singapore"
         }
       ]
+    },
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -4902,6 +5150,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5045,6 +5297,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5086,7 +5342,11 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-telok-ayer-chinese-methodist-church",
@@ -5156,6 +5416,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5208,6 +5472,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -5351,6 +5619,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5465,6 +5737,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -5544,6 +5820,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5614,6 +5894,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5664,6 +5948,10 @@
           "publisher": "Trip.com"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5717,6 +6005,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5758,7 +6050,11 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-hajjah-fatimah-mosque",
@@ -5906,6 +6202,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -5989,6 +6289,10 @@
         "publisher": "nhb.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6088,6 +6392,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6150,6 +6458,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -6222,6 +6534,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6359,6 +6675,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
     }
   },
   {
@@ -6421,6 +6741,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "lei",
+      "subtype": "venue"
     }
   },
   {
@@ -6473,6 +6797,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6561,6 +6889,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6707,6 +7039,10 @@
         "publisher": "sultanmosque.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6798,6 +7134,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6852,6 +7192,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6908,6 +7252,10 @@
         },
         "postcode": "189720"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -6985,6 +7333,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7112,6 +7464,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7183,6 +7539,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7258,6 +7618,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -7312,6 +7676,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7429,6 +7797,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7569,6 +7941,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7617,6 +7993,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7728,6 +8108,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7805,6 +8189,10 @@
         "publisher": "roots.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -7895,6 +8283,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -7957,6 +8349,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -8057,6 +8453,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
     }
   },
   {
@@ -8129,6 +8529,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -8217,6 +8621,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -8375,6 +8783,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -8445,6 +8857,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "hotel"
     }
   },
   {
@@ -8566,6 +8982,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -8680,6 +9100,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -8766,6 +9190,10 @@
         "publisher": "nparks.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -8819,6 +9247,10 @@
         },
         "postcode": "259756"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -8921,6 +9353,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -8994,6 +9430,10 @@
           "publisher": "VisitSingapore (Singapore Tourism Board)"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -9037,7 +9477,11 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-tiong-bahru-estate",
@@ -9119,6 +9563,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -9215,6 +9663,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -9298,6 +9750,10 @@
         "publisher": "hawparvilla.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -9379,6 +9835,10 @@
           "publisher": "Discoverist by Changi Recommends"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -9449,6 +9909,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -9505,6 +9969,10 @@
           "publisher": "ArchDaily"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -9581,6 +10049,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -9648,6 +10120,10 @@
           "publisher": "Time Out Singapore"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -9709,6 +10185,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -9788,6 +10268,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -9886,6 +10370,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -10003,6 +10491,10 @@
         "publisher": "ura.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -10152,6 +10644,10 @@
         "publisher": "nparks.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -10233,6 +10729,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -10354,6 +10854,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -10416,6 +10920,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -10453,7 +10961,11 @@
     "provenance": "earth-online",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-changi-airport-control-tower",
@@ -10491,7 +11003,11 @@
     "viewFromOutside": true,
     "editorialStatus": "published",
     "reviewedAt": "2026-10-20",
-    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)"
+    "reviewedBy": "EARTH ONLINE dataset entry (descriptions not yet source-linked; team editor sign-off pending)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-changi-airport-terminal-4",
@@ -10551,6 +11067,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -10611,6 +11131,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -10744,6 +11268,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -10897,6 +11425,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -11003,6 +11535,10 @@
         "publisher": "kmspks.org",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -11123,6 +11659,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "cru",
+      "subtype": "island"
     }
   },
   {
@@ -11235,6 +11775,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -11393,6 +11937,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -11538,6 +12086,10 @@
         "publisher": "nparks.gov.sg",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -11616,6 +12168,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -11679,6 +12235,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -11740,6 +12300,10 @@
           "checkedAt": "2026-10-22"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -11843,6 +12407,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -11932,7 +12500,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctmaxwell"
+    "earthKey": "ctmaxwell",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-tai-wah-pork-noodle",
@@ -12021,7 +12593,11 @@
         ]
       }
     },
-    "earthKey": "cthonglim"
+    "earthKey": "cthonglim",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-hoo-kee-bak-chang",
@@ -12163,7 +12739,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctamoyst"
+    "earthKey": "ctamoyst",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-no-18-zion-road-fried-kway-teow",
@@ -12242,6 +12822,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -12330,6 +12914,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -12422,6 +13010,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -12505,6 +13097,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -12592,6 +13188,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -12670,6 +13270,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -12749,6 +13353,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -12843,7 +13451,11 @@
         ]
       }
     },
-    "earthKey": "chijmes"
+    "earthKey": "chijmes",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-cherry-garden-by-chef-fei",
@@ -12936,6 +13548,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -13038,6 +13654,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -13132,7 +13752,11 @@
         ]
       }
     },
-    "earthKey": "mbs"
+    "earthKey": "mbs",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-summer-palace",
@@ -13225,6 +13849,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -13318,6 +13946,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -13416,7 +14048,11 @@
         ]
       }
     },
-    "earthKey": "suntec"
+    "earthKey": "suntec",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-shisen-hanten",
@@ -13509,6 +14145,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -13584,6 +14224,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -13690,6 +14334,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -13794,7 +14442,11 @@
         ]
       }
     },
-    "earthKey": "ctchinatowncx"
+    "earthKey": "ctchinatowncx",
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
+    }
   },
   {
     "id": "curated:sg-meta",
@@ -13925,7 +14577,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctmeta"
+    "earthKey": "ctmeta",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-nae-um",
@@ -14047,7 +14703,11 @@
         ]
       }
     },
-    "earthKey": "ctnaeum"
+    "earthKey": "ctnaeum",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-na-oh",
@@ -14150,6 +14810,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -14247,6 +14911,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -14345,7 +15013,11 @@
         ]
       }
     },
-    "earthKey": "ctguum"
+    "earthKey": "ctguum",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-seoul-restaurant",
@@ -14460,6 +15132,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -14559,7 +15235,11 @@
         ]
       }
     },
-    "earthKey": "ctumyongbaek"
+    "earthKey": "ctumyongbaek",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-anju",
@@ -14663,7 +15343,11 @@
         ]
       }
     },
-    "earthKey": "ctanju"
+    "earthKey": "ctanju",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-chang-korean-charcoal-bbq",
@@ -14757,6 +15441,10 @@
           }
         ]
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -14861,7 +15549,11 @@
         ]
       }
     },
-    "earthKey": "ctobba"
+    "earthKey": "ctobba",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-clementi-448-market",
@@ -14937,6 +15629,10 @@
           "publisher": "Burpple"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -15013,6 +15709,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -15098,6 +15798,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -15183,6 +15887,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -15268,6 +15976,10 @@
           "publisher": "Google 评论，经 HHWT 展示"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -15352,6 +16064,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -15436,6 +16152,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -15520,6 +16240,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -15604,6 +16328,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -15689,6 +16417,10 @@
           "publisher": "Burpple"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -15774,6 +16506,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -15859,6 +16595,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -15944,6 +16684,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -16029,6 +16773,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -16105,6 +16853,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -16190,6 +16942,10 @@
           "publisher": "个人到访博客（RSS 转引）"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -16276,7 +17032,11 @@
         }
       ]
     },
-    "earthKey": "ctyuehhai"
+    "earthKey": "ctyuehhai",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-hong-san-see",
@@ -16362,7 +17122,11 @@
         }
       ]
     },
-    "earthKey": "cthongsansee"
+    "earthKey": "cthongsansee",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-tan-si-chong-su",
@@ -16448,7 +17212,11 @@
         }
       ]
     },
-    "earthKey": "cttansichongsu"
+    "earthKey": "cttansichongsu",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-leong-san-see",
@@ -16533,6 +17301,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -16618,6 +17390,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -16703,6 +17479,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -16789,7 +17569,11 @@
         }
       ]
     },
-    "earthKey": "ctthendayuthapani"
+    "earthKey": "ctthendayuthapani",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-malabar-mosque",
@@ -16874,6 +17658,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -16960,7 +17748,11 @@
         }
       ]
     },
-    "earthKey": "ctalabrar"
+    "earthKey": "ctalabrar",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-maghain-aboth",
@@ -17045,6 +17837,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17130,6 +17926,10 @@
           "publisher": "Google Maps（Wanderlog公开转载）"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17215,6 +18015,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17300,6 +18104,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17385,6 +18193,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17470,6 +18282,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17554,6 +18370,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -17639,6 +18459,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17724,6 +18548,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17809,6 +18637,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17894,6 +18726,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -17979,6 +18815,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18063,6 +18903,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18148,6 +18992,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18233,6 +19081,10 @@
           "publisher": "WordPress / Vincent Loy个人到访日记"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18311,6 +19163,10 @@
           "checkedAt": "2026-10-29"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18396,6 +19252,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18481,6 +19341,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18566,6 +19430,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18651,6 +19519,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18736,6 +19608,10 @@
           "publisher": "ThreeBestRated"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18831,6 +19707,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -18927,7 +19807,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "natgallery"
+    "earthKey": "natgallery",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-zen",
@@ -19023,7 +19907,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctzen"
+    "earthKey": "ctzen",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-jaan-by-kirk-westaway",
@@ -19119,7 +20007,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "rafflescity"
+    "earthKey": "rafflescity",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-born",
@@ -19215,7 +20107,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctjinrikisha"
+    "earthKey": "ctjinrikisha",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-burnt-ends-1200777",
@@ -19310,6 +20206,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -19405,6 +20305,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -19501,7 +20405,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctcloudstreet"
+    "earthKey": "ctcloudstreet",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-waku-ghin",
@@ -19597,7 +20505,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "mbs"
+    "earthKey": "mbs",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-pangium",
@@ -19692,6 +20604,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -19778,6 +20694,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -19874,7 +20794,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctthevar"
+    "earthKey": "ctthevar",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-labyrinth",
@@ -19970,7 +20894,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "esplanade"
+    "earthKey": "esplanade",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-seroja",
@@ -20066,7 +20994,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "duo"
+    "earthKey": "duo",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-sushi-zen-1247221",
@@ -20162,7 +21094,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctsushizen"
+    "earthKey": "ctsushizen",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-peach-blossoms",
@@ -20247,6 +21183,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -20332,6 +21272,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -20418,7 +21362,11 @@
         }
       ]
     },
-    "earthKey": "mbs"
+    "earthKey": "mbs",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-hill-street-tai-hwa-pork-noodle",
@@ -20504,6 +21452,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -20591,7 +21543,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctamoyst"
+    "earthKey": "ctamoyst",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-ann-chin-handmade-popiah",
@@ -20678,7 +21634,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctchinatowncx"
+    "earthKey": "ctchinatowncx",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-chomp-chomp-satay",
@@ -20764,6 +21724,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -20851,7 +21815,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "cthonglim"
+    "earthKey": "cthonglim",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-bismillah-biryani",
@@ -20946,6 +21914,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21041,6 +22013,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21127,6 +22103,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21222,6 +22202,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21318,7 +22302,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctblueginger"
+    "earthKey": "ctblueginger",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-true-blue-cuisine",
@@ -21413,6 +22401,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21508,6 +22500,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21594,6 +22590,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21680,6 +22680,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21766,6 +22770,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21861,6 +22869,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -21947,6 +22959,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -22033,6 +23049,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -22119,6 +23139,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -22214,6 +23238,10 @@
         "publisher": "guide.michelin.com",
         "checkedAt": "2026-10-29"
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -22301,7 +23329,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctkoksen"
+    "earthKey": "ctkoksen",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-song-fa-bak-kut-teh-new-bridge-road",
@@ -22397,7 +23429,11 @@
         "checkedAt": "2026-10-29"
       }
     },
-    "earthKey": "ctsongfa"
+    "earthKey": "ctsongfa",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-kim-choo-kueh-chang",
@@ -22482,6 +23518,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -22558,6 +23598,10 @@
           "publisher": "Burpple"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -22643,6 +23687,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -22727,6 +23775,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -22811,6 +23863,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -22896,6 +23952,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -22980,6 +24040,10 @@
           "publisher": "Google（经 Wanderlog 转引）"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23064,6 +24128,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23148,6 +24216,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23232,6 +24304,10 @@
           "publisher": "Google（经 Wanderlog 转引）"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23316,6 +24392,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23400,6 +24480,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23484,6 +24568,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23568,6 +24656,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23652,6 +24744,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23736,6 +24832,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23820,6 +24920,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23904,6 +25008,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -23988,6 +25096,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24072,6 +25184,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24156,6 +25272,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24241,6 +25361,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24325,6 +25449,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24409,6 +25537,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24493,6 +25625,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24577,6 +25713,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24661,6 +25801,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24745,6 +25889,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24830,6 +25978,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24914,6 +26066,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -24998,6 +26154,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -25082,6 +26242,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -25167,6 +26331,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -25251,6 +26419,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -25335,6 +26507,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -25419,6 +26595,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -25505,7 +26685,11 @@
         }
       ]
     },
-    "earthKey": "ctura"
+    "earthKey": "ctura",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-kampung-admiralty",
@@ -25590,6 +26774,10 @@
           "publisher": "Google（经 Wanderlog 转引）"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -25675,6 +26863,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -25760,6 +26952,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -25844,6 +27040,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "precinct"
     }
   },
   {
@@ -25928,6 +27128,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -26012,6 +27216,10 @@
           "publisher": "Wanderlog（转引可见个人评论）"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -26097,6 +27305,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -26181,6 +27393,10 @@
           "publisher": "Tripadvisor"
         }
       ]
+    },
+    "tourism": {
+      "category": "wel",
+      "subtype": "nature"
     }
   },
   {
@@ -26231,7 +27447,11 @@
     "provenance": "researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-29",
-    "reviewedBy": "FindSG team source check (story-card places, 2026-10-29)"
+    "reviewedBy": "FindSG team source check (story-card places, 2026-10-29)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-lim-chee-guan-new-bridge-road",
@@ -26301,7 +27521,11 @@
         }
       }
     },
-    "earthKey": "ctlimcheeguan"
+    "earthKey": "ctlimcheeguan",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-the-spread-nus",
@@ -26378,6 +27602,10 @@
           "checkedAt": "2026-10-29"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -26473,6 +27701,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -26554,6 +27786,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -26629,6 +27865,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -26712,6 +27952,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -26804,6 +28048,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -26890,6 +28138,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -26980,6 +28232,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27069,6 +28325,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27158,6 +28418,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27233,6 +28497,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27329,6 +28597,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27400,6 +28672,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27489,6 +28765,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27581,6 +28861,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27682,6 +28966,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27763,6 +29051,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27846,6 +29138,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -27944,6 +29240,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28025,6 +29325,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28126,6 +29430,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28188,6 +29496,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28269,6 +29581,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28368,6 +29684,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28448,6 +29768,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28528,6 +29852,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28629,6 +29957,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28725,6 +30057,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28808,6 +30144,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28894,6 +30234,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -28965,6 +30309,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29052,6 +30400,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29129,6 +30481,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29215,6 +30571,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29287,6 +30647,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29359,6 +30723,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29445,6 +30813,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29540,6 +30912,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29617,6 +30993,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29709,6 +31089,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29781,6 +31165,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29858,6 +31246,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -29939,6 +31331,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30023,6 +31419,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30098,6 +31498,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30193,6 +31597,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30276,6 +31684,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30326,6 +31738,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30388,6 +31804,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30465,6 +31885,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30542,6 +31966,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30625,6 +32053,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30687,6 +32119,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30749,6 +32185,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30811,6 +32251,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30891,6 +32335,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -30965,6 +32413,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31039,6 +32491,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31107,6 +32563,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31184,6 +32644,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31264,6 +32728,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31324,6 +32792,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31405,6 +32877,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31488,6 +32964,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31568,6 +33048,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31642,6 +33126,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31716,6 +33204,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31790,6 +33282,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31873,6 +33369,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -31956,6 +33456,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -32036,6 +33540,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -32086,6 +33594,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -32136,7 +33648,11 @@
     "provenance": "researched",
     "editorialStatus": "published",
     "reviewedAt": "2026-10-31",
-    "reviewedBy": "FindSG team source check (new places, 31 Oct 2026)"
+    "reviewedBy": "FindSG team source check (new places, 31 Oct 2026)",
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
+    }
   },
   {
     "id": "curated:sg-fusionopolis-one",
@@ -32198,6 +33714,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -32266,6 +33786,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -32322,6 +33846,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -32396,6 +33924,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -32445,6 +33977,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   },
   {
@@ -32508,6 +34044,10 @@
           "checkedAt": "2026-10-31"
         }
       }
+    },
+    "tourism": {
+      "category": "att",
+      "subtype": "attraction"
     }
   }
 ]
