@@ -24,6 +24,7 @@ import { ChapterLayers, type Layer } from './layers';
 import { ChapterCardsPage, ChapterMapPage } from './pages';
 import { FilmPlate } from './FilmProjector';
 import { Notebook, type NotebookPage } from './Notebook';
+import { VolumeFolio } from './VolumeChrome';
 import { RubberStamp } from './RubberStamp';
 import { markStory, recordOf } from './record';
 import { NotesPage, RecordPage } from './BackPages';
@@ -52,7 +53,7 @@ interface Leaf {
   render(active: boolean): ReactNode;
 }
 
-export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen(): void; cover: ReactNode }) {
+export function PrologueBook({ open, onOpen, cover, roman }: { open: boolean; onOpen(): void; cover: ReactNode; roman: string }) {
   const [mode, setMode] = useState<ShortMode>(readMode);
   const [s, setS] = useState<ShortState>(() => readShort(readMode()));
   const [index, setIndexState] = useState(() => Number(sessionStorage.getItem('hunt-page-short')) || 0);
@@ -408,7 +409,7 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
   const shown = firstShut < 0 ? leaves : leaves.slice(0, firstShut + 1);
   const pages: NotebookPage[] = shown.map((l, i) =>
     i === firstShut
-      ? { id: l.id, tab: l.tab, label: `${l.label} (sealed)`, render: () => <Sealed what={l.label} how={l.seal} /> }
+      ? { id: l.id, tab: l.tab, label: `${l.label} (sealed)`, hint: l.seal || undefined, render: () => <Sealed what={l.label} how={l.seal} /> }
       : { id: l.id, tab: l.tab, label: l.label, render: l.render },
   );
   // the back of the book is always there to write in and to look up, whatever is still sealed
@@ -417,12 +418,14 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
       id: 'map',
       tab: 'Map',
       label: 'The map',
+      hint: 'Tap the packet to unfold the map',
       render: () => <ChapterMapPage ch={ch} onUnfold={() => setLayer({ kind: 'map' })} />,
     },
     {
       id: 'clues',
       tab: 'Clues',
       label: 'The clue cards',
+      hint: 'Each stop you solve turns its card face up.',
       render: () => <ChapterCardsPage ch={ch} onCards={() => setLayer({ kind: 'cards' })} onChest={() => setLayer({ kind: 'ending' })} />,
     },
     {
@@ -477,6 +480,7 @@ export function PrologueBook({ open, onOpen, cover }: { open: boolean; onOpen():
         fit
         coverLabel="Open Beneath the Golden Dome"
         insert={film && <FilmPlate key={film.title} reel={film.reel} title={film.title} onClose={() => setFilm(null)} />}
+        folio={(i) => <VolumeFolio n={i + 1} total={pages.length} roman={roman} name={pages[i]?.label ?? ''} hint={pages[i]?.hint} />}
       />
       <ChapterLayers ch={ch} layer={layer} setLayer={setLayer} onGo={goTo} />
     </>

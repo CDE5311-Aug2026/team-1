@@ -38,7 +38,6 @@ export function placeArea(p: CuratedPlace): string {
 }
 
 const placeHref = (id: string) => `/nearby/place/${encodeURIComponent(id)}`;
-const challengeHref = (id: string) => `/hunt/challenge/${encodeURIComponent(id)}`;
 
 let index: Indexed[] | null = null;
 
@@ -63,7 +62,8 @@ function build(): Indexed[] {
         title: c.title,
         line: [v && `Vol. ${v.roman} · ${v.title}`, dateRange(c.from, c.to)].filter(Boolean).join(' · '),
         category: HUNT_CATEGORY,
-        href: challengeHref(c.id),
+        // the challenge page was retired (second canvas): a challenge opens its volume
+        href: volumeHref(c.routeId),
       },
       fields: [c.title, v?.title ?? '', v?.place ?? '', 'challenge weekend hunt'].map(normalise),
     });

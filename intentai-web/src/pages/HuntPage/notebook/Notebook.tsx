@@ -15,6 +15,8 @@ export interface NotebookPage {
   tab?: string;
   /** Spoken name for the page. */
   label: string;
+  /** The page's own instruction, shown under the book (v2 board 10); none when the page has none. */
+  hint?: string;
   render(active: boolean): ReactNode;
 }
 
@@ -46,6 +48,7 @@ export function Notebook({
   fit = false,
   insert,
   play,
+  folio,
 }: {
   pages: NotebookPage[];
   index: number;
@@ -66,6 +69,8 @@ export function Notebook({
   insert?: ReactNode;
   /** A last thumb tab that leaves the book: back out to play the story's next stop. */
   play?(): void;
+  /** What is written under the open book (v2 board 10: VolumeFolio); default, the page number and its name. */
+  folio?(index: number): ReactNode;
 }) {
   const book = useRef<HTMLDivElement>(null);
   const leaves = useRef<(HTMLElement | null)[]>([]);
@@ -269,7 +274,8 @@ export function Notebook({
           </nav>
         )}
       </div>
-      {open && (
+      {open && folio && folio(index)}
+      {open && !folio && (
         <p className={styles.folio} aria-live="polite">
           <span>
             {index + 1} / {pages.length}

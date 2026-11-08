@@ -95,12 +95,12 @@ describe('sections only with their data (plan A9)', () => {
     expect(screen.getByRole('link', { name: /Directions/ })).toHaveAttribute('href', expect.stringContaining('google.com/maps/dir'));
   });
 
-  test('a place on a challenge route links the challenge; nearby places come from the proximity ranking', () => {
+  test('a place on a challenge route links the challenge’s volume; nearby places come from the proximity ranking', () => {
     renderAt(victoria.id);
     const card = screen.getByRole('region', { name: 'Part of a challenge' });
     expect(within(card).getByText('The Missing Years')).toBeInTheDocument();
     expect(within(card).getByText(/Stop 6 of 8 · 7–8 Nov/)).toBeInTheDocument();
-    expect(within(card).getByRole('link', { name: /View Weekend challenge/ })).toHaveAttribute('href', '/hunt/challenge/wk45-civic');
+    expect(within(card).getByRole('link', { name: /View Weekend challenge/ })).toHaveAttribute('href', '/hunt#story/civic-f1');
     const strip = screen.getByRole('region', { name: 'Nearby' });
     const first = nearbyPlaces(victoria)[0];
     expect(within(strip).getAllByRole('link')[0]).toHaveAttribute('href', `/nearby/place/${encodeURIComponent(first.key)}`);

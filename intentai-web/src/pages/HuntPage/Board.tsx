@@ -7,6 +7,7 @@ import { areaOfPlace, URA_REGIONS, visitedSet } from '../../data/ura/ura';
 import { useExplorePersonal } from '../../features/nearby/actions';
 import { Link } from 'react-router-dom';
 import { paths } from '../../routes';
+import { volumeHref } from '../../data/search/hunt';
 import Icon from '../OnboardingPage/v3/icons';
 import type { HuntGo } from './HuntPage';
 import styles from './Hunt.module.css';
@@ -67,7 +68,7 @@ function PassportBoard() {
         </span>
         <span>
           <b>You</b> · no time yet.{' '}
-          <Link to={paths.challenge(ch.id)} className={pb.join}>
+          <Link to={volumeHref(ch.routeId)} className={pb.join}>
             Join a challenge
           </Link>
           .

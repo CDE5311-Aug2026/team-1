@@ -16,7 +16,7 @@ import {
   savedStore,
   tipsStore,
 } from '../stores';
-import { challengeJoinedStore, searchRecentStore } from '../v2Stores';
+import { searchRecentStore } from '../v2Stores';
 
 export type StorageAreaId = 'passport' | 'ask' | 'community' | 'search' | 'profile';
 
@@ -39,13 +39,12 @@ export const STORAGE_AREAS: StorageArea[] = [
   {
     id: 'passport',
     label: 'Passport & cards',
-    keys: ['explore-personal', 'opened-cards', 'collected', 'saved', 'progress', 'streak', 'challenge-joined'],
+    keys: ['explore-personal', 'opened-cards', 'collected', 'saved', 'progress', 'streak'],
     clear: [
       { store: explorePersonalStore, empty: null },
       { store: openedCardsStore, empty: [] },
       { store: collectedStore, empty: [] },
       { store: savedStore, empty: [] },
-      { store: challengeJoinedStore, empty: {} },
     ],
   },
   {

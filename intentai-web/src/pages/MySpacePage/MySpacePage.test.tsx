@@ -70,7 +70,7 @@ test('together mode: "Hunting together · Central" chip and the example leaderbo
   expect(within(board).getByText('Example')).toBeInTheDocument();
   expect(within(board).getAllByRole('listitem')).toHaveLength(3);
   expect(within(board).getByText(/no time yet/)).toBeInTheDocument();
-  expect(within(board).getByRole('link', { name: 'Join a challenge' })).toHaveAttribute('href', paths.challenge(HUNT_CHALLENGES[0].id));
+  expect(within(board).getByRole('link', { name: 'Join a challenge' })).toHaveAttribute('href', `/hunt#story/${HUNT_CHALLENGES[0].routeId}`);
 });
 
 test('solo mode (and unset): no leaderboard and no together chip', () => {

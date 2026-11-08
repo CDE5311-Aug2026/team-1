@@ -7,19 +7,15 @@ import pins from './stopPins.json';
 import {
   CHALLENGES,
   STOP_PLACES,
-  challengeById,
-  challengeJoinedStore,
   challengeTimer,
-  isJoinedChallenges,
-  joinChallenge,
-  leaveChallenge,
-  longDates,
   openChallenges,
   shortDates,
   stopProgress,
   timerText,
 } from './challenges';
 import { HUNT_CHALLENGES } from './stories';
+
+const byId = (id: string) => CHALLENGES.find((c) => c.id === id);
 
 beforeEach(() => {
   localStorage.clear();
@@ -36,10 +32,9 @@ test('every challenge wraps a Hunt challenge and its story route: same id, dates
     expect(c.stops.map((s) => s.id)).toEqual(ONSITE_ROUTES[c.routeId].stops.map((s) => s.id));
     expect(c.stops.map((s) => s.n)).toEqual(c.stops.map((_, i) => i + 1));
   }
-  const civic = challengeById('wk45-civic')!;
+  const civic = byId('wk45-civic')!;
   expect(civic).toMatchObject({ title: 'Civic District', kind: 'Weekend', category: 'att', region: 'central' });
   expect(civic.stops).toHaveLength(8);
-  expect(challengeById('nope')).toBeUndefined();
 });
 
 test('a stop stands at a catalogue place only when its story name names the place, or the pins are the same building (15 m)', () => {
@@ -60,7 +55,6 @@ test('a stop stands at a catalogue place only when its story name names the plac
 
 test('dates read as on the boards', () => {
   expect(shortDates('2026-11-07', '2026-11-08')).toBe('7–8 Nov');
-  expect(longDates('2026-11-07', '2026-11-08')).toBe('Sat 7 – Sun 8 Nov');
   expect(shortDates('2026-11-30', '2026-12-01')).toBe('30 Nov – 1 Dec');
   expect(shortDates('2026-11-08', '2026-11-08')).toBe('8 Nov');
   expect(openChallenges('2026-11-08').map((c) => c.id)).toEqual(['wk45-civic', 'wk46-kampong']);
@@ -92,7 +86,7 @@ test('the clock runs from the first stamp to the last', () => {
 });
 
 test('a check-in at a stop’s catalogue place stamps the stop, with its day', () => {
-  const civic = challengeById('wk45-civic')!;
+  const civic = byId('wk45-civic')!;
   const s = stopProgress(civic, null, {
     places: [{ placeKey: 'curated:sg-old-hill-street-police-station', saved: false, visited: true, visitedOn: '2026-11-07', updatedAt: '2026-11-07T00:00:00Z' }],
   } as never);
@@ -100,13 +94,7 @@ test('a check-in at a stop’s catalogue place stamps the stop, with its day', (
   expect(s[1].stamp).toEqual({ day: '2026-11-07', exact: false });
 });
 
-test('joining is kept on this phone only, once per challenge, and can be undone', () => {
-  joinChallenge('wk45-civic', new Date('2026-11-07T09:00:00Z'));
-  joinChallenge('wk45-civic', new Date('2026-11-08T09:00:00Z'));
-  expect(challengeJoinedStore.get()).toEqual({ 'wk45-civic': { joinedAt: '2026-11-07T09:00:00.000Z' } });
-  expect(JSON.parse(localStorage.getItem('intentai:v1:challenge-joined')!)).toEqual({ 'wk45-civic': { joinedAt: '2026-11-07T09:00:00.000Z' } });
-  leaveChallenge('wk45-civic');
-  expect(challengeJoinedStore.get()).toEqual({});
-  expect(isJoinedChallenges({ x: { joinedAt: 'not a date' } })).toBe(false);
-  expect(isJoinedChallenges([])).toBe(false);
+test('nothing about challenges is kept on the phone any more (the challenge page and its Join were retired)', async () => {
+  const mod = await import('./challenges');
+  expect(Object.keys(mod).filter((k) => /join/i.test(k))).toEqual([]);
 });

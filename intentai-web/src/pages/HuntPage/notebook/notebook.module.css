@@ -395,7 +395,7 @@
 .fit .book {
   /* as big as the phone allows, keeping a book's proportions; room left for the fore-edge tabs */
   --ratio: 1.46;
-  width: min(calc(100vw - 52px), calc((100dvh - 118px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / var(--ratio)), 470px);
+  width: min(calc(100vw - 52px), calc((100dvh - var(--fit-chrome, 118px) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / var(--ratio)), 470px);
   aspect-ratio: 1 / var(--ratio);
   max-width: none;
   max-height: none;

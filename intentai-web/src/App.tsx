@@ -47,7 +47,6 @@ const RouteDetailPage = lazyPage(() => import('./pages/NearbyPage/RouteDetailPag
 const RoutePlanPage = lazyPage(() => import('./pages/NearbyPage/RoutePlanPage'));
 // Redesign v2 screens
 const SearchPage = lazyPage(() => import('./pages/SearchPage/SearchPage'));
-const ChallengePage = lazyPage(() => import('./pages/ChallengePage/ChallengePage'));
 const MotionPage = lazyPage(() => import('./pages/MySpacePage/MotionPage'));
 const TextSizePage = lazyPage(() => import('./pages/MySpacePage/TextSizePage'));
 const CreditsPage = lazyPage(() => import('./pages/MySpacePage/CreditsPage'));
@@ -98,7 +97,6 @@ export default function App() {
             <Route path={paths.holiday} element={<HolidayPage />} />
             <Route path={paths.moments} element={<MomentsPage />} />
             <Route path={paths.hunt} element={<HuntPage />} />
-            <Route path={patterns.challenge} element={<ChallengePage />} />
             <Route path={paths.search} element={<SearchPage />} />
             <Route path={paths.nearby} element={<ExplorePage />} />
             <Route path={paths.nearbyLocation} element={<LocationPage />} />

@@ -9,7 +9,7 @@ import CategoryBadge from '../../../components/Category/CategoryBadge';
 import CategoryGlyph from '../../../components/Category/CategoryGlyph';
 import { SourceLine } from '../../../components/story';
 import { placePicture } from '../../../data/home/nearbyCards';
-import { challengesAt, dateRange } from '../../../data/search/hunt';
+import { challengesAt, dateRange, volumeHref } from '../../../data/search/hunt';
 import { TOURISM_INFO, tourismOf, type TourismCategory } from '../../../data/tourism';
 import { showToast } from '../../../hooks/useToast';
 import { paths } from '../../../routes';
@@ -359,7 +359,7 @@ export default function PlaceV2({ place, children }: { place: CuratedPlace; chil
               Stop {stop} of {stops} · {dateRange(challenge.from, challenge.to)}
             </span>
           </span>
-          <Link className={styles.view} to={paths.challenge(challenge.id)} aria-label={`View ${challenge.title}`}>
+          <Link className={styles.view} to={volumeHref(challenge.routeId)} aria-label={`View ${challenge.title}`}>
             View
           </Link>
         </section>

@@ -1,20 +1,23 @@
-// Reading a story: the book you took down fills the phone, lying on the dark chart desk under the lamp. Nothing on this
-// screen scrolls: you move through the story by turning pages. A slim bar above the book takes you back to the shelf.
-import { useEffect, type CSSProperties, type ReactNode } from 'react';
+// Reading a story: the book you took down fills the phone. v2 board 10 (owner, 8 Nov 2026): it lies on the light survey
+// chart (ChartPaper) under "‹ Shelf · Hunt · Settings" and its volume's name; the book itself is as it was. Nothing on
+// this screen scrolls: you move through the story by turning pages.
+import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { lockScroll } from '../../../hooks/scrollLock';
-import { CHART_BACKDROP } from './chartBackdrop';
+import { ChartPaper } from './ChartPaper';
+import { VolumeBar, VolumeHead } from './VolumeChrome';
 import styles from './storyBook.module.css';
 
 export function StoryBook({
   title,
-  kicker,
+  roman,
   closing = false,
   onClose,
   children,
 }: {
   title: string;
-  kicker: string;
+  /** The volume's number, "I". */
+  roman: string;
   closing?: boolean;
   onClose(): void;
   children: ReactNode;
@@ -35,22 +38,10 @@ export function StoryBook({
   }, [onClose]);
 
   return createPortal(
-    <div
-      className={`${styles.reader} ${closing ? styles.closing : ''}`}
-      style={{ '--chart': CHART_BACKDROP } as CSSProperties}
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-    >
-      <header className={styles.bar}>
-        <button type="button" className={styles.back} onClick={onClose}>
-          <span aria-hidden="true">‹</span> Shelf
-        </button>
-        <p className={styles.running}>
-          <small>{kicker}</small>
-          <span>{title}</span>
-        </p>
-      </header>
+    <div className={`${styles.reader} ${closing ? styles.closing : ''}`} role="dialog" aria-modal="true" aria-label={title} data-volume-reader="">
+      <ChartPaper variant="reader" />
+      <VolumeBar onBack={onClose} />
+      <VolumeHead roman={roman} title={title} className={styles.head} />
       <div className={styles.stage}>{children}</div>
     </div>,
     document.body,

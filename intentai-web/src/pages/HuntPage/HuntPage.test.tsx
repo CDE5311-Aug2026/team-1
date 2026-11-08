@@ -44,10 +44,11 @@ test('Hunt opens on the field archive: the rules card once, the chips, a pick an
   expect(list).toHaveLength(6);
   expect(list[0]).toHaveTextContent(/Vol\. I · Kampong Gelam.*Only One Missing.*The bottle base.*Not started/);
   expect(list[5]).toHaveTextContent(/Vol\. VI · Civic District.*The Missing Years/);
-  // nothing in progress: a pick to start, from your categories
+  // nothing in progress: a pick to set out on, from your categories (board 09: "Set out" until it is begun)
   const pick = screen.getByRole('article', { name: 'Picked for you' });
   expect(within(pick).getByText(/Picked for you · Attractions/)).toBeInTheDocument();
-  expect(within(pick).getByRole('button', { name: /Start/ })).toBeInTheDocument();
+  expect(within(pick).getByRole('button', { name: /Set out/ })).toBeInTheDocument();
+  expect(within(pick).queryByRole('button', { name: /Continue|Start/ })).toBeNull();
   // no location known: no distances
   expect(screen.queryByText(/\d km|\d m\b/)).toBeNull();
 });
@@ -76,6 +77,7 @@ test('real progress: a route in progress is the Continue card, and its row count
   expect(within(card).getByText('Stop 2 of 8')).toBeInTheDocument();
   expect(within(card).getByRole('img', { name: '1 of 8 found' })).toBeInTheDocument();
   expect(within(card).getByRole('button', { name: /Continue/ })).toBeInTheDocument();
+  expect(within(card).queryByRole('button', { name: /Set out/ })).toBeNull();
   expect(screen.getByText('6 volumes · 1/38 stamps')).toBeInTheDocument();
   expect(rows()[2]).toHaveTextContent('1 of 8 found');
 });

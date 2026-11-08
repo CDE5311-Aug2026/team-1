@@ -5,8 +5,6 @@ export const paths = {
   moments: '/moments',
   /** Hunt: the treasure-hunt game (spec to come; placeholder for now). */
   hunt: '/hunt',
-  /** v2 board 09: a weekend challenge (labelled demo built on the story routes). */
-  challenge: (id: string) => `/hunt/challenge/${encodeURIComponent(id)}`,
   /** v2 board 07: search places, challenges and volumes, grouped by Tourism 2040 category. */
   search: '/search',
   /** Nearby Explore (map / list). */
@@ -57,7 +55,6 @@ export const patterns = {
   collection: '/nearby/collections/:collectionId',
   routePlan: '/nearby/routes/plan',
   route: '/nearby/routes/:routeId',
-  challenge: '/hunt/challenge/:challengeId',
 } as const;
 
 /** Static paths for smoke tests (routes with params are covered with seeded ids in e2e/routes.ts). */

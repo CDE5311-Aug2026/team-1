@@ -20,7 +20,9 @@ import { BOOK_TABS, FieldNotebook, openBookAt, reopenBook, useShelfBook } from '
 import { bookOf, type BookId } from './notebook/Bookshelf';
 import { BOOK_KEY, session } from './notebook/bookSession';
 import nb from './notebook/notebook.module.css';
-import sb from './notebook/storyBook.module.css';
+import { ChartPaper } from './notebook/ChartPaper';
+import { VolumeBar, VolumeFolio, VolumeHead } from './notebook/VolumeChrome';
+import vd from './volumeDesk.module.css';
 import { FilmHost } from './notebook/FilmProjector';
 import { ClueLibrary } from './notebook/layers';
 import { MATERIALS } from './notebook/Notebook';
@@ -29,6 +31,8 @@ import styles from './Hunt.module.css';
 
 /** The dark sea-chart colour under Hunt's backdrop. */
 const CHART_BG = '#1d1711';
+/** The light survey chart's paper (v2 board 10), under a volume's pages. */
+const PAPER_BG = '#eceae5';
 
 /** FindSG's own place (its hash): its home is the desk with the shelf and tabs; a story or a stop is one notebook page. */
 function useFindsgHome() {
@@ -126,32 +130,26 @@ export default function HuntPage() {
 
   // a story or a stop: a page of the same book, with the book's running head and thumb tabs (owner, 3 Nov 2026: every
   // story looks like its book once opened). On a phone the stop page has its own Clues button, which opens over the
-  // stop, so its tabs drop Clues and its back goes one level up, to the book. Each tab keeps its page in the book.
+  // stop, so its tabs drop Clues. Each tab opens the book at its page; Shelf goes back to the field archive.
   const book = bookOf(/^#story\/([\w-]+)/.exec(location.hash)?.[1] ?? null);
   const toBook = (page: number | null) => {
     openBookAt(page == null ? null : (book?.id ?? null), page ?? 0);
     navigate({ pathname: '/hunt', search: '', hash: '' });
   };
-  const backToBook = () => {
-    if (book) reopenBook(book.id);
-    navigate({ pathname: '/hunt', search: '', hash: '' });
-  };
+
+  // board 10 (owner, 8 Nov 2026): the stop's page lies on the same light chart as the book, under "‹ Shelf · Hunt ·
+  // Settings" and the volume's head, with the folio under it; the page itself (FindSG's game) is as it was.
   return (
-    // On a phone the stop fills the screen over the tab bar, so the bar steps away and the book's back button leads out.
-    <AppShell background={CHART_BG} chrome={phone && book ? 'status' : 'full'}>
-      <div className={`${styles.screen} ${styles.desk}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
-        {/* the header stays while you play: Help and Settings are one tap away in a story too */}
-        <PageBar title="Hunt" tone="dark" className={styles.pageBar} game />
+    // On a phone the stop fills the screen over the tab bar, so the bar steps away and the bar's Shelf leads out.
+    <AppShell background={book ? PAPER_BG : CHART_BG} chrome={phone && book ? 'status' : 'full'}>
+      <div className={`${styles.screen} ${styles.desk} ${book ? vd.volumeDesk : ''}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
+        {book && <ChartPaper variant="reader" className={vd.fixedPaper} />}
+        {/* the header stays while you play: Settings is one tap away in a story too */}
+        {book ? <VolumeBar onBack={() => toBook(null)} game className={vd.bar} /> : <PageBar title="Hunt" tone="dark" className={styles.pageBar} game />}
         {book && (
           <>
-            <header className={`${sb.bar} ${styles.bookBar}`}>
-              <button type="button" className={sb.back} onClick={phone ? backToBook : () => toBook(null)}>
-                <span aria-hidden="true">‹</span> {phone ? 'Book' : 'Shelf'}
-              </button>
-              <p className={sb.running}>
-                <small>Volume {book.roman}</small>
-                <span>{book.title}</span>
-              </p>
+            <header className={`${styles.bookBar} ${vd.bookBar}`}>
+              <VolumeHead roman={book.roman} title={book.title} />
             </header>
             <nav className={`${nb.tabs} ${styles.bookTabs}`} style={MATERIALS} aria-label="Chapters">
               {BOOK_TABS.map((t, i) =>
@@ -167,9 +165,10 @@ export default function HuntPage() {
             </nav>
           </>
         )}
-        <div className={`findsg hunt ${styles.stories} ${styles.storyPage} ${book ? styles.inBook : ''}`} style={{ ...MATERIALS, '--hunt-grain': grain } as CSSProperties}>
+        <div className={`findsg hunt ${styles.stories} ${styles.storyPage} ${book ? `${styles.inBook} ${vd.page}` : ''}`} style={{ ...MATERIALS, '--hunt-grain': grain } as CSSProperties}>
           <FindSGApp clues={(routeId, onClose) => <ClueLibrary routeId={routeId} onClose={onClose} />} />
         </div>
+        {book && <VolumeFolio n={BOOK_TABS.length + 1} total={BOOK_TABS.length + 1} roman={book.roman} name="Play" className={vd.folio} />}
         <FilmHost />
       </div>
     </AppShell>
@@ -198,10 +197,15 @@ function Desk({
     if (id == null) onPutBack();
   };
   return (
-    <AppShell background={CHART_BG}>
+    <AppShell background={book ? PAPER_BG : CHART_BG}>
       <div className={`${styles.screen} ${styles.desk} ${styles.deskHome}`} style={{ '--wood': wood, '--chart': CHART_BACKDROP } as CSSProperties}>
-        <HuntHeader tab={tab} go={go} />
-        <HuntTabs tab={tab} go={go} />
+        {/* a book out is read full-screen with its own bar (StoryBook), so the shelf's header steps away */}
+        {!book && (
+          <>
+            <HuntHeader tab={tab} go={go} />
+            <HuntTabs tab={tab} go={go} />
+          </>
+        )}
         <FieldNotebook
           explored={places}
           stops={stops}

@@ -1,0 +1,5 @@
+/* v2 board 09 (second export): the field archive's cards sit above its chart paper (ChartPaper, fixed behind). */
+.above {
+  position: relative;
+  z-index: 1;
+}
