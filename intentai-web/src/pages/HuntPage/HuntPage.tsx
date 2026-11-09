@@ -4,7 +4,7 @@
 // src/findsg/theme*.css; Public is the community challenges and the boards. The URL says which shows: ?tab=public,
 // ?board=explore|speed; FindSG keeps its own place in the hash (#home, #story/…; an old #short/… link opens the Golden Dome book).
 // v2 (board 10): with no book out, Hunt opens on the light field archive (HuntArchive); ?view=shelf is the old shelf.
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
 import PageBar from '../../components/PageBar/PageBar';
@@ -16,7 +16,7 @@ import { useCompactStop } from '../../hooks/useCompactStop';
 import { Board } from './Board';
 import { HuntArchive, huntStops, HuntHeader, HuntTabs, PublicTab, useExplored } from './HuntHome';
 import { CHART_BACKDROP } from './notebook/chartBackdrop';
-import { BOOK_TABS, FieldNotebook, openBookAt, reopenBook, useShelfBook } from './notebook/FieldNotebook';
+import { BOOK_TABS, FieldNotebook, openBookAt, reopenBook } from './notebook/FieldNotebook';
 import { bookOf, type BookId } from './notebook/Bookshelf';
 import { BOOK_KEY, session } from './notebook/bookSession';
 import nb from './notebook/notebook.module.css';
@@ -69,6 +69,13 @@ function useFindsgHome() {
 
 export type HuntGo = (next: Record<string, string | null>, replace?: boolean) => void;
 
+/** Hunt's own history state: the volume a step opened, or where a stop was opened from. */
+interface HuntHistory {
+  huntBook?: BookId;
+  /** A stop opened from the book out (a step after it) or from the field archive (a step after that). */
+  from?: 'book' | 'archive';
+}
+
 export default function HuntPage() {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
@@ -78,20 +85,51 @@ export default function HuntPage() {
   // the book out on the desk is kept for the visit (a stop's Back writes it before coming home), so read it each time
   const [, bump] = useState(0);
   const shelfBook = bookOf(session.get(BOOK_KEY))?.id ?? null;
+  // A volume taken off the archive (or the shelf) is a step of its own in the history (10 Nov 2026: Back from a volume
+  // used to leave Hunt, as opening it changed no URL). Back (or ‹ in the book) puts the book back, and ScrollKeeper
+  // brings the archive back where it was scrolled.
+  const state = location.state as HuntHistory | null;
   const openBook = (id: BookId) => {
     reopenBook(id);
-    bump((n) => n + 1);
+    navigate({ pathname: location.pathname, search: location.search, hash: location.hash }, { state: { huntBook: id } });
     document.documentElement.scrollTop = 0;
   };
+  /** Put the book back: one step back when it was opened as a step, else (a reload, a stop's way home) in place. */
+  const closeBook = () => {
+    if (state?.huntBook) navigate(-1);
+    else {
+      session.set(BOOK_KEY, null);
+      bump((n) => n + 1);
+    }
+  };
+  const lastBook = useRef(state?.huntBook);
+  useLayoutEffect(() => {
+    const want = state?.huntBook;
+    const atHome = /^#?(home)?$/.test(location.hash);
+    if (want && session.get(BOOK_KEY) !== want) {
+      // forward onto a volume again
+      reopenBook(want);
+      bump((n) => n + 1);
+    } else if (!want && atHome && lastBook.current && session.get(BOOK_KEY) === lastBook.current) {
+      // back off a volume: the archive (or the shelf)
+      session.set(BOOK_KEY, null);
+      bump((n) => n + 1);
+    }
+    lastBook.current = want;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on each move in the history
+  }, [location.key]);
   const go: HuntGo = (next, replace = false) => {
     const q = new URLSearchParams();
     for (const [k, v] of Object.entries(next)) if (v != null) q.set(k, v);
     setParams(q, { replace });
     document.documentElement.scrollTop = 0;
   };
-  /** Into a FindSG story (from a challenge): its route, in the Stories tab. */
+  /** Into a FindSG story (from a challenge): its route, in the Stories tab. The step says where it came from, so the
+   *  stop's ‹ Shelf and its tabs step back to it rather than piling a new step on top. */
   const openRoute = (routeId: string) => {
-    navigate({ pathname: '/hunt', search: '', hash: `#story/${routeId}` });
+    const atArchive = home && !params.get('board') && params.get('tab') !== 'public';
+    const from = shelfBook && state?.huntBook === shelfBook ? 'book' : atArchive && !shelfBook ? 'archive' : undefined;
+    navigate({ pathname: '/hunt', search: '', hash: `#story/${routeId}` }, { state: from ? { from } : undefined });
     document.documentElement.scrollTop = 0;
   };
   const board = params.get('board');
@@ -132,15 +170,22 @@ export default function HuntPage() {
         <HuntArchive go={go} openBook={openBook} openRoute={openRoute} />
       </AppShell>
     );
-  if (home) return <Desk tab={tab} go={go} openRoute={openRoute} onPutBack={() => bump((n) => n + 1)} />;
+  // the book out is Hunt's (from the history step), so Back and Forward show the right one
+  if (home) return <Desk tab={tab} book={shelfBook} go={go} openRoute={openRoute} openBook={openBook} closeBook={closeBook} />;
 
   // a story or a stop: a page of the same book, with the book's running head and thumb tabs (owner, 3 Nov 2026: every
   // story looks like its book once opened). On a phone the stop page has its own Clues button, which opens over the
   // stop, so its tabs drop Clues. Each tab opens the book at its page; Shelf goes back to the field archive.
   const book = bookOf(/^#story\/([\w-]+)/.exec(location.hash)?.[1] ?? null);
+  // Back to the step the stop came from (10 Nov 2026: these pushed a new step, so Back returned to the stop): its book
+  // one step back (two for ‹ Shelf, which passes the book to the archive), or the archive one step back. Opened from
+  // elsewhere (Home's challenge cards, a board, a link), the stop's step is replaced: nothing in Hunt is behind it.
   const toBook = (page: number | null) => {
+    const from = (location.state as HuntHistory | null)?.from;
     openBookAt(page == null ? null : (book?.id ?? null), page ?? 0);
-    navigate({ pathname: '/hunt', search: '', hash: '' });
+    if (from === 'book') navigate(page == null ? -2 : -1);
+    else if (from === 'archive' && page == null) navigate(-1);
+    else navigate({ pathname: '/hunt', search: '', hash: '' }, { replace: true });
   };
 
   // board 10 (owner, 8 Nov 2026): the stop's page lies on the same light chart as the book, under "‹ Shelf · Hunt ·
@@ -184,24 +229,26 @@ export default function HuntPage() {
 /** Stories: the shelf of story books against the library wall; a book taken down lies open on the desk. */
 function Desk({
   tab,
+  book,
   go,
   openRoute,
-  onPutBack,
+  openBook,
+  closeBook,
 }: {
   tab: 'story' | 'public';
+  /** The book out on the desk, or none (the shelf). */
+  book: BookId | null;
   go: HuntGo;
   openRoute(id: string): void;
-  /** The book went back on the shelf (Hunt shows the archive again, unless the shelf was asked for). */
-  onPutBack(): void;
+  /** Take a book down (a step in the history). */
+  openBook(id: BookId): void;
+  /** Put it back on the shelf (Hunt shows the archive again, unless the shelf was asked for). */
+  closeBook(): void;
 }) {
   const places = useExplored();
   const stops = useMemo(() => huntStops(), []);
   const navigate = useNavigate();
-  const [book, setShelfBook] = useShelfBook();
-  const setBook = (id: BookId | null) => {
-    setShelfBook(id);
-    if (id == null) onPutBack();
-  };
+  const setBook = (id: BookId | null) => (id == null ? closeBook() : openBook(id));
   return (
     // the shelf (no book out) lies on the app's chart paper with its turning roses, like the field archive (owner,
     // 9 Nov 2026: only the background changes); a book out keeps its own paper

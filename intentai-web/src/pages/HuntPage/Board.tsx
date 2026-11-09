@@ -4,6 +4,7 @@
 // v2 (owner, 8 Nov 2026): the page board in the field archive's language (Boards.module.css), on the app's chart paper,
 // with the players' animal icons (Avatar, as Home's leaderboard). The Passport now shows Home's region leaderboard.
 import { useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { HUNT_CHALLENGES, rankAmong, SAMPLE_EXPLORERS, SAMPLE_SPEED } from '../../data/hunt/stories';
 import { CHALLENGES } from '../../data/hunt/challenges';
 import { areaOfPlace, URA_REGIONS, visitedSet } from '../../data/ura/ura';
@@ -24,6 +25,17 @@ export function Board(props: { kind: 'explore' | 'speed'; scope: string; go: Hun
 
 function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; scope: string; go: HuntGo; openRoute(id: string): void }) {
   const personal = useExplorePersonal();
+  const navigate = useNavigate();
+  const { key } = useLocation();
+  // 〈 goes back to where the board was opened from (the archive's tiles, Public, Home's leaderboard); a board opened
+  // straight from a link has nothing behind it in the app, so it goes to Public (10 Nov 2026: it always pushed Public,
+  // so Back then came back to the board)
+  const back = () => {
+    // the browser's history knows how deep in the app you are; a memory router (tests) only that this is not the first step
+    const idx = (window.history.state as { idx?: number } | null)?.idx;
+    if (typeof idx === 'number' ? idx > 0 : key !== 'default') navigate(-1);
+    else go({ tab: 'public' }, true);
+  };
   const visited = useMemo(() => [...visitedSet(personal)], [personal]);
   const region = URA_REGIONS.find((r) => r.id === scope);
   const mine = region ? visited.filter((id) => areaOfPlace(id)?.region === region.id).length : visited.length;
@@ -47,7 +59,7 @@ function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; 
   return (
     <>
       <header className={bd.head}>
-        <button type="button" className={bd.back} aria-label="Back to Public" onClick={() => go({ tab: 'public' })}>
+        <button type="button" className={bd.back} aria-label="Back" onClick={back}>
           <Icon name="back" size={20} />
         </button>
         <h2 className={bd.title}>Leaderboards</h2>

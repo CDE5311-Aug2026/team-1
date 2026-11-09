@@ -16,20 +16,9 @@ import { ChapterCardsPage, ChapterLetterPage, ChapterMapPage, placeOf } from './
 import { PrologueBook } from './PrologueBook';
 import { StoryBook } from './StoryBook';
 import { VolumeFolio } from './VolumeChrome';
-import { BOOK_KEY, SHELF_KEY, pageKey, session } from './bookSession';
+import { SHELF_KEY, pageKey, session } from './bookSession';
 import styles from './props.module.css';
 import shelf from './shelf.module.css';
-
-/** Which book is out, kept for the visit (a stop's game sends you back to it). */
-export function useShelfBook() {
-  const [book, setBookState] = useState<BookId | null>(() => bookOf(session.get(BOOK_KEY))?.id ?? null);
-  const setBook = useCallback((id: BookId | null) => {
-    setBookState(id);
-    session.set(BOOK_KEY, id);
-  }, []);
-  return [book, setBook] as const;
-}
-
 
 export function FieldNotebook({
   book,
