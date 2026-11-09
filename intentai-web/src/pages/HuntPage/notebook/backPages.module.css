@@ -258,3 +258,17 @@
   font-size: 0.75rem;
   color: rgba(70, 46, 22, 0.45);
 }
+
+/* phones (user test UT01-3): notes and record rows read at 16 px */
+@media (max-width: 480px) {
+  .note p {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  .stop {
+    font-size: 1rem;
+  }
+  .summary dd {
+    font-size: 1.0625rem;
+  }
+}

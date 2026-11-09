@@ -51,7 +51,7 @@ test('Only One Missing, out on the desk: the chart, the board-10 bar and head, a
   expect(within(reader).getByText('Volume I')).toBeInTheDocument();
   // the shelf's own dark bar steps away while a book is out
   expect(screen.getAllByRole('heading', { level: 1, name: 'Hunt' })).toHaveLength(1);
-  expect(folio()).toHaveTextContent('1 / 6 · Vol. I · The letter');
+  expect(folio()).toHaveTextContent('Step 1 of 6 · The letter');
   expect(folio()).toHaveTextContent('Press the seal to open the letter');
   // said once, in the caption: the page itself no longer repeats it under the envelope
   expect(screen.getAllByText('Press the seal to open the letter')).toHaveLength(1);
@@ -59,11 +59,11 @@ test('Only One Missing, out on the desk: the chart, the board-10 bar and head, a
   expect(within(reader).getByRole('navigation', { name: 'Chapters' })).toBeInTheDocument();
   // a page turned: the folio follows, with that page's own instruction
   await userEvent.click(within(reader).getAllByRole('button', { name: 'Next page' })[0]);
-  expect(folio()).toHaveTextContent('2 / 6 · Vol. I · The map');
+  expect(folio()).toHaveTextContent('Step 2 of 6 · The map');
   expect(folio()).toHaveTextContent('Tap the packet to unfold the map');
   // a page with no instruction of its own gets none
   await userEvent.click(within(within(reader).getByRole('navigation', { name: 'Chapters' })).getByRole('button', { name: 'Notes' }));
-  expect(folio()).toHaveTextContent('4 / 6 · Vol. I · Field notes');
+  expect(folio()).toHaveTextContent('Step 4 of 6 · Field notes');
   expect(folio().querySelectorAll('p')).toHaveLength(1);
   // Shelf puts it back: the field archive again
   await userEvent.click(within(reader).getByRole('button', { name: 'Shelf' }));
@@ -77,7 +77,7 @@ test('The Missing Years, out on the desk: its own volume head and folio', () => 
   const reader = screen.getByRole('dialog', { name: 'The Missing Years' });
   expect(reader.querySelector('[data-chart-paper="reader"]')).not.toBeNull();
   expect(within(reader).getByText('Volume VI')).toBeInTheDocument();
-  expect(folio()).toHaveTextContent('1 / 6 · Vol. VI · The letter');
+  expect(folio()).toHaveTextContent('Step 1 of 6 · The letter');
 });
 
 test('a stop’s page (#story/civic-f1) lies on the same chart, under the same bar, with the Play folio', () => {
@@ -87,7 +87,7 @@ test('a stop’s page (#story/civic-f1) lies on the same chart, under the same b
   expect(screen.getByRole('button', { name: 'Shelf' })).toBeInTheDocument();
   expect(screen.getByRole('heading', { level: 1, name: 'Hunt' })).toBeInTheDocument();
   expect(screen.getByText('Volume VI')).toBeInTheDocument();
-  expect(folio()).toHaveTextContent('6 / 6 · Vol. VI · Play');
+  expect(folio()).toHaveTextContent('Step 6 of 6 · Play');
   // no instruction is made up for the game's own page
   expect(folio().querySelectorAll('p')).toHaveLength(1);
 });

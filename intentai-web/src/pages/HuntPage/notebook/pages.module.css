@@ -626,3 +626,35 @@
     inset 0 0 0 3px #8f2a1a,
     inset 0 0 0 4px rgba(246, 231, 200, 0.45);
 }
+
+/* phones (user test UT01-3: "the book is too small, I can't read the text"): the book now takes the width
+   (notebook.module.css), and its reading text is 16 px or more with room between the lines; titles grow with it */
+@media (max-width: 480px) {
+  .chTitle {
+    font-size: 1.875rem;
+    line-height: 1.1;
+  }
+  .short .chTitle {
+    font-size: 1.875rem;
+  }
+  .chKicker,
+  .leadClue,
+  .pencil,
+  .kraftPacket p,
+  .plateNote {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .leadName {
+    font-size: 1.3125rem;
+  }
+  .running {
+    font-size: 0.75rem;
+  }
+  .unfoldHint,
+  .turnHint,
+  .chartFoot,
+  .letterMore {
+    font-size: 0.875rem;
+  }
+}

@@ -51,13 +51,14 @@ export function VolumeHead({ roman, title, className }: { roman: string; title: 
   );
 }
 
-/** Under the book: "n / N · Vol. I · The letter", then the page's own instruction (left out when it has none). */
-export function VolumeFolio({ n, total, roman, name, hint, className }: { n: number; total: number; roman?: string; name: string; hint?: string; className?: string }) {
-  const named = roman && !/^Vol\. /.test(name) ? `Vol. ${roman} · ${name}` : name;
+/** Under the book: "Step 2 of 6 · The map" (user test UT01-5: say plainly which step you are on; the volume's name is
+ *  already over the book), then the page's own instruction (left out when it has none). */
+export function VolumeFolio({ n, total, name, hint, className }: { n: number; total: number; roman?: string; name: string; hint?: string; className?: string }) {
+  const named = name.replace(/^Vol\. [IVXLC]+ · /, '');
   return (
     <div className={`${styles.folio} ${className ?? ''}`} aria-live="polite" data-testid="volume-folio">
       <p className={styles.folioLine}>
-        {n} / {total} · {named}
+        Step {n} of {total} · {named}
       </p>
       {hint && <p className={styles.hint}>{hint}</p>}
     </div>
