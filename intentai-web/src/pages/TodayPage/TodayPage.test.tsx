@@ -11,6 +11,7 @@ import { placesInArea, placesInRegion, URA_AREAS } from '../../data/ura/ura';
 import { huntModeStore } from '../../data/v2Stores';
 import { curatedPlace, PUBLISHED_PLACES } from '../../features/nearby/catalogue';
 import { pickedForYou } from './picked';
+import { FOOD_PLACES } from './HomeSections';
 import TodayPage from './TodayPage';
 
 function Where() {
@@ -332,7 +333,7 @@ test('the badges carry the full numbers: checked in of all, and each category’
 // ---- Redesign v2 (boards 05/11): category chips on the kept map, together vs solo, Challenges, Picked for you ----
 
 const catOf = (id: string) => tourismOf(curatedPlace(id) ?? {});
-const chip = (name: string) => within(screen.getByRole('group', { name: 'Categories' })).getByRole('button', { name });
+const chip = (name: string) => within(screen.getByRole('group', { name: 'Filter the cards below' })).getByRole('button', { name });
 
 test('the category chips filter the row of places to that category’s (the URL keeps ?cat=); a category with none here says so', async () => {
   const user = userEvent.setup();
@@ -522,6 +523,30 @@ describe('v2 sections', () => {
     await user.click(chip('Cruise'));
     expect(screen.queryAllByRole('article')).toHaveLength(0);
     expect(screen.getByText('No open challenges in this category right now.')).toBeInTheDocument();
+  });
+
+  test('Eat (UT01-1): Places to eat and the Eat chip show only the catalogue’s food places, straight under the chips', async () => {
+    const user = userEvent.setup();
+    renderHome();
+    await user.click(screen.getByRole('button', { name: /Places to eat/ }));
+    expect(screen.getByTestId('where')).toHaveTextContent('cat=eat');
+    expect(chip('Eat')).toHaveAttribute('aria-pressed', 'true');
+    expect(chip('All')).toHaveAttribute('aria-pressed', 'false');
+    // no challenges between the chips and the food cards
+    expect(screen.queryAllByRole('article')).toHaveLength(0);
+    const grid = screen.getByRole('list', { name: 'Places to eat' });
+    const food = new Set(FOOD_PLACES.map((p) => p.name));
+    const names = within(grid).getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+    expect(names).toHaveLength(8);
+    for (const n of names) expect(food.has(n!)).toBe(true);
+    // Eat again goes back to All
+    await user.click(chip('Eat'));
+    expect(screen.getByTestId('where')).not.toHaveTextContent('cat=');
+  });
+
+  test('each challenge card says its level (UT01-2)', () => {
+    renderHome();
+    for (const card of screen.getAllByRole('article')) expect(within(card).getByRole('img', { name: /^Level [123] of 3, / })).toBeInTheDocument();
   });
 
   test('Picked for you: dealt in turns by your order (#1 leads); a chip keeps one category; no distance without a position', async () => {
