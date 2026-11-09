@@ -552,6 +552,14 @@ export default function MySpacePage() {
               </span>
               <Icon name="chevron" size={18} className={book.chevron} />
             </Link>
+            {/* the walks list (team and editor's routes) had no way in once the Nearby explorer was retired */}
+            <Link to={paths.routes} className={book.line}>
+              <Bead icon="flag" />
+              <span className={book.lineText}>
+                <span className={book.lineTitle}>Walks</span>
+              </span>
+              <Icon name="chevron" size={18} className={book.chevron} />
+            </Link>
             {/* the v1 Nearby explorer is retired (8 Nov 2026): every place is on Home's map */}
             <Link to={paths.today} className={book.line}>
               <Bead icon="pin" />

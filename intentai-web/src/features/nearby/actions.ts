@@ -97,11 +97,3 @@ export function markVisited(key: PlaceKey, name: string, visited: boolean, date?
   return { milestones: visited ? milestonesAfter(before, change.data, key) : [] };
 }
 
-export function setSelectedArea(areaId: string | undefined) {
-  explorePersonalStore.set((d) => {
-    const next = { ...d };
-    if (areaId) next.selectedAreaId = areaId;
-    else delete next.selectedAreaId;
-    return next;
-  });
-}

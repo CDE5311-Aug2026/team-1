@@ -26,6 +26,7 @@ import {
   type HomePlace,
 } from "../../data/homePlaces";
 import { usePersistentStore } from "../../data/persistentStore";
+import { settingsStore } from "../../data/stores";
 import { huntModeStore, isTogether } from "../../data/v2Stores";
 import { profileV3Store, tourismOrder } from "../../data/profile/profile";
 import { curatedPlace } from "../../features/nearby/catalogue";
@@ -577,6 +578,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
         const q = toXY(at);
         if (!areaAt(q.x, q.y))
           return fallback("You seem to be outside Singapore.");
+        // a position was found: the location preference turns on, as "Use my location" does (LocationFlow)
+        settingsStore.set((s) => ({ ...s, location: true }));
         showNear(at);
       },
       () => fallback("Location is off."),
