@@ -3,8 +3,10 @@ export const paths = {
   today: '/',
   holiday: '/holidays/deepavali',
   moments: '/moments',
-  /** Hunt: the treasure-hunt game (spec to come; placeholder for now). */
+  /** Hunt: story hunts on real streets. A hunt is played on the same page (#story/<id>). */
   hunt: '/hunt',
+  /** Your medals and stamps from the hunts (batch 3: the bookshelf's display case, as its own page). */
+  huntMedals: '/hunt/medals',
   /** v2 board 07: search places, challenges and volumes, grouped by Tourism 2040 category. */
   search: '/search',
   /** Nearby Explore (map / list). */

@@ -1,0 +1,160 @@
+/* Medals (MedalsPage.tsx): one card a hunt, its medal (gold when won, an outline before) and its stamps. */
+.page {
+  --gutter: 16px;
+  min-height: 100%;
+  /* the app's column (AppShell) sets the sides */
+  padding-bottom: 120px;
+  color: var(--text-primary);
+}
+.bar {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+}
+.back,
+.gap {
+  flex: none;
+  width: 44px;
+  height: 44px;
+}
+.back {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.back:focus-visible,
+.play:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+}
+.title {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+  font: 600 1.25rem/24px var(--font-display);
+  letter-spacing: 0.02em;
+}
+.tally {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: 0 0 12px;
+  font: 400 0.8125rem/18px var(--font-mono);
+  color: var(--v2-muted);
+}
+.tally b {
+  font: 600 1.25rem/1 var(--font-display);
+  color: var(--text-primary);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.card {
+  padding: 12px 12px 12px 14px;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.medal {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px dashed var(--border-strong, rgba(0, 0, 0, 0.25));
+  color: var(--v2-muted);
+  font: 600 1.125rem/1 var(--font-display);
+}
+.won {
+  border: 3px solid var(--tone);
+  background: radial-gradient(circle at 35% 30%, #f6dd8a, var(--medal-gold, #e0b23c) 60%, #b98a1c);
+  color: var(--text-primary);
+}
+.text {
+  flex: 1;
+  min-width: 0;
+}
+.name {
+  margin: 0;
+  font: 600 1.0625rem/22px var(--font-display);
+}
+.meta {
+  margin: 1px 0 0;
+  font: 400 0.75rem/16px var(--font-mono);
+  color: var(--v2-muted);
+}
+.play {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-primary);
+}
+.stops {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stops li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  line-height: 18px;
+  color: var(--v2-muted);
+}
+.stamp {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--v2-surface-sunk);
+  font: 600 0.625rem/1 var(--font-mono);
+}
+.stamped {
+  color: var(--text-primary);
+}
+.stamped .stamp {
+  background: var(--accent);
+  color: var(--text-primary);
+}
+.stopName {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.when {
+  flex: none;
+  font: 400 0.6875rem/14px var(--font-mono);
+}
+.fine {
+  margin: 14px 0 0;
+  font-size: 0.75rem;
+  line-height: 16px;
+  color: var(--v2-muted);
+}

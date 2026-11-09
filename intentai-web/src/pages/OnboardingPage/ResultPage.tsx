@@ -108,7 +108,7 @@ function nextCards(draft: Draft): Next[] {
     { icon: 'cards', tone: styles.toneLei, title: 'Challenges by category', sub: 'Filter them with the category chips' },
     { icon: 'lock', tone: styles.toneCru, title: 'Stays on this phone', sub: 'Your answers and stamps are kept here' },
     { icon: 'pin', tone: styles.tonePaper, title: 'Stamp places you visit', sub: 'Self-reported, with a distance hint' },
-    { icon: 'book', tone: styles.toneAtt, title: 'Story volumes to unlock', sub: 'Field archive, one stop at a time' },
+    { icon: 'book', tone: styles.toneAtt, title: 'Story hunts to play', sub: 'One photo a stop, on real streets' },
   ];
 }
 

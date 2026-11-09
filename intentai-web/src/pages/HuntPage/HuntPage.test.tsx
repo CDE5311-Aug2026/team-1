@@ -1,274 +1,174 @@
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { render, screen, within } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import HuntPage from './HuntPage';
-import { huntPoints } from './HuntHome';
+import MedalsPage from './medals/MedalsPage';
+import { huntPoints } from './landing/volumes';
 import { huntModeStore } from '../../data/v2Stores';
+import { SAVES_CLEARED } from '../../data/deviceKeys';
+import { paths } from '../../routes';
+
+function Where() {
+  const l = useLocation();
+  return <output data-testid="where">{l.pathname + l.search + l.hash}</output>;
+}
 
 const at = (url: string) =>
   render(
     <MemoryRouter initialEntries={[url]}>
       <Routes>
-        <Route path="/hunt" element={<HuntPage />} />
+        <Route path={paths.hunt} element={<HuntPage />} />
+        <Route path={paths.huntMedals} element={<MedalsPage />} />
       </Routes>
+      <Where />
     </MemoryRouter>,
   );
+
+type Host = NonNullable<NonNullable<Window['FindSGHost']>['recognizeObservationPhoto']>;
+const recognise = (impl: Host) => {
+  window.FindSGHost = { recognizeObservationPhoto: vi.fn(impl) };
+  return window.FindSGHost.recognizeObservationPhoto as ReturnType<typeof vi.fn>;
+};
+const photo = () => new File(['x'], 'stop.jpg', { type: 'image/jpeg' });
+const shoot = (f = photo()) => fireEvent.change(screen.getByLabelText('Take a photo of the detail'), { target: { files: [f] } });
 
 beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
+  window.dispatchEvent(new Event(SAVES_CLEARED));
   huntModeStore.set({});
-  window.location.hash = '';
+  URL.createObjectURL = vi.fn(() => 'blob:photo');
+  URL.revokeObjectURL = vi.fn();
+  Element.prototype.scrollIntoView = vi.fn();
+});
+afterEach(() => {
+  delete window.FindSGHost;
 });
 
-const rows = () => within(screen.getByRole('list', { name: 'Volumes' })).getAllByRole('button');
-
-test('Hunt opens on the field archive: the rules card once, the chips, a pick and one row per volume', async () => {
+test('the landing shows the public hunts as a carousel, the tiles and the hunts; no shelf, no book, nothing playing', () => {
   at('/hunt');
   expect(screen.getByRole('heading', { level: 1, name: 'Hunt' })).toBeInTheDocument();
-  // first visit (UT02-3): the "What is Hunt?" card with its muted, looping demo clip; How to play no longer pops up
-  // by itself here, the card's Field rules opens it
-  const intro = screen.getByRole('region', { name: 'Story hunts on real streets' });
-  const clip = intro.querySelector('video')!;
-  expect(clip).toHaveAttribute('src', '/hunt/intro/hunt-demo.mp4');
-  expect(clip.muted).toBe(true);
-  expect(clip.loop).toBe(true);
-  expect(clip).toHaveAttribute('playsinline');
-  expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
-  await userEvent.click(within(intro).getByRole('button', { name: 'Field rules' }));
-  const how = screen.getByRole('dialog', { name: 'How to play' });
-  expect(within(how).getByText(/play remotely from anywhere/)).toBeInTheDocument();
-  expect(within(how).getByText(/characters are fiction/)).toBeInTheDocument();
-  // v2 (owner, 8 Nov 2026): field rules on the chart paper, three moves under a brass rose (decorative, hidden from AT)
-  expect(within(how).getByRole('heading', { name: 'Every stop, three moves.' })).toBeInTheDocument();
-  expect(within(how).getAllByRole('listitem').map((li) => li.querySelector('strong')?.textContent)).toEqual(['Go there', 'Look, then solve', 'Keep the clue']);
-  expect(how.querySelector('svg[aria-hidden="true"] text')).toHaveTextContent('N');
-  // two ways out: the round × up top and "Got it", the card's last control
-  const buttons = within(how).getAllByRole('button');
-  expect(buttons.map((b) => b.getAttribute('aria-label') ?? b.textContent)).toEqual(['Close', 'Got it']);
-  await userEvent.click(within(how).getByRole('button', { name: 'Got it' }));
-  expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
-  // Got it does what × does: the card is seen and does not open by itself again
-  expect(localStorage.getItem('findsg-hunt-how-seen')).toBe('1');
-  // the disclosure stays on the page, and the card can be opened again
-  expect(screen.getByText(/play remotely from anywhere\. Real places and history; the story and its characters are fiction/)).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'How to play' }));
-  expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
-  expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
-
-  // the intro closes and stays closed; the "?" by the boards brings it back
-  await userEvent.click(screen.getByRole('button', { name: 'Close What is Hunt?' }));
-  expect(screen.queryByRole('region', { name: 'Story hunts on real streets' })).toBeNull();
-  expect(JSON.parse(localStorage.getItem('intentai:v1:hunt-intro')!)).toEqual({ dismissed: true });
-  await userEvent.click(screen.getByRole('button', { name: 'What is Hunt?' }));
-  expect(screen.getByRole('region', { name: 'Story hunts on real streets' })).toBeInTheDocument();
-
-  // UT02-4: My rank and the public board, right under it; each opens its board
-  expect(screen.getByRole('button', { name: 'My rank: not ranked yet. Open the Explorers board' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /^Public board: number 1 is Arjun K\., 96 minutes/ })).toBeInTheDocument();
-
-  // UT01-2: every volume says its level, from its stops and walk
-  for (const r of rows()) expect(within(r).getByRole('img', { name: /^Level [123] of 3, / })).toBeInTheDocument();
-
-  // six volumes in shelf order, nothing played yet: 0 of the 38 stops
-  expect(screen.getByText('6 volumes · 0/38 stamps')).toBeInTheDocument();
-  const list = rows();
-  expect(list).toHaveLength(6);
-  expect(list[0]).toHaveTextContent(/Vol\. I · Kampong Gelam.*Only One Missing.*The bottle base.*Not started/);
-  expect(list[5]).toHaveTextContent(/Vol\. VI · Civic District.*The Missing Years/);
-  // nothing in progress: a pick to set out on, from your categories (board 09: "Set out" until it is begun)
-  const pick = screen.getByRole('article', { name: 'Picked for you' });
-  expect(within(pick).getByText(/Picked for you · Attractions/)).toBeInTheDocument();
-  expect(within(pick).getByRole('button', { name: /Set out/ })).toBeInTheDocument();
-  expect(within(pick).queryByRole('button', { name: /Continue|Start/ })).toBeNull();
-  // no location known: no distances
-  expect(screen.queryByText(/\d km|\d m\b/)).toBeNull();
+  const carousel = screen.getByRole('region', { name: 'Public hunts' });
+  expect(carousel).toHaveAttribute('aria-roledescription', 'carousel');
+  expect(within(carousel).getAllByRole('listitem').length).toBeGreaterThan(1);
+  expect(within(carousel).getByRole('group', { name: 'Choose a public hunt' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /^Medals: 0 of 6 won/ })).toHaveAttribute('href', paths.huntMedals);
+  expect(within(screen.getByRole('list', { name: 'Hunts' })).getAllByRole('button')).toHaveLength(6);
+  // nothing from the old desk
+  expect(screen.queryByRole('tab', { name: 'Public' })).toBeNull();
+  expect(screen.queryByText(/shelf|volume/i)).toBeNull();
+  expect(document.querySelector('canvas, iframe')).toBeNull();
 });
 
-test('the chips filter the archive by each volume’s category, from its stops’ places', async () => {
-  localStorage.setItem('findsg-hunt-how-seen', '1');
+test('the carousel moves with its arrows, dots and the arrow keys', async () => {
   at('/hunt');
-  await userEvent.click(screen.getByRole('button', { name: 'Attractions' }));
-  expect(screen.getByRole('button', { name: 'Attractions' })).toHaveAttribute('aria-pressed', 'true');
-  // the two volumes whose stops map to no catalogue place stay under All only
-  const titles = ['Beneath the Golden Dome', 'Letters to the Shore', 'The Last Edition', 'The Missing Years'];
-  expect(rows()).toHaveLength(4);
-  rows().forEach((r, i) => expect(r).toHaveTextContent(new RegExp(`Attractions\\|Vol\\..*${titles[i]}`)));
-  expect(screen.getByText('4 volumes · 0/25 stamps')).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('button', { name: 'Wellness' }));
-  expect(screen.getByText('No volumes in Wellness yet.')).toBeInTheDocument();
-  expect(screen.queryByRole('article')).toBeNull();
+  const carousel = screen.getByRole('region', { name: 'Public hunts' });
+  const row = within(carousel).getByRole('list');
+  const scrollTo = vi.fn();
+  row.scrollTo = scrollTo as unknown as typeof row.scrollTo;
+  await userEvent.click(within(carousel).getByRole('button', { name: 'Next hunt' }));
+  expect(scrollTo).toHaveBeenCalled();
+  const dots = within(within(carousel).getByRole('group')).getAllByRole('button');
+  await userEvent.click(dots[1]);
+  expect(scrollTo).toHaveBeenCalledTimes(2);
+  fireEvent.keyDown(row, { key: 'ArrowRight' });
+  expect(scrollTo.mock.calls.length).toBeGreaterThanOrEqual(3);
 });
 
-test('real progress: a route in progress is the Continue card, and its row counts what was found', async () => {
-  localStorage.setItem('findsg-hunt-how-seen', '1');
-  localStorage.setItem('findsg-onsite-v1:telok-ayer:manual', saved('manual'));
+test('a public hunt opens its step screen; 〈 comes back to the landing', async () => {
   at('/hunt');
-  const card = screen.getByRole('article', { name: 'Continue' });
-  expect(within(card).getByRole('heading', { name: 'Letters to the Shore' })).toBeInTheDocument();
-  expect(within(card).getByText('Stop 2 of 8')).toBeInTheDocument();
-  expect(within(card).getByRole('img', { name: '1 of 8 found' })).toBeInTheDocument();
-  expect(within(card).getByRole('button', { name: /Continue/ })).toBeInTheDocument();
-  expect(within(card).queryByRole('button', { name: /Set out/ })).toBeNull();
-  expect(screen.getByText('6 volumes · 1/38 stamps')).toBeInTheDocument();
-  expect(rows()[2]).toHaveTextContent('1 of 8 found');
+  const carousel = screen.getByRole('region', { name: 'Public hunts' });
+  await userEvent.click(within(carousel).getAllByRole('button', { name: /stops\./ })[0]);
+  expect(screen.getByTestId('where').textContent).toMatch(/^\/hunt#story\//);
+  expect(screen.getByRole('button', { name: 'Start the hunt' })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(screen.getByTestId('where').textContent).toBe('/hunt');
+  expect(screen.getByRole('region', { name: 'Public hunts' })).toBeInTheDocument();
 });
 
-test('a volume opens its own book, with the story, map, clue cards, notes and record tabs; the shelf is kept too', async () => {
-  localStorage.setItem('findsg-hunt-how-seen', '1');
-  at('/hunt');
-  await userEvent.click(rows()[2]);
-  expect(sessionStorage.getItem('hunt-book')).toBe('telok-ayer');
-  const cover = screen.queryByRole('button', { name: 'Open Letters to the Shore' });
-  if (cover) await userEvent.click(cover);
-  expect(
-    within(await screen.findByRole('navigation', { name: 'Chapters' }))
-      .getAllByRole('button')
-      .map((b) => b.textContent),
-  ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record', 'Play']);
-  sessionStorage.clear();
+test('a hunt plays flat: start, one photo a stop, recognised photos pass and the next stop opens by itself', async () => {
+  const check = recognise(async () => ({ decision: 'match', confidence: 0.93 }));
+  at('/hunt#story/short');
+  expect(screen.getByRole('heading', { level: 1, name: 'Beneath the Golden Dome' })).toBeInTheDocument();
+  expect(screen.getByText('Opening')).toBeInTheDocument();
+  // no remote play, no "I'm here" button, nothing that skips the photo
+  expect(screen.queryByText(/remote|I am here|I'm here|check in yourself/i)).toBeNull();
+  await userEvent.click(screen.getByRole('button', { name: 'Start the hunt' }));
+  expect(screen.getByText('Stop 1 of 2')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 2, name: 'The old press' })).toBeInTheDocument();
+  const input = screen.getByLabelText('Take a photo of the detail');
+  expect(input).toHaveAttribute('capture', 'environment');
+  expect(input).toHaveAttribute('accept', 'image/*');
+  expect(screen.getAllByRole('button', { name: /Take photo/ })).toHaveLength(1);
+
+  shoot();
+  await screen.findByText('Stop 2 of 2');
+  expect(check).toHaveBeenCalledWith(expect.objectContaining({ routeId: 'short', stopId: 'short-press' }));
+  expect(screen.getByRole('region', { name: 'The hidden line' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 2, name: 'Sultan Mosque' })).toBeInTheDocument();
+
+  shoot();
+  await screen.findByText('Finished');
+  expect(screen.getByRole('link', { name: /See your medals/ })).toHaveAttribute('href', paths.huntMedals);
+  expect(JSON.parse(localStorage.getItem('findsg-short-v2:gold-under-glass:manual')!)).toMatchObject({ deduce: true, bottle: true });
 });
 
-test('the story shelf is one tap from the archive', async () => {
-  localStorage.setItem('findsg-hunt-how-seen', '1');
-  at('/hunt');
-  await userEvent.click(screen.getByRole('button', { name: 'The story shelf' }));
-  expect(screen.getByRole('tab', { name: 'Stories' })).toHaveAttribute('aria-selected', 'true');
-  // the story shelf: six books, the demo story first; pick the third, take it down, open it, and its tabs are the story, the map, the clue cards, notes and the record
-  const books = within(screen.getByRole('listbox', { name: 'Story books' })).getAllByRole('option');
-  expect(books).toHaveLength(6);
-  expect(books[0]).toHaveAccessibleName(/^I\. Only One Missing/);
-  expect(books[0]).toHaveAttribute('aria-selected', 'true');
-  expect(books[1]).toHaveAccessibleName(/^II\. Beneath the Golden Dome/);
-  await userEvent.click(books[2]);
-  expect(books[2]).toHaveAttribute('aria-selected', 'true');
-  await userEvent.click(books[2]);
-  const cover = await screen.findByRole('button', { name: 'Open Letters to the Shore' }, { timeout: 3000 });
-  await userEvent.click(cover);
-  const tabs = screen.getByRole('navigation', { name: 'Chapters' });
-  expect(
-    within(tabs)
-      .getAllByRole('button')
-      .map((b) => b.textContent),
-  ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record', 'Play']);
-  await userEvent.click(screen.getByRole('button', { name: /Shelf$/ }));
-  // every story's book has the same tabs: the prologue's too
-  const shelf = await screen.findByRole('listbox', { name: 'Story books' }, { timeout: 3000 });
-  const first = within(shelf).getAllByRole('option')[1];
-  await userEvent.click(first);
-  await userEvent.click(first);
-  await userEvent.click(await screen.findByRole('button', { name: 'Open Beneath the Golden Dome' }, { timeout: 3000 }));
-  expect(
-    within(screen.getByRole('navigation', { name: 'Chapters' }))
-      .getAllByRole('button')
-      .map((b) => b.textContent),
-  ).toEqual(['Story', 'Map', 'Clues', 'Notes', 'Record']);
-}, 20_000); // a long walk through the shelf, with two book animations to wait out
-
-test('Public shows this weekend’s challenge on the Civic District route, the boards and what is coming', async () => {
-  localStorage.setItem('findsg-hunt-how-seen', '1');
-  // the archive links to the challenges and boards only for those hunting together (owner, 9 Nov 2026)
-  huntModeStore.set({ mode: 'together' });
-  at('/hunt');
-  await userEvent.click(screen.getByRole('button', { name: /Weekend challenges/ }));
-  expect(screen.getByRole('tab', { name: 'Public' })).toHaveAttribute('aria-selected', 'true');
-  expect(screen.getByRole('button', { name: /Weekend challenge · Civic District/ })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'Fastest' })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'Explorers' })).toBeInTheDocument();
-  expect(screen.getByText('Kampong Gelam')).toBeInTheDocument();
-  // writing your own story is not built yet: a notice, not a dead form
-  expect(screen.getByRole('heading', { name: 'A story from your streets' })).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'Coming soon' })).not.toBeInTheDocument();
-  // v2: a clean list on the app's paper, the sample players labelled; the 3D hall is one switch away
-  // no "Example players" pill top right (owner, 9 Nov 2026): a note under the boards says the players are samples
-  expect(screen.queryByText('Example players')).toBeNull();
-  expect(screen.getByText('Other players are samples until the live boards open.')).toBeInTheDocument();
-  // no sample "joined" counts or Example tags on the challenge cards (9 Nov 2026)
-  expect(screen.queryByText('Example')).toBeNull();
-  expect(screen.queryByText(/joined/)).toBeNull();
-  // the fastest board says its players are samples under them, not as a pill in its head (owner, 9 Nov 2026)
-  expect(screen.getAllByText('Sample players until real times come in').length).toBeGreaterThanOrEqual(1);
-  const hall = screen.getByRole('button', { name: '3D hall' });
-  expect(hall).toHaveAttribute('aria-pressed', 'false');
-  // the page draws no paper of its own: AppShell's one layer under <body> is the ground
-  expect(screen.getByRole('main').querySelector('[data-chart-paper]')).toBeNull();
-  expect(document.querySelector('[data-app-paper] [data-chart-paper="archive"]')).not.toBeNull();
+test('a photo that is not recognised does not pass: the stop stays and asks for another photo', async () => {
+  recognise(async () => ({ decision: 'no-match', confidence: 0.9, reason: 'Frame the arch above the window.' }));
+  at('/hunt#story/telok-ayer');
+  await userEvent.click(screen.getByRole('button', { name: 'Start the hunt' }));
+  shoot();
+  expect(await screen.findByText('Not recognised yet.')).toBeInTheDocument();
+  expect(screen.getByText('Frame the arch above the window.')).toBeInTheDocument();
+  expect(screen.getByText('Stop 1 of 8')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Take another photo/ })).toBeInTheDocument();
+  // an unsure "match" below the bar does not pass either
+  recognise(async () => ({ decision: 'match', confidence: 0.5 }));
+  shoot();
+  await screen.findByText('Not recognised yet.');
+  expect(screen.getByText('Stop 1 of 8')).toBeInTheDocument();
 });
 
-test('hunting together: the archive also links straight to the leaderboards; solo does not', async () => {
-  localStorage.setItem('findsg-hunt-how-seen', '1');
-  huntModeStore.set({ mode: 'solo' });
-  const solo = at('/hunt');
-  expect(screen.queryByRole('button', { name: /Leaderboards/ })).toBeNull();
-  // solo: no challenges row either; the shelf and How to play stay
-  expect(screen.queryByRole('button', { name: /Weekend challenges/ })).toBeNull();
-  expect(screen.getByRole('button', { name: 'The story shelf' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'How to play' })).toBeInTheDocument();
-  solo.unmount();
-  huntModeStore.set({ mode: 'together' });
-  at('/hunt');
-  const link = screen.getByRole('button', { name: /^Leaderboards/ });
-  expect(link).not.toHaveTextContent('Example players');
-  await userEvent.click(link);
-  expect(screen.getByRole('heading', { name: 'Leaderboards' })).toBeInTheDocument();
-  huntModeStore.set({});
+test('when recognition is unavailable, Try again sends the same photo again (no way round it)', async () => {
+  const fetchMock = vi.fn(async () => new Response('{"error":"not_configured"}', { status: 503 }));
+  vi.stubGlobal('fetch', fetchMock);
+  vi.stubGlobal('createImageBitmap', undefined);
+  at('/hunt#story/telok-ayer');
+  await userEvent.click(screen.getByRole('button', { name: 'Start the hunt' }));
+  shoot();
+  expect(await screen.findByText('The photo could not be checked.')).toBeInTheDocument();
+  expect(fetchMock).toHaveBeenCalledWith('/api/recognize', expect.objectContaining({ method: 'POST' }));
+  fetchMock.mockImplementation(async () => new Response(JSON.stringify({ decision: 'match', confidence: 0.95, reason: '' }), { status: 200 }));
+  await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+  await screen.findByText('Stop 2 of 8');
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  vi.unstubAllGlobals();
 });
 
-test('the boards: explorers by region, and fastest this weekend with a way to join', async () => {
-  at('/hunt?board=explore');
-  expect(screen.getByRole('heading', { name: 'Leaderboards' })).toBeInTheDocument();
-  await userEvent.click(screen.getByRole('radio', { name: 'Central' }));
-  expect(screen.getByRole('radio', { name: 'Central' })).toHaveAttribute('aria-checked', 'true');
-  await userEvent.click(screen.getByRole('tab', { name: 'Fastest' }));
-  expect(screen.queryByText(/joined/)).toBeNull();
-  expect(screen.getByRole('button', { name: 'Join' })).toBeInTheDocument();
-  // v2: the challenge carries its category (glyph + label), and the players are labelled as examples
-  expect(screen.getByRole('heading', { name: 'Civic District' })).toBeInTheDocument();
-  expect(screen.getByText('Attractions')).toBeInTheDocument();
-  expect(screen.queryByText('Example players')).toBeNull();
-  expect(screen.getByText('Other players are samples until the live boards open.')).toBeInTheDocument();
-  // UT02-5: one ranked list, not a podium of cards: the six players numbered 1–6, then your row (no time yet, pinned)
-  const list = screen.getByRole('list', { name: 'Leaderboard, example players and you' });
-  const items = within(list).getAllByRole('listitem');
-  expect(items).toHaveLength(7);
-  expect(items.slice(0, 3).map((li) => li.querySelector('[data-n]')?.getAttribute('data-n'))).toEqual(['1', '2', '3']);
-  expect(items[6]).toHaveAttribute('aria-current', 'true');
-  expect(items[6]).toHaveTextContent(/You/);
-  // Explorers: you go in at your place (no places yet: last), highlighted
-  await userEvent.click(screen.getByRole('tab', { name: 'Explorers' }));
-  const ex = within(screen.getByRole('list', { name: 'Leaderboard, example players and you' })).getAllByRole('listitem');
-  expect(ex[ex.length - 1]).toHaveAttribute('aria-current', 'true');
-  expect(ex[ex.length - 1]).toHaveTextContent(String(ex.length));
+test('an old #short link opens the Golden Dome hunt; the retired Public tab lands on the landing', async () => {
+  at('/hunt#short/press');
+  await waitFor(() => expect(screen.getByTestId('where').textContent).toBe('/hunt#story/short'));
+  expect(screen.getByRole('heading', { level: 1, name: 'Beneath the Golden Dome' })).toBeInTheDocument();
 });
 
-// a stop as FindSG saves it after a tap check-in, the observation and the 3D puzzle (taken from a real play-through)
-const solvedStop = {
-  checkin: { mode: 'manual', method: 'manual-self-report', confirmedAt: '2026-11-01T07:54:10.097Z', countsAsVisit: true },
-  observation: { confirmed: true, method: 'manual-self-report', confirmedAt: '2026-11-01T07:54:16.631Z', photos: [] },
-  puzzle: { schema: 1, type: 'rotate-find', found: ['address-letter'], sequence: [], placed: [], selected: null, value: 0, opened: false, attempts: 1 },
-  // layer I, the envelope; layer II, the strongbox set to the year on the History sheet (1824)
-  actions: [{ type: 'find', id: 'address-letter', yaw: -2.1 }, ...[1, 8, 2, 4].map((value, wheel) => ({ type: 'spin', wheel, value }))],
-};
-const saved = (mode: 'manual' | 'preview') =>
-  JSON.stringify({
-    version: 1,
-    routeId: 'telok-ayer',
-    mode,
-    started: true,
-    stopIndex: 1,
-    stops: { 'telok-ayer-01': solvedStop },
-    completed: ['telok-ayer-01'],
-    inventory: [],
-    endingSeen: false,
-    feedback: '',
-  });
+test('medals: earned and not yet, from real progress only', async () => {
+  recognise(async () => ({ decision: 'match', confidence: 0.99 }));
+  at('/hunt#story/short');
+  await userEvent.click(screen.getByRole('button', { name: 'Start the hunt' }));
+  shoot();
+  await screen.findByText('Stop 2 of 2');
+  shoot();
+  await screen.findByText('Finished');
+  await userEvent.click(screen.getByRole('link', { name: /See your medals/ }));
+  expect(screen.getByRole('heading', { level: 1, name: 'Medals' })).toBeInTheDocument();
+  expect(screen.getAllByRole('img', { name: 'Medal won' })).toHaveLength(1);
+  expect(screen.getAllByRole('img', { name: 'Medal not won yet' })).toHaveLength(5);
+  expect(screen.getByText(/ stamps$/).parentElement?.textContent).toMatch(/2 \/ \d+ stamps$/);
+});
 
-test('points: 100 for each stop solved on site; remote play does not count', () => {
+test('points: 100 for each stop passed', () => {
   expect(huntPoints()).toBe(0);
-  localStorage.setItem('findsg-onsite-v1:telok-ayer:preview', saved('preview'));
-  expect(huntPoints()).toBe(0);
-  localStorage.setItem('findsg-onsite-v1:telok-ayer:manual', saved('manual'));
+  localStorage.setItem('findsg-short-v2:gold-under-glass:manual', JSON.stringify({ version: 2, episodeId: 'gold-under-glass', mode: 'manual', ticket: true, letter: true, arrival1: true, photo1: true, shutter: true, parcel: true, mirror: true, deduce: true }));
   expect(huntPoints()).toBe(100);
 });

@@ -1,7 +1,7 @@
 // Hunt's challenges and story volumes as Search and the place page see them (v2 boards 07, 08). Kept light on
 // purpose: no game code and none of the large story files, so Search and a place page load without the Hunt game.
-// The volume list is the Hunt archive's shelf (pages/HuntPage/notebook/Bookshelf.tsx BOOKS, which loads 3D code);
-// hunt.test.ts checks that both stay the same.
+// The volume list is Hunt's own list (pages/HuntPage/hunts.ts HUNTS, which loads the story data);
+// search/index.test.ts checks that both stay the same.
 import pinsJson from '../hunt/stopPins.json';
 import { HUNT_CHALLENGES, type HuntChallenge } from '../hunt/stories';
 import { distanceM } from '../../features/nearby/geo';
@@ -9,7 +9,7 @@ import type { CuratedPlace } from '../../features/nearby/domain';
 import type { TourismCategory } from '../tourism';
 
 export interface HuntVolume {
-  /** The story's route id ('short' is the Golden Dome book, which has no route). */
+  /** The story's route id ('short' is the Golden Dome, which has no FindSG route). */
   id: string;
   roman: string;
   title: string;
@@ -17,7 +17,7 @@ export interface HuntVolume {
   place: string;
 }
 
-/** The shelf, in order (Volume I first). */
+/** Every hunt, in Hunt's order. */
 export const HUNT_VOLUMES: readonly HuntVolume[] = [
   { id: 'only-one-missing', roman: 'I', title: 'Only One Missing', place: 'Kampong Gelam' },
   { id: 'short', roman: 'II', title: 'Beneath the Golden Dome', place: 'Kampong Gelam' },
@@ -35,8 +35,8 @@ export const HUNT_CATEGORY: TourismCategory = 'att';
 
 export const volumeOf = (id: string) => HUNT_VOLUMES.find((v) => v.id === id);
 
-/** Where a volume opens in the Hunt archive (the Golden Dome book uses its old #short link, which opens the book). */
-export const volumeHref = (id: string) => (id === 'short' ? '/hunt#short' : `/hunt#story/${id}`);
+/** Where a hunt opens: its step screen on Hunt's page (the Golden Dome too). */
+export const volumeHref = (id: string) => `/hunt#story/${id}`;
 
 interface Pin {
   lat: number;

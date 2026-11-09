@@ -20,8 +20,8 @@ import {
   collectionProgress,
 } from "../../features/nearby/catalogue";
 import { localToday } from "../../features/nearby/personal";
-import { CHART_BACKDROP } from "../HuntPage/notebook/chartBackdrop";
-import { MATERIALS } from "../HuntPage/notebook/Notebook";
+import { CHART_BACKDROP } from "../../components/Paper/chartBackdrop";
+import { MATERIALS } from "../../components/Paper/materials";
 import Journal from "./Journal/Journal";
 import Passport from "./Passport/Passport";
 import PlaceSheet from "./PlaceSheet/PlaceSheet";

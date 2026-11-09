@@ -1,23 +1,24 @@
-// The top of Hunt's first screen (user test, 10 Nov 2026):
-// - UT02-3 "tell me what this is, with a video demo": a short "What is Hunt?" card with a muted, looping clip of the
-//   field archive (docs/media/hunt.gif as an mp4). It closes with ×, and stays closed (huntIntroStore); the "?" tile next to the
-//   boards brings it back. "Field rules" opens How to play (which no longer pops up by itself here: this card is the
-//   first-visit explanation now). With motion reduced the clip waits on its first frame until you press play.
+// The top of Hunt's first screen (user tests, 10 Nov 2026):
+// - UT02-3 "tell me what this is, with a video demo": a short "What is Hunt?" card with a muted, looping clip. It closes
+//   with ×, and stays closed (huntIntroStore); the "?" tile after the boards brings it back. With motion reduced the clip
+//   waits on its first frame until you press play.
 // - UT02-4 "public and personal leaderboards should be more directly visible": two tiles, My rank (your real places on the
 //   Explorers board) and Public board (its leader on this weekend's Fastest board); each opens its board. The other
-//   players are Hunt's SAMPLE players (stories.ts), said so under the tiles.
+//   players are Hunt's SAMPLE players (stories.ts), said so under the tiles. A third tile opens your medals.
 import { useReducedMotionConfig } from 'motion/react';
+import { Link } from 'react-router-dom';
 import Avatar from '../../components/Avatar/Avatar';
 import { rankAmong, SAMPLE_EXPLORERS, SAMPLE_SPEED } from '../../data/hunt/stories';
 import { usePersistentStore } from '../../data/persistentStore';
 import { huntIntroStore } from '../../data/v2Stores';
+import { paths } from '../../routes';
 import Icon from '../OnboardingPage/v3/icons';
 import type { HuntGo } from './HuntPage';
 import styles from './HuntIntro.module.css';
 
 export const HUNT_DEMO = { src: '/hunt/intro/hunt-demo.mp4', poster: '/hunt/intro/hunt-demo-poster.jpg' };
 
-export function HuntIntro({ onRules }: { onRules(): void }) {
+export function HuntIntro() {
   const [intro, setIntro] = usePersistentStore(huntIntroStore);
   const reduce = useReducedMotionConfig();
   if (intro.dismissed) return null;
@@ -33,17 +34,14 @@ export function HuntIntro({ onRules }: { onRules(): void }) {
         autoPlay={!reduce}
         controls={!!reduce}
         preload="metadata"
-        aria-label="Demo: the field archive of story volumes"
+        aria-label="Demo: Hunt's story hunts"
       />
       <div className={styles.body}>
         <p className={styles.kicker}>What is Hunt?</p>
         <h2 id="hunt-intro-h" className={styles.title}>
           Story hunts on real streets
         </h2>
-        <p className={styles.text}>Walk a story's real places (or play from anywhere), solve what you see, collect the stamps.</p>
-        <button type="button" className={styles.rules} onClick={onRules}>
-          Field rules
-        </button>
+        <p className={styles.text}>Walk to each stop and photograph the detail it asks for. AI checks the photo, and the story moves on.</p>
       </div>
       <button type="button" className={styles.close} aria-label="Close What is Hunt?" onClick={() => setIntro({ dismissed: true })}>
         <Icon name="close" size={16} />
@@ -52,8 +50,8 @@ export function HuntIntro({ onRules }: { onRules(): void }) {
   );
 }
 
-/** My rank and the public board, side by side; with the intro closed, a "?" square after them brings it back. */
-export function BoardTiles({ go, explored }: { go: HuntGo; explored: number }) {
+/** My rank, the public board and your medals, side by side; with the intro closed, a "?" square after them brings it back. */
+export function BoardTiles({ go, explored, medals }: { go: HuntGo; explored: number; medals: { won: number; total: number } }) {
   const [intro, setIntro] = usePersistentStore(huntIntroStore);
   const rank = rankAmong(SAMPLE_EXPLORERS, explored);
   const top = SAMPLE_SPEED[0];
@@ -91,6 +89,16 @@ export function BoardTiles({ go, explored }: { go: HuntGo; explored: number }) {
           </span>
           <span className={styles.tileSub}>{top.value} min · Fastest</span>
         </button>
+        <Link className={styles.tile} to={paths.huntMedals} aria-label={`Medals: ${medals.won} of ${medals.total} won. Open your medals`}>
+          <span className={styles.tileKicker}>Medals</span>
+          <span className={styles.tileMain}>
+            <span className={styles.medalFace} aria-hidden="true">
+              <Icon name="trophy" size={16} />
+            </span>
+            <b className={styles.tileValue}>{medals.won}</b>
+          </span>
+          <span className={styles.tileSub}>of {medals.total} won</span>
+        </Link>
         {intro.dismissed && (
           <button type="button" className={styles.help} aria-label="What is Hunt?" title="What is Hunt?" onClick={() => setIntro({ dismissed: false })}>
             <Icon name="help" size={20} />

@@ -1,4 +1,4 @@
-/* v2 (owner, 8 Nov 2026): Hunt's boards (?board=explore|speed) and its Public tab (?tab=public) in the field archive's
+/* v2 (owner, 8 Nov 2026): Hunt's boards (?board=explore|speed) in the Hunt landing's
    language: on the app's chart paper (AppShell), under the light PageBar, with cards like the archive's rows. */
 .page {
   --gutter: 16px;

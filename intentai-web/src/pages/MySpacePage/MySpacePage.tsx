@@ -55,7 +55,10 @@ import { paths } from "../../routes";
 import { openChallenges } from "../../data/hunt/challenges";
 import { localToday } from "../../features/nearby/personal";
 import { RegionLeaderboard } from "../TodayPage/HomeSections";
-import { storyRecords } from "../HuntPage/notebook/record";
+import { storyRecords } from "../HuntPage/story/record";
+import { HUNTS } from "../HuntPage/hunts";
+
+const HUNT_TOTAL = HUNTS.length;
 import { dayAnchor, useJournalDays } from "../MomentsPage/Journal/useJournalDays";
 import Icon, { type IconName } from "../OnboardingPage/v3/icons";
 import { EyeButton } from "../OnboardingPage/v3/Passport";
@@ -561,6 +564,15 @@ export default function MySpacePage() {
 
         <section className={styles.section} aria-label="More">
           <div className={book.ledger}>
+            {/* the medals and stamps from Hunt (batch 3: their own page, once the shelf's display case) */}
+            <Link to={paths.huntMedals} className={book.line}>
+              <Bead icon="trophy" />
+              <span className={book.lineText}>
+                <span className={book.lineTitle}>Hunt medals</span>
+                <span className={book.lineSub}>{`${volumes} of ${HUNT_TOTAL} won`}</span>
+              </span>
+              <Icon name="chevron" size={18} className={book.chevron} />
+            </Link>
             <Link to={paths.saved} className={book.line}>
               <Bead icon="star" />
               <span className={book.lineText}>

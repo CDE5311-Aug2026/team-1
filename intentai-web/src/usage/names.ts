@@ -8,6 +8,7 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.holiday, 'Holiday'],
   [paths.moments, 'Moments'],
   [paths.hunt, 'Hunt'],
+  [paths.huntMedals, 'Hunt medals'],
   [paths.search, 'Search'],
   // Nearby pages: names only, never the place or collection id in the path
   [patterns.nearbyPlace, 'Nearby place'],

@@ -11,8 +11,8 @@ import { storyPlace } from "../../../data/stories/places";
 import { useExplorePersonal } from "../../../features/nearby/actions";
 import { curatedPlace } from "../../../features/nearby/catalogue";
 import type { CuratedPlace } from "../../../features/nearby/domain";
-import { chapters, shortChapter, type Chapter } from "../../HuntPage/notebook/chapters";
-import { storyRecords, took } from "../../HuntPage/notebook/record";
+import { chapters, shortChapter, type Chapter } from "../../HuntPage/story/chapters";
+import { storyRecords, took } from "../../HuntPage/story/record";
 
 export type Shot = JournalPhoto & { url: string };
 
