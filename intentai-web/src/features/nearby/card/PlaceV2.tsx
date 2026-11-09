@@ -24,6 +24,7 @@ import { useLocationState } from '../location';
 import { localToday, shortDate, stateOf } from '../personal';
 import { byDistance, toItem } from '../ranking';
 import { placeShare } from '../share';
+import { BERLIN_PLACE_ID, BERLIN_TILES, BerlinStory } from './BerlinStory';
 import { distanceLabel, hintText, stampHint } from './PlaceV2Proximity';
 import styles from './PlaceV2.module.css';
 
@@ -247,7 +248,10 @@ export default function PlaceV2({ place, children }: { place: CuratedPlace; chil
   const distance = distanceLabel(place, location, fixInSingapore(location));
   const where = [areaById(place.areaId)?.name, regionName(place.regionId), distance && `${distance} away`].filter(Boolean).join(' · ');
   const hours = place.details?.hours;
+  // Berlin Wall Fragments has no dataset quick facts: its tiles and its full story come from BerlinStory
+  const long = place.id === BERLIN_PLACE_ID;
   const tiles = factTiles(place);
+  const shownTiles = tiles.length > 0 ? tiles : long ? BERLIN_TILES : [];
   const tip = tipFact(place);
   const challenges = useMemo(() => challengesAt(place, PUBLISHED_PLACES), [place]);
   const nearby = useMemo(() => nearbyPlaces(place), [place]);
@@ -295,17 +299,17 @@ export default function PlaceV2({ place, children }: { place: CuratedPlace; chil
         {state?.visited && <StampRecord place={place} visitedOn={state.visitedOn} onMilestones={setMilestones} />}
       </div>
 
-      {tiles.length > 0 && (
+      {shownTiles.length > 0 && (
         <section className={styles.tilesWrap} aria-label="Key facts">
           <div className={styles.tiles}>
-            {tiles.map((t) => (
+            {shownTiles.map((t) => (
               <div key={t.label} className={styles.tile}>
                 <span className={styles.tileValue}>{t.value}</span>
                 <span className={styles.tileLabel}>{t.label}</span>
               </div>
             ))}
           </div>
-          <p className={styles.fine}>From the EARTH ONLINE Singapore dataset card; not yet linked to individual sources.</p>
+          {tiles.length > 0 && <p className={styles.fine}>From the EARTH ONLINE Singapore dataset card; not yet linked to individual sources.</p>}
         </section>
       )}
 
@@ -331,6 +335,8 @@ export default function PlaceV2({ place, children }: { place: CuratedPlace; chil
           </div>
         </section>
       )}
+
+      {long && <BerlinStory />}
 
       {place.description && (
         <article className={styles.story} aria-labelledby="place-story-title">

@@ -11,6 +11,8 @@
 import { STORY_IMAGES } from '../../assets/stories';
 import type { SourceReference } from '../../features/nearby/domain';
 import type { OrderKind } from './orders';
+import { WALL_PANELS } from '../stories/berlin';
+import { BERLIN_SOURCES } from '../stories/berlinGuide';
 import { THIAN_HOCK_KENG } from '../stories/chinatown';
 import researched from './placeCards.sg.json';
 
@@ -307,7 +309,15 @@ const HAND_CARDS: Record<string, PlaceCard> = {
   },
   'curated:sg-berlin-wall-fragments-utown': {
     sources: [],
-    story: { path: '/place/berlin-wall-fragments/monument', label: 'Berlin Wall story card' },
+    // the notebook's field note numbers and story page (Monument card); the full story is on the place page (BerlinStory)
+    tiles: [
+      { value: 1961, label: 'the Wall went up', source: BERLIN_SOURCES.stiftung },
+      { value: 4, suffix: ' t', label: 'each panel (approx.)', source: BERLIN_SOURCES.tembusu },
+      { value: 2016, label: 'unveiled at NUS', source: BERLIN_SOURCES.tembusu },
+    ],
+    lead: WALL_PANELS.lead,
+    more: [...WALL_PANELS.more],
+    story: { path: '/nearby/place/curated%3Asg-berlin-wall-fragments-utown#berlin-panels', label: 'The full story: videos, history, 9 November and lunch nearby' },
     reviewedAt: checked,
   },
 };
