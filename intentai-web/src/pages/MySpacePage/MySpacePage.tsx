@@ -3,7 +3,7 @@
 // mode the region's weekend leaderboard (Home's own card, example players; before the journal, owner 8 Nov 2026), the
 // journal's recent days and the collection by Tourism 2040 category.
 // What the app keeps on file, and the older Passport links, follow below.
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import groundUrl from "../../assets/nearby/sg-ground.webp";
 import logo from "../../assets/brand/findsg-logo.png";
@@ -356,10 +356,13 @@ function Collection({
   profile,
   personal,
   cat,
+  chips,
 }: {
   profile: ProfileV3;
   personal: ExplorePersonalData;
   cat: TourismFilter;
+  /** The category chips, between the heading and the rows they filter. */
+  chips?: ReactNode;
 }) {
   const stamped = useMemo(() => stampedDays(personal), [personal]);
   const shown = tourismOrder(profile).filter((c) => cat === "all" || c === cat);
@@ -367,10 +370,16 @@ function Collection({
   const done = shown.reduce((n, c) => n + PLACES_BY_CATEGORY[c].filter((p) => stamped.has(p.id)).length, 0);
   return (
     <section className={styles.section} aria-labelledby="passport-collection">
-      <div className={styles.sectionHead}>
-        <h2 id="passport-collection">My collection</h2>
+      <div className={`${styles.sectionHead} ${styles.collectionHead}`}>
+        <h2 id="passport-collection">
+          My collection{" "}
+          <span className={styles.count} aria-hidden="true">
+            {total}
+          </span>
+        </h2>
         <span className={styles.meta}>{`${done} of ${total} stamped`}</span>
       </div>
+      {chips}
       {shown.map((c) => (
         <CategoryRow key={c} category={c} stamped={stamped} />
       ))}
@@ -510,7 +519,9 @@ export default function MySpacePage() {
     <AppShell>
       <div className={styles.screen}>
         <PageBar title="Passport" tone="light" />
-        <CategoryChips value={cat} onChange={setCat} label="Filter your collection" className={styles.chips} />
+        {/* user test UT02-2 ("needs change"): fewer things compete over the fold. The chips moved into My collection (the
+            only thing they filter), the collection comes straight after the card, and the leaderboard (on Home and Hunt
+            too) moved below the journal */}
         <PassportCard
           holder={holder}
           profile={profile}
@@ -521,12 +532,17 @@ export default function MySpacePage() {
           together={together}
           regionName={regionName}
         />
+        <Collection
+          profile={profile}
+          personal={personal}
+          cat={cat}
+          chips={<CategoryChips value={cat} onChange={setCat} label="Filter your collection" className={styles.chips} />}
+        />
+        <JournalStrip />
         {/* "chose to hunt" is Home's rule (huntModeStore mode "together"), with Home's region and card */}
         {together && (
           <RegionLeaderboard region={hunt.region ?? "central"} challenges={challenges} titleId="passport-board-title" />
         )}
-        <JournalStrip />
-        <Collection profile={profile} personal={personal} cat={cat} />
 
         <section className={styles.section} aria-labelledby="passport-file">
           <div className={styles.sectionHead}>

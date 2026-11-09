@@ -3,13 +3,39 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding-bottom: 24px;
+  /* the floating tab bar (and the phone's home indicator) never sits over the last rows when scrolled to the end */
+  padding-bottom: calc(var(--tabbar-h, 4rem) + env(safe-area-inset-bottom, 0px) + 16px);
   color: var(--text-primary);
 }
 
+/* in My collection, between its heading and its rows */
 .chips {
   margin-top: -6px;
-  margin-bottom: -6px;
+  margin-bottom: -2px;
+}
+
+/* My collection: a clear title with its count (UT02-2) */
+.sectionHead.collectionHead h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  letter-spacing: -0.2px;
+}
+
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 7px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--text-primary);
+  color: var(--v2-surface);
+  font: 500 0.6875rem/1 var(--font-mono);
+  letter-spacing: 0.2px;
 }
 
 /* ---- the passport card ---- */

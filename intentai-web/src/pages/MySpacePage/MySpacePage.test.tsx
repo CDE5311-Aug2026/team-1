@@ -78,14 +78,19 @@ test('together mode: "Hunting together · Central" chip and the example leaderbo
   expect(within(board).getByRole('link', { name: 'Leaderboards' })).toHaveAttribute('href', '/hunt?board=speed');
 });
 
-test('together mode: the leaderboard comes before the Journal', () => {
+test('together mode (UT02-2): the card, then My collection with its chips, then the Journal, then the leaderboard', () => {
   huntModeStore.set({ mode: 'together', region: 'east' });
   renderAt(paths.mySpace);
-  const board = screen.getByRole('region', { name: /^Leaderboard · East · this weekend$/ });
-  const journal = screen.getByRole('region', { name: 'Journal' });
-  expect(board.compareDocumentPosition(journal) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  const after = (a: Element, b: Element) => expect(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   const holder = screen.getByRole('region', { name: 'Passport holder' });
-  expect(holder.compareDocumentPosition(board) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  const collection = screen.getByRole('region', { name: 'My collection' });
+  const journal = screen.getByRole('region', { name: 'Journal' });
+  const board = screen.getByRole('region', { name: /^Leaderboard · East · this weekend$/ });
+  after(holder, collection);
+  after(collection, journal);
+  after(journal, board);
+  // the chips sit inside My collection, the one thing they filter
+  expect(within(collection).getByRole('group', { name: 'Filter your collection' })).toBeInTheDocument();
 });
 
 test('solo mode (and unset): no leaderboard and no together chip; the Journal follows the card', () => {
