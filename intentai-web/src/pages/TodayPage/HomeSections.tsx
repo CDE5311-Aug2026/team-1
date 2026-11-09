@@ -33,10 +33,6 @@ import cb from './ChallengeBook.module.css';
 
 const MEDAL = ['var(--medal-gold, #e0b23c)', 'var(--medal-silver, #c3c6cc)', 'var(--medal-bronze, #c98a5a)'];
 
-function Example({ className }: { className?: string }) {
-  return <span className={`${styles.example} ${className ?? ''}`}>Example</span>;
-}
-
 function Chevron() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -174,7 +170,7 @@ export function RegionLeaderboard({
   );
 }
 
-function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
+function ChallengeCard({ c }: { c: Challenge }) {
   const info = c.category ? TOURISM_INFO[c.category] : undefined;
   const volume = volumeHref(c.routeId);
   return (
@@ -195,21 +191,8 @@ function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
         </h3>
         <span className={styles.challengeMeta}>
           {dateRange(c.from, c.to)} · {c.stops.length} stops
-          {together && c.example.players > 0 ? ` · ${c.example.players} joined` : ''}
         </span>
         <div className={styles.challengeFoot}>
-          {together && c.example.players > 0 && (
-            <>
-              <span className={styles.faces} aria-hidden="true">
-                {SAMPLE_SPEED.slice(0, 3).map((r) => (
-                  <span key={r.name} className={styles.miniFace}>
-                    <Avatar name={r.name} size={22} />
-                  </span>
-                ))}
-              </span>
-              <Example />
-            </>
-          )}
           <Link to={volume} className={`${styles.join} ${styles.open}`} style={info ? ({ '--join': info.fill } as CSSProperties) : undefined} aria-label={`Open ${c.title}`}>
             Open
           </Link>
@@ -219,7 +202,7 @@ function ChallengeCard({ c, together }: { c: Challenge; together: boolean }) {
   );
 }
 
-export function ChallengesSection({ filter, together }: { filter: TourismFilter; together: boolean }) {
+export function ChallengesSection({ filter }: { filter: TourismFilter }) {
   const list = openChallenges(localToday()).filter((c) => filter === 'all' || c.category === filter);
   return (
     <section className={styles.section} aria-labelledby="home-challenges">
@@ -235,7 +218,7 @@ export function ChallengesSection({ filter, together }: { filter: TourismFilter;
       {list.length ? (
         <div className={styles.carousel}>
           {list.map((c) => (
-            <ChallengeCard key={c.id} c={c} together={together} />
+            <ChallengeCard key={c.id} c={c} />
           ))}
         </div>
       ) : (
@@ -263,7 +246,7 @@ export function PickedSection({ filter, here }: { filter: TourismFilter; here: L
           </svg>
           Picked for you
         </h2>
-        <span className={styles.sectionMeta}>{here ? 'your categories · nearest' : 'by your categories'}</span>
+        <span className={styles.sectionMeta}>{here ? 'personalised · nearest first' : 'personalised to your picks'}</span>
       </div>
       <ul className={styles.grid} aria-label="Places picked for you">
         {list.map(({ place, category, m }) => {

@@ -85,10 +85,6 @@ function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; 
             <h3 id="board-challenge-h" className={bd.cTitle}>
               {challenge?.title ?? ch.title}
             </h3>
-            <span className={bd.cFoot}>
-              <span className={bd.mono}>{ch.players} joined</span>
-              <span className={bd.example}>Example</span>
-            </span>
           </span>
         </section>
       )}

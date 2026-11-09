@@ -101,7 +101,7 @@ interface Next {
 function nextCards(draft: Draft): Next[] {
   const region = draft.region ? REGION_NAMES[draft.region] : 'Your region';
   return [
-    { icon: 'sparkle', tone: styles.toneAssist, title: 'Home suggests places from your interests', sub: 'Picked for you, by your categories' },
+    { icon: 'sparkle', tone: styles.toneAssist, title: 'Home suggests places from your interests', sub: 'Picked for you, personalised to your picks' },
     draft.mode === 'together'
       ? { icon: 'trophy', tone: styles.toneAccent, title: `${region} leaderboard`, sub: 'Shown with example times' }
       : { icon: 'trophy', tone: styles.toneAccent, title: 'No leaderboard on your own', sub: 'Switch to hunt together any time' },

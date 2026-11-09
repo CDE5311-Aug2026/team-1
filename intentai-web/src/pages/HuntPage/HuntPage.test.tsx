@@ -162,7 +162,9 @@ test('Public shows this weekend’s challenge on the Civic District route, the b
   // no "Example players" pill top right (owner, 9 Nov 2026): a note under the boards says the players are samples
   expect(screen.queryByText('Example players')).toBeNull();
   expect(screen.getByText('Other players are samples until the live boards open.')).toBeInTheDocument();
-  expect(screen.getAllByText('Example').length).toBeGreaterThanOrEqual(1);
+  // no sample "joined" counts or Example tags on the challenge cards (9 Nov 2026)
+  expect(screen.queryByText('Example')).toBeNull();
+  expect(screen.queryByText(/joined/)).toBeNull();
   // the fastest board says its players are samples under them, not as a pill in its head (owner, 9 Nov 2026)
   expect(screen.getAllByText('Sample players until real times come in').length).toBeGreaterThanOrEqual(1);
   const hall = screen.getByRole('button', { name: '3D hall' });
@@ -197,7 +199,7 @@ test('the boards: explorers by region, and fastest this weekend with a way to jo
   await userEvent.click(screen.getByRole('radio', { name: 'Central' }));
   expect(screen.getByRole('radio', { name: 'Central' })).toHaveAttribute('aria-checked', 'true');
   await userEvent.click(screen.getByRole('tab', { name: 'Fastest' }));
-  expect(screen.getByText(/214 joined/)).toBeInTheDocument();
+  expect(screen.queryByText(/joined/)).toBeNull();
   expect(screen.getByRole('button', { name: 'Join' })).toBeInTheDocument();
   // v2: the challenge carries its category (glyph + label), and the players are labelled as examples
   expect(screen.getByRole('heading', { name: 'Civic District' })).toBeInTheDocument();

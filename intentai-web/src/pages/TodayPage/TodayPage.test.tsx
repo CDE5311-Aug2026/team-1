@@ -412,7 +412,7 @@ describe('v2 sections', () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  test('together: the region leaderboard (example players, labelled) and the joined line on challenges', () => {
+  test('together: the region leaderboard (example players, labelled) and challenges without sample counts', () => {
     huntModeStore.set({ mode: 'together', region: 'central' });
     renderHome();
     const board = screen.getByRole('region', { name: 'Leaderboard · Central · this weekend' });
@@ -435,8 +435,9 @@ describe('v2 sections', () => {
     // "Open a challenge" is a link again: to the region's challenge volume
     expect(within(board).getByRole('link', { name: 'Open a challenge' }).getAttribute('href')).toMatch(/^\/hunt#story\//);
     const civic = screen.getByRole('article', { name: 'Civic District' });
-    expect(within(civic).getByText(/7–8 Nov · 8 stops · 214 joined/)).toBeInTheDocument();
-    expect(within(civic).getByText('Example')).toBeInTheDocument();
+    expect(within(civic).getByText('7–8 Nov · 8 stops')).toBeInTheDocument();
+    expect(within(civic).queryByText(/joined/)).toBeNull();
+    expect(within(civic).queryByText('Example')).toBeNull();
   });
 
   test('the board is the region’s: a region with no open challenge says so, under the example fastest three', () => {
@@ -543,15 +544,18 @@ describe('v2 sections', () => {
     expect(within(grid).getAllByRole('listitem')).toHaveLength(16);
   });
 
-  test('Picked for you: a place with no licensed photo yet shows the map around it, not an empty tint', () => {
-    // Marina Bay Cruise Centre has no photo (owner, 9 Nov 2026: "does not have an image")
+  test('Picked for you: a licensed photo when there is one, else the map around the place, never an empty tint', () => {
     renderHome('/?cat=cru');
     const grid = screen.getByRole('list', { name: 'Places picked for you' });
-    const card = within(grid).getByRole('link', { name: 'Open Marina Bay Cruise Centre Singapore' });
-    expect(card.querySelector('img')).toBeNull();
-    const ground = card.querySelector<HTMLElement>('[aria-hidden="true"]');
-    expect(ground?.style.backgroundImage).toMatch(/sg-ground/);
-    expect(ground?.style.backgroundSize).toMatch(/%/);
+    // Marina Bay Cruise Centre has a Commons photo since 9 Nov 2026 (it had none before)
+    const cruise = within(grid).getByRole('link', { name: 'Open Marina Bay Cruise Centre Singapore' });
+    expect(cruise.querySelector('img')?.getAttribute('src')).toContain('nearby/photos/sg-marina-bay-cruise-centre.webp');
+    const media = within(grid).getAllByRole('link', { name: /^Open / });
+    for (const card of media.filter((c) => !c.querySelector('img'))) {
+      const ground = card.querySelector<HTMLElement>('[aria-hidden="true"]');
+      expect(ground?.style.backgroundImage).toMatch(/sg-ground/);
+      expect(ground?.style.backgroundSize).toMatch(/%/);
+    }
   });
 
   test('Picked for you: with your position (Locate), the distance shows and the nearest comes first', () => {

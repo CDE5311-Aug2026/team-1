@@ -66,7 +66,7 @@ export function PublicHall({
           kicker: 'WEEKEND CHALLENGE',
           title: c.title.replace(/^Weekend challenge · /, ''),
           dates: span(c.from, c.to),
-          facts: c.players ? `${stops} PLACES · ${c.players} JOINED · BEST ${c.bestMinutes} MIN` : `${stops} PLACES · BE THE FIRST`,
+          facts: `${stops} PLACES`,
           stamp: days > 0 ? `IN ${days} DAY${days === 1 ? '' : 'S'}` : 'ON NOW',
           hot: i === 0,
           routeId: c.routeId,

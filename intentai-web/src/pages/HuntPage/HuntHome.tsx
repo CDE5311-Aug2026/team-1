@@ -211,7 +211,7 @@ function PublicFlat({
         type="button"
         className={`${bd.card} ${bd.challenge}`}
         onClick={() => openRoute(now.routeId)}
-        aria-label={`${now.title}. ${story.stops.length} places. Example: ${now.players} joined, best ${now.bestMinutes} min. Join`}
+        aria-label={`${now.title}. ${story.stops.length} places. Join`}
       >
         <img className={bd.thumb} src={imageFor(now.routeId)} alt="" width={64} height={64} />
         <span className={bd.cBody}>
@@ -222,10 +222,7 @@ function PublicFlat({
           )}
           <b className={bd.cTitle}>{info?.title ?? now.title}</b>
           <span className={bd.cFoot}>
-            <span className={bd.mono}>
-              {story.stops.length} places · {now.players} joined · best {now.bestMinutes} min
-            </span>
-            <span className={bd.example}>Example</span>
+            <span className={bd.mono}>{story.stops.length} places</span>
           </span>
         </span>
         <span className={`${bd.primary} ${bd.fauxButton}`} aria-hidden="true">

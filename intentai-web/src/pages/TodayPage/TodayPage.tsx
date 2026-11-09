@@ -34,7 +34,7 @@ export default function TodayPage() {
         top={together ? <RegionLeaderboard region={mode.region ?? 'central'} challenges={challenges} /> : null}
         bottom={
           <>
-            <ChallengesSection filter={category} together={together} />
+            <ChallengesSection filter={category} />
             <PickedSection filter={category} here={here} />
           </>
         }
