@@ -39,8 +39,8 @@ export const TOPICS: HelpTopic[] = [
   {
     id: 'hunt',
     q: 'How do story hunts work?',
-    words: ['hunt', 'story', 'stories', 'game', 'play', 'route', 'stop', 'clue', 'photo', 'camera', 'medal', 'medals', 'remote', 'remotely', 'volume'],
-    a: 'In Hunt, swipe through the public hunts at the top or pick any hunt in the list to open it. Read its opening and tap Start the hunt. At each stop, walk to the real place and tap Take photo: photograph the detail the stop asks for. When AI recognises it, the stop is passed, you get its clue and the next stop opens. If the photo is not recognised, take another. There is no remote play: every stop is passed on site with a photo. Finished hunts earn medals, on the Medals page (from Hunt or Passport). The places and history are real; the characters are fiction.',
+    words: ['hunt', 'story', 'stories', 'game', 'play', 'route', 'stop', 'clue', 'photo', 'camera', 'medal', 'medals', 'tour', 'remote', 'remotely', 'volume'],
+    a: 'In Hunt, swipe through the public hunts at the top or pick any hunt in the list to open it. Read its opening and tap Start the hunt. At each stop, walk to the real place and tap Take photo: photograph the detail the stop asks for. When AI recognises it, the stop is passed, you get its clue and the next stop opens. If the photo is not recognised, take another. There is no remote play: every stop is passed on site with a photo. Tap ? in the hunt to see the tour of its buttons again. Finished hunts earn medals, on the Medals page (from Hunt or Passport). The places and history are real; the characters are fiction.',
     path: '/hunt',
   },
   {

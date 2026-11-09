@@ -1,12 +1,13 @@
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import HuntPage from './HuntPage';
 import MedalsPage from './medals/MedalsPage';
 import { huntPoints } from './landing/volumes';
-import { huntModeStore } from '../../data/v2Stores';
+import { huntModeStore, huntTourStore } from '../../data/v2Stores';
 import { SAVES_CLEARED } from '../../data/deviceKeys';
+import { STORAGE_PREFIX } from '../../data/persistentStore';
 import { paths } from '../../routes';
 
 function Where() {
@@ -38,6 +39,8 @@ beforeEach(() => {
   sessionStorage.clear();
   window.dispatchEvent(new Event(SAVES_CLEARED));
   huntModeStore.set({});
+  // the tour has its own test; elsewhere it would sit over the step
+  huntTourStore.set({ done: true });
   URL.createObjectURL = vi.fn(() => 'blob:photo');
   URL.revokeObjectURL = vi.fn();
   Element.prototype.scrollIntoView = vi.fn();
@@ -58,7 +61,7 @@ test('the landing shows the public hunts as a carousel, the tiles and the hunts;
   // nothing from the old desk
   expect(screen.queryByRole('tab', { name: 'Public' })).toBeNull();
   expect(screen.queryByText(/shelf|volume/i)).toBeNull();
-  expect(document.querySelector('canvas, iframe')).toBeNull();
+  expect(document.querySelector('video, audio, canvas, iframe')).toBeNull();
 });
 
 test('the carousel moves with its arrows, dots and the arrow keys', async () => {
@@ -144,6 +147,32 @@ test('when recognition is unavailable, Try again sends the same photo again (no 
   await screen.findByText('Stop 2 of 8');
   expect(fetchMock).toHaveBeenCalledTimes(2);
   vi.unstubAllGlobals();
+});
+
+test('films never play by themselves; one plays only when its button is tapped', async () => {
+  at('/hunt#story/kampong-gelam');
+  expect(document.querySelector('video, audio')).toBeNull();
+  await userEvent.click(screen.getByRole('button', { name: /Watch the opening film/ }));
+  expect(screen.getByRole('dialog').querySelector('video')).not.toBeNull();
+});
+
+test('the tour lights each control on the first hunt, is remembered once skipped, and ? plays it again', async () => {
+  huntTourStore.set({ done: false });
+  at('/hunt#story/balestier');
+  await userEvent.click(screen.getByRole('button', { name: 'Start the hunt' }));
+  const tour = await screen.findByRole('dialog', { name: 'Your progress' });
+  expect(within(tour).getByText(/^1 \/ \d$/)).toBeInTheDocument();
+  await userEvent.click(within(tour).getByRole('button', { name: 'Next' }));
+  expect(screen.getByRole('dialog', { name: 'The stop' })).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Skip' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}hunt-tour`)!)).toEqual({ done: true });
+  await userEvent.click(screen.getByRole('button', { name: 'Show the tour' }));
+  expect(screen.getByRole('dialog', { name: 'Your progress' })).toBeInTheDocument();
+  act(() => {
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+  });
+  expect(screen.queryByRole('dialog')).toBeNull();
 });
 
 test('an old #short link opens the Golden Dome hunt; the retired Public tab lands on the landing', async () => {

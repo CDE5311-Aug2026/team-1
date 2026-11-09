@@ -3,6 +3,7 @@
 //   Together mode only changes what the app shows (leaderboard, example hunter counts); no location is shared.
 // - searchRecent: the last few search words on this phone (board 07), newest first.
 // - huntIntro: whether the "What is Hunt?" card on Hunt's first screen was closed (its "?" brings it back).
+// - huntTour: whether the coach-mark tour of a hunt's step screen was finished or skipped (its "?" replays it).
 import { createPersistentStore } from './persistentStore';
 import { isRecord } from './validate';
 import type { RegionId } from './ura/ura';
@@ -68,4 +69,15 @@ export const huntIntroStore = createPersistentStore<HuntIntroState>({
   key: 'hunt-intro',
   fallback: { dismissed: false },
   isValid: (value): value is HuntIntroState => isRecord(value) && typeof value.dismissed === 'boolean',
+});
+
+/** The in-game tour (coach marks) on a hunt's step screen: done once it is finished or skipped; its "?" replays it. */
+export interface HuntTourState {
+  done: boolean;
+}
+
+export const huntTourStore = createPersistentStore<HuntTourState>({
+  key: 'hunt-tour',
+  fallback: { done: false },
+  isValid: (value): value is HuntTourState => isRecord(value) && typeof value.done === 'boolean',
 });

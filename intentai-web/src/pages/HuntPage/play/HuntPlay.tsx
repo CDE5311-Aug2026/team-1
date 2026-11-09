@@ -1,5 +1,5 @@
 // An opened hunt (owner, batch 3): one flat, readable step at a time, no book. The header holds 〈 back, the hunt's
-// title and the step you are on. Under it: the opening, then each stop (where to go, what to look for,
+// title, the step you are on and "?" (the tour). Under it: the opening, then each stop (where to go, what to look for,
 // the map, a hint), then the ending. At a stop there is one thing to do: Take photo. The photo goes to AI recognition;
 // a recognised photo passes the stop and the next one opens by itself, with the clue you found on top. When the photo
 // is not recognised, or the service can't be reached, the player takes or sends it again: there is no way round it.
@@ -7,11 +7,14 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../../OnboardingPage/v3/icons';
+import { usePersistentStore } from '../../../data/persistentStore';
+import { huntTourStore } from '../../../data/v2Stores';
 import { paths } from '../../../routes';
 import { huntImage, type HuntId } from '../hunts';
 import type { Film } from '../story/chapters';
 import { loadHunt, passStop, startHunt, type PlayHunt, type PlayStop } from './model';
 import { recognizePhoto } from './recognize';
+import { Tour, type TourStep } from './Tour';
 import { FilmSheet } from './FilmSheet';
 import styles from './HuntPlay.module.css';
 
@@ -26,12 +29,24 @@ interface Found {
   stop: PlayStop;
 }
 
+const TOUR: TourStep[] = [
+  { target: 'progress', title: 'Your progress', text: 'Which stop you are on, out of how many. Each passed stop fills a bar.' },
+  { target: 'stop', title: 'The stop', text: 'Where to go, and what to look for when you get there.' },
+  { target: 'map', title: 'Map', text: 'Opens the stop in your maps app, so you can walk there.' },
+  { target: 'hint', title: 'Hint', text: 'Stuck? This shows what the detail looks like.' },
+  { target: 'camera', title: 'Take photo', text: 'Photograph the detail. When AI recognises it, the stop is passed and the next one opens.' },
+  { target: 'back', title: 'Back', text: 'Leave the hunt at any time. Your progress is saved on this phone.' },
+  { target: 'help', title: 'Tour', text: 'Tap ? to see this tour again.' },
+];
+
 export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
   const [hunt, setHunt] = useState<PlayHunt>(() => loadHunt(id)!);
   const [check, setCheck] = useState<Check>({ state: 'idle' });
   const [found, setFound] = useState<Found | null>(null);
   const [hint, setHint] = useState(false);
   const [films, setFilms] = useState<{ reel: Film[]; title: string } | null>(null);
+  const [tourDone, setTourDone] = useUnsavedTour();
+  const [touring, setTouring] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const file = useRef<File | null>(null);
   const abort = useRef<AbortController | null>(null);
@@ -44,6 +59,10 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
     setHint(false);
     window.scrollTo?.({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [hunt.current, hunt.started]);
+  // the tour starts by itself the first time a stop is on screen
+  useEffect(() => {
+    if (!tourDone && hunt.started && stop) setTouring(true);
+  }, [tourDone, hunt.started, stop]);
 
   const release = useCallback((url?: string) => {
     if (url) URL.revokeObjectURL(url);
@@ -105,16 +124,18 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
     <div className={styles.play}>
       <header className={styles.head}>
         <div className={styles.headRow}>
-          <button type="button" className={styles.icon} aria-label="Back" title="Back" onClick={onBack}>
+          <button type="button" className={styles.icon} aria-label="Back" title="Back" onClick={onBack} data-tour="back">
             <Icon name="back" size={22} />
           </button>
           <div className={styles.headText}>
             <h1 className={styles.title}>{hunt.title}</h1>
             <p className={styles.step}>{stepLabel}</p>
           </div>
-          <span className={styles.icon} aria-hidden="true" />
+          <button type="button" className={styles.icon} aria-label="Show the tour" title="Tour" onClick={() => setTouring(true)} data-tour="help" disabled={!hunt.started || hunt.complete}>
+            <Icon name="help" size={22} />
+          </button>
         </div>
-        <div className={styles.bars} role="progressbar" aria-label="Stops passed" aria-valuemin={0} aria-valuemax={n} aria-valuenow={passed}>
+        <div className={styles.bars} role="progressbar" aria-label="Stops passed" aria-valuemin={0} aria-valuemax={n} aria-valuenow={passed} data-tour="progress">
           {hunt.stops.map((s, i) => (
             <span key={s.id} className={s.done ? styles.barDone : i === hunt.current && hunt.started ? styles.barNow : undefined} />
           ))}
@@ -153,7 +174,7 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
           <Ending hunt={hunt} onFilm={() => setFilms({ reel: hunt.endingFilms, title: hunt.ending.title })} />
         ) : (
           <>
-            <section className={styles.card} aria-labelledby="stop-h">
+            <section className={styles.card} aria-labelledby="stop-h" data-tour="stop">
               <p className={styles.kicker}>Stop {stop.n}</p>
               <h2 id="stop-h" className={styles.stopName}>
                 {stop.name.replace(/ · .*/, '')}
@@ -168,11 +189,11 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
               <h3 className={styles.sub}>Photograph</h3>
               <p className={styles.target}>{stop.target}</p>
               <div className={styles.tools}>
-                <a className={styles.tool} href={stop.map} target="_blank" rel="noreferrer">
+                <a className={styles.tool} href={stop.map} target="_blank" rel="noreferrer" data-tour="map">
                   <Icon name="pin" size={16} /> Map
                 </a>
                 {stop.hint && (
-                  <button type="button" className={styles.tool} aria-expanded={hint} aria-controls="stop-hint" onClick={() => setHint((h) => !h)}>
+                  <button type="button" className={styles.tool} aria-expanded={hint} aria-controls="stop-hint" onClick={() => setHint((h) => !h)} data-tour="hint">
                     <Icon name="eye" size={16} /> {hint ? 'Hide hint' : 'Hint'}
                   </button>
                 )}
@@ -239,16 +260,31 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
             </button>
           </div>
         ) : (
-          <button type="button" className={styles.primary} onClick={take} disabled={check.state === 'checking'}>
+          <button type="button" className={styles.primary} onClick={take} disabled={check.state === 'checking'} data-tour="camera">
             <Icon name="camera" size={20} /> {check.state === 'checking' ? 'Checking…' : check.state === 'no-match' ? 'Take another photo' : 'Take photo'}
           </button>
         )}
         <input ref={input} className={styles.file} type="file" accept="image/*" capture="environment" aria-label="Take a photo of the detail" onChange={receive} tabIndex={-1} />
       </footer>
 
+      {touring && (
+        <Tour
+          steps={TOUR}
+          onDone={() => {
+            setTouring(false);
+            setTourDone();
+          }}
+        />
+      )}
       {films && films.reel.length > 0 && <FilmSheet reel={films.reel} title={films.title} onClose={() => setFilms(null)} />}
     </div>
   );
+}
+
+/** The tour is remembered once finished or skipped. */
+function useUnsavedTour(): [boolean, () => void] {
+  const [tour, setTour] = usePersistentStore(huntTourStore);
+  return [tour.done, () => setTour({ done: true })];
 }
 
 function Opening({ hunt, onFilm }: { hunt: PlayHunt; onFilm(): void }) {

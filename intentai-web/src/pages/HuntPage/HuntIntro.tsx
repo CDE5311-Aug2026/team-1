@@ -1,11 +1,10 @@
 // The top of Hunt's first screen (user tests, 10 Nov 2026):
-// - UT02-3 "tell me what this is, with a video demo": a short "What is Hunt?" card with a muted, looping clip. It closes
-//   with ×, and stays closed (huntIntroStore); the "?" tile after the boards brings it back. With motion reduced the clip
-//   waits on its first frame until you press play.
+// - UT02-3 "tell me what this is": a short "What is Hunt?" card. It closes with ×, and stays closed (huntIntroStore);
+//   the "?" tile after the boards brings it back. (Batch 3, owner: nothing plays by itself on entering Hunt, so the
+//   demo clip of the old field archive is gone with that archive.)
 // - UT02-4 "public and personal leaderboards should be more directly visible": two tiles, My rank (your real places on the
 //   Explorers board) and Public board (its leader on this weekend's Fastest board); each opens its board. The other
 //   players are Hunt's SAMPLE players (stories.ts), said so under the tiles. A third tile opens your medals.
-import { useReducedMotionConfig } from 'motion/react';
 import { Link } from 'react-router-dom';
 import Avatar from '../../components/Avatar/Avatar';
 import { rankAmong, SAMPLE_EXPLORERS, SAMPLE_SPEED } from '../../data/hunt/stories';
@@ -16,26 +15,11 @@ import Icon from '../OnboardingPage/v3/icons';
 import type { HuntGo } from './HuntPage';
 import styles from './HuntIntro.module.css';
 
-export const HUNT_DEMO = { src: '/hunt/intro/hunt-demo.mp4', poster: '/hunt/intro/hunt-demo-poster.jpg' };
-
 export function HuntIntro() {
   const [intro, setIntro] = usePersistentStore(huntIntroStore);
-  const reduce = useReducedMotionConfig();
   if (intro.dismissed) return null;
   return (
     <section className={styles.intro} aria-labelledby="hunt-intro-h">
-      <video
-        className={styles.video}
-        src={HUNT_DEMO.src}
-        poster={HUNT_DEMO.poster}
-        muted
-        loop
-        playsInline
-        autoPlay={!reduce}
-        controls={!!reduce}
-        preload="metadata"
-        aria-label="Demo: Hunt's story hunts"
-      />
       <div className={styles.body}>
         <p className={styles.kicker}>What is Hunt?</p>
         <h2 id="hunt-intro-h" className={styles.title}>
