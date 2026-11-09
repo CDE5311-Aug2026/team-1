@@ -116,11 +116,11 @@ describe('sections only with their data (plan A9)', () => {
   });
 
   test('missing photo, missing story and no nearby places: the tint shows and those sections are hidden', () => {
-    const id = 'curated:sg-marina-bay-cruise-centre';
-    expect(placePhoto({ id })).toBeNull();
-    expect(nearbyPlaces(curatedPlace(id)!)).toEqual([]);
-    const { container } = renderAt(id);
-    expect(container.querySelector('[data-photo="no"] [data-glyph="cru"]')).not.toBeNull();
+    // any published place with no photo, no dataset intro and nothing within 1.5 km (the photo set grows over time)
+    const place = ALL_PLACES.find((p) => p.editorialStatus === 'published' && !p.description && !p.quickFacts && !placePhoto(p) && nearbyPlaces(p).length === 0);
+    expect(place).toBeTruthy();
+    const { container } = renderAt(place!.id);
+    expect(container.querySelector('[data-photo="no"] [data-glyph]')).not.toBeNull();
     expect(screen.queryByRole('heading', { name: 'The story' })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Nearby' })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Key facts' })).toBeNull();
