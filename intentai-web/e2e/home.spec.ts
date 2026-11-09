@@ -117,7 +117,7 @@ test('tapping a numbered region on the map opens its planning areas', async ({ p
   await expect(page.getByRole('button', { name: /^Area \d+: / })).toHaveCount(12);
 });
 
-test('region → areas → places → the place pops up over Home; Back closes it on the same place', async ({ page, browserName }) => {
+test('region → areas → places → the place opens its page (the M-page the cards open); Back lands on the same place', async ({ page, browserName }) => {
   // the place level loads the EARTH ONLINE 3D city (up to 19 MB) and leaving it tears the scene down; under a full
   // parallel run that can hold the page for many seconds (WebKit draws it with software WebGL, slower still)
   test.slow();
@@ -139,14 +139,16 @@ test('region → areas → places → the place pops up over Home; Back closes i
   const enterKey = tools(page).getByRole('button', { name: `Open ${name}` });
   await enterKey.focus();
   await enterKey.press('Enter');
-  const sheet = page.getByRole('dialog', { name });
-  // WebKit here has no GPU and builds the 3D city in software on the main thread, so the sheet can wait behind it
-  // (8 Nov 2026: 1 run in 3 missed 5 s even at 3 workers). This one wait only, WebKit only; Chromium keeps 5 s.
-  await expect(sheet).toBeVisible(browserName === 'webkit' ? { timeout: 15_000 } : undefined);
-  await expect(sheet.getByRole('button', { name: /Check in/ })).toBeVisible();
-  await expect(page).toHaveURL(/open=/);
+  // no sheet over the map (owner, 10 Nov 2026): the place page itself. WebKit here has no GPU and builds the 3D city in
+  // software on the main thread, so the page can wait behind it; this one wait only, WebKit only.
+  const title = page.getByRole('heading', { level: 1, name });
+  await expect(title).toBeVisible(browserName === 'webkit' ? { timeout: 15_000 } : undefined);
+  await expect(page).toHaveURL(/\/nearby\/place\//);
+  await expect(page.getByRole('button', { name: /Stamp here/ })).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goBack();
-  await expect(sheet).toBeHidden();
+  await expect(page).not.toHaveURL(/open=/);
+  await expect(page).toHaveURL(/lvl=places/);
   await expect(row(page, 'Clementi places').getByRole('button', { name: new RegExp(`^${name},`) })).toHaveAttribute('aria-current', 'true');
   await page.getByRole('button', { name: 'Back to West areas' }).click();
   await page.getByRole('button', { name: 'Back to regions' }).click();
@@ -163,7 +165,8 @@ test('a check-in shows on the map badges: exploring, then unlocked with a tick w
   // Ang Mo Kio has one place: check in there.
   await areaBadge(page, 'Ang Mo Kio').click();
   await row(page, 'Ang Mo Kio places').getByRole('button').first().click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Check in' }).click();
+  await page.getByRole('button', { name: /Stamp here/ }).click();
+  await expect(page.getByRole('button', { name: /^Stamped/ })).toBeVisible();
   await page.goBack();
   await expect(row(page, 'Ang Mo Kio places').getByRole('button').first()).toHaveAccessibleName(/, checked in$/);
   await page.getByRole('button', { name: 'Back to North-East areas' }).click();

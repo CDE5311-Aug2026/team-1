@@ -1,10 +1,10 @@
 // Home (Redesign v2, boards 05 "hunting together" and 11 "solo"). The kept 3D map and its region → area → place deck
 // (owner decision D-keep, Discovery redesign of 31 Oct 2026) is always the first block (owner, 10 Nov 2026: "the map
-// must stay at the very top"). Under it: the region leaderboard card (together mode only), then Places to eat and the
-// filter chips (?cat=, they also filter the map) right above the cards they filter, Challenges and Picked for you. An
-// open place is still a page of its own (no tab bar, no sections).
+// must stay at the very top"). Under it: the region leaderboard card (together mode only), then the filter chips (?cat=,
+// they also filter the map) with Places to eat, right above the cards they filter, Challenges and Picked for you.
 // User test UT02-1: the chips used to sit at the top, so a tap changed cards a screen below; now they sit over the cards
-// and a tap scrolls the cards into view (at once when motion is reduced).
+// and a tap scrolls the cards into view (at once when motion is reduced). A place, from the map or a card, opens on its
+// own page (/nearby/place/:id), the same M-page either way.
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useReducedMotionConfig } from 'motion/react';
@@ -40,7 +40,6 @@ function useHomeFilter(): [HomeFilter, (next: HomeFilter) => void] {
 }
 
 export default function TodayPage() {
-  const [placeOpen, setPlaceOpen] = useState(false);
   const [filter, setFilter] = useHomeFilter();
   const [mode] = usePersistentStore(huntModeStore);
   const together = isTogether(mode);
@@ -58,13 +57,11 @@ export default function TodayPage() {
       }),
     );
   };
-  // One screen only while a place is open. Otherwise Home is a page the window scrolls, as every other page is: a wheel
-  // over the tab bar, the keys (Space, Page Down) and the scrollbar all reach it, which an inner scroller missed
-  // (owner, 8 Nov 2026: "Home still cannot scroll").
+  // Home is a page the window scrolls, as every other page is: a wheel over the tab bar, the keys (Space, Page Down)
+  // and the scrollbar all reach it, which an inner scroller missed (owner, 8 Nov 2026: "Home still cannot scroll").
   return (
-    <AppShell layout={placeOpen ? 'fill' : 'page'} background={placeOpen ? '#c8a87a' : undefined} chrome={placeOpen ? 'status' : 'full'} tabBarNodeId="1:317" tabPop>
+    <AppShell layout="page" chrome="full" tabBarNodeId="1:317" tabPop>
       <DiscoveryHome
-        onPlaceOpenChange={setPlaceOpen}
         category={filter === 'eat' ? 'all' : filter}
         onHere={setHere}
         bottom={
