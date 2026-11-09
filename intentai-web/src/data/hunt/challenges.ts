@@ -174,7 +174,7 @@ export function timerText(t: ChallengeTimer): string {
 export interface StoryStop {
   name: string;
   address: string;
-  /** When the story recorded your check-in at this stop (on site or in remote play), if it did. */
+  /** When the story recorded your check-in at this stop, if it did. */
   checkedAt?: string;
 }
 
@@ -183,7 +183,7 @@ export async function loadStoryStops(routeId: HuntRouteId): Promise<Record<strin
   const fsg = await import('../../findsg');
   const names = fsg.findStory(routeId).stops;
   const onsite = fsg.ONSITE_ROUTES[routeId]?.stops ?? [];
-  const records = (['manual', 'preview'] as const).map((mode) => {
+  const records = (['manual'] as const).map((mode) => {
     try {
       return (fsg.readOnsite(routeId, onsite, mode) as unknown as { stops?: Record<string, { checkin?: { confirmedAt?: string } | null }> }).stops ?? {};
     } catch {
@@ -200,12 +200,12 @@ export async function loadStoryStops(routeId: HuntRouteId): Promise<Record<strin
 
 /**
  * The story's check-ins straight from its saved games, without loading FindSG: the same records loadStoryStops reads
- * through the game (`findsg-onsite-v1:<route>:<manual|preview>`, a check-in counting only under its own mode, the
+ * through the game (`findsg-onsite-v1:<route>:manual`; remote play is gone and its old saves are not read; the
  * earliest time kept). Home uses this; stop names need the game, so they are left out.
  */
 export function readStoryCheckins(routeId: HuntRouteId): Record<string, StoryStop> {
   const times = new Map<string, string[]>();
-  for (const mode of ['manual', 'preview'] as const) {
+  for (const mode of ['manual'] as const) {
     let raw: unknown = null;
     try {
       raw = JSON.parse(localStorage.getItem(`findsg-onsite-v1:${routeId}:${mode}`) ?? 'null');

@@ -55,18 +55,18 @@ export interface OnsiteStop {
   transition: { text: string; cta: string };
 }
 export const ONSITE_ROUTES: Record<string, { stops: OnsiteStop[] }>;
-/** A route's save. */
+/** A route's save. Only on-site ('manual') play exists now; the old remote saves are never read. */
 export interface OnsiteState {
   version: 1;
   routeId: string;
-  mode: 'manual' | 'preview';
+  mode: 'manual';
   started: boolean;
   stopIndex: number;
   completed: string[];
   endingSeen: boolean;
   stops: Record<string, { checkin: { confirmedAt?: string | null; countsAsVisit?: boolean } | null; observation: { confirmed: boolean; confirmedAt?: string | null } }>;
 }
-export function readOnsite(routeId: string, stops: { id: string }[], mode?: 'manual' | 'preview'): OnsiteState;
+export function readOnsite(routeId: string, stops: { id: string }[], mode?: 'manual'): OnsiteState;
 export function saveOnsite(state: OnsiteState): boolean;
 export function emitOnsiteEvent(type: string, state: OnsiteState, stopId: string): void;
 export function beginOnsite(state: OnsiteState): OnsiteState;

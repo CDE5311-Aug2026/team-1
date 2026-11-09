@@ -39,8 +39,8 @@ export const TOPICS: HelpTopic[] = [
   {
     id: 'hunt',
     q: 'How do story hunts work?',
-    words: ['hunt', 'story', 'stories', 'game', 'play', 'route', 'stop', 'puzzle', 'clue', '3d', 'model', 'remote', 'remotely', 'volume'],
-    a: 'In Hunt, pick a volume in the field archive (it shows your progress in each) and tap it to open its book and start the route; the 3D shelf is still there behind The story shelf link. At each stop, walk to the real place and check in, spot the detail on the building, then use it to solve the 3D model. Or play remotely from anywhere; remote progress is kept separately and earns no Hunt points. Each find goes into your clue bag and the story moves on. The places and history are real; the characters are fiction.',
+    words: ['hunt', 'story', 'stories', 'game', 'play', 'route', 'stop', 'clue', 'photo', 'camera', 'medal', 'medals', 'remote', 'remotely', 'volume'],
+    a: 'In Hunt, swipe through the public hunts at the top or pick any hunt in the list to open it. Read its opening and tap Start the hunt. At each stop, walk to the real place and tap Take photo: photograph the detail the stop asks for. When AI recognises it, the stop is passed, you get its clue and the next stop opens. If the photo is not recognised, take another. There is no remote play: every stop is passed on site with a photo. Finished hunts earn medals, on the Medals page (from Hunt or Passport). The places and history are real; the characters are fiction.',
     path: '/hunt',
   },
   {
@@ -152,8 +152,9 @@ export const TOPICS: HelpTopic[] = [
 /** The brief Claude gets: what the app is, its tabs and the topics above. */
 export const APP_GUIDE =
   'FindSG is a mobile web app for exploring Singapore. Places are sorted into four Tourism 2040 categories: Attractions, Wellness, ' +
-  'Leisure and Cruise. Bottom tabs: Home (places in the categories the person ranked, with category chips to filter), Hunt (the field archive of story ' +
-  'volumes with progress, each a hunt on real streets, and weekend challenges), Passport (the journal of each day, passport stamps for URA planning areas, rank ' +
+  'Leisure and Cruise. Bottom tabs: Home (places in the categories the person ranked, with category chips to filter), Hunt (the public hunts as a ' +
+  'swipeable row, then every story hunt with its progress; a hunt is played stop by stop, each stop passed by a photo AI recognises; ' +
+  'medals for finished hunts), Passport (the journal of each day, passport stamps for URA planning areas, rank ' +
   'and profile; with Public hunts on, a leaderboard of example hunters), and Search (places, challenges and volumes). Public hunts ' +
   'only change what the app shows: nothing about the person or their location is sent. Every tab has Settings (gear, top right: ' +
   'categories, hunt region, public hunts, language, home base, motion, text size, privacy, terms, photo credits) and this Help ' +
