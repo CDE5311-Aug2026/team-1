@@ -258,6 +258,17 @@ export function ChallengesSection({ filter }: { filter: TourismFilter }) {
 }
 
 const PAGE = 8;
+/** How many cards "Show more places" has opened, kept for the visit: Back from a place page finds them still open (and
+ *  the page tall enough to land where you were). */
+const SHOWN_KEY = 'home.pickedShown';
+function readShown(): number {
+  try {
+    const n = Number(sessionStorage.getItem(SHOWN_KEY));
+    return Number.isFinite(n) && n > PAGE ? n : PAGE;
+  } catch {
+    return PAGE;
+  }
+}
 
 export function PickedSection({ filter, here }: { filter: HomeFilter; here: LatLng | null }) {
   const [profile] = usePersistentStore(profileV3Store);
@@ -267,7 +278,15 @@ export function PickedSection({ filter, here }: { filter: HomeFilter; here: LatL
     () => (eat ? pickedForYou(FOOD_PLACES, order, 'all', here) : pickedForYou(PUBLISHED_PLACES, order, filter, here)),
     [eat, order, filter, here],
   );
-  const [shown, setShown] = useState(PAGE);
+  const [shown, setShownState] = useState(readShown);
+  const setShown = (n: number) => {
+    setShownState(n);
+    try {
+      sessionStorage.setItem(SHOWN_KEY, String(n));
+    } catch {
+      /* private mode: not kept */
+    }
+  };
   const list = all.slice(0, shown);
   return (
     <section className={styles.section} aria-labelledby="home-picked">
@@ -340,7 +359,7 @@ export function PickedSection({ filter, here }: { filter: HomeFilter; here: LatL
         })}
       </ul>
       {shown < all.length && (
-        <button type="button" className={styles.more} onClick={() => setShown((n) => n + PAGE)}>
+        <button type="button" className={styles.more} onClick={() => setShown(shown + PAGE)}>
           Show more places
         </button>
       )}

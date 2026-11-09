@@ -595,6 +595,19 @@ describe('v2 sections', () => {
     expect(within(grid).getAllByRole('listitem')).toHaveLength(16);
   });
 
+  test('Picked for you: "Show more places" stays open after a place page, so Back finds the card you tapped', async () => {
+    const user = userEvent.setup();
+    renderHome();
+    const grid = () => screen.getByRole('list', { name: 'Places picked for you' });
+    expect(within(grid()).getAllByRole('listitem')).toHaveLength(8);
+    await user.click(screen.getByRole('button', { name: 'Show more places' }));
+    expect(within(grid()).getAllByRole('listitem')).toHaveLength(16);
+    await user.click(within(grid()).getAllByRole('link', { name: /^Open / })[11]);
+    expect(screen.getByTestId('where')).toHaveTextContent('/nearby/place/');
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    expect(within(grid()).getAllByRole('listitem')).toHaveLength(16);
+  });
+
   test('Picked for you: a licensed photo when there is one, else the map around the place, never an empty tint', () => {
     renderHome('/?cat=cru');
     const grid = screen.getByRole('list', { name: 'Places picked for you' });
