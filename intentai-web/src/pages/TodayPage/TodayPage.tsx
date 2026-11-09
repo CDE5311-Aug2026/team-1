@@ -1,7 +1,8 @@
 // Home (Redesign v2, boards 05 "hunting together" and 11 "solo"). The kept 3D map and its region → area → place deck
-// (owner decision D-keep, Discovery redesign of 31 Oct 2026) with the v2 sections around it: Places to eat, the region
-// leaderboard card (together mode only), then the filter chips (?cat=, they also filter the map) right above the cards
-// they filter, Challenges and Picked for you. An open place is still a page of its own (no tab bar, no sections).
+// (owner decision D-keep, Discovery redesign of 31 Oct 2026) is always the first block (owner, 10 Nov 2026: "the map
+// must stay at the very top"). Under it: the region leaderboard card (together mode only), then Places to eat and the
+// filter chips (?cat=, they also filter the map) right above the cards they filter, Challenges and Picked for you. An
+// open place is still a page of its own (no tab bar, no sections).
 // User test UT02-1: the chips used to sit at the top, so a tap changed cards a screen below; now they sit over the cards
 // and a tap scrolls the cards into view (at once when motion is reduced).
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -66,14 +67,12 @@ export default function TodayPage() {
         onPlaceOpenChange={setPlaceOpen}
         category={filter === 'eat' ? 'all' : filter}
         onHere={setHere}
-        top={
-          <>
-            <EatEntry on={filter === 'eat'} onOpen={() => choose('eat')} />
-            {together ? <RegionLeaderboard region={mode.region ?? 'central'} challenges={challenges} /> : null}
-          </>
-        }
         bottom={
           <>
+            {/* map first (DiscoveryHome), then the leaderboard (hunting together only), Places to eat, then the filter
+                right over the cards it filters */}
+            {together ? <RegionLeaderboard region={mode.region ?? 'central'} challenges={challenges} /> : null}
+            <EatEntry on={filter === 'eat'} onOpen={() => choose(filter === 'eat' ? 'all' : 'eat')} />
             <HomeFilterBar ref={bar} value={filter} onChange={choose} />
             {/* Eat has no challenges of its own: its places come straight under the chips */}
             {filter !== 'eat' && <ChallengesSection filter={filter} />}

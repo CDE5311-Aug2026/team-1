@@ -493,6 +493,36 @@ describe('v2 sections', () => {
     expect(await within(board).findByText(/clock running in Kampong Gelam\./)).toBeInTheDocument();
   });
 
+  // owner, 10 Nov 2026: "the map must stay at the very top"; the filter goes under the leaderboard and the map
+  const before = (a: Element, b: Element) => expect(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  test('order, together: the map first, then the leaderboard, Places to eat, the chips, Challenges, Picked for you', () => {
+    huntModeStore.set({ mode: 'together', region: 'central' });
+    renderHome();
+    const map = screen.getByRole('application', { name: /planning areas/ });
+    const board = screen.getByRole('region', { name: 'Leaderboard · Central · this weekend' });
+    const eat = screen.getByRole('button', { name: /Places to eat/ });
+    const chips = chip('All');
+    const challenges = screen.getByRole('heading', { level: 2, name: 'Challenges' });
+    const picked = screen.getByRole('heading', { level: 2, name: 'Picked for you' });
+    // nothing but the page bar above the map
+    for (const el of [board, eat, chips, challenges, picked]) before(map, el);
+    before(board, eat);
+    before(eat, chips);
+    before(chips, challenges);
+    before(challenges, picked);
+  });
+
+  test('order, solo: no leaderboard; Places to eat and the chips come straight under the map', () => {
+    huntModeStore.set({ mode: 'solo' });
+    renderHome();
+    expect(screen.queryByRole('region', { name: /^Leaderboard/ })).toBeNull();
+    const map = screen.getByRole('application', { name: /planning areas/ });
+    const eat = screen.getByRole('button', { name: /Places to eat/ });
+    before(map, eat);
+    before(eat, chip('All'));
+    before(chip('All'), screen.getByRole('heading', { level: 2, name: 'Challenges' }));
+  });
+
   test('solo: no leaderboard, challenges without the social line', () => {
     huntModeStore.set({ mode: 'solo' });
     renderHome();

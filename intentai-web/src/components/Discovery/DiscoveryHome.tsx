@@ -265,17 +265,15 @@ interface DiscoveryHomeProps {
   /** v2 category chips (?cat=): other categories' pins dim, the deck shows only this category's places, the badges
    *  and region / area cards count it. */
   category?: TourismFilter;
-  /** v2 Home sections above the map (chips, the leaderboard card) and below the deck (Challenges, Picked for you).
-   *  Hidden while a place is open: the notebook is a page of its own. */
-  /** Under the page's bar, staying with it at the top (the chips). */
-  bar?: ReactNode;
-  top?: ReactNode;
+  /** v2 Home sections under the map (the leaderboard card, the filter chips, Challenges, Picked for you). The map is
+   *  always the first block of Home (owner, 10 Nov 2026). Hidden while a place is open: the notebook is a page of its
+   *  own. */
   bottom?: ReactNode;
   /** Locate found you (or the home base stood in). */
   onHere?: (at: LatLng) => void;
 }
 
-export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar, top, bottom, onHere }: DiscoveryHomeProps) {
+export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bottom, onHere }: DiscoveryHomeProps) {
   const cat = category === "all" ? null : category;
   const matches = useCallback((id: string) => !cat || tourismOfId(id) === cat, [cat]);
   const navigate = useNavigate();
@@ -949,20 +947,12 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
         />
       </AnimatePresence>
       <h1 className={styles.srOnly}>Explore Singapore</h1>
+      {/* v2: the bar stays at the top while Home scrolls under it; the map is the first block under it (owner, 10 Nov
+          2026: "the map must stay at the very top"), everything else comes after it */}
       {!openId && (
-        <>
-        {/* v2: the bar and the chips stay at the top while Home scrolls under them */}
         <div className={styles.head}>
-          <PageBar
-            title="Home"
-            tone="light"
-            heading={false}
-            className={styles.pageBar}
-          />
-          {bar}
+          <PageBar title="Home" tone="light" heading={false} className={styles.pageBar} />
         </div>
-          {top}
-        </>
       )}
 
       {/* The map card stays mounted when a place opens: it becomes the live 3D view on top of the intro (no reload).

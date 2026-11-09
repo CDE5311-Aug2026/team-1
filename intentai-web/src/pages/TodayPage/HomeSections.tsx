@@ -8,7 +8,7 @@
 //   the challenge's volume (its story, /hunt#story/<route>): the challenge page was retired (second canvas, 8 Nov 2026).
 // - Picked for you: real published places by your categories, then distance when Locate has found you.
 // User test (UT01-1, UT02-1, UT01-2): the filter chips sit right above the cards they filter (HomeFilterBar), with an
-// Eat chip beside the categories; "Places to eat" (EatEntry) near the top of Home opens the same Eat filter. Eat is the
+// Eat chip beside the categories; "Places to eat" (EatEntry) just over the chips opens the same Eat filter. Eat is the
 // catalogue's own food places (Nearby category "food": hawker centres, stalls and restaurants), nothing added. Each
 // challenge card shows its level (data/hunt/level.ts).
 import { forwardRef, useMemo, useState, type CSSProperties } from 'react';
@@ -377,7 +377,7 @@ export const HomeFilterBar = forwardRef<HTMLDivElement, { value: HomeFilter; onC
   );
 });
 
-/** Near the top of Home (UT01-1): one tap to the places to eat, under the filter. */
+/** Under the map (and the leaderboard), just over the filter (UT01-1): one tap to the places to eat. */
 export function EatEntry({ onOpen, on }: { onOpen(): void; on: boolean }) {
   return (
     <button type="button" className={styles.eatEntry} onClick={onOpen} aria-pressed={on}>
