@@ -37,6 +37,11 @@ function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; 
   const rank = rankAmong(rows, mine);
   const unit = kind === 'speed' ? 'min' : 'places';
   const ch = HUNT_CHALLENGES[0];
+  // the players in order, numbered; you go in at your rank (Explorers), or at the foot with no time yet (Fastest)
+  type Ranked = { you: false; name: string; value: number; rank: number } | { you: true; rank: number | null };
+  const ranked: Ranked[] = rows.map((r, i) => ({ you: false as const, name: r.name, value: r.value, rank: i + 1 + (kind === 'explore' && i + 1 >= rank ? 1 : 0) }));
+  if (kind === 'explore') ranked.splice(rank - 1, 0, { you: true, rank });
+  else ranked.push({ you: true, rank: null });
   const challenge = CHALLENGES.find((c) => c.id === ch.id);
 
   return (
@@ -94,46 +99,45 @@ function PageBoard({ kind, scope, go, openRoute }: { kind: 'explore' | 'speed'; 
           <h3 id="board-top-h">{kind === 'speed' ? 'Fastest' : 'Explorers'}</h3>
           <span className={bd.mono}>{kind === 'speed' ? (challenge?.title ?? 'This weekend') : (region?.name ?? 'All Singapore')}</span>
         </div>
-        <ol className={bd.podium} aria-label="Top three, example players">
-          {rows.slice(0, 3).map((r, i) => (
-            <li key={r.name} data-n={i + 1}>
-              <span className={bd.avatar} aria-hidden="true">
-                <Avatar name={r.name} size={i === 0 ? 60 : 48} />
-                <span className={bd.medal}>{i + 1}</span>
-              </span>
-              <span className={bd.who}>{r.name}</span>
-              <span className={bd.mono}>
-                {r.value} {unit}
-              </span>
-            </li>
-          ))}
-        </ol>
-        <ol className={bd.list} start={4} aria-label="From fourth, example players">
-          {rows.slice(3).map((r, i) => (
-            <li key={r.name}>
-              <span className={bd.rank}>{i + 4}</span>
-              <Avatar name={r.name} size={32} className={bd.rowAvatar} />
-              <span className={bd.name}>{r.name}</span>
-              <span className={bd.value}>
-                {r.value} {unit}
-              </span>
-            </li>
-          ))}
+        {/* one ranked list (user test UT02-5: "a leaderboard, not a pile of sorted cards"): rank (gold, silver, bronze
+            for the top three), icon, name, score; your own row sits at your place, highlighted, and stays pinned over
+            the tab bar while the list scrolls */}
+        <ol className={`${bd.list} ${bd.ranked}`} aria-label="Leaderboard, example players and you">
+          {ranked.map((r) =>
+            r.you ? (
+              <li key="you" className={`${bd.me} ${bd.pinned}`} aria-current="true">
+                <span className={bd.rank}>{r.rank ?? '–'}</span>
+                <Avatar name="You" size={32} className={bd.rowAvatar} />
+                <span className={bd.name}>
+                  <b>You</b>
+                  {kind === 'speed' && <small className={bd.meSub}>No time yet</small>}
+                </span>
+                {kind === 'speed' ? (
+                  <button type="button" className={bd.primary} onClick={() => openRoute(ch.routeId)}>
+                    Join
+                  </button>
+                ) : (
+                  <span className={bd.value}>
+                    {mine} {unit}
+                  </span>
+                )}
+              </li>
+            ) : (
+              <li key={r.name}>
+                <span className={bd.rank} data-n={r.rank}>
+                  {r.rank}
+                </span>
+                <Avatar name={r.name} size={32} className={bd.rowAvatar} />
+                <span className={bd.name}>{r.name}</span>
+                <span className={bd.value}>
+                  {r.value} {unit}
+                </span>
+              </li>
+            ),
+          )}
         </ol>
       </section>
 
-      <section className={`${bd.card} ${bd.you}`} aria-label="You">
-        <span className={bd.youRank}>{kind === 'speed' ? '–' : `#${rank}`}</span>
-        <span className={bd.youText}>
-          <b>You</b>
-          <small>{kind === 'speed' ? 'Join the challenge to get a time' : `${mine} places${region ? ` in ${region.name}` : ''}`}</small>
-        </span>
-        {kind === 'speed' && (
-          <button type="button" className={bd.primary} onClick={() => openRoute(ch.routeId)}>
-            Join
-          </button>
-        )}
-      </section>
       <p className={bd.note}>Other players are samples until the live boards open.</p>
     </>
   );

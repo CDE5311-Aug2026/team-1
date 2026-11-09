@@ -84,9 +84,34 @@
   letter-spacing: -0.2px;
 }
 .nextMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
   font-size: 0.75rem;
   line-height: 16px;
   color: var(--v2-muted);
+}
+.nextMetaText {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* the intro and the boards' tiles, over the chips (HuntIntro.tsx) */
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 2px var(--gutter) 4px;
+}
+/* a row's level, then its tagline */
+.tagLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-top: 1px;
 }
 .segments {
   display: grid;

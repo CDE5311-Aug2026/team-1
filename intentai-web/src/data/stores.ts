@@ -43,7 +43,7 @@ import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeSt
 import { createPersistentStore, STORAGE_PREFIX } from './persistentStore';
 import { EMPTY_SOCIAL, communitySocialStore } from './community/socialStore';
 import { EMPTY_RECAP, recapStore } from './moments/recapStore';
-import { EMPTY_HUNT_MODE, huntModeStore, searchRecentStore } from './v2Stores';
+import { EMPTY_HUNT_MODE, huntIntroStore, huntModeStore, searchRecentStore } from './v2Stores';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -312,6 +312,7 @@ export function deleteAllData(): Promise<boolean> {
   recapStore.set(EMPTY_RECAP);
   // v2: hunt-together choice and recent searches.
   huntModeStore.set(EMPTY_HUNT_MODE);
+  huntIntroStore.set({ dismissed: false });
   searchRecentStore.set([]);
   usageIdStore.set('');
   // The user test goes on (the test name is not personal data); its records on this device are deleted.

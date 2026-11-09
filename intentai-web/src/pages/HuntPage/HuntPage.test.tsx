@@ -27,7 +27,16 @@ const rows = () => within(screen.getByRole('list', { name: 'Volumes' })).getAllB
 test('Hunt opens on the field archive: the rules card once, the chips, a pick and one row per volume', async () => {
   at('/hunt');
   expect(screen.getByRole('heading', { level: 1, name: 'Hunt' })).toBeInTheDocument();
-  // first visit: How to play opens by itself, once, with remote play and the fiction disclosure
+  // first visit (UT02-3): the "What is Hunt?" card with its muted, looping demo clip; How to play no longer pops up
+  // by itself here, the card's Field rules opens it
+  const intro = screen.getByRole('region', { name: 'Story hunts on real streets' });
+  const clip = intro.querySelector('video')!;
+  expect(clip).toHaveAttribute('src', '/hunt/intro/hunt-demo.mp4');
+  expect(clip.muted).toBe(true);
+  expect(clip.loop).toBe(true);
+  expect(clip).toHaveAttribute('playsinline');
+  expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
+  await userEvent.click(within(intro).getByRole('button', { name: 'Field rules' }));
   const how = screen.getByRole('dialog', { name: 'How to play' });
   expect(within(how).getByText(/play remotely from anywhere/)).toBeInTheDocument();
   expect(within(how).getByText(/characters are fiction/)).toBeInTheDocument();
@@ -48,6 +57,20 @@ test('Hunt opens on the field archive: the rules card once, the chips, a pick an
   expect(screen.getByRole('dialog', { name: 'How to play' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'Close' }));
   expect(screen.queryByRole('dialog', { name: 'How to play' })).toBeNull();
+
+  // the intro closes and stays closed; the "?" by the boards brings it back
+  await userEvent.click(screen.getByRole('button', { name: 'Close What is Hunt?' }));
+  expect(screen.queryByRole('region', { name: 'Story hunts on real streets' })).toBeNull();
+  expect(JSON.parse(localStorage.getItem('intentai:v1:hunt-intro')!)).toEqual({ dismissed: true });
+  await userEvent.click(screen.getByRole('button', { name: 'What is Hunt?' }));
+  expect(screen.getByRole('region', { name: 'Story hunts on real streets' })).toBeInTheDocument();
+
+  // UT02-4: My rank and the public board, right under it; each opens its board
+  expect(screen.getByRole('button', { name: 'My rank: not ranked yet. Open the Explorers board' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^Public board: number 1 is Arjun K\., 96 minutes/ })).toBeInTheDocument();
+
+  // UT01-2: every volume says its level, from its stops and walk
+  for (const r of rows()) expect(within(r).getByRole('img', { name: /^Level [123] of 3, / })).toBeInTheDocument();
 
   // six volumes in shelf order, nothing played yet: 0 of the 38 stops
   expect(screen.getByText('6 volumes · 0/38 stamps')).toBeInTheDocument();
@@ -206,7 +229,18 @@ test('the boards: explorers by region, and fastest this weekend with a way to jo
   expect(screen.getByText('Attractions')).toBeInTheDocument();
   expect(screen.queryByText('Example players')).toBeNull();
   expect(screen.getByText('Other players are samples until the live boards open.')).toBeInTheDocument();
-  expect(screen.getByRole('list', { name: 'Top three, example players' }).children).toHaveLength(3);
+  // UT02-5: one ranked list, not a podium of cards: the six players numbered 1–6, then your row (no time yet, pinned)
+  const list = screen.getByRole('list', { name: 'Leaderboard, example players and you' });
+  const items = within(list).getAllByRole('listitem');
+  expect(items).toHaveLength(7);
+  expect(items.slice(0, 3).map((li) => li.querySelector('[data-n]')?.getAttribute('data-n'))).toEqual(['1', '2', '3']);
+  expect(items[6]).toHaveAttribute('aria-current', 'true');
+  expect(items[6]).toHaveTextContent(/You/);
+  // Explorers: you go in at your place (no places yet: last), highlighted
+  await userEvent.click(screen.getByRole('tab', { name: 'Explorers' }));
+  const ex = within(screen.getByRole('list', { name: 'Leaderboard, example players and you' })).getAllByRole('listitem');
+  expect(ex[ex.length - 1]).toHaveAttribute('aria-current', 'true');
+  expect(ex[ex.length - 1]).toHaveTextContent(String(ex.length));
 });
 
 // a stop as FindSG saves it after a tap check-in, the observation and the 3D puzzle (taken from a real play-through)

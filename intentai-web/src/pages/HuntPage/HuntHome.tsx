@@ -45,6 +45,9 @@ import Avatar from "../../components/Avatar/Avatar";
 import { CHALLENGES } from "../../data/hunt/challenges";
 import CategoryBadge from "../../components/Category/CategoryBadge";
 import { RowIcon } from "../MySpacePage/SettingsParts";
+import LevelBadge from "../../components/Level/LevelBadge";
+import { routeLevel, type HuntLevel } from "../../data/hunt/level";
+import { BoardTiles, HuntIntro } from "./HuntIntro";
 
 /** Stops solved on site (FindSG's on-site mode; remote play does not count). */
 export function huntStops(): number {
@@ -433,6 +436,8 @@ export interface Volume {
   last: number;
   /** FindSG's own route (`#story/<id>`); the prologue is played inside its book. */
   routeId: string | null;
+  /** How demanding it is, from its stops and their walk (data/hunt/level.ts). */
+  level: HuntLevel;
 }
 
 const sentence = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
@@ -454,6 +459,7 @@ export function volumes(): Volume[] {
         next: ch.stops.find((s) => !s.done)?.pin ?? null,
         last: 0,
         routeId: null,
+        level: routeLevel(ch.stops.map((s) => s.pin)),
       };
     }
     const ch = chapter(b.id);
@@ -472,6 +478,7 @@ export function volumes(): Volume[] {
       next: ch.stops.find((s) => !s.done)?.pin ?? null,
       last: Math.max(...both.map(lastPlayed)),
       routeId: b.id,
+      level: routeLevel(ch.stops.map((s) => s.pin)),
     };
   });
 }
@@ -521,11 +528,14 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
   const loc = useLocationState();
   const here = loc.status === "active" && isPrecise(loc.fix) ? loc.fix : null;
   const away = (v: Volume) => (here && v.next ? `${v.next.approx ? "about " : ""}${formatHomeDistance(distanceM(here, v.next))}` : null);
-  const [how, setHow] = useState(howToPlayPending);
+  // How to play no longer opens by itself here: the "What is Hunt?" card at the top is the first-visit explanation
+  // (UT02-3), and its Field rules (or How to play at the foot) opens these rules
+  const [how, setHow] = useState(false);
   const closeHow = () => {
     markHowToPlaySeen();
     setHow(false);
   };
+  const explored = useExplored();
 
   // carry on with the one in progress; otherwise the first unfinished volume in your top-ranked category
   const order = tourismOrder(profile);
@@ -542,6 +552,10 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
           now (AppShell's PaperLayer), so the archive draws none of its own */}
       <PageBar title="Hunt" className={a.bar} />
       {how && <HowToPlay onClose={closeHow} />}
+      <div className={a.top}>
+        <HuntIntro onRules={() => setHow(true)} />
+        <BoardTiles go={go} explored={explored} />
+      </div>
       <CategoryChips value={cat} onChange={setCat} className={`${a.chips}`} />
       <div className={`${a.scroll}`}>
         {pick && (
@@ -554,7 +568,10 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
               </span>
               <h2 className={a.nextTitle}>{pick.title}</h2>
               <span className={a.nextMeta}>
-                Vol. {pick.roman} · {pick.area} · {pick.total} stops
+                <LevelBadge level={pick.level} />
+                <span className={a.nextMetaText}>
+                  Vol. {pick.roman} · {pick.area} · {pick.total} stops
+                </span>
               </span>
               <span
                 className={a.segments}
@@ -615,7 +632,10 @@ export function HuntArchive({ go, openBook, openRoute }: { go: HuntGo; openBook(
                           <span>{` · ${v.area}`}</span>
                         </span>
                         <span className={a.rowTitle}>{v.title}</span>
-                        <span className={a.tag}>{v.tagline}</span>
+                        <span className={a.tagLine}>
+                          <LevelBadge level={v.level} />
+                          <span className={a.tag}>{v.tagline}</span>
+                        </span>
                         <span className={a.progress}>
                           <span className={a.track} aria-hidden="true">
                             <span style={{ width: `${Math.round((100 * v.found) / v.total)}%` }} />

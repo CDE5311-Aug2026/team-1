@@ -2,6 +2,7 @@
 // - huntMode: "hunt together" or "explore on your own" (onboarding step 2), and the home hunt region.
 //   Together mode only changes what the app shows (leaderboard, example hunter counts); no location is shared.
 // - searchRecent: the last few search words on this phone (board 07), newest first.
+// - huntIntro: whether the "What is Hunt?" card on Hunt's first screen was closed (its "?" brings it back).
 import { createPersistentStore } from './persistentStore';
 import { isRecord } from './validate';
 import type { RegionId } from './ura/ura';
@@ -58,3 +59,13 @@ export function rememberSearch(query: string) {
   const rest = searchRecentStore.get().filter((r) => r.toLowerCase() !== q.toLowerCase());
   searchRecentStore.set([q, ...rest].slice(0, SEARCH_RECENT_MAX));
 }
+
+export interface HuntIntroState {
+  dismissed: boolean;
+}
+
+export const huntIntroStore = createPersistentStore<HuntIntroState>({
+  key: 'hunt-intro',
+  fallback: { dismissed: false },
+  isValid: (value): value is HuntIntroState => isRecord(value) && typeof value.dismissed === 'boolean',
+});
