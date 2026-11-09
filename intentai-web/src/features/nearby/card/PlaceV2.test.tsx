@@ -30,9 +30,9 @@ function active(fix: { lat: number; lng: number }, accuracyM = 15, ageMs = 1000,
   return { status: 'active', fix: { ...fix, accuracyM, timestamp: now - ageMs } };
 }
 
-test('a place opened on its own goes Back to Home (the v1 Nearby explorer is retired, 8 Nov 2026)', async () => {
+test('a place opened on its own closes (✕) to Home (the v1 Nearby explorer is retired, 8 Nov 2026)', async () => {
   renderAt(victoria.id);
-  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
   expect(screen.getByRole('heading', { name: 'Home probe' })).toBeInTheDocument();
   expect(screen.queryByRole('heading', { name: 'Retired explorer' })).toBeNull();
 });

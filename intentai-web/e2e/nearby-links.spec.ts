@@ -15,11 +15,11 @@ test('Nearby pages keep the app tabs, so Home and Passport are one tap away', as
   }
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Passport' }).click();
   await expect(page).toHaveURL(/\/my-space$/);
-  // full-screen Nearby pages have no tabs; Back leads out: a place opened on its own goes Home, where the tabs are
+  // full-screen Nearby pages have no tabs; ✕ leads out: a place opened on its own goes Home, where the tabs are
   // (the v1 Nearby explorer is retired, owner 8 Nov 2026)
   await page.goto(paths.nearbyPlace('curated:sg-marina-bay-sands'));
   await expect(page.getByRole('heading', { level: 1, name: 'Marina Bay Sands' })).toBeVisible();
-  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
   await expect.poll(() => new URL(page.url()).pathname).toBe('/');
   await expect(page.getByRole('heading', { level: 1, name: 'Explore Singapore' })).toBeAttached();
   await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Home' })).toBeVisible();
