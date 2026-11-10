@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, expect, test } from 'vitest';
 import { profileV3Store } from '../../data/profile/profile';
 import { reduceMotionStore, testerStore } from '../../data/stores';
-import { huntModeStore } from '../../data/v2Stores';
+import { huntModeStore, passportNameStore } from '../../data/v2Stores';
 import { dismissToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import { initialsOf } from './SettingsPage';
@@ -16,16 +16,18 @@ afterEach(() => {
   testerStore.set({ name: '' });
 });
 
-test('the profile row shows the tester code and initials, and says how you hunt without a public claim', () => {
+test('the profile row shows the passport name and initials (not the test code), and says how you hunt without a public claim', () => {
   testerStore.set({ name: 'P01', version: 'B' });
+  passportNameStore.set({ name: 'Serin Ee' });
   huntModeStore.set({ mode: 'solo' });
   renderAt(paths.mySpaceSettings);
   const profile = within(screen.getByRole('region', { name: 'Profile' }));
-  expect(profile.getByText('P01 · exploring on your own')).toBeInTheDocument();
-  expect(profile.getByText('P0')).toBeInTheDocument();
+  expect(profile.getByText('Serin Ee · exploring on your own')).toBeInTheDocument();
+  expect(profile.getByText('SE')).toBeInTheDocument();
+  expect(profile.queryByText(/P01/)).toBeNull();
   expect(screen.queryByText(/shown to hunters/)).toBeNull();
   act(() => huntModeStore.set({ mode: 'together' }));
-  expect(profile.getByText('P01 · hunting together')).toBeInTheDocument();
+  expect(profile.getByText('Serin Ee · hunting together')).toBeInTheDocument();
   expect(profile.getByRole('link', { name: 'Edit profile on Passport' })).toHaveAttribute('href', paths.mySpace);
 });
 

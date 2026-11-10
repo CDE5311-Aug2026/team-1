@@ -1,7 +1,7 @@
 // Home (Redesign v2, boards 05 "hunting together" and 11 "solo"). The kept 3D map and its region → area → place deck
 // (owner decision D-keep, Discovery redesign of 31 Oct 2026) with the v2 sections around it: the category chips
-// (?cat=, they also filter the map and the deck), the region leaderboard card (together mode only), Challenges and
-// Picked for you. An open place is still a page of its own (no tab bar, no sections).
+// (?cat=, they also filter the map and the deck), the region leaderboard card and Challenges (together mode only:
+// a user who answered "Not now" to hunting, or never answered, sees no Challenges; owner, 10 Nov 2026) and Picked for you. An open place is still a page of its own (no tab bar, no sections).
 import { useMemo, useState } from 'react';
 import AppShell from '../../components/AppShell/AppShell';
 import CategoryChips, { useCategoryParam } from '../../components/Category/CategoryChips';
@@ -34,7 +34,7 @@ export default function TodayPage() {
         top={together ? <RegionLeaderboard region={mode.region ?? 'central'} challenges={challenges} /> : null}
         bottom={
           <>
-            <ChallengesSection filter={category} />
+            {together ? <ChallengesSection filter={category} /> : null}
             <PickedSection filter={category} here={here} />
           </>
         }

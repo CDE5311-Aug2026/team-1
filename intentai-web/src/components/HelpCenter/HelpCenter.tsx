@@ -9,7 +9,6 @@ import logo from '../../assets/avatar-logo.png';
 import { matchTopic, TOPICS, type HelpTopic } from '../../data/help/guide';
 import Icon from '../../pages/OnboardingPage/v3/icons';
 import useHolderName from '../../pages/OnboardingPage/v3/useHolderName';
-import { testerStore } from '../../data/stores';
 import { lockScroll } from '../../hooks/scrollLock';
 import { closeHelp, setHelpTab, useHelp, type HelpTab } from './helpStore';
 import styles from './HelpCenter.module.css';
@@ -212,7 +211,7 @@ function Ask({ page }: { page: string }) {
   const list = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const holder = useHolderName();
-  const hasName = !!testerStore.get().name.trim();
+  const hasName = holder.length > 0;
   const { pathname, search } = useLocation();
   const here = (to: string) => to === pathname + search || (to !== '/' && to.split('?')[0] === pathname && !to.includes('?'));
   const starters = useMemo(() => startersFor(page), [page]);

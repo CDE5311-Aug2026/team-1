@@ -307,9 +307,9 @@ export function mrzLine(holder: string, profile: ProfileV3, length = 44): string
   return (`P<SGP${name}${tail}` + '<'.repeat(length)).slice(0, length);
 }
 
-/** The holder's initial for an avatar: one whole letter, however many code units it takes. */
+/** The holder's initial for an avatar: one whole letter, however many code units it takes; '' for no name. */
 export function holderInitial(holder: string): string {
-  return Array.from(holder.trim())[0]?.toUpperCase() ?? 'W';
+  return Array.from(holder.trim())[0]?.toUpperCase() ?? '';
 }
 
 /** Today's three categories from the ranking: ranked topics first, then the default order fills the rest. */

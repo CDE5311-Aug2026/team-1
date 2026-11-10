@@ -75,22 +75,22 @@ const mrzPad = (s: string) => (s + "<".repeat(MRZ_LENGTH)).slice(0, MRZ_LENGTH);
 const mrzWord = (s: string) =>
   s.normalize("NFD").replace(/\p{M}/gu, "").toUpperCase().replace(/[^A-Z0-9]+/g, "<");
 
-/** The two machine-readable lines, from real fields only: the holder line (name, role unless hidden) with the
- *  category codes in the holder's own ranking; then stamps, volumes done, home hunt region and hunt mode. */
+/** The three machine-readable lines, from real fields only: the holder line (name, role unless hidden); the categories
+ *  spelled out in the holder's own ranking (owner, 10 Nov 2026: not the three-letter codes; all four need a line of
+ *  their own); then stamps, volumes done, home hunt region and hunt mode. */
 export function passportMrz(
   holder: string,
   profile: ProfileV3,
   counts: { stamps: number; volumes: number },
   hunt: { together: boolean; region?: string },
-): [string, string] {
-  const codes = tourismRankingOf(profile).map((c) => TOURISM_INFO[c].code);
-  const name = mrzLine(holder, profile, MRZ_LENGTH).replace(/<+$/, "");
-  const first = mrzPad(codes.length ? `${name}<<${codes.join("<")}` : name);
+): [string, string, string] {
+  const first = mrzLine(holder, profile, MRZ_LENGTH);
+  const categories = mrzPad(tourismRankingOf(profile).map((c) => mrzWord(TOURISM_INFO[c].label)).join("<"));
   const region = hunt.region ? `${mrzWord(hunt.region)}<<` : "";
   const second = mrzPad(
     `${String(counts.stamps).padStart(3, "0")}SGP${String(counts.volumes).padStart(4, "0")}<<${region}${hunt.together ? "TOGETHER" : "SOLO"}`,
   );
-  return [first, second];
+  return [first, categories, second];
 }
 
 /** Published places of each category, drafts (planned) left out: they are never counted or stamped. */
@@ -140,7 +140,7 @@ function PassportCard({
   together: boolean;
   regionName?: string;
 }) {
-  const [first, second] = passportMrz(holder, profile, { stamps, volumes }, { together, region: regionName });
+  const [first, categories, second] = passportMrz(holder, profile, { stamps, volumes }, { together, region: regionName });
   const stats = [
     { label: "Stamps", value: stamps },
     { label: "Volumes", value: volumes },
@@ -158,12 +158,12 @@ function PassportCard({
       <div className={styles.cardBody}>
         <div className={styles.photo} aria-hidden="true">
           <img className={styles.watermark} src={logoInk} alt="" />
-          <span>{holderInitial(holder)}</span>
+          {holder ? <span>{holderInitial(holder)}</span> : <Icon name="user" size={28} />}
         </div>
         <div className={styles.cardMain}>
           <p className={styles.holder}>
             <span>Holder</span>
-            <strong>{holder}</strong>
+            <strong>{holder || "Explorer"}</strong>
           </p>
           <dl className={styles.stats}>
             {stats.map((s) => (
@@ -186,6 +186,7 @@ function PassportCard({
       </p>
       <p className={styles.mrz} aria-hidden="true">
         <span>{first}</span>
+        <span>{categories}</span>
         <span>{second}</span>
       </p>
     </section>

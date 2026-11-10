@@ -4,7 +4,7 @@
 //   icons from components/Avatar (decorative; names stay as text). The other hunters and their times are Hunt's
 //   SAMPLE players (stories.ts, as on Hunt's boards), noted as samples under them; your own line is real (your time in this weekend's challenge,
 //   from your stamps at its stops, if any).
-// - Challenges: Hunt's public challenges (both modes; solo leaves out the "joined" social line, plan B6). "Open" goes to
+// - Challenges: Hunt's public challenges (together mode only, owner 10 Nov 2026; was both modes, plan B6). "Open" goes to
 //   the challenge's volume (its story, /hunt#story/<route>): the challenge page was retired (second canvas, 8 Nov 2026).
 // - Picked for you: real published places by your categories, then distance when Locate has found you.
 import { useMemo, useState, type CSSProperties } from 'react';
@@ -246,7 +246,7 @@ export function PickedSection({ filter, here }: { filter: TourismFilter; here: L
           </svg>
           Picked for you
         </h2>
-        <span className={styles.sectionMeta}>{here ? 'personalised · nearest first' : 'personalised to your picks'}</span>
+        <span className={styles.sectionMeta}>{here ? 'Personalised · nearest first' : 'Personalised to your picks'}</span>
       </div>
       <ul className={styles.grid} aria-label="Places picked for you">
         {list.map(({ place, category, m }) => {
