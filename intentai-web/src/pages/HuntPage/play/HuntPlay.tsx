@@ -3,7 +3,8 @@
 // the map, a hint), then the ending. At a stop there is one thing to do: Take photo. The photo goes to AI recognition;
 // a recognised photo passes the stop and the next one opens by itself, with the clue you found on top. When the photo
 // is not recognised, or the service can't be reached, the player takes or sends it again: there is no way round it.
-// Nothing plays by itself: a film only plays when its button is tapped.
+// Nothing plays by itself: a film only plays when its button is tapped. Over the dock, the "Now" box (NowBox.tsx) says
+// in a line or two what to do right now, from the opening to the ending (UT03-4).
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../../OnboardingPage/v3/icons';
@@ -13,6 +14,8 @@ import { paths } from '../../../routes';
 import { huntImage, type HuntId } from '../hunts';
 import type { Film } from '../story/chapters';
 import { loadHunt, passStop, startHunt, type PlayHunt, type PlayStop } from './model';
+import { nowLine, stepOf } from './now';
+import { NowBox } from './NowBox';
 import { recognizePhoto } from './recognize';
 import { Tour, type TourStep } from './Tour';
 import { FilmSheet } from './FilmSheet';
@@ -34,6 +37,7 @@ const TOUR: TourStep[] = [
   { target: 'stop', title: 'The stop', text: 'Where to go, and what to look for when you get there.' },
   { target: 'map', title: 'Map', text: 'Opens the stop in your maps app, so you can walk there.' },
   { target: 'hint', title: 'Hint', text: 'Stuck? This shows what the detail looks like.' },
+  { target: 'now', title: 'Now: what to do next', text: 'This box always says what to do right now. Tap the arrow to fold it, tap again to bring it back.' },
   { target: 'camera', title: 'Take photo', text: 'Photograph the detail. When AI recognises it, the stop is passed and the next one opens.' },
   { target: 'back', title: 'Back', text: 'Leave the hunt at any time. Your progress is saved on this phone.' },
   { target: 'help', title: 'Tour', text: 'Tap ? to see this tour again.' },
@@ -47,6 +51,7 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
   const [films, setFilms] = useState<{ reel: Film[]; title: string } | null>(null);
   const [tourDone, setTourDone] = useUnsavedTour();
   const [touring, setTouring] = useState(false);
+  const [nowOpen, setNowOpen] = useState(true);
   const input = useRef<HTMLInputElement>(null);
   const file = useRef<File | null>(null);
   const abort = useRef<AbortController | null>(null);
@@ -118,10 +123,10 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
 
   const n = hunt.stops.length;
   const passed = hunt.stops.filter((s) => s.done).length;
-  const stepLabel = !hunt.started ? 'Opening' : hunt.complete ? 'Finished' : `Stop ${(hunt.current ?? 0) + 1} of ${n}`;
+  const stepLabel = stepOf(hunt);
 
   return (
-    <div className={styles.play}>
+    <div className={nowOpen ? styles.play : `${styles.play} ${styles.nowFolded}`}>
       <header className={styles.head}>
         <div className={styles.headRow}>
           <button type="button" className={styles.icon} aria-label="Back" title="Back" onClick={onBack} data-tour="back">
@@ -144,7 +149,7 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
 
       <div className={styles.body}>
         <p className={styles.live} role="status" aria-live="polite">
-          {check.state === 'checking' ? 'Checking your photo' : found ? `Stop passed. You found ${found.stop.found.title}.` : ''}
+          {found ? `Stop passed. You found ${found.stop.found.title}.` : ''}
         </p>
 
         {found && (
@@ -242,6 +247,7 @@ export function HuntPlay({ id, onBack }: { id: HuntId; onBack(): void }) {
       </div>
 
       <footer className={styles.dock}>
+        <NowBox line={nowLine(hunt, check.state)} open={nowOpen} onToggle={() => setNowOpen((o) => !o)} />
         {!hunt.started ? (
           <button type="button" className={styles.primary} onClick={begin}>
             Start the hunt

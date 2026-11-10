@@ -4,8 +4,11 @@
   min-height: 100dvh;
   color: var(--text-primary);
   font-family: var(--font-family);
-  /* room for the dock */
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  /* room for the dock and the Now box over it (two lines at most) */
+  padding-bottom: calc(176px + env(safe-area-inset-bottom, 0px));
+}
+.play.nowFolded {
+  padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ---- header: 〈 · title and step · ? , then the progress bars ---- */

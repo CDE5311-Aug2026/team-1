@@ -201,3 +201,33 @@ test('points: 100 for each stop passed', () => {
   localStorage.setItem('findsg-short-v2:gold-under-glass:manual', JSON.stringify({ version: 2, episodeId: 'gold-under-glass', mode: 'manual', ticket: true, letter: true, arrival1: true, photo1: true, shutter: true, parcel: true, mirror: true, deduce: true }));
   expect(huntPoints()).toBe(100);
 });
+
+test('the Now box over the dock says what to do at every step, and folds to a pill and back', async () => {
+  let answer: (v: { decision: string; confidence: number }) => void = () => {};
+  recognise(() => new Promise((r) => (answer = r)));
+  at('/hunt#story/short');
+  const now = () => screen.getAllByRole('status').find((el) => el.closest('[data-tour="now"]'))!;
+  expect(now()).toHaveTextContent('Read the letter, then tap Start the hunt.');
+  await userEvent.click(screen.getByRole('button', { name: 'Start the hunt' }));
+  expect(now()).toHaveTextContent(/^Go to .+, then photograph: .+/);
+  shoot();
+  expect(now()).toHaveTextContent('Checking your photo…');
+  await act(async () => answer({ decision: 'no_match', confidence: 0.1 }));
+  await waitFor(() => expect(now()).toHaveTextContent(/^Not recognised — reframe the detail and take another photo/));
+  // one tap folds it, one tap brings it back; it never goes away
+  await userEvent.click(screen.getByRole('button', { name: 'Fold the reminder' }));
+  expect(screen.getByRole('button', { name: 'Show what to do now' })).toHaveAttribute('aria-expanded', 'false');
+  expect(now()).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Show what to do now' }));
+  expect(screen.getByRole('button', { name: 'Fold the reminder' })).toHaveAttribute('aria-expanded', 'true');
+});
+
+test('the tour has a step on the Now box', async () => {
+  huntTourStore.set({ done: false });
+  at('/hunt#story/balestier');
+  await userEvent.click(screen.getByRole('button', { name: 'Start the hunt' }));
+  await screen.findByRole('dialog', { name: 'Your progress' });
+  for (let i = 0; i < 8 && !screen.queryByRole('dialog', { name: 'Now: what to do next' }); i++)
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /Next|Got it/ }));
+  expect(screen.getByRole('dialog', { name: 'Now: what to do next' })).toBeInTheDocument();
+});
