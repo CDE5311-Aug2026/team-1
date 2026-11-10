@@ -141,6 +141,17 @@ export function routeRows(routeId: string, names: { id: string; name: string }[]
     return { id, name, stamped: !!c?.countsAsVisit, stampedAt: c?.countsAsVisit ? time(c.confirmedAt) : undefined, solved: solved.has(id) };
   });
 }
+/** When a story was last played on this phone: its start or its latest check-in (0 when nothing is known). */
+export function lastPlayedAt(id: HuntId): number {
+  const t = readTimes()[id];
+  let at = Math.max(t?.startedAt ?? 0, t?.finishedAt ?? 0);
+  const route = id === 'short' ? null : ONSITE_ROUTES[id];
+  if (route) {
+    const on = readOnsite(id, route.stops, 'manual') as unknown as OnsiteSave;
+    for (const r of Object.values(on.stops ?? {})) at = Math.max(at, time(r?.checkin?.confirmedAt) ?? 0, time(r?.observation?.confirmedAt) ?? 0);
+  }
+  return at;
+}
 export const recordOf = (id: HuntId) => storyRecords().find((r) => r.id === id)!;
 export const clock = (t?: number) => (t ? new Date(t).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
 

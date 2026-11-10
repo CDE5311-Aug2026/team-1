@@ -33,6 +33,11 @@
   background: transparent !important;
 }
 
+/* The remind box over the tab bar (ShellNow): the page keeps room for it, so the last lines can scroll out from under it. */
+.shell:has([data-shell-now]) .page:not(.story) {
+  padding-bottom: calc(6rem + 5rem);
+}
+
 /* Wider screens have no home indicator to clear. */
 @media (min-width: 481px) {
   .shell {

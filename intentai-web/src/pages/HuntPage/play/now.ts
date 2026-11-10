@@ -1,7 +1,10 @@
 // "Now" (user test UT03-4/5, 10 Nov 2026: "remind me what to do now"): one or two short lines on what to do next, read
-// from the hunt as it is (its save, the stop's own words, the photo check). HuntPlay shows it over the dock. Nothing here
-// is invented: the place and the detail to photograph are the stop's own.
-import type { PlayHunt } from './model';
+// from the hunt as it is (its save, the stop's own words, the photo check). HuntPlay shows it over the dock; the app's
+// shell shows a smaller one over the tab bar while a hunt is under way (ShellNow.tsx). Nothing here is invented: the
+// place and the detail to photograph are the stop's own.
+import { HUNTS, type HuntId } from '../hunts';
+import { lastPlayedAt } from '../story/record';
+import { loadHunt, type PlayHunt } from './model';
 
 export type NowCheck = 'idle' | 'checking' | 'no-match' | 'unavailable';
 
@@ -39,4 +42,28 @@ export function nowLine(hunt: PlayHunt, check: NowCheck = 'idle'): NowLine {
   if (check === 'unavailable') return { label, text: 'The photo could not be checked — tap Try again or take a new photo.' };
   const where = whereOf(hunt);
   return { label, text: `${where ? `Go to ${where}, then photograph: ` : 'Photograph: '}${stop.target}` };
+}
+
+/** The few words outside the hunt: where to go next. */
+export function nextAction(hunt: PlayHunt): string {
+  const where = whereOf(hunt);
+  return where ? `Go to ${where} and take the photo.` : 'Take the photo of the detail.';
+}
+
+export interface HuntUnderWay {
+  hunt: PlayHunt;
+  /** The stop to play now (its index). */
+  stop: number;
+}
+
+/** The hunt under way (started, not finished) played most recently; ties go to the first in HUNTS order. */
+export function huntUnderWay(): HuntUnderWay | null {
+  let best: { hunt: PlayHunt; at: number } | null = null;
+  for (const h of HUNTS) {
+    const hunt = loadHunt(h.id);
+    if (!hunt || !hunt.started || hunt.complete || hunt.current == null) continue;
+    const at = lastPlayedAt(h.id as HuntId);
+    if (!best || at > best.at) best = { hunt, at };
+  }
+  return best ? { hunt: best.hunt, stop: best.hunt.current! } : null;
 }
