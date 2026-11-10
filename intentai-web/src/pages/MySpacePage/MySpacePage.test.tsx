@@ -17,7 +17,7 @@ import { allStamps } from '../../data/moments/moments';
 import { TOURISM_CATEGORIES, TOURISM_INFO, tourismOf, type TourismCategory } from '../../data/tourism';
 import { huntModeStore } from '../../data/v2Stores';
 import { PUBLISHED_PLACES } from '../../features/nearby/catalogue';
-import { passportMrz } from './MySpacePage';
+import { passportLegend, passportMrz } from './MySpacePage';
 import { HOLD_MS } from './PrivacyPage';
 import { currentPath, renderAt } from './testUtils';
 
@@ -113,6 +113,34 @@ test('the MRZ lines use real fields only: name, ranking codes, counts, region an
   expect(b).toBe('004SGP0001<<CENTRAL<<TOGETHER'.padEnd(44, '<'));
   const [, solo] = passportMrz('Serin', DEFAULT_PROFILE_V3, { stamps: 0, volumes: 0 }, { together: false });
   expect(solo).toBe('000SGP0000<<SOLO'.padEnd(44, '<'));
+});
+
+test('the code line is captioned and decoded in plain words from the same fields; hidden fields stay hidden', () => {
+  const profile: ProfileV3 = { ...DEFAULT_PROFILE_V3, role: 'student', hidden: [], tourismRanking: ['att', 'cru', 'wel'] };
+  const counts = { stamps: 4, volumes: 1 };
+  expect(passportLegend('Serin', profile, counts, { together: true, region: 'Central' })).toEqual([
+    'Serin',
+    'Student',
+    'Top interests: Attractions, Cruise, Wellness',
+    '4 stamps',
+    '1 hunt done',
+    'Central',
+    'Hunting together',
+  ]);
+  const quiet: ProfileV3 = { ...profile, hidden: ['role', 'topics'] };
+  expect(passportLegend('Serin', quiet, { stamps: 1, volumes: 0 }, { together: false })).toEqual([
+    'Serin',
+    '1 stamp',
+    '0 hunts done',
+    'Solo',
+  ]);
+  // the code itself drops what the legend drops
+  expect(passportMrz('Serin', quiet, counts, { together: false })[0]).toBe('P<SGPSERIN<<<'.padEnd(44, '<'));
+
+  renderAt(paths.mySpace);
+  const card = screen.getByRole('region', { name: 'Passport holder' });
+  expect(within(card).getByText('Passport code')).toBeInTheDocument();
+  expect(within(card).getByText(/Your passport code:/).parentElement).toHaveTextContent(/stamps? · \d+ hunts? done/);
 });
 
 test('collection: one card per category with real counts; the chips filter it; the chevron opens Search', async () => {

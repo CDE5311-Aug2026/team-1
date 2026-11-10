@@ -33,6 +33,7 @@ import {
   languageOf,
   mrzLine,
   profileV3Store,
+  roleOf,
   toggleHidden,
   tourismOrder,
   tourismRankingOf,
@@ -86,7 +87,7 @@ export function passportMrz(
   counts: { stamps: number; volumes: number },
   hunt: { together: boolean; region?: string },
 ): [string, string] {
-  const codes = tourismRankingOf(profile).map((c) => TOURISM_INFO[c].code);
+  const codes = interestsOf(profile).map((c) => TOURISM_INFO[c].code);
   const name = mrzLine(holder, profile, MRZ_LENGTH).replace(/<+$/, "");
   const first = mrzPad(codes.length ? `${name}<<${codes.join("<")}` : name);
   const region = hunt.region ? `${mrzWord(hunt.region)}<<` : "";
@@ -94,6 +95,32 @@ export function passportMrz(
     `${String(counts.stamps).padStart(3, "0")}SGP${String(counts.volumes).padStart(4, "0")}<<${region}${hunt.together ? "TOGETHER" : "SOLO"}`,
   );
   return [first, second];
+}
+
+/** The ranked categories, unless the holder hid their topics (the ranking is drawn from them). */
+const interestsOf = (profile: ProfileV3) => (profile.hidden.includes("topics") ? [] : tourismRankingOf(profile));
+
+const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+/** The same fields as passportMrz, in plain words: holder, role (unless hidden), interests (unless hidden),
+ *  stamps, hunts done, home hunt region and hunt mode. */
+export function passportLegend(
+  holder: string,
+  profile: ProfileV3,
+  counts: { stamps: number; volumes: number },
+  hunt: { together: boolean; region?: string },
+): string[] {
+  const role = profile.hidden.includes("role") ? undefined : roleOf(profile.role)?.label;
+  const interests = interestsOf(profile).map((c) => TOURISM_INFO[c].label);
+  return [
+    holder,
+    ...(role ? [role] : []),
+    ...(interests.length ? [`Top interests: ${interests.join(", ")}`] : []),
+    plural(counts.stamps, "stamp"),
+    `${plural(counts.volumes, "hunt")} done`,
+    ...(hunt.region ? [hunt.region] : []),
+    hunt.together ? "Hunting together" : "Solo",
+  ];
 }
 
 /** Published places of each category, drafts (planned) left out: they are never counted or stamped. */
@@ -144,6 +171,7 @@ function PassportCard({
   regionName?: string;
 }) {
   const [first, second] = passportMrz(holder, profile, { stamps, volumes }, { together, region: regionName });
+  const legend = passportLegend(holder, profile, { stamps, volumes }, { together, region: regionName });
   const stats = [
     { label: "Stamps", value: stamps },
     { label: "Volumes", value: volumes },
@@ -187,10 +215,20 @@ function PassportCard({
         <span className={styles.modeDot} aria-hidden="true" />
         {together ? `Hunting together${regionName ? ` · ${regionName}` : ""}` : "Solo explorer"}
       </p>
-      <p className={styles.mrz} aria-hidden="true">
-        <span>{first}</span>
-        <span>{second}</span>
-      </p>
+      {/* the code line, captioned and read out in plain words below (UT03-2: on its own it read as noise) */}
+      <div className={styles.mrzBlock}>
+        <p className={styles.mrzLabel} aria-hidden="true">
+          Passport code
+        </p>
+        <p className={styles.mrz} aria-hidden="true">
+          <span>{first}</span>
+          <span>{second}</span>
+        </p>
+        <p className={styles.mrzLegend}>
+          <span className={styles.srOnly}>Your passport code: </span>
+          {legend.join(" · ")}
+        </p>
+      </div>
     </section>
   );
 }

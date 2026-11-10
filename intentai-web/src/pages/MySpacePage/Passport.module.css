@@ -239,11 +239,24 @@
   background: var(--cat-wel);
 }
 
-.mrz {
+.mrzBlock {
   position: relative;
   margin: 10px 0 0;
   padding-top: 7px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-strong);
+  min-width: 0;
+}
+
+.mrzLabel {
+  margin: 0 0 3px;
+  font: 500 0.5625rem/0.75rem var(--font-mono);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.mrz {
+  margin: 0;
   font: 400 0.6875rem/0.9375rem var(--font-mono);
   letter-spacing: 0.6px;
   color: var(--v2-muted);
@@ -251,6 +264,23 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* the code in plain words: wraps, never runs off the card */
+.mrzLegend {
+  margin: 5px 0 0;
+  font: 400 0.625rem/0.875rem var(--font-mono);
+  color: var(--v2-muted);
+  overflow-wrap: anywhere;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* ---- sections ---- */
