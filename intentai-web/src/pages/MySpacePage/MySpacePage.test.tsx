@@ -106,13 +106,19 @@ test('solo mode (and unset): no leaderboard and no together chip; the Journal fo
   expect(screen.queryByRole('region', { name: /Leaderboard/ })).toBeNull();
 });
 
-test('the MRZ lines use real fields only: name, ranking codes, counts, region and mode', () => {
+test('the MRZ lines use real fields only: name, the categories spelled out, counts, region and mode', () => {
   const profile: ProfileV3 = { ...DEFAULT_PROFILE_V3, tourismRanking: ['wel', 'att'] };
-  const [a, b] = passportMrz('Serin', profile, { stamps: 4, volumes: 1 }, { together: true, region: 'Central' });
-  expect(a).toBe('P<SGPSERIN<<WEL<ATT'.padEnd(44, '<'));
+  const [a, cats, b] = passportMrz('Serin', profile, { stamps: 4, volumes: 1 }, { together: true, region: 'Central' });
+  expect(a).toMatch(/^P<SGPSERIN<<<+$/);
+  expect(cats).toBe('WELLNESS<ATTRACTIONS'.padEnd(44, '<'));
   expect(b).toBe('004SGP0001<<CENTRAL<<TOGETHER'.padEnd(44, '<'));
-  const [, solo] = passportMrz('Serin', DEFAULT_PROFILE_V3, { stamps: 0, volumes: 0 }, { together: false });
+  // all four fit on their line
+  const all: ProfileV3 = { ...DEFAULT_PROFILE_V3, tourismRanking: ['wel', 'cru', 'att', 'lei'] };
+  expect(passportMrz('Serin', all, { stamps: 0, volumes: 0 }, { together: false })[1]).toBe('WELLNESS<CRUISE<ATTRACTIONS<LEISURE'.padEnd(44, '<'));
+  const [, , solo] = passportMrz('Serin', DEFAULT_PROFILE_V3, { stamps: 0, volumes: 0 }, { together: false });
   expect(solo).toBe('000SGP0000<<SOLO'.padEnd(44, '<'));
+  // no name given: no made-up holder in the line
+  expect(passportMrz('', profile, { stamps: 0, volumes: 0 }, { together: false })[0]).toMatch(/^P<SGP<<<+$/);
 });
 
 test('the code line is captioned and decoded in plain words from the same fields; hidden fields stay hidden', () => {
@@ -289,7 +295,7 @@ test('links: Privacy & data and Redo onboarding; Settings and Help live in the t
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   await userEvent.click(screen.getByRole('button', { name: /Redo onboarding/ }));
   expect(currentPath()).toBe(paths.welcome);
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('What would you like to explore?');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Whose passport is this?');
 });
 
 test('S2: Reduce motion is the app-wide setting (on its own page); captions are kept locally', async () => {

@@ -1,5 +1,5 @@
-// v2 onboarding board 04, /onboarding/result: review the draft (categories, hunt mode, region) on the passport card,
-// tap a line to change it in a sheet (the same editors as steps 1–2; Cancel discards, Save updates the draft and you
+// v2 onboarding board 04, /onboarding/result: review the draft (categories, hunt mode, region, name) on the passport
+// card, tap a line to change it in a sheet (the same editors as the questions; Cancel discards, Save updates the draft and you
 // stay here), then "Stamp my passport" saves everything through finishTourismOnboarding, the stamp lands
 // (reduced-motion safe) and Home opens. No place visit is recorded: the seal is the profile's stampedOn only.
 import { motion, useReducedMotionConfig } from 'motion/react';
@@ -11,11 +11,12 @@ import TourismRanker from '../../components/ProfileEditors/TourismRanker';
 import { REGION_NAMES } from '../../components/RegionMap/regionPaths.generated';
 import { usePersistentStore } from '../../data/persistentStore';
 import { finishTourismOnboarding, holderInitial, localDate, mySpacePrefsStore, profileV3Store, sealDate } from '../../data/profile/profile';
-import { onboardingStore, testerStore } from '../../data/stores';
+import { onboardingStore } from '../../data/stores';
 import { TOURISM_INFO } from '../../data/tourism';
-import { huntModeStore } from '../../data/v2Stores';
+import { huntModeStore, passportNameStore } from '../../data/v2Stores';
 import { paths } from '../../routes';
-import { draftFromState, initialDraft, type Draft } from './flow';
+import { draftFromState, draftName, initialDraft, type Draft } from './flow';
+import NameField from './NameField';
 import { ProgressHeader } from './parts';
 import Icon, { type IconName } from './v3/icons';
 import styles from './Onboarding.module.css';
@@ -119,34 +120,44 @@ export default function ResultPage() {
   const [profile] = usePersistentStore(profileV3Store);
   const [hunt] = usePersistentStore(huntModeStore);
   const [onboarding] = usePersistentStore(onboardingStore);
-  const [tester] = usePersistentStore(testerStore);
+  const [passportName] = usePersistentStore(passportNameStore);
   const [prefs] = usePersistentStore(mySpacePrefsStore);
-  const [draft, setDraftState] = useState<Draft>(() => draftFromState(location.state) ?? initialDraft(profile, hunt, onboarding.done));
-  const [editing, setEditing] = useState<null | 'explore' | 'hunt'>(null);
+  const [draft, setDraftState] = useState<Draft>(
+    () => draftFromState(location.state) ?? initialDraft(profile, hunt, onboarding.done, passportName.name),
+  );
+  const [editing, setEditing] = useState<null | 'explore' | 'hunt' | 'name'>(null);
+  const [nameTried, setNameTried] = useState(false);
   const [edit, setEdit] = useState<Draft>(draft);
   const [stamped, setStamped] = useState<string | null>(null);
   const timer = useRef<number>();
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  const name = tester.name.trim();
-  const ready = draft.ranking.length > 0 && Boolean(draft.mode && draft.region);
+  const name = draftName(draft);
+  const ready = draft.ranking.length > 0 && Boolean(draft.mode && draft.region) && name !== null;
 
   const setDraft = (d: Draft) => {
     setDraftState(d);
     navigate(location.pathname, { replace: true, state: { draft: d } });
   };
-  const open = (which: 'explore' | 'hunt') => {
+  const open = (which: 'explore' | 'hunt' | 'name') => {
     setEdit(draft);
+    setNameTried(false);
     setEditing(which);
   };
   const save = () => {
     setDraft(edit);
     setEditing(null);
   };
+  const saveName = () => {
+    if (draftName(edit)) save();
+    else setNameTried(true);
+  };
 
   const stamp = () => {
     if (!ready || stamped) return;
+    if (!name) return;
     finishTourismOnboarding({ ranking: draft.ranking, mode: draft.mode, region: draft.region });
+    passportNameStore.set({ name });
     if (prefs.haptics) navigator.vibrate?.(30);
     setStamped(localDate());
     timer.current = window.setTimeout(() => navigate(paths.today), reduce ? 0 : STAMP_MS);
@@ -156,7 +167,7 @@ export default function ResultPage() {
     <AppShell chrome="none">
       <div className={styles.screen}>
         <div className={styles.question}>
-          <ProgressHeader step={3} onBack={() => navigate(`${paths.welcome}?step=2`, { state: { draft } })} />
+          <ProgressHeader step={4} onBack={() => navigate(`${paths.welcome}?step=3`, { state: { draft } })} />
           <div className={`${styles.head} ${styles.headCenter}`}>
             <h1 className={styles.title}>{name ? `You’re all set, ${name}` : 'You’re all set'}</h1>
             <p className={styles.sub}>Tap a line to change it. Everything is editable later.</p>
@@ -165,7 +176,7 @@ export default function ResultPage() {
           <section className={styles.passport} aria-label="Your passport">
             <div className={styles.passportTop}>
               <span className={styles.avatar} aria-hidden="true">
-                {holderInitial(name || 'W')}
+                {name ? holderInitial(name) : <Icon name="user" size={22} />}
               </span>
               <div className={styles.holder}>
                 <span className={styles.holderName}>{name || 'Your passport'}</span>
@@ -219,6 +230,13 @@ export default function ResultPage() {
                 </span>
                 <Icon name="chevron" size={16} className={styles.lineChevron} />
               </button>
+              <button type="button" className={styles.line} onClick={() => open('name')} aria-label={`Name: ${name ?? 'not given'}. Change`}>
+                <span className={styles.lineLabel}>Name</span>
+                <span className={styles.linePills}>
+                  {name ? <span className={`${styles.pill} ${styles.pillDark}`}>{name}</span> : <span className={styles.lineEmpty}>Type your name</span>}
+                </span>
+                <Icon name="chevron" size={16} className={styles.lineChevron} />
+              </button>
             </div>
           </section>
 
@@ -264,6 +282,17 @@ export default function ResultPage() {
       {editing === 'hunt' ? (
         <Sheet title="Hunt with others nearby?" onCancel={() => setEditing(null)} onSave={save} canSave={Boolean(edit.mode && edit.region)}>
           <HuntStepEditor mode={edit.mode} region={edit.region} onMode={(mode) => setEdit({ ...edit, mode })} onRegion={(region) => setEdit({ ...edit, region })} />
+        </Sheet>
+      ) : null}
+      {editing === 'name' ? (
+        <Sheet title="Whose passport is this?" onCancel={() => setEditing(null)} onSave={saveName} canSave={edit.name.trim().length > 0}>
+          <NameField
+            value={edit.name}
+            onChange={(n) => setEdit({ ...edit, name: n })}
+            showError={nameTried}
+            onBlur={() => edit.name.trim().length > 0 && setNameTried(true)}
+            autoFocus
+          />
         </Sheet>
       ) : null}
     </AppShell>

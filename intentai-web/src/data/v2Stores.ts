@@ -38,6 +38,18 @@ export function isTogether(state: HuntModeState = huntModeStore.get()): boolean 
   return state.mode === 'together';
 }
 
+/** The name on the passport (onboarding's "Whose passport is this?"). Separate from the user-test name, which labels a
+ *  session and must not be a real name; this one never leaves the phone. '' until given. */
+export interface PassportName {
+  name: string;
+}
+
+export const passportNameStore = createPersistentStore<PassportName>({
+  key: 'passport-name',
+  fallback: { name: '' },
+  isValid: (value): value is PassportName => isRecord(value) && typeof value.name === 'string',
+});
+
 export const SEARCH_RECENT_MAX = 8;
 
 export function isRecentList(value: unknown): value is string[] {

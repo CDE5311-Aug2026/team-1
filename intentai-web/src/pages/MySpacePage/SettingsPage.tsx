@@ -32,6 +32,7 @@ import Icon from '../OnboardingPage/v3/icons';
 import { Row, RowIcon, Section } from './SettingsParts';
 import FieldEditor from './v3/FieldEditor';
 import { Kraft, SubHeader, Switch } from './v3/Parts';
+import useHolderName from '../OnboardingPage/v3/useHolderName';
 import Sheet from './v3/Sheet';
 import book from './v3/Booklet.module.css';
 import styles from './v3/MySpace.module.css';
@@ -123,13 +124,12 @@ export default function SettingsPage() {
   const [reduceMotion] = usePersistentStore(reduceMotionStore);
   const [profile] = usePersistentStore(profileV3Store);
   const [hunt, setHunt] = usePersistentStore(huntModeStore);
-  const [tester] = usePersistentStore(testerStore);
   const [open, setOpen] = useState<Open>(null);
   const language = languageOf(profile.language);
   const base = areaById(profile.base);
   const ranking = tourismRankingOf(profile);
   const together = hunt.mode === 'together';
-  const name = tester.name.trim();
+  const name = useHolderName();
   const modeLine = together ? 'hunting together' : 'exploring on your own';
   const close = () => setOpen(null);
 

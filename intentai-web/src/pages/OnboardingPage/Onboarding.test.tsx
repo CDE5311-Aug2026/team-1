@@ -7,9 +7,10 @@ import { STORAGE_PREFIX } from '../../data/persistentStore';
 import { DEFAULT_PROFILE_V3, localDate, profileV3Store } from '../../data/profile/profile';
 import { collectedStore, culturePrefsStore, onboardingStore, placeStore, testerStore } from '../../data/stores';
 import { TOURISM_CATEGORIES } from '../../data/tourism';
-import { huntModeStore } from '../../data/v2Stores';
+import { huntModeStore, passportNameStore } from '../../data/v2Stores';
 import { dismissToast } from '../../hooks/useToast';
 import { feedPreview, leadLines, photoPlaces } from './flow';
+import { cleanName, nameError, NAME_MAX } from './name';
 
 function Pathname() {
   const { pathname, search } = useLocation();
@@ -53,23 +54,64 @@ test('feed preview: two real places with photos, in ranking order; two of #1 whe
   expect(leadLines(['att', 'wel', 'cru'])).toEqual(['Home leads with Attractions.', 'Then Wellness, Cruise.']);
 });
 
-test('a first-run user lands on Welcome B (board 01); Start the hunt opens question 1', async () => {
+/** Question 1: type a name and go on to question 2. */
+async function nameFirst(user: ReturnType<typeof userEvent.setup>, name = 'Ana') {
+  await user.type(screen.getByLabelText('Name on your passport'), name);
+  await user.click(primary(/^Continue/));
+}
+
+test('a first-run user lands on Welcome B (board 01); Start the hunt opens question 1, the name', async () => {
   renderAt('/');
   expect(location()).toBe('/onboarding');
   expect(screen.getByRole('heading', { level: 1, name: /^Welcome to the\s*Singapore Treasure Hunt$/ })).toBeInTheDocument();
-  expect(screen.getByText('Three quick questions · everything stays on this phone')).toBeInTheDocument();
+  expect(screen.getByText('Four quick questions · everything stays on this phone')).toBeInTheDocument();
   expect(screen.getByText('We record how long you spend on each page, anonymously, to improve the app.')).toBeInTheDocument();
   const cats = within(screen.getByRole('list', { name: 'The four place categories' })).getAllByRole('listitem');
   expect(cats.map((li) => li.textContent)).toEqual(['Attractions', 'Wellness', 'Leisure', 'Cruise']);
   await userEvent.click(screen.getByRole('button', { name: /Start the hunt/ }));
   expect(location()).toBe('/onboarding?step=1');
-  expect(h1()).toHaveTextContent('What would you like to explore?');
-  expect(screen.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuetext', 'Step 1 of 3');
+  expect(h1()).toHaveTextContent('Whose passport is this?');
+  expect(screen.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuetext', 'Step 1 of 4');
 });
 
-test('question 1: Continue waits for a pick; the preview follows the ranking; nothing is saved yet', async () => {
+test('question 1: the passport card takes the name and its first letter; the next three steps are listed', async () => {
   const user = userEvent.setup();
   renderAt('/onboarding?step=1');
+  const card = screen.getByRole('region', { name: 'Your passport' });
+  expect(within(card).getByText('Your name')).toBeInTheDocument();
+  const ahead = within(screen.getByRole('region', { name: 'Up next · 3 quick steps' })).getAllByRole('listitem');
+  expect(ahead.map((li) => li.textContent)).toEqual([
+    expect.stringMatching(/^What you’d like to explore.*Step 2\/4$/),
+    expect.stringMatching(/^How you hunt, and where.*Step 3\/4$/),
+    expect.stringMatching(/^Review and stamp.*Step 4\/4$/),
+  ]);
+  expect(primary(/^Type your name/)).toBeDisabled();
+  await user.type(screen.getByLabelText('Name on your passport'), 'maya');
+  expect(within(card).getByText('maya')).toBeInTheDocument();
+  expect(card.querySelector('[aria-hidden="true"]')).toHaveTextContent(/^M$/);
+});
+
+test('question 1: Continue shows the problem and stays; a fixed name goes on; nothing is saved yet', async () => {
+  const user = userEvent.setup();
+  renderAt('/onboarding?step=1');
+  const input = screen.getByLabelText('Name on your passport');
+  await user.type(input, '42');
+  await user.click(primary(/^Continue/));
+  expect(location()).toBe('/onboarding?step=1');
+  expect(screen.getByRole('alert')).toHaveTextContent('Use at least one letter.');
+  expect(input).toHaveAttribute('aria-invalid', 'true');
+  expect(input).toHaveFocus();
+  await user.clear(input);
+  await user.type(input, 'Maya{Enter}');
+  expect(location()).toBe('/onboarding?step=2');
+  expect(h1()).toHaveTextContent('What would you like to explore?');
+  expect(passportNameStore.get()).toEqual({ name: '' });
+});
+
+test('question 2: Continue waits for a pick; the preview follows the ranking; nothing is saved yet', async () => {
+  const user = userEvent.setup();
+  renderAt('/onboarding?step=2');
+  expect(screen.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuetext', 'Step 2 of 4');
   expect(primary(/Pick at least one category/)).toBeDisabled();
   expect(screen.getByText('Pick a category to see your feed')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Wellness' }));
@@ -87,12 +129,13 @@ test('question 1: Continue waits for a pick; the preview follows the ranking; no
   expect(profileV3Store.get().tourismRanking).toBeUndefined();
 });
 
-test('question 2: Continue needs a mode and a region; Back keeps the question-1 answers', async () => {
+test('question 3: Continue needs a mode and a region; Back keeps the earlier answers', async () => {
   const user = userEvent.setup();
   renderAt('/onboarding?step=1');
+  await nameFirst(user);
   await user.click(screen.getByRole('button', { name: 'Leisure' }));
   await user.click(primary(/^Continue/));
-  expect(location()).toBe('/onboarding?step=2');
+  expect(location()).toBe('/onboarding?step=3');
   expect(h1()).toHaveTextContent('Hunt with others nearby?');
   // a challenge opens its volume now (there is no Join)
   expect(screen.getByText(/^Open this weekend’s challenges and see example leaderboards\./)).toBeInTheDocument();
@@ -104,15 +147,18 @@ test('question 2: Continue needs a mode and a region; Back keeps the question-1 
   expect(primary(/^Continue/)).toBeEnabled();
   expect(huntModeStore.get()).toEqual({});
   await user.click(screen.getByRole('button', { name: 'Back' }));
-  expect(location()).toBe('/onboarding?step=1');
+  expect(location()).toBe('/onboarding?step=2');
   expect(screen.getByRole('button', { name: 'Leisure, ranked 1' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Back' }));
+  expect(location()).toBe('/onboarding?step=1');
+  expect(screen.getByLabelText('Name on your passport')).toHaveValue('Ana');
   await user.click(screen.getByRole('button', { name: 'Back' }));
   expect(location()).toBe('/onboarding');
 });
 
-test('question 2: hunt together / on your own is a radio group of two cards, one Tab stop, arrows move the choice', async () => {
+test('question 3: hunt together / on your own is a radio group of two cards, one Tab stop, arrows move the choice', async () => {
   const user = userEvent.setup();
-  renderAt('/onboarding?step=1');
+  renderAt('/onboarding?step=2');
   await user.click(screen.getByRole('button', { name: 'Cruise' }));
   await user.click(primary(/^Continue/));
   const group = screen.getByRole('radiogroup', { name: 'Hunt with others nearby?' });
@@ -147,7 +193,7 @@ test('old onboarding routes open question 1', () => {
   }
 });
 
-test('the whole flow: rank → mode and region → review edit → stamp saves the v2 answers only, then Home', async () => {
+test('the whole flow: name → rank → mode and region → review edit → stamp saves the v2 answers only, then Home', async () => {
   const user = userEvent.setup();
   const testerBefore = testerStore.get();
   testerStore.set({ name: 'P01', version: 'B' });
@@ -158,6 +204,7 @@ test('the whole flow: rank → mode and region → review edit → stamp saves t
 
   renderAt('/');
   await user.click(screen.getByRole('button', { name: /Start the hunt/ }));
+  await nameFirst(user, '  Serin   Ee ');
   await user.click(screen.getByRole('button', { name: 'Attractions' }));
   await user.click(screen.getByRole('button', { name: 'Cruise' }));
   await user.click(primary(/^Continue/));
@@ -166,8 +213,10 @@ test('the whole flow: rank → mode and region → review edit → stamp saves t
   await user.click(primary(/^Continue/));
 
   expect(location()).toBe('/onboarding/result');
-  expect(h1()).toHaveTextContent('You’re all set, P01');
-  expect(screen.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuetext', 'Step 3 of 3');
+  // the passport name, not the test code (P01)
+  expect(h1()).toHaveTextContent('You’re all set, Serin Ee');
+  expect(screen.getByRole('button', { name: 'Name: Serin Ee. Change' })).toBeInTheDocument();
+  expect(screen.getByRole('progressbar', { name: 'Questions' })).toHaveAttribute('aria-valuetext', 'Step 4 of 4');
   const explore = screen.getByRole('button', { name: 'Explore: Attractions, Cruise. Change' });
   expect(screen.getByRole('button', { name: 'Hunt: Central, hunting together. Change' })).toBeInTheDocument();
   expect(screen.getByText('Central leaderboard')).toBeInTheDocument();
@@ -207,6 +256,7 @@ test('the whole flow: rank → mode and region → review edit → stamp saves t
   expect(profile.tourismRanking).toEqual(['att', 'wel']);
   expect(profile.stampedOn).toBe(localDate());
   expect(huntModeStore.get()).toEqual({ mode: 'solo', region: 'west' });
+  expect(passportNameStore.get()).toEqual({ name: 'Serin Ee' });
   // legacy answers, Today's preferences and place visits are untouched (plan A1, B3)
   expect(profile.topics).toEqual(['food', 'nature']);
   expect(profile.base).toBe('sg-chinatown');
@@ -218,28 +268,69 @@ test('the whole flow: rank → mode and region → review edit → stamp saves t
   testerStore.set(testerBefore);
 });
 
-test('Back from the review returns to question 2 with the answers kept', async () => {
+test('Back from the review returns to question 3 with the answers kept', async () => {
   const user = userEvent.setup();
   renderAt('/onboarding?step=1');
+  await nameFirst(user);
   await user.click(screen.getByRole('button', { name: 'Cruise' }));
   await user.click(primary(/^Continue/));
   await user.click(screen.getByRole('radio', { name: /Not now/ }));
   await user.click(regionChip('North'));
   await user.click(primary(/^Continue/));
   await user.click(screen.getByRole('button', { name: 'Back' }));
-  expect(location()).toBe('/onboarding?step=2');
+  expect(location()).toBe('/onboarding?step=3');
   expect(screen.getByRole('radio', { name: /Not now/ })).toHaveAttribute('aria-checked', 'true');
   expect(regionChip('North')).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('passport name rules: tidied, required, a letter, a length cap, a short list of marks', () => {
+  expect(cleanName('  Serin 　 Ee ')).toBe('Serin Ee');
+  expect(cleanName('Ｓｅｒｉｎ')).toBe('Serin');
+  expect(nameError('')).toMatch(/Type a name/);
+  expect(nameError('   ')).toMatch(/Type a name/);
+  expect(nameError('007')).toBe('Use at least one letter.');
+  expect(nameError('a'.repeat(NAME_MAX))).toBeNull();
+  expect(nameError('a'.repeat(NAME_MAX + 1))).toMatch(/or fewer/);
+  expect(nameError('<script>')).toMatch(/letters, numbers/);
+  expect(nameError('Serin 😀')).toMatch(/letters, numbers/);
+  for (const ok of ['Serin', "O'Neil", 'Jean-Luc', 'José', 'Dr. Tan', '李明', 'R2D2']) expect(nameError(ok)).toBeNull();
+});
+
+test('the review: the Name sheet checks the name; Cancel keeps the old one', async () => {
+  const user = userEvent.setup();
+  renderAt('/onboarding?step=1');
+  await nameFirst(user, 'Maya');
+  await user.click(screen.getByRole('button', { name: 'Cruise' }));
+  await user.click(primary(/^Continue/));
+  await user.click(screen.getByRole('radio', { name: /Not now/ }));
+  await user.click(regionChip('North'));
+  await user.click(primary(/^Continue/));
+  await user.click(screen.getByRole('button', { name: 'Name: Maya. Change' }));
+  let sheet = screen.getByRole('dialog', { name: 'Whose passport is this?' });
+  const input = within(sheet).getByLabelText('Name on your passport');
+  await user.clear(input);
+  await user.type(input, '!!!');
+  await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+  expect(within(sheet).getByRole('alert')).toHaveTextContent('Use at least one letter.');
+  await user.click(within(sheet).getByRole('button', { name: 'Cancel' }));
+  expect(screen.getByRole('button', { name: 'Name: Maya. Change' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Name: Maya. Change' }));
+  sheet = screen.getByRole('dialog', { name: 'Whose passport is this?' });
+  await user.clear(within(sheet).getByLabelText('Name on your passport'));
+  await user.type(within(sheet).getByLabelText('Name on your passport'), 'Maya Lim');
+  await user.click(within(sheet).getByRole('button', { name: 'Save' }));
+  expect(screen.getByRole('button', { name: 'Name: Maya Lim. Change' })).toBeInTheDocument();
 });
 
 test('the review without answers cannot be stamped until a line is filled in', () => {
   renderAt('/onboarding/result');
   expect(primary(/Stamp my passport/)).toBeDisabled();
   expect(screen.getByText('Pick at least one')).toBeInTheDocument();
+  expect(screen.getByText('Type your name')).toBeInTheDocument();
 });
 
 test('a first-run user can skip with ✕: onboarding counts as done, Home opens, nothing is saved', async () => {
-  renderAt('/onboarding?step=1');
+  renderAt('/onboarding?step=2');
   await userEvent.click(screen.getByRole('button', { name: 'Attractions' }));
   await userEvent.click(screen.getByRole('button', { name: 'Skip onboarding' }));
   expect(onboardingStore.get().done).toBe(true);
@@ -252,7 +343,10 @@ test('a returning user redoing onboarding starts from the saved answers and leav
   onboardingStore.set((prev) => ({ ...prev, done: true }));
   profileV3Store.set({ ...DEFAULT_PROFILE_V3, tourismRanking: ['cru', 'lei'] });
   huntModeStore.set({ mode: 'together', region: 'east' });
+  passportNameStore.set({ name: 'Serin' });
   renderAt('/onboarding?step=1');
+  expect(screen.getByLabelText('Name on your passport')).toHaveValue('Serin');
+  await userEvent.click(primary(/^Continue/));
   expect(screen.getByRole('button', { name: 'Cruise, ranked 1' })).toBeInTheDocument();
   await userEvent.click(screen.getByRole('button', { name: 'Leave onboarding' }));
   expect(location()).toBe('/my-space');

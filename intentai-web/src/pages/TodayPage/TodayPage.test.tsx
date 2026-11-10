@@ -508,7 +508,7 @@ describe('v2 sections', () => {
     before(challenges, picked);
   });
 
-  test('order, solo: no leaderboard; Places to eat and the chips come straight under the map', () => {
+  test('order, solo: no leaderboard; Places to eat and the chips come straight under the map, then Picked for you', () => {
     huntModeStore.set({ mode: 'solo' });
     renderHome();
     expect(screen.queryByRole('region', { name: /^Leaderboard/ })).toBeNull();
@@ -516,20 +516,28 @@ describe('v2 sections', () => {
     const eat = screen.getByRole('button', { name: /Places to eat/ });
     before(map, eat);
     before(eat, chip('All'));
-    before(chip('All'), screen.getByRole('heading', { level: 2, name: 'Challenges' }));
+    before(chip('All'), screen.getByRole('heading', { level: 2, name: 'Picked for you' }));
   });
 
-  test('solo: no leaderboard, challenges without the social line', () => {
+  test('solo ("Not now" in onboarding): no leaderboard and no Challenges', () => {
     huntModeStore.set({ mode: 'solo' });
     renderHome();
     expect(screen.queryByRole('region', { name: /this weekend/ })).toBeNull();
-    const civic = screen.getByRole('article', { name: 'Civic District' });
-    expect(within(civic).getByText('7–8 Nov · 8 stops')).toBeInTheDocument();
-    expect(screen.queryByText('Example')).toBeNull();
-    expect(screen.getByRole('link', { name: '2 open: all challenges in Hunt' })).toHaveAttribute('href', '/hunt');
+    expect(screen.queryByRole('heading', { name: /Challenges/ })).toBeNull();
+    expect(screen.queryByRole('article', { name: 'Civic District' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /all challenges in Hunt/ })).toBeNull();
+    // Picked for you stays
+    expect(screen.getByRole('list', { name: 'Places picked for you' })).toBeInTheDocument();
+  });
+
+  test('no hunt answer yet: no Challenges either', () => {
+    renderHome();
+    expect(screen.queryByRole('heading', { name: /Challenges/ })).toBeNull();
+    expect(screen.queryByRole('article', { name: 'Civic District' })).toBeNull();
   });
 
   test('a challenge card says Open and goes to its volume (the challenge page is retired); nothing is kept', () => {
+    huntModeStore.set({ mode: 'together', region: 'central' });
     renderHome();
     const civic = screen.getByRole('article', { name: 'Civic District' });
     expect(within(civic).getByRole('link', { name: 'Civic District' })).toHaveAttribute('href', '/hunt#story/civic-f1');
@@ -543,6 +551,7 @@ describe('v2 sections', () => {
   });
 
   test('the chips filter the challenges too', async () => {
+    huntModeStore.set({ mode: 'together', region: 'central' });
     const user = userEvent.setup();
     renderHome();
     expect(screen.getAllByRole('article')).toHaveLength(2);
@@ -571,6 +580,7 @@ describe('v2 sections', () => {
   });
 
   test('each challenge card says its level (UT01-2)', () => {
+    huntModeStore.set({ mode: 'together', region: 'central' });
     renderHome();
     for (const card of screen.getAllByRole('article')) expect(within(card).getByRole('img', { name: /^Level [123] of 3, / })).toBeInTheDocument();
   });

@@ -29,6 +29,8 @@ test('[Onboarding + Home + Passport] the v2 onboarding opens Home; the answers a
   const user = userEvent.setup();
   renderApp('/');
   await user.click(screen.getByRole('button', { name: /Start the hunt/ }));
+  await user.type(screen.getByLabelText('Name on your passport'), 'Serin');
+  await user.click(screen.getByRole('button', { name: /^Continue/ }));
   await user.click(screen.getByRole('button', { name: 'Wellness' }));
   await user.click(screen.getByRole('button', { name: /^Continue/ }));
   await user.click(screen.getByRole('radio', { name: /Yes, hunt together/ }));

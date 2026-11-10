@@ -1,7 +1,8 @@
 // Home (Redesign v2, boards 05 "hunting together" and 11 "solo"). The kept 3D map and its region → area → place deck
 // (owner decision D-keep, Discovery redesign of 31 Oct 2026) is always the first block (owner, 10 Nov 2026: "the map
-// must stay at the very top"). Under it: the region leaderboard card (together mode only), then the filter chips (?cat=,
-// they also filter the map) with Places to eat, right above the cards they filter, Challenges and Picked for you.
+// must stay at the very top"). Under it: the region leaderboard card (together mode only), then Places to eat and the
+// filter chips (?cat=, they also filter the map), right above the cards they filter, Challenges (together mode only: a
+// user who answered "Not now" to hunting, or never answered, sees no Challenges; owner, 10 Nov 2026) and Picked for you.
 // User test UT02-1: the chips used to sit at the top, so a tap changed cards a screen below; now they sit over the cards
 // and a tap scrolls the cards into view (at once when motion is reduced). A place, from the map or a card, opens on its
 // own page (/nearby/place/:id), the same M-page either way.
@@ -71,8 +72,8 @@ export default function TodayPage() {
             {together ? <RegionLeaderboard region={mode.region ?? 'central'} challenges={challenges} /> : null}
             <EatEntry on={filter === 'eat'} onOpen={() => choose(filter === 'eat' ? 'all' : 'eat')} />
             <HomeFilterBar ref={bar} value={filter} onChange={choose} />
-            {/* Eat has no challenges of its own: its places come straight under the chips */}
-            {filter !== 'eat' && <ChallengesSection filter={filter} />}
+            {/* Challenges only when hunting together; Eat has none of its own, so its places come straight under the chips */}
+            {together && filter !== 'eat' ? <ChallengesSection filter={filter} /> : null}
             <PickedSection filter={filter} here={here} />
           </>
         }

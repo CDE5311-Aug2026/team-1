@@ -764,3 +764,127 @@
   display: flex;
   gap: 0.625rem;
 }
+
+/* ---------- question 3: the passport name ---------- */
+
+.nameField {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.nameAvatar {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--cat-att-tint);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--accent);
+  font: 600 1.75rem/1 var(--font-display);
+  color: var(--accent-ink);
+}
+
+.nameInputWrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nameLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nameInput {
+  min-height: 3rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 1.5rem;
+  background: #fff;
+  font: inherit;
+  font-size: 1.0625rem;
+  color: var(--text-primary);
+}
+
+.nameInput:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.nameInput[aria-invalid='true'] {
+  border-color: #9b2c1e;
+}
+
+.nameHint,
+.nameError {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  color: var(--v2-muted);
+}
+
+.nameError {
+  color: #9b2c1e;
+}
+
+/* ---------- question 1: the name on the passport card, and what comes next ---------- */
+
+.nameFieldBare {
+  margin-top: 6px;
+}
+
+.holderEmpty {
+  color: var(--v2-muted);
+  font-weight: 600;
+}
+
+.ahead {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aheadItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+}
+
+.aheadItem .nextIcon {
+  flex: none;
+}
+
+.aheadText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aheadStep {
+  flex: none;
+  align-self: flex-start;
+  font: 500 0.6875rem/0.875rem var(--font-mono);
+  letter-spacing: 0.6px;
+  color: var(--accent-ink);
+}
+
+.localTight {
+  margin-top: 0.25rem;
+}

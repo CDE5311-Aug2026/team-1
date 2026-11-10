@@ -1,27 +1,35 @@
-// v2 onboarding (boards 01–04): Welcome at /onboarding, the two questions at ?step=1 and ?step=2, the review at
-// /onboarding/result. The answers are a draft kept in component state and carried between the screens in the history
+// v2 onboarding (boards 01–04): Welcome at /onboarding, the questions at ?step=1 (the passport name, first; owner
+// 10 Nov 2026), ?step=2 (categories) and ?step=3 (hunt), the review at /onboarding/result. The answers are a draft kept in component state and carried between the screens in the history
 // entry's state; nothing is saved until "Stamp my passport" (finishTourismOnboarding).
 import { PUBLISHED_PLACES, curatedPlace } from '../../features/nearby/catalogue';
 import type { CuratedPlace } from '../../features/nearby/domain';
 import { placePicture } from '../../data/home/nearbyCards';
 import { isTourismRanking, tourismRankingOf, type ProfileV3 } from '../../data/profile/profile';
 import { TOURISM_INFO, tourismOf, type TourismCategory } from '../../data/tourism';
+import { cleanName, nameError } from './name';
 import { HUNT_REGIONS, type HuntMode, type HuntModeState } from '../../data/v2Stores';
 import type { RegionId } from '../../data/ura/ura';
 import { CATEGORY_PLACE } from '../../components/ProfileEditors/TourismRanker';
 
-/** Questions in the progress bar: 1 categories, 2 hunt mode + region, 3 review. */
-export const STEPS = 3;
+/** Questions in the progress bar: 1 name, 2 categories, 3 hunt mode + region, 4 review. */
+export const STEPS = 4;
 
 export function parseStep(raw: string | null): number {
   const n = Number(raw);
-  return Number.isInteger(n) && n >= 1 && n <= 2 ? n : 0;
+  return Number.isInteger(n) && n >= 1 && n <= 3 ? n : 0;
 }
 
 export interface Draft {
   ranking: TourismCategory[];
   mode?: HuntMode;
   region?: RegionId;
+  /** The passport name as typed so far ('' until typed). */
+  name: string;
+}
+
+/** The draft's name, cleaned, when it can go on the passport; else null. */
+export function draftName(d: Draft): string | null {
+  return nameError(d.name) ? null : cleanName(d.name);
 }
 
 /** A draft read from history state, if it is one. */
@@ -33,13 +41,14 @@ export function draftFromState(state: unknown): Draft | null {
     ranking: d.ranking,
     mode: d.mode === 'together' || d.mode === 'solo' ? d.mode : undefined,
     region: d.region && (HUNT_REGIONS as readonly string[]).includes(d.region) ? d.region : undefined,
+    name: typeof d.name === 'string' ? d.name.slice(0, 64) : '',
   };
 }
 
 /** The first draft: someone redoing onboarding starts from their saved answers; a first run starts empty. */
-export function initialDraft(profile: ProfileV3, hunt: HuntModeState, returning: boolean): Draft {
-  if (!returning) return { ranking: [] };
-  return { ranking: [...tourismRankingOf(profile)], mode: hunt.mode, region: hunt.region };
+export function initialDraft(profile: ProfileV3, hunt: HuntModeState, returning: boolean, name = ''): Draft {
+  if (!returning) return { ranking: [], name: '' };
+  return { ranking: [...tourismRankingOf(profile)], mode: hunt.mode, region: hunt.region, name };
 }
 
 export interface FeedPlace {
