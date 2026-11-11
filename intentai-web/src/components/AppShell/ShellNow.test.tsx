@@ -73,9 +73,9 @@ test('dismissed, it stays away until the hunt moves to another stop', async () =
   expect(await box()).toHaveTextContent('Now · Stop 2 of 2');
 });
 
-test('not on onboarding, the desks, or inside a hunt (no tab bar there)', async () => {
+test('not on onboarding, the admin desk, or inside a hunt (no tab bar there)', async () => {
   startHunt('balestier');
-  for (const path of ['/onboarding', '/admin', '/test']) {
+  for (const path of ['/onboarding', '/admin']) {
     const r = renderAt(path);
     await act(async () => {});
     expect(screen.queryByRole('complementary')).toBeNull();

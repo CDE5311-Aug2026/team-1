@@ -6,7 +6,6 @@ import { dirname } from 'node:path';
 import { handleCaption } from '../caption/handler.js';
 import { handleHelp } from '../help/handler.js';
 import { handleRecognize } from '../recognize/handler.js';
-import { handleAbTest, memoryList } from '../abtest/handler.js';
 import { fileStore, redisFromEnv, type RedisLike } from './store.js';
 
 /** Help feedback on this machine: one JSON line per note (only rpush is used locally). */
@@ -58,8 +57,6 @@ export function usageApiPlugin(env: Record<string, string | undefined>): Plugin 
     apiKey: env.ANTHROPIC_API_KEY,
     redis: redisFromEnv(env) ?? fileList(env.FEEDBACK_FILE || '.data/feedback.jsonl'),
   };
-  // A/B test answers live in memory locally (cleared when the dev server restarts) unless Redis is set.
-  const abtest = { redis: redisFromEnv(env) ?? memoryList(), password: cfg.password };
   // Photo-check limits count in Redis when set, else in this server's memory.
   const recognize = { counter: redisFromEnv(env) };
   const middleware: Connect.NextHandleFunction = (req, res, next) => {
@@ -71,8 +68,6 @@ export function usageApiPlugin(env: Record<string, string | undefined>): Plugin 
           ? (r) => handleStats(r, cfg)
           : path === '/api/help'
             ? (r) => handleHelp(r, help)
-            : path === '/api/abtest'
-              ? (r) => handleAbTest(r, abtest)
             : path === '/api/caption' && req.method === 'POST'
               ? (r) => handleCaption(r, env.ANTHROPIC_API_KEY)
             : path === '/api/recognize' && req.method === 'POST'

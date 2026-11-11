@@ -1324,36 +1324,6 @@ button.perm {
   color: inherit;
 }
 
-/* Settings › User test › Restart test: the confirm step. */
-.restartNo,
-.restartYes {
-  flex: none;
-  min-height: 2.75rem;
-  padding: 0 0.875rem;
-  border-radius: 999px;
-  font: 600 0.8125rem/1 var(--font-display);
-  letter-spacing: 0.02em;
-  cursor: pointer;
-}
-
-.restartNo {
-  border: 0;
-  background: var(--v2-surface-sunk);
-  color: var(--text-primary);
-}
-
-.restartYes {
-  border: 0;
-  background: #b23a3a;
-  color: #fff;
-}
-
-.restartNo:focus-visible,
-.restartYes:focus-visible {
-  outline: 2px solid var(--text-primary);
-  outline-offset: 2px;
-}
-
 ul.lines {
   list-style: none;
   margin: 0;

@@ -97,13 +97,8 @@ test('Home shows no holiday card; the holiday page opens directly and its back l
 test.describe('first visit', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test('asks for a test name first, then starts at Welcome, not Today', async ({ page }) => {
+  test('starts at Welcome, not Today', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Type your test name to start' })).toBeVisible();
-    await page.getByLabel('Test name').fill('P01');
-    // the facilitator picks the study version; B is this app (A redirects to the frozen UI1)
-    await page.getByRole('radiogroup', { name: 'Version' }).getByRole('radio', { name: 'B', exact: true }).click();
-    await page.getByRole('button', { name: 'Start' }).click();
     await expect(page).toHaveURL(/\/onboarding$/);
   });
 });

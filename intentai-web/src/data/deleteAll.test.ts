@@ -2,7 +2,7 @@ import { afterEach, expect, test, vi } from 'vitest';
 import { beginOnsite, checkInOnsite, ONSITE_ROUTES, readOnsite, saveOnsite } from '../findsg';
 import { MARKER_KEY, PENDING_KEY, RECOVERY_KEY } from './migration/legacyMigration';
 import { huntVisits } from './moments/huntVisits';
-import { clearPhone, deleteAllData } from './stores';
+import { deleteAllData } from './stores';
 
 const ROUTE = 'telok-ayer';
 const stops = () => ONSITE_ROUTES[ROUTE].stops;
@@ -16,9 +16,9 @@ afterEach(() => {
   sessionStorage.clear();
 });
 
-test('Delete all removes Hunt saves and personal keys, and keeps what belongs to the study', async () => {
+test('Delete all removes Hunt saves and personal keys, and keeps feedback waiting to send', async () => {
   const gone = ['findsg-onsite-v1:telok-ayer:manual', 'findsg-short-v2:gold-under-glass:manual', 'findsg-notes:short', 'hunt-times-v1', 'hunt-letter-short', 'notebook.spotted.x'];
-  const kept = ['findsg-help-feedback', 'intentai:abtest-phone', MARKER_KEY];
+  const kept = ['findsg-help-feedback', MARKER_KEY];
   for (const key of [...gone, ...kept]) localStorage.setItem(key, '{}');
   await deleteAllData();
   for (const key of gone) expect(localStorage.getItem(key), key).toBeNull();
@@ -61,10 +61,4 @@ test('a save that only reached the cache (storage full) is forgotten too', async
   vi.restoreAllMocks();
   await deleteAllData();
   expect(readOnsite(ROUTE, stops(), 'manual').stops[first].checkin).toBeNull();
-});
-
-test('clearPhone resolves, so a caller can wait for it before leaving the page', async () => {
-  localStorage.setItem('findsg-notes:short', 'x');
-  await expect(clearPhone(true)).resolves.toBe(true);
-  expect(localStorage.getItem('findsg-notes:short')).toBeNull();
 });

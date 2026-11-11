@@ -1,7 +1,7 @@
 // Settings, Redesign v2 (boards 16–17): the profile row; Explore (the Tourism 2040 ranking, the hunt region and
 // together/solo, each edited in a sheet with Save/Cancel, plan A8); Language & place (language, home base); Look &
 // feel (Motion and Text size on their own pages, captions, haptics); More (onboarding, privacy, terms,
-// photo credits, feedback); and the user-test restart.
+// photo credits, feedback).
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppShell from '../../components/AppShell/AppShell';
@@ -9,7 +9,6 @@ import { openHelp } from '../../components/HelpCenter/helpStore';
 import HuntModeEditor from '../../components/ProfileEditors/HuntModeEditor';
 import TourismRanker from '../../components/ProfileEditors/TourismRanker';
 import { REGION_NAMES } from '../../components/RegionMap/regionPaths.generated';
-import { RESTART_PATH, USER_GATE_ENABLED } from '../../components/UserGate/UserGate';
 import { usePersistentStore } from '../../data/persistentStore';
 import { areaById } from '../../data/profile/finds';
 import {
@@ -23,7 +22,7 @@ import {
   type FieldKey,
 } from '../../data/profile/profile';
 import { formatBytes, totalBytes } from '../../data/profile/storage';
-import { reduceMotionStore, restartTest, testerStore, versionOf } from '../../data/stores';
+import { reduceMotionStore } from '../../data/stores';
 import { TOURISM_INFO, type TourismCategory } from '../../data/tourism';
 import { huntModeStore, type HuntModeState } from '../../data/v2Stores';
 import { showToast } from '../../hooks/useToast';
@@ -236,57 +235,11 @@ export default function SettingsPage() {
             <Row icon="feedback" tint="accent" title="Send feedback" onClick={() => openHelp('feedback')} />
           </nav>
         </Section>
-        {USER_GATE_ENABLED && <RestartTest />}
         <p className={styles.footerNote}>FindSG · Tourism 2040 categories</p>
       </div>
       {open === 'categories' && <CategoriesSheet onClose={close} />}
       {open === 'hunt' && <HuntSheet onClose={close} />}
       {open && open !== 'categories' && open !== 'hunt' && <FieldEditor field={open} profile={profile} onClose={close} />}
     </AppShell>
-  );
-}
-
-/** User test only: wipe this phone and go back to the start screen for the next person. Asks once before it clears. */
-function RestartTest() {
-  const [tester] = usePersistentStore(testerStore);
-  const [sure, setSure] = useState(false);
-  return (
-    <Section title="User test">
-      <div className={styles.card}>
-        {sure ? (
-          <div className={styles.switchRow}>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Clear this phone?</span>
-              <span className={styles.rowSub}>Visits, stamps and settings go. The next person starts fresh.</span>
-            </span>
-            <button type="button" className={styles.restartNo} onClick={() => setSure(false)}>
-              Keep
-            </button>
-            <button
-              type="button"
-              className={styles.restartYes}
-              onClick={() => {
-                const version = versionOf(testerStore.get());
-                void restartTest(version).then((done) => {
-                  if (!done) window.location.assign(`${RESTART_PATH}?v=${version}`);
-                });
-              }}
-            >
-              Restart
-            </button>
-          </div>
-        ) : (
-          <button type="button" className={styles.row} onClick={() => setSure(true)}>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Restart test</span>
-              {tester.name && <span className={styles.mono}>{`${tester.name} · version ${versionOf(tester)} · redesign v2`}</span>}
-            </span>
-            <span className={styles.pillBtn} aria-hidden="true">
-              Restart
-            </span>
-          </button>
-        )}
-      </div>
-    </Section>
   );
 }

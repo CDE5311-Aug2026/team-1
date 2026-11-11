@@ -109,7 +109,7 @@ export function isSettings(value: unknown): value is Settings {
 /** 'IntentAI editorial': phrase guidance written by the team (Nearby place tips); not a local's confirmation. */
 export const LOOKUP_SOURCES = ['AI-generated', 'Confirmed by a local', 'IntentAI editorial'] as const;
 export type LookupSource = (typeof LOOKUP_SOURCES)[number];
-/** The stored value for team-written phrases keeps its old name, because /ui1 shares this storage and validates it. */
+/** The stored value for team-written phrases keeps its old name, so data saved by earlier builds stays valid. */
 export const LEGACY_EDITORIAL = 'IntentAI editorial';
 export const EDITORIAL_LABEL = 'FindSG editorial';
 /** What a phrase's source says on screen. */

@@ -7,7 +7,7 @@ import HomeIndicator from '../HomeIndicator/HomeIndicator';
 import StatusBar from '../StatusBar/StatusBar';
 import TabBar from '../TabBar/TabBar';
 import { usePaperLayer } from './PaperLayer';
-import { ADMIN_PATH, TEST_PATH, paths } from '../../routes';
+import { ADMIN_PATH, paths } from '../../routes';
 import styles from './AppShell.module.css';
 
 interface AppShellProps {
@@ -34,7 +34,7 @@ interface AppShellProps {
 const ShellNow = lazy(() => import('./ShellNow'));
 
 /** Screens that never show the remind box: onboarding, the admin and study desks, the frozen UI1. */
-const NO_REMINDER = [paths.welcome, ADMIN_PATH, TEST_PATH, '/ui1'];
+const NO_REMINDER = [paths.welcome, ADMIN_PATH];
 const remindsHere = (pathname: string) => !NO_REMINDER.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
 /** A hunt save on this phone (route or Golden Dome; their keys are the game's own): until then there is nothing to remind. */

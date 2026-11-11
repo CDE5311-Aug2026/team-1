@@ -1,17 +1,15 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from './test';
 
-// A whole user test on one device with no server: test name → use the app → the dashboard reads this
+// A whole user test on one device with no server: a named device → use the app → the dashboard reads this
 // device's log, shows the analysis, and exports a file.
 test.describe('user test without a server', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test('a named session reaches the dashboard from this device, which passes axe and exports', async ({ page }) => {
+    // the name the usage log carries for this device (the start screen that asked for it is gone)
+    await page.addInitScript(() => localStorage.setItem('intentai:v1:tester', JSON.stringify({ name: 'P09' })));
     await page.goto('/');
-    await page.getByLabel('Test name').fill('P09');
-    // the facilitator picks the study version; B is this app (A redirects to the frozen UI1)
-    await page.getByRole('radiogroup', { name: 'Version' }).getByRole('radio', { name: 'B', exact: true }).click();
-    await page.getByRole('button', { name: 'Start' }).click();
     await page.getByRole('button', { name: /Start the hunt/ }).click(); // v3 onboarding (Figma O1)
     await page.waitForTimeout(1200);
     // a full load ends the Welcome visit (pagehide) and starts a new one (the v1 /nearby explorer is retired: Saved)

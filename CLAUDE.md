@@ -5,20 +5,19 @@ Claude Code reads this file automatically. Other agents: read it first. Updated 
 ## What this repo is
 
 - `intentai-web/`: the FindSG web app (React 18, TypeScript, Vite 7, React Router 7, CSS Modules, Vitest, Playwright). Live at https://cde-5311.vercel.app.
-- `intentai-web/api/` + `intentai-web/server/`: Vercel functions (usage tracking, admin stats, user study, help, captions).
-- `intentai-web/public/ui1/`: a frozen build of the old UI (version A of the user study). Generated; never edit by hand.
+- `intentai-web/api/` + `intentai-web/server/`: Vercel functions (usage tracking, admin stats, help, captions, photo check).
 - `docs/`: product and handoff notes. `SinglishDaily*`, `web/`: older side projects; leave them alone unless asked.
 
 | Remote | Repo | Use |
 | --- | --- | --- |
-| `team1` | https://github.com/CDE5311-Aug2026/team-1 | The team repo. Contribute here by pull request. |
-| `origin` | https://github.com/Wsamme/CDE-5311 | The owner's repo. The owner pushes the same branch here. |
+| `team1` (or `origin`, if you cloned team-1) | https://github.com/CDE5311-Aug2026/team-1 | The team repo. This is a group project: no single owner. Contribute here by pull request. |
+| `origin` (in Wsamme's clone) | https://github.com/Wsamme/CDE-5311 | Wsamme's own copy, one team member's mirror of the same branches. Not the team repo. |
 
 Working branch: `merge/team1-v3` (PR #6 into `main` on team-1). Branch from it for new work and open your PR against it.
 
 ## Read next
 
-1. [`docs/USER-STUDY.md`](docs/USER-STUDY.md): the A/B user study (UI1 vs UI2): running sessions, reading results, and which code to change for each weak result.
+1. [`docs/USER-STUDY.md`](docs/USER-STUDY.md): the earlier A/B user study (UI1 vs UI2). Its start screen, `/ui1`, `/test` and `/api/abtest` were removed in `redesign/v2`: the app opens only the current version.
 2. [`docs/HANDOFF.md`](docs/HANDOFF.md): the app's features and history (written 29 Oct; numbers there may be out of date).
 3. [`docs/MERGE-TEAM1-V3.md`](docs/MERGE-TEAM1-V3.md): why the code looks the way it does after merging Team 1's work.
 
@@ -37,18 +36,17 @@ npm run build                             # production build
 - Node 25 needs `NODE_OPTIONS=--no-experimental-webstorage` for Vitest; without it nearly every test fails with `localStorage.clear is not a function`.
 - e2e: `npm run build && npx playwright test --grep-invert nearby3d`.
 - Place data check: `npm run validate:explore`.
-- Local admin password (dev server only, no Redis): `intentai-local`. The production password is held by the owner. Never write it into the repo, logs or chat.
+- Local admin password (dev server only, no Redis): `intentai-local`. The production password is not in the repo; ask the team member who set it in Vercel. Never write it into the repo, logs or chat.
 
 ## Deploying
 
-Only the owner (Wsamme) deploys, from the repo root: `vercel deploy --prod --yes`, then `vercel inspect <url>` must show Ready and the alias cde-5311.vercel.app. Git pushes do not deploy. Contributors: open a PR and ask the owner to deploy.
+A team member with access to the Vercel project deploys, from the repo root: `vercel deploy --prod --yes`, then `vercel inspect <url>` must show Ready and the alias cde-5311.vercel.app. Git pushes do not deploy. Open a PR, and agree in the team who deploys it.
 
 ## Rules
 
 - **No invented data.** Every fact, date, opening hour and position needs a source, or leave it out. Label estimates.
 - **No invented study results.** User-study answers come only from real participants. Agent dry runs use **Start a pilot** (codes T01, T02…), and must be called pilots.
 - Do not use the Singapore Culture Atlas photos (no reuse licence).
-- **Don't edit UI1** (`public/ui1`). To rebuild it, run `intentai-web/scripts/build-ui1.sh`.
 - Design: story pages fit the screen without vertical scrolling. Oswald font for titles and buttons. Minimal and retro. Icon buttons have no text labels.
 - Do not run Prettier over the codebase (it rewrites unrelated files).
 - The app's text is English.

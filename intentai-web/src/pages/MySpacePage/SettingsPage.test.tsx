@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 test('the profile row shows the passport name and initials (not the test code), and says how you hunt without a public claim', () => {
-  testerStore.set({ name: 'P01', version: 'B' });
+  testerStore.set({ name: 'P01' });
   passportNameStore.set({ name: 'Serin Ee' });
   huntModeStore.set({ mode: 'solo' });
   renderAt(paths.mySpaceSettings);

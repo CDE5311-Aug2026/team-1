@@ -29,8 +29,6 @@ export default defineConfig({
               name: 'intentai:v1:onboarding',
               value: JSON.stringify({ done: true, duration: '3 months – 1 year', topics: ['Work', 'Food', 'Daily life', 'Getting around'] }),
             },
-            // past the user test start screen (its own e2e starts from empty storage)
-            { name: 'intentai:v1:tester', value: JSON.stringify({ name: 'E2E' }) },
           ],
         },
       ],

@@ -8,9 +8,6 @@
     "api/recognize.ts": { "maxDuration": 60 }
   },
   "rewrites": [
-    { "source": "/ui1", "destination": "/ui1/index.html" },
-    { "source": "/ui1/:file((?!assets/).*\\.[A-Za-z0-9]+)", "destination": "/:file" },
-    { "source": "/ui1/((?!assets/).*)", "destination": "/ui1/index.html" },
-    { "source": "/((?!api/|earth-online/|ui1/).*)", "destination": "/index.html" }
+    { "source": "/((?!api/|earth-online/).*)", "destination": "/index.html" }
   ]
 }

@@ -7,13 +7,9 @@ import { expect, test } from '@playwright/test';
 test.describe('first run', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test('test name → Treasure Hunt → name → rank categories → hunt mode + region → review → stamped passport → Home', async ({ page }) => {
+  test('Treasure Hunt → name → rank categories → hunt mode + region → review → stamped passport → Home', async ({ page }) => {
     const noSideways = async () => expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
     await page.goto('/');
-    await page.getByLabel('Test name').fill('P01');
-    // the facilitator picks the study version; B is this app (A redirects to the frozen UI1)
-    await page.getByRole('radiogroup', { name: 'Version' }).getByRole('radio', { name: 'B', exact: true }).click();
-    await page.getByRole('button', { name: 'Start', exact: true }).click();
     await expect(page.getByRole('heading', { level: 1, name: /Treasure Hunt/ })).toBeVisible();
     await noSideways();
     await page.getByRole('button', { name: /Start the hunt/ }).click();

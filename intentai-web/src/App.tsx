@@ -7,9 +7,8 @@ import { usePersistentStore } from './data/persistentStore';
 import { onboardingStore } from './data/stores';
 import TodayPage from './pages/TodayPage/TodayPage';
 import { lazyPage } from './pages/lazyPage';
-import { ADMIN_PATH, TEST_PATH, paths, patterns } from './routes';
+import { ADMIN_PATH, paths, patterns } from './routes';
 import PageTracker from './usage/PageTracker';
-import UserGate from './components/UserGate/UserGate';
 import HelpCenter from './components/HelpCenter/HelpCenter';
 import CrashSwitch from './components/PageError/CrashSwitch';
 import PageErrorBoundary from './components/PageError/PageError';
@@ -37,7 +36,6 @@ const TopicsPage = lazyPage(() => import('./pages/OnboardingPage/TopicsPage'));
 const WelcomePage = lazyPage(() => import('./pages/OnboardingPage/WelcomePage'));
 const TodaySetupPage = lazyPage(() => import('./pages/TodaySetup/TodaySetupPage'));
 const AdminPage = lazyPage(() => import('./pages/AdminPage/AdminPage'));
-const AbTestPage = lazyPage(() => import('./pages/AbTestPage/AbTestPage'));
 const PlaceDetailPage = lazyPage(() => import('./pages/NearbyPage/PlaceDetailPage'));
 const CollectionsPage = lazyPage(() => import('./pages/NearbyPage/CollectionsPage'));
 const CollectionDetailPage = lazyPage(() => import('./pages/NearbyPage/CollectionDetailPage'));
@@ -78,7 +76,6 @@ export default function App() {
       <ScrollKeeper />
       <HelpCenter />
       <NetStatus />
-      <UserGate>
         {/* a screen that breaks shows a note with a way on, not a blank page; another screen clears it */}
         <PageErrorBoundary resetKey={pathname}>
         <Lazy>
@@ -129,12 +126,10 @@ export default function App() {
             <Route path={paths.onboardingResult} element={<ResultPage />} />
             <Route path={paths.todaySetup} element={<TodaySetupPage />} />
             <Route path={ADMIN_PATH} element={<AdminPage />} />
-            <Route path={TEST_PATH} element={<AbTestPage />} />
             <Route path="*" element={<Navigate to={paths.today} replace />} />
           </Routes>
         </Lazy>
         </PageErrorBoundary>
-      </UserGate>
     </MotionConfig>
   );
 }

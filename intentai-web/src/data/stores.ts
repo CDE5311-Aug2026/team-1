@@ -211,14 +211,10 @@ export function ensureUsageId(): string {
   return usageIdStore.get();
 }
 
-/** User-test version: A = map exploration only, B = map exploration plus the Hunt (story quests). */
-export type TestVersion = 'A' | 'B';
-/** User test: the name typed at the start screen (a test name, not an account). Empty = not started. */
+/** A name for this device in usage data (a label, not an account; empty = none). The /admin desk can clear it. */
 export interface Tester {
   name: string;
   startedAt?: number;
-  /** Picked on the start screen. Missing (gate off, older data) means B, the full app. */
-  version?: TestVersion;
 }
 export const testerStore = createPersistentStore<Tester>({
   key: 'tester',
@@ -227,15 +223,11 @@ export const testerStore = createPersistentStore<Tester>({
     typeof value === 'object' &&
     value !== null &&
     typeof (value as Tester).name === 'string' &&
-    ((value as Tester).startedAt === undefined || typeof (value as Tester).startedAt === 'number') &&
-    ((value as Tester).version === undefined || (value as Tester).version === 'A' || (value as Tester).version === 'B'),
+    ((value as Tester).startedAt === undefined || typeof (value as Tester).startedAt === 'number'),
 });
 
-/** The version this phone runs. */
-export const versionOf = (tester: Tester): TestVersion => tester.version ?? 'B';
-
-/** The test name as it appears in usage data, with the version: "P01-A". */
-export const usageUserOf = (tester: Tester): string | undefined => (tester.name ? `${tester.name.slice(0, 38)}-${versionOf(tester)}` : undefined);
+/** The name as it appears in usage data. */
+export const usageUserOf = (tester: Tester): string | undefined => (tester.name ? tester.name.slice(0, 40) : undefined);
 
 /** Nearby Explorer: saved / visited places and exploration preferences. Never holds a location. */
 export const explorePersonalStore = createPersistentStore<ExplorePersonalData>({
@@ -317,59 +309,8 @@ export function deleteAllData(): Promise<boolean> {
   huntNowStore.set(EMPTY_HUNT_NOW);
   searchRecentStore.set([]);
   usageIdStore.set('');
-  // The user test goes on (the test name is not personal data); its records on this device are deleted.
+  // Usage records kept on this device are deleted.
   clearLocalUsage();
   generationListeners.forEach((listener) => listener());
   return deleteAllPhotos();
-}
-
-/**
- * Starts the user test again on this phone: every saved choice, visit, stamp and Hunt book is cleared, so the next person
- * sees the start screen and onboarding as new. The usage log stays, so /admin can still read this phone. False, without
- * leaving the page, if journal photos could not be deleted.
- */
-export async function restartTest(version: TestVersion = versionOf(testerStore.get())): Promise<boolean> {
-  // The phone keeps its version (left phone A, right phone B), so the start screen opens with it picked.
-  const cleared = clearPhone(false);
-  // Another tab still open on the app may save once more as it hears the clear; clear again after it has stopped.
-  await Promise.all([cleared, new Promise((resolve) => window.setTimeout(resolve, 500))]);
-  // Only this last clear counts: it covers anything saved since the first. Without it the next person could see the photos.
-  if (!(await clearPhone(false))) return false;
-  window.location.assign(`/?v=${version}`);
-  return true;
-}
-
-/**
- * Clears this phone's app data. Always kept: the usage log (for /admin), feedback notes still waiting to send, and the
- * study desk's own keys (which phone this is, a session in progress), which are not the participant's. Resolves true once
- * journal photos are gone too, false if they could not be deleted: wait for it, or the next person can inherit them.
- */
-export function clearPhone(keepTester: boolean): Promise<boolean> {
-  try {
-    // Tell the phone's other tabs first, so they stop saving before their data goes (see the listener below).
-    window.localStorage.setItem(PHONE_CLEARED, String(Date.now()));
-    const keep = new Set([STORAGE_PREFIX + 'usage-log', 'findsg-help-feedback', ...(keepTester ? [STORAGE_PREFIX + 'tester'] : [])]);
-    const gone = Object.keys(window.localStorage).filter((k) => !keep.has(k) && !k.startsWith('intentai:abtest-'));
-    gone.forEach((k) => window.localStorage.removeItem(k));
-    window.sessionStorage.clear();
-  } catch {
-    // Storage blocked: the reload that follows still starts at the start screen if nothing was saved.
-  }
-  return deleteAllPhotos();
-}
-
-const PHONE_CLEARED = 'intentai:phone-cleared';
-
-// A tab left open on the app holds the last person's game in memory and would save it back after the phone is cleared.
-// When another tab clears the phone, this one stops saving and starts again from the start screen.
-if (typeof window !== 'undefined') {
-  window.addEventListener('storage', (event) => {
-    if (event.key !== PHONE_CLEARED || !event.newValue) return;
-    try {
-      Storage.prototype.setItem = () => {};
-    } catch {
-      // cannot stop saving: the clearing tab clears once more before it reloads
-    }
-    window.location.replace('/');
-  });
 }

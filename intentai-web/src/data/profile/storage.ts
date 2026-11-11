@@ -146,7 +146,7 @@ export function exportData(): Record<string, unknown> {
       const stored = key.startsWith(STORAGE_PREFIX);
       if (!stored && !isDeviceDataKey(key)) continue;
       const name = stored ? key.slice(STORAGE_PREFIX.length) : key;
-      // the stored lookup source keeps its old value (/ui1 shares this storage); a downloaded file shows the app's name
+      // the stored lookup source keeps its old value (data saved by earlier builds); a downloaded file shows the app's name
       const raw = (window.localStorage.getItem(key) ?? 'null').split(LEGACY_EDITORIAL).join(EDITORIAL_LABEL);
       try {
         out[name] = JSON.parse(raw);

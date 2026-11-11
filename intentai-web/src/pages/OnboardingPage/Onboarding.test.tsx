@@ -196,7 +196,7 @@ test('old onboarding routes open question 1', () => {
 test('the whole flow: name → rank → mode and region → review edit → stamp saves the v2 answers only, then Home', async () => {
   const user = userEvent.setup();
   const testerBefore = testerStore.get();
-  testerStore.set({ name: 'P01', version: 'B' });
+  testerStore.set({ name: 'P01' });
   profileV3Store.set({ ...DEFAULT_PROFILE_V3, topics: ['food', 'nature'], base: 'sg-chinatown' });
   const prefsBefore = culturePrefsStore.get();
   const placesBefore = placeStore.get();
