@@ -8,9 +8,9 @@
 
 <table>
   <tr>
-    <td align="center"><img src="docs/media/onboarding.gif" width="240" alt="Onboarding: ranking the four Tourism 2040 categories, then choosing a hunt mode and region"></td>
+    <td align="center"><img src="docs/media/onboarding.gif" width="240" alt="Onboarding: naming the passport, ranking the four Tourism 2040 categories, choosing a hunt mode and region, then the review and stamp"></td>
     <td align="center"><img src="docs/media/map.gif" width="240" alt="Home: the map of Singapore drilling down from regions to areas, into the 3D city"></td>
-    <td align="center"><img src="docs/media/hunt.gif" width="240" alt="Hunt: the field archive of story volumes"></td>
+    <td align="center"><img src="docs/media/hunt.gif" width="240" alt="Hunt: the landing with What is Hunt?, the public hunts, My rank, the Public board and Medals, then a hunt opened on its first step"></td>
   </tr>
   <tr>
     <td align="center"><sub><b>Get started</b>: pick what you want to explore</sub></td>
@@ -40,7 +40,9 @@ No account, no download. FindSG runs in your phone's browser.
 ## Getting started
 
 1. **Open** [cde-5311.vercel.app](https://cde-5311.vercel.app) on your phone.
-2. **Tap _Start the hunt_** and answer three quick questions:
+2. **Tap _Start the hunt_** and answer four quick questions:
+   - **Whose passport is this?** Type your name or a nickname (up to 24 characters). It goes on your passport, and
+     its first letter becomes your picture.
    - **What would you like to explore?** Tap the categories in the order you like them. Home shows your first
      pick first.
    - **Hunt with others nearby?** Choose *Yes, hunt together* for weekend challenges and leaderboards, or *Not now*
@@ -59,12 +61,14 @@ The tab bar at the bottom takes you to **Home**, **Hunt** and **Passport**. The 
 
 ### Home: explore the map
 
-- **Tap a region** on the map to see its areas, then **tap an area** to see its places. Tap a place to open its card.
-- **Filter by category** with the chips at the top (*All*, *Attractions*, *Wellness*, *Leisure*, *Cruise*). The
-  numbers on the map show how many places of each kind there are.
+- **Tap a region** on the map to see its areas, then **tap an area** to see its places. Tap a place to open its page.
+- **Filter by category** with the chips under the map (*All*, *Attractions*, *Wellness*, *Leisure*, *Cruise*). They
+  sit right over the cards they filter. The numbers on the map show how many places of each kind there are.
+- **Places to eat**, just above the chips, shows the hawker centres, stalls and restaurants. Tap it again to go back.
 - **Use the map buttons** on the right to find your location, search the map, see the editor's picks, step back a
   level or open the place you've selected.
-- **Scroll down** for this weekend's **challenges** and places **picked for you** from your favourite categories.
+- **Scroll down** for places **picked for you** from your favourite categories. If you chose to hunt together, you
+  also see your region's **leaderboard** and this weekend's **challenges**.
 
 ### Place pages
 
@@ -75,10 +79,14 @@ Each place has photos, what's worth knowing before you go, and its story. From a
 
 ### Hunt: play a story
 
-- The **field archive** lists the story **volumes**. Each one is a route through real places in one neighbourhood.
-- Tap **Set out** to start a volume, or **Continue** to pick up where you left off.
-- **Every stop has three moves:** go to the place, spot the detail on the building, then keep the clue. The clue
-  moves the story on. You can play on site or from anywhere.
+- **What is Hunt?** at the top explains the game. Below it are the **public hunts**, **My rank**, the **Public board**,
+  your **Medals** and **All hunts**. Each hunt is a route through real places in one neighbourhood.
+- Tap **Set out** to start a hunt, or **Continue** to pick up where you left off. A short tour shows the screen the
+  first time; tap **?** to see it again.
+- **At each stop**, go to the place and **take a photo** of the detail it asks for. FindSG checks the photo, and a
+  clear match moves the story on. If it isn't recognised, reframe and **take another photo**, or tap **Hint**.
+- The **What to do now** box always says the next step, and a small reminder on the other tabs brings you back to a
+  hunt you've started.
 
 ### Passport
 
@@ -86,7 +94,7 @@ Your stamps, the places you've visited and your progress in each category, all i
 
 ### Search
 
-Look up places, challenges and volumes by name. Results are grouped by category, and your recent searches are kept
+Look up places, challenges and hunts by name. Results are grouped by category, and your recent searches are kept
 for next time.
 
 ### Moments
@@ -112,6 +120,8 @@ Tap the **lion** in the top-left corner of Home or Hunt. It answers common quest
 
 - **Your data stays on your phone.** Your choices, visits, stamps and journal photos are saved in your browser, not
   on a server.
+- **Hunt photos are checked, not kept.** When you check in at a hunt stop, a smaller copy of that one photo is sent
+  to FindSG's server, which asks Claude (Anthropic's AI) whether it shows the detail. FindSG doesn't store the photo.
 - **Your location is never saved.** FindSG uses it only while the app is open, to show what's near you and how far
   away a place is.
 - **You're in control.** Delete everything at any time in **Settings → Privacy & data** (press and hold the delete
