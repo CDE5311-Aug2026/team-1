@@ -294,3 +294,37 @@ test('the window scrolls Home, also with the wheel over the tab bar (no inner sc
   await page.keyboard.press('PageDown');
   await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
 });
+
+// UT02-1 follow-up (Cursor Bugbot on PR #9): a chip tap scrolls the chip strip up to just under Home's sticky bar,
+// never under it, so the filter the user just chose stays in sight. (The chip buttons' 44 px touch areas reach 4 px
+// above the strip by design; the drawn pills sit inside them, so the strip is what is checked.)
+test('a filter chip tap leaves the chips in view under the Home bar', async ({ page }) => {
+  await openHome(page);
+  const group = page.getByRole('group', { name: 'Filter the cards below' });
+  await group.scrollIntoViewIfNeeded();
+  await page.mouse.wheel(0, 2400);
+  await page.waitForTimeout(300);
+  await group.getByRole('button', { name: /Wellness/ }).click();
+  // smooth scroll: wait until the chips stop moving
+  let last = Number.NaN;
+  await expect
+    .poll(async () => {
+      const y = (await group.boundingBox())?.y ?? -1;
+      const still = Math.abs(y - last) < 0.5;
+      last = y;
+      return still;
+    }, { intervals: [150] })
+    .toBe(true);
+  const { headBottom, stripTop } = await group.evaluate((chipsEl) => {
+    // the sticky bar drawn at the top of the window, other than the chips' own strip
+    let el = document.elementFromPoint(window.innerWidth / 2, 8) as HTMLElement | null;
+    while (el && getComputedStyle(el).position !== 'sticky') el = el.parentElement;
+    return {
+      headBottom: el && !el.contains(chipsEl) ? el.getBoundingClientRect().bottom : -1,
+      stripTop: chipsEl.parentElement!.getBoundingClientRect().top,
+    };
+  });
+  expect(headBottom, 'no sticky Home bar at the top').toBeGreaterThan(0);
+  expect(stripTop, `chip strip at ${stripTop}px, Home bar ends at ${headBottom}px`).toBeGreaterThanOrEqual(headBottom - 1);
+  expect(stripTop).toBeLessThan(headBottom + 24);
+});
