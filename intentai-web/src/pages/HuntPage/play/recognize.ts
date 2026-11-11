@@ -72,7 +72,11 @@ export async function recognizePhoto(input: RecognizeInput, signal?: AbortSignal
       body: JSON.stringify({ feature: input.feature, place: input.place, mediaType, data }),
       signal,
     });
-    if (!res.ok) return { kind: 'unavailable', reason: res.status === 413 ? 'This photo is too large to check.' : '' };
+    if (!res.ok) {
+      const reason =
+        res.status === 413 ? 'This photo is too large to check.' : res.status === 429 ? 'Too many photo checks just now. Try again in a few minutes.' : '';
+      return { kind: 'unavailable', reason };
+    }
     return judge((await res.json()) as HostResult);
   } catch (err) {
     if ((err as Error)?.name === 'AbortError') throw err;

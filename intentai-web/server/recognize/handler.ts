@@ -2,6 +2,8 @@
 // The app sends one downscaled JPEG (base64) and the stop's own words for the detail. Nothing is stored. Without
 // ANTHROPIC_API_KEY the endpoint answers 503 and the game asks for another try later (never lets the stop pass).
 import Anthropic from "@anthropic-ai/sdk";
+import type { CounterLike } from "../usage/store.js";
+import { DEFAULT_LIMITS, checkLimits, memoryCounter, type RecognizeLimits } from "./limit.js";
 
 export interface RecognizeRequest {
   /** What the stop asks you to photograph, in the story's words. */
@@ -55,10 +57,31 @@ export function readRequest(body: unknown): RecognizeRequest | null {
   return { feature, place, mediaType, data };
 }
 
-export async function handleRecognize(request: Request, apiKey: string | undefined): Promise<Response> {
+/** SDK wait per attempt and retries: with Vercel's maxDuration (vercel.json, 60 s) they must fit 25 s x 2 + upload. */
+export const UPSTREAM_TIMEOUT_MS = 25_000;
+export const UPSTREAM_RETRIES = 1;
+
+/** This instance's fallback count, kept between requests while the instance is warm. */
+const instanceCounter = memoryCounter();
+
+export interface RecognizeOptions {
+  /** Redis (shared by all instances) when the project has one. */
+  counter?: CounterLike | null;
+  /** Test seam: the per-instance counter. */
+  localCounter?: CounterLike;
+  limits?: RecognizeLimits;
+}
+
+export async function handleRecognize(request: Request, apiKey: string | undefined, opts: RecognizeOptions = {}): Promise<Response> {
   const json = (data: unknown, status = 200) =>
     new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+  if (request.method !== "POST") return json({ error: "method" }, 405);
+  // Only the app's own pages may spend the key: browsers send Sec-Fetch-Site, and a cross-site page is refused.
+  const site = request.headers.get("sec-fetch-site");
+  if (site && site !== "same-origin") return json({ error: "forbidden" }, 403);
+  if (!request.headers.get("content-type")?.startsWith("application/json")) return json({ error: "send_json" }, 415);
   if (!apiKey) return json({ error: "not_configured" }, 503);
+  if (Number(request.headers.get("content-length") ?? 0) > MAX_DATA + 4_000) return json({ error: "too_large" }, 413);
   const text = await request.text();
   if (text.length > MAX_DATA + 4_000) return json({ error: "too_large" }, 413);
   let parsed: RecognizeRequest | null = null;
@@ -69,7 +92,11 @@ export async function handleRecognize(request: Request, apiKey: string | undefin
   }
   if (!parsed) return json({ error: "bad_request" }, 400);
 
-  const client = new Anthropic({ apiKey, timeout: 25_000, maxRetries: 1 });
+  // Counted only once the request is valid, so a malformed post doesn't use up a visitor's checks.
+  const verdict = await checkLimits(request, { shared: opts.counter ?? null, local: opts.localCounter ?? instanceCounter }, opts.limits ?? DEFAULT_LIMITS);
+  if (verdict !== "ok") return json({ error: verdict === "day" ? "daily_limit" : "busy" }, 429);
+
+  const client = new Anthropic({ apiKey, timeout: UPSTREAM_TIMEOUT_MS, maxRetries: UPSTREAM_RETRIES });
   try {
     const response = await client.beta.messages.create({
       model: "claude-opus-5-5",
@@ -89,6 +116,8 @@ export async function handleRecognize(request: Request, apiKey: string | undefin
       ],
     });
     if (response.stop_reason === "refusal") return json({ error: "refused" }, 422);
+    // Cut off before the JSON was finished: say so rather than failing on a half-written answer.
+    if (response.stop_reason === "max_tokens") return json({ error: "incomplete" }, 502);
     const out = response.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
     const data = JSON.parse(out) as Partial<RecognizeResult>;
     const decision = data.decision === "match" || data.decision === "no-match" ? data.decision : "unsure";

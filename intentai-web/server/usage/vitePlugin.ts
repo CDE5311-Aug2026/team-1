@@ -60,6 +60,8 @@ export function usageApiPlugin(env: Record<string, string | undefined>): Plugin 
   };
   // A/B test answers live in memory locally (cleared when the dev server restarts) unless Redis is set.
   const abtest = { redis: redisFromEnv(env) ?? memoryList(), password: cfg.password };
+  // Photo-check limits count in Redis when set, else in this server's memory.
+  const recognize = { counter: redisFromEnv(env) };
   const middleware: Connect.NextHandleFunction = (req, res, next) => {
     const path = (req.url ?? '').split('?')[0];
     const handler: ((request: Request) => Promise<Response>) | null =
@@ -74,7 +76,7 @@ export function usageApiPlugin(env: Record<string, string | undefined>): Plugin 
             : path === '/api/caption' && req.method === 'POST'
               ? (r) => handleCaption(r, env.ANTHROPIC_API_KEY)
             : path === '/api/recognize' && req.method === 'POST'
-              ? (r) => handleRecognize(r, env.ANTHROPIC_API_KEY)
+              ? (r) => handleRecognize(r, env.ANTHROPIC_API_KEY, recognize)
               : null;
     if (!handler) return next();
     toRequest(req)
