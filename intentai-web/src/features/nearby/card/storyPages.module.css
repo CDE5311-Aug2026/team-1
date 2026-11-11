@@ -410,3 +410,24 @@
 .thenNow [aria-label='Then and now'] > div:first-child {
   justify-content: flex-end;
 }
+
+/* --- the way to a longer story on the place's own page ---------------------------------------------------------- */
+.full {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(70, 45, 20, 0.55);
+  border-radius: 2px;
+  background: rgba(255, 252, 244, 0.8);
+  color: #a8481f;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  text-decoration: none;
+}
+
+.full:focus-visible {
+  outline: 2px solid #a8481f;
+  outline-offset: 2px;
+}

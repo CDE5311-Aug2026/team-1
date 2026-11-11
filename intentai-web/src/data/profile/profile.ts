@@ -7,7 +7,9 @@ import type { Duration } from '../domain';
 import { createPersistentStore } from '../persistentStore';
 import { culturePrefsStore, explorePersonalStore, onboardingStore, onDataDeleted, profileStore } from '../stores';
 import { isRecord } from '../validate';
-import { DEFAULT_RADIUS_M, isRadius, type RadiusM } from '../../features/nearby/types';
+import { TOURISM_CATEGORIES, isTourismCategory, type TourismCategory } from '../tourism';
+import { huntModeStore, type HuntMode } from '../v2Stores';
+import type { RegionId } from '../ura/ura';
 
 /* ---------- Options (the Figma tiles) ---------- */
 
@@ -109,6 +111,9 @@ export interface ProfileV3 {
   hidden: FieldKey[];
   /** When the passport was stamped (ISO date), set at the end of onboarding. */
   stampedOn?: string;
+  /** v2: Tourism 2040 categories, #1 first (onboarding step 1). Absent = worked out from `topics` on read
+   *  (tourismOrder); an explicit [] is kept. Never written by the legacy flows. */
+  tourismRanking?: TourismCategory[];
 }
 
 export const DEFAULT_PROFILE_V3: ProfileV3 = {
@@ -137,16 +142,43 @@ export function isProfileV3(value: unknown): value is ProfileV3 {
     new Set(value.topics).size === value.topics.length &&
     Array.isArray(value.hidden) &&
     value.hidden.every((f) => (FIELDS as readonly unknown[]).includes(f)) &&
-    (value.stampedOn === undefined || typeof value.stampedOn === 'string')
+    (value.stampedOn === undefined || typeof value.stampedOn === 'string') &&
+    (value.tourismRanking === undefined || isTourismRanking(value.tourismRanking))
   );
+}
+
+export function isTourismRanking(value: unknown): value is TourismCategory[] {
+  return Array.isArray(value) && value.every(isTourismCategory) && new Set(value).size === value.length;
 }
 
 /** A profile saved before the place tags: its old topics become tags, so no answer is lost. */
 export function repairProfileV3(value: unknown): ProfileV3 | null {
   if (!isRecord(value) || !Array.isArray(value.topics)) return null;
+  // 1. legacy topic names become tags (no validation yet)
   const topics = [...new Set(value.topics.map((t) => (typeof t === 'string' ? OLD_TOPICS[t] ?? t : t)))];
-  const next = { ...value, topics };
+  const next: Record<string, unknown> = { ...value, topics };
+  // 2. a damaged v2 ranking is dropped (it is then worked out from the topics again); every other field stays
+  if (next.tourismRanking !== undefined && !isTourismRanking(next.tourismRanking)) delete next.tourismRanking;
+  // 3. one validation of the whole result
   return isProfileV3(next) ? next : null;
+}
+
+/** The legacy tag each v2 category is worked out from, for profiles saved before v2 (Landmark, Culture and Food are
+ *  read as attractions; Nature as wellness).
+ *  ESTIMATE: this mapping is the team's own estimate for migrating old profiles, not an STB classification; no
+ *  source places these old topics in the Tourism 2040 categories. */
+const TOPIC_TOURISM: Record<TopicId, TourismCategory> = { landmark: 'att', culture: 'att', food: 'att', nature: 'wel' };
+
+/** The v2 ranking as saved, or worked out from the legacy tags when none was saved. Pure: nothing is written. */
+export function tourismRankingOf(profile: ProfileV3): TourismCategory[] {
+  if (profile.tourismRanking) return profile.tourismRanking;
+  return [...new Set(profile.topics.map((t) => TOPIC_TOURISM[t]))];
+}
+
+/** All four categories in the order Home shows them: the ranking first, then the rest in STB order. */
+export function tourismOrder(profile: ProfileV3): TourismCategory[] {
+  const ranked = tourismRankingOf(profile);
+  return [...ranked, ...TOURISM_CATEGORIES.filter((c) => !ranked.includes(c))];
 }
 
 export const profileV3Store = createPersistentStore<ProfileV3>({
@@ -164,8 +196,6 @@ export interface MySpacePrefs {
   haptics: boolean;
   /** Text size step (TEXT_SCALE): the root font size of the whole app. */
   textSize: TextSize;
-  /** Nearby's default search radius, one of Explore's radii (metres). */
-  radiusM: RadiusM;
   /** Anonymous page timing may leave the phone (Privacy & data). Off: nothing is sent. */
   usageTiming: boolean;
 }
@@ -182,7 +212,6 @@ export const DEFAULT_MY_SPACE_PREFS: MySpacePrefs = {
   captions: true,
   haptics: false,
   textSize: 1,
-  radiusM: DEFAULT_RADIUS_M,
   usageTiming: true,
 };
 
@@ -193,13 +222,14 @@ const isNotifyTime = (v: unknown): v is MySpacePrefs['notifyTime'] => v === 'mor
 export function isMySpacePrefs(value: unknown): value is MySpacePrefs {
   return (
     isRecord(value) &&
+    // an older record still has the retired Nearby radius (8 Nov 2026): repairMySpacePrefs drops it, keeping the rest
+    !('radiusM' in value) &&
     isRecord(value.notify) &&
     Object.keys(DEFAULT_MY_SPACE_PREFS.notify).every((k) => isBool((value.notify as Record<string, unknown>)[k])) &&
     isNotifyTime(value.notifyTime) &&
     isBool(value.captions) &&
     isBool(value.haptics) &&
     isTextSize(value.textSize) &&
-    isRadius(value.radiusM) &&
     isBool(value.usageTiming)
   );
 }
@@ -221,7 +251,6 @@ export function repairMySpacePrefs(value: unknown): MySpacePrefs | null {
     captions: bool(value.captions, d.captions),
     haptics: bool(value.haptics, d.haptics),
     textSize: isTextSize(value.textSize) ? value.textSize : d.textSize,
-    radiusM: isRadius(value.radiusM) ? value.radiusM : d.radiusM,
     usageTiming: bool(value.usageTiming, d.usageTiming),
   };
 }
@@ -278,9 +307,9 @@ export function mrzLine(holder: string, profile: ProfileV3, length = 44): string
   return (`P<SGP${name}${tail}` + '<'.repeat(length)).slice(0, length);
 }
 
-/** The holder's initial for an avatar: one whole letter, however many code units it takes. */
+/** The holder's initial for an avatar: one whole letter, however many code units it takes; '' for no name. */
 export function holderInitial(holder: string): string {
-  return Array.from(holder.trim())[0]?.toUpperCase() ?? 'W';
+  return Array.from(holder.trim())[0]?.toUpperCase() ?? '';
 }
 
 /** Today's three categories from the ranking: ranked topics first, then the default order fills the rest. */
@@ -356,5 +385,22 @@ export function finishOnboarding() {
     return { ...prev, topics: [...prev.topics, ...rest], stampedOn: localDate() };
   });
   syncLegacy(profileV3Store.get());
+  onboardingStore.set((prev) => ({ ...prev, done: true }));
+}
+
+/** v2 onboarding end (plan A1, B3): saves the category ranking and the hunt choice, stamps the WELCOME seal and lets
+ *  "/" open Home. Unlike finishOnboarding it never touches the legacy tags or Today's culture preferences, and it records
+ *  no place visit: the seal is the profile's stampedOn only. */
+export function finishTourismOnboarding({
+  ranking,
+  mode,
+  region,
+}: {
+  ranking: TourismCategory[];
+  mode?: HuntMode;
+  region?: RegionId;
+}) {
+  profileV3Store.set((prev) => ({ ...prev, tourismRanking: [...new Set(ranking)], stampedOn: localDate() }));
+  huntModeStore.set((prev) => ({ ...prev, ...(mode ? { mode } : {}), ...(region ? { region } : {}) }));
   onboardingStore.set((prev) => ({ ...prev, done: true }));
 }

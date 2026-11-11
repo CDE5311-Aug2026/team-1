@@ -1,0 +1,707 @@
+/* v2 Home sections (boards 05/11), sizes from the boards' .dc.html at 390 px. */
+.chips {
+  margin: -4px calc(-1 * var(--gutter)) 0;
+  padding: 0 var(--gutter);
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.example {
+  display: inline-block;
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  line-height: 13px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--v2-muted);
+}
+
+/* ---- the region leaderboard (together) ---- */
+.board {
+  background: var(--v2-surface);
+  border-radius: var(--v2-r-card);
+  box-shadow: var(--v2-shadow-card);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text-primary);
+}
+
+.boardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.boardTitle {
+  margin: 0;
+  font-family: var(--font-family);
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+.trophy {
+  color: var(--accent-ink);
+  flex-shrink: 0;
+}
+
+/* "LEADERBOARD" kicker over "East · this weekend": the card says what it is (also when empty). The dot between them
+   is for screen readers only, so the heading reads "Leaderboard · East · this weekend". */
+.boardName {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.boardKicker {
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.srDot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.boardLink {
+  width: 44px;
+  height: 44px;
+  margin: -12px -12px -12px -8px;
+  display: grid;
+  place-items: center;
+  color: var(--v2-muted);
+}
+
+.podium {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 6px;
+}
+
+.podium > li {
+  flex: 1;
+  min-width: 0;
+}
+
+/* each of the three opens Hunt's speed board */
+.podiumRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.podiumRow:hover .whoName {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.podiumRow:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.face {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--v2-surface-sunk);
+  box-shadow:
+    0 0 0 2px var(--v2-surface),
+    0 0 0 3.5px var(--medal);
+  display: grid;
+  place-items: center;
+}
+
+.rank {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--medal);
+  border: 2px solid var(--v2-surface);
+  font-size: 0.6875rem;
+  line-height: 14px;
+  display: grid;
+  place-items: center;
+  color: var(--text-primary);
+}
+
+.who {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.whoName {
+  font-size: 0.75rem;
+  line-height: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.whoTime {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 14px;
+  color: var(--v2-ink-2);
+}
+
+.whoBest {
+  color: var(--accent-ink);
+}
+
+.soft {
+  opacity: 0.75;
+}
+
+.you {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  line-height: 16px;
+  color: var(--v2-muted);
+}
+
+/* a region with no open challenge: said plainly, with the way to Hunt (a 44 px tall link) */
+.boardEmpty {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 18px;
+  color: var(--v2-muted);
+}
+
+.boardEmpty a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.youLink {
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  /* a 44 px tap target without changing the line */
+  padding-block: 12px;
+  margin-block: -12px;
+}
+.you b {
+  color: var(--text-primary);
+}
+
+.youFace {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--tint-warm-2);
+  box-shadow: 0 0 0 1.5px var(--border-strong);
+  display: grid;
+  place-items: center;
+}
+
+/* ---- sections ---- */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-primary);
+}
+
+.sectionHead {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-family);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9375rem;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+.sectionMeta {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 14px;
+  color: var(--v2-muted);
+  text-decoration: none;
+}
+
+span.sectionMeta {
+  min-height: 0;
+}
+
+.empty {
+  margin: 0;
+  padding: 14px;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  color: var(--v2-muted);
+  font-size: 0.8125rem;
+}
+
+/* ---- challenges ---- */
+.carousel {
+  margin: -6px calc(-1 * var(--gutter)) 0;
+  padding: 2px var(--gutter) 6px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--gutter);
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.challenge {
+  flex: 0 0 292px;
+  max-width: calc(100% - 24px);
+  scroll-snap-align: start;
+  box-sizing: border-box;
+  background: var(--v2-surface);
+  border-radius: var(--v2-r-card);
+  box-shadow: var(--v2-shadow-card);
+  padding: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.bookLink {
+  display: block;
+  flex-shrink: 0;
+}
+
+.challengeText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.challengeKicker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--v2-muted);
+}
+
+.rule {
+  color: var(--border-strong);
+}
+
+.challengeTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 22px;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.challengeTitle a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.challengeTitle a:focus-visible,
+.pickTitle a:focus-visible,
+.pickMedia:focus-visible,
+.sectionMeta:focus-visible,
+.boardLink:focus-visible,
+.join:focus-visible,
+.more:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.challengeMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 0.6875rem;
+  line-height: 15px;
+  color: var(--v2-muted);
+}
+
+.challengeMetaText {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.challengeFoot {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.faces {
+  display: flex;
+  margin-left: 2px;
+}
+
+.miniFace {
+  width: 22px;
+  height: 22px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--v2-surface-sunk);
+  box-shadow: 0 0 0 2px var(--v2-surface);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.miniFace:first-child {
+  margin-left: 0;
+}
+
+/* a 30 px pill with a 44 px tap area */
+.join {
+  position: relative;
+  margin-left: auto;
+  height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--join, var(--cat-att));
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.join::before {
+  content: '';
+  position: absolute;
+  inset: -7px -4px;
+}
+
+.joined {
+  background: var(--cat-wel-ink);
+  color: var(--v2-surface);
+}
+
+/* ---- picked for you ---- */
+.grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pick {
+  background: var(--v2-surface);
+  border-radius: var(--v2-r-card);
+  box-shadow: var(--v2-shadow-card);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pickMedia {
+  position: relative;
+  display: block;
+  height: 128px;
+  border-radius: var(--v2-r-media);
+  overflow: hidden;
+}
+
+.pickMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* no photo yet: the 2D ground map (sg-ground.webp, © OpenStreetMap contributors) cropped around the place */
+.pickGround {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-repeat: no-repeat;
+}
+
+.pickPin {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(35, 33, 29, 0.25);
+}
+
+.pickBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+}
+
+.pickDist {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  height: 22px;
+  box-sizing: border-box;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(248, 247, 244, 0.92);
+  display: flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.pickText {
+  padding: 8px 4px 4px;
+  min-height: 58px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.pickTitle {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 0.8125rem;
+  line-height: 17px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pickTitle a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pickArea {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-size: 0.6875rem;
+  line-height: 15px;
+  color: var(--v2-muted);
+}
+
+.pickArea span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.more {
+  align-self: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--v2-surface);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* "Open" (second canvas): a link to the challenge's volume, in the Join button's place and shape */
+.open {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* the leaderboard's quiet note that its players are samples (no pill in the head) */
+.sampleNote {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ---- the filter over the cards (UT02-1) and the Eat entry (UT01-1) ---- */
+/* The chips stay with their cards: they stick under Home's bar (DiscoveryHome .head: its safe-area inset, 4 px, the
+   46 px bar and 6 px) while the cards scroll, on the same frosted paper. A tap scrolls them up to there, with the cards
+   right under them. */
+.filterBar {
+  --home-head-h: calc(env(safe-area-inset-top, 0px) + 56px);
+  position: sticky;
+  top: var(--home-head-h);
+  z-index: 7;
+  scroll-margin-top: var(--home-head-h);
+  margin: -6px calc(-1 * var(--gutter)) -8px;
+  padding: 0 var(--gutter);
+  background: var(--frost-bg);
+  -webkit-backdrop-filter: var(--frost-filter);
+  backdrop-filter: var(--frost-filter);
+}
+
+.eatEntry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 14px 8px 8px;
+  border: 0;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.eatEntry:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.eatIcon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #f6e0d8;
+}
+
+.eatText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eatTitle {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+
+.eatSub {
+  font-size: 0.75rem;
+  line-height: 16px;
+  color: var(--v2-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eatBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #9b2f1c;
+  color: #fff;
+  font: 500 0.625rem/1 var(--font-mono);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.pickKind {
+  font-size: 0.6875rem;
+  line-height: 15px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

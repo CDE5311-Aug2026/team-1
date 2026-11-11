@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { paths } from '../src/routes';
 
-// v3 Moments (ZIP prototype + Figma M1–M5): passport of places, Collected, Recap. Rules (stamps, ink, rank, badges,
+// v3 Moments (ZIP prototype + Figma M1–M5): passport of places (Collected and Recap removed 9 Nov 2026). Rules (stamps, ink, rank, badges,
 // recap facts) are unit-tested in src/data/moments and src/pages/MomentsPage.
 
 

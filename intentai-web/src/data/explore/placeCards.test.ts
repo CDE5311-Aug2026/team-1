@@ -19,7 +19,11 @@ describe('place story cards', () => {
       // our own crops live in public/nearby/cards; Team 1's are bundled assets
       if (p!.src.includes('nearby/cards/')) expect(ON_DISK.has(p!.src.split('/').pop()), p!.src).toBe(true);
     }
-    if (card.story) {
+    if (card.story?.path.startsWith('/nearby/place/')) {
+      // a longer story on a place's own v2 page (Berlin Wall Fragments)
+      const key = decodeURIComponent(card.story.path.split('/')[3].split('#')[0]);
+      expect(curatedPlace(key), card.story.path).toBeTruthy();
+    } else if (card.story) {
       const [, , placeId, facet] = card.story.path.split('/');
       expect(storyPlace(placeId), card.story.path).toBeTruthy();
       expect(isFacet(facet), card.story.path).toBe(true);

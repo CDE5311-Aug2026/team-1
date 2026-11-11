@@ -1,16 +1,14 @@
-// The Help Center: the top bar the person tapped unfolds down over the page, like a game's pause menu dropping in,
-// and becomes a small assistant. Ask: questions about using FindSG, answered by Claude through /api/help (or, with no
-// key on the server, from the guide on the device). Feedback: an idea, a confusing bit, a bug or something loved,
-// sent to the team (kept on the phone and sent later when the server cannot take it).
+// The Help Centre (Redesign v2, boards 06 and 23): a light sheet that rises from the bottom over the page, with two tabs.
+// Ask: questions about using FindSG, answered by Claude through /api/help (or, with no key on the server, from the
+// guide on the device). Feedback: a kind and a note, sent to the team with the screen's name (kept on the phone and sent
+// later when the server cannot take it). Owner decision D6: no screenshot attachment.
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/avatar-logo.png';
 import { matchTopic, TOPICS, type HelpTopic } from '../../data/help/guide';
-import Icon, { type IconName } from '../../pages/OnboardingPage/v3/icons';
-import { holderInitial } from '../../data/profile/profile';
+import Icon from '../../pages/OnboardingPage/v3/icons';
 import useHolderName from '../../pages/OnboardingPage/v3/useHolderName';
-import { HelpMark } from './HelpBadge';
 import { lockScroll } from '../../hooks/scrollLock';
 import { closeHelp, setHelpTab, useHelp, type HelpTab } from './helpStore';
 import styles from './HelpCenter.module.css';
@@ -22,37 +20,44 @@ interface Message {
   topic?: HelpTopic;
 }
 
-const KINDS: { id: 'idea' | 'confusing' | 'bug' | 'love'; label: string; icon: IconName }[] = [
-  { id: 'idea', label: 'Idea', icon: 'sparkle' },
-  { id: 'confusing', label: 'Confusing', icon: 'help' },
-  { id: 'bug', label: 'Bug', icon: 'flag' },
-  { id: 'love', label: 'Love it', icon: 'star' },
+/** The kinds the server accepts (server/help/handler.ts), plus "Wrong info" from board 23, sent as a bug with its
+ *  label at the front of the note so the handler stays as it is. */
+type KindId = 'bug' | 'idea' | 'wrong' | 'confusing' | 'love';
+const KINDS: { id: KindId; label: string; send: 'idea' | 'confusing' | 'bug' | 'love'; placeholder: string }[] = [
+  { id: 'bug', label: 'Bug', send: 'bug', placeholder: 'What went wrong, and what did you expect?' },
+  { id: 'idea', label: 'Idea', send: 'idea', placeholder: 'What would make FindSG better?' },
+  { id: 'wrong', label: 'Wrong info', send: 'bug', placeholder: 'Which place or fact is wrong, and what is right?' },
+  { id: 'confusing', label: 'Confusing', send: 'confusing', placeholder: 'Which part was unclear?' },
+  { id: 'love', label: 'Love it', send: 'love', placeholder: 'What did you enjoy?' },
 ];
 
 const QUEUE = 'findsg-help-feedback';
-const HELLO = 'Hi! I’m the FindSG guide. Ask me how anything in the app works, or tell the team what to fix.';
+const MAX_NOTE = 2000;
 const UNSURE = 'I’m not sure about that one yet. Try one of these, or send it as feedback and the team will look at it.';
 
-/** The tab the person is on, by name. */
-function pageOf(pathname: string) {
-  if (pathname.startsWith('/moments')) return 'Moments';
+/** The tab the person is on, by name (v2 tabs: Home · Hunt · Passport, and Search). */
+export function pageOf(pathname: string) {
+  if (pathname.startsWith('/search')) return 'Search';
   if (pathname.startsWith('/hunt')) return 'Hunt';
-  if (pathname.startsWith('/my-space')) return 'Passport';
-  if (pathname.startsWith('/nearby') || pathname.startsWith('/explore')) return 'Explore';
+  if (pathname.startsWith('/my-space/settings')) return 'Settings';
+  if (pathname.startsWith('/my-space') || pathname.startsWith('/moments')) return 'Passport';
+  if (pathname.startsWith('/nearby') || pathname.startsWith('/explore')) return 'Places';
   return 'Home';
 }
 
 /** Starter questions, the ones about this tab first. */
 function startersFor(page: string): HelpTopic[] {
   const first: Record<string, string[]> = {
-    Home: ['start', 'explore', 'checkin', 'hunt'],
-    Moments: ['journal', 'share', 'photos', 'stamps'],
-    Hunt: ['hunt', 'puzzle', 'race', 'public'],
-    Passport: ['rank', 'privacy', 'settings', 'trouble'],
-    Explore: ['explore', 'checkin', 'stamps', 'start'],
+    Home: ['categories', 'public', 'checkin', 'solo'],
+    Hunt: ['hunt', 'public', 'solo', 'puzzle'],
+    Passport: ['stamps', 'journal', 'rank', 'privacy'],
+    Settings: ['settings', 'categories', 'privacy', 'solo'],
+    Search: ['search', 'categories', 'checkin', 'start'],
+    Places: ['explore', 'checkin', 'stamps', 'start'],
   };
   const ids = first[page] ?? first.Home;
-  return [...ids.map((id) => TOPICS.find((t) => t.id === id)!), ...TOPICS.filter((t) => !ids.includes(t.id))].slice(0, 4);
+  const picked = ids.flatMap((id) => TOPICS.filter((t) => t.id === id));
+  return [...picked, ...TOPICS.filter((t) => !ids.includes(t.id))].slice(0, 4);
 }
 
 type Note = { at: number; kind: string; page: string; text: string };
@@ -94,7 +99,7 @@ async function flush(): Promise<number> {
 }
 
 export default function HelpCenter() {
-  const { open, tab, from } = useHelp();
+  const { open, tab } = useHelp();
   const reduce = useReducedMotion();
   const { pathname } = useLocation();
   const page = pageOf(pathname);
@@ -118,7 +123,6 @@ export default function HelpCenter() {
   // a new page closes it
   useEffect(() => closeHelp(), [pathname]);
 
-  const top = from?.height ?? 64;
   return (
     <AnimatePresence>
       {open && (
@@ -127,7 +131,7 @@ export default function HelpCenter() {
             className={styles.scrim}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.25, delay: 0.1 } }}
+            exit={{ opacity: 0, transition: { duration: 0.2 } }}
             onClick={closeHelp}
           />
           <motion.div
@@ -137,24 +141,13 @@ export default function HelpCenter() {
             aria-modal="true"
             aria-label="Help Center"
             tabIndex={-1}
-            // the header grows down from its own height, overshoots a little and settles, like a menu dropping in
-            initial={reduce ? { opacity: 0 } : { height: top, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
-            animate={{ height: 'min(88dvh, 760px)', opacity: 1, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 }}
-            exit={
-              reduce
-                ? { opacity: 0 }
-                : { height: top, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, transition: { type: 'spring', stiffness: 380, damping: 36 } }
-            }
-            transition={{ type: 'spring', stiffness: 210, damping: 19, mass: 0.9 }}
+            initial={reduce ? { opacity: 0 } : { y: '100%' }}
+            animate={reduce ? { opacity: 1 } : { y: 0 }}
+            exit={reduce ? { opacity: 0 } : { y: '100%', transition: { type: 'spring', stiffness: 420, damping: 40 } }}
+            transition={{ type: 'spring', stiffness: 360, damping: 34 }}
           >
+            <span className={styles.grabber} aria-hidden="true" />
             <Panel page={page} tab={tab} />
-            <motion.i
-              className={styles.hem}
-              aria-hidden="true"
-              initial={{ scaleX: 0.3, opacity: 0 }}
-              animate={{ scaleX: 1, opacity: 1, transition: { delay: 0.25, type: 'spring', stiffness: 200, damping: 16 } }}
-              exit={{ opacity: 0, transition: { duration: 0.1 } }}
-            />
           </motion.div>
         </div>
       )}
@@ -162,24 +155,20 @@ export default function HelpCenter() {
   );
 }
 
-const rise = {
-  hidden: { opacity: 0, y: -14 },
-  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: 0.12 + i * 0.05, type: 'spring' as const, stiffness: 300, damping: 24 } }),
-};
-
 function Panel({ page, tab }: { page: string; tab: HelpTab }) {
   return (
     <div className={styles.inner}>
       <div className={styles.top}>
         <button type="button" className={styles.closer} aria-label="Close Help Center" onClick={closeHelp}>
-          <HelpMark glyph="close" />
+          <Icon name="close" size={20} />
         </button>
-        <motion.p className={styles.title} variants={rise} initial="hidden" animate="show" custom={0}>
-          Help Center
+        <p className={styles.title}>
+          Help Centre
           <small>On {page}</small>
-        </motion.p>
+        </p>
+        <img className={styles.topLion} src={logo} alt="" aria-hidden="true" draggable={false} />
       </div>
-      <motion.div className={styles.switch} role="tablist" aria-label="Help" variants={rise} initial="hidden" animate="show" custom={1}>
+      <div className={styles.switch} role="tablist" aria-label="Help">
         <LayoutGroup id="help-tabs">
           {(['ask', 'feedback'] as const).map((t) => (
             <button
@@ -196,19 +185,8 @@ function Panel({ page, tab }: { page: string; tab: HelpTab }) {
             </button>
           ))}
         </LayoutGroup>
-      </motion.div>
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={tab}
-          className={styles.body}
-          initial={{ opacity: 0, x: tab === 'ask' ? -24 : 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: tab === 'ask' ? -24 : 24 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-        >
-          {tab === 'ask' ? <Ask page={page} /> : <Feedback page={page} />}
-        </motion.div>
-      </AnimatePresence>
+      </div>
+      <div className={styles.body}>{tab === 'ask' ? <Ask page={page} /> : <Feedback page={page} />}</div>
     </div>
   );
 }
@@ -218,16 +196,6 @@ function LionAvatar() {
   return (
     <span className={styles.avatarLion} aria-hidden="true">
       <img src={logo} alt="" draggable={false} />
-    </span>
-  );
-}
-
-/** The person: their initial on a small passport portrait, as on the Passport tab. */
-function HolderAvatar() {
-  const holder = useHolderName();
-  return (
-    <span className={styles.avatarHolder} aria-hidden="true">
-      {holderInitial(holder)}
     </span>
   );
 }
@@ -242,12 +210,14 @@ function Ask({ page }: { page: string }) {
   const [busy, setBusy] = useState(false);
   const list = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const holder = useHolderName();
+  const hasName = holder.length > 0;
   const { pathname, search } = useLocation();
   const here = (to: string) => to === pathname + search || (to !== '/' && to.split('?')[0] === pathname && !to.includes('?'));
   const starters = useMemo(() => startersFor(page), [page]);
   useEffect(() => {
     saved = messages;
-    list.current?.scrollTo({ top: list.current.scrollHeight, behavior: 'smooth' });
+    list.current?.scrollTo?.({ top: list.current.scrollHeight, behavior: 'smooth' });
   }, [messages, busy]);
 
   const ask = async (q: string) => {
@@ -278,56 +248,56 @@ function Ask({ page }: { page: string }) {
     }
   };
   const last = messages[messages.length - 1];
+  const hello = `Hi${hasName ? ` ${holder}` : ''}. I’m the FindSG guide. Ask how anything works, or tell the team what to fix.`;
 
   return (
     <>
       <div className={styles.chat} ref={list}>
-      <ol className={styles.log} aria-live="polite">
-        <motion.li className={styles.turn} variants={rise} initial="hidden" animate="show" custom={2}>
-          <LionAvatar />
-          <div className={styles.bot}>{HELLO}</div>
-        </motion.li>
-        {messages.map((m) => (
-          <motion.li
-            key={m.id}
-            className={m.role === 'user' ? `${styles.turn} ${styles.turnMe}` : styles.turn}
-            initial={{ opacity: 0, y: 12, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 26 }}
-            style={{ originX: m.role === 'user' ? 1 : 0 }}
-          >
-            {m.role === 'user' ? <HolderAvatar /> : <LionAvatar />}
-            <div className={m.role === 'user' ? styles.me : styles.bot}>
-              {m.text}
-              {m.topic?.path && m.role === 'assistant' && !here(m.topic.path) && (
-                <button type="button" className={styles.go} onClick={() => navigate(m.topic!.path!)}>
-                  Take me there
-                  <Icon name="arrow" size={14} />
-                </button>
-              )}
-            </div>
-          </motion.li>
-        ))}
-        {busy && (
-          <motion.li className={styles.turn} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} aria-label="Writing">
+        <ol className={styles.log} aria-live="polite">
+          <li className={styles.turn}>
             <LionAvatar />
-            <div className={`${styles.bot} ${styles.typing}`}>
-              <i />
-              <i />
-              <i />
-            </div>
-          </motion.li>
-        )}
-      </ol>
-      {(!messages.length || (last?.role === 'assistant' && last.text === UNSURE)) && !busy && (
-        <motion.div className={styles.starters} initial="hidden" animate="show">
-          {starters.map((t, i) => (
-            <motion.button key={t.id} type="button" variants={rise} custom={3 + i} onClick={() => void ask(t.q)} whileTap={{ scale: 0.96 }}>
-              {t.q}
-            </motion.button>
+            <div className={styles.bot}>{hello}</div>
+          </li>
+          {messages.map((m) => (
+            <motion.li
+              key={m.id}
+              className={m.role === 'user' ? `${styles.turn} ${styles.turnMe}` : styles.turn}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            >
+              {m.role === 'assistant' && <LionAvatar />}
+              <div className={m.role === 'user' ? styles.me : styles.bot}>
+                {m.text}
+                {m.topic?.path && m.role === 'assistant' && !here(m.topic.path) && (
+                  <button type="button" className={styles.go} onClick={() => navigate(m.topic!.path!)}>
+                    Take me there
+                    <Icon name="arrow" size={14} />
+                  </button>
+                )}
+              </div>
+            </motion.li>
           ))}
-        </motion.div>
-      )}
+          {busy && (
+            <li className={styles.turn} aria-label="Writing">
+              <LionAvatar />
+              <div className={`${styles.bot} ${styles.typing}`}>
+                <i />
+                <i />
+                <i />
+              </div>
+            </li>
+          )}
+        </ol>
+        {(!messages.length || (last?.role === 'assistant' && last.text === UNSURE)) && !busy && (
+          <div className={styles.starters}>
+            {starters.map((t) => (
+              <button key={t.id} type="button" onClick={() => void ask(t.q)}>
+                {t.q}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <form className={styles.compose} onSubmit={submit}>
         <textarea
@@ -340,9 +310,9 @@ function Ask({ page }: { page: string }) {
           onKeyDown={onKey}
           enterKeyHint="send"
         />
-        <motion.button type="submit" className={styles.send} aria-label="Send" disabled={!draft.trim() || busy} whileTap={{ scale: 0.9 }}>
-          <Icon name="send" size={20} />
-        </motion.button>
+        <button type="submit" className={styles.send} aria-label="Send" disabled={!draft.trim() || busy}>
+          <Icon name="send" size={18} />
+        </button>
       </form>
       <p className={styles.disclaimer}>Generative AI assistance may make mistakes.</p>
     </>
@@ -350,15 +320,16 @@ function Ask({ page }: { page: string }) {
 }
 
 function Feedback({ page }: { page: string }) {
-  const [kind, setKind] = useState<(typeof KINDS)[number]['id']>('idea');
+  const [kind, setKind] = useState<KindId>('bug');
   const [text, setText] = useState('');
   const [state, setState] = useState<'edit' | 'sending' | 'sent' | 'kept'>('edit');
+  const current = KINDS.find((k) => k.id === kind)!;
   const send = async (e: FormEvent) => {
     e.preventDefault();
     const note = text.trim();
     if (!note || state === 'sending') return;
     setState('sending');
-    const item = { at: Date.now(), kind, page, text: note };
+    const item = { at: Date.now(), kind: current.send, page, text: kind === 'wrong' ? `Wrong info: ${note}` : note };
     const ok = (await post({ mode: 'feedback', ...item }))?.ok;
     if (!ok) writeQueue([...readQueue(), item]);
     setState(ok ? 'sent' : 'kept');
@@ -367,70 +338,58 @@ function Feedback({ page }: { page: string }) {
 
   if (state === 'sent' || state === 'kept')
     return (
-      <div className={styles.thanks}>
-        <motion.div
-          className={styles.seal}
-          initial={{ scale: 2.2, rotate: -24, opacity: 0 }}
-          animate={{ scale: 1, rotate: -8, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 14 }}
-          aria-hidden="true"
-        >
-          <span>Thank</span>
-          <b>you</b>
-        </motion.div>
-        <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}>
-          {state === 'sent' ? 'Sent to the FindSG team.' : 'Saved on this phone. It goes to the team as soon as the app can reach it.'}
-        </motion.p>
-        <motion.button type="button" className={styles.again} onClick={() => setState('edit')} initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.45 } }}>
+      <div className={styles.thanks} role="status">
+        <span className={styles.seal} aria-hidden="true">
+          <Icon name="check" size={28} />
+        </span>
+        <p className={styles.thanksTitle}>Thank you</p>
+        <p>{state === 'sent' ? 'Sent to the FindSG team.' : 'Saved on this phone. It goes to the team as soon as the app can reach it.'}</p>
+        <button type="button" className={styles.again} onClick={() => setState('edit')}>
           Send another
-        </motion.button>
+        </button>
       </div>
     );
 
   return (
     <form className={styles.feedback} onSubmit={send}>
-      <motion.div className={styles.kinds} role="radiogroup" aria-label="What kind of feedback" initial="hidden" animate="show">
-        {KINDS.map((k, i) => (
-          <motion.button
-            key={k.id}
-            type="button"
-            role="radio"
-            aria-checked={kind === k.id}
-            className={kind === k.id ? styles.on : undefined}
-            onClick={() => setKind(k.id)}
-            variants={rise}
-            custom={2 + i}
-            whileTap={{ scale: 0.94 }}
-          >
-            <Icon name={k.icon} size={22} />
-            <span>{k.label}</span>
-          </motion.button>
+      <p className={styles.assist}>
+        <img src={logo} alt="" aria-hidden="true" />
+        <span>Tell the team what to fix or add. Your note goes with the name of the screen you came from. No account needed.</span>
+      </p>
+      <h3 className={styles.kicker} id="fb-kind">
+        What is it about
+      </h3>
+      <div className={styles.kinds} role="radiogroup" aria-labelledby="fb-kind">
+        {KINDS.map((k) => (
+          <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} className={kind === k.id ? styles.on : undefined} onClick={() => setKind(k.id)}>
+            {k.label}
+          </button>
         ))}
-      </motion.div>
-      <motion.label className={styles.note} variants={rise} initial="hidden" animate="show" custom={6}>
-        <textarea
-          value={text}
-          maxLength={2000}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={
-            kind === 'bug'
-              ? 'What happened, and what did you expect?'
-              : kind === 'confusing'
-                ? 'Which part was unclear?'
-                : kind === 'love'
-                  ? 'What did you enjoy?'
-                  : 'What would make FindSG better?'
-          }
-          aria-label="Your feedback"
-        />
+      </div>
+      <h3 className={styles.kicker}>Screen</h3>
+      <div className={styles.screenRow}>
+        <span className={styles.screenIcon} aria-hidden="true">
+          <Icon name="grid" size={18} />
+        </span>
+        <span className={styles.screenText}>
+          <span className={styles.screenName}>{page}</span>
+          <span className={styles.screenSub}>attached automatically</span>
+        </span>
+      </div>
+      <h3 className={styles.kicker} id="fb-note">
+        Your note
+      </h3>
+      <label className={styles.note}>
+        <textarea value={text} maxLength={MAX_NOTE} onChange={(e) => setText(e.target.value)} placeholder={current.placeholder} aria-label="Your feedback" />
         <small>
-          From {page} · {text.length}/2000
+          {text.length} / {MAX_NOTE}
         </small>
-      </motion.label>
-      <motion.button type="submit" className={styles.submit} disabled={!text.trim() || state === 'sending'} variants={rise} initial="hidden" animate="show" custom={7} whileTap={{ scale: 0.97 }}>
-        <Icon name="send" size={20} />
-        {state === 'sending' ? 'Sending…' : 'Send feedback'}
-      </motion.button>
+      </label>
+      <p className={styles.fine}>Only the kind, your note, the screen’s name and the time are sent. Nothing you typed elsewhere in the app is included.</p>
+      <button type="submit" className={styles.submit} disabled={!text.trim() || state === 'sending'}>
+        {state === 'sending' ? 'Sending…' : 'Send to the team'}
+        <Icon name="send" size={18} />
+      </button>
     </form>
   );
 }

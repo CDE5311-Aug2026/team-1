@@ -8,9 +8,9 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.holiday, 'Holiday'],
   [paths.moments, 'Moments'],
   [paths.hunt, 'Hunt'],
-  [paths.nearby, 'Nearby'],
-  // Nearby Explorer: names only, never the place or collection id in the path
-  [paths.nearbyLocation, 'Nearby location'],
+  [paths.huntMedals, 'Hunt medals'],
+  [paths.search, 'Search'],
+  // Nearby pages: names only, never the place or collection id in the path
   [patterns.nearbyPlace, 'Nearby place'],
   [paths.collections, 'Nearby collections'],
   [patterns.collection, 'Nearby collection'],
@@ -21,6 +21,9 @@ const PAGE_NAMES: [path: string, name: string][] = [
   [paths.mySpace, 'My Space'],
   [paths.mySpaceSettings, 'My Space settings'],
   [paths.mySpacePrivacy, 'My Space privacy'],
+  [paths.mySpaceMotion, 'My Space motion'],
+  [paths.mySpaceTextSize, 'My Space text size'],
+  [paths.credits, 'My Space photo credits'],
   [paths.licences, 'My Space licences'],
   [paths.notices, 'Notices'],
   [paths.noticeDetails, 'Notice details'],

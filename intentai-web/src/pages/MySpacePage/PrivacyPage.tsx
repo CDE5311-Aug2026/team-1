@@ -1,4 +1,4 @@
-// My Space v3 S3 · Privacy & data: permissions this app actually uses, what is stored on this phone per area with real
+// Privacy & data (Redesign v2, board 20; was My Space v3 S3): permissions this app actually uses, what is stored on this phone per area with real
 // sizes (Clear with Undo), what leaves the phone (with PR #5's page-timing switch), export a copy, and "Hold to delete all
 // my data".
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
@@ -23,10 +23,21 @@ import { showToast } from '../../hooks/useToast';
 import { paths } from '../../routes';
 import { tracker } from '../../usage/appTracker';
 import Icon from '../OnboardingPage/v3/icons';
+import { RowIcon, Section } from './SettingsParts';
 import { Kraft, SubHeader, Switch } from './v3/Parts';
 import book from './v3/Booklet.module.css';
 import StorageBar, { AREA_LOOK } from './v3/StorageBar';
 import styles from './v3/MySpace.module.css';
+import { searchRecentStore } from '../../data/v2Stores';
+
+/** Board 20: each storage area keeps its tinted icon square. */
+const AREA_TINT: Record<StorageAreaId, string> = {
+  passport: styles.tAtt,
+  ask: styles.tLei,
+  community: styles.tCru,
+  search: styles.tWel,
+  profile: styles.tPurple,
+};
 
 /** How long "Hold to delete" must be held. */
 export const HOLD_MS = 1600;
@@ -103,6 +114,7 @@ export default function PrivacyPage() {
   const [questions] = usePersistentStore(questionsStore);
   const [tips] = usePersistentStore(tipsStore);
   const [prefs, setPrefs] = usePersistentStore(mySpacePrefsStore);
+  const [recent] = usePersistentStore(searchRecentStore);
   // Sizes are read from storage on each render; the stores above re-render the page after a Clear.
   const total = totalBytes();
   const stamps = allStamps(personal, opened, stories).filter((s) => s.collected).length;
@@ -110,6 +122,7 @@ export default function PrivacyPage() {
     passport: `${plural(stamps, 'stamp')} · ${plural(opened.length, 'card')}`,
     ask: `${plural(threads.length, 'chat')} · ${plural(insights.length, 'saved answer')}`,
     community: `${plural(questions.length, 'question')} · ${plural(tips.length, 'local tip')}`,
+    search: `${plural(recent.length, 'recent search', 'recent searches')}`,
     profile: 'What the app knows',
   };
   const sizes = STORAGE_AREAS.map((a) => areaBytes(a));
@@ -146,156 +159,183 @@ export default function PrivacyPage() {
   };
 
   return (
-    <AppShell background="#c8a87a" chrome="status">
+    <AppShell background="var(--bg-app)" chrome="status">
       <Kraft />
       <div className={`${styles.screen} ${book.screen} ${styles.kraft}`}>
         <SubHeader title="Privacy & data" back={paths.mySpace} />
         <section className={styles.hero}>
           <span className={styles.heroShield} aria-hidden="true">
-            <Icon name="lock" size={30} />
+            <Icon name="lock" size={20} />
           </span>
           <div>
             <h2 className={styles.heroTitle}>Your data stays on this phone</h2>
             <p className={styles.heroText}>
               {prefs.usageTiming
-                ? 'Nothing you type leaves it. Only anonymous page timings are sent, to improve the app.'
-                : 'Nothing leaves it: anonymous page timing is off.'}
+                ? 'Nothing you type leaves it, except what you send in the Help Centre. Hunt check-in photos are sent to be checked, and anonymous page timings to improve the app.'
+                : 'Anonymous page timing is off. Only what you send in the Help Centre and your Hunt check-in photos go out.'}{' '}
+              Public hunts only change what this phone shows; your position is never sent.
             </p>
           </div>
         </section>
 
-        <h2 className={styles.kicker}>Permissions</h2>
-        <ul className={styles.permGrid}>
-          <li>
-            <button type="button" className={styles.perm} onClick={() => navigate(paths.nearbyLocation)}>
-              <span className={styles.permTop}>
-                <span className={styles.permIcon}>
-                  <Icon name="pin" size={18} />
+        <Section title="Permissions">
+          <ul className={styles.permGrid}>
+            <li>
+              {/* Home's Near you, asking for location as the map's Locate key does (?locate=1, DiscoveryHome) */}
+              <button type="button" className={styles.perm} onClick={() => navigate(`${paths.today}?lvl=near&locate=1`)}>
+                <span className={styles.permTop}>
+                  <span className={`${styles.permIcon} ${styles.tCru}`}>
+                    <Icon name="pin" size={18} />
+                  </span>
+                  <span className={settings.location ? styles.permOn : styles.permOff}>{settings.location ? 'While using' : 'Off'}</span>
                 </span>
-                <span className={settings.location ? styles.permOn : styles.permOff}>{settings.location ? 'While using' : 'Off'}</span>
-              </span>
-              <span className={styles.rowTitle}>Location</span>
-              <span className={styles.rowSub}>Nearby and check-ins</span>
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className={styles.perm}
-              aria-pressed={settings.occasions}
-              onClick={() => setSettings((s) => ({ ...s, occasions: !s.occasions }))}
-            >
-              <span className={styles.permTop}>
-                <span className={styles.permIcon}>
-                  <Icon name="calendar" size={18} />
+                <span className={styles.rowTitle}>Location</span>
+                <span className={styles.rowSub}>Near you and check-ins</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className={styles.perm}
+                aria-pressed={settings.occasions}
+                onClick={() => setSettings((s) => ({ ...s, occasions: !s.occasions }))}
+              >
+                <span className={styles.permTop}>
+                  <span className={`${styles.permIcon} ${styles.tPurple}`}>
+                    <Icon name="calendar" size={18} />
+                  </span>
+                  <span className={settings.occasions ? styles.permOn : styles.permOff}>{settings.occasions ? 'Titles only' : 'Off'}</span>
                 </span>
-                <span className={settings.occasions ? styles.permOn : styles.permOff}>{settings.occasions ? 'Titles only' : 'Off'}</span>
-              </span>
-              <span className={styles.rowTitle}>Calendar</span>
-              <span className={styles.rowSub}>Titles only, for occasions</span>
-            </button>
-          </li>
-          <li>
-            <div className={styles.perm}>
-              <span className={styles.permTop}>
-                <span className={styles.permIcon}>
-                  <Icon name="bell" size={18} />
+                <span className={styles.rowTitle}>Calendar</span>
+                <span className={styles.rowSub}>Titles only, for occasions</span>
+              </button>
+            </li>
+            <li>
+              <div className={styles.perm}>
+                <span className={styles.permTop}>
+                  <span className={`${styles.permIcon} ${styles.tAccent}`}>
+                    <Icon name="bell" size={18} />
+                  </span>
+                  <span className={styles.permOff}>Not used</span>
                 </span>
-                <span className={styles.permOff}>Not used</span>
-              </span>
-              <span className={styles.rowTitle}>Notifications</span>
-              <span className={styles.rowSub}>The app sends none yet</span>
-            </div>
-          </li>
-          <li>
-            <div className={styles.perm}>
-              <span className={styles.permTop}>
-                <span className={styles.permIcon}>
-                  <Icon name="camera" size={18} />
+                <span className={styles.rowTitle}>Notifications</span>
+                <span className={styles.rowSub}>The app sends none yet</span>
+              </div>
+            </li>
+            <li>
+              <div className={styles.perm}>
+                <span className={styles.permTop}>
+                  <span className={`${styles.permIcon} ${styles.tLei}`}>
+                    <Icon name="camera" size={18} />
+                  </span>
+                  <span className={styles.permOn}>When you snap</span>
                 </span>
-                <span className={styles.permOff}>Not used</span>
-              </span>
-              <span className={styles.rowTitle}>Camera</span>
-              <span className={styles.rowSub}>The app doesn’t ask for it</span>
-            </div>
-          </li>
-        </ul>
+                <span className={styles.rowTitle}>Camera</span>
+                <span className={styles.rowSub}>Moments and Hunt check-in photos</span>
+              </div>
+            </li>
+          </ul>
+        </Section>
 
-        <div className={styles.sectionHead}>
-          <h2 className={styles.kicker}>Stored on this phone</h2>
-          <span className={styles.total}>{formatBytes(total)}</span>
-        </div>
-        <div className={styles.card}>
-          <StorageBar sizes={sizes} />
-          {STORAGE_AREAS.map((a, i) => (
-            <div key={a.id} className={styles.storeRow}>
-              <span className={styles.storeIcon} style={{ background: AREA_LOOK[a.id].color }}>
-                <Icon name={AREA_LOOK[a.id].icon} size={18} />
-              </span>
+        <Section title="Stored on this phone" aside={<span className={styles.total}>{` · ${formatBytes(total)}`}</span>}>
+          <div className={styles.card}>
+            <StorageBar sizes={sizes} />
+            {STORAGE_AREAS.map((a, i) => (
+              <div key={a.id} className={styles.storeRow}>
+                <span className={`${styles.rowIcon} ${AREA_TINT[a.id]}`} aria-hidden="true">
+                  <Icon name={AREA_LOOK[a.id].icon} size={18} />
+                </span>
+                <span className={styles.rowText}>
+                  <span className={styles.rowTitle}>{a.label}</span>
+                  <span className={styles.rowSub}>{subs[a.id]}</span>
+                </span>
+                <span className={styles.size}>{formatBytes(sizes[i])}</span>
+                {a.clear.length > 0 ? (
+                  <button type="button" className={styles.clear} onClick={() => clear(i)} aria-label={`Clear ${a.label}`}>
+                    Clear
+                  </button>
+                ) : (
+                  <span className={styles.clearSpacer} aria-hidden="true" />
+                )}
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="What leaves the phone">
+          <div className={styles.card}>
+            <div className={styles.switchRow}>
               <span className={styles.rowText}>
-                <span className={styles.rowTitle}>{a.label}</span>
-                <span className={styles.rowSub}>{subs[a.id]}</span>
+                <span className={styles.rowTitle}>Anonymous page timing</span>
+                <span className={styles.rowSub} id="hint-timing">
+                  {prefs.usageTiming
+                    ? 'We record how long you spend on each page and which buttons you press, never what you type'
+                    : 'Off: nothing is sent. A copy stays on this phone for your test session'}
+                </span>
               </span>
-              <span className={styles.size}>{formatBytes(sizes[i])}</span>
-              {a.clear.length > 0 ? (
-                <button type="button" className={styles.clear} onClick={() => clear(i)} aria-label={`Clear ${a.label}`}>
-                  Clear
-                </button>
-              ) : (
-                <span className={styles.clearSpacer} aria-hidden="true" />
-              )}
+              <Switch
+                label="Anonymous page timing"
+                describedBy="hint-timing"
+                checked={prefs.usageTiming}
+                onChange={(usageTiming) => {
+                  setPrefs((p) => ({ ...p, usageTiming }));
+                  showToast(usageTiming ? 'Page timing on' : 'Page timing off: nothing leaves this phone');
+                }}
+              />
             </div>
-          ))}
-        </div>
-
-        <h2 className={styles.kicker}>What leaves the phone</h2>
-        <div className={styles.card}>
-          <div className={styles.switchRow}>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Questions you post</span>
-              <span className={styles.rowSub}>Kept on this phone in this version</span>
-            </span>
-            <span className={styles.permOff}>Never</span>
-          </div>
-          <div className={styles.switchRow}>
-            <span className={styles.rowText}>
-              <span className={styles.rowTitle}>Anonymous page timing</span>
-              <span className={styles.rowSub} id="hint-timing">
-                {prefs.usageTiming
-                  ? 'We record how long you spend on each page and which buttons you press, never what you type'
-                  : 'Off: nothing is sent. A copy stays on this phone for your test session'}
+            <div className={styles.switchRow}>
+              <span className={styles.rowText}>
+                <span className={styles.rowTitle}>Help Centre questions and feedback</span>
+                <span className={styles.rowSub}>Sent when you tap Send: questions to answer you, feedback to the team, with the screen’s name</span>
               </span>
-            </span>
-            <Switch
-              label="Anonymous page timing"
-              describedBy="hint-timing"
-              checked={prefs.usageTiming}
-              onChange={(usageTiming) => {
-                setPrefs((p) => ({ ...p, usageTiming }));
-                showToast(usageTiming ? 'Page timing on' : 'Page timing off: nothing leaves this phone');
-              }}
-            />
+              <span className={styles.permOn}>When sent</span>
+            </div>
+            <div className={styles.switchRow}>
+              <span className={styles.rowText}>
+                <span className={styles.rowTitle}>Hunt check-in photos</span>
+                <span className={styles.rowSub}>Each photo you take at a stop goes to Anthropic’s Claude to check the detail; FindSG’s server doesn’t store it</span>
+              </span>
+              <span className={styles.permOn}>When sent</span>
+            </div>
+            <div className={styles.switchRow}>
+              <span className={styles.rowText}>
+                <span className={styles.rowTitle}>Public hunts</span>
+                <span className={styles.rowSub}>Only changes what this phone shows</span>
+              </span>
+              <span className={styles.permOff}>Never</span>
+            </div>
+            <div className={styles.switchRow}>
+              <span className={styles.rowText}>
+                <span className={styles.rowTitle}>Questions you post</span>
+                <span className={styles.rowSub}>Kept on this phone in this version</span>
+              </span>
+              <span className={styles.permOff}>Never</span>
+            </div>
           </div>
-        </div>
+        </Section>
 
-        <h2 className={styles.kicker}>Your copy</h2>
-        <button type="button" className={styles.exportBtn} onClick={download}>
-          <span className={styles.rowIcon}>
-            <Icon name="download" size={18} />
-          </span>
-          <span className={styles.rowText}>
-            <span className={styles.rowTitle}>Export my data</span>
-            <span className={styles.rowSub}>One readable file. Journal photos are not in it or in the sizes above</span>
-          </span>
-        </button>
+        <Section title="Your copy">
+          <button type="button" className={styles.exportBtn} onClick={download}>
+            <RowIcon icon="download" tint="cru" />
+            <span className={styles.rowText}>
+              <span className={styles.rowTitle}>Export my data</span>
+              <span className={styles.rowSub}>One readable file. Journal photos are not in it or in the sizes above</span>
+            </span>
+            <span className={styles.pillBtn} aria-hidden="true">
+              Export
+            </span>
+          </button>
+        </Section>
 
-        <h2 className={styles.kicker}>Delete</h2>
-        <div className={styles.card}>
-          <p className={styles.deleteText} id="hold-hint">
-            Removes your passport, stamps, Hunt progress, cards, photos, chats, questions and settings from this phone. This can’t be undone.
-          </p>
-          <HoldToDelete onDone={deleteAll} />
-        </div>
+        <Section title="Delete">
+          <div className={styles.card}>
+            <p className={styles.deleteText} id="hold-hint">
+              Removes your passport, stamps, Hunt progress, journal, cards, photos, chats, questions, searches and settings from this phone. This
+              can’t be undone.
+            </p>
+            <HoldToDelete onDone={deleteAll} />
+          </div>
+        </Section>
       </div>
     </AppShell>
   );

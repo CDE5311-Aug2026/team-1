@@ -5,8 +5,15 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { readCsv } from './tourism-map.mjs';
 
 const CATEGORIES = ['landmark', 'food', 'nature', 'culture'];
+// Redesign v2 (src/data/tourism.ts): kept in sync by catalogue.test.ts.
+export const TOURISM_CATEGORIES = ['att', 'wel', 'lei', 'cru'];
+export const TOURISM_SUBTYPES = ['attraction', 'precinct', 'hotel', 'terminal', 'marina', 'island', 'spa', 'nature', 'venue', 'festival'];
+export const OPERATING_STATUSES = ['open', 'new', 'planned', 'seasonal'];
+export const PIN_QUALITIES = ['building', 'street', 'area', 'approx'];
+const CROSSWALK_OUTCOME = /^(match:curated:sg-[a-z0-9-]+|child-of:curated:sg-[a-z0-9-]+|new|ambiguous)$/;
 const PROVENANCE = ['earth-online', 'researched', 'earth-online+researched'];
 const STATUSES = ['draft', 'published', 'retired'];
 const CONTEXTS = ['Hawker centre', 'MRT · bus', 'Kopitiam', 'School', 'Office', 'Wet market', 'Grab · taxi', 'Void deck', 'Mall'];
@@ -106,7 +113,7 @@ function checkDetails(d, at, errors) {
 }
 
 /** Pure validation of an in-memory catalogue. Returns { errors, warnings, counts }. */
-export function validateCatalogue({ places, areas, regions, collections, outline, stats, thumbs, thumbExists }) {
+export function validateCatalogue({ places, areas, regions, collections, outline, stats, thumbs, thumbExists, crosswalk, research }) {
   const errors = [];
   const warnings = [];
   const ids = new Set();
@@ -168,6 +175,51 @@ export function validateCatalogue({ places, areas, regions, collections, outline
     if (p.languageTip && !CONTEXTS.includes(p.languageTip.context)) errors.push(`${at}: unknown language context`);
     if (p.image && !(p.image.license && p.image.attribution && p.image.sourceUrl)) errors.push(`${at}: an image needs license, attribution and source`);
     if (p.editorialStatus === 'published' && (!ISO_DATE.test(p.reviewedAt ?? '') || !p.reviewedBy)) errors.push(`${at}: published entries need reviewedAt and reviewedBy`);
+    // Redesign v2: Tourism 2040 category, lifecycle and pin quality
+    if (p.tourism !== undefined) {
+      if (!TOURISM_CATEGORIES.includes(p.tourism?.category)) errors.push(`${at}: bad tourism category ${p.tourism?.category}`);
+      if (p.tourism?.subtype !== undefined && !TOURISM_SUBTYPES.includes(p.tourism.subtype)) errors.push(`${at}: bad tourism subtype ${p.tourism.subtype}`);
+    } else if (p.editorialStatus === 'published') errors.push(`${at}: published entries need a tourism category`);
+    if (p.operatingStatus !== undefined && !OPERATING_STATUSES.includes(p.operatingStatus)) errors.push(`${at}: bad operatingStatus ${p.operatingStatus}`);
+    if (p.operatingStatus === 'planned' && p.editorialStatus === 'published') errors.push(`${at}: a planned place must stay a draft`);
+    if (p.pinQuality !== undefined && !PIN_QUALITIES.includes(p.pinQuality)) errors.push(`${at}: bad pinQuality ${p.pinQuality}`);
+  }
+  for (const p of places) {
+    if (p.parentId === undefined) continue;
+    if (p.parentId === p.id) errors.push(`${p.id}: parentId points to itself`);
+    else if (!ids.has(p.parentId)) errors.push(`${p.id}: parentId ${p.parentId} is not in the catalogue`);
+  }
+
+  // Tourism 2040 reconciliation (research/crosswalk.csv + research/tourism2040.csv), when given
+  if (crosswalk) {
+    const byId = new Map(places.map((p) => [p.id, p]));
+    const rowsById = new Map((research ?? []).map((r) => [r.docRow, r]));
+    const slugs = new Map();
+    for (const x of crosswalk) {
+      if (!CROSSWALK_OUTCOME.test(x.outcome ?? '')) {
+        errors.push(`crosswalk ${x.docRow}: outcome must be match:<id>, child-of:<id>, new or ambiguous (has "${x.outcome}")`);
+        continue;
+      }
+      const [kind, ...rest] = x.outcome.split(':');
+      const target = rest.join(':');
+      if ((kind === 'match' || kind === 'child-of') && !byId.has(target)) errors.push(`crosswalk ${x.docRow}: ${kind} target ${target} is not in the catalogue`);
+      const row = rowsById.get(x.docRow);
+      if (research && !row) errors.push(`crosswalk ${x.docRow}: no row in tourism2040.csv`);
+      if (!row) continue;
+      if (kind === 'match' && byId.get(target)?.tourism?.category !== row.tourismCategory) errors.push(`crosswalk ${x.docRow}: matched ${target} should carry tourism ${row.tourismCategory}`);
+      if (row.admit) {
+        if (kind === 'match' || kind === 'ambiguous') errors.push(`crosswalk ${x.docRow}: a ${kind} row cannot create a record`);
+        if (slugs.has(row.slug)) errors.push(`tourism2040.csv: slug ${row.slug} used by ${slugs.get(row.slug)} and ${x.docRow}`);
+        slugs.set(row.slug, x.docRow);
+        const rec = byId.get(`curated:sg-${row.slug}`);
+        if (!rec) errors.push(`crosswalk ${x.docRow}: admitted row has no record curated:sg-${row.slug}`);
+        else {
+          if (rec.editorialStatus !== row.admit) errors.push(`${rec.id}: editorialStatus differs from the research row (${row.admit})`);
+          if (kind === 'child-of' && rec.parentId !== target) errors.push(`${rec.id}: parentId should be ${target} (crosswalk child-of)`);
+          if ((row.docStatus === 'planned' || row.docStatus === 'verify') && rec.editorialStatus === 'published') errors.push(`${rec.id}: planned or unconfirmed rows stay drafts`);
+        }
+      }
+    }
   }
 
   // Two entries for one real place (duplicate entrance, renamed copy).
@@ -178,7 +230,8 @@ export function validateCatalogue({ places, areas, regions, collections, outline
       const b = published[j];
       if (a.name.trim().toLowerCase() === b.name.trim().toLowerCase()) errors.push(`${a.id} / ${b.id}: same name`);
       // a stall or restaurant inside a food centre or a building in the catalogue is its own place
-      else if (metres(a.coordinates, b.coordinates) < 40 && !a.recognition && !b.recognition) warnings.push(`${a.id} / ${b.id}: only ${Math.round(metres(a.coordinates, b.coordinates))} m apart — same place?`);
+      // a child-of record (a spa in a resort) shares its parent's building by design
+      else if (metres(a.coordinates, b.coordinates) < 40 && !a.recognition && !b.recognition && a.parentId !== b.id && b.parentId !== a.id) warnings.push(`${a.id} / ${b.id}: only ${Math.round(metres(a.coordinates, b.coordinates))} m apart — same place?`);
     }
   }
 
@@ -237,6 +290,9 @@ export function loadCatalogue(dir = CATALOGUE_DIR) {
     stats: read('stats.json'),
     thumbs: read('thumbs.json'),
     thumbExists: (id) => existsSync(join(dir, '..', '..', '..', 'public', 'nearby', 'thumbs', `${id.replace(/^curated:/, '')}.webp`)),
+    ...(existsSync(join(dir, 'research', 'crosswalk.csv'))
+      ? { crosswalk: readCsv(readFileSync(join(dir, 'research', 'crosswalk.csv'), 'utf8')), research: readCsv(readFileSync(join(dir, 'research', 'tourism2040.csv'), 'utf8')) }
+      : {}),
   };
 }
 

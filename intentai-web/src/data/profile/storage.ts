@@ -16,8 +16,9 @@ import {
   savedStore,
   tipsStore,
 } from '../stores';
+import { searchRecentStore } from '../v2Stores';
 
-export type StorageAreaId = 'passport' | 'ask' | 'community' | 'profile';
+export type StorageAreaId = 'passport' | 'ask' | 'community' | 'search' | 'profile';
 
 interface Clearable {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,9 +68,15 @@ export const STORAGE_AREAS: StorageArea[] = [
     ],
   },
   {
+    id: 'search',
+    label: 'Search history',
+    keys: ['search-recent'],
+    clear: [{ store: searchRecentStore, empty: [] }],
+  },
+  {
     id: 'profile',
     label: 'Profile & settings',
-    keys: ['profile-v3', 'profile', 'onboarding', 'settings', 'culturePrefs', 'notices', 'place', 'reduce-motion', 'my-space-prefs'],
+    keys: ['profile-v3', 'profile', 'onboarding', 'settings', 'culturePrefs', 'notices', 'place', 'reduce-motion', 'my-space-prefs', 'hunt-mode'],
     clear: [],
   },
 ];
@@ -139,7 +146,7 @@ export function exportData(): Record<string, unknown> {
       const stored = key.startsWith(STORAGE_PREFIX);
       if (!stored && !isDeviceDataKey(key)) continue;
       const name = stored ? key.slice(STORAGE_PREFIX.length) : key;
-      // the stored lookup source keeps its old value (/ui1 shares this storage); a downloaded file shows the app's name
+      // the stored lookup source keeps its old value (data saved by earlier builds); a downloaded file shows the app's name
       const raw = (window.localStorage.getItem(key) ?? 'null').split(LEGACY_EDITORIAL).join(EDITORIAL_LABEL);
       try {
         out[name] = JSON.parse(raw);

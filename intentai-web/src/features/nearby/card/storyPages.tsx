@@ -5,6 +5,7 @@
 // are a strip of small tiles on the field note (KeyNumbers). The page scrolls inside only once a fold is open.
 // Anything that moves sideways itself is marked so the page does not turn.
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { SampleVideo, StoryArticle } from '../../../components/story';
 import type { BookPage } from '../../../components/Notebook/FlipBook';
 import type { NoteTone } from '../../../components/Notebook/StickyNote';
@@ -138,6 +139,13 @@ export function storyPages(place: CuratedPlace): BookPage[] {
             <div className={styles.story}>
               <StoryArticle top={12} leadDelay={0.1} lead={card.lead} more={card.more ?? []} />
             </div>
+          )}
+
+          {/* a place with a longer story on its own page (Berlin Wall Fragments): the way there */}
+          {card?.story?.path.startsWith('/nearby/place/') && (
+            <Link className={styles.full} to={card.story.path}>
+              {card.story.label} →
+            </Link>
           )}
 
           {!!card?.lookFor?.length && <LookFor placeId={place.id} rows={card.lookFor} />}

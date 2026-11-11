@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { staticCopy } from '../../data/expressions';
 import { releaseStrayScrollLock } from '../../hooks/scrollLock';
@@ -6,6 +6,8 @@ import { undoToast, useToastState } from '../../hooks/useToast';
 import HomeIndicator from '../HomeIndicator/HomeIndicator';
 import StatusBar from '../StatusBar/StatusBar';
 import TabBar from '../TabBar/TabBar';
+import { usePaperLayer } from './PaperLayer';
+import { ADMIN_PATH, paths } from '../../routes';
 import styles from './AppShell.module.css';
 
 interface AppShellProps {
@@ -23,9 +25,34 @@ interface AppShellProps {
   variant?: 'default' | 'story';
   /** The active tab pops in on arrival (Home). */
   tabPop?: boolean;
+  /** The app's chart paper behind the page (PaperLayer). Default: on for every page on the app's own light paper
+   *  (onboarding too, owner 8 Nov 2026); off for a page that asks for its own colour (a dark desk, a reader). */
+  paper?: boolean;
 }
 
+// The remind box over the tab bar (UT03-5) is loaded on demand: it reads the hunts, which Home does not otherwise need.
+const ShellNow = lazy(() => import('./ShellNow'));
+
+/** Screens that never show the remind box: onboarding, the admin and study desks, the frozen UI1. */
+const NO_REMINDER = [paths.welcome, ADMIN_PATH];
+const remindsHere = (pathname: string) => !NO_REMINDER.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+
+/** A hunt save on this phone (route or Golden Dome; their keys are the game's own): until then there is nothing to remind. */
+const hasHuntSave = () => {
+  try {
+    return Object.keys(localStorage).some((k) => k.startsWith('findsg-onsite-v1:') || k.startsWith('findsg-short-v2:'));
+  } catch {
+    return false;
+  }
+};
+
+/** The app's own light paper colours: a page asking for one of these gets the chart paper instead. */
+const PAPER_COLOURS = new Set(['var(--bg-app)', 'var(--bg-screen-b)']);
+
 function activeTab(pathname: string): string {
+  // v2: the journal moved into Passport, so Moments lights Passport; Search is the round button beside the bar.
+  if (pathname === paths.moments || pathname.startsWith(`${paths.moments}/`)) return paths.mySpace;
+  if (pathname === paths.search) return paths.search;
   const match = staticCopy.tabs.find(
     (tab) => tab.path !== '/' && (pathname === tab.path || pathname.startsWith(`${tab.path}/`)),
   );
@@ -41,7 +68,10 @@ export default function AppShell({
   layout = 'page',
   variant = 'default',
   tabPop = false,
+  paper,
 }: AppShellProps) {
+  const onPaper = paper ?? PAPER_COLOURS.has(background);
+  usePaperLayer(onPaper);
   const fill = layout === 'fill';
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -61,16 +91,25 @@ export default function AppShell({
   useLayoutEffect(() => {
     const el = shellRef.current;
     if (!el) return;
-    const bg = getComputedStyle(el).backgroundColor;
+    // on the chart paper the shell is clear: the canvas takes the paper's colour and the body steps out of the way, so the
+    // fixed layer (z-index -1) shows between the canvas and the page
+    const bg = onPaper ? getComputedStyle(el).getPropertyValue('--bg-app').trim() || '#eceae5' : getComputedStyle(el).backgroundColor;
     if (!bg) return;
     document.documentElement.style.backgroundColor = bg;
-    document.body.style.backgroundColor = bg;
+    document.body.style.backgroundColor = onPaper ? 'transparent' : bg;
+    document.body.style.backgroundImage = onPaper ? 'none' : '';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
-  }, [background]);
+  }, [background, onPaper]);
   const visibleToast = regionReady ? toast : null;
+  const showNow = showChrome && remindsHere(pathname) && hasHuntSave();
 
   return (
-    <div ref={shellRef} className={fill ? `${styles.shell} ${styles.fill}` : styles.shell} style={{ backgroundColor: background }}>
+    <div
+      ref={shellRef}
+      className={`${styles.shell} ${fill ? styles.fill : ''} ${onPaper ? styles.onPaper : ''}`}
+      style={onPaper ? undefined : { backgroundColor: background }}
+      data-paper={onPaper ? 'chart' : undefined}
+    >
       {chrome !== 'none' && (fill ? <div className={styles.fillStatus}><StatusBar /></div> : <StatusBar />)}
       <main
         className={fill ? styles.fillPage : story ? `${styles.page} ${styles.story}` : styles.page}
@@ -79,6 +118,11 @@ export default function AppShell({
       >{children}</main>
       {showChrome && (
         <div className={fill ? `${styles.tabBarWrap} ${styles.fillTabBar}` : styles.tabBarWrap}>
+          {showNow && (
+            <Suspense fallback={null}>
+              <ShellNow />
+            </Suspense>
+          )}
           <TabBar active={activeTab(pathname)} onNavigate={navigate} nodeId={tabBarNodeId} pop={tabPop} />
         </div>
       )}

@@ -310,3 +310,19 @@
 .controlsBleed .control:focus-visible {
   outline-offset: -3px;
 }
+
+/* compact (a small map in a scrolling page): a vertical swipe scrolls the page; sideways drags and pinches stay with
+   the map; smaller zoom keys (32 px, over the 24 px target minimum) tucked into the corner */
+.compact .map {
+  touch-action: pan-y pinch-zoom;
+}
+
+.compact .controls {
+  top: 6px;
+  right: 6px;
+}
+
+.compact .control {
+  width: 2rem;
+  height: 2rem;
+}

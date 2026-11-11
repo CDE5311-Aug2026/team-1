@@ -9,10 +9,7 @@ import {
   collectedItems,
   matchesFilter,
   rankOf,
-  recapFacts,
   stampVisits,
-  recapLine,
-  recapOrder,
   snapTray,
   topicOfCard,
 } from './moments';
@@ -149,26 +146,6 @@ describe('collected', () => {
 });
 
 describe('recap', () => {
-  test('a fact per opened card from its own sentences, then phrases', () => {
-    const facts = recapFacts(['thian-hock-keng'], [{ id: 'chope', word: 'chope', meaning: 'Reserve a seat.', source: 'AI-generated' }]);
-    expect(facts).toHaveLength(2);
-    const [card, phrase] = facts;
-    if (card.answer) {
-      expect(card.front).toContain('____');
-      expect(card.back).toBe(card.front.replace('____', card.answer));
-    } else expect(card.front).toMatch(/^What do you remember about Thian Hock Keng/);
-    expect(phrase).toMatchObject({ front: 'What does “chope” mean?', back: 'Reserve a seat.' });
-  });
-
-  test('line and order', () => {
-    expect(recapLine(6)).toBe('6 facts · about 1 min');
-    expect(recapLine(1)).toBe('1 fact · about 1 min');
-    expect(recapLine(10)).toBe('10 facts · about 2 min');
-    const facts = recapFacts(['chicken-rice', 'laksa', 'thian-hock-keng'], []);
-    const order = recapOrder(facts, { [facts[0].id]: 'knew', [facts[2].id]: 'again' }).map((f) => f.id);
-    expect(order).toEqual([facts[2].id, facts[1].id, facts[0].id]);
-  });
-
   test('recap records are validated', () => {
     expect(isRecapRecord({ results: { a: 'knew' } })).toBe(true);
     expect(isRecapRecord({ results: { a: 'maybe' } })).toBe(false);

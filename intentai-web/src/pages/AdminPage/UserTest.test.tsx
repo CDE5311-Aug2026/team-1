@@ -2,9 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Link, MemoryRouter } from 'react-router-dom';
 import { expect, test } from 'vitest';
-import App from '../../App';
 import { testerStore } from '../../data/stores';
-import { STORAGE_PREFIX } from '../../data/persistentStore';
 import type { UsageEvent } from '../../usage/event';
 import { appendLocalUsage, readLocalUsage, toExport } from '../../usage/localLog';
 import { GESTURE_EVENT } from '../../usage/gesture';
@@ -18,36 +16,6 @@ const EVENTS: UsageEvent[] = [
   { uid: 'u1', sid: 's1', kind: 'page', name: 'Nearby', ms: 60_000, at: 21_000, user: 'P01' },
   { uid: 'u2', sid: 's2', kind: 'page', name: 'Today', ms: 4_000, at: 2_000, user: 'P02' },
 ];
-
-test('the app opens only after a test name is typed; the dashboard is never behind it', async () => {
-  localStorage.removeItem(`${STORAGE_PREFIX}tester`);
-  testerStore.set({ name: '' });
-  const { unmount } = render(
-    <MemoryRouter useTransitions={false} initialEntries={['/']}>
-      <App />
-    </MemoryRouter>,
-  );
-  expect(screen.getByRole('heading', { name: 'Type your test name to start' })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
-  await userEvent.click(screen.getByRole('radio', { name: 'A' }));
-  await userEvent.type(screen.getByLabelText('Test name'), '<b>');
-  await userEvent.click(screen.getByRole('button', { name: 'Start' }));
-  expect(screen.getByRole('alert')).toHaveTextContent(/1–40 letters or numbers/);
-  await userEvent.clear(screen.getByLabelText('Test name'));
-  await userEvent.type(screen.getByLabelText('Test name'), '  P01 ');
-  await userEvent.click(screen.getByRole('button', { name: 'Start' }));
-  expect(testerStore.get()).toMatchObject({ name: 'P01', version: 'A' });
-  expect(screen.queryByRole('heading', { name: 'Type your test name to start' })).not.toBeInTheDocument();
-  unmount();
-
-  testerStore.set({ name: '' });
-  render(
-    <MemoryRouter useTransitions={false} initialEntries={['/admin']}>
-      <App />
-    </MemoryRouter>,
-  );
-  expect(screen.getByRole('heading', { name: 'Usage dashboard' })).toBeInTheDocument();
-});
 
 test("presses count on the page they happen on: a button by its name, a link by the page it opens", () => {
   const sent: UsageEvent[] = [];
@@ -67,7 +35,7 @@ test("presses count on the page they happen on: a button by its name, a link by 
       <button type="button" aria-label="Practise: chope">
         <span>Practise</span>
       </button>
-      <Link to="/nearby">a phrase someone typed</Link>
+      <Link to="/nearby/saved">a phrase someone typed</Link>
       <div data-no-track>
         <button type="button">Secret</button>
       </div>
@@ -82,8 +50,8 @@ test("presses count on the page they happen on: a button by its name, a link by 
   const taps = sent.filter((e) => e.kind === 'tap');
   expect(taps.map((e) => [e.name, e.ms, e.user])).toEqual([
     ['Moments › Practise chope', 0, 'P07'],
-    ['Moments › to Nearby', 0, 'P07'],
-    ['Nearby › Swipe card', 0, 'P07'], // the link above moved to Nearby
+    ['Moments › to Nearby saved', 0, 'P07'],
+    ['Nearby saved › Swipe card', 0, 'P07'], // the link above moved to Saved (the /nearby explorer is retired)
   ]);
 });
 

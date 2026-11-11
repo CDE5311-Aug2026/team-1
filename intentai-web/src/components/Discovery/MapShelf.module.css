@@ -1,0 +1,176 @@
+/* The compact row over the map card's lower edge (v2, no card deck). DiscoveryHome places it (.shelfSlot), clear of
+   the tool rail on the right and the map credit below. */
+.shelf {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 2px 6px;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 2px;
+  /* the map under it takes no pans: the row scrolls sideways under a finger */
+  touch-action: pan-x;
+  scrollbar-width: none;
+  /* the row runs on past the edge: it fades out there, so a cut pill reads as "more this way" */
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+}
+
+.shelf::-webkit-scrollbar {
+  display: none;
+}
+
+.shelf > li {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 184px;
+  min-height: 44px;
+  padding: 5px 12px 5px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(248, 247, 244, 0.97);
+  color: var(--text-primary);
+  box-shadow: var(--v2-shadow-card);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.15s ease,
+    transform 0.12s ease;
+}
+
+.pill:active {
+  transform: scale(0.97);
+}
+
+.pill:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+/* the selected one (the map is on it; ↵ opens it): ink, like the selected badge */
+.pill[aria-current='true'] {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--v2-surface);
+}
+
+.pill[aria-current='true'] .sub {
+  color: rgba(248, 247, 244, 0.78);
+}
+
+.markWrap {
+  position: relative;
+  flex: none;
+  display: grid;
+}
+
+.mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--mark, var(--v2-muted));
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+.markNum {
+  background: var(--text-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.pill[aria-current='true'] .markNum {
+  background: var(--v2-surface);
+  color: var(--text-primary);
+}
+
+.markPick {
+  background: var(--cat-att-tint);
+  color: var(--cat-att-ink);
+  box-shadow: none;
+}
+
+.tick {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #1f9d55
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+    center / 8px no-repeat;
+  box-shadow: 0 0 0 1.5px #fff;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.title {
+  overflow: hidden;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sub {
+  overflow: hidden;
+  color: var(--v2-muted);
+  font-size: 0.625rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.notice {
+  margin: 0 0 6px;
+  padding: 10px 14px;
+  border-radius: var(--v2-r-control);
+  background: rgba(248, 247, 244, 0.97);
+  color: var(--v2-ink-2);
+  box-shadow: var(--v2-shadow-card);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.noticeIdle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill {
+    transition: none;
+  }
+
+  .pill:active {
+    transform: none;
+  }
+}
+
+:global(html.reduce-motion) .pill {
+  transition: none;
+}

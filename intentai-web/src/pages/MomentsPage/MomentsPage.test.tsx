@@ -2,7 +2,6 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { expect, test } from 'vitest';
-import { recapStore } from '../../data/moments/recapStore';
 import { explorePersonalStore, lookupsStore, openedCardsStore } from '../../data/stores';
 import { markVisited } from '../../features/nearby/actions';
 import { patterns, paths } from '../../routes';
@@ -24,7 +23,6 @@ function renderPage() {
     <MemoryRouter useTransitions={false} initialEntries={[paths.moments]}>
       <Routes>
         <Route path={paths.moments} element={<MomentsPage />} />
-        <Route path={paths.nearby} element={<Probe name="nearby" />} />
         <Route path={patterns.nearbyPlace} element={<Probe name="place" />} />
       </Routes>
     </MemoryRouter>,
@@ -46,9 +44,11 @@ test('new user: no stamps, no locked areas, and the empty states say what to do'
   expect(screen.getByText(/No stamps yet\./)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Check in at a place' })).toHaveAttribute('href', '/');
   expect(screen.queryByRole('button', { name: /no stamp yet/ })).not.toBeInTheDocument();
-  expect(screen.getByText('Nothing collected yet')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Explore places' })).toHaveAttribute('href', '/');
-  expect(screen.getByRole('button', { name: /Recap/ })).toBeDisabled();
+  // the Collected section is gone (owner, 9 Nov 2026)
+  expect(screen.queryByText('Nothing collected yet')).toBeNull();
+  expect(screen.queryByRole('heading', { name: /Collected/ })).toBeNull();
+  // no Recap section (owner, 9 Nov 2026)
+  expect(screen.queryByRole('button', { name: /Recap/ })).toBeNull();
 });
 
 test('a check-in collects the stamp at once; ink counts the opened cards of that place', () => {
@@ -101,14 +101,6 @@ test('an outline stamp, for a place you hold a card from, sends you to Nearby to
   expect(within(sheet).queryByRole('button', { name: /Add ink/ })).not.toBeInTheDocument();
 });
 
-test('a phrase sheet deletes with Undo', async () => {
-  const user = userEvent.setup();
-  renderPage();
-  await user.click(within(screen.getByRole('article', { name: 'Phrase: chope' })).getAllByRole('button')[0]);
-  await user.click(within(screen.getByRole('dialog', { name: 'chope' })).getByRole('button', { name: 'Delete phrase' }));
-  expect(lookupsStore.get().map((l) => l.id)).not.toContain('chope');
-});
-
 test('rank sheet: rank from opened cards and badges with progress', async () => {
   openedCardsStore.set(['chicken-rice', 'thian-hock-keng', 'temasek-singapura']);
   checkIn('curated:sg-thian-hock-keng-temple');
@@ -121,19 +113,4 @@ test('rank sheet: rank from opened cards and badges with progress', async () => 
   expect(within(sheet).getByRole('listitem', { name: 'Historian: earned' })).toBeInTheDocument();
   expect(within(sheet).getByRole('listitem', { name: /^Two districts: 1 of 2/ })).toBeInTheDocument();
   expect(within(sheet).getByRole('listitem', { name: /^Full set: 2 of 3/ })).toBeInTheDocument();
-});
-
-test('recap: sort the facts, then a score; results are stored', async () => {
-  const user = userEvent.setup();
-  renderPage();
-  expect(screen.getByText('3 facts · about 1 min')).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: /Recap/ }));
-  const recap = screen.getByRole('dialog', { name: 'Recap' });
-  await user.click(within(recap).getByRole('button', { name: 'Show the answer' }));
-  await user.click(within(recap).getByRole('button', { name: 'I knew it' }));
-  await user.click(within(recap).getByRole('button', { name: 'See it again' }));
-  await user.click(within(recap).getByRole('button', { name: 'I knew it' }));
-  expect(within(recap).getByRole('heading', { name: 'You knew 2 of 3' })).toBeInTheDocument();
-  expect(Object.values(recapStore.get().results).sort()).toEqual(['again', 'knew', 'knew']);
-  expect(recapStore.get().last).toMatchObject({ knew: 2, total: 3 });
 });

@@ -1,0 +1,313 @@
+/* Hunt's first screen (landing/HuntLanding.tsx): light v2 cards on the app's linen. */
+.page {
+  --gutter: 16px;
+  min-height: 100%;
+  /* clear: the app's chart paper (AppShell) is the ground */
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  padding-bottom: 120px;
+}
+
+.bar {
+  /* PageBar's box is the column; its frosted strip runs out over this page's 16 px gutters */
+  --gutter: 16px;
+}
+
+.chips {
+  height: 48px;
+  margin-inline: 0;
+}
+
+.scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 2px var(--gutter) 0;
+}
+
+.mono {
+  font: 400 0.6875rem/14px var(--font-mono);
+  color: var(--v2-muted);
+}
+
+/* ---- a hunt's picture ---- */
+.cover {
+  flex: none;
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--v2-surface-sunk);
+}
+.coverBig {
+  width: 76px;
+  height: 96px;
+  border-radius: 14px;
+}
+
+/* ---- the hunt to carry on with ---- */
+.next {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: var(--v2-surface);
+  border-radius: var(--v2-r-card);
+  box-shadow: var(--v2-shadow-card);
+}
+.nextBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.picked {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font: 500 0.625rem/13px var(--font-mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--assist-ink);
+}
+.nextTitle {
+  margin: 0;
+  font: 600 1.25rem/24px var(--font-display);
+  letter-spacing: -0.2px;
+}
+.nextMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 0.75rem;
+  line-height: 16px;
+  color: var(--v2-muted);
+}
+.nextMetaText {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* the intro and the boards' tiles, over the chips (HuntIntro.tsx) */
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 2px var(--gutter) 4px;
+}
+/* a row's level, then its tagline */
+.tagLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-top: 1px;
+}
+.segments {
+  display: grid;
+  gap: 3px;
+  margin-top: 4px;
+}
+.segments > span {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--v2-surface-sunk);
+}
+.segments > .segOn {
+  background: var(--accent);
+}
+.nextFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.nextFoot .mono {
+  color: var(--v2-ink-2);
+}
+/* a 44 px target around a 32 px pill */
+.go {
+  flex: none;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.go > span {
+  height: 32px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-primary);
+  font: 600 0.75rem/1 var(--font-display);
+  letter-spacing: 0.2px;
+}
+.go:focus-visible {
+  outline: none;
+}
+.go:focus-visible > span {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+/* ---- every hunt ---- */
+.archive {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.head {
+  min-height: 28px;
+  display: flex;
+  flex-wrap: wrap; /* at 320 px the tally drops whole under the title instead of both breaking into ragged columns */
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 8px;
+  row-gap: 2px;
+}
+.head > * {
+  white-space: nowrap;
+}
+.head h2 {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 0.9375rem;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.row {
+  --cat: var(--v2-muted);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--v2-surface);
+  border-radius: var(--v2-r-card);
+  box-shadow: var(--v2-shadow-card);
+  cursor: pointer;
+}
+.row:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+.rowBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* one line of whole parts: a part that does not fit (the place, at 320 px) wraps onto a second line that is clipped,
+   so it drops out whole instead of ending in "KAMPONG GEL…" (it stays in the row's accessible name) */
+.kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 6px;
+  min-width: 0;
+  height: 13px;
+  font: 500 0.625rem/13px var(--font-mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--v2-muted);
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* the category kicker at the row's size */
+.badge {
+  flex: none;
+  color: var(--cat-ink);
+}
+/* up to two lines ("Beneath the Golden Dome" at 320 px), then an ellipsis */
+.rowTitle {
+  font: 600 1.125rem/22px var(--font-display);
+  letter-spacing: -0.2px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.tag {
+  font-size: 0.6875rem;
+  line-height: 15px;
+  font-style: italic;
+  color: var(--v2-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.progress {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.track {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--v2-surface-sunk);
+  overflow: hidden;
+}
+.track > span {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--cat);
+}
+.status {
+  flex: none;
+  font: 400 0.625rem/13px var(--font-mono);
+  color: var(--v2-muted);
+}
+.chev {
+  flex: none;
+  display: flex;
+  color: var(--v2-muted);
+  padding-right: 4px;
+}
+.empty {
+  margin: 0;
+  padding: 16px;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  color: var(--v2-muted);
+  font-size: 0.8125rem;
+}
+
+.fine {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 0.6875rem;
+  line-height: 16px;
+  font-style: italic;
+  color: var(--v2-muted);
+}
+
+/* the row's name takes the room between its tinted icon square and the chevron */

@@ -21,7 +21,7 @@ export default function CollectionsPage() {
   return (
     <AppShell background="var(--bg-screen-b)">
       <div className={styles.screen}>
-        <BackHeader title="Collections" fallback={paths.nearby} />
+        <BackHeader title="Collections" fallback={paths.today} />
         <StorageWarning />
         <ul className={styles.list}>
           {COLLECTIONS.map((c) => {

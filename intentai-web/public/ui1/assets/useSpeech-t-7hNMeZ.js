@@ -1,1 +1,0 @@
-import{r as n}from"./index-DXzMqyRA.js";function u(){const[r,s]=n.useState(!1),o=n.useRef(typeof window<"u"&&!!window.speechSynthesis);return{speak:n.useCallback(a=>{const t=window.speechSynthesis;if(!t)return;t.cancel();const e=new SpeechSynthesisUtterance(a);e.onstart=()=>s(!0),e.onend=()=>s(!1),e.onerror=()=>s(!1),t.speak(e)},[]),speaking:r,supported:o.current}}export{u};
