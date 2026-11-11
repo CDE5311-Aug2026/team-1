@@ -206,6 +206,8 @@ export function passStop(id: HuntId, stopId: string, photo: PhotoNote, at = new 
     let s = readShort('manual');
     for (const step of ['ticket', 'letter', ...steps] as ShortAction[]) s = shortTransition(s, step);
     saveShort(s);
+    // the Golden Dome's save keeps no check-in times, so note this one for "the hunt played last" (ShellNow)
+    markStory('short', 'play', at.getTime());
     if (s.bottle) markStory('short', 'finish', at.getTime());
     return shortHunt();
   }

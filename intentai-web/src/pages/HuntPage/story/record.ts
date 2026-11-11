@@ -9,7 +9,8 @@ import { HUNTS, type HuntId } from '../hunts';
 import { chapters } from './chapters';
 
 const TIMES_KEY = 'hunt-times-v1';
-type Times = Partial<Record<HuntId, { startedAt?: number; finishedAt?: number }>>;
+/** playedAt: the latest check-in, for hunts whose own save keeps no check-in times (the Golden Dome). */
+type Times = Partial<Record<HuntId, { startedAt?: number; finishedAt?: number; playedAt?: number }>>;
 
 function readTimes(): Times {
   try {
@@ -26,11 +27,12 @@ function writeTimes(t: Times) {
   }
 }
 /** Note the moment a story starts or ends (the prologue calls this as it happens; routes are filled in on view). */
-export function markStory(id: HuntId, what: 'start' | 'finish', at = Date.now()) {
+export function markStory(id: HuntId, what: 'start' | 'finish' | 'play', at = Date.now()) {
   const t = readTimes();
   const cur = t[id] ?? {};
   if (what === 'start' && !cur.startedAt) cur.startedAt = at;
   if (what === 'finish' && !cur.finishedAt) cur.finishedAt = at;
+  if (what === 'play') cur.playedAt = Math.max(cur.playedAt ?? 0, at);
   t[id] = cur;
   writeTimes(t);
 }
@@ -144,7 +146,7 @@ export function routeRows(routeId: string, names: { id: string; name: string }[]
 /** When a story was last played on this phone: its start or its latest check-in (0 when nothing is known). */
 export function lastPlayedAt(id: HuntId): number {
   const t = readTimes()[id];
-  let at = Math.max(t?.startedAt ?? 0, t?.finishedAt ?? 0);
+  let at = Math.max(t?.startedAt ?? 0, t?.finishedAt ?? 0, t?.playedAt ?? 0);
   const route = id === 'short' ? null : ONSITE_ROUTES[id];
   if (route) {
     const on = readOnsite(id, route.stops, 'manual') as unknown as OnsiteSave;

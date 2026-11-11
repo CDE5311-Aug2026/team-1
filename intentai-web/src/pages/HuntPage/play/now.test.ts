@@ -1,6 +1,6 @@
 import { SAVES_CLEARED } from '../../../data/deviceKeys';
 import { loadHunt, passStop, startHunt } from './model';
-import { nowLine } from './now';
+import { huntUnderWay, nowLine } from './now';
 
 const photo = { name: 'stop.jpg', type: 'image/jpeg', size: 1000 };
 
@@ -42,4 +42,21 @@ it('moves on with the stop and ends on the medals', () => {
   expect(nowLine(second).text).toContain(second.stops[1].target);
   passStop('short', 'short-mosque', photo);
   expect(nowLine(loadHunt('short')!)).toEqual({ label: 'Now · Finished', text: 'Hunt finished — see your medals.' });
+});
+
+// Cursor Bugbot on PR #9: a Golden Dome photo mid-hunt must count as playing it, as a route check-in does, so the
+// remind box (ShellNow) points at the hunt played last.
+it('a Golden Dome check-in makes it the hunt played last', () => {
+  vi.useFakeTimers();
+  try {
+    vi.setSystemTime(new Date('2026-11-11T09:00:00Z'));
+    startHunt('short');
+    vi.setSystemTime(new Date('2026-11-11T09:10:00Z'));
+    startHunt('telok-ayer');
+    expect(huntUnderWay()?.hunt.id).toBe('telok-ayer');
+    passStop('short', 'short-press', photo, new Date('2026-11-11T09:20:00Z'));
+    expect(huntUnderWay()?.hunt.id).toBe('short');
+  } finally {
+    vi.useRealTimers();
+  }
 });
