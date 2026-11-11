@@ -1,0 +1,45 @@
+/* A small mono pill, as the category kickers: three rising bars, then "Lv 2 · Explorer". */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  background: var(--v2-surface, #fff);
+  color: var(--text-primary);
+  font: 500 0.625rem/1 var(--font-mono);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  height: 9px;
+}
+
+.bars i {
+  display: block;
+  width: 3px;
+  border-radius: 1px;
+  background: var(--border-strong);
+}
+
+.bars i:nth-child(1) {
+  height: 4px;
+}
+.bars i:nth-child(2) {
+  height: 6.5px;
+}
+.bars i:nth-child(3) {
+  height: 9px;
+}
+
+.bars i.on {
+  background: var(--accent-ink, #9a4a0c);
+}

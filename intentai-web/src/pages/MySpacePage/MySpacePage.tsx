@@ -3,7 +3,7 @@
 // mode the region's weekend leaderboard (Home's own card, example players; before the journal, owner 8 Nov 2026), the
 // journal's recent days and the collection by Tourism 2040 category.
 // What the app keeps on file, and the older Passport links, follow below.
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import groundUrl from "../../assets/nearby/sg-ground.webp";
 import logo from "../../assets/brand/findsg-logo.png";
@@ -33,6 +33,7 @@ import {
   languageOf,
   mrzLine,
   profileV3Store,
+  roleOf,
   toggleHidden,
   tourismOrder,
   tourismRankingOf,
@@ -55,7 +56,10 @@ import { paths } from "../../routes";
 import { openChallenges } from "../../data/hunt/challenges";
 import { localToday } from "../../features/nearby/personal";
 import { RegionLeaderboard } from "../TodayPage/HomeSections";
-import { storyRecords } from "../HuntPage/notebook/record";
+import { storyRecords } from "../HuntPage/story/record";
+import { HUNTS } from "../HuntPage/hunts";
+
+const HUNT_TOTAL = HUNTS.length;
 import { dayAnchor, useJournalDays } from "../MomentsPage/Journal/useJournalDays";
 import Icon, { type IconName } from "../OnboardingPage/v3/icons";
 import { EyeButton } from "../OnboardingPage/v3/Passport";
@@ -77,7 +81,7 @@ const mrzWord = (s: string) =>
 
 /** The three machine-readable lines, from real fields only: the holder line (name, role unless hidden); the categories
  *  spelled out in the holder's own ranking (owner, 10 Nov 2026: not the three-letter codes; all four need a line of
- *  their own); then stamps, volumes done, home hunt region and hunt mode. */
+ *  their own), left blank when the holder hid their topics; then stamps, volumes done, home hunt region and hunt mode. */
 export function passportMrz(
   holder: string,
   profile: ProfileV3,
@@ -85,12 +89,38 @@ export function passportMrz(
   hunt: { together: boolean; region?: string },
 ): [string, string, string] {
   const first = mrzLine(holder, profile, MRZ_LENGTH);
-  const categories = mrzPad(tourismRankingOf(profile).map((c) => mrzWord(TOURISM_INFO[c].label)).join("<"));
+  const categories = mrzPad(interestsOf(profile).map((c) => mrzWord(TOURISM_INFO[c].label)).join("<"));
   const region = hunt.region ? `${mrzWord(hunt.region)}<<` : "";
   const second = mrzPad(
     `${String(counts.stamps).padStart(3, "0")}SGP${String(counts.volumes).padStart(4, "0")}<<${region}${hunt.together ? "TOGETHER" : "SOLO"}`,
   );
   return [first, categories, second];
+}
+
+/** The ranked categories, unless the holder hid their topics (the ranking is drawn from them). */
+const interestsOf = (profile: ProfileV3) => (profile.hidden.includes("topics") ? [] : tourismRankingOf(profile));
+
+const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+/** The same fields as passportMrz, in plain words: holder, role (unless hidden), interests (unless hidden),
+ *  stamps, hunts done, home hunt region and hunt mode. */
+export function passportLegend(
+  holder: string,
+  profile: ProfileV3,
+  counts: { stamps: number; volumes: number },
+  hunt: { together: boolean; region?: string },
+): string[] {
+  const role = profile.hidden.includes("role") ? undefined : roleOf(profile.role)?.label;
+  const interests = interestsOf(profile).map((c) => TOURISM_INFO[c].label);
+  return [
+    holder,
+    ...(role ? [role] : []),
+    ...(interests.length ? [`Top interests: ${interests.join(", ")}`] : []),
+    plural(counts.stamps, "stamp"),
+    `${plural(counts.volumes, "hunt")} done`,
+    ...(hunt.region ? [hunt.region] : []),
+    hunt.together ? "Hunting together" : "Solo",
+  ];
 }
 
 /** Published places of each category, drafts (planned) left out: they are never counted or stamped. */
@@ -141,6 +171,7 @@ function PassportCard({
   regionName?: string;
 }) {
   const [first, categories, second] = passportMrz(holder, profile, { stamps, volumes }, { together, region: regionName });
+  const legend = passportLegend(holder, profile, { stamps, volumes }, { together, region: regionName });
   const stats = [
     { label: "Stamps", value: stamps },
     { label: "Volumes", value: volumes },
@@ -184,11 +215,21 @@ function PassportCard({
         <span className={styles.modeDot} aria-hidden="true" />
         {together ? `Hunting together${regionName ? ` · ${regionName}` : ""}` : "Solo explorer"}
       </p>
-      <p className={styles.mrz} aria-hidden="true">
-        <span>{first}</span>
-        <span>{categories}</span>
-        <span>{second}</span>
-      </p>
+      {/* the code line, captioned and read out in plain words below (UT03-2: on its own it read as noise) */}
+      <div className={styles.mrzBlock}>
+        <p className={styles.mrzLabel} aria-hidden="true">
+          Passport code
+        </p>
+        <p className={styles.mrz} aria-hidden="true">
+          <span>{first}</span>
+          <span>{categories}</span>
+          <span>{second}</span>
+        </p>
+        <p className={styles.mrzLegend}>
+          <span className={styles.srOnly}>Your passport code: </span>
+          {legend.join(" · ")}
+        </p>
+      </div>
     </section>
   );
 }
@@ -357,10 +398,13 @@ function Collection({
   profile,
   personal,
   cat,
+  chips,
 }: {
   profile: ProfileV3;
   personal: ExplorePersonalData;
   cat: TourismFilter;
+  /** The category chips, between the heading and the rows they filter. */
+  chips?: ReactNode;
 }) {
   const stamped = useMemo(() => stampedDays(personal), [personal]);
   const shown = tourismOrder(profile).filter((c) => cat === "all" || c === cat);
@@ -368,10 +412,16 @@ function Collection({
   const done = shown.reduce((n, c) => n + PLACES_BY_CATEGORY[c].filter((p) => stamped.has(p.id)).length, 0);
   return (
     <section className={styles.section} aria-labelledby="passport-collection">
-      <div className={styles.sectionHead}>
-        <h2 id="passport-collection">My collection</h2>
+      <div className={`${styles.sectionHead} ${styles.collectionHead}`}>
+        <h2 id="passport-collection">
+          My collection{" "}
+          <span className={styles.count} aria-hidden="true">
+            {total}
+          </span>
+        </h2>
         <span className={styles.meta}>{`${done} of ${total} stamped`}</span>
       </div>
+      {chips}
       {shown.map((c) => (
         <CategoryRow key={c} category={c} stamped={stamped} />
       ))}
@@ -511,7 +561,9 @@ export default function MySpacePage() {
     <AppShell>
       <div className={styles.screen}>
         <PageBar title="Passport" tone="light" />
-        <CategoryChips value={cat} onChange={setCat} label="Filter your collection" className={styles.chips} />
+        {/* user test UT02-2 ("needs change"): fewer things compete over the fold. The chips moved into My collection (the
+            only thing they filter), the collection comes straight after the card, and the leaderboard (on Home and Hunt
+            too) moved below the journal */}
         <PassportCard
           holder={holder}
           profile={profile}
@@ -522,12 +574,17 @@ export default function MySpacePage() {
           together={together}
           regionName={regionName}
         />
+        <Collection
+          profile={profile}
+          personal={personal}
+          cat={cat}
+          chips={<CategoryChips value={cat} onChange={setCat} label="Filter your collection" className={styles.chips} />}
+        />
+        <JournalStrip />
         {/* "chose to hunt" is Home's rule (huntModeStore mode "together"), with Home's region and card */}
         {together && (
           <RegionLeaderboard region={hunt.region ?? "central"} challenges={challenges} titleId="passport-board-title" />
         )}
-        <JournalStrip />
-        <Collection profile={profile} personal={personal} cat={cat} />
 
         <section className={styles.section} aria-labelledby="passport-file">
           <div className={styles.sectionHead}>
@@ -546,6 +603,15 @@ export default function MySpacePage() {
 
         <section className={styles.section} aria-label="More">
           <div className={book.ledger}>
+            {/* the medals and stamps from Hunt (batch 3: their own page, once the shelf's display case) */}
+            <Link to={paths.huntMedals} className={book.line}>
+              <Bead icon="trophy" />
+              <span className={book.lineText}>
+                <span className={book.lineTitle}>Hunt medals</span>
+                <span className={book.lineSub}>{`${volumes} of ${HUNT_TOTAL} won`}</span>
+              </span>
+              <Icon name="chevron" size={18} className={book.chevron} />
+            </Link>
             <Link to={paths.saved} className={book.line}>
               <Bead icon="star" />
               <span className={book.lineText}>

@@ -94,5 +94,7 @@ test('/t4?seed=1 saves the Balestier remote clue and finishes onboarding', async
   await vi.waitFor(() => expect(replace).toHaveBeenCalledWith('/'), { timeout: 10000 });
   expect(JSON.parse(localStorage.getItem('findsg-onsite-v1:balestier:preview')!).completed).toEqual(['balestier-01']);
   expect(localStorage.getItem('findsg-onsite-mode:balestier')).toBe('preview');
+  // UI2 reads the on-site save only
+  expect(JSON.parse(localStorage.getItem('findsg-onsite-v1:balestier:manual')!).completed).toEqual(['balestier-01']);
   expect(JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}onboarding`)!).done).toBe(true);
 });

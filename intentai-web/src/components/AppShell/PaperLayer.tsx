@@ -6,7 +6,7 @@
 // The roses turn only when motion is allowed (chartPaper.module.css: prefers-reduced-motion and html.reduce-motion).
 import { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ChartPaper } from '../../pages/HuntPage/notebook/ChartPaper';
+import { ChartPaper } from '../Paper/ChartPaper';
 import styles from './AppShell.module.css';
 
 let layer: HTMLDivElement | null = null;

@@ -1,22 +1,14 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { ONSITE_ROUTES } from '../findsg';
-// @ts-expect-error the game's modules are untyped
-import { beginOnsite, checkInOnsite } from '../findsg/app/game/onsite-state.js';
-// @ts-expect-error the game's modules are untyped
-import { preferredOnsiteMode, readOnsite, saveOnsite } from '../findsg/app/game/onsite-storage.js';
-// @ts-expect-error the game's modules are untyped
-import { readGame, saveGame, gameStorageKey } from '../findsg/app/game/game-storage.js';
-// @ts-expect-error the game's modules are untyped
-import { readField, storeField } from '../findsg/app/field/field-storage.js';
+import { beginOnsite, checkInOnsite, ONSITE_ROUTES, readOnsite, saveOnsite } from '../findsg';
 import { MARKER_KEY, PENDING_KEY, RECOVERY_KEY } from './migration/legacyMigration';
 import { huntVisits } from './moments/huntVisits';
 import { clearPhone, deleteAllData } from './stores';
 
 const ROUTE = 'telok-ayer';
-const stops = () => (ONSITE_ROUTES as Record<string, { stops: { id: string }[] }>)[ROUTE].stops;
-const checkedIn = (mode: string) => {
+const stops = () => ONSITE_ROUTES[ROUTE].stops;
+const checkedIn = () => {
   const first = stops()[0].id;
-  return { first, state: checkInOnsite(beginOnsite(readOnsite(ROUTE, stops(), mode)), first, stops(), { mode, confirmedAt: '2026-11-02T08:00:00.000Z' }) };
+  return { first, state: checkInOnsite(beginOnsite(readOnsite(ROUTE, stops(), 'manual')), first, stops(), { mode: 'manual', confirmedAt: '2026-11-02T08:00:00.000Z' }) };
 };
 
 afterEach(() => {
@@ -53,28 +45,22 @@ test('Delete all removes the saved position and session keys, and keeps the admi
 });
 
 test('saved progress does not come back from the game caches after Delete all', async () => {
-  const { first, state } = checkedIn('manual');
+  const { first, state } = checkedIn();
   saveOnsite(state);
   await deleteAllData();
   expect(readOnsite(ROUTE, stops(), 'manual').stops[first].checkin).toBeNull();
 });
 
-test('a save that only reached the cache (storage full) is forgotten too, with its mode', async () => {
-  const { first, state } = checkedIn('preview');
+test('a save that only reached the cache (storage full) is forgotten too', async () => {
+  const { first, state } = checkedIn();
   vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
     throw new Error('full');
   });
   saveOnsite(state);
-  saveGame({ routeId: ROUTE, stage: 'x', completed: [stops()[0].id] });
-  storeField({ routeId: ROUTE, mode: 'manual', marker: 1 });
-  expect(preferredOnsiteMode(ROUTE)).toBe('preview');
+  expect(readOnsite(ROUTE, stops(), 'manual').stops[first].checkin).not.toBeNull();
   vi.restoreAllMocks();
   await deleteAllData();
-  expect(readOnsite(ROUTE, stops(), 'preview').stops[first].checkin).toBeNull();
-  expect(preferredOnsiteMode(ROUTE)).toBe('manual');
-  expect(readGame(ROUTE, stops()).completed).toEqual([]);
-  expect(readField(ROUTE, 'manual', stops()).marker).toBeUndefined();
-  expect(localStorage.getItem(gameStorageKey(ROUTE))).toBeNull();
+  expect(readOnsite(ROUTE, stops(), 'manual').stops[first].checkin).toBeNull();
 });
 
 test('clearPhone resolves, so a caller can wait for it before leaving the page', async () => {

@@ -14,11 +14,13 @@ import HelpCenter from './components/HelpCenter/HelpCenter';
 import CrashSwitch from './components/PageError/CrashSwitch';
 import PageErrorBoundary from './components/PageError/PageError';
 import NetStatus from './components/NetStatus/NetStatus';
+import ScrollKeeper from './components/ScrollKeeper/ScrollKeeper';
 
 // Every screen but Today loads on demand, so a phone opening the app downloads Today's code only (the place catalogue,
 // the community posts, the atlas and the map stay out of it). Nearby Explorer screens were already split this way.
 const HolidayPage = lazyPage(() => import('./pages/HolidayPage/HolidayPage'));
 const HuntPage = lazyPage(() => import('./pages/HuntPage/HuntPage'));
+const MedalsPage = lazyPage(() => import('./pages/HuntPage/medals/MedalsPage'));
 const MomentsPage = lazyPage(() => import('./pages/MomentsPage/MomentsPage'));
 const MySpacePage = lazyPage(() => import('./pages/MySpacePage/MySpacePage'));
 const MySpaceSettingsPage = lazyPage(() => import('./pages/MySpacePage/SettingsPage'));
@@ -73,6 +75,7 @@ export default function App() {
     // "user" follows the system setting; the app's own Reduce motion switch forces it off everywhere.
     <MotionConfig reducedMotion={reduceMotion ? 'always' : 'user'}>
       <PageTracker />
+      <ScrollKeeper />
       <HelpCenter />
       <NetStatus />
       <UserGate>
@@ -95,6 +98,7 @@ export default function App() {
             <Route path={paths.holiday} element={<HolidayPage />} />
             <Route path={paths.moments} element={<MomentsPage />} />
             <Route path={paths.hunt} element={<HuntPage />} />
+            <Route path={paths.huntMedals} element={<MedalsPage />} />
             <Route path={paths.search} element={<SearchPage />} />
             {/* The v1 Nearby explorer is retired (owner, 8 Nov 2026): old links land on Home. */}
             <Route path={paths.nearby} element={<Navigate to="/" replace />} />

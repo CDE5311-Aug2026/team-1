@@ -4,8 +4,7 @@ import inkDrop from '../../../assets/v3/moments/ink-drop.svg';
 import lockIcon from '../../../assets/v3/moments/lock.svg';
 import { nearbyHref } from '../../../data/cultureLinks';
 import { huntKey, longDate, stampVisits, type Stamp as StampData } from '../../../data/moments/moments';
-import { chapters } from '../../HuntPage/notebook/chapters';
-import { reopenBook } from '../../HuntPage/notebook/bookSession';
+import { chapters } from '../../HuntPage/story/chapters';
 import { usePersistentStore } from '../../../data/persistentStore';
 import { explorePersonalStore } from '../../../data/stores';
 import { paths } from '../../../routes';
@@ -22,10 +21,9 @@ interface PlaceSheetProps {
   onClose: () => void;
 }
 
-/** Where a visit leads: its story for a Hunt stop (the short story lives in its book, not at a story address). */
+/** Where a visit leads: its hunt for a Hunt stop (the Golden Dome too). */
 function visitLink(key: string): { to: string; onClick?: () => void } {
   const hunt = huntKey(key);
-  if (hunt?.story === 'short') return { to: paths.hunt, onClick: () => reopenBook('short') };
   if (hunt) return { to: `${paths.hunt}#story/${hunt.story}` };
   return { to: key.startsWith('story:') ? paths.today : homePlaceHref(key) };
 }

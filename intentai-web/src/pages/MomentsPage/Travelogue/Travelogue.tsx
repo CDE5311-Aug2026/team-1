@@ -31,7 +31,7 @@ import {
   type Tone,
 } from "../../../data/journal/travelogue";
 import Icon from "../../OnboardingPage/v3/icons";
-import { ChartPaper } from "../../HuntPage/notebook/ChartPaper";
+import { ChartPaper } from "../../../components/Paper/ChartPaper";
 import Sheet from "../Sheet/Sheet";
 import { renderDayCard, renderFrame, toFile } from "./render";
 import styles from "./Travelogue.module.css";

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { searchMap } from '../../components/Discovery/mapSearch';
-import { BOOKS } from '../../pages/HuntPage/notebook/Bookshelf';
+import { HUNTS } from '../../pages/HuntPage/hunts';
 import { ALL_PLACES, curatedPlace, PUBLISHED_PLACES } from '../../features/nearby/catalogue';
 import { CHALLENGES } from '../hunt/challenges';
 import { HUNT_CHALLENGES } from '../hunt/stories';
@@ -35,7 +35,7 @@ describe('search index', () => {
     const missing = searchAll('missing years', '2026-11-07');
     expect(missing.find((e) => e.kind === 'volume')).toMatchObject({ title: 'The Missing Years', href: '/hunt#story/civic-f1' });
     expect(missing.find((e) => e.kind === 'challenge')).toMatchObject({ href: '/hunt#story/civic-f1' });
-    expect(searchAll('golden dome')[0]).toMatchObject({ kind: 'volume', href: '/hunt#short' });
+    expect(searchAll('golden dome')[0]).toMatchObject({ kind: 'volume', href: '/hunt#story/short' });
   });
 
   test('a challenge is listed only while it is open (wk45 ends 8 Nov 2026), under its stops’ category', () => {
@@ -68,7 +68,7 @@ describe('search index', () => {
 
 describe('Hunt entries', () => {
   test('the volume list is the Hunt archive shelf', () => {
-    expect(HUNT_VOLUMES.map((v) => [v.id, v.roman, v.title, v.place])).toEqual(BOOKS.map((b) => [b.id, b.roman, b.title, b.place]));
+    expect(HUNT_VOLUMES.map((v) => [v.id, v.roman, v.title, v.place])).toEqual(HUNTS.map((b) => [b.id, b.roman, b.title, b.place]));
   });
 
   test('stop counts come from the surveyed pins; links and dates', () => {

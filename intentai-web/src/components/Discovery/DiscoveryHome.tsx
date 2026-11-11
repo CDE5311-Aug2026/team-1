@@ -1,12 +1,11 @@
 // Home, Discovery redesign (owner brief and sketch, 31 Oct 2026). The map card is a Three.js scene of URA's planning
 // areas: regions numbered 1–5, then the region's planning areas, then the area's places. v2 (owner, 8 Nov 2026): no
 // card deck under it any more; one tap on the map goes down a level (a region badge → its planning areas, an area →
-// its places, a pin → the place's card), and what the deck listed lies over the map's lower edge as a compact row
+// its places, a pin → the place page, the same M-page as Home's cards open), and what the deck listed lies over the map's lower edge as a compact row
 // (MapShelf). Ring = how much is checked in, a tick = all of it. The level and selection live in the URL
 // (?lvl=&r=&a=&p=), so Back from a place page returns to the same spot. The rail's Picks key shows Editor's Pick
 // (?lvl=picks&k=): walks and lists, then a pick's stops (?lvl=pick), the map flying across the island with them; a walk
 // also opens as a 2D route (&route=1) with a button that starts Google Maps.
-import { AnimatePresence, motion, useReducedMotionConfig } from "motion/react";
 import {
   lazy,
   Suspense,
@@ -18,7 +17,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ALL_HOME_PLACES,
   HOME_BASE,
@@ -54,11 +53,11 @@ import { useExplorePersonal } from "../../features/nearby/actions";
 import { localToday } from "../../features/nearby/personal";
 import { toXY } from "../../features/nearby/map/projection";
 import { showToast } from "../../hooks/useToast";
+import { paths } from "../../routes";
 import PageBar from "../PageBar/PageBar";
 import { NEAR_M, nearYou, shortDistance } from "./nearYou";
 import { MapNotice, MapShelf, type ShelfItem } from "./MapShelf";
 import type { LatLng } from "../../features/nearby/types";
-import type { BookControls } from "../Notebook/FlipBook";
 // Three.js loads with these two, after the rest of Home has drawn.
 // The map card (owner, 31 Oct): regions and planning areas on a light Three.js map over EARTH ONLINE's ground picture
 // (fast, no 18 MB download, the camera flies to each card); a planning area's places in the full EARTH ONLINE 3D city.
@@ -68,28 +67,19 @@ const MapOverview = lazy(() =>
 const MapDetail = lazy(() =>
   import("./MapCardEarth").then((m) => ({ default: m.MapCardEarth })),
 );
-function MapCard3D({
-  sky,
-  ...props
-}: Parameters<typeof MapOverview>[0] & { sky?: View3DSky }) {
+function MapCard3D(props: Parameters<typeof MapOverview>[0]) {
   return props.level === "places" ? (
-    <MapDetail {...props} sky={sky} />
+    <MapDetail {...props} />
   ) : (
     <MapOverview {...props} />
   );
 }
-// Loaded after Home first paints (phones on slow networks): the Editor's Pick decks need the whole Culture Atlas, and
-// a place's notebook needs its story cards. Both start loading once Home is up, so a tap rarely waits.
+// Loaded after Home first paints (phones on slow networks): the Editor's Pick decks need the whole Culture Atlas. They
+// start loading once Home is up, so a tap rarely waits.
 let picksModule: typeof import("../../data/picks") | undefined;
 const loadPicks = () =>
   import("../../data/picks").then((m) => (picksModule = m));
 registerPreload(loadPicks);
-type IntroProps = Parameters<typeof import("./PlaceIntro").PlaceIntro>[0];
-const PlaceIntro = lazyPage<IntroProps>(() =>
-  import("./PlaceIntro").then((m) => ({ default: m.PlaceIntro })),
-);
-const loadIntro = () => import("./PlaceIntro");
-type DeckInfo = import("./PlaceIntro").DeckInfo;
 const NO_PICKS: EditorPick[] = [];
 /** Run `fn` once the pictures on screen are in (or after 6 s) and the phone is idle; returns a cancel. On a slow phone
  *  network the window's load event comes before Home has even asked for its pictures, so it is not enough to wait for. */
@@ -129,12 +119,9 @@ function afterLoad(fn: () => void): () => void {
 
 import { MapToolbar } from "./MapToolbar";
 import { PickRoute } from "./PickRoute";
-import { backdropSrc } from "./backdrop";
-import { edgeTone, paintBrowserBands } from "./edgeTone";
+import { paintBrowserBands } from "./edgeTone";
 import { ONEMAP_CREDIT } from "./mapCredit";
-import { lazyPage, registerPreload } from "../../pages/lazyPage";
-import { SkyControls } from "./SkyControls";
-import type { View3DSky } from "../../features/nearby/components/View3D";
+import { registerPreload } from "../../pages/lazyPage";
 import styles from "./DiscoveryHome.module.css";
 
 type Level = "regions" | "areas" | "places" | "picks" | "pick" | "near";
@@ -192,22 +179,6 @@ function useNarrow(): boolean {
   return narrow;
 }
 
-/** The last of these pictures to finish loading (the first one at once), so a background never fades in blank. */
-function useLoadedImage(src: string) {
-  const [shown, setShown] = useState(src);
-  useEffect(() => {
-    if (src === shown) return;
-    let live = true;
-    const img = new Image();
-    img.onload = () => live && setShown(src);
-    img.src = src;
-    return () => {
-      live = false;
-    };
-  }, [src, shown]);
-  return shown;
-}
-
 /** Home base (NUS University Town) decides the first region and area shown. */
 const BASE_AREA = URA_AREAS.find(
   (a) =>
@@ -261,25 +232,20 @@ function pickProgress(pick: EditorPick, visited: Set<string>): UnlockProgress {
 export const readHomeHere = (): LatLng | null => readHere();
 
 interface DiscoveryHomeProps {
-  onPlaceOpenChange?: (open: boolean) => void;
   /** v2 category chips (?cat=): other categories' pins dim, the deck shows only this category's places, the badges
    *  and region / area cards count it. */
   category?: TourismFilter;
-  /** v2 Home sections above the map (chips, the leaderboard card) and below the deck (Challenges, Picked for you).
-   *  Hidden while a place is open: the notebook is a page of its own. */
-  /** Under the page's bar, staying with it at the top (the chips). */
-  bar?: ReactNode;
-  top?: ReactNode;
+  /** v2 Home sections under the map (the leaderboard card, the filter chips, Challenges, Picked for you). The map is
+   *  always the first block of Home (owner, 10 Nov 2026). */
   bottom?: ReactNode;
   /** Locate found you (or the home base stood in). */
   onHere?: (at: LatLng) => void;
 }
 
-export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar, top, bottom, onHere }: DiscoveryHomeProps) {
+export default function DiscoveryHome({ category = "all", bottom, onHere }: DiscoveryHomeProps) {
   const cat = category === "all" ? null : category;
   const matches = useCallback((id: string) => !cat || tourismOfId(id) === cat, [cat]);
   const navigate = useNavigate();
-  const reduce = useReducedMotionConfig();
   const [params, setParams] = useSearchParams();
   const personal = useExplorePersonal();
   const visited = useMemo(() => visitedSet(personal), [personal]);
@@ -315,10 +281,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
       );
     // a link straight into the picks needs them now; otherwise they wait until the page's own pictures are in
     if (isPickLevel(params.get("lvl") as Level)) fetchPicks();
-    const cancel = afterLoad(() => {
-      fetchPicks();
-      void loadIntro();
-    });
+    const cancel = afterLoad(fetchPicks);
     return () => {
       live = false;
       cancel();
@@ -372,13 +335,14 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     const commit = () => {
       if (catParam) q.set("cat", catParam);
       setParams(q, { replace: true });
+      // a place opens on its own page (the M-page the Home cards open); the map keeps its spot for Back
+      if (next.open) navigate(paths.nearbyPlace(next.open));
     };
     if (lvl === "near") {
       // the area you were browsing stays in the URL (never the one Locate found you in: a shared link must not tell
       // where you are), so ↩ and the other decks go on from there
       q.set("r", next.r ?? region);
       q.set("a", next.a ?? area.id);
-      if (next.open) q.set("open", next.open);
       commit();
       return;
     }
@@ -395,7 +359,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
             ? stop?.place.id
             : picks.find((x) => x.id === k)?.stops[0]?.place.id);
         if (p) q.set("p", p);
-        if (next.open) q.set("open", next.open);
         if (next.route ?? (routeMode && k === pick?.id)) q.set("route", "1");
       }
       commit();
@@ -405,7 +368,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     if (lvl !== "regions" || next.a) q.set("a", next.a ?? area.id);
     if (lvl === "places" && (next.p ?? place?.id))
       q.set("p", next.p ?? place!.id);
-    if (lvl === "places" && next.open) q.set("open", next.open);
     commit();
   };
 
@@ -419,25 +381,33 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     placesInArea(id).length
       ? go({ lvl: "places", a: id, p: homePlacesIn(id, order)[0]?.id })
       : go({ a: id });
-  // A place opens as a sheet over Home; the URL keeps it (?open=), so Back closes it and a reload keeps it open.
-  const location = useLocation();
-  const openId =
-    level === "places" || level === "pick" || level === "near"
-      ? params.get("open")
-      : null;
-  // A place's notebook is a page of its own: the tab bar steps away (TodayPage) and ↩ is the way back.
-  useLayoutEffect(() => onPlaceOpenChange?.(!!openId), [onPlaceOpenChange, openId]);
+  // A place opens on its own page, the same place page (M-page) as the Home cards open, so a tap on the map and a tap
+  // on a card look the same (owner, 10 Nov 2026: the old sheet over the map "feels disjointed"). The map's spot is
+  // written into Home's URL first (replace), so Back (or the page's ✕) comes back to the map on that place.
   const openPlace = (id: string) => {
     const q = new URLSearchParams(params);
-    // a stop tapped on the Editor's Pick map: it opens inside its pick, so ↩ goes back to the pick's stops
+    // a stop tapped on the Editor's Pick map: Back returns to that pick's stops
     if (level === "picks") {
       q.set("lvl", "pick");
       if (pick) q.set("k", pick.id);
     }
     q.set("p", id);
-    q.set("open", id);
-    setParams(q, { state: { sheet: true } });
+    q.delete("open");
+    setParams(q, { replace: true });
+    navigate(paths.nearbyPlace(id));
   };
+  // ?open=<id> from an older link (the retired sheet): the place opens on its page, the map stays under it for Back
+  const legacyOpen = useRef(false);
+  useEffect(() => {
+    const id = params.get("open");
+    if (legacyOpen.current || !id) return;
+    legacyOpen.current = true;
+    const q = new URLSearchParams(params);
+    q.delete("open");
+    setParams(q, { replace: true });
+    navigate(paths.nearbyPlace(id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
+  }, []);
   // Toolbar: a place or area picked by hand, or where you are now.
   const pickArea = (id: string) => {
     const a = uraArea(id);
@@ -454,42 +424,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     if (a) go({ lvl: "places", r: a.region, a: a.id, p: id, open: id });
   };
   const [locating, setLocating] = useState(false);
-  // a place's sky (time of day, weather) stays as chosen while the deck moves to other places
-  const [sky, setSky] = useState<View3DSky>({ time: "now", wx: "clear" });
 
-  // a place is open: its 3D view is the top of the notebook's first page, and turns away with it
   const deviceRef = useRef<HTMLDivElement>(null);
-  const [mapAway, setMapAway] = useState(false);
-  // the deck an open place was picked from, named under its notebook (an area's deck: PlaceIntro names the area)
-  const openDeck = useMemo((): DeckInfo | undefined => {
-    if (!openId) return undefined;
-    if (level === "pick" && pick) {
-      const p = pickProgress(pick, visited);
-      return { kind: "Editor's Pick", name: pick.title, visited: p.visited, total: p.total, status: p.status };
-    }
-    if (level === "near" && near) {
-      const ps = near.items.filter((i) => i.kind === "place");
-      const v = ps.filter((i) => visited.has(i.id)).length;
-      return {
-        kind: "Nearby",
-        name: "Near you",
-        visited: v,
-        total: ps.length,
-        status: v === 0 ? "none" : v === ps.length ? "done" : "exploring",
-      };
-    }
-    return undefined;
-  }, [openId, level, pick, near, visited]);
-  const onIntroTurn = useCallback((position: number) => {
-    deviceRef.current?.style.setProperty(
-      "--away",
-      String(Math.max(0, Math.min(1, position))),
-    );
-    setMapAway(position >= 0.999);
-  }, []);
-  useEffect(() => {
-    if (!openId) setMapAway(false);
-  }, [openId]);
   // The map stretches (owner, 31 Oct 2026: "the screen can stretch"): drag the tab at its top up, or tap it, for a
   // taller map. While the finger moves, --grow is set on the card directly (no React render per move); the state
   // changes once, on release.
@@ -598,14 +534,6 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     locate();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
   }, []);
-  const closePlace = () => {
-    if ((location.state as { sheet?: boolean } | null)?.sheet) navigate(-1);
-    else {
-      const q = new URLSearchParams(params);
-      q.delete("open");
-      setParams(q, { replace: true });
-    }
-  };
 
   // the deck shows the picked category's places only (the map keeps them all, the others faded)
   const deckPlaces = useMemo(() => placeList.filter((p) => matches(p.id)), [placeList, matches]);
@@ -762,46 +690,12 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
         ? `Back to ${regionName} areas`
         : "Back to regions";
   const inPicks = isPickLevel(level);
-  const openArea = openId ? areaOfPlace(openId) : undefined;
-  const wantedBackdrop = backdropSrc(
-    openId
-      ? openArea
-        ? { level: "places", areaId: openArea.id }
-        : { level: "picks" }
-      : level === "regions"
-        ? { level: "regions" }
-        : level === "areas"
-          ? { level: "areas", region }
-          : level === "places" || level === "near"
-            ? { level: "places", areaId: area.id }
-            : { level: "picks" },
-  );
-  const shownBackdrop = useLoadedImage(wantedBackdrop);
-  // Safari's bands above and below the page take the map's own paper colour, and the map fades into them.
-  const [tone, setTone] = useState<string | null>(null);
+  // Safari's bands above and below the page take the app's plain ground (the map's paper showed only behind the
+  // retired place sheet)
   useEffect(() => {
-    let live = true;
-    edgeTone(shownBackdrop, window.innerWidth, window.innerHeight).then((t) => {
-      if (!live || !t) return;
-      setTone(t);
-      // v2: the paper shows only behind an open place; the rest of Home is the app's plain ground
-      if (openRef.current) paintBrowserBands(t);
-    });
-    return () => {
-      live = false;
-    };
-  }, [shownBackdrop]);
-  const openRef = useRef(!!openId);
-  openRef.current = !!openId;
-  useEffect(() => {
-    if (openId) {
-      if (tone) paintBrowserBands(tone);
-      return;
-    }
     const ground = getComputedStyle(document.documentElement).getPropertyValue("--bg-app").trim();
     if (ground) paintBrowserBands(ground);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- on opening and closing a place
-  }, [!!openId]);
+  }, []);
   const mapPlaces = useMemo(
     () =>
       level === "near"
@@ -832,7 +726,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   const [crumbBottom, setCrumbBottom] = useState(0);
   // and where the tool rail ends, so a region's area badges can use the room under it
   const [railBottom, setRailBottom] = useState(0);
-  const showCrumb = !routeMode && !openId;
+  const showCrumb = !routeMode;
   useLayoutEffect(() => {
     const el = crumbRef.current;
     const card = el?.parentElement;
@@ -854,10 +748,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   }, [showCrumb]);
 
 
-  // Enter (the ↵ key, or the keyboard's Enter): open what the deck has selected; in a place's notebook, the next page
-  const book = useRef<BookControls | null>(null);
+  // Enter (the ↵ key, or the keyboard's Enter): open what the deck has selected
   const enter = () => {
-    if (openId) return book.current?.turn(1);
     if (level === "regions") enterRegion(region);
     else if (level === "areas") enterArea(area.id);
     else if (level === "places" && (deckPlace ?? place)) openPlace((deckPlace ?? place)!.id);
@@ -865,9 +757,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
     else if (level === "pick" && stop) openPlace(stop.place.id);
     else if (level === "near" && nearSel) enterNear(nearSel.id);
   };
-  const enterLabel = openId
-    ? "Next page"
-    : level === "regions"
+  const enterLabel =
+    level === "regions"
       ? `Enter ${regionName}`
       : level === "areas"
         ? `Enter ${area.name}`
@@ -906,16 +797,16 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   }, []);
   const keys = (
     <MapToolbar
-      layout={openId ? "row" : "rail"}
-      // ↩ is the one back key (owner, 1 Nov 2026: it replaces the one at the top left): out of a place, else up a level
-      canUndo={!!openId || (level !== "regions" && !routeMode)}
-      undoLabel={openId ? "Back to the map" : upLabel}
+      layout="rail"
+      // ↩ is the one back key (owner, 1 Nov 2026: it replaces the one at the top left): up a level
+      canUndo={level !== "regions" && !routeMode}
+      undoLabel={upLabel}
       onEnter={enter}
       canEnter={!routeMode}
       enterLabel={enterLabel}
       locating={locating}
       onLocate={locate}
-      onUndo={openId ? closePlace : up}
+      onUndo={up}
       onPickArea={pickArea}
       onPickPlace={pickPlace}
       picksOn={isPickLevel(level)}
@@ -933,56 +824,17 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
   );
 
   return (
-    // One screen with a deck that reaches the screen edges: bleeds past the column on purpose.
-    <div className={openId ? `${styles.home} ${styles.homeOpen}` : styles.home} data-allow-bleed style={tone ? ({ "--tone": tone } as React.CSSProperties) : undefined}>
-      {/* the deck's own map; the old one fades out once the new one has loaded (v2: only behind an open place) */}
-      <AnimatePresence initial={false}>
-        <motion.div
-          key={shownBackdrop}
-          className={openId ? styles.backdrop : `${styles.backdrop} ${styles.backdropIdle}`}
-          style={{ backgroundImage: `url(${shownBackdrop})` }}
-          aria-hidden="true"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.9, delay: 0.25 } }}
-          transition={{ duration: reduce ? 0 : 0.7, ease: "easeOut" }}
-        />
-      </AnimatePresence>
+    // The map card reaches the screen edges: bleeds past the column on purpose.
+    <div className={styles.home} data-allow-bleed>
       <h1 className={styles.srOnly}>Explore Singapore</h1>
-      {!openId && (
-        <>
-        {/* v2: the bar and the chips stay at the top while Home scrolls under them */}
-        <div className={styles.head}>
-          <PageBar
-            title="Home"
-            tone="light"
-            heading={false}
-            className={styles.pageBar}
-          />
-          {bar}
-        </div>
-          {top}
-        </>
-      )}
+      {/* v2: the bar stays at the top while Home scrolls under it; the map is the first block under it (owner, 10 Nov
+          2026: "the map must stay at the very top"), everything else comes after it */}
+      <div className={styles.head}>
+        <PageBar title="Home" tone="light" heading={false} className={styles.pageBar} />
+      </div>
 
-      {/* The map card stays mounted when a place opens: it becomes the live 3D view on top of the intro (no reload).
-          With the keys it is one piece, like a phone: the map as its screen, the keys in its rounded bottom. With a
-          place open the same leather board holds the notebook, with the keys still in its foot (the wrappers are
-          always there, and step aside while no place is open, so the map is never mounted again). */}
-      <div className={openId ? styles.board : styles.boardIdle}>
-        <div className={openId ? styles.boardBook : styles.boardIdle}>
-        <div
-          ref={deviceRef}
-          className={
-            openId
-              ? `${styles.device} ${styles.deviceOpen}${mapAway ? ` ${styles.mapAway}` : ""}`
-              : styles.device
-          }
-          aria-hidden={(openId && mapAway) || undefined}
-          {...{ inert: openId && mapAway ? "" : undefined }}
-          style={openId ? undefined : ({ "--grow": grow } as React.CSSProperties)}
-        >
-          {!openId && (
+      {/* With the keys the map is one piece, like a phone: the map as its screen, the keys in its rounded bottom. */}
+      <div ref={deviceRef} className={styles.device} style={{ "--grow": grow } as React.CSSProperties}>
             <button
               type="button"
               className={styles.grip}
@@ -993,13 +845,8 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
               }}
               {...gripProps}
             />
-          )}
-          <div
-            className={
-              openId ? `${styles.mapCard} ${styles.mapHero}` : styles.mapCard
-            }
-          >
-            {routeMode && pick && !openId ? (
+          <div className={styles.mapCard}>
+            {routeMode && pick ? (
               <PickRoute
                 pick={pick}
                 visited={visited}
@@ -1016,14 +863,13 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                 }
               >
                 <MapCard3D
-                  level={openId && level !== "near" ? "places" : level}
-                  region={openId ? (openArea?.region ?? region) : region}
-                  areaId={openId ? (openArea?.id ?? area.id) : area.id}
+                  level={level}
+                  region={region}
+                  areaId={area.id}
                   areaOrder={areaOrder}
                   places={mapPlaces}
                   selectedPlaceId={
-                    openId ??
-                    (level === "places"
+                    level === "places"
                       ? (deckPlace ?? place)?.id
                       : level === "pick"
                         ? (deckStop ?? stop)?.place.id
@@ -1031,7 +877,7 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                           ? nearSel?.kind === "pick"
                             ? nearSel.stopId
                             : nearSel?.id
-                          : undefined)
+                          : undefined
                   }
                   numbered={isPickLevel(level) && pick?.kind === "walk"}
                   path={pick?.kind === "walk"}
@@ -1041,19 +887,12 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                   onPickArea={(id) => enterArea(id)}
                   onPickPlace={(id) => openPlace(id)}
                   here={level === "near" ? (here ?? undefined) : undefined}
-                  sky={openId ? sky : undefined}
                   category={category}
                   insetRight={narrow ? RAIL_W_NARROW : RAIL_W}
                   insetTop={crumbBottom ? crumbBottom + 6 : 6}
                   railBottom={railBottom || undefined}
                 />
               </Suspense>
-            )}
-            {openId && (
-              // the way back is the ↩ key in the row below, which stays while the pages turn
-              <div className={`${styles.mapTop} ${styles.mapTopEnd}`}>
-                <SkyControls sky={sky} onChange={setSky} />
-              </div>
             )}
             {showCrumb && (
               <div ref={crumbRef} className={styles.mapTop}>
@@ -1098,16 +937,14 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
                   )}
               </div>
             )}
-            {!openId && (
-              <div className={styles.shelfSlot}>
-                {!routeMode && shelf && shelf.items.length > 0 && (
-                  <MapShelf label={shelf.label} items={shelf.items} currentId={shelf.current} onPick={onShelf} />
-                )}
-                <MapNotice>{routeMode ? undefined : notice}</MapNotice>
-              </div>
-            )}
-            {!openId && !routeMode && keys}
-            {!routeMode && !openId && (
+            <div className={styles.shelfSlot}>
+              {!routeMode && shelf && shelf.items.length > 0 && (
+                <MapShelf label={shelf.label} items={shelf.items} currentId={shelf.current} onPick={onShelf} />
+              )}
+              <MapNotice>{routeMode ? undefined : notice}</MapNotice>
+            </div>
+            {!routeMode && keys}
+            {!routeMode && (
               <details className={styles.credits}>
                 <summary>Map data · OneMap</summary>
                 <p>
@@ -1126,29 +963,11 @@ export default function DiscoveryHome({ onPlaceOpenChange, category = "all", bar
             )}
           </div>
         </div>
-        {openId && (
-          <Suspense fallback={null}>
-            <AnimatePresence mode="popLayout">
-              <PlaceIntro
-                key="intro"
-                placeId={openId}
-                distance={homeOf(openId)?.distance}
-                onClose={closePlace}
-                onTurn={onIntroTurn}
-                book={book}
-                deck={openDeck}
-              />
-            </AnimatePresence>
-          </Suspense>
-        )}
-        </div>
-        {openId && <div className={styles.keysOpen}>{keys}</div>}
-      </div>
 
       {/* v2 (owner, 8 Nov 2026): no card deck under the map; the map itself drills down. The level's name stays for
           screen readers. */}
       <h2 className={styles.srOnly}>{title}</h2>
-      {!openId && bottom}
+      {bottom}
     </div>
   );
 }

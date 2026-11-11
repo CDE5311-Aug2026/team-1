@@ -7,12 +7,19 @@
 // - Challenges: Hunt's public challenges (together mode only, owner 10 Nov 2026; was both modes, plan B6). "Open" goes to
 //   the challenge's volume (its story, /hunt#story/<route>): the challenge page was retired (second canvas, 8 Nov 2026).
 // - Picked for you: real published places by your categories, then distance when Locate has found you.
-import { useMemo, useState, type CSSProperties } from 'react';
+// User test (UT01-1, UT02-1, UT01-2): the filter chips sit right above the cards they filter (HomeFilterBar), with an
+// Eat chip beside the categories; "Places to eat" (EatEntry) just over the chips opens the same Eat filter. Eat is the
+// catalogue's own food places (Nearby category "food": hawker centres, stalls and restaurants), nothing added. Each
+// challenge card shows its level (data/hunt/level.ts).
+import { forwardRef, useMemo, useState, type CSSProperties } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import Avatar from '../../components/Avatar/Avatar';
 import CategoryBadge from '../../components/Category/CategoryBadge';
 import CategoryGlyph from '../../components/Category/CategoryGlyph';
+import CategoryChips from '../../components/Category/CategoryChips';
+import LevelBadge from '../../components/Level/LevelBadge';
+import { routeLevel } from '../../data/hunt/level';
 import groundUrl from '../../assets/nearby/sg-ground.webp';
 import { groundCrop, placePicture } from '../../data/home/nearbyCards';
 import { openChallenges, regionChallenge, timerText, useChallengeProgress, type Challenge } from '../../data/hunt/challenges';
@@ -30,6 +37,25 @@ import { paths } from '../../routes';
 import { pickedForYou } from './picked';
 import styles from './HomeSections.module.css';
 import cb from './ChallengeBook.module.css';
+
+/** Home's filter: a Tourism 2040 category, or Eat (the catalogue's food places, across categories). */
+export type HomeFilter = TourismFilter | 'eat';
+
+/** The catalogue's published food places (Nearby category "food"); drafts (planned) are never shown. */
+export const FOOD_PLACES = PUBLISHED_PLACES.filter((p) => p.category === 'food' && p.operatingStatus !== 'planned');
+
+/** Eat's colours (a warm chilli red; the ink keeps white chip text over 4.5:1). */
+export const EAT_COLOURS = { fill: '#d0533a', ink: '#9b2f1c', tint: '#f6e0d8' };
+
+/** A bowl with chopsticks. */
+export function BowlGlyph({ size = 10, color = 'currentColor' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 12h18a9 9 0 0 1-18 0Z" />
+      <path d="M14 3 9.5 10M20 4l-7.5 6" />
+    </svg>
+  );
+}
 
 const MEDAL = ['var(--medal-gold, #e0b23c)', 'var(--medal-silver, #c3c6cc)', 'var(--medal-bronze, #c98a5a)'];
 
@@ -190,7 +216,10 @@ function ChallengeCard({ c }: { c: Challenge }) {
           <Link to={volume}>{c.title}</Link>
         </h3>
         <span className={styles.challengeMeta}>
-          {dateRange(c.from, c.to)} · {c.stops.length} stops
+          <LevelBadge level={routeLevel(c.stops.map((s) => s.pin))} />
+          <span className={styles.challengeMetaText}>
+            {dateRange(c.from, c.to)} · {c.stops.length} stops
+          </span>
         </span>
         <div className={styles.challengeFoot}>
           <Link to={volume} className={`${styles.join} ${styles.open}`} style={info ? ({ '--join': info.fill } as CSSProperties) : undefined} aria-label={`Open ${c.title}`}>
@@ -229,26 +258,55 @@ export function ChallengesSection({ filter }: { filter: TourismFilter }) {
 }
 
 const PAGE = 8;
+/** How many cards "Show more places" has opened, kept for the visit: Back from a place page finds them still open (and
+ *  the page tall enough to land where you were). */
+const SHOWN_KEY = 'home.pickedShown';
+function readShown(): number {
+  try {
+    const n = Number(sessionStorage.getItem(SHOWN_KEY));
+    return Number.isFinite(n) && n > PAGE ? n : PAGE;
+  } catch {
+    return PAGE;
+  }
+}
 
-export function PickedSection({ filter, here }: { filter: TourismFilter; here: LatLng | null }) {
+export function PickedSection({ filter, here }: { filter: HomeFilter; here: LatLng | null }) {
   const [profile] = usePersistentStore(profileV3Store);
   const order = useMemo(() => tourismOrder(profile), [profile]);
-  const all = useMemo(() => pickedForYou(PUBLISHED_PLACES, order, filter, here), [order, filter, here]);
-  const [shown, setShown] = useState(PAGE);
+  const eat = filter === 'eat';
+  const all = useMemo(
+    () => (eat ? pickedForYou(FOOD_PLACES, order, 'all', here) : pickedForYou(PUBLISHED_PLACES, order, filter, here)),
+    [eat, order, filter, here],
+  );
+  const [shown, setShownState] = useState(readShown);
+  const setShown = (n: number) => {
+    setShownState(n);
+    try {
+      sessionStorage.setItem(SHOWN_KEY, String(n));
+    } catch {
+      /* private mode: not kept */
+    }
+  };
   const list = all.slice(0, shown);
   return (
     <section className={styles.section} aria-labelledby="home-picked">
       <div className={styles.sectionHead}>
         <h2 id="home-picked" className={styles.sectionTitle}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--assist-ink)" aria-hidden="true">
-            <path d="M10 6c.6 4.2 1.8 5.4 6 6-4.2.6-5.4 1.8-6 6-.6-4.2-1.8-5.4-6-6 4.2-.6 5.4-1.8 6-6z" />
-            <path d="M18 2c.3 2.1.9 2.7 3 3-2.1.3-2.7.9-3 3-.3-2.1-.9-2.7-3-3 2.1-.3 2.7-.9 3-3z" />
-          </svg>
-          Picked for you
+          {eat ? (
+            <BowlGlyph size={14} color={EAT_COLOURS.ink} />
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--assist-ink)" aria-hidden="true">
+              <path d="M10 6c.6 4.2 1.8 5.4 6 6-4.2.6-5.4 1.8-6 6-.6-4.2-1.8-5.4-6-6 4.2-.6 5.4-1.8 6-6z" />
+              <path d="M18 2c.3 2.1.9 2.7 3 3-2.1.3-2.7.9-3 3-.3-2.1-.9-2.7-3-3 2.1-.3 2.7-.9 3-3z" />
+            </svg>
+          )}
+          {eat ? 'Places to eat' : 'Picked for you'}
         </h2>
-        <span className={styles.sectionMeta}>{here ? 'Personalised · nearest first' : 'Personalised to your picks'}</span>
+        <span className={styles.sectionMeta}>
+          {eat ? `${all.length} places${here ? ' · nearest first' : ''}` : here ? 'Personalised · nearest first' : 'Personalised to your picks'}
+        </span>
       </div>
-      <ul className={styles.grid} aria-label="Places picked for you">
+      <ul className={styles.grid} aria-label={eat ? 'Places to eat' : 'Places picked for you'}>
         {list.map(({ place, category, m }) => {
           const info = TOURISM_INFO[category];
           const pic = placePicture(place);
@@ -271,13 +329,22 @@ export function PickedSection({ filter, here }: { filter: TourismFilter; here: L
                     </span>
                   </span>
                 )}
-                <CategoryBadge category={category} className={styles.pickBadge} />
+                {eat ? (
+                  <span className={`${styles.pickBadge} ${styles.eatBadge}`}>
+                    <BowlGlyph size={11} color="#fff" />
+                    Eat
+                  </span>
+                ) : (
+                  <CategoryBadge category={category} className={styles.pickBadge} />
+                )}
                 {m !== undefined && <span className={styles.pickDist}>{shortDistance(m)}</span>}
               </Link>
               <div className={styles.pickText}>
                 <h3 className={styles.pickTitle}>
                   <Link to={paths.nearbyPlace(place.id)}>{place.name}</Link>
                 </h3>
+                {/* Eat: what kind of place it is (the catalogue's own words: "Hawker centre", "Cantonese restaurant") */}
+                {eat && <span className={styles.pickKind}>{place.kind}</span>}
                 {area && (
                   <span className={styles.pickArea}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
@@ -292,10 +359,55 @@ export function PickedSection({ filter, here }: { filter: TourismFilter; here: L
         })}
       </ul>
       {shown < all.length && (
-        <button type="button" className={styles.more} onClick={() => setShown((n) => n + PAGE)}>
+        <button type="button" className={styles.more} onClick={() => setShown(shown + PAGE)}>
           Show more places
         </button>
       )}
     </section>
+  );
+}
+
+/**
+ * The filter right above the cards it filters (UT02-1: a chip at the top of Home changed cards a screen below). All,
+ * Eat, then the four categories. The caller scrolls the cards into view after a tap.
+ */
+export const HomeFilterBar = forwardRef<HTMLDivElement, { value: HomeFilter; onChange(next: HomeFilter): void }>(function HomeFilterBar(
+  { value, onChange },
+  ref,
+) {
+  return (
+    <div ref={ref} className={styles.filterBar}>
+      <CategoryChips
+        value={value === 'eat' ? null : value}
+        onChange={onChange}
+        label="Filter the cards below"
+        className={styles.chips}
+        extra={{
+          id: 'eat',
+          label: 'Eat',
+          fill: EAT_COLOURS.fill,
+          ink: EAT_COLOURS.ink,
+          icon: <BowlGlyph size={10} color="#fff" />,
+          on: value === 'eat',
+          onClick: () => onChange(value === 'eat' ? 'all' : 'eat'),
+        }}
+      />
+    </div>
+  );
+});
+
+/** Under the map (and the leaderboard), just over the filter (UT01-1): one tap to the places to eat. */
+export function EatEntry({ onOpen, on }: { onOpen(): void; on: boolean }) {
+  return (
+    <button type="button" className={styles.eatEntry} onClick={onOpen} aria-pressed={on}>
+      <span className={styles.eatIcon} aria-hidden="true">
+        <BowlGlyph size={22} color={EAT_COLOURS.ink} />
+      </span>
+      <span className={styles.eatText}>
+        <span className={styles.eatTitle}>Places to eat</span>
+        <span className={styles.eatSub}>{FOOD_PLACES.length} food places · hawker centres, stalls, restaurants</span>
+      </span>
+      <Chevron />
+    </button>
   );
 }

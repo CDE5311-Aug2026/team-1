@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { staticCopy } from '../../data/expressions';
 import { releaseStrayScrollLock } from '../../hooks/scrollLock';
@@ -7,7 +7,7 @@ import HomeIndicator from '../HomeIndicator/HomeIndicator';
 import StatusBar from '../StatusBar/StatusBar';
 import TabBar from '../TabBar/TabBar';
 import { usePaperLayer } from './PaperLayer';
-import { paths } from '../../routes';
+import { ADMIN_PATH, TEST_PATH, paths } from '../../routes';
 import styles from './AppShell.module.css';
 
 interface AppShellProps {
@@ -29,6 +29,22 @@ interface AppShellProps {
    *  (onboarding too, owner 8 Nov 2026); off for a page that asks for its own colour (a dark desk, a reader). */
   paper?: boolean;
 }
+
+// The remind box over the tab bar (UT03-5) is loaded on demand: it reads the hunts, which Home does not otherwise need.
+const ShellNow = lazy(() => import('./ShellNow'));
+
+/** Screens that never show the remind box: onboarding, the admin and study desks, the frozen UI1. */
+const NO_REMINDER = [paths.welcome, ADMIN_PATH, TEST_PATH, '/ui1'];
+const remindsHere = (pathname: string) => !NO_REMINDER.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+
+/** A hunt save on this phone (route or Golden Dome; their keys are the game's own): until then there is nothing to remind. */
+const hasHuntSave = () => {
+  try {
+    return Object.keys(localStorage).some((k) => k.startsWith('findsg-onsite-v1:') || k.startsWith('findsg-short-v2:'));
+  } catch {
+    return false;
+  }
+};
 
 /** The app's own light paper colours: a page asking for one of these gets the chart paper instead. */
 const PAPER_COLOURS = new Set(['var(--bg-app)', 'var(--bg-screen-b)']);
@@ -85,6 +101,7 @@ export default function AppShell({
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
   }, [background, onPaper]);
   const visibleToast = regionReady ? toast : null;
+  const showNow = showChrome && remindsHere(pathname) && hasHuntSave();
 
   return (
     <div
@@ -101,6 +118,11 @@ export default function AppShell({
       >{children}</main>
       {showChrome && (
         <div className={fill ? `${styles.tabBarWrap} ${styles.fillTabBar}` : styles.tabBarWrap}>
+          {showNow && (
+            <Suspense fallback={null}>
+              <ShellNow />
+            </Suspense>
+          )}
           <TabBar active={activeTab(pathname)} onNavigate={navigate} nodeId={tabBarNodeId} pop={tabPop} />
         </div>
       )}

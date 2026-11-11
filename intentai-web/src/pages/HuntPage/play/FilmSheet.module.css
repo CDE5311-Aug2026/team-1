@@ -1,0 +1,58 @@
+/* A story film over the hunt (FilmSheet.tsx). */
+.sheet {
+  width: min(100vw - 24px, 440px);
+  max-height: calc(100dvh - 24px);
+  padding: 0 0 12px;
+  border: 0;
+  border-radius: var(--v2-r-card, 20px);
+  background: #14120f;
+  color: #f8f7f4;
+  overflow: auto;
+}
+.sheet::backdrop {
+  background: rgba(20, 18, 15, 0.72);
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 14px;
+}
+.title {
+  flex: 1;
+  min-width: 0;
+  font: 600 1rem/1.2 var(--font-display);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.close {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+.tall {
+  aspect-ratio: 9 / 16;
+  max-height: 70dvh;
+}
+.line {
+  margin: 10px 14px 0;
+  font-size: 0.9375rem;
+  line-height: 22px;
+}
+.count {
+  margin: 6px 14px 0;
+  font: 400 0.6875rem/14px var(--font-mono);
+  opacity: 0.7;
+}

@@ -17,7 +17,7 @@ import { allStamps } from '../../data/moments/moments';
 import { TOURISM_CATEGORIES, TOURISM_INFO, tourismOf, type TourismCategory } from '../../data/tourism';
 import { huntModeStore } from '../../data/v2Stores';
 import { PUBLISHED_PLACES } from '../../features/nearby/catalogue';
-import { passportMrz } from './MySpacePage';
+import { passportLegend, passportMrz } from './MySpacePage';
 import { HOLD_MS } from './PrivacyPage';
 import { currentPath, renderAt } from './testUtils';
 
@@ -78,14 +78,19 @@ test('together mode: "Hunting together · Central" chip and the example leaderbo
   expect(within(board).getByRole('link', { name: 'Leaderboards' })).toHaveAttribute('href', '/hunt?board=speed');
 });
 
-test('together mode: the leaderboard comes before the Journal', () => {
+test('together mode (UT02-2): the card, then My collection with its chips, then the Journal, then the leaderboard', () => {
   huntModeStore.set({ mode: 'together', region: 'east' });
   renderAt(paths.mySpace);
-  const board = screen.getByRole('region', { name: /^Leaderboard · East · this weekend$/ });
-  const journal = screen.getByRole('region', { name: 'Journal' });
-  expect(board.compareDocumentPosition(journal) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  const after = (a: Element, b: Element) => expect(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   const holder = screen.getByRole('region', { name: 'Passport holder' });
-  expect(holder.compareDocumentPosition(board) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  const collection = screen.getByRole('region', { name: 'My collection' });
+  const journal = screen.getByRole('region', { name: 'Journal' });
+  const board = screen.getByRole('region', { name: /^Leaderboard · East · this weekend$/ });
+  after(holder, collection);
+  after(collection, journal);
+  after(journal, board);
+  // the chips sit inside My collection, the one thing they filter
+  expect(within(collection).getByRole('group', { name: 'Filter your collection' })).toBeInTheDocument();
 });
 
 test('solo mode (and unset): no leaderboard and no together chip; the Journal follows the card', () => {
@@ -114,6 +119,34 @@ test('the MRZ lines use real fields only: name, the categories spelled out, coun
   expect(solo).toBe('000SGP0000<<SOLO'.padEnd(44, '<'));
   // no name given: no made-up holder in the line
   expect(passportMrz('', profile, { stamps: 0, volumes: 0 }, { together: false })[0]).toMatch(/^P<SGP<<<+$/);
+});
+
+test('the code line is captioned and decoded in plain words from the same fields; hidden fields stay hidden', () => {
+  const profile: ProfileV3 = { ...DEFAULT_PROFILE_V3, role: 'student', hidden: [], tourismRanking: ['att', 'cru', 'wel'] };
+  const counts = { stamps: 4, volumes: 1 };
+  expect(passportLegend('Serin', profile, counts, { together: true, region: 'Central' })).toEqual([
+    'Serin',
+    'Student',
+    'Top interests: Attractions, Cruise, Wellness',
+    '4 stamps',
+    '1 hunt done',
+    'Central',
+    'Hunting together',
+  ]);
+  const quiet: ProfileV3 = { ...profile, hidden: ['role', 'topics'] };
+  expect(passportLegend('Serin', quiet, { stamps: 1, volumes: 0 }, { together: false })).toEqual([
+    'Serin',
+    '1 stamp',
+    '0 hunts done',
+    'Solo',
+  ]);
+  // the code itself drops what the legend drops
+  expect(passportMrz('Serin', quiet, counts, { together: false })[0]).toBe('P<SGPSERIN<<<'.padEnd(44, '<'));
+
+  renderAt(paths.mySpace);
+  const card = screen.getByRole('region', { name: 'Passport holder' });
+  expect(within(card).getByText('Passport code')).toBeInTheDocument();
+  expect(within(card).getByText(/Your passport code:/).parentElement).toHaveTextContent(/stamps? · \d+ hunts? done/);
 });
 
 test('collection: one card per category with real counts; the chips filter it; the chevron opens Search', async () => {

@@ -88,9 +88,9 @@ test('the story’s check-ins read straight from its saves, as loadStoryStops re
     JSON.stringify({ stops: { 'civic-f1-01': { checkin: { mode: 'preview', confirmedAt: '2026-11-06T23:00:00.000Z' } }, 'civic-f1-05': { checkin: { mode: 'preview', confirmedAt: '2026-11-07T02:00:00.000Z' } } } }),
   );
   const got = readStoryCheckins('civic-f1');
+  // remote play is gone: its old saves (and remote check-ins inside the on-site save) no longer count
   expect(Object.fromEntries(Object.entries(got).map(([k, v]) => [k, v.checkedAt]))).toEqual({
-    'civic-f1-01': '2026-11-06T23:00:00.000Z',
-    'civic-f1-05': '2026-11-07T02:00:00.000Z',
+    'civic-f1-01': '2026-11-07T01:00:00.000Z',
   });
   localStorage.setItem('findsg-onsite-v1:civic-f1:manual', '{nope');
   localStorage.removeItem('findsg-onsite-v1:civic-f1:preview');

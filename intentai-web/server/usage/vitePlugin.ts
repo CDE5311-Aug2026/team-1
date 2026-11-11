@@ -5,6 +5,7 @@ import { appendFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { handleCaption } from '../caption/handler.js';
 import { handleHelp } from '../help/handler.js';
+import { handleRecognize } from '../recognize/handler.js';
 import { handleAbTest, memoryList } from '../abtest/handler.js';
 import { fileStore, redisFromEnv, type RedisLike } from './store.js';
 
@@ -72,6 +73,8 @@ export function usageApiPlugin(env: Record<string, string | undefined>): Plugin 
               ? (r) => handleAbTest(r, abtest)
             : path === '/api/caption' && req.method === 'POST'
               ? (r) => handleCaption(r, env.ANTHROPIC_API_KEY)
+            : path === '/api/recognize' && req.method === 'POST'
+              ? (r) => handleRecognize(r, env.ANTHROPIC_API_KEY)
               : null;
     if (!handler) return next();
     toRequest(req)

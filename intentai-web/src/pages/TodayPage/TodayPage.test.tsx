@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { animalFor } from '../../components/Avatar/Avatar';
 import { resetPersistentStores } from '../../data/persistentStore';
@@ -11,11 +11,26 @@ import { placesInArea, placesInRegion, URA_AREAS } from '../../data/ura/ura';
 import { huntModeStore } from '../../data/v2Stores';
 import { curatedPlace, PUBLISHED_PLACES } from '../../features/nearby/catalogue';
 import { pickedForYou } from './picked';
+import { FOOD_PLACES } from './HomeSections';
 import TodayPage from './TodayPage';
 
 function Where() {
   const { pathname, search } = useLocation();
   return <p data-testid="where">{pathname + search}</p>;
+}
+
+/** The place page (M-page) stands in: its name and the ✕ that goes back where you came from. */
+function PlacePage() {
+  const { placeKey } = useParams();
+  const navigate = useNavigate();
+  return (
+    <div>
+      <p>place page {placeKey}</p>
+      <button type="button" onClick={() => navigate(-1)}>
+        Close
+      </button>
+    </div>
+  );
 }
 
 function renderHome(entry = '/') {
@@ -25,7 +40,7 @@ function renderHome(entry = '/') {
         <Route path="/" element={<TodayPage />} />
         <Route path="/holidays/deepavali" element={<p>holiday page</p>} />
         <Route path="/my-space/notices" element={<p>notices page</p>} />
-        <Route path="/nearby/place/:placeKey" element={<p>place page</p>} />
+        <Route path="/nearby/place/:placeKey" element={<PlacePage />} />
       </Routes>
       <Where />
     </MemoryRouter>,
@@ -105,7 +120,7 @@ test('tapping a region badge opens its planning areas; Back returns to the regio
   expect(region(5, 'West')).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('an area opens its places; a place opens its story card over the map, closing it brings the map back', async () => {
+test('an area opens its places; a place opens its own page (the M-page the cards open), its ✕ brings the map back on it', async () => {
   const user = userEvent.setup();
   renderHome('/?lvl=areas&r=west&a=cl');
   await user.click(await screen.findByRole('button', { name: /^Area 1: Clementi,/ }, MAP));
@@ -113,42 +128,19 @@ test('an area opens its places; a place opens its story card over the map, closi
   expect(screen.getByLabelText('Where you are')).toHaveTextContent('Singapore › West › Clementi');
   const places = within(row('Clementi places')).getAllByRole('button');
   expect(places).toHaveLength(placesInArea('cl').length);
-  const name = places[0].getAttribute('aria-label')!.split(', ')[0];
-  await user.click(places[0]);
-  const sheet = screen.getByRole('dialog', { name });
-  expect(within(sheet).getByTestId('place-story-card')).toBeInTheDocument();
-  expect(within(sheet).getByRole('button', { name: /Check in/ })).toBeInTheDocument();
-  // the status card: checked in or not, and the area's progress
-  expect(within(sheet).getByRole('img', { name: 'Not checked in yet' })).toBeInTheDocument();
-  expect(within(sheet).getByRole('progressbar', { name: /^Clementi: 0 of \d+ places checked in$/ })).toBeInTheDocument();
-  // the notebook's pages turn: the field note first, Next page goes on, Previous comes back
-  const pagesNav = within(sheet).getByRole('navigation', { name: 'Pages' });
-  expect(pagesNav).toHaveTextContent(/^1\/\d+Field note$/);
-  expect(within(pagesNav).getByRole('button', { name: 'Previous page' })).toBeDisabled();
-  await user.click(within(pagesNav).getByRole('button', { name: 'Next page' }));
-  await waitFor(() => expect(pagesNav).toHaveTextContent(/^2\//));
-  // the key row stays under the notebook while the pages turn: ↩ goes back to the map, ↵ turns the page
-  const keys = screen.getByRole('toolbar', { name: 'Map tools' });
-  expect(keys).toHaveAttribute('aria-orientation', 'horizontal');
-  expect(within(keys).getByRole('button', { name: 'Back to the map' })).toBeInTheDocument();
-  expect(within(keys).getByRole('button', { name: 'Next page' })).toBeInTheDocument();
-  await user.click(within(pagesNav).getByRole('button', { name: 'Previous page' }));
-  await waitFor(() => expect(pagesNav).toHaveTextContent(/^1\/\d+Field note$/));
-  // the map stays as the place's 3D view; the key row stays
-  expect(screen.getByRole('toolbar', { name: 'Map tools' })).toBeInTheDocument();
-  expect(screen.getByTestId('where')).toHaveTextContent('open=');
-  // the place's sky: time of day and weather
-  await user.click(screen.getByRole('button', { name: 'Time of day: Now' }));
-  await user.click(screen.getByRole('radio', { name: 'Night' }));
-  expect(screen.getByRole('button', { name: 'Time of day: Night' })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Weather: Clear' }));
-  await user.click(screen.getByRole('radio', { name: 'Rain' }));
-  expect(screen.getByRole('button', { name: 'Weather: Rain' })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Back to the map' }));
-  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  const name = places[1].getAttribute('aria-label')!.split(', ')[0];
+  const id = placesInArea('cl').find((p) => p.name === name)!.id;
+  await user.click(places[1]);
+  // no sheet over the map any more (owner, 10 Nov 2026): the place page itself
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByTestId('where')).toHaveTextContent(`/nearby/place/${encodeURIComponent(id)}`);
+  expect(screen.getByText(`place page ${id}`)).toBeInTheDocument();
+  // one tap back: the map, on the same area and the place just seen
+  await user.click(screen.getByRole('button', { name: 'Close' }));
+  await screen.findByLabelText('Where you are');
+  expect(screen.getByTestId('where')).toHaveTextContent('lvl=places');
+  expect(screen.getByTestId('where')).not.toHaveTextContent('open=');
   expect(screen.getByLabelText('Where you are')).toHaveTextContent('Singapore › West › Clementi');
-  // back on the map: the tools are a rail over its edge again, and the row of places is back, on the one just seen
-  expect(screen.getByRole('toolbar', { name: 'Map tools' })).toHaveAttribute('aria-orientation', 'vertical');
   expect(within(row('Clementi places')).getByRole('button', { name: new RegExp(`^${name},`) })).toHaveAttribute('aria-current', 'true');
 });
 
@@ -187,14 +179,15 @@ test('an area with no places yet says so (a polite status) and stays where it is
   expect(screen.getByTestId('where')).toHaveTextContent('lvl=areas');
 });
 
-test('an open place is a page of its own: the tab bar steps away and comes back when it closes', () => {
+test('an old ?open= link opens the place page; Back lands on the map at that place, with the tab bar', async () => {
+  const user = userEvent.setup();
   const id = placesInArea('ot')[0].id;
-  const open = renderHome(`/?lvl=places&r=central&a=ot&p=${id}&open=${id}`);
-  expect(screen.queryByRole('navigation', { name: 'Primary' })).toBeNull();
-  // the page says so through its shell, not through a mark on the document
-  expect(document.documentElement).not.toHaveAttribute('data-place-open');
-  open.unmount();
-  renderHome(`/?lvl=places&r=central&a=ot&p=${id}`);
+  renderHome(`/?lvl=places&r=central&a=ot&p=${id}&open=${id}`);
+  await screen.findByText(`place page ${id}`);
+  await user.click(screen.getByRole('button', { name: 'Close' }));
+  await screen.findByLabelText('Where you are');
+  expect(screen.getByTestId('where')).not.toHaveTextContent('open=');
+  expect(screen.getByTestId('where')).toHaveTextContent(`p=${encodeURIComponent(id)}`);
   expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument();
 });
 
@@ -226,9 +219,11 @@ test('map tools: Search finds a place and opens it; the back key goes up', async
   await user.click(screen.getByRole('button', { name: 'Search the map' }));
   await user.type(screen.getByRole('searchbox', { name: 'Search a place or planning area' }), 'Maxwell');
   await user.click(screen.getByRole('button', { name: /^Maxwell Food Centre/ }));
-  expect(screen.getByRole('dialog', { name: 'Maxwell Food Centre' })).toBeInTheDocument();
+  expect(screen.getByTestId('where')).toHaveTextContent('/nearby/place/');
+  expect(screen.getByText(/^place page .*maxwell/)).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Close' }));
+  await screen.findByLabelText('Where you are');
   expect(screen.getByTestId('where')).toHaveTextContent('lvl=places');
-  await user.click(screen.getByRole('button', { name: 'Back to the map' }));
   // ↩, the one back key, goes up a level
   await user.click(within(screen.getByRole('toolbar', { name: 'Map tools' })).getByRole('button', { name: /^Back to/ }));
   expect(screen.getByTestId('where')).not.toHaveTextContent('lvl=places');
@@ -267,21 +262,23 @@ test("map tools: Editor's Pick shows the picks as a row over the map; a walk's n
   expect(screen.getByTestId('where')).not.toHaveTextContent('lvl=pick');
 });
 
-test("a list from Editor's Pick crosses the island; a stop on the row or a pin on the map opens its intro", async () => {
+test("a list from Editor's Pick crosses the island; a stop on the row or a pin on the map opens its place page", async () => {
   const user = userEvent.setup();
   renderHome('/?lvl=pick&k=list:sg-hawker-centres');
   expect(screen.queryByRole('button', { name: '2D route' })).toBeNull();
   const first = await waitFor(() => within(row(/^Hawker centres to know: places$/)).getAllByRole('button')[0]);
   const name = first.getAttribute('aria-label')!.split(', ')[0];
   await user.click(first);
-  expect(screen.getByRole('dialog', { name })).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Back to the map' }));
-  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(screen.getByTestId('where')).toHaveTextContent('/nearby/place/');
+  await user.click(screen.getByRole('button', { name: 'Close' }));
+  // back on the pick's stops, at the one just opened
+  await waitFor(() => expect(screen.getByTestId('where')).toHaveTextContent('lvl=pick&'));
+  expect(within(row(/^Hawker centres to know: places$/)).getByRole('button', { name: new RegExp(`^${name},`) })).toHaveAttribute('aria-current', 'true');
   // a list's pins are not numbered: tap the second one on the map
   const pins = await screen.findAllByRole('button', { name: /, (Attractions|Wellness|Leisure|Cruise)/ }, MAP);
   const pin = pins.find((p) => p.hasAttribute('data-pin') && !p.getAttribute('aria-label')!.startsWith(name))!;
   await user.click(pin);
-  expect(screen.getByRole('dialog', { name: pin.getAttribute('aria-label')!.split(', ')[0] })).toBeInTheDocument();
+  expect(screen.getByTestId('where')).toHaveTextContent('/nearby/place/');
 });
 
 test('Locate shows what is near you: places and Picks within 2 km, nearest first, with no position in the URL', async () => {
@@ -332,7 +329,7 @@ test('the badges carry the full numbers: checked in of all, and each category’
 // ---- Redesign v2 (boards 05/11): category chips on the kept map, together vs solo, Challenges, Picked for you ----
 
 const catOf = (id: string) => tourismOf(curatedPlace(id) ?? {});
-const chip = (name: string) => within(screen.getByRole('group', { name: 'Categories' })).getByRole('button', { name });
+const chip = (name: string) => within(screen.getByRole('group', { name: 'Filter the cards below' })).getByRole('button', { name });
 
 test('the category chips filter the row of places to that category’s (the URL keeps ?cat=); a category with none here says so', async () => {
   const user = userEvent.setup();
@@ -492,6 +489,36 @@ describe('v2 sections', () => {
     expect(await within(board).findByText(/clock running in Kampong Gelam\./)).toBeInTheDocument();
   });
 
+  // owner, 10 Nov 2026: "the map must stay at the very top"; the filter goes under the leaderboard and the map
+  const before = (a: Element, b: Element) => expect(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  test('order, together: the map first, then the leaderboard, Places to eat, the chips, Challenges, Picked for you', () => {
+    huntModeStore.set({ mode: 'together', region: 'central' });
+    renderHome();
+    const map = screen.getByRole('application', { name: /planning areas/ });
+    const board = screen.getByRole('region', { name: 'Leaderboard · Central · this weekend' });
+    const eat = screen.getByRole('button', { name: /Places to eat/ });
+    const chips = chip('All');
+    const challenges = screen.getByRole('heading', { level: 2, name: 'Challenges' });
+    const picked = screen.getByRole('heading', { level: 2, name: 'Picked for you' });
+    // nothing but the page bar above the map
+    for (const el of [board, eat, chips, challenges, picked]) before(map, el);
+    before(board, eat);
+    before(eat, chips);
+    before(chips, challenges);
+    before(challenges, picked);
+  });
+
+  test('order, solo: no leaderboard; Places to eat and the chips come straight under the map, then Picked for you', () => {
+    huntModeStore.set({ mode: 'solo' });
+    renderHome();
+    expect(screen.queryByRole('region', { name: /^Leaderboard/ })).toBeNull();
+    const map = screen.getByRole('application', { name: /planning areas/ });
+    const eat = screen.getByRole('button', { name: /Places to eat/ });
+    before(map, eat);
+    before(eat, chip('All'));
+    before(chip('All'), screen.getByRole('heading', { level: 2, name: 'Picked for you' }));
+  });
+
   test('solo ("Not now" in onboarding): no leaderboard and no Challenges', () => {
     huntModeStore.set({ mode: 'solo' });
     renderHome();
@@ -533,6 +560,31 @@ describe('v2 sections', () => {
     expect(screen.getByText('No open challenges in this category right now.')).toBeInTheDocument();
   });
 
+  test('Eat (UT01-1): Places to eat and the Eat chip show only the catalogue’s food places, straight under the chips', async () => {
+    const user = userEvent.setup();
+    renderHome();
+    await user.click(screen.getByRole('button', { name: /Places to eat/ }));
+    expect(screen.getByTestId('where')).toHaveTextContent('cat=eat');
+    expect(chip('Eat')).toHaveAttribute('aria-pressed', 'true');
+    expect(chip('All')).toHaveAttribute('aria-pressed', 'false');
+    // no challenges between the chips and the food cards
+    expect(screen.queryAllByRole('article')).toHaveLength(0);
+    const grid = screen.getByRole('list', { name: 'Places to eat' });
+    const food = new Set(FOOD_PLACES.map((p) => p.name));
+    const names = within(grid).getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+    expect(names).toHaveLength(8);
+    for (const n of names) expect(food.has(n!)).toBe(true);
+    // Eat again goes back to All
+    await user.click(chip('Eat'));
+    expect(screen.getByTestId('where')).not.toHaveTextContent('cat=');
+  });
+
+  test('each challenge card says its level (UT01-2)', () => {
+    huntModeStore.set({ mode: 'together', region: 'central' });
+    renderHome();
+    for (const card of screen.getAllByRole('article')) expect(within(card).getByRole('img', { name: /^Level [123] of 3, / })).toBeInTheDocument();
+  });
+
   test('Picked for you: dealt in turns by your order (#1 leads); a chip keeps one category; no distance without a position', async () => {
     const user = userEvent.setup();
     profileV3Store.set((p) => ({ ...p, tourismRanking: ['lei', 'wel'] }));
@@ -551,6 +603,19 @@ describe('v2 sections', () => {
     expect(within(grid).getAllByRole('listitem').every((li) => li.dataset.category === 'wel')).toBe(true);
     await user.click(screen.getByRole('button', { name: 'Show more places' }));
     expect(within(grid).getAllByRole('listitem')).toHaveLength(16);
+  });
+
+  test('Picked for you: "Show more places" stays open after a place page, so Back finds the card you tapped', async () => {
+    const user = userEvent.setup();
+    renderHome();
+    const grid = () => screen.getByRole('list', { name: 'Places picked for you' });
+    expect(within(grid()).getAllByRole('listitem')).toHaveLength(8);
+    await user.click(screen.getByRole('button', { name: 'Show more places' }));
+    expect(within(grid()).getAllByRole('listitem')).toHaveLength(16);
+    await user.click(within(grid()).getAllByRole('link', { name: /^Open / })[11]);
+    expect(screen.getByTestId('where')).toHaveTextContent('/nearby/place/');
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    expect(within(grid()).getAllByRole('listitem')).toHaveLength(16);
   });
 
   test('Picked for you: a licensed photo when there is one, else the map around the place, never an empty tint', () => {

@@ -1,4 +1,4 @@
-// v2 place page (boards 08, 12): hero photo (or the category tint and glyph), back / Save / Share, the category pill,
+// v2 place page (boards 08, 12): hero photo (or the category tint and glyph), ✕ / Save / Share, the category pill,
 // name, where it is, Directions, sourced hours, key facts from the dataset card, a sourced tip, the story, a Hunt
 // challenge that stops here, nearby places, and the sticky "Stamp here" bar. Each section shows only with its data
 // (plan A9): no hours, tiles, tip, story, challenge or nearby places are made up. The stamp is the existing
@@ -33,7 +33,7 @@ export const NEARBY_RADIUS_M = 1500;
 export const NEARBY_MAX = 8;
 
 const PATH = {
-  back: 'M15 5l-7 7 7 7',
+  close: 'M6 6l12 12M18 6 6 18',
   bookmark: 'M6.5 3.5h11v17L12 16.5l-5.5 4z',
   pin: 'M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11ZM12 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z',
   clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM12 7.5V12l3 2',
@@ -95,7 +95,7 @@ export function nearbyPlaces(place: CuratedPlace, all: readonly CuratedPlace[] =
   ).slice(0, NEARBY_MAX);
 }
 
-/** Back: the previous screen, or the fallback when the page was opened directly. */
+/** Close: the previous screen, or the fallback when the page was opened directly. */
 export function useBack(fallback: string) {
   const navigate = useNavigate();
   return () => {
@@ -117,7 +117,9 @@ function useNow(active: boolean) {
 }
 
 function Hero({ place, category, actions }: { place: CuratedPlace; category: TourismCategory | undefined; actions: ReactNode }) {
-  const back = useBack(paths.today);
+  // a place page (M-page) closes with ✕, wherever it was opened from (Home's map or cards, Search, Passport, Hunt): the
+  // one way out, never with a 〈 as well (10 Nov 2026)
+  const close = useBack(paths.today);
   const photo = placePhoto(place);
   return (
     <section className={styles.hero} style={catStyle(category)} data-photo={photo ? 'yes' : 'no'}>
@@ -130,8 +132,8 @@ function Hero({ place, category, actions }: { place: CuratedPlace; category: Tou
       )}
       <span className={styles.heroShade} aria-hidden="true" />
       <div className={styles.heroBar}>
-        <button type="button" className={styles.round} onClick={back} aria-label="Back">
-          <Svg d={PATH.back} />
+        <button type="button" className={styles.round} onClick={close} aria-label="Close">
+          <Svg d={PATH.close} />
         </button>
         <span className={styles.heroActions}>{actions}</span>
       </div>
