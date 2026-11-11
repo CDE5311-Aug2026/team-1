@@ -43,7 +43,16 @@ import { isPlaceStories, type Facet, type PlaceState, type PlaceStories, placeSt
 import { createPersistentStore, STORAGE_PREFIX } from './persistentStore';
 import { EMPTY_SOCIAL, communitySocialStore } from './community/socialStore';
 import { EMPTY_RECAP, recapStore } from './moments/recapStore';
-import { EMPTY_HUNT_MODE, EMPTY_HUNT_NOW, huntIntroStore, huntModeStore, huntNowStore, huntTourStore, searchRecentStore } from './v2Stores';
+import {
+  EMPTY_HUNT_MODE,
+  EMPTY_HUNT_NOW,
+  huntIntroStore,
+  huntModeStore,
+  huntNowStore,
+  huntTourStore,
+  passportNameStore,
+  searchRecentStore,
+} from './v2Stores';
 import { clearLocalUsage } from '../usage/localLog';
 import { NO_STREAK, isDailyProgress, isStreak, todayKey, type DailyProgress, type Streak } from './progress';
 
@@ -302,7 +311,8 @@ export function deleteAllData(): Promise<boolean> {
   // v3 page stores (their own files; Profile / My Space resets itself through onDataDeleted below).
   communitySocialStore.set(EMPTY_SOCIAL);
   recapStore.set(EMPTY_RECAP);
-  // v2: hunt-together choice and recent searches.
+  // v2: the passport holder's name, hunt-together choice and recent searches.
+  passportNameStore.set({ name: '' });
   huntModeStore.set(EMPTY_HUNT_MODE);
   huntIntroStore.set({ dismissed: false });
   huntTourStore.set({ done: false });

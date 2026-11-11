@@ -171,8 +171,8 @@ export default function PrivacyPage() {
             <h2 className={styles.heroTitle}>Your data stays on this phone</h2>
             <p className={styles.heroText}>
               {prefs.usageTiming
-                ? 'Nothing you type leaves it, except what you send in the Help Centre. Only anonymous page timings are sent, to improve the app.'
-                : 'Nothing leaves it: anonymous page timing is off. Only what you send in the Help Centre goes out.'}{' '}
+                ? 'Nothing you type leaves it, except what you send in the Help Centre. Hunt check-in photos are sent to be checked, and anonymous page timings to improve the app.'
+                : 'Anonymous page timing is off. Only what you send in the Help Centre and your Hunt check-in photos go out.'}{' '}
               Public hunts only change what this phone shows; your position is never sent.
             </p>
           </div>
@@ -228,10 +228,10 @@ export default function PrivacyPage() {
                   <span className={`${styles.permIcon} ${styles.tLei}`}>
                     <Icon name="camera" size={18} />
                   </span>
-                  <span className={styles.permOff}>Not used</span>
+                  <span className={styles.permOn}>When you snap</span>
                 </span>
                 <span className={styles.rowTitle}>Camera</span>
-                <span className={styles.rowSub}>The app doesn’t ask for it</span>
+                <span className={styles.rowSub}>Moments and Hunt check-in photos</span>
               </div>
             </li>
           </ul>
@@ -287,6 +287,13 @@ export default function PrivacyPage() {
               <span className={styles.rowText}>
                 <span className={styles.rowTitle}>Help Centre questions and feedback</span>
                 <span className={styles.rowSub}>Sent when you tap Send: questions to answer you, feedback to the team, with the screen’s name</span>
+              </span>
+              <span className={styles.permOn}>When sent</span>
+            </div>
+            <div className={styles.switchRow}>
+              <span className={styles.rowText}>
+                <span className={styles.rowTitle}>Hunt check-in photos</span>
+                <span className={styles.rowSub}>Each photo you take at a stop goes to Anthropic’s Claude to check the detail; FindSG’s server doesn’t store it</span>
               </span>
               <span className={styles.permOn}>When sent</span>
             </div>

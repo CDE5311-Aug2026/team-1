@@ -3,7 +3,7 @@
 // ANTHROPIC_API_KEY the endpoint answers 503 and the game asks for another try later (never lets the stop pass).
 import Anthropic from "@anthropic-ai/sdk";
 import type { CounterLike } from "../usage/store.js";
-import { DEFAULT_LIMITS, checkLimits, memoryCounter, type RecognizeLimits } from "./limit.js";
+import { DEFAULT_LIMITS, checkLimits, type RecognizeLimits } from "./limit.js";
 
 export interface RecognizeRequest {
   /** What the stop asks you to photograph, in the story's words. */
@@ -61,14 +61,9 @@ export function readRequest(body: unknown): RecognizeRequest | null {
 export const UPSTREAM_TIMEOUT_MS = 25_000;
 export const UPSTREAM_RETRIES = 1;
 
-/** This instance's fallback count, kept between requests while the instance is warm. */
-const instanceCounter = memoryCounter();
-
 export interface RecognizeOptions {
-  /** Redis (shared by all instances) when the project has one. */
+  /** The shared count (Redis on Vercel; memoryCounter() on the single-process dev server). None: no photo is checked. */
   counter?: CounterLike | null;
-  /** Test seam: the per-instance counter. */
-  localCounter?: CounterLike;
   limits?: RecognizeLimits;
 }
 
@@ -76,10 +71,9 @@ export async function handleRecognize(request: Request, apiKey: string | undefin
   const json = (data: unknown, status = 200) =>
     new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   if (request.method !== "POST") return json({ error: "method" }, 405);
-  // Another website's page is refused (browsers send Sec-Fetch-Site). A script can leave the header out, so this only
-  // stops cross-site use from browsers; the limits below are what bound the spend.
-  const site = request.headers.get("sec-fetch-site");
-  if (site && site !== "same-origin") return json({ error: "forbidden" }, 403);
+  // Only the app's own pages: browsers send Sec-Fetch-Site on every fetch, so a missing header is refused too. A script
+  // can still forge it, so the shared limits below are what bound the spend.
+  if (request.headers.get("sec-fetch-site") !== "same-origin") return json({ error: "forbidden" }, 403);
   if (!request.headers.get("content-type")?.startsWith("application/json")) return json({ error: "send_json" }, 415);
   if (!apiKey) return json({ error: "not_configured" }, 503);
   if (Number(request.headers.get("content-length") ?? 0) > MAX_DATA + 4_000) return json({ error: "too_large" }, 413);
@@ -94,7 +88,8 @@ export async function handleRecognize(request: Request, apiKey: string | undefin
   if (!parsed) return json({ error: "bad_request" }, 400);
 
   // Counted only once the request is valid, so a malformed post doesn't use up a visitor's checks.
-  const verdict = await checkLimits(request, { shared: opts.counter ?? null, local: opts.localCounter ?? instanceCounter }, opts.limits ?? DEFAULT_LIMITS);
+  const verdict = await checkLimits(request, opts.counter ?? null, opts.limits ?? DEFAULT_LIMITS);
+  if (verdict === "unavailable") return json({ error: "not_configured" }, 503);
   if (verdict !== "ok") return json({ error: verdict === "day" ? "daily_limit" : "busy" }, 429);
 
   const client = new Anthropic({ apiKey, timeout: UPSTREAM_TIMEOUT_MS, maxRetries: UPSTREAM_RETRIES });

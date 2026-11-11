@@ -6,7 +6,7 @@ import vercel from '../../vercel.json' with { type: 'json' };
 const body = { feature: 'The arch above the tall window', place: 'The old press, 101 Jalan Sultan', mediaType: 'image/jpeg', data: 'aGVsbG8=' };
 
 const post = (b: string, headers: Record<string, string> = {}) =>
-  new Request('http://x/api/recognize', { method: 'POST', body: b, headers: { 'content-type': 'application/json', ...headers } });
+  new Request('http://x/api/recognize', { method: 'POST', body: b, headers: { 'content-type': 'application/json', 'sec-fetch-site': 'same-origin', ...headers } });
 
 test('reads a check-in photo request and refuses anything else', () => {
   expect(readRequest(body)).toEqual(body);
@@ -30,13 +30,17 @@ test("only the app's own pages may call it: cross-site 403, GET 405, non-JSON 41
   const ok = JSON.stringify(body);
   expect((await handleRecognize(post(ok, { 'sec-fetch-site': 'cross-site' }), 'key')).status).toBe(403);
   expect((await handleRecognize(post(ok, { 'sec-fetch-site': 'same-site' }), 'key')).status).toBe(403);
+  // A script that leaves the header out is refused too.
+  const bare = new Request('http://x/api/recognize', { method: 'POST', body: ok, headers: { 'content-type': 'application/json' } });
+  expect((await handleRecognize(bare, 'key')).status).toBe(403);
   expect((await handleRecognize(new Request('http://x/api/recognize'), 'key')).status).toBe(405);
-  expect((await handleRecognize(new Request('http://x/api/recognize', { method: 'POST', body: ok }), 'key')).status).toBe(415);
+  const noJson = new Request('http://x/api/recognize', { method: 'POST', body: ok, headers: { 'sec-fetch-site': 'same-origin' } });
+  expect((await handleRecognize(noJson, 'key')).status).toBe(415);
 });
 
 test('a visitor over the limit gets 429 before any paid call is made', async () => {
   const limits = { perVisitor: 0, windowSeconds: 60, perDay: 100 };
-  const res = await handleRecognize(post(JSON.stringify(body), { 'sec-fetch-site': 'same-origin' }), 'key', { localCounter: memoryCounter(), limits });
+  const res = await handleRecognize(post(JSON.stringify(body), { 'sec-fetch-site': 'same-origin' }), 'key', { counter: memoryCounter(), limits });
   expect(res.status).toBe(429);
   expect(await res.json()).toEqual({ error: 'busy' });
 });
@@ -47,7 +51,7 @@ test('limits: per visitor in a window, per day for the whole app; the window end
   const local = memoryCounter(now);
   const limits = { perVisitor: 2, windowSeconds: 60, perDay: 3 };
   const from = (ip: string) => new Request('http://x', { headers: { 'x-forwarded-for': `${ip}, 10.0.0.1` } });
-  const check = (ip: string) => checkLimits(from(ip), { shared: null, local }, limits, now);
+  const check = (ip: string) => checkLimits(from(ip), local, limits, now);
   expect(await check('1.1.1.1')).toBe('ok');
   expect(await check('1.1.1.1')).toBe('ok');
   expect(await check('1.1.1.1')).toBe('visitor');
@@ -58,13 +62,19 @@ test('limits: per visitor in a window, per day for the whole app; the window end
   expect(visitorOf(from('9.9.9.9'))).toBe('9.9.9.9');
 });
 
-test("when Redis fails the instance's own count still applies", async () => {
+test('no shared count, or Redis failing: no photo is checked (fail closed, no per-instance caps)', async () => {
   const broken = { incr: async () => { throw new Error('down'); }, expire: async () => 1 };
-  const local = memoryCounter();
   const limits = { perVisitor: 1, windowSeconds: 60, perDay: 10 };
   const req = new Request('http://x');
-  expect(await checkLimits(req, { shared: broken, local }, limits)).toBe('ok');
-  expect(await checkLimits(req, { shared: broken, local }, limits)).toBe('visitor');
+  expect(await checkLimits(req, broken, limits)).toBe('unavailable');
+  expect(await checkLimits(req, null, limits)).toBe('unavailable');
+  const ok = JSON.stringify(body);
+  const same = { 'sec-fetch-site': 'same-origin' };
+  for (const counter of [broken, null, undefined]) {
+    const res = await handleRecognize(post(ok, same), 'key', { counter, limits });
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: 'not_configured' });
+  }
 });
 
 test("Vercel gives the function time for the SDK's attempts", () => {
@@ -79,10 +89,10 @@ test('a lost expiry (connection dropped after INCR) never locks a visitor out: t
   const noExpiry = { incr: async (k: string) => { counts.set(k, (counts.get(k) ?? 0) + 1); return counts.get(k)!; }, expire: async () => { throw new Error('dropped'); } };
   const limits = { perVisitor: 1, windowSeconds: 60, perDay: 100 };
   const req = new Request('http://x', { headers: { 'x-real-ip': '5.5.5.5' } });
-  expect(await checkLimits(req, { shared: noExpiry, local: memoryCounter(now) }, limits, now)).toBe('ok');
-  expect(await checkLimits(req, { shared: noExpiry, local: memoryCounter(now) }, limits, now)).toBe('visitor');
+  expect(await checkLimits(req, noExpiry, limits, now)).toBe('ok');
+  expect(await checkLimits(req, noExpiry, limits, now)).toBe('visitor');
   t += 60_000;
-  expect(await checkLimits(req, { shared: noExpiry, local: memoryCounter(now) }, limits, now)).toBe('ok');
+  expect(await checkLimits(req, noExpiry, limits, now)).toBe('ok');
 });
 
 test('visitors: Vercel headers first; an IPv6 address counts by its /64', () => {
@@ -96,7 +106,7 @@ test('visitors: Vercel headers first; an IPv6 address counts by its /64', () => 
 test('a same-origin request reaches the limits; an oversized declared body is refused before it is read', async () => {
   const limits = { perVisitor: 0, windowSeconds: 60, perDay: 100 };
   const ok = JSON.stringify(body);
-  expect((await handleRecognize(post(ok, { 'sec-fetch-site': 'same-origin' }), 'key', { localCounter: memoryCounter(), limits })).status).toBe(429);
-  expect((await handleRecognize(post(ok), 'key', { localCounter: memoryCounter(), limits })).status).toBe(429);
-  expect((await handleRecognize(post(ok, { 'content-length': '9000000' }), 'key', { localCounter: memoryCounter(), limits })).status).toBe(413);
+  const same = { 'sec-fetch-site': 'same-origin' };
+  expect((await handleRecognize(post(ok, same), 'key', { counter: memoryCounter(), limits })).status).toBe(429);
+  expect((await handleRecognize(post(ok, { ...same, 'content-length': '9000000' }), 'key', { counter: memoryCounter(), limits })).status).toBe(413);
 });

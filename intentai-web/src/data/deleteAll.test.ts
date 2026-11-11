@@ -3,6 +3,7 @@ import { beginOnsite, checkInOnsite, ONSITE_ROUTES, readOnsite, saveOnsite } fro
 import { MARKER_KEY, PENDING_KEY, RECOVERY_KEY } from './migration/legacyMigration';
 import { huntVisits } from './moments/huntVisits';
 import { deleteAllData } from './stores';
+import { passportNameStore } from './v2Stores';
 
 const ROUTE = 'telok-ayer';
 const stops = () => ONSITE_ROUTES[ROUTE].stops;
@@ -61,4 +62,10 @@ test('a save that only reached the cache (storage full) is forgotten too', async
   vi.restoreAllMocks();
   await deleteAllData();
   expect(readOnsite(ROUTE, stops(), 'manual').stops[first].checkin).toBeNull();
+});
+
+test("Delete all forgets the passport holder's name, so the next person on this phone isn't greeted with it", async () => {
+  passportNameStore.set({ name: 'Serin Ee' });
+  await deleteAllData();
+  expect(passportNameStore.get()).toEqual({ name: '' });
 });

@@ -1,6 +1,7 @@
 // Spend limits for POST /api/recognize. Each call is a paid Claude vision request, so the endpoint caps calls per
-// visitor and per day for the whole app. Counts live in Redis when the project has one (shared by every function
-// instance); otherwise, or when Redis fails, each instance keeps its own count in memory (weaker, but never unlimited).
+// visitor and per day for the whole app. Counts must be shared by every function instance (Redis), or the caps would
+// multiply with the number of warm instances: with no counter, or when it fails, no photo is checked ('unavailable').
+// The dev server (one process) passes memoryCounter().
 import type { CounterLike } from '../usage/store.js';
 
 export interface RecognizeLimits {
@@ -17,7 +18,7 @@ export interface RecognizeLimits {
  */
 export const DEFAULT_LIMITS: RecognizeLimits = { perVisitor: 60, windowSeconds: 600, perDay: 1500 };
 
-/** An in-memory counter with expiry, for when there is no Redis. */
+/** An in-memory counter with expiry: only for a single process (the dev server, tests), never a Vercel function. */
 export function memoryCounter(now: () => number = Date.now): CounterLike {
   const counts = new Map<string, { n: number; until: number }>();
   return {
@@ -79,11 +80,11 @@ export function visitorOf(request: Request): string {
   return ip ? prefixOf(ip.slice(0, 64)) : 'local';
 }
 
-export type LimitVerdict = 'ok' | 'visitor' | 'day';
+export type LimitVerdict = 'ok' | 'visitor' | 'day' | 'unavailable';
 
 export async function checkLimits(
   request: Request,
-  counters: { shared: CounterLike | null; local: CounterLike },
+  counter: CounterLike | null,
   limits: RecognizeLimits = DEFAULT_LIMITS,
   now: () => number = Date.now,
 ): Promise<LimitVerdict> {
@@ -95,12 +96,11 @@ export async function checkLimits(
     if (!(await take(c, `findsg:recognize:d:${day}`, limits.perDay, 26 * 3600))) return 'day';
     return 'ok';
   };
-  if (counters.shared) {
-    try {
-      return await run(counters.shared);
-    } catch {
-      // Redis down: fall through to this instance's own count rather than letting calls through uncounted.
-    }
+  // No shared count, or Redis down: refuse rather than count per instance (fail closed).
+  if (!counter) return 'unavailable';
+  try {
+    return await run(counter);
+  } catch {
+    return 'unavailable';
   }
-  return run(counters.local);
 }

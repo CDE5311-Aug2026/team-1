@@ -175,7 +175,7 @@ test('Anonymous page timing: switching it off stops sending; the device copy sta
 
   await userEvent.click(timing);
   expect(mySpacePrefsStore.get().usageTiming).toBe(false);
-  expect(screen.getByText(/Nothing leaves it: anonymous page timing is off/)).toBeInTheDocument();
+  expect(screen.getByText(/Anonymous page timing is off. Only what you send/)).toBeInTheDocument();
   send([event]);
   expect(beacon).toHaveBeenCalledTimes(1);
   expect(fetchFn).not.toHaveBeenCalled();
