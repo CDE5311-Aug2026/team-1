@@ -11,8 +11,11 @@ export interface RecognizeLimits {
   perDay: number;
 }
 
-/** A hunt has at most a dozen stops and a retake or two each; these leave room for that and stop a script. */
-export const DEFAULT_LIMITS: RecognizeLimits = { perVisitor: 30, windowSeconds: 600, perDay: 1500 };
+/**
+ * A hunt has at most a dozen stops and a retake or two each. Players at one venue or on one carrier can share an
+ * address, so the per-visitor cap leaves room for a small group; the daily cap is the real backstop on spend.
+ */
+export const DEFAULT_LIMITS: RecognizeLimits = { perVisitor: 60, windowSeconds: 600, perDay: 1500 };
 
 /** An in-memory counter with expiry, for when there is no Redis. */
 export function memoryCounter(now: () => number = Date.now): CounterLike {
@@ -37,20 +40,43 @@ export function memoryCounter(now: () => number = Date.now): CounterLike {
   };
 }
 
-/** Counts one call against a key; true while the key is within its limit. The first call starts the window. */
+/**
+ * Counts one call against a key; true while the key is within its limit. Each key names its own window (the window's
+ * number is part of it), so the expiry only tidies up: if it is lost (the connection drops between INCR and EXPIRE)
+ * the next window simply uses a new key, and nobody is locked out.
+ */
 async function take(counter: CounterLike, key: string, limit: number, seconds: number): Promise<boolean> {
   const n = await counter.incr(key);
-  if (n === 1) await counter.expire(key, seconds);
+  if (n === 1) {
+    try {
+      await counter.expire(key, seconds);
+    } catch {
+      /* only tidiness: the key belongs to one window */
+    }
+  }
   return n <= limit;
 }
 
+/** An IPv6 address's /64 (one connection can rotate through it), in full form; anything else unchanged. */
+function prefixOf(ip: string): string {
+  if (!ip.includes(':')) return ip;
+  const [head, tail = ''] = ip.split('::');
+  const a = head ? head.split(':') : [];
+  const b = tail ? tail.split(':') : [];
+  const groups = ip.includes('::') ? [...a, ...Array(Math.max(0, 8 - a.length - b.length)).fill('0'), ...b] : a;
+  return groups.slice(0, 4).map((g) => g.toLowerCase().replace(/^0+(?=.)/, '')).join(':') + '::/64';
+}
+
 /**
- * The visitor's address as Vercel reports it (Vercel sets x-forwarded-for itself; a client can't choose it there).
- * Locally there is no proxy, so every caller shares one key, which is fine on a dev machine.
+ * The visitor's address as Vercel reports it: x-vercel-forwarded-for / x-real-ip are set by Vercel itself, and
+ * x-forwarded-for's first entry is too (Vercel overwrites it). An IPv6 address counts by its /64. Locally there is no
+ * proxy, so every caller shares one key, which is fine on a dev machine.
  */
 export function visitorOf(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  return (forwarded || request.headers.get('x-real-ip') || 'local').slice(0, 64);
+  const h = request.headers;
+  const first = (v: string | null) => v?.split(',')[0]?.trim() || '';
+  const ip = first(h.get('x-vercel-forwarded-for')) || first(h.get('x-real-ip')) || first(h.get('x-forwarded-for'));
+  return ip ? prefixOf(ip.slice(0, 64)) : 'local';
 }
 
 export type LimitVerdict = 'ok' | 'visitor' | 'day';
@@ -61,9 +87,11 @@ export async function checkLimits(
   limits: RecognizeLimits = DEFAULT_LIMITS,
   now: () => number = Date.now,
 ): Promise<LimitVerdict> {
-  const day = new Date(now()).toISOString().slice(0, 10);
+  const t = now();
+  const day = new Date(t).toISOString().slice(0, 10);
+  const window = Math.floor(t / (limits.windowSeconds * 1000));
   const run = async (c: CounterLike): Promise<LimitVerdict> => {
-    if (!(await take(c, `findsg:recognize:v:${visitorOf(request)}`, limits.perVisitor, limits.windowSeconds))) return 'visitor';
+    if (!(await take(c, `findsg:recognize:v:${visitorOf(request)}:${window}`, limits.perVisitor, limits.windowSeconds))) return 'visitor';
     if (!(await take(c, `findsg:recognize:d:${day}`, limits.perDay, 26 * 3600))) return 'day';
     return 'ok';
   };

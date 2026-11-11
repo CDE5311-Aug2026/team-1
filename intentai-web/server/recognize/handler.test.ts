@@ -71,3 +71,32 @@ test("Vercel gives the function time for the SDK's attempts", () => {
   const max = (vercel as { functions?: Record<string, { maxDuration?: number }> }).functions?.['api/recognize.ts']?.maxDuration ?? 0;
   expect(max * 1000).toBeGreaterThan(UPSTREAM_TIMEOUT_MS * (UPSTREAM_RETRIES + 1));
 });
+
+test('a lost expiry (connection dropped after INCR) never locks a visitor out: the next window is a new key', async () => {
+  let t = Date.parse('2026-11-11T10:00:00Z');
+  const now = () => t;
+  const counts = new Map<string, number>();
+  const noExpiry = { incr: async (k: string) => { counts.set(k, (counts.get(k) ?? 0) + 1); return counts.get(k)!; }, expire: async () => { throw new Error('dropped'); } };
+  const limits = { perVisitor: 1, windowSeconds: 60, perDay: 100 };
+  const req = new Request('http://x', { headers: { 'x-real-ip': '5.5.5.5' } });
+  expect(await checkLimits(req, { shared: noExpiry, local: memoryCounter(now) }, limits, now)).toBe('ok');
+  expect(await checkLimits(req, { shared: noExpiry, local: memoryCounter(now) }, limits, now)).toBe('visitor');
+  t += 60_000;
+  expect(await checkLimits(req, { shared: noExpiry, local: memoryCounter(now) }, limits, now)).toBe('ok');
+});
+
+test('visitors: Vercel headers first; an IPv6 address counts by its /64', () => {
+  const at = (headers: Record<string, string>) => visitorOf(new Request('http://x', { headers }));
+  expect(at({ 'x-vercel-forwarded-for': '7.7.7.7', 'x-forwarded-for': '1.1.1.1' })).toBe('7.7.7.7');
+  expect(at({ 'x-forwarded-for': '2001:db8:0:1:aaaa::1' })).toBe(at({ 'x-forwarded-for': '2001:0db8:0000:0001:ffff:ffff:ffff:ffff' }));
+  expect(at({ 'x-forwarded-for': '2001:db8::1' })).toBe('2001:db8:0:0::/64');
+  expect(at({})).toBe('local');
+});
+
+test('a same-origin request reaches the limits; an oversized declared body is refused before it is read', async () => {
+  const limits = { perVisitor: 0, windowSeconds: 60, perDay: 100 };
+  const ok = JSON.stringify(body);
+  expect((await handleRecognize(post(ok, { 'sec-fetch-site': 'same-origin' }), 'key', { localCounter: memoryCounter(), limits })).status).toBe(429);
+  expect((await handleRecognize(post(ok), 'key', { localCounter: memoryCounter(), limits })).status).toBe(429);
+  expect((await handleRecognize(post(ok, { 'content-length': '9000000' }), 'key', { localCounter: memoryCounter(), limits })).status).toBe(413);
+});

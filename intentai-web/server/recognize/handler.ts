@@ -76,7 +76,8 @@ export async function handleRecognize(request: Request, apiKey: string | undefin
   const json = (data: unknown, status = 200) =>
     new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
   if (request.method !== "POST") return json({ error: "method" }, 405);
-  // Only the app's own pages may spend the key: browsers send Sec-Fetch-Site, and a cross-site page is refused.
+  // Another website's page is refused (browsers send Sec-Fetch-Site). A script can leave the header out, so this only
+  // stops cross-site use from browsers; the limits below are what bound the spend.
   const site = request.headers.get("sec-fetch-site");
   if (site && site !== "same-origin") return json({ error: "forbidden" }, 403);
   if (!request.headers.get("content-type")?.startsWith("application/json")) return json({ error: "send_json" }, 415);
