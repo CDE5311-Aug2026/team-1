@@ -7,8 +7,9 @@
 // - Challenges: Hunt's public challenges (together mode only, owner 10 Nov 2026; was both modes, plan B6). "Open" goes to
 //   the challenge's volume (its story, /hunt#story/<route>): the challenge page was retired (second canvas, 8 Nov 2026).
 // - Picked for you: real published places by your categories, then distance when Locate has found you.
-// User test (UT01-1, UT02-1, UT01-2): the filter chips sit right above the cards they filter (HomeFilterBar), with an
-// Eat chip beside the categories; "Places to eat" (EatEntry) just over the chips opens the same Eat filter. Eat is the
+// User test (UT01-1, UT02-1, UT01-2): the filter chips sit right above the cards they filter (HomeFilterBar): All and
+// the four Tourism 2040 categories only (no Eat chip: 11 Nov 2026, the row follows STB's four categories). "Places to
+// eat" (EatEntry) just over the chips is the way into the Eat filter, and shows when it is on. Eat is the
 // catalogue's own food places (Nearby category "food": hawker centres, stalls and restaurants), nothing added. Each
 // challenge card shows its level (data/hunt/level.ts).
 import { forwardRef, useMemo, useState, type CSSProperties } from 'react';
@@ -368,8 +369,9 @@ export function PickedSection({ filter, here }: { filter: HomeFilter; here: LatL
 }
 
 /**
- * The filter right above the cards it filters (UT02-1: a chip at the top of Home changed cards a screen below). All,
- * Eat, then the four categories. The caller scrolls the cards into view after a tap.
+ * The filter right above the cards it filters (UT02-1: a chip at the top of Home changed cards a screen below): All,
+ * then the four Tourism 2040 categories. While Places to eat is on, no chip is picked. The caller scrolls the cards
+ * into view after a tap.
  */
 export const HomeFilterBar = forwardRef<HTMLDivElement, { value: HomeFilter; onChange(next: HomeFilter): void }>(function HomeFilterBar(
   { value, onChange },
@@ -382,15 +384,6 @@ export const HomeFilterBar = forwardRef<HTMLDivElement, { value: HomeFilter; onC
         onChange={onChange}
         label="Filter the cards below"
         className={styles.chips}
-        extra={{
-          id: 'eat',
-          label: 'Eat',
-          fill: EAT_COLOURS.fill,
-          ink: EAT_COLOURS.ink,
-          icon: <BowlGlyph size={10} color="#fff" />,
-          on: value === 'eat',
-          onClick: () => onChange(value === 'eat' ? 'all' : 'eat'),
-        }}
       />
     </div>
   );

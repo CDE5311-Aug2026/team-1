@@ -560,13 +560,17 @@ describe('v2 sections', () => {
     expect(screen.getByText('No open challenges in this category right now.')).toBeInTheDocument();
   });
 
-  test('Eat (UT01-1): Places to eat and the Eat chip show only the catalogue’s food places, straight under the chips', async () => {
+  test('Eat (UT01-1): Places to eat shows only the catalogue’s food places, straight under the chips', async () => {
     const user = userEvent.setup();
     renderHome();
-    await user.click(screen.getByRole('button', { name: /Places to eat/ }));
+    // the chips are All and the four Tourism 2040 categories only: no Eat chip
+    const chips = within(screen.getByRole('group', { name: 'Filter the cards below' })).getAllByRole('button');
+    expect(chips.map((c) => c.textContent?.replace(/\d+$/, '').trim())).toEqual(['All', 'Attractions', 'Wellness', 'Leisure', 'Cruise']);
+    const eat = screen.getByRole('button', { name: /Places to eat/ });
+    await user.click(eat);
     expect(screen.getByTestId('where')).toHaveTextContent('cat=eat');
-    expect(chip('Eat')).toHaveAttribute('aria-pressed', 'true');
-    expect(chip('All')).toHaveAttribute('aria-pressed', 'false');
+    expect(eat).toHaveAttribute('aria-pressed', 'true');
+    for (const c of chips) expect(c).toHaveAttribute('aria-pressed', 'false');
     // no challenges between the chips and the food cards
     expect(screen.queryAllByRole('article')).toHaveLength(0);
     const grid = screen.getByRole('list', { name: 'Places to eat' });
@@ -574,9 +578,13 @@ describe('v2 sections', () => {
     const names = within(grid).getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
     expect(names).toHaveLength(8);
     for (const n of names) expect(food.has(n!)).toBe(true);
-    // Eat again goes back to All
-    await user.click(chip('Eat'));
+    // Places to eat again goes back to All; so does the All chip
+    await user.click(eat);
     expect(screen.getByTestId('where')).not.toHaveTextContent('cat=');
+    await user.click(eat);
+    await user.click(chip('All'));
+    expect(screen.getByTestId('where')).not.toHaveTextContent('cat=');
+    expect(chip('All')).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('each challenge card says its level (UT01-2)', () => {
