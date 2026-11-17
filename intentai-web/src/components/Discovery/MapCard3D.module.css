@@ -2,11 +2,22 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  touch-action: none;
+  /* the map only takes taps (MapCard3D onPointerUp), so a finger swiping up or down scrolls Home; `none` here froze
+     half the phone screen (owner, 8 Nov 2026) */
+  touch-action: pan-y;
   /* the sea, lighter towards the horizon */
   background: linear-gradient(180deg, #a9c7df 0%, #7fa8c9 55%, #6f9cc0 100%);
 }
 
+/* EARTH ONLINE's "Loading 3D…" note (View3D's role=status): at the map's top centre, under the crumb, so it never
+   covers the row of places at the foot */
+.map :global(div[role='status']) {
+  top: 52px;
+  /* the middle of the map left clear of the tool rail (64 px at its right edge) */
+  left: calc(50% - 32px);
+  transform: translateX(-50%);
+  max-width: min(17rem, calc(100% - 80px));
+}
 .canvas {
   position: absolute;
   inset: 0;
@@ -38,15 +49,15 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 10px 2px 2px;
-  border: 0;
+  padding: 2px 9px 2px 2px;
+  border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
+  background: rgba(248, 247, 244, 0.95);
+  box-shadow: var(--v2-shadow-card);
   color: var(--text-primary);
   font: inherit;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.6875rem;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -55,11 +66,40 @@
 }
 
 .badge.small {
-  padding: 2px;
+  padding: 2px 8px 2px 2px;
+  gap: 4px;
 }
 
 .badge.small.badgeOn {
   padding-right: 10px;
+}
+
+/* a number only (a region with too many areas to name them all, or no room for this one's name): a round badge */
+.badge.small.bare,
+.badge.small[data-squeezed] {
+  padding: 2px;
+}
+
+.badge.small[data-squeezed] .badgeText {
+  display: none;
+}
+
+/* every badge keeps a 44 px tap target: the pill is drawn smaller, the button's hit area is not */
+.badge::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: min(0px, calc(50% - 22px));
+  bottom: min(0px, calc(50% - 22px));
+}
+
+/* an area badge that is not selected: its name, cut short (the full name is in its label) */
+.short {
+  max-width: 3.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.625rem;
 }
 
 .numWrap {
@@ -87,43 +127,177 @@
   font-size: 0.6875rem;
 }
 
+.badge:focus-visible,
+.pin:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+/* the selected badge: ink, like the picked "All" chip (v2) */
 .badgeOn {
-  background: var(--accent);
-  color: #fff;
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--v2-surface);
   z-index: 3;
 }
 
 .badgeOn .num {
-  background: #fff;
-  color: var(--accent);
+  background: var(--v2-surface);
+  color: var(--text-primary);
 }
 
+/* a category is picked: how many of its places the region or area has */
+.catCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  padding: 0 6px 0 4px;
+  border-radius: 999px;
+  background: var(--cat);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+
+.badge.small .catCount {
+  margin-right: 2px;
+}
+
+/* the name over its counts (All picked): one compact two-line pill */
+.badgeText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.badge.small.badgeOn .badgeText {
+  padding-right: 2px;
+}
+
+/* All picked: each category's count, a tinted mini chip with its glyph (Attractions · Wellness · Leisure · Cruise) */
+.catCounts {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+/* a narrow phone: the counts wrap onto a second line (two to a line), so the five region badges stay narrow enough
+   to sit apart */
+@media (max-width: 359px) {
+  .catCounts {
+    max-width: 4.75rem;
+  }
+}
+
+.mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+  padding: 0 4px 0 3px;
+  border-radius: 999px;
+  background: var(--mini-bg);
+  color: var(--mini-ink);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* on the selected (ink) badge the chips keep their tints, with a hairline so they read on the dark */
+.badgeOn .mini {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+/* all checked in: a green tick on the ring */
+.tick {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1f9d55
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+    center / 8px no-repeat;
+  box-shadow: 0 0 0 1.5px #fff;
+}
+
+/* v2 pins: the category's colour with its glyph (board 25); 12 px chosen, smaller and faded when filtered out */
 .pin {
-  width: 16px;
-  height: 16px;
+  position: relative;
+  width: 18px;
+  height: 18px;
   padding: 0;
   border-radius: 50%;
-  border: 2.5px solid #fff;
-  background: #6b7a90;
+  border: 2px solid #fff;
+  background: var(--pin, var(--v2-muted));
   box-shadow: 0 4px 10px -4px rgba(20, 30, 50, 0.8);
+  display: grid;
+  place-items: center;
   cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    width 0.2s ease,
+    height 0.2s ease;
 }
 
-.pinDone {
-  background: #1f9d55;
+.pinGlyph {
+  display: block;
+  pointer-events: none;
+}
+
+/* checked in: a white check badge on the pin; the colour stays the category's */
+.pinDone::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -5px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23236b43' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+    center / 8px no-repeat;
+  box-shadow: 0 0 0 1px rgba(35, 33, 29, 0.25);
 }
 
 .pinOn {
-  width: 24px;
-  height: 24px;
-  background: var(--accent);
+  width: 28px;
+  height: 28px;
+  border-width: 2.5px;
+  box-shadow:
+    0 0 0 3px var(--text-primary),
+    0 4px 10px -4px rgba(20, 30, 50, 0.8);
   z-index: 2;
 }
 
+.pinDim {
+  width: 10px;
+  height: 10px;
+  border-width: 1.5px;
+  opacity: 0.25;
+}
+
+.pinDim .pinGlyph {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .badge {
+  .badge,
+  .pin {
     transition: none;
   }
+}
+
+:global(html.reduce-motion) .badge,
+:global(html.reduce-motion) .pin {
+  transition: none;
 }
 
 /* a walk's numbered stop */
@@ -132,13 +306,37 @@
   height: 22px;
   display: grid;
   place-items: center;
-  background: var(--text-primary);
 }
 
 .pin.pinOn:has(.pinNum) {
   width: 28px;
   height: 28px;
-  background: var(--accent);
+}
+
+/* faded (another category picked): smaller, but its number stays */
+.pin.pinDim:has(.pinNum) {
+  width: 18px;
+  height: 18px;
+  opacity: 0.55;
+}
+
+.pinDim .pinNum {
+  font-size: 0.5625rem;
+}
+
+/* a numbered stop's category: its glyph on a small disc at the lower right corner */
+.pinCorner {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--pin, var(--v2-muted));
+  box-shadow: 0 0 0 1.5px #fff;
+  pointer-events: none;
 }
 
 .pinNum {

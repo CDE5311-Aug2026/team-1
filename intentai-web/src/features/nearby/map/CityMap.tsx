@@ -124,6 +124,9 @@ interface CityMapProps {
   label: string;
   /** Full-bleed: no border or radius, fills the parent box (Explore's full-screen map). */
   bleed?: boolean;
+  /** A small map inside a scrolling page (the Journal's day card): a vertical swipe scrolls the page, not the map,
+   *  and the zoom keys are smaller so they leave the map in sight (owner, 9 Nov 2026). */
+  compact?: boolean;
   /** Parts of the map covered by floating UI (search bar on top, sheet at the bottom), in px. Focus and the
    *  "bring the selected pin into view" step use the uncovered area; controls and notes sit inside it. */
   insets?: { top?: number; bottom?: number; left?: number; right?: number };
@@ -327,6 +330,7 @@ export default function CityMap({
   label,
   readOnly = false,
   bleed = false,
+  compact = false,
   insets,
   controlsTop,
   attribution = 'inline',
@@ -780,7 +784,10 @@ export default function CityMap({
   }, [showLabels, clusters, labels, view, width, height]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className={bleed ? `${styles.wrap} ${styles.bleed}` : styles.wrap} style={bleed ? undefined : { height }}>
+    <div
+      className={[styles.wrap, bleed && styles.bleed, compact && styles.compact].filter(Boolean).join(' ')}
+      style={bleed ? undefined : { height }}
+    >
       <div
         ref={boxRef}
         className={styles.map}

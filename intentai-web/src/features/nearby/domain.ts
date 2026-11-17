@@ -7,6 +7,7 @@
 import type { Place as PlaceContext } from '../../data/domain';
 import { isOneOf, isRecord } from '../../data/validate';
 import { isCountry, type Category, type CountryCode, type LatLng } from './types';
+import type { OperatingStatus, PinQuality, PlaceTourism } from '../../data/tourism';
 
 export type { Category, CountryCode, LatLng } from './types';
 export type { PlaceContext };
@@ -74,6 +75,14 @@ export interface CuratedPlace {
   editorialStatus: EditorialStatus;
   reviewedAt: string;
   reviewedBy: string;
+  /** Tourism 2040 category (Redesign v2). Required on published places by validate-explore. */
+  tourism?: PlaceTourism;
+  /** Open / new / planned / seasonal (Tourism 2040 research). Absent = open. */
+  operatingStatus?: OperatingStatus;
+  /** Pin quality for imported places; absent = an older curated pin. */
+  pinQuality?: PinQuality;
+  /** A sub-destination of another record (e.g. a gate inside a park). Inherits nothing. */
+  parentId?: CuratedId;
 }
 
 /** Practical details like a maps app shows them. Only what a page confirmed; anything not found is left out. */

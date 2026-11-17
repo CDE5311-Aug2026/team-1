@@ -49,5 +49,6 @@ export function SubHeader({ title, back = paths.today }: { title: string; back?:
 
 /** Passport's kraft paper behind a page that belongs to it. */
 export function Kraft() {
-  return <span className={book.backdrop} style={{ backgroundImage: `url(${import.meta.env.BASE_URL}home/paper.webp)` }} aria-hidden="true" />;
+  // a fixed, decorative full-screen ground behind the page: it fills the gutters on purpose
+  return <span className={book.backdrop} style={{ backgroundImage: `url(${import.meta.env.BASE_URL}home/paper.webp)` }} aria-hidden="true" data-allow-bleed="" />;
 }

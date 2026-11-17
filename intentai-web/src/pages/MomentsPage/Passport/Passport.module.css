@@ -1,36 +1,21 @@
-/* M1 "My places": a parchment page of the passport, bound on the left in dark leather (as Hunt's story page). */
+/* M1 "My places" as a v2 card (owner, 9 Nov 2026: "upgrade the moment screens"): the stamps in red ink on the card's
+   light surface, v2 type and controls. It sets its own palette, so nothing here leans on the page's desk variables. */
 .section {
-  margin: 0 0 26px;
+  --ink: var(--text-primary);
+  --ink-soft: var(--v2-muted);
+  --red-ink: var(--accent-ink);
+  --orange: var(--accent);
+  margin: 0 0 20px;
 }
 
 .book {
   position: relative;
-  height: 330px;
-  margin-left: 6px;
+  height: 336px;
   overflow: hidden;
-  border-radius: 3px 8px 8px 3px;
-  color: var(--ink);
-  /* the paper without its long fibres, so the stamps read clearly */
-  background: radial-gradient(120% 70% at 55% 30%, rgba(255, 249, 230, 0.5), transparent 65%), var(--stains), var(--grain), var(--paper-color);
-  box-shadow:
-    inset 16px 0 20px -14px rgba(60, 38, 16, 0.5),
-    inset 0 0 50px rgba(120, 78, 30, 0.3),
-    0 18px 36px rgba(0, 0, 0, 0.5),
-    2px 2px 0 #d4bf93,
-    4px 4px 0 #c9b286;
-  rotate: -0.5deg;
-}
-
-/* the leather binding */
-.spine {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 9px;
-  background: linear-gradient(90deg, #170d08, #3f2316 55%, #2a160d);
-  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.4);
-  pointer-events: none;
+  border-radius: var(--v2-r-card);
+  color: var(--text-primary);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
 }
 
 .heading {
@@ -38,32 +23,32 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 24px;
-  margin: 12px 16px 0 24px;
+  min-height: 44px;
+  margin: 8px 14px 0 16px;
   white-space: nowrap;
 }
 
 .heading h2 {
   margin: 0;
-  color: var(--ink);
-  font:
-    400 1.125rem/1 var(--font-display);
-  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  font: 600 1.25rem/1 var(--font-display);
+  letter-spacing: 0.01em;
 }
 
-/* the rank ring: opens the rank sheet */
+/* the rank ring: opens the rank sheet (44 px to tap) */
 .rank {
   position: relative;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  margin: -3px 0;
+  flex: none;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 250, 240, 0.6);
-  color: #a8481f;
+  background: #fff;
+  box-shadow: var(--v2-shadow-card);
+  color: var(--accent-ink);
   cursor: pointer;
 }
 .rank svg:first-child {
@@ -73,33 +58,38 @@
 .rank::after {
   content: '';
   position: absolute;
-  inset: -7px;
+  inset: -4px;
+}
+.rank:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
 }
 
-/* a ruled line in faded ink */
 .rule {
   flex: 1;
   min-width: 0;
-  height: 0;
-  border-top: 1px solid rgba(44, 33, 23, 0.3);
-  box-shadow: 0 2px 0 -1px rgba(44, 33, 23, 0.12);
 }
 
+/* "2 / 100 places": a quiet pill that opens Home */
 .count {
-  padding: 4px 0;
-  color: var(--red-ink);
-  font:
-    italic 400 0.9375rem/1 'IM Fell English',
-    Georgia,
-    serif;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--v2-surface-sunk);
+  color: var(--v2-ink-2);
+  font: 500 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.02em;
   text-decoration: none;
 }
 
 .count:focus-visible,
 .link:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--text-primary);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 999px;
 }
 
 .grid {
@@ -108,7 +98,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: 136px 136px;
   gap: 8px 6px;
-  margin: 10px 12px 0 18px;
+  margin: 8px 12px 0;
   padding: 0;
   list-style: none;
   touch-action: pan-y;
@@ -122,16 +112,16 @@
 
 /* stamps pressed by hand: never quite straight */
 .cell:nth-child(1) .place {
-  rotate: -3deg;
+  rotate: -2deg;
 }
 .cell:nth-child(2) .place {
-  rotate: 2.5deg;
-}
-.cell:nth-child(3) .place {
   rotate: 1.5deg;
 }
+.cell:nth-child(3) .place {
+  rotate: 1deg;
+}
 .cell:nth-child(4) .place {
-  rotate: -2deg;
+  rotate: -1.5deg;
 }
 
 .place {
@@ -152,7 +142,7 @@
 }
 
 .place:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--text-primary);
   outline-offset: 2px;
 }
 
@@ -179,13 +169,12 @@
   right: -3px;
   padding: 0 5px;
   border-radius: 2px;
-  background: var(--red-ink);
-  color: var(--cream);
-  font:
-    400 10px/17px var(--font-display);
+  border-radius: 999px;
+  background: var(--accent-ink);
+  color: #fff;
+  font: 600 10px/18px var(--font-display);
   letter-spacing: 0.08em;
-  rotate: 4deg;
-  box-shadow: 0 1px 2px rgba(44, 33, 23, 0.35);
+  box-shadow: var(--v2-shadow-card);
 }
 
 .cardDots {
@@ -201,25 +190,26 @@
   width: 18px;
   height: 18px;
   box-sizing: border-box;
-  border: 1px solid rgba(44, 33, 23, 0.3);
+  border: 1px solid var(--border-strong);
   border-radius: 50%;
+  background: #fff;
 }
 
 .cardDot img {
   width: 10px;
   height: 10px;
-  opacity: 0.45;
-  filter: sepia(0.6);
+  opacity: 0.5;
+  filter: grayscale(1);
 }
 
 .dotOpen {
-  background: var(--orange);
-  border-color: var(--orange);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .dotDark {
-  background: var(--red-ink);
-  border-color: var(--red-ink);
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
 }
 
 .dotOpen img,
@@ -240,8 +230,9 @@
   width: 84px;
   height: 84px;
   box-sizing: border-box;
-  border: 1.5px dashed rgba(44, 33, 23, 0.38);
+  border: 1.5px dashed var(--border-strong);
   border-radius: 50%;
+  background: var(--v2-surface-sunk);
   overflow: hidden;
 }
 
@@ -252,8 +243,8 @@
   height: calc(100% - 12px);
   border-radius: 50%;
   object-fit: cover;
-  opacity: 0.32;
-  filter: grayscale(1) sepia(0.7);
+  opacity: 0.35;
+  filter: grayscale(1);
   mix-blend-mode: multiply;
 }
 
@@ -261,7 +252,7 @@
   position: absolute;
   left: calc(50% - 9px);
   top: calc(50% - 9px);
-  filter: sepia(0.6) brightness(0.7);
+  opacity: 0.7;
 }
 
 .outlineName {
@@ -269,12 +260,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--ink-soft);
-  font:
-    400 0.9375rem/1.1 var(--font-display);
+  color: var(--v2-muted);
+  font: 500 0.9375rem/1.1 var(--font-display);
 }
 
-/* ---- under the page, on the chart ---- */
+/* ---- under the card ---- */
 .footer {
   display: flex;
   align-items: center;
@@ -290,11 +280,9 @@
   flex: 1;
   min-width: 0;
   margin: 0;
-  color: var(--cream-soft);
-  font:
-    italic 400 0.875rem/1.3 'IM Fell English',
-    Georgia,
-    serif;
+  color: var(--v2-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.35;
 }
 
 .footer > p img {
@@ -302,9 +290,10 @@
 }
 
 .link {
-  color: #f0a060;
+  color: var(--accent-ink);
+  font-weight: 600;
   text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
 }
 
 .pager {
@@ -317,13 +306,14 @@
 .pager button {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  border: 1px solid rgba(232, 201, 131, 0.35);
-  border-radius: 10px;
-  background: rgba(20, 12, 6, 0.45);
-  color: var(--brass);
+  border: 0;
+  border-radius: 50%;
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
@@ -333,7 +323,7 @@
 }
 
 .pager button:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--text-primary);
   outline-offset: 2px;
 }
 
@@ -348,18 +338,24 @@
   width: 6px;
   height: 6px;
   border-radius: 3px;
-  background: rgba(232, 201, 131, 0.35);
+  background: var(--border-strong);
 }
 
 .dots i.dotOn {
-  width: 16px;
-  height: 4px;
-  border-radius: 3px 5px 4px 2px;
-  background: var(--orange);
-  transform: skewX(-12deg);
+  width: 18px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--text-primary);
 }
 
 @media (max-width: 350px) {
+  .heading {
+    gap: 8px;
+  }
+  .count {
+    padding: 0 10px;
+    font-size: 0.6875rem;
+  }
   .footer > p {
     font-size: 0.8125rem;
   }

@@ -140,6 +140,8 @@ describe('stores', () => {
       lTrim: async (k, a, b) => lists.set(k, (lists.get(k) ?? []).slice(a < 0 ? Math.max(0, (lists.get(k) ?? []).length + a) : a, b === -1 ? undefined : b + 1)),
       lRange: async (k) => lists.get(k) ?? [],
       del: async (k) => lists.delete(k),
+      incr: async () => 1,
+      expire: async () => 1,
     };
     let calls = 0;
     const connect = async () => {

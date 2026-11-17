@@ -9,6 +9,7 @@ import { URA_AREAS, URA_REGIONS, areaProgress, areasOf, regionBox, type RegionId
 import { curatedPlace } from '../../features/nearby/catalogue';
 import type { View3DSky, View3DZone } from '../../features/nearby/components/View3D';
 import { toLatLng } from '../../features/nearby/map/projection';
+import type { TourismFilter } from '../../data/tourism';
 import type { MapLevel, MapPlacePin } from './MapCard3D';
 import styles from './MapCard3D.module.css';
 
@@ -28,6 +29,9 @@ interface Props {
   onPickPlace(id: string): void;
   /** A place's own sky (time of day, weather); the planning-area map stays a clear late morning. */
   sky?: View3DSky;
+  /** v2 category chips. The 3D page draws its own pins (by the older place kinds), so a picked category shows only its
+   *  own pins here (and the selected one): the 3D page has no faded pin to dim the others with. */
+  category?: TourismFilter;
 }
 
 const MAP_SKY: View3DSky = { time: 10.5, wx: 'clear' };
@@ -50,7 +54,21 @@ function regionPoint(region: RegionId): [number, number] {
   return [as.reduce((s, a) => s + a.centre[0], 0) / as.length, as.reduce((s, a) => s + a.centre[1], 0) / as.length];
 }
 
-export function MapCardEarth({ level, region, areaId, areaOrder, places, selectedPlaceId, visited, label, onPickRegion, onPickArea, onPickPlace, sky }: Props) {
+export function MapCardEarth({
+  level,
+  region,
+  areaId,
+  areaOrder,
+  places,
+  selectedPlaceId,
+  visited,
+  label,
+  onPickRegion,
+  onPickArea,
+  onPickPlace,
+  sky,
+  category = 'all',
+}: Props) {
   const target = useMemo(() => {
     if (level === 'regions') return { at: middle(ISLAND), span: (ISLAND[2] - ISLAND[0]) * 1.05, pin: false };
     if (level === 'areas') {
@@ -109,9 +127,11 @@ export function MapCardEarth({ level, region, areaId, areaOrder, places, selecte
   const pins = useMemo(
     () =>
       level === 'places'
-        ? places.map((p) => ({ key: p.id, location: p.point, category: curatedPlace(p.id)?.category ?? 'landmark', visited: visited.has(p.id) }))
+        ? places
+            .filter((p) => category === 'all' || p.tourism === category || p.id === selectedPlaceId)
+            .map((p) => ({ key: p.id, location: p.point, category: curatedPlace(p.id)?.category ?? 'landmark', visited: visited.has(p.id) }))
         : [],
-    [level, places, visited],
+    [level, places, visited, category, selectedPlaceId],
   );
 
   const onZone = (id: string) => {

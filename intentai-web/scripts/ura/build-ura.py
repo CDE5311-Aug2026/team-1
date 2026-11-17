@@ -10,7 +10,14 @@ data.gov.sg's download API. Writes:
 - src/data/ura/areas.json: the 5 regions and 55 planning areas, each with its outline in our map frame
   (metres around 103.845 E, 1.315 N, see src/features/nearby/map/projection.ts), simplified for phones.
 - src/data/ura/placeAreas.json: published Nearby place id -> planning area id (point in polygon; a point just
-  off the coast goes to the nearest area).
+  off the coast goes to the nearest area). Values stay plain area-code strings, so the reader is unchanged.
+- src/data/ura/offshore.json: published place ids on an offshore island (Sentosa, Kusu, St John's, Lazarus,
+  Sisters', Pulau Ubin, Raffles Lighthouse...): their area is one of the "... Islands" planning areas, whether the
+  point is inside that outline or resolved to it as the nearest area. Coney Island is linked to the mainland and
+  sits in Punggol, so it is not offshore. Read by isOffshore() in src/data/ura/ura.ts (Redesign v2, amendment A4).
+
+Points use the same metre frame as src/features/nearby/map/projection.ts (toXY): x = (lng - LON0) * MX,
+y = (lat - LAT0) * MY.
 """
 import json, math, os, sys, urllib.request
 
@@ -123,8 +130,9 @@ for f in geo['features']:
 areas.sort(key=lambda a: (a['region'], a['name']))
 
 # Places -> planning area (full-resolution rings).
-places = json.load(open(P('src/data/explore/places.sg.json')))
+places = json.load(open(P('src/data/explore/places.sg.json'), encoding='utf-8'))
 place_areas = {}
+offshore = []
 for pl in places:
     if pl.get('editorialStatus') != 'published':
         continue
@@ -134,6 +142,8 @@ for pl in places:
         hit = min(areas, key=lambda a: min(math.hypot(pt[0] - x, pt[1] - y) for r in a['_full'] for x, y in r))['id']
         print('  nearest:', pl['id'], '->', hit)
     place_areas[pl['id']] = hit
+    if next(a for a in areas if a['id'] == hit)['name'].endswith('Islands'):
+        offshore.append(pl['id'])
 for a in areas:
     del a['_full']
 
@@ -149,7 +159,9 @@ out = {
     'regions': [{'id': rid, 'name': name} for rid, name, _ in REGIONS],
     'areas': areas,
 }
-json.dump(out, open(P('src/data/ura/areas.json'), 'w'), separators=(',', ':'))
-json.dump(dict(sorted(place_areas.items())), open(P('src/data/ura/placeAreas.json'), 'w'), indent=0)
+w = lambda f: open(P(f), 'w', encoding='utf-8', newline='\n')
+json.dump(out, w('src/data/ura/areas.json'), separators=(',', ':'))
+json.dump(dict(sorted(place_areas.items())), w('src/data/ura/placeAreas.json'), indent=0)
+json.dump(sorted(offshore), w('src/data/ura/offshore.json'), indent=0)
 pts = sum(len(r) for a in areas for r in a['rings'])
-print(f"{len(areas)} areas, {pts} points, {os.path.getsize(P('src/data/ura/areas.json')) // 1024} KB; {len(place_areas)} places placed")
+print(f"{len(areas)} areas, {pts} points, {os.path.getsize(P('src/data/ura/areas.json')) // 1024} KB; {len(place_areas)} places placed, {len(offshore)} offshore")

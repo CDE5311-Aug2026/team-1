@@ -1,4 +1,4 @@
-/* Home (Discovery, owner sketch 31 Oct): header, event card, map card, Recommended deck, tab bar. One screen. */
+/* Home (Discovery, owner sketch 31 Oct): header, map card, tab bar. v2 (8 Nov 2026): no card deck under the map. */
 .home {
   position: absolute;
   inset: 0;
@@ -11,35 +11,7 @@
   padding: calc(var(--status-h) + 4px) var(--gutter) calc(var(--tabbar-bottom) + var(--tabbar-h) + 6px);
   box-sizing: border-box;
   overflow: hidden;
-  /* its backdrop (below) paints over the app's paper, under Home's content */
   isolation: isolate;
-}
-
-/* a place is open: no tab bar, so the notebook takes its room */
-.homeOpen {
-  padding-bottom: max(8px, calc(var(--tabbar-bottom) - 9px));
-}
-
-/* Behind Home (owner, 31 Oct 2026: "kraft paper like a book, with a faint trace of Singapore's roads; exploring and
-   vintage, not tech"): one sheet of paper (scripts/home/build-paper.py) over the whole screen. */
-.backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: #c8a87a center / cover no-repeat;
-}
-/* In a phone browser the clock and the toolbar sit on flat bands of the map's paper colour (--tone, see edgeTone.ts):
-   the map fades into them so there is no hard line. A home-screen app draws the map under the clock instead. */
-@media (display-mode: browser) and (hover: none) and (pointer: coarse) {
-  .backdrop::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, var(--tone, transparent) 0, transparent 36px),
-      linear-gradient(0deg, var(--tone, transparent) 0, transparent 44px);
-  }
 }
 
 .head {
@@ -47,87 +19,6 @@
   flex-direction: column;
   gap: 10px;
   flex-shrink: 0;
-}
-
-/* The calendar card: one quiet row, so the map stays the page's picture. What, why today, and the date. */
-.event {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: 12px;
-  height: 66px;
-  padding: 0 14px 0 9px;
-  box-sizing: border-box;
-  border: 0;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #fdf9ef;
-  color: #2f2014;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  box-shadow:
-    inset 0 0 0 1px rgba(90, 60, 25, 0.12),
-    0 10px 18px -14px rgba(60, 34, 14, 0.7);
-}
-
-.event:focus-visible {
-  outline: 2px solid #2f2014;
-  outline-offset: 2px;
-}
-
-.eventImg {
-  display: block;
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  object-fit: cover;
-  object-position: 50% 40%;
-}
-
-.eventText {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
-.eventTitle {
-  font: 500 1.125rem/1.1 var(--font-display);
-  letter-spacing: 0.01em;
-}
-
-.eventLine {
-  font-size: 0.8125rem;
-  line-height: 1.2;
-  color: rgba(59, 38, 20, 0.72);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* the date, like a torn-off calendar leaf */
-.eventDate {
-  display: grid;
-  justify-items: center;
-  width: 40px;
-  padding: 5px 0 4px;
-  border-radius: 8px;
-  background: #f8e4d3;
-  color: #8e2f17;
-}
-
-.eventDay {
-  font: 500 1.0625rem/1 var(--font-display);
-}
-
-.eventMonth {
-  margin-top: 2px;
-  font-family: var(--font-mono);
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-transform: uppercase;
 }
 
 /* The map and its keys are one piece, made like a travel notebook: a brown leather body with stitching, the map as
@@ -157,130 +48,6 @@
   pointer-events: none;
 }
 
-.deviceOpen {
-  flex: 0 0 auto;
-  /* a little shorter than the overview map, so the field note under it fits without scrolling (owner, 1 Nov 2026) */
-  height: calc(clamp(150px, 21vh, 250px) + 20px);
-  /* a place is open: the 3D view is pasted in at the top of the notebook's first page (the notebook follows with no
-     gap), and when that page turns it swings over the spine with it, then folds away */
-  margin-bottom: -10px;
-  padding: 12px 38px 8px 22px;
-  border-radius: 6px 18px 0 0;
-  background:
-    radial-gradient(circle, rgba(110, 80, 45, 0.2) 1px, transparent 1.3px) 0 0 / 18px 18px,
-    linear-gradient(90deg, rgba(120, 85, 45, 0.12), transparent 14px),
-    #f6eedb;
-  box-shadow: inset 14px 0 18px -14px rgba(120, 85, 45, 0.35);
-  /* it peels away with the first page (the crease meets the page's top edge this far in from the right) */
-  clip-path: inset(-12px calc(var(--away, 0) * 100%) 0 -12px);
-  transition:
-    height 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
-    padding 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* no stitching on the pasted-in print (the notebook's strap is the board's, below) */
-.deviceOpen::after {
-  content: none;
-}
-
-/* the fold where the print peels away with its page */
-.deviceOpen::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: calc(var(--away, 0) * 100%);
-  z-index: 6;
-  width: 26px;
-  pointer-events: none;
-  background: linear-gradient(270deg, rgba(50, 30, 10, 0.32), transparent);
-  opacity: min(1, calc(var(--away, 0) * 12));
-}
-
-.deviceOpen + section {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-/* turned away with the first page: the later pages get the whole height */
-.mapAway {
-  height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  visibility: hidden;
-}
-
-.mapAway + section {
-  border-top-left-radius: 6px;
-  border-top-right-radius: 18px;
-}
-
-/* a place is open: the same key row, under the notebook, staying while the pages turn */
-.keysOpen {
-  flex: none;
-}
-
-/* no place open: the wrappers step aside and the map card is Home's own child, as before */
-.boardIdle {
-  display: contents;
-}
-
-/* a place open: the map's leather board, now holding the notebook (the 3D print pasted on its first page), with the
-   keys in its foot, as one piece */
-.board {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 12px 7px 0;
-  border-radius: 28px 28px 32px 32px;
-  background: radial-gradient(120% 80% at 30% 0%, rgba(255, 225, 180, 0.16), transparent 60%), linear-gradient(180deg, #634530 0%, #47301f 55%, #3a2717 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 228, 190, 0.22),
-    inset 0 -2px 6px rgba(0, 0, 0, 0.25),
-    0 16px 28px -16px rgba(60, 34, 14, 0.75);
-}
-
-.board::after {
-  content: '';
-  position: absolute;
-  inset: 2.5px;
-  border: 1.3px dashed rgba(240, 214, 170, 0.5);
-  border-radius: 25.5px 25.5px 29.5px 29.5px;
-  pointer-events: none;
-}
-
-/* the notebook lying on the board (its shadow on the leather is the notebook's own) */
-.boardBook {
-  position: relative;
-  z-index: 1;
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  /* the next page's paper, seen where the 3D print peels away with the first page */
-  border-radius: 6px 18px 18px 6px;
-  background: #f1e6cc;
-}
-
-/* the elastic strap that keeps the notebook shut: it lies over the book (the 3D print and the pages), from its top
-   edge to its foot, and stays put while the pages turn under it */
-.boardBook::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 16px;
-  z-index: 5;
-  width: 7px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #4a2f1c, #7a5236 45%, #4a2f1c);
-  box-shadow: 1px 0 2px rgba(0, 0, 0, 0.25);
-  opacity: 0.92;
-  pointer-events: none;
-}
-
 .grip {
   position: absolute;
   top: 0;
@@ -298,6 +65,16 @@
   cursor: ns-resize;
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* the tab is drawn small; its tap target is 44 px tall (up over the card's edge and down over the map's) */
+.grip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -9px;
+  height: 44px;
 }
 
 .grip::before {
@@ -324,28 +101,23 @@
   isolation: isolate;
 }
 
-.deviceOpen .mapCard {
-  /* a print with photo corners */
-  border-radius: 3px;
-  border: 4px solid #fffcf4;
-  box-shadow:
-    0 1px 1px rgba(60, 35, 15, 0.12),
-    0 10px 16px -10px rgba(60, 35, 15, 0.6);
+.mapCard {
+  /* the tool rail's room at the map's right edge, and a gap (MapToolbar.module.css .rail; DiscoveryHome.tsx RAIL_W) */
+  --rail-room: 72px;
 }
 
-/* the picture card folds away while the map is stretched */
-.eventFold {
-  transition:
-    height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
-    margin 0.38s cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 0.3s ease;
+@media (max-width: 359px) {
+  .mapCard {
+    --rail-room: 56px;
+  }
 }
 
 .mapTop {
   position: absolute;
   top: 10px;
   left: 10px;
-  right: 10px;
+  /* clear of the tool rail */
+  right: var(--rail-room);
   z-index: 3;
   display: flex;
   align-items: center;
@@ -353,26 +125,24 @@
   pointer-events: none;
 }
 
-.mapTopEnd {
-  justify-content: flex-end;
+/* v2 (no card deck): the row of places, picks or stops over the map's lower edge, above the credit and clear of the
+   tool rail on the right */
+.shelfSlot {
+  position: absolute;
+  left: 6px;
+  /* the row (and its fade at the right end) stops short of the rail */
+  right: var(--rail-room);
+  bottom: 32px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.shelfSlot > * {
+  pointer-events: auto;
 }
 
 .mapTop > * {
   pointer-events: auto;
-}
-
-.back {
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--text-primary);
-  display: grid;
-  place-items: center;
-  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
-  cursor: pointer;
 }
 
 .crumbBox {
@@ -417,15 +187,15 @@
   text-overflow: ellipsis;
 }
 
+/* bottom left, under the row of places (the tool rail has the right edge) */
 .credits {
   position: absolute;
-  right: 8px;
+  left: 8px;
   bottom: 8px;
   z-index: 3;
   font-size: 0.625rem;
   color: #fff;
   max-width: 240px;
-  text-align: right;
 }
 
 .credits summary {
@@ -446,49 +216,6 @@
 .credits p {
   margin: 6px 0 0;
   text-align: left;
-}
-
-.recommend {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.title {
-  margin: 0;
-  color: #2f2014;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.titleKicker {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgba(59, 38, 20, 0.62);
-}
-
-/* The deck reaches past both gutters, as cover art does. */
-.deckBox {
-  position: relative;
-  flex: 0 0 auto;
-  /* just the covers (their numbers are on them) */
-  height: clamp(118px, 16vh, 146px);
-  margin: 0 calc(-1 * var(--gutter));
-}
-
-.deckLayer {
-  position: absolute;
-  inset: 0;
 }
 
 .srOnly {
@@ -526,35 +253,21 @@
   cursor: pointer;
 }
 
-/* Shorter phones: a slimmer map, so the deck still clears the tab bar. */
+/* Shorter phones: a slimmer map. */
 @media (max-height: 760px) {
   .mapCard {
     min-height: 160px;
   }
 }
 
-/* Safari with its toolbars showing (about 660-720pt of screen): everything gives a little, so the map's keys stay
-   inside its frame and the deck keeps its title. */
+/* Safari with its toolbars showing (about 660-720pt of screen): everything gives a little. */
 @media (max-height: 720px) {
   .home {
     gap: 8px;
   }
 
-  .event {
-    height: 56px;
-  }
-
-  .eventImg {
-    width: 40px;
-    height: 40px;
-  }
-
   .mapCard {
     min-height: 118px;
-  }
-
-  .deckBox {
-    height: clamp(108px, 16vh, 124px);
   }
 
   .pageBar.pageBar {
@@ -562,42 +275,8 @@
   }
 }
 
-/* A place is open: the map card is its live 3D view, framed on the building, above the intro's cards. */
-.mapHero {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-
-.fullPage {
-  margin-left: auto;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--text-primary);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: 0 6px 14px -8px rgba(20, 30, 50, 0.6);
-}
-
-/* a place is open: the deck sits a little lower and smaller, so the intro's cards get the room */
-.recommendOpen .deckBox {
-  height: clamp(100px, 14vh, 124px);
-}
-
-/* a wide screen has room for covers you can read, however short the window. Keep this after the phone heights above. */
-@media (min-width: 761px) {
-  .deckBox {
-    height: clamp(170px, 26vh, 280px);
-  }
-
-  .recommendOpen .deckBox {
-    height: clamp(140px, 20vh, 200px);
-  }
-}
-
 /* the overview map takes a little of the paper's warmth (an open place's 3D view keeps its true colours) */
-.device:not(.deviceOpen) .mapCard [role='application'] {
+.device .mapCard [role='application'] {
   filter: sepia(0.3) saturate(0.88) brightness(1.02);
 }
 
@@ -607,9 +286,101 @@
   margin: 0;
   padding: 0;
   min-height: 46px;
-  background: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  -webkit-mask-image: none;
-  mask-image: none;
+}
+
+.pageBar.pageBar::before {
+  content: none;
+}
+
+/* ---- Redesign v2 (boards 05/11): Home is a page that scrolls (the map card first, then the leaderboard card, the
+   chips, Challenges, Picked for you). The kept 3D map sits in a plain v2 card; a place opens on its own page. ---- */
+.home {
+  gap: 14px;
+}
+
+/* Home is in the page's flow and the window scrolls it (TodayPage uses AppShell's page layout, which
+   gives the column, the gutters and the room above the tab bar). An inner scroller here missed a wheel over the tab
+   bar, the keys and the scrollbar (owner, 8 Nov 2026). */
+.home {
+  position: relative;
+  inset: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+/* a scrolling column: nothing in it gives up its height */
+.home > * {
+  flex-shrink: 0;
+}
+
+/* sticks at the top of the window, as PageBar does on the other pages: a home-screen app's status gap above already
+   holds the safe-area inset, so the strip pulls up over it and its own inset padding keeps the row clear of the clock
+   once it sticks (in a browser the inset is 0) */
+.home .head {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  gap: 2px;
+  margin: calc(-1 * env(safe-area-inset-top, 0px)) calc(-1 * var(--gutter)) -6px;
+  padding: calc(env(safe-area-inset-top, 0px) + 4px) var(--gutter) 6px;
+  /* frosted paper: the cards scrolling under the bar and chips stay readable without hiding the chart behind */
+  background: var(--frost-bg);
+  -webkit-backdrop-filter: var(--frost-filter);
+  backdrop-filter: var(--frost-filter);
+}
+
+.device {
+  flex: 0 0 auto;
+  height: calc(clamp(330px, 50vh, 460px) + var(--grow, 0) * 180px);
+  padding: 18px 6px 6px;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  transition: height 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.device::after {
+  content: none;
+}
+
+.device .grip::before {
+  background: var(--border-strong);
+  box-shadow: none;
+}
+
+.device .grip:focus-visible {
+  outline-color: var(--text-primary);
+}
+
+.device .mapCard {
+  border-radius: var(--v2-r-media);
+}
+
+/* v2: the overview map keeps its own colours (no paper warmth) */
+.device .mapCard [role='application'] {
+  filter: none;
+}
+
+.home .crumbBox {
+  background: rgba(35, 33, 29, 0.78);
+}
+
+.home .dotOn {
+  background: var(--cat-att);
+}
+
+.home .routeKey {
+  background: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .device {
+    transition: none;
+  }
+}
+
+:global(html.reduce-motion) .device {
+  transition: none;
 }

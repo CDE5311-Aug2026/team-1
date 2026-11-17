@@ -1,6 +1,6 @@
 # Beneath the Golden Dome — film prompts
 
-These prompts are for generating the Golden Dome's films. Each film plays once, at one turn of the story, and is one to three clips of about 8 seconds. The clips that play today are listed below; the prompts further down are for replacing them with clips made for this plot. Captions live in `CAPTION` in `intentai-web/src/pages/HuntPage/notebook/chapters.ts`, not in the video.
+These prompts are for generating the Golden Dome's films. Each film plays once, at one turn of the story, and is one to three clips of about 8 seconds. The clips that play today are listed below; the prompts further down are for replacing them with clips made for this plot. Captions live in `CAPTION` in `intentai-web/src/pages/HuntPage/story/chapters.ts`, not in the video.
 
 | Film | When it plays | Book step | Plays today |
 | --- | --- | --- | --- |

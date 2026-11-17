@@ -10,7 +10,7 @@ const SOURCES = import.meta.glob('/src/**/*.{ts,tsx,js,jsx,json,html}', { query:
 
 const ALLOWED: RegExp[] = [
   /intentai:/, // storage keys and event names: existing phones keep their data
-  /source: ?['"]intentai['"]/, // the message the 3D page checks; public/earth-online is shared with /ui1
+  /source: ?['"]intentai['"]/, // the message the 3D page checks
   /LEGACY_EXPORT_FORMAT = 'intentai-/, // old backups and usage files still load
   /LEGACY_EDITORIAL = 'IntentAI editorial'/, // the stored lookup value, see domain.ts
   /LOOKUP_SOURCES = \[.*'IntentAI editorial'/,

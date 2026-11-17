@@ -1,0 +1,123 @@
+/* Question 2's together / solo cards (owner, 8 Nov 2026): two separate, clearly tappable cards. Selected = warm tint,
+   a 2 px ink border and a filled radio with a check; unselected = surface, a 1.5 px border, a shadow and an empty radio. */
+.group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 10px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 96px;
+  padding: 14px 40px 14px 14px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--v2-surface);
+  box-shadow:
+    inset 0 0 0 1.5px var(--border-strong),
+    var(--v2-shadow-card);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow:
+    inset 0 0 0 1.5px var(--v2-muted),
+    var(--v2-shadow-card);
+}
+
+.card:active {
+  transform: translateY(1px);
+}
+
+.on,
+.on:hover {
+  background: var(--tint-warm-2);
+  box-shadow:
+    inset 0 0 0 2px var(--text-primary),
+    var(--v2-shadow-card);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--accent-ink);
+  outline-offset: 3px;
+}
+
+/* the radio, in the card's top right corner: an empty ring, filled ink with a check when chosen */
+.radio {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid var(--v2-muted);
+  background: var(--v2-surface);
+  color: var(--v2-surface);
+}
+
+.on .radio {
+  border-color: var(--text-primary);
+  background: var(--text-primary);
+}
+
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--v2-surface-sunk);
+  color: var(--v2-ink-2);
+}
+
+.on .icon {
+  background: var(--accent);
+  color: #fff;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font: 600 0.9375rem/1.2 var(--font-family);
+}
+
+.sub {
+  font: 400 0.75rem/1.25 var(--font-family);
+  color: var(--v2-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  .card:active {
+    transform: none;
+  }
+}
+
+:global(html.reduce-motion) .card {
+  transition: none;
+}
+
+:global(html.reduce-motion) .card:active {
+  transform: none;
+}

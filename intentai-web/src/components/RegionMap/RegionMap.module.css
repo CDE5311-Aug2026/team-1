@@ -1,0 +1,296 @@
+/* v2 RegionMap (C7, boards 03 / 24 / 25). The map scales fluidly: viewBox 346 × 228.3, width 100%. */
+.root {
+  width: 100%;
+  min-width: 0;
+}
+
+.map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 346 / 228.3;
+  border-radius: var(--v2-r-media, 14px);
+  overflow: hidden;
+  background: var(--map-water, #9dbbe0);
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fill and a thin same-colour stroke, so neighbouring planning areas meet without seams. */
+.region {
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+  fill-rule: nonzero;
+  transition:
+    fill 0.3s ease,
+    stroke 0.3s ease;
+}
+
+.regionLive {
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.raised {
+  pointer-events: none;
+}
+
+/* Drawn under a second copy of the fill, so only the outer half (2 px) of the 4 px stroke shows. */
+.outline {
+  fill: none;
+  stroke: var(--text-primary, #23211d);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.focusRing {
+  fill: none;
+  stroke: var(--accent-ink, #a8430c);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+}
+
+.label {
+  font-family: var(--font-family, system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  fill: var(--v2-ink-2, #3a3731);
+  paint-order: stroke;
+  stroke: var(--map-land, #fdfaec);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.labelOn {
+  font-weight: 700;
+  fill: var(--text-primary, #23211d);
+}
+
+.pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pin {
+  position: absolute;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--pc);
+  border: 2px solid #fff;
+  box-shadow:
+    0 0 0 1px rgba(35, 33, 29, 0.3),
+    0 1px 3px rgba(35, 33, 29, 0.3);
+  transition:
+    width 0.3s ease,
+    height 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.pinOut {
+  opacity: 0.25;
+  border-width: 1.5px;
+  box-shadow: none;
+}
+
+/* Planned (coming soon): dashed outline, 60 %. */
+.pinFaded {
+  opacity: 0.6;
+  background: var(--map-land, #fdfaec);
+  border: 2px dashed var(--pc);
+  box-shadow: none;
+}
+
+.pinFaded.pinOut {
+  opacity: 0.25;
+  border-width: 1.5px;
+}
+
+.pulse::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--pc);
+  opacity: 0;
+  animation: regionmap-pulse 1.8s ease-out infinite;
+}
+
+@keyframes regionmap-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse::after {
+    animation: none;
+    opacity: 0.45;
+    transform: none;
+  }
+  .pin,
+  .region {
+    transition: none;
+  }
+}
+
+:global(html.reduce-motion) .pulse::after {
+  animation: none;
+  opacity: 0.45;
+  transform: none;
+}
+
+:global(html.reduce-motion) .pin,
+:global(html.reduce-motion) .region {
+  transition: none;
+}
+
+.badge {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  height: 20px;
+  padding: 0 6px 0 4px;
+  border-radius: 999px;
+  background: var(--v2-surface, #f8f7f4);
+  color: var(--text-primary, #23211d);
+  box-shadow: 0 1px 3px rgba(35, 33, 29, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font: 500 10px/20px var(--font-mono, monospace);
+  white-space: nowrap;
+}
+
+.badgeOn {
+  background: var(--text-primary, #23211d);
+  color: var(--v2-surface, #f8f7f4);
+}
+
+.legend {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font: 500 10px/12px var(--font-mono, monospace);
+  color: var(--assist-ink, #144161);
+  pointer-events: none;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: opacity 0.2s ease;
+}
+
+.legendDim {
+  opacity: 0.45;
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 2px;
+  margin-top: 4px;
+}
+
+/* 44 px tap target around a 32 px pill */
+.chip {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text-primary, #23211d);
+  font: 600 0.78125rem/1 var(--font-family, system-ui, sans-serif);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chip:disabled {
+  cursor: default;
+}
+
+.chipPill {
+  height: 32px;
+  padding: 0 7px;
+  border-radius: 999px;
+  box-sizing: border-box;
+  background: var(--v2-surface, #f8f7f4);
+  border: 1px solid var(--border, #dedad2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.chipOn .chipPill {
+  background: var(--text-primary, #23211d);
+  border-color: var(--text-primary, #23211d);
+  color: var(--v2-surface, #f8f7f4);
+}
+
+.chip:focus-visible {
+  outline: none;
+}
+
+.chip:focus-visible .chipPill {
+  outline: 2px solid var(--accent-ink, #a8430c);
+  outline-offset: 2px;
+}
+
+.chipCount {
+  font: 500 0.6875rem/1 var(--font-mono, monospace);
+  opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chipPill,
+  .legendItem {
+    transition: none;
+  }
+}

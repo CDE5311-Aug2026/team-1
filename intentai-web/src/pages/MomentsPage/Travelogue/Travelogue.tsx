@@ -2,6 +2,9 @@
 // carousel, or four pictures on X), choose the pictures from the day's strip, and the caption and hashtags are written
 // for you (by Claude through /api/caption when the server has a key, else on the device). Share hands the pictures to
 // the phone's share sheet and copies the caption, since WeChat and Instagram drop text that comes with pictures.
+// v2 (owner, 9 Nov 2026: "Travelogue still old ui/ux"): the light survey-chart paper with its slowly turning brass
+// roses (Hunt's ChartPaper; still when motion is reduced), a white post card as the live preview, and the steps in
+// order under it: where it goes, the pictures, the caption's tone, then one orange Share.
 import {
   AnimatePresence,
   LayoutGroup,
@@ -28,6 +31,7 @@ import {
   type Tone,
 } from "../../../data/journal/travelogue";
 import Icon from "../../OnboardingPage/v3/icons";
+import { ChartPaper } from "../../../components/Paper/ChartPaper";
 import Sheet from "../Sheet/Sheet";
 import { renderDayCard, renderFrame, toFile } from "./render";
 import styles from "./Travelogue.module.css";
@@ -246,6 +250,7 @@ export default function Travelogue({
       {/* focus lands on the studio itself, not on Close */}
       {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
       <div className={styles.studio} tabIndex={-1} autoFocus>
+        <ChartPaper variant="archive" className={styles.chart} />
         <header className={styles.bar}>
           <button
             type="button"
@@ -271,6 +276,9 @@ export default function Travelogue({
           </button>
         </header>
 
+        <p className={styles.step} aria-hidden="true">
+          <b>1</b> Where it goes
+        </p>
         <div
           className={styles.switch}
           role="tablist"
@@ -318,6 +326,9 @@ export default function Travelogue({
               </span>
             </div>
 
+            <p className={styles.preview} aria-hidden="true">
+              Preview
+            </p>
             {editing ? (
               <textarea
                 className={styles.edit}
@@ -347,6 +358,9 @@ export default function Travelogue({
                   </motion.span>
                 </AnimatePresence>
                 {writing && <i className={styles.writing} aria-hidden="true" />}
+                <span className={styles.editHint} aria-hidden="true">
+                  {writing ? "Writing…" : "Tap to edit"}
+                </span>
               </button>
             )}
 
@@ -417,6 +431,12 @@ export default function Travelogue({
           </motion.article>
         </div>
 
+        <p className={styles.step} aria-hidden="true">
+          <b>2</b> Pictures
+          <span className={styles.count}>
+            {items.length} of {spec.max}
+          </span>
+        </p>
         <div className={styles.strip} aria-label="Pictures">
           {([CARD, ...frames] as (Frame | typeof CARD)[]).map((f) => {
             const id = f === CARD ? CARD : f.id;
@@ -451,6 +471,9 @@ export default function Travelogue({
           })}
         </div>
 
+        <p className={styles.step} aria-hidden="true">
+          <b>3</b> Caption
+        </p>
         <div className={styles.tones}>
           {TONES.map((t) => (
             <button

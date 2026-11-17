@@ -1,36 +1,38 @@
-/* The journal: one block per day — the date in big type, a pinned print of the day with its tally card behind,
-   and a dark log of what happened, each line with an icon and a tag. */
+/* The journal, v2 (owner, 9 Nov 2026): on the app's chart paper like Passport. One v2 card per day: the date and,
+   right beneath it, the day's map on the left; the day's photo on the right; then a row for each place. */
 .journal {
-  margin: 0 0 30px;
-  color: var(--cream);
+  margin: 0;
+  color: var(--text-primary);
 }
 .head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 0 0 16px;
+  gap: 12px;
+  margin: 0 0 12px;
 }
 .head h2 {
   margin: 0;
-  font-size: 1.75rem;
-  line-height: 1.1;
-  color: var(--cream);
+  font: 500 1.5rem/1.1 var(--font-display);
+  color: var(--text-primary);
 }
 .add {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   justify-content: center;
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid rgba(232, 201, 131, 0.45);
+  border: 0;
   border-radius: 999px;
-  background: rgba(232, 201, 131, 0.08);
-  color: var(--brass);
-  font: 500 0.9375rem/1 var(--font-display);
-  letter-spacing: 0.02em;
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  color: var(--text-primary);
   cursor: pointer;
+}
+.add:hover {
+  background: #fff;
 }
 .file {
   position: absolute;
@@ -40,75 +42,101 @@
   overflow: hidden;
   pointer-events: none;
 }
-.add {
-  position: relative;
-}
 .add:focus-within,
 .more:focus-visible,
 .polaroid:focus-visible,
 .shareDay:focus-visible,
 .replace:focus-within {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--text-primary);
   outline-offset: 2px;
 }
+.tools {
+  display: inline-flex;
+  gap: 8px;
+}
 
-/* ---- a day ---- */
+/* ---- a day: one v2 card ---- */
 .day {
   position: relative;
-  margin: 0 0 28px;
+  margin: 0 0 16px;
+  padding: 16px;
+  border-radius: var(--v2-r-card);
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  /* opened from the Passport (#day-…): land below the sticky top bar */
+  scroll-margin-top: 96px;
 }
-/* the date and the day's numbers on the left, a fan of prints on the right reaching down over the log */
+/* Wide: the date with the map right beneath it on the left, the photo on the right beside both. */
 .top {
-  position: relative;
-  z-index: 2;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  grid-template-areas:
+    "side photo"
+    "map photo"
+    "credit credit";
+  grid-template-rows: auto 1fr auto;
+  gap: 12px 16px;
   align-items: start;
-  gap: 12px;
-  margin-bottom: -30px;
+}
+.top:not(.withPhoto) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "side"
+    "map"
+    "credit";
+}
+.top:not(.withMap) {
+  grid-template-areas:
+    "side photo"
+    "side photo";
+}
+.top:not(.withMap):not(.withPhoto) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "side";
+  grid-template-rows: auto;
 }
 .side {
+  grid-area: side;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 16px;
   min-width: 0;
 }
 .date {
   display: grid;
-  grid-template-columns: auto;
-  margin: 2px 0 0;
+  margin: 0;
   line-height: 1;
 }
 .date b {
-  font: 500 4.5rem/0.9 var(--font-display);
+  font: 500 3.5rem/0.9 var(--font-display);
   letter-spacing: -0.01em;
-  color: var(--cream);
+  color: var(--text-primary);
 }
 .date span {
-  margin-top: 6px;
-  font: 500 1rem/1 var(--font-display);
+  margin-top: 4px;
+  font: 600 0.875rem/1 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: var(--accent-ink);
 }
 .date small {
   margin-top: 4px;
-  font: italic 400 0.9375rem/1 var(--serif);
-  color: var(--cream-soft);
+  font: 400 0.875rem/1 var(--font-body, system-ui);
+  color: var(--text-secondary);
 }
 .areas {
   display: flex;
   flex-direction: column;
   gap: 3px;
   margin: 0;
-  font: 500 0.75rem/1.35 var(--font-mono);
-  letter-spacing: 0.06em;
+  font: 600 0.6875rem/1.35 var(--font-mono);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--brass);
+  color: var(--v2-ink-2);
 }
 .areas span {
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 .tally {
   display: flex;
@@ -123,56 +151,91 @@
 }
 .tally dt {
   font: 500 1.25rem/1 var(--font-display);
-  color: var(--cream);
+  color: var(--text-primary);
 }
 .tally dd {
   margin: 0;
-  font: italic 400 0.8125rem/1 var(--serif);
-  color: var(--cream-soft);
+  font: 400 0.8125rem/1 var(--font-body, system-ui);
+  color: var(--text-secondary);
 }
-/* share the day: a brass seal */
+/* share the day as a travelogue */
 .shareDay {
   display: grid;
   place-items: center;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
   padding: 0;
   border: 0;
   border-radius: 999px;
-  color: #fff6e6;
-  background: radial-gradient(circle at 35% 30%, #d8653a, #a33d1f 70%);
-  box-shadow:
-    0 3px 0 #6e2610,
-    0 8px 16px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  color: #fff;
+  background: var(--text-primary);
   cursor: pointer;
-  transition: transform 0.15s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 .shareDay:active {
-  transform: translateY(2px) scale(0.96);
+  transform: translateY(1px);
 }
 
-/* the fan of prints, in 3D */
+/* the day's map: in its cell, as tall as the room beside the photo */
+.map {
+  grid-area: map;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-width: 0;
+  margin: 0;
+}
+.mapBox {
+  position: relative;
+  /* the map's zoom keys sit close to its edge (a bleed CityMap places them at the gutter) */
+  --gutter: 8px;
+  flex: 1;
+  min-height: 180px;
+  border-radius: var(--v2-r-media);
+  overflow: hidden;
+  background: #9dbbe0;
+}
+.credit {
+  grid-area: credit;
+  margin: -4px 0 0;
+  padding: 0 2px;
+  font: 400 0.6875rem/1.35 var(--font-body, system-ui);
+  color: var(--text-secondary);
+}
+.credit a {
+  color: inherit;
+}
+/* wraps on a narrow phone instead of running off the card */
+.credit,
+.credit * {
+  white-space: normal;
+}
+.credit > * {
+  display: inline;
+}
+
+/* the day's photo: the place's own photo at full size; swipe for the next */
 .stack {
+  grid-area: photo;
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 4.6;
-  margin-top: 16px;
   perspective: 800px;
 }
 .polaroid {
   position: absolute;
-  inset: 0 6% 0 6%;
+  /* room for the fanned prints behind, so they stay inside the day's card */
+  inset: 2% 7%;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 7px 7px 0;
+  padding: 6px 6px 0;
   border: 0;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #faf4e4, #ede2c8);
+  border-radius: var(--v2-r-media);
+  background: #fff;
   box-shadow:
-    0 16px 26px rgba(0, 0, 0, 0.5),
-    0 2px 4px rgba(0, 0, 0, 0.3);
+    0 10px 22px rgba(35, 33, 29, 0.16),
+    0 1px 3px rgba(35, 33, 29, 0.12);
   transform-style: preserve-3d;
   cursor: pointer;
   user-select: none;
@@ -185,85 +248,95 @@
   flex: 1;
   min-height: 0;
   object-fit: cover;
-  border-radius: 1px;
+  border-radius: 10px;
   pointer-events: none;
 }
 /* the place's whole name, on two lines if it needs them */
 .polaroid span {
   flex: none;
-  padding: 2px 2px 7px;
-  font: italic 400 0.8125rem/1.15 var(--serif);
-  color: var(--ink-soft);
+  padding: 2px 4px 8px;
+  font: 500 0.8125rem/1.2 var(--font-body, system-ui);
+  color: var(--v2-ink-2);
   text-align: center;
   overflow-wrap: anywhere;
 }
-/* a strip of tape on the top print */
-.polaroid::before {
-  content: "";
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  width: 54px;
-  height: 16px;
-  margin-left: -27px;
-  background: rgba(236, 226, 196, 0.72);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-  transform: rotate(3deg);
-}
 .count {
   position: absolute;
-  right: 2px;
-  top: -6px;
+  right: 8px;
+  top: 8px;
   z-index: 9;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font: 500 0.6875rem/1 var(--font-mono);
-  color: var(--cream);
-  background: rgba(20, 12, 6, 0.72);
+  padding: 5px 9px;
   border: 0;
+  border-radius: 999px;
+  font: 600 0.75rem/1 var(--font-mono);
+  color: #fff;
+  background: rgba(35, 33, 29, 0.78);
   cursor: pointer;
 }
 /* a finger's worth of target around the small count */
 .count::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -14px -8px;
 }
 .count:hover {
-  background: rgba(20, 12, 6, 0.92);
+  background: rgba(35, 33, 29, 0.92);
 }
 .count:focus-visible {
-  outline: 2px solid var(--cream);
+  outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
-/* ---- the log: a map of the day, then a card for each place ---- */
+/* Phone: the date across the top, then the map | the photo side by side. */
+@media (max-width: 559px) {
+  .day {
+    padding: 14px 12px;
+  }
+  .top {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "side side"
+      "map photo"
+      "credit credit";
+    grid-template-rows: auto auto auto;
+    gap: 12px 10px;
+  }
+  .top:not(.withPhoto) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "side"
+      "map"
+      "credit";
+  }
+  /* the name is in the row below; on a phone the photo keeps the room */
+  .polaroid span {
+    display: none;
+  }
+  .polaroid {
+    padding-bottom: 6px;
+  }
+  .top:not(.withMap) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "side photo";
+  }
+  .top:not(.withMap):not(.withPhoto) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "side";
+  }
+  .date b {
+    font-size: 3rem;
+  }
+  .stack {
+    aspect-ratio: 4 / 5;
+  }
+  .mapBox {
+    min-height: 150px;
+  }
+}
+
+/* ---- the places of the day ---- */
 .log {
-  margin: 0;
-  padding: 40px 0 4px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #2c231a, #241c15);
-  border: 1px solid rgba(232, 201, 131, 0.16);
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
-}
-/* the day's route on the street map, in the journal's sepia */
-.map {
-  position: relative;
-  margin: 0 12px 6px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(232, 201, 131, 0.3);
-  box-shadow: inset 0 0 0 3px rgba(20, 12, 6, 0.35);
-  filter: sepia(0.22) saturate(0.92);
-}
-.credit {
-  padding: 4px 8px 5px;
-  font: 400 0.625rem/1.3 var(--font-body, system-ui);
-  color: rgba(242, 232, 213, 0.6);
-  background: #1d1711;
-}
-.credit a {
-  color: inherit;
+  margin: 14px 0 0;
 }
 .cards {
   list-style: none;
@@ -272,20 +345,22 @@
 }
 .card {
   scroll-margin: 90px 0 20px;
+  border-radius: var(--v2-r-control);
 }
 .cards .card + .card {
-  border-top: 1px solid rgba(232, 201, 131, 0.1);
+  border-top: 1px solid var(--border, #e3e0d9);
 }
 .card.open {
-  background: rgba(232, 201, 131, 0.06);
+  background: #fff;
 }
 .row {
   display: grid;
-  grid-template-columns: 64px 1fr;
+  grid-template-columns: 60px 1fr;
   column-gap: 12px;
   align-items: center;
   width: 100%;
-  padding: 10px 14px;
+  min-height: 44px;
+  padding: 10px 4px;
   box-sizing: border-box;
   border: 0;
   background: none;
@@ -295,22 +370,19 @@
   cursor: pointer;
 }
 .row:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--text-primary);
   outline-offset: -2px;
 }
-/* the place's picture, a small print with its number from the map */
+/* the place's picture with its number from the map */
 .thumb {
   position: relative;
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
-  padding: 3px;
-  border-radius: 2px;
-  color: var(--brass);
-  background: #faf4e4;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-  box-sizing: border-box;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  background: var(--v2-surface-sunk);
 }
 .thumb img,
 .thumb .ground {
@@ -318,6 +390,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 12px;
 }
 .num {
   position: absolute;
@@ -329,18 +402,17 @@
   height: 22px;
   padding: 0 4px;
   box-sizing: border-box;
+  border: 2px solid var(--v2-surface);
   border-radius: 999px;
-  font: 500 0.75rem/1 var(--font-display);
+  font: 600 0.75rem/1 var(--font-display);
   font-style: normal;
-  color: #fff6e6;
-  background: radial-gradient(circle at 35% 30%, #d8653a, #a33d1f 70%);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+  color: #fff;
+  background: var(--text-primary);
 }
 /* the ground map under a place with no picture, with a dot where it is */
 .ground {
   position: relative;
   background-repeat: no-repeat;
-  filter: sepia(0.35);
 }
 .ground i {
   position: absolute;
@@ -350,8 +422,8 @@
   height: 10px;
   margin: -5px 0 0 -5px;
   border-radius: 50%;
-  background: var(--orange);
-  box-shadow: 0 0 0 3px rgba(255, 246, 230, 0.8);
+  background: var(--accent-ink);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85);
 }
 .body {
   display: flex;
@@ -362,32 +434,28 @@
 .body b {
   font: 500 1.0625rem/1.2 var(--font-display);
   letter-spacing: 0.01em;
-  color: var(--cream);
+  color: var(--text-primary);
 }
 .body span {
-  font: 400 0.875rem/1.3 var(--serif);
-  color: var(--cream-soft);
+  font: 400 0.875rem/1.35 var(--font-body, system-ui);
+  color: var(--text-secondary);
 }
 .body small {
-  font: 500 0.6875rem/1.2 var(--font-display);
+  font: 600 0.6875rem/1.2 var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--orange);
+  color: var(--accent-ink);
 }
 .body small time {
-  color: rgba(242, 232, 213, 0.55);
+  color: var(--text-secondary);
 }
-/* an opened card: the picture large, what was found there, your photos of it */
+/* an opened row: the picture large, what was found there, your photos of it */
 .more2 {
   overflow: hidden;
-  padding: 0 14px 14px;
+  padding: 0 4px 14px;
 }
 .print {
   margin: 2px 0 10px;
-  padding: 6px 6px 0;
-  background: linear-gradient(180deg, #faf4e4, #ede2c8);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45);
-  transform: rotate(-0.6deg);
 }
 .print img,
 .print .ground {
@@ -395,21 +463,21 @@
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
+  border-radius: var(--v2-r-media);
 }
 .print > svg {
   display: block;
   margin: 30px auto;
 }
 .print figcaption {
-  height: 26px;
-  font: italic 400 0.8125rem/26px var(--serif);
-  color: var(--ink-soft);
-  text-align: center;
+  padding-top: 6px;
+  font: 400 0.75rem/1.3 var(--font-body, system-ui);
+  color: var(--text-secondary);
 }
 .detail {
   margin: 0 0 12px;
-  font: 400 0.9375rem/1.45 var(--serif);
-  color: var(--cream-soft);
+  font: 400 0.9375rem/1.5 var(--font-body, system-ui);
+  color: var(--v2-ink-2);
 }
 .shots {
   display: flex;
@@ -422,14 +490,14 @@
   width: 56px;
   height: 56px;
   padding: 0;
-  border-radius: 4px;
+  border-radius: 10px;
   overflow: hidden;
   box-sizing: border-box;
   cursor: pointer;
 }
 .shot {
-  border: 2px solid #faf4e4;
-  background: #1d1711;
+  border: 0;
+  background: var(--v2-surface-sunk);
 }
 .shot img {
   width: 100%;
@@ -439,13 +507,13 @@
 .addShot {
   display: grid;
   place-items: center;
-  border: 1.5px dashed rgba(232, 201, 131, 0.55);
-  color: var(--brass);
-  background: rgba(232, 201, 131, 0.06);
+  border: 1.5px dashed var(--border-strong, #b9b3a8);
+  color: var(--text-primary);
+  background: transparent;
 }
 .addShot:focus-within,
 .shot:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--text-primary);
   outline-offset: 2px;
 }
 .span {
@@ -453,20 +521,24 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin: 10px 0 0;
+  min-height: 44px;
+  margin: 6px 0 0;
   font: 500 0.875rem/1 var(--font-display);
-  letter-spacing: 0.08em;
-  color: rgba(242, 232, 213, 0.6);
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
 }
 .more {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-height: 44px;
   margin: 4px auto 0;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border: 0;
-  background: none;
-  color: var(--brass);
+  border-radius: 999px;
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-card);
+  color: var(--text-primary);
   font: 500 0.9375rem/1 var(--font-display);
   letter-spacing: 0.04em;
   cursor: pointer;
@@ -549,11 +621,6 @@
   background: #7a1f12;
   color: #fbf3e2;
 }
-.tools {
-  display: inline-flex;
-  gap: 8px;
-}
-
 /* the photo editor */
 .previewBox {
   position: relative;

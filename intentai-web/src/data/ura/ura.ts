@@ -9,6 +9,7 @@ import type { CuratedPlace } from '../../features/nearby/domain';
 import type { XY } from '../../features/nearby/map/projection';
 import uraJson from './areas.json';
 import placeAreasJson from './placeAreas.json';
+import offshoreJson from './offshore.json';
 
 export type RegionId = 'central' | 'east' | 'north' | 'north-east' | 'west';
 
@@ -47,6 +48,11 @@ export const uraArea = (id: string | undefined) => (id ? areaById.get(id) : unde
 export const uraRegion = (id: string | undefined) => URA_REGIONS.find((r) => r.id === id);
 export const areasOf = (region: RegionId) => URA_AREAS.filter((a) => a.region === region);
 export const areaOfPlace = (placeId: string) => uraArea(PLACE_AREA[placeId]);
+
+// Places on an offshore island (Sentosa, the Southern Islands, Pulau Ubin…). They still resolve to their nearest
+// planning area above; this only marks them (amendment A4). Built by scripts/ura/build-ura.py.
+const OFFSHORE = new Set(offshoreJson as string[]);
+export const isOffshore = (placeId: string): boolean => OFFSHORE.has(placeId);
 
 const placesByArea = new Map<string, CuratedPlace[]>();
 for (const p of PUBLISHED_PLACES) {

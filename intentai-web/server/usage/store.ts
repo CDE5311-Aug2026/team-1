@@ -53,6 +53,12 @@ export interface RedisLike {
   del(key: string): Promise<unknown>;
 }
 
+/** The two commands a fixed-window rate limit needs (Upstash and node-redis both have them). */
+export interface CounterLike {
+  incr(key: string): Promise<number>;
+  expire(key: string, seconds: number): Promise<unknown>;
+}
+
 const KEY = 'intentai:usage';
 /** Oldest events are dropped past this many, so a flood of public posts can't grow the list forever. */
 export const MAX_EVENTS = 200_000;
@@ -79,7 +85,7 @@ export function redisStore(client: RedisLike): UsageStore {
  * A Redis server over TCP (REDIS_URL, e.g. Vercel's Redis Cloud integration). One connection per function instance,
  * opened on first use and kept for the next requests while the instance is warm; a failed connect is retried next time.
  */
-export function tcpRedis(url: string, connect: (url: string) => Promise<TcpClient> = connectTcp): RedisLike {
+export function tcpRedis(url: string, connect: (url: string) => Promise<TcpClient> = connectTcp): RedisLike & CounterLike {
   let client: Promise<TcpClient> | null = null;
   const get = () => {
     client ??= connect(url).catch((error: unknown) => {
@@ -93,6 +99,8 @@ export function tcpRedis(url: string, connect: (url: string) => Promise<TcpClien
     ltrim: async (key, start, stop) => (await get()).lTrim(key, start, stop),
     lrange: async (key, start, stop) => (await get()).lRange(key, start, stop),
     del: async (key) => (await get()).del(key),
+    incr: async (key) => (await get()).incr(key),
+    expire: async (key, seconds) => (await get()).expire(key, seconds),
   };
 }
 
@@ -102,6 +110,8 @@ export interface TcpClient {
   lTrim(key: string, start: number, stop: number): Promise<unknown>;
   lRange(key: string, start: number, stop: number): Promise<unknown[]>;
   del(key: string): Promise<unknown>;
+  incr(key: string): Promise<number>;
+  expire(key: string, seconds: number): Promise<unknown>;
 }
 
 async function connectTcp(url: string): Promise<TcpClient> {
@@ -121,7 +131,7 @@ export function storeFromEnv(env: Record<string, string | undefined>): UsageStor
 }
 
 /** The Redis connection the env describes (same rules as storeFromEnv), for other lists such as Help feedback. */
-export function redisFromEnv(env: Record<string, string | undefined>): RedisLike | null {
+export function redisFromEnv(env: Record<string, string | undefined>): (RedisLike & CounterLike) | null {
   const url = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL;
   const token = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN;
   if (url && token) return new Redis({ url, token, automaticDeserialization: false });

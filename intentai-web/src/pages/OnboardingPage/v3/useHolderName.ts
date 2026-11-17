@@ -1,8 +1,9 @@
 import { usePersistentStore } from '../../../data/persistentStore';
-import { testerStore } from '../../../data/stores';
+import { passportNameStore } from '../../../data/v2Stores';
 
-/** The passport holder's name: the name typed at the start screen, else W (the Figma holder). */
+/** The passport holder's name from onboarding's "Whose passport is this?" (owner, 10 Nov 2026), or '' before it is
+ *  given. Not the user-test name, which only labels a session. Callers show their own no-name look (no made-up "W"). */
 export default function useHolderName(): string {
-  const [tester] = usePersistentStore(testerStore);
-  return tester.name || 'W';
+  const [passport] = usePersistentStore(passportNameStore);
+  return passport.name.trim();
 }

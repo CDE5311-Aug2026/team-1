@@ -1,10 +1,10 @@
-// The 3D view in Nearby: opened only on request, the position never in the address sent to a server,
+// The 3D view on a place page: opened only on request, the position never in the address sent to a server,
 // talking to the 3D page only through its own iframe, and removed (memory freed) when the user leaves 3D.
+// (The v1 explorer's own 3D view was retired with /nearby on 8 Nov 2026.)
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { describe, expect, test, vi } from 'vitest';
-import ExplorePage from './ExplorePage';
+import { describe, expect, test } from 'vitest';
 import PlaceDetailPage from './PlaceDetailPage';
 
 function Where() {
@@ -16,7 +16,6 @@ function renderAt(path: string) {
   return render(
     <MemoryRouter useTransitions={false} initialEntries={[path]}>
       <Routes>
-        <Route path="/nearby" element={<ExplorePage />} />
         <Route path="/nearby/place/:placeKey" element={<PlaceDetailPage />} />
       </Routes>
       <Where />
@@ -29,146 +28,6 @@ const fromFrame = (data: unknown, source: Window | null = frame()!.contentWindow
   act(() => {
     window.dispatchEvent(new MessageEvent('message', { data, source }));
   });
-
-describe('Explore in 3D', () => {
-  test('nothing loads until the user picks 3D; then it opens over the 2D view, without a pin', async () => {
-    renderAt('/nearby');
-    expect(frame()).toBeNull();
-    // the 2D map reports its view once it rests (250 ms); 3D then opens there, not at Marina Bay
-    await act(() => new Promise((r) => setTimeout(r, 300)));
-    await userEvent.click(screen.getByRole('button', { name: '3D' }));
-    expect(screen.getByTestId('where')).toHaveTextContent('view=3d');
-    const f = frame()!;
-    expect(f).toHaveAttribute('title', '3D view of Singapore');
-    const src = f.getAttribute('src')!;
-    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&pin=0&span=\d+&cards=0$/);
-    expect(src).not.toContain('at=1.28680%2C103.85450');
-    expect(screen.getByText(/Loading 3D… The first time downloads up to 19 MB/)).toBeInTheDocument();
-    // as in a maps app, the button now offers the other view
-    expect(screen.queryByRole('button', { name: '3D' })).toBeNull();
-    // 3D off again: the 2D map is back and the iframe (and its memory) is gone
-    await userEvent.click(screen.getByRole('button', { name: '2D' }));
-    expect(screen.getByRole('application', { name: /Map of Singapore places/ })).toBeInTheDocument();
-    expect(frame()).toBeNull();
-  });
-
-  test('there is always a way out of 3D: the 2D button, Esc, or Back', async () => {
-    renderAt('/nearby?area=sg-chinatown');
-    await userEvent.click(screen.getByRole('button', { name: '3D' }));
-    await userEvent.click(screen.getByRole('button', { name: '2D' }));
-    expect(screen.getByTestId('where')).not.toHaveTextContent('view=3d');
-    expect(frame()).toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: '3D' }));
-    await userEvent.keyboard('{Escape}');
-    expect(screen.getByTestId('where')).toHaveTextContent(/^\/nearby\?area=sg-chinatown$/);
-  });
-
-  test('3D keeps the page around it: search, Editor’s picks, the area and the list; the list’s places are its pins', async () => {
-    renderAt('/nearby?list=sg-hawker-centres');
-    const list = screen.getAllByRole('button', { name: /^(?!View details)/ }).length;
-    expect(list).toBeGreaterThan(0);
-    await userEvent.click(screen.getByRole('button', { name: '3D' }));
-    expect(screen.getByRole('search')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: "Editor's picks" })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Hawker centres to know' })).toBeInTheDocument();
-    const f = frame()!;
-    const post = vi.spyOn(f.contentWindow!, 'postMessage');
-    fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    const pins = post.mock.calls.map(([m]) => m as { type: string; pins?: { key: string; cat: string }[] }).find((m) => m.type === 'pins')!;
-    expect(pins.pins).toHaveLength(10);
-    expect(pins.pins!.every((p) => p.cat === 'food')).toBe(true);
-    // a tap on a pin in 3D selects that place, as on the 2D map, and the sheet opens to show it
-    fromFrame({ source: 'earth-online-lite', type: 'pick', key: pins.pins![0].key });
-    expect(screen.getByTestId('where')).toHaveTextContent(`sel=${encodeURIComponent(pins.pins![0].key)}`);
-    expect(screen.getByRole('region', { name: 'Selected place' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Places' })).toHaveAttribute('data-detent', 'half');
-  });
-
-  test('3D has the 2D map’s zoom and recenter buttons; recenter shows the whole list again', async () => {
-    renderAt('/nearby?list=sg-hawker-centres&view=3d');
-    const f = frame()!;
-    const post = vi.spyOn(f.contentWindow!, 'postMessage');
-    fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    await userEvent.click(screen.getByRole('button', { name: 'Zoom in' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
-    const zooms = post.mock.calls.map(([m]) => m as { type: string; k?: number }).filter((m) => m.type === 'zoom');
-    expect(zooms.map((z) => z.k! < 1)).toEqual([true, false]);
-    // the 3D view reports where it rests; recenter goes back to the list, as wide as all its places
-    fromFrame({ source: 'earth-online-lite', type: 'view', at: [1.3, 103.8], span: 900 });
-    await userEvent.click(screen.getByRole('button', { name: 'Recenter map' }));
-    const show = post.mock.calls.map(([m]) => m as { type: string; span?: number }).filter((m) => m.type === 'show').pop()!;
-    expect(show.span).toBeGreaterThan(2000);
-  });
-
-  test('an area opens 3D on the area; the point is in the hash only, never in the query', () => {
-    renderAt('/nearby?view=3d&area=sg-chinatown');
-    const src = frame()!.getAttribute('src')!;
-    expect(src).toMatch(/^\/earth-online\/sg\/lite\.html#at=1\.\d{5}%2C103\.\d{5}&pin=0&span=\d+&cards=0$/);
-    expect(new URL(src, 'https://intentai.test').search).toBe('');
-  });
-
-  test('a selected place opens its landmark card; selecting another one moves the 3D view instead of reloading', async () => {
-    renderAt('/nearby?view=3d&area=sg-marina-bay&sel=curated%3Asg-merlion-park');
-    const f = frame()!;
-    expect(f.getAttribute('src')).toContain('card=merlion');
-    const post = vi.spyOn(f.contentWindow!, 'postMessage');
-    fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    expect(screen.queryByText(/Loading 3D/)).toBeNull();
-    const other = screen.getAllByRole('button', { name: /^(?!Merlion Park$).+/ }).find((b) => b.getAttribute('aria-pressed') === 'false' && b.closest('h3'))!;
-    await userEvent.click(other);
-    const shows = post.mock.calls.filter(([m]) => (m as { type: string }).type === 'show');
-    expect(shows).toHaveLength(1);
-    const [msg] = shows[0];
-    expect(msg).toMatchObject({ source: 'intentai', type: 'show' });
-    expect((msg as { at: number[] }).at).toHaveLength(2);
-    expect(frame()).toBe(f);
-    expect(f.getAttribute('src')).toContain('card=merlion');
-  });
-
-  test('My location in 3D: the view goes to you and shows your blue dot (by message only), again after the page reloads', async () => {
-    const getCurrentPosition = vi.fn((ok: PositionCallback) =>
-      ok({ coords: { latitude: 1.2803, longitude: 103.8447, accuracy: 15 }, timestamp: 1 } as unknown as GeolocationPosition),
-    );
-    Object.defineProperty(navigator, 'geolocation', { value: { getCurrentPosition }, configurable: true });
-    renderAt('/nearby?view=3d&sel=curated%3Asg-merlion-park');
-    const f = frame()!;
-    const post = vi.spyOn(f.contentWindow!, 'postMessage');
-    fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    // no position asked for: nothing about you is sent (only what the page covers, and the list's pins)
-    expect(post.mock.calls.map(([m]) => (m as { type: string }).type)).toEqual(['insets', 'pins']);
-    await userEvent.click(screen.getByRole('button', { name: 'My location' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    await screen.findByRole('button', { name: /Near you/ });
-    // the selected place steps aside and the view flies to you, without a pin (the dot marks you)
-    expect(screen.getByTestId('where')).not.toHaveTextContent('sel=');
-    const msgs = post.mock.calls.map(([m]) => m as { type: string; at: number[] | null; pin?: boolean; acc?: number });
-    expect(msgs).toContainEqual(expect.objectContaining({ type: 'you', at: [1.2803, 103.8447], acc: 15 }));
-    expect(msgs).toContainEqual(expect.objectContaining({ type: 'show', at: [1.2803, 103.8447], pin: false }));
-    expect(f.getAttribute('src')).not.toContain('1.2803');
-    // a reload around a far point says 'ready' again: the dot is sent again
-    post.mockClear();
-    fromFrame({ source: 'earth-online-lite', type: 'ready' });
-    expect(post.mock.calls.map(([m]) => (m as { type: string }).type).sort()).toEqual(['insets', 'pins', 'you']);
-  });
-
-  test('a landmark tapped in 3D selects that place in the sheet; messages from anywhere else are ignored', () => {
-    renderAt('/nearby?view=3d');
-    // Explore shows the place in its own sheet, so the 3D page's card sheet is hidden
-    expect(frame()!.getAttribute('src')).toContain('cards=0');
-    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'esplanade', title: 'x' }, window);
-    expect(screen.getByTestId('where')).not.toHaveTextContent('sel=');
-    fromFrame({ source: 'someone-else', type: 'card', key: 'esplanade' });
-    expect(screen.getByTestId('where')).not.toHaveTextContent('sel=');
-    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'esplanade', title: '滨海艺术中心' });
-    expect(screen.getByTestId('where')).toHaveTextContent('sel=curated%3Asg-esplanade-theatres-on-the-bay');
-    expect(screen.getByRole('region', { name: 'Selected place' })).toHaveTextContent('Esplanade');
-    // a landmark that is not one of our places: its name from the 3D card, nothing selected
-    fromFrame({ source: 'earth-online-lite', type: 'card', key: 'sg-no-such-landmark', title: 'Some building' });
-    expect(screen.getByText('Some building')).toBeInTheDocument();
-    fromFrame({ source: 'earth-online-lite', type: 'card', key: null, title: null });
-    expect(screen.queryByText('Some building')).toBeNull();
-  });
-});
 
 describe('Place detail in 3D', () => {
   test('3D replaces the small map on request and opens the landmark card', async () => {

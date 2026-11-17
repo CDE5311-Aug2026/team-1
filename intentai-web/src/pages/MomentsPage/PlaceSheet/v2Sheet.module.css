@@ -1,0 +1,85 @@
+/* v2 (owner, 9 Nov 2026: "upgrade the moment screens"): Moments' bottom sheets (a stamp's page, rank and badges) as the
+   app's light v2 sheet instead of parchment over the dark desk. Given to Sheet as its className (on the <dialog>), so the
+   shared Sheet keeps its focus trap, Escape and backdrop click. It sets its own palette, so nothing here leans on the
+   page's desk variables. */
+.sheet {
+  --ink: var(--text-primary);
+  --ink-soft: var(--v2-muted);
+  --ink-faint: var(--border);
+  --red-ink: var(--accent-ink);
+  --orange: var(--accent);
+  --cream: #fff;
+  --paper-color: var(--v2-surface);
+  color: var(--text-primary);
+}
+
+.sheet.sheet::backdrop {
+  background: rgba(35, 33, 29, 0.42);
+}
+
+/* the panel: Sheet's first child */
+.sheet.sheet > div {
+  border-radius: 24px 24px 0 0;
+  background: var(--v2-surface);
+  box-shadow: var(--v2-shadow-bar);
+}
+
+/* its grab handle */
+.sheet.sheet > div > span:first-child {
+  background: var(--border-strong);
+}
+
+.sheet button[aria-label='Close'] img {
+  filter: none;
+  opacity: 0.75;
+}
+
+.sheet button[aria-label='Close']:focus-visible {
+  outline-color: var(--text-primary);
+}
+
+/* v2 buttons: the accent pill (as Hunt's "Got it") and a quiet surface pill */
+.primary,
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border-radius: 999px;
+  font: 600 1rem/1.1 var(--font-display);
+  letter-spacing: 0.2px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primary {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: var(--accent);
+  color: var(--text-primary);
+  box-shadow: var(--v2-shadow-card);
+}
+
+.secondary {
+  flex: 0 0 auto;
+  border: 1px solid var(--border-strong);
+  background: var(--v2-surface);
+  color: var(--text-primary);
+}
+
+.primary:active,
+.secondary:active {
+  transform: scale(0.98);
+}
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+}

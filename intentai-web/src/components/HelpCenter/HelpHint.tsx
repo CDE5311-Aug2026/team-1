@@ -1,7 +1,8 @@
 // A one-time pointer to the Help Center (user test round 1, heuristic 10: the evaluators did not find help). The first
-// time a top bar shows, a paper slip hangs under the lion badge for a few seconds: "Stuck? Tap the lion." Tapping it
-// opens Help; it never shows again once seen, dismissed or once Help has been opened.
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+// time a top bar shows, a paper slip points at the lion badge for a few seconds: "Stuck? Tap the lion." v2: it sits to
+// the lion's right inside the bar's row (over the page name), so it never covers the category chips under the bar.
+// Tapping it opens Help; × dismisses it; it never shows again once seen, dismissed or once Help has been opened.
+import { AnimatePresence, motion, useReducedMotionConfig } from 'motion/react';
 import { useEffect, useState } from 'react';
 import Icon from '../../pages/OnboardingPage/v3/icons';
 import { openHelp, useHelp } from './helpStore';
@@ -28,7 +29,7 @@ const markSeen = () => {
 };
 
 export default function HelpHint() {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionConfig();
   const { open } = useHelp();
   const [show, setShow] = useState(false);
 
@@ -54,23 +55,30 @@ export default function HelpHint() {
   return (
     <AnimatePresence>
       {show && (
-        <motion.button
-          type="button"
+        <motion.div
           className={styles.hint}
-          onClick={(e) => {
-            setShow(false);
-            openHelp('ask', e.currentTarget);
-          }}
-          initial={reduce ? { opacity: 0 } : { opacity: 0, y: -10, rotate: -6 }}
-          animate={{ opacity: 1, y: 0, rotate: -2 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+          initial={reduce ? { opacity: 0 } : { opacity: 0, x: -8 }}
+          animate={reduce ? { opacity: 1 } : { opacity: 1, x: 0 }}
+          exit={{ opacity: 0 }}
+          transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 320, damping: 22 }}
         >
-          <Icon name="hand" size={18} />
-          <span>
-            <b>Stuck?</b> Tap the lion for help
-          </span>
-        </motion.button>
+          <button
+            type="button"
+            className={styles.hintOpen}
+            onClick={(e) => {
+              setShow(false);
+              openHelp('ask', e.currentTarget);
+            }}
+          >
+            <Icon name="hand" size={16} className={styles.hintHand} />
+            <span>
+              <b>Stuck?</b> Tap the lion for help
+            </span>
+          </button>
+          <button type="button" className={styles.hintClose} aria-label="Dismiss the help tip" onClick={() => setShow(false)}>
+            <Icon name="close" size={14} />
+          </button>
+        </motion.div>
       )}
     </AnimatePresence>
   );

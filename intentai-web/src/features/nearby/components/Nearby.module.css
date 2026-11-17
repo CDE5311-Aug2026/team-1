@@ -320,7 +320,8 @@
 .textLink {
   font-size: var(--fs-button);
   font-weight: 600;
-  color: #b4500f;
+  /* v2 accent ink: #b4500f was 4.26:1 on the place page's linen (#eceae5) */
+  color: var(--accent-ink);
 }
 
 .primary:focus-visible,

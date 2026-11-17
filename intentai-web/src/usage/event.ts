@@ -18,7 +18,7 @@ export interface UsageEvent {
   at: number;
   /** Set when the span resumed after the tab was hidden: same visit, not a new one. */
   cont?: true;
-  /** Test name typed at the start screen (user test builds); never a real account. */
+  /** A name for this device in usage data, when one is set; never a real account. */
   user?: string;
 }
 

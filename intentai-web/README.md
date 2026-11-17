@@ -162,11 +162,11 @@ overwrites `places.sg.json`, so after editors start editing that file, apply dat
 
 ## User test: time per page and function, presses, and the dashboard
 
-- **Start screen.** Before the app opens, the person types a test name (e.g. `P01`; 1–40 letters, digits, spaces,
-  `. _ -`). It labels every record. Build with `VITE_USER_GATE=0` to turn the screen off. `/admin` is never behind it.
+- **No start screen.** The app opens straight to the current version (onboarding on a first visit). There is no A/B
+  version choice and no test-name screen; each device's records carry its anonymous usage id.
 - **What is recorded** (`src/usage/`): visible time per page, per section (Today tabs) and per activity (3D view,
   practise…), and every press on a button or link (`tap`: "Page › button name"; a link is recorded as the page it
-  opens, never its text). Never what people type. Records carry the test name.
+  opens, never its text). Never what people type.
 - **No server needed.** Every record also goes to this device's log (`intentai:v1:usage-log`, last 20,000 records,
   `src/usage/localLog.ts`). When the server is set up (`/api/track`, a Redis database — `REDIS_URL` (Redis Cloud) or the Upstash REST pair — + `ADMIN_PASSWORD`), records go
   there as well.
@@ -177,8 +177,8 @@ overwrites `places.sg.json`, so after editors start editing that file, apply dat
   presses) and pages nobody opened; every page's visits, median, P75, entries, exit rate, presses per minute;
   functions; most pressed buttons; the most common next page; where sessions end; people; and each session as a
   timeline. Filter by person. Export: this device as JSON, all records as CSV, the page summary as CSV.
-- **Running a test:** on each device, open the app and type the test name; after the session open `/admin` →
-  *This device* → *Export file (JSON)*, then *End test* so the next person types a new name. Collect the files on one
+- **Running a test:** on each device, open the app and use it; after the session open `/admin` →
+  *This device* → *Export file (JSON)*. Collect the files on one
   computer: `/admin` → *Files* → add them all. ("Delete all my data" in My Space deletes the device's records too.)
 
 ## Deployment-root migration and rollback

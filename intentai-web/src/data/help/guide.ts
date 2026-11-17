@@ -1,5 +1,7 @@
-// What the Help Center knows about the app. The same text briefs Claude on the server (server/help/handler.ts) and
+// What the Help Centre knows about the app. The same text briefs Claude on the server (server/help/handler.ts) and
 // answers on the device when the server has no key: each topic has words it matches and a short answer.
+// Redesign v2: tabs Home · Hunt · Passport, plus Search; the journal and stamps live in Passport; places are sorted into
+// the four Tourism 2040 categories (Attractions, Wellness, Leisure, Cruise). Answers only promise what the app does.
 // Keep this file free of imports so the server can load it as is.
 
 export interface HelpTopic {
@@ -17,56 +19,91 @@ export const TOPICS: HelpTopic[] = [
   {
     id: 'start',
     q: 'What can I do in FindSG?',
-    words: ['what', 'start', 'begin', 'how to use', 'about', 'app', 'new', 'first'],
-    a: 'FindSG turns walks around Singapore into stories. Home suggests places near you, Hunt has story hunts you play on real streets, Moments keeps your journal and stamps, and Passport holds your rank and settings. Tap the tabs at the bottom to move between them.',
+    words: ['what', 'start', 'begin', 'how to use', 'about', 'app', 'new', 'first', 'tabs'],
+    a: 'FindSG turns walks around Singapore into stories. Home suggests places in the categories you picked, Hunt has story hunts and challenges you play on real streets, and Passport keeps your journal, stamps and profile. Search finds places, challenges and volumes. Tap the tabs at the bottom to move between them.',
+  },
+  {
+    id: 'categories',
+    q: 'What are the four categories?',
+    words: ['category', 'categories', 'attractions', 'wellness', 'leisure', 'cruise', 'tourism 2040', 'filter', 'chips', 'rank'],
+    a: 'Places are sorted into four categories that follow the Singapore Tourism Board’s Tourism 2040 factsheet: Attractions, Wellness, Leisure and Cruise. The chips at the top of Home filter by them. To change which comes first, open Settings › Categories and tap them in your order, then Save.',
+    path: '/my-space/settings',
   },
   {
     id: 'checkin',
-    q: 'How do I check in at a place?',
-    words: ['check in', 'check-in', 'checkin', 'visit', 'been', 'stamp a place', '打卡'],
-    a: 'Open any place (from Home or the map) and tap Check in. It takes one tap and is dated today. The visit shows in your Moments journal, and the area it is in gets closer to its passport stamp.',
+    q: 'How do I stamp a place?',
+    words: ['check in', 'check-in', 'checkin', 'visit', 'been', 'stamp a place', 'stamp', '打卡'],
+    a: 'Open a place from Home, Search or the map and use its check-in button. It takes one tap and is dated today. The visit goes into your journal on Passport, and the area it is in moves closer to its passport stamp. Places marked coming soon cannot be stamped yet.',
     path: '/',
   },
   {
     id: 'hunt',
     q: 'How do story hunts work?',
-    words: ['hunt', 'story', 'stories', 'game', 'play', 'route', 'stop', 'puzzle', 'clue', '3d', 'model', 'remote', 'remotely'],
-    a: 'In Hunt, take a story book from the shelf and start a route. At each stop, walk to the real place and check in, spot the detail on the building, then use it to solve the 3D model. Or play remotely from anywhere; remote progress is kept separately and earns no Hunt points. Each find goes into your clue bag and the story moves on. The places and history are real; the characters are fiction.',
+    words: ['hunt', 'story', 'stories', 'game', 'play', 'route', 'stop', 'clue', 'photo', 'camera', 'medal', 'medals', 'tour', 'remote', 'remotely', 'volume'],
+    a: 'In Hunt, swipe through the public hunts at the top or pick any hunt in the list to open it. Read its opening and tap Start the hunt. At each stop, walk to the real place and tap Take photo: photograph the detail the stop asks for. When AI recognises it, the stop is passed, you get its clue and the next stop opens. If the photo is not recognised, take another. There is no remote play: every stop is passed on site with a photo. Tap ? in the hunt to see the tour of its buttons again. Finished hunts earn medals, on the Medals page (from Hunt or Passport). The places and history are real; the characters are fiction.',
     path: '/hunt',
   },
   {
     id: 'public',
-    q: 'What is the Public tab in Hunt?',
-    words: ['public', 'challenge', 'community', 'board', 'leaderboard', 'speed', 'rank list'],
-    a: 'Hunt › Public has community challenges and the boards. The Explore board counts places discovered and the Speed board times story runs. Open a challenge to jump straight into its story.',
-    path: '/hunt?tab=public',
+    q: 'How do public hunts work?',
+    words: ['public', 'together', 'challenge', 'challenges', 'community', 'board', 'leaderboard', 'hunters', 'others'],
+    a: 'With Public hunts on, Hunt and Home show leaderboards and open challenges, and Passport shows the leaderboard. The hunter names and counts in this test build are examples, and nothing about you or your location is sent. Turn it on or off in Settings › Public hunts.',
+    path: '/my-space/settings',
+  },
+  {
+    id: 'solo',
+    q: 'Can I hunt solo?',
+    words: ['solo', 'alone', 'on my own', 'by myself', 'private', 'without others', 'turn off public'],
+    a: 'Yes. Turn off Public hunts in Settings and the leaderboards are hidden. Stories and challenges are still there to play on your own, and your hunt region stays as you set it.',
+    path: '/my-space/settings',
+  },
+  {
+    id: 'region',
+    q: 'How do I change my hunt region?',
+    words: ['region', 'central', 'east', 'west', 'north', 'north-east', 'hunt region', 'area'],
+    a: 'Open Settings › Hunt region, tap a region on the map or its chip, then Save. Cancel leaves it as it was.',
+    path: '/my-space/settings',
   },
   {
     id: 'stamps',
     q: 'How do I earn passport stamps?',
-    words: ['stamp', 'stamps', 'passport', 'area', 'planning area', 'collect', 'ura'],
-    a: 'Each of Singapore’s planning areas has a stamp. Check in at places in an area and finish its stories to fill it in. You can see every stamp and how close you are in Moments, under Passport.',
-    path: '/moments',
+    words: ['stamps', 'passport', 'planning area', 'collect', 'ura'],
+    a: 'Each of Singapore’s planning areas has a stamp. Check in at places in an area and finish its stories to fill it in. Your stamps and how close you are to the next one are on the Passport tab.',
+    path: '/my-space',
+  },
+  {
+    id: 'journal',
+    q: 'Where is my journal?',
+    words: ['journal', 'moments', 'day', 'days', 'diary', 'history', 'edit', 'caption', 'wrong day'],
+    a: 'Your journal is on the Passport tab: each day lists the places you checked in at, with any photos you added. It stays on this phone; Privacy & data shows how much it takes and can clear it.',
+    path: '/my-space',
   },
   {
     id: 'share',
     q: 'How do I share my day?',
-    words: ['share', 'export', 'wechat', 'instagram', 'x', 'twitter', 'post', 'travelogue', 'nine', '9', 'grid'],
-    a: 'In Moments, tap the red share seal next to a day (or tap its photo stack). Pick WeChat, Instagram or X, choose the photos and a tone for the caption, then tap Share. The pictures go to your phone’s share sheet and the caption is copied, so you can paste it in the app.',
+    words: ['share', 'wechat', 'instagram', 'x', 'twitter', 'post', 'travelogue', 'nine', '9', 'grid'],
+    a: 'In your journal, tap the red share seal next to a day (or tap its photo stack). Pick WeChat, Instagram or X, choose the photos and a tone for the caption, then tap Share. The pictures go to your phone’s share sheet and the caption is copied, so you can paste it in the app.',
     path: '/moments',
   },
   {
     id: 'photos',
     q: 'How do I add my own photos?',
     words: ['photo', 'photos', 'camera', 'picture', 'snap', 'upload', 'image'],
-    a: 'In Moments, use the camera button to take a photo or the picture button to add one from your library. To file a photo under a place, open that place’s card in the day and tap its camera. Your photos come first when you share the day.',
+    a: 'In your journal, use the camera button to take a photo or the picture button to add one from your library. To file a photo under a place, open that place’s card in the day and tap its camera. Your photos come first when you share the day.',
     path: '/moments',
+  },
+  {
+    id: 'search',
+    q: 'How do I search?',
+    words: ['search', 'look up', 'find a place', 'recent', 'name'],
+    a: 'Tap Search in the tab bar and type a place, challenge or volume. Results are grouped by category. Your recent searches are kept on this phone, and you can clear them in Settings › Privacy & data.',
+    path: '/search',
   },
   {
     id: 'explore',
     q: 'How do I find places near me?',
-    words: ['find', 'near', 'nearby', 'near me', 'map', 'search', 'explore', 'places', 'where', 'hawker', 'go'],
-    a: 'On Home, tap a region on the map card to see its planning areas, then an area to see its places. The buttons under the map find you, search, and show Editor’s picks. Allow location to sort places by distance, or just pick an area.',
+    words: ['near', 'nearby', 'near me', 'map', 'explore', 'places', 'where', 'hawker', 'go'],
+    a: 'Home shows places in your categories first. Press My location on Home’s map to see what is near you, within 2 km, or set a home base in Settings.',
     path: '/',
   },
   {
@@ -84,13 +121,6 @@ export const TOPICS: HelpTopic[] = [
     path: '/hunt',
   },
   {
-    id: 'journal',
-    q: 'How do I edit my journal?',
-    words: ['journal', 'edit', 'change', 'move', 'caption', 'wrong day', 'time', 'date', 'remove photo', 'day map', 'numbers'],
-    a: 'Each day in Moments has a map with the places you went, numbered in order. Tap a number, a card or a print and the other two show the same place. Open a place’s card to add your photo of it. Tap one of your photos to change its caption, day, time or place, replace the picture, or remove it.',
-    path: '/moments',
-  },
-  {
     id: 'trouble',
     q: 'Something isn’t loading. What can I do?',
     words: ['loading', 'load', 'broken', 'error', 'blank', 'not working', 'offline', 'internet', 'slow', 'crash', 'white', 'saved', 'lost'],
@@ -106,25 +136,29 @@ export const TOPICS: HelpTopic[] = [
   {
     id: 'privacy',
     q: 'Is my location or data shared?',
-    words: ['privacy', 'location', 'data', 'track', 'gps', 'delete', 'personal', 'safe'],
-    a: 'Check-ins are self-reported with a tap, and your journal stays on this phone. Passport › Settings › Privacy lets you turn sharing options off and clear what the app has saved.',
+    words: ['privacy', 'location', 'data', 'track', 'gps', 'delete', 'personal', 'safe', 'shared', 'export'],
+    a: 'Your journal, stamps and settings stay on this phone, and check-ins are self-reported with a tap. Only anonymous page timings are sent, and you can turn that off; what you type here in the Help Centre is sent to answer you or to reach the team. Settings › Privacy & data shows what is stored, exports a copy and deletes it.',
     path: '/my-space/privacy',
   },
   {
     id: 'settings',
     q: 'How do I change text size or motion?',
-    words: ['setting', 'settings', 'text size', 'font', 'bigger', 'motion', 'animation', 'reduce'],
-    a: 'Open Settings with the gear at the top right of any tab. You can change the text size and turn on Reduce motion there.',
+    words: ['setting', 'settings', 'text size', 'font', 'bigger', 'larger', 'motion', 'animation', 'reduce', 'captions', 'haptics'],
+    a: 'Open Settings with the gear at the top right of any tab. Look & feel › Text size scales the app’s text, and Motion › Reduced turns animations off. The app also follows your phone’s Reduce Motion setting.',
     path: '/my-space/settings',
   },
 ];
 
 /** The brief Claude gets: what the app is, its tabs and the topics above. */
 export const APP_GUIDE =
-  'FindSG is a mobile web app for exploring Singapore. Bottom tabs: Home (places to discover nearby and today’s suggestions), ' +
-  'Moments (a journal of each day with photos, passport stamps for URA planning areas, collected cards and phrases, a recap, ' +
-  'and sharing a day as a travelogue to WeChat, Instagram or X), Hunt (story hunts on real streets: Stories and Public), and ' +
-  'Passport (profile, rank, settings, privacy, notices). Every tab has Settings (gear, top right) and this Help Center (top left).\n\n' +
+  'FindSG is a mobile web app for exploring Singapore. Places are sorted into four Tourism 2040 categories: Attractions, Wellness, ' +
+  'Leisure and Cruise. Bottom tabs: Home (places in the categories the person ranked, with category chips to filter), Hunt (the public hunts as a ' +
+  'swipeable row, then every story hunt with its progress; a hunt is played stop by stop, each stop passed by a photo AI recognises; ' +
+  'medals for finished hunts), Passport (the journal of each day, passport stamps for URA planning areas, rank ' +
+  'and profile; with Public hunts on, a leaderboard of example hunters), and Search (places, challenges and volumes). Public hunts ' +
+  'only change what the app shows: nothing about the person or their location is sent. Every tab has Settings (gear, top right: ' +
+  'categories, hunt region, public hunts, language, home base, motion, text size, privacy, terms, photo credits) and this Help ' +
+  'Centre (top left).\n\n' +
   TOPICS.map((t) => `Q: ${t.q}\nA: ${t.a}`).join('\n\n');
 
 const norm = (s: string) =>

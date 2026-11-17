@@ -21,7 +21,6 @@ function renderSnap(onClose = vi.fn()) {
     <MemoryRouter initialEntries={[paths.moments]}>
       <Routes>
         <Route path={paths.moments} element={<SnapSheet stamps={[]} onClose={onClose} />} />
-        <Route path={paths.nearby} element={<Probe name="nearby" />} />
         <Route path={patterns.nearbyPlace} element={<Probe name="place" />} />
       </Routes>
     </MemoryRouter>,

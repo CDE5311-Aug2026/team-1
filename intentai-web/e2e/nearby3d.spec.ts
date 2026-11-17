@@ -19,7 +19,7 @@ test('place detail → 3D: the area loads, the card opens, cards link back, leav
   page.on('request', (r) => {
     const u = new URL(r.url());
     if (u.hostname === '127.0.0.1' || u.hostname === 'localhost') return;
-    // the 2D map's OneMap tiles carry only zoom / x / y (see explore.spec.ts)
+    // the 2D map's OneMap tiles carry only zoom / x / y (no position in the request)
     if (u.hostname === 'www.onemap.gov.sg' && /^\/maps\/tiles\/Default\/\d+\/\d+\/\d+\.png$/.test(u.pathname) && !u.search) return;
     external.push(r.url());
   });

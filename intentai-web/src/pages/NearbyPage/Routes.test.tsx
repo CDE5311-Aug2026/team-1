@@ -9,7 +9,6 @@ import { curatedPlace } from '../../features/nearby/catalogue';
 import { homePlaceHref } from '../../data/homeLinks';
 import { stateOf } from '../../features/nearby/personal';
 import { paths, patterns } from '../../routes';
-import ExplorePage from './ExplorePage';
 import PlaceDetailPage from './PlaceDetailPage';
 import RouteDetailPage from './RouteDetailPage';
 import RoutePlanPage from './RoutePlanPage';
@@ -24,7 +23,6 @@ function renderAt(path: string) {
   return render(
     <MemoryRouter useTransitions={false} initialEntries={[path]}>
       <Routes>
-        <Route path={paths.nearby} element={<ExplorePage />} />
         <Route path={paths.routes} element={<RoutesPage />} />
         <Route path={patterns.routePlan} element={<RoutePlanPage />} />
         <Route path={patterns.route} element={<RouteDetailPage />} />
@@ -177,11 +175,6 @@ describe('Route detail', () => {
 });
 
 describe('entry points', () => {
-  test('Explore links to Routes; a place on a route links to it', () => {
-    renderAt(paths.nearby);
-    expect(screen.getByRole('link', { name: 'Routes' })).toHaveAttribute('href', paths.routes);
-  });
-
   test('a Nearby place page says which routes stop there', async () => {
     renderAt(paths.nearbyPlace('curated:sg-thian-hock-keng-temple'));
     const line = (await screen.findByText(/On routes/)).closest('p') as HTMLElement;

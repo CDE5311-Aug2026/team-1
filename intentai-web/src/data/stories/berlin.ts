@@ -104,7 +104,7 @@ export const WALL_PANELS = {
   lead: 'Behind Tembusu College stand two concrete panels from the Berlin Wall. Each is about 3.6 metres tall and weighs around four tonnes.',
   more: [
     'German businessman Elmar Prost and his company gave them to Singapore’s Ministry of Foreign Affairs to mark 50 years of diplomatic ties. They were unveiled here on 18 October 2016 and are on loan to NUS.',
-    'Look at the paint. Graffiti covered the Wall’s western face, which West Berliners could walk right up to. The eastern side faced a guarded border strip.',
+    'Look at the paint. In Berlin, graffiti covered the Wall’s western face, which West Berliners could walk right up to; the eastern side faced a guarded border strip. The paint on these two is not necessarily from those years: before they came here, they stood in a yard near Berlin where the public could paint Wall segments.',
   ],
   source: 'Source: Tembusu College, NUS',
   next: { title: 'Fall of the Wall · 9 Nov', thumb: STORY_IMAGES.balloons2014.src, credit: STORY_IMAGES.balloons2014.credit },

@@ -1,131 +1,152 @@
-# IntentAI
+<div align="center">
 
-**A phone-first guide to Singapore's culture, one place at a time.** Open a place near you, read its food, monument,
-festival and history cards, and collect a passport stamp for every place you finish.
+# FindSG
 
-The current app is the React + TypeScript web app in [`intentai-web/`](intentai-web/README.md). The live demo
-(https://cde-5311.vercel.app) still serves the older [`web/`](web/README.md) app until production switches over.
+**Discover Singapore through its stories: a map, a treasure hunt and a passport.**
+
+### [Open FindSG →](https://cde-5311.vercel.app)
 
 <table>
   <tr>
-    <td align="center" width="50%"><img src="docs/readme/home.webp" width="260" alt="Home: swiping the place cards moves the map pin to each place, from Berlin Wall Fragments to Chinatown, NUS and Haw Par Villa"></td>
-    <td align="center" width="50%"><img src="docs/readme/place.webp" width="260" alt="Chinatown place page: the album rail of four culture cards, then the Thian Hock Keng monument card with its then-and-now photo slider"></td>
+    <td align="center"><img src="docs/media/onboarding.gif" width="240" alt="Onboarding: naming the passport, ranking the four Tourism 2040 categories, choosing a hunt mode and region, then the review and stamp"></td>
+    <td align="center"><img src="docs/media/map.gif" width="240" alt="Home: the map of Singapore drilling down from regions to areas, into the 3D city"></td>
+    <td align="center"><img src="docs/media/hunt.gif" width="240" alt="Hunt: the landing with What is Hunt?, the public hunts, My rank, the Public board and Medals, then a hunt opened on its first step"></td>
   </tr>
   <tr>
-    <td align="center"><b>Home</b><br>A live map of places near you, synced to a swipeable photo carousel.</td>
-    <td align="center"><b>Place stories</b><br>Four culture cards per place: Food, Monument, Festival, History.</td>
+    <td align="center"><sub><b>Get started</b>: pick what you want to explore</sub></td>
+    <td align="center"><sub><b>Explore</b>: region → area → 3D place</sub></td>
+    <td align="center"><sub><b>Hunt</b>: play a story through the city</sub></td>
   </tr>
 </table>
 
-## What's in the app
+</div>
 
-| Tab | What you can do |
-|---|---|
-| **Home** | Today's holiday or festival, then **Nearby**: an OpenStreetMap map with pins that follow the photo cards, a place search, and **Explore** for the full Nearby map (2D, list and the 3D city model). |
-| **Place stories** | Berlin Wall Fragments (NUS University Town) and Chinatown each have a place page and four cards with articles, stats, a then-and-now slider and timelines. Finish all four to collect the place's **passport stamp**. |
-| **Ask** | Ask about a phrase, a dish or a custom and get an answer with examples. |
-| **Community** | Ask locals and read answered questions. |
-| **Moments** | Your passport: stamps, places and the phrases you have collected. |
-| **My Space** | Your profile, settings and data. |
+---
 
-Everything is stored on the phone (`localStorage`); there is no account. The only network traffic is map tiles and
-anonymous page timing for the user test.
+FindSG helps you find Singapore's lesser-known places and the stories behind them. Every place belongs to one of
+four categories from the Singapore Tourism Board's **Tourism 2040** plan:
 
-## Run it
+| | Category | What you'll find |
+|---|---|---|
+| 🟠 | **Attractions** | Landmarks, heritage streets, museums and precincts |
+| 🟢 | **Wellness** | Parks, gardens, nature trails and quiet spots |
+| 🟣 | **Leisure** | Events, festivals and places to unwind |
+| 🔵 | **Cruise** | The waterfront, the harbour and the islands |
 
-```sh
-cd intentai-web
-npm install
-npx vite --host 127.0.0.1   # then open http://127.0.0.1:5173
-```
+No account, no download. FindSG runs in your phone's browser.
 
-Tests (from `intentai-web/`): `npx tsc -b && npm test` for unit tests, `npx playwright test` for end-to-end and
-accessibility checks. `npm run dev` works too; it serves on `localhost`, which on some Windows machines resolves to IPv6 only and does not
-connect, hence `127.0.0.1` above. More detail, including the production switch from `web/` to `intentai-web/`, is in the
-[intentai-web README](intentai-web/README.md).
+---
 
-## Repository layout
+## Getting started
 
-| Path | What it is |
-|---|---|
-| [`intentai-web/`](intentai-web/README.md) | **The current app.** React 18, TypeScript, Vite, CSS Modules, Vitest and Playwright. |
-| [`web/`](web/README.md) | The older JavaScript web app that the Vercel demo still serves. |
-| `SinglishDaily*`, `project.yml` | Native SwiftUI prototype (see below). |
-| `docs/` | Team documents: the [Nearby Explorer PRD](docs/NEARBY-EXPLORER-PRD.md) and the clips used in this README. |
+1. **Open** [cde-5311.vercel.app](https://cde-5311.vercel.app) on your phone.
+2. **Tap _Start the hunt_** and answer four quick questions:
+   - **Whose passport is this?** Type your name or a nickname (up to 24 characters). It goes on your passport, and
+     its first letter becomes your picture.
+   - **What would you like to explore?** Tap the categories in the order you like them. Home shows your first
+     pick first.
+   - **Hunt with others nearby?** Choose *Yes, hunt together* for weekend challenges and leaderboards, or *Not now*
+     to explore on your own. Then pick your home region.
+   - **Review.** Check your answers, then tap **Stamp my passport**.
+3. **You're in.** You land on Home.
 
-## Nearby Explorer (in `intentai-web/`)
+> **Tip:** add FindSG to your home screen (in Safari, tap **Share → Add to Home Screen**; in Chrome, tap
+> **⋮ → Add to Home screen**) and it opens like an app.
 
-**Nearby Explorer** is a 2D map of Singapore places with a synchronized list, area and location modes, place stories with source-linked fun facts, a draft "Singapore collection" of 100 places with Save / self-reported Visited, backup/restore, phrase tips that open Ask and Moments, and a draggable 3D view of the EARTH ONLINE (City Brush) Singapore model around each place (time of day, weather and sound; tap a landmark for its card), built to load only the nearby area on phones. It is built on the EARTH ONLINE Singapore dataset and calls no Google APIs. Scope and decisions: [PRD](docs/NEARBY-EXPLORER-PRD.md) (its Google Places and Malaysia parts were dropped by team decision on 20 Oct 2026) and the [intentai-web README](intentai-web/README.md).
+---
 
-The deployed site still serves `web/`. Switching production to `intentai-web/` (with one-time migration of existing browser data, and rollback) is described in [intentai-web/README.md](intentai-web/README.md#deployment-root-migration-and-rollback).
+## Using FindSG
 
-## Older web app (`web/`) — Vercel
+The tab bar at the bottom takes you to **Home**, **Hunt** and **Passport**. The round button beside it is **Search**.
 
-The currently deployed React app is in [`web/`](web/README.md); the TypeScript successor is in [`intentai-web/`](intentai-web/README.md). The native SwiftUI app is included alongside them.
+### Home: explore the map
 
-```sh
-cd web
-npm ci
-npm run dev
-```
+- **Tap a region** on the map to see its areas, then **tap an area** to see its places. Tap a place to open its page.
+- **Filter by category** with the chips under the map (*All*, *Attractions*, *Wellness*, *Leisure*, *Cruise*). They
+  sit right over the cards they filter. The numbers on the map show how many places of each kind there are.
+- **Places to eat**, just above the chips, shows the hawker centres, stalls and restaurants. Tap it again to go back.
+- **Use the map buttons** on the right to find your location, search the map, see the editor's picks, step back a
+  level or open the place you've selected.
+- **Scroll down** for places **picked for you** from your favourite categories. If you chose to hunt together, you
+  also see your region's **leaderboard** and this weekend's **challenges**.
 
-For Vercel, import this repository and set **Root Directory** to **web**, framework **Vite**, build command **npm run build**, and output directory **dist**. No environment variables are required. See the [web setup and deployment guide](web/README.md).
+### Place pages
 
-## SwiftUI iOS prototype
+Each place has photos, what's worth knowing before you go, and its story. From a place you can:
 
-The native prototype covers the two Home screens of the original design and extends them to the other tabs for demonstration.
+- **Save** it (☆) to come back to later.
+- **Check in** when you're there. Check-ins are on trust: FindSG shows how far away you are, but never checks for you.
 
-<img src="docs/screenshots/home.png" width="240" alt="Native SwiftUI Home overview"> <img src="docs/screenshots/lesson.png" width="240" alt="Native SwiftUI lesson">
+### Hunt: play a story
 
-### Open and run
+- **What is Hunt?** at the top explains the game. Below it are the **public hunts**, **My rank**, the **Public board**,
+  your **Medals** and **All hunts**. Each hunt is a route through real places in one neighbourhood.
+- Tap **Set out** to start a hunt, or **Continue** to pick up where you left off. A short tour shows the screen the
+  first time; tap **?** to see it again.
+- **At each stop**, go to the place and **take a photo** of the detail it asks for. FindSG checks the photo, and a
+  clear match moves the story on. If it isn't recognised, reframe and **take another photo**, or tap **Hint**.
+- The **What to do now** box always says the next step, and a small reminder on the other tabs brings you back to a
+  hunt you've started.
 
-1. Open `SinglishDaily.xcodeproj` in Xcode.
-2. Select the **SinglishDaily** scheme and an iPhone simulator.
-3. Press **Run** (⌘R).
+### Passport
 
-Requires Xcode 16 or newer and iOS 18+. Verified with Xcode 26.4 and an iPhone 17 Pro simulator running iOS 26.4. No third-party Swift packages are required.
+Your stamps, the places you've visited and your progress in each category, all in one place.
 
-To run on your own iPhone, choose your development team in **Signing & Capabilities**. Simulator builds do not require a team.
+### Search
 
-## Prototype flows
+Look up places, challenges and hunts by name. Results are grouped by category, and your recent searches are kept
+for next time.
 
-- **Today:** overview cards, phrase details, nearby sample phrases, notifications, a sample five-day streak, and a three-step lesson flow. Next and Finish record learned expressions.
-- **Ask:** local sample answers for Chope, Can or not?, and Paiseh.
-- **Community:** demo posts and interactive likes.
-- **Moments:** create personal text memories and swipe to delete.
-- **My Space:** saved expressions, learning progress, and a reset action.
+### Moments
 
-Phrase details support speech playback with `AVSpeechSynthesizer`, saving, and marking an expression as learned. Progress, saved expressions, and moments persist with `UserDefaults`. Speech voices depend on the device.
+Keep a travel journal of your visits and turn it into a **travelogue** to share.
 
-The supplied Home designs guide the colors, cards, images, and typography. Native `TabView`, `NavigationStack`, `Form`, `List`, and sheets provide iOS navigation and presentation; iOS renders its own status bar and home indicator. The native tab bar adapts to the installed iOS version. All bundled assets render locally, and Inter uses Dynamic Type-aware custom fonts. The app currently follows the light palette in Figma.
+### Settings
 
-The other tabs, detail sheets, completion view, and second/third lesson illustrations extend the two supplied Home screens for demonstration. The location, streak, notifications, and community posts are sample data. The phrase set is fixed; progress does not roll over automatically each day. No server, authentication, live location, or AI API is connected. Likes last for the current app session.
+Open Settings with the ⚙ button at the top of Home or Hunt. You can:
 
-## Tests
+- Re-rank your **categories**, or switch between hunting **together** and **on your own**.
+- Change your **language** and **home base**.
+- Turn on **Reduce motion** or make the **text bigger**.
+- **Redo onboarding**, see **Privacy & data**, or **send feedback**.
 
-In Xcode, press **⌘U**, or run:
+### Need help?
 
-```sh
-xcodebuild -project SinglishDaily.xcodeproj \
-  -scheme SinglishDaily \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-  -derivedDataPath build \
-  CODE_SIGNING_ALLOWED=NO test
-```
+Tap the **lion** in the top-left corner of Home or Hunt. It answers common questions and has a form for feedback.
 
-Choose a simulator installed on your machine. All six tests passed on the iPhone 17 Pro simulator. Three unit tests cover persisted learning/saved state, moment validation/deletion, and local answers. Three UI tests cover lesson completion and relaunch persistence, expression saving and Ask, and creating a moment. UI tests use an isolated UserDefaults suite and do not clear your normal app data. Home and lesson screenshots are attached to the UI test results.
+---
 
-## Project structure
+## Your privacy
 
-- `SinglishDailyApp.swift`: app entry and native tab navigation.
-- `Models.swift`: phrase data, observable learning state, persistence, and speech.
-- `HomeView.swift`: Home overview, lessons, detail sheets, and nearby view.
-- `ExploreViews.swift`: Ask, Community, Moments, and My Space.
-- `Theme.swift`: shared brand colors, Dynamic Type fonts, and reusable views.
-- `Assets.xcassets`: Figma images, exported vector assets, and named color tokens.
+- **Your data stays on your phone.** Your choices, visits, stamps and journal photos are saved in your browser, not
+  on a server.
+- **Hunt photos are checked, not kept.** When you check in at a hunt stop, a smaller copy of that one photo is sent
+  to FindSG's server, which asks Claude (Anthropic's AI) whether it shows the detail. FindSG doesn't store the photo.
+- **Your location is never saved.** FindSG uses it only while the app is open, to show what's near you and how far
+  away a place is.
+- **You're in control.** Delete everything at any time in **Settings → Privacy & data** (press and hold the delete
+  button).
+- FindSG records how long screens stay open and which buttons are pressed, anonymously, to improve the app. It never
+  records what you type.
 
-`project.yml` is the optional XcodeGen source. The generated Xcode project is committed, so XcodeGen is not needed to open or run the app. To regenerate it after target changes, run `xcodegen generate`.
+---
 
-## Asset credits
+## Good to know
 
-Images and icons were exported from the supplied Figma file. SVGs were converted directly to PDF assets while preserving their original dimensions and vector content. Inter is bundled from the Google Fonts distribution under the SIL Open Font License; the license is included in `SinglishDaily/Resources/Fonts/OFL.txt`.
+- FindSG is a **student prototype**. It isn't affiliated with or endorsed by the Singapore Tourism Board.
+- Hunt stories are set in real places and draw on real history, but the stories and their characters are fiction.
+- On leaderboards, every player except you is sample data. The app says so.
+- Opening hours and event dates can change. Check with the place before you go.
+
+## Credits
+
+- **Categories:** Singapore Tourism Board, [Tourism 2040](https://www.stb.gov.sg/about-stb/what-we-do/tourism-2040/).
+- **Maps and addresses:** © [OneMap](https://www.onemap.gov.sg/) / Singapore Land Authority, © OpenStreetMap contributors.
+- **Photos:** credited for each image in the app, under **Settings → Photo credits**.
+
+Made by **Group 1**, CDE5311 (Aug 2026).
+
+## License
+
+The FindSG code is released under the [MIT License](LICENSE). Maps, photos and other third-party content keep their
+own terms.

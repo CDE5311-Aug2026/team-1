@@ -9,7 +9,16 @@ export interface CatalogueData {
   stats?: { publishedPlaces: number };
   thumbs?: { credit: string; ids: string[] };
   thumbExists?: (id: string) => boolean;
+  /** research/crosswalk.csv rows (Tourism 2040 reconciliation), when present. */
+  crosswalk?: Record<string, string>[];
+  /** research/tourism2040.csv rows. */
+  research?: Record<string, string>[];
 }
+
+export const TOURISM_CATEGORIES: string[];
+export const TOURISM_SUBTYPES: string[];
+export const OPERATING_STATUSES: string[];
+export const PIN_QUALITIES: string[];
 
 export function validateCatalogue(data: CatalogueData): {
   errors: string[];

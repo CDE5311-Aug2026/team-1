@@ -144,5 +144,5 @@ test('the machine-readable line keeps base letters, prints no name it cannot spe
 test('the holder initial is one whole letter', () => {
   expect(holderInitial('sam')).toBe('S');
   expect(holderInitial('\u{20BB7}x')).toBe('\u{20BB7}');
-  expect(holderInitial('  ')).toBe('W');
+  expect(holderInitial('  ')).toBe('');
 });

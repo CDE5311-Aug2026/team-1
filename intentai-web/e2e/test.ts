@@ -1,7 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 
-// Every spec imports test/expect from here, so no E2E run ever hits the real OpenStreetMap tile servers.
+// Every spec imports test/expect from here, so no E2E run ever hits the real OpenStreetMap or OneMap tile servers.
 const TILE = fileURLToPath(new URL('./fixtures/tile.png', import.meta.url));
 
 type Fixtures = { tileStub: { fulfilled: number } };
@@ -12,6 +12,11 @@ export const test = base.extend<Fixtures>({
   },
   page: async ({ page, tileStub }, use) => {
     await page.route('https://tile.openstreetmap.org/**', async (route) => {
+      tileStub.fulfilled += 1;
+      await route.fulfill({ path: TILE, contentType: 'image/png' });
+    });
+    // v2 place page (board 08): its small map draws OneMap tiles; WebKit's test browser cannot fetch them reliably.
+    await page.route('https://www.onemap.gov.sg/maps/tiles/**', async (route) => {
       tileStub.fulfilled += 1;
       await route.fulfill({ path: TILE, contentType: 'image/png' });
     });

@@ -1,0 +1,88 @@
+/* The remind box over the tab bar (ShellNow.tsx): a flat paper strip, the same family as the hunt's Now box. It hangs
+   above the whole tab row (the pill and the round Search button), so it never sits on either. */
+.box {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: calc(var(--tabbar-h, 4rem) + 10px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px 8px 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-strong, #d3cec4);
+  border-left: 3px solid var(--accent);
+  border-radius: 14px;
+  background: rgba(248, 247, 244, 0.97);
+  box-shadow: 0 4px 14px rgba(35, 33, 29, 0.12);
+  color: var(--text-primary);
+  animation: rise 0.2s ease;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .box {
+    animation: none;
+  }
+}
+:global(.reduce-motion) .box {
+  animation: none;
+}
+.words {
+  flex: 1;
+  min-width: 0;
+}
+.words p {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.label {
+  color: var(--accent-ink);
+  font: 600 0.625rem/13px var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.title {
+  font: 600 0.9375rem/20px var(--font-display);
+  letter-spacing: 0.01em;
+}
+.action {
+  font-size: 0.8125rem;
+  line-height: 17px;
+  color: var(--v2-muted);
+}
+.go {
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--text-primary);
+  color: var(--v2-surface, #f8f7f4);
+  font: 600 0.875rem/1 var(--font-display);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+.close {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--v2-muted);
+  cursor: pointer;
+}
+.go:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

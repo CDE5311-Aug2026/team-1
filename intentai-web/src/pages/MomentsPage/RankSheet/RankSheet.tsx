@@ -9,6 +9,7 @@ import star from '../../../assets/v3/moments/star.svg';
 import CountUp from '../../../components/reactbits/CountUp';
 import { RANKS, type Badge, type Rank } from '../../../data/moments/moments';
 import Sheet from '../Sheet/Sheet';
+import v2 from '../PlaceSheet/v2Sheet.module.css';
 import styles from './RankSheet.module.css';
 
 const BADGE_ICONS: Record<Badge['id'], string> = {
@@ -25,8 +26,8 @@ export function Ring({
   value,
   size,
   stroke,
-  track = 'rgba(44, 33, 23, 0.14)',
-  color = '#e8833a',
+  track = 'rgba(35, 33, 29, 0.12)',
+  color = '#e4671f',
   className,
 }: {
   value: number;
@@ -60,11 +61,11 @@ export function Ring({
   );
 }
 
-/** M4: rank Visitor → Explorer → Insider → Local, and six badges with progress rings. */
+/** M4 (v2 light sheet, owner 9 Nov 2026): rank Visitor → Explorer → Insider → Local, and six badges with progress rings. */
 export default function RankSheet({ rank, badges, onClose }: { rank: Rank; badges: readonly Badge[]; onClose: () => void }) {
   const earned = badges.filter((b) => b.earned).length;
   return (
-    <Sheet title={`Your rank: ${rank.step.label}`} hideTitle onClose={onClose}>
+    <Sheet title={`Your rank: ${rank.step.label}`} hideTitle onClose={onClose} className={v2.sheet}>
       <div className={styles.head}>
         <span className={styles.ring}>
           <Ring value={rank.progress} size={76} stroke={7} />
@@ -113,7 +114,7 @@ export default function RankSheet({ rank, badges, onClose }: { rank: Rank; badge
         ))}
       </ul>
 
-      <button type="button" className={styles.done} onClick={onClose}>
+      <button type="button" className={`${v2.primary} ${styles.done}`} onClick={onClose}>
         Done
       </button>
     </Sheet>

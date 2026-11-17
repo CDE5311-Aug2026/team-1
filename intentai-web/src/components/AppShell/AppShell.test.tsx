@@ -22,12 +22,24 @@ test('renders children inside main with the primary tab bar', () => {
 });
 
 test('marks the tab matching the current path as current', () => {
+  renderAt('/hunt');
+  expect(screen.getByRole('button', { name: 'Hunt' })).toHaveAttribute('aria-current', 'page');
+});
+
+test('v2: Moments has no tab; its journal lives under Passport, so Passport is current there', () => {
   renderAt('/moments');
-  expect(screen.getByRole('button', { name: 'Moments' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.queryByRole('button', { name: 'Moments' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Passport' })).toHaveAttribute('aria-current', 'page');
+});
+
+test('v2: Search lights the round Search button, not a tab', () => {
+  renderAt('/search');
+  expect(screen.getByRole('button', { name: 'Search' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('button', { name: 'Home' })).not.toHaveAttribute('aria-current');
 });
 
 test('non-tab routes keep Home current', () => {
-  renderAt('/nearby');
+  renderAt('/nearby/saved');
   expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
 });
 
@@ -110,4 +122,57 @@ test('tabPop pops the active tab in; off by default', () => {
     </MemoryRouter>,
   );
   expect(screen.getByRole('button', { name: 'Home' })).toHaveClass('a-pill');
+});
+
+// Owner, 8 Nov 2026: the field archive's chart paper is the app's page background, drawn once behind every shell.
+test('the chart paper: one fixed layer under body, shown behind tabbed pages, kept across page changes', () => {
+  const layer = () => document.querySelectorAll<HTMLElement>('[data-app-paper]');
+  const first = render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell>home</AppShell>
+    </MemoryRouter>,
+  );
+  expect(layer()).toHaveLength(1);
+  const el = layer()[0];
+  expect(el.parentElement).toBe(document.body);
+  expect(el).not.toHaveAttribute('hidden');
+  expect(el.querySelector('[data-chart-paper="archive"]')).not.toBeNull();
+  // the shell is clear on the paper; the page never draws a chart of its own
+  expect(document.querySelector('[data-paper="chart"]')).not.toBeNull();
+  expect(screen.getByRole('main').querySelector('[data-chart-paper]')).toBeNull();
+  first.unmount();
+  expect(el).toHaveAttribute('hidden');
+  // the next page reuses the same layer (painted once), a sub-page without the tab bar too
+  const settings = render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell chrome="status" background="var(--bg-app)">settings</AppShell>
+    </MemoryRouter>,
+  );
+  expect(layer()).toHaveLength(1);
+  expect(layer()[0]).toBe(el);
+  expect(el).not.toHaveAttribute('hidden');
+  settings.unmount();
+  // onboarding (no chrome) on the app's paper gets it too; a page can opt out
+  const onboarding = render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell chrome="none" background="var(--bg-app)">welcome</AppShell>
+    </MemoryRouter>,
+  );
+  expect(el).not.toHaveAttribute('hidden');
+  onboarding.unmount();
+  const optOut = render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell paper={false}>reader</AppShell>
+    </MemoryRouter>,
+  );
+  expect(el).toHaveAttribute('hidden');
+  optOut.unmount();
+  // a page with its own colour (Hunt's dark desk) keeps its own ground
+  render(
+    <MemoryRouter useTransitions={false}>
+      <AppShell background="#1d1711">desk</AppShell>
+    </MemoryRouter>,
+  );
+  expect(el).toHaveAttribute('hidden');
+  expect(document.querySelector('[data-paper="chart"]')).toBeNull();
 });

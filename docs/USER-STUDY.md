@@ -1,5 +1,7 @@
 # FindSG user study: how to run it and how to act on the results
 
+> **11 Nov 2026, `redesign/v2`:** the A/B study code is removed. The app has no start screen or version choice and opens only the current version; `/ui1`, the `/test` desk and `/api/abtest` are gone. This page describes the study as it was run before that change.
+
 Updated 3 Nov 2026. For facilitators, for co-developers, and for any Claude or other agent picking up the work.
 
 | What | Where |
@@ -14,7 +16,7 @@ Updated 3 Nov 2026. For facilitators, for co-developers, and for any Claude or o
 
 All files are in this repository. Nothing is too large for GitHub (the largest is 6.7 MB), so nothing lives on Google Drive.
 
-Results are saved on the server (Redis on Vercel), not only on the phone. Reading them needs the admin password; ask the owner (Wsamme). Never write the password into the repo, a chat or a screenshot.
+Results are saved on the server (Redis on Vercel), not only on the phone. Reading them needs the admin password; ask the team member who set it in Vercel (this is a group project, with no single owner). Never write the password into the repo, a chat or a screenshot.
 
 ---
 

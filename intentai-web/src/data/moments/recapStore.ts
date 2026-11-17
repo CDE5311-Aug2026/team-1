@@ -1,7 +1,9 @@
 import { createPersistentStore } from '../persistentStore';
-import type { RecapResult } from './moments';
 
-/** Moments Recap: the last answer per fact (swipe right = knew it, left = again) and the last score. */
+/** The retired Moments Recap's saved answers (the Recap was removed, owner 9 Nov 2026). Kept only so answers saved
+ *  before then stay valid on this device and Delete all still clears them; nothing writes it any more. */
+export type RecapResult = 'knew' | 'again';
+
 export interface RecapRecord {
   results: Record<string, RecapResult>;
   last?: { knew: number; total: number; at: number };
@@ -18,7 +20,7 @@ export function isRecapRecord(value: unknown): value is RecapRecord {
   return typeof last === 'object' && last !== null && ['knew', 'total', 'at'].every((k) => typeof (last as unknown as Record<string, unknown>)[k] === 'number');
 }
 
-/** Integrator: add `recapStore.set(EMPTY_RECAP);` to deleteAllData(). */
+/** Cleared by deleteAllData(). */
 export const recapStore = createPersistentStore<RecapRecord>({
   key: 'moments-recap',
   fallback: EMPTY_RECAP,

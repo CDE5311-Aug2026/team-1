@@ -3,8 +3,12 @@ export const paths = {
   today: '/',
   holiday: '/holidays/deepavali',
   moments: '/moments',
-  /** Hunt: the treasure-hunt game (spec to come; placeholder for now). */
+  /** Hunt: story hunts on real streets. A hunt is played on the same page (#story/<id>). */
   hunt: '/hunt',
+  /** Your medals and stamps from the hunts (batch 3: the bookshelf's display case, as its own page). */
+  huntMedals: '/hunt/medals',
+  /** v2 board 07: search places, challenges and volumes, grouped by Tourism 2040 category. */
+  search: '/search',
   /** Nearby Explore (map / list). */
   nearby: '/nearby',
   nearbyLocation: '/nearby/location',
@@ -21,6 +25,11 @@ export const paths = {
   /** Figma S2 / S3. */
   mySpaceSettings: '/my-space/settings',
   mySpacePrivacy: '/my-space/privacy',
+  /** v2 boards 18 and 19: Look & feel sub-pages. */
+  mySpaceMotion: '/my-space/settings/motion',
+  mySpaceTextSize: '/my-space/settings/text-size',
+  /** v2 board 22: photo credits, split out of Terms & licences. */
+  credits: '/my-space/credits',
   /** Terms & licences: photo credits, map attribution (from Settings). */
   licences: '/my-space/licences',
   notices: '/my-space/notices',
@@ -38,9 +47,6 @@ export const paths = {
 
 /** Usage dashboard for the team. Kept out of `paths` so the app never links to it and page loops skip it. */
 export const ADMIN_PATH = '/admin';
-
-/** User study desk: UI1 (/ui1) vs UI2 on two phones, answers saved to /api/abtest. Unlinked like ADMIN_PATH. */
-export const TEST_PATH = '/test';
 
 /** Route patterns with params, for <Route path>. Keep in sync with the builders in `paths`. */
 export const patterns = {
